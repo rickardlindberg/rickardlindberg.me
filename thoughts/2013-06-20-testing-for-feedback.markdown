@@ -26,3 +26,7 @@ might want full automation in your tests.
 Another case where full automation is maybe not that important is when you
 refactor code. Perhaps the tests will only live for a short period of time, and
 if they can give you feedback fast enough, full automation might be a waste.
+
+--
+
+* [Screencast series](http://pragprog.com/screencasts/v-kbtdd/test-driven-development)
