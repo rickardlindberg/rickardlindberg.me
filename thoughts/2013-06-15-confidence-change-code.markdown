@@ -37,3 +37,7 @@ what is not. If I am changing something that is less important, it doesn't
 matter as much if it breaks. If I change someone else's code, I don't know if
 it is important or not. And in my own projects, nothing is really that
 important. And if it is important, and I break it, I will fix it quickly.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/akGHDgL2b4t)

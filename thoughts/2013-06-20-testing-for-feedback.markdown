@@ -29,4 +29,5 @@ if they can give you feedback fast enough, full automation might be a waste.
 
 --
 
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/NmZ5VhSzkBi)
 * [Screencast series](http://pragprog.com/screencasts/v-kbtdd/test-driven-development)

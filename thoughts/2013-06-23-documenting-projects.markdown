@@ -22,4 +22,4 @@ there is also a high probability that I move on to the next project.
 
 --
 
-[Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/Ck4wDdQWPLt)
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/Ck4wDdQWPLt)

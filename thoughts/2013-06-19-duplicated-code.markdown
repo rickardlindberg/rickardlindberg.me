@@ -10,3 +10,7 @@ Let me show you what I mean with an example. Say you have a web page that displa
     author.getCapitalizedName()
 
 Those two functions might do the exact same thing in the implementation. So we should remove that duplication, right? Not necessarily. The logic to format an article header and the logic to format an author name are not related. They happen to be implemented in the same way, but it might not be so in the future. The rules might change for one, but not for the other. If the capitalizaion is complicated, you might want to put it in a function that both getCapitalizedHeader and getCapitalizedName can call.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/NhXPA4ezYyQ)

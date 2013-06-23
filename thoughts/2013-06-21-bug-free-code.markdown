@@ -13,3 +13,7 @@ have been better to work harder to prevent the bug from entering production?
 Maybe not. If no one notices the bug, it might be an indication that a specific
 part of our application is not needed, and the better thing to do might be to
 remove it completely. Less code is after all easier to maintain.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/K4NZfne518N)

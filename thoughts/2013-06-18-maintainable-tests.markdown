@@ -25,3 +25,7 @@ Of course we need to implement this DSL in our test and somewhere call the
 function, we only need to update the DSL. Our test cases are still valid and
 don't need to change. They are expressed at a higher level. At the domain of
 bowling scoring.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/bC3mXD3YNs4)

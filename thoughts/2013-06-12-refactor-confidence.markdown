@@ -38,3 +38,7 @@ on the two functions existing at the same time.
 Tools can probably be developed to help write tests of this kind so that
 automatically generating inputs becomes easies and so that duplicating the
 functions does not become that tedious.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/4UBzckRvFNx)

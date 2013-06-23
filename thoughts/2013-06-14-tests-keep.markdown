@@ -47,3 +47,7 @@ At this point we can question the value of keeping the original examples. After
 all they are just specific examples of the generic test we wrote last. They
 probably don't add much documentation. If there are edge cases in there, they
 might add some test coverage.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/YRYw8gdUCqv)

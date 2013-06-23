@@ -24,3 +24,7 @@ I think you need different coverage in different areas of the code to feel
 confident when making a change. Instead of saying that code coverage should be
 a specific percentage, you can do these two activities to help you convince
 yourself that coverage is good enough.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/JRjyxpN8Zi7)
