@@ -19,3 +19,7 @@ with the program that we couldn't do in the previous version.
 When end users read a change log, is it important to them to know what bugs
 were fixed and what new features were implemented? I don't know. But probably
 not.
+
+--
+
+[Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/cW1CdMSdLib)
