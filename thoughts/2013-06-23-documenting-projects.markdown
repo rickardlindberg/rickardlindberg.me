@@ -19,3 +19,7 @@ Once a project has attracted my attention, and I believe that it will be useful
 to me, the next thing I look for is how to install it. That is another
 important thing to document. If I can't quickly get it to run on my machine,
 there is also a high probability that I move on to the next project.
+
+--
+
+[Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/Ck4wDdQWPLt)
