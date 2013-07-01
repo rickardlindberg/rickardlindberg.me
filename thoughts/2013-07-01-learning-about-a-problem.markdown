@@ -19,8 +19,6 @@ When trying to solve a problem, we should focus on the hardest part of the
 problem. Or the most unknown part. We should strive to increase our confidence
 that our solution will work.
 
-Previous thoughts: http://github.com/rickardlindberg/thought-of-the-day/
-
 --
 
 * [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/RSV8BgvopLF)
