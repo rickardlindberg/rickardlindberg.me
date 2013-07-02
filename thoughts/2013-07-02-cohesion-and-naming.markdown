@@ -18,3 +18,4 @@ original piece of code will be highly cohesive.
 --
 
 * [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/3Sgssd6y2fd)
+* [Exercise](http://weblog.raganwald.com/2006/12/economizing-can-be-penny-wise-and.html)
