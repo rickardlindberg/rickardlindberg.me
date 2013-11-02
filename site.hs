@@ -1,31 +1,34 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Data.Monoid (mappend)
+import Data.List
 import System.FilePath
 
 import Hakyll
 
 main :: IO ()
 main = hakyll $ do
-
-    match "index.markdown" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-
-    match "writing/ardour-latency-free-overdubbing/index.rst" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-
-    match "writing/**/*.png" $ do
-        route $ idRoute
-        compile $ copyFileCompiler
-
-    match "writing/**/*.jpg" $ do
-        route $ idRoute
-        compile $ copyFileCompiler
-
+    htmlRoutePandoc "index.markdown"
+    htmlRoutePandoc "writing/ardour-latency-free-overdubbing/index.rst"
+    idRouteCopy "writing/**/*.png"
+    idRouteCopy "writing/**/*.jpg"
     match "templates/*" $ compile templateCompiler
+
+htmlRoutePandoc pattern = match pattern $ do
+    route $ setExtension "html"
+    compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+        >>= relativizeUrls
+        >>= deIndexUrls
+
+idRouteCopy pattern = match pattern $ do
+    route $ idRoute
+    compile $ copyFileCompiler
+
+deIndexUrls :: Item String -> Compiler (Item String)
+deIndexUrls item = return $ fmap (withUrls stripIndexHtml) item
+
+stripIndexHtml :: String -> String
+stripIndexHtml url =
+    if "index.html" `isSuffixOf` url && (head url) `elem` "/."
+        then take (length url - 10) url
+        else url
