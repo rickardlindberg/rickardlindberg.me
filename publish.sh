@@ -1,0 +1,57 @@
+#!/bin/sh
+
+set -e
+
+main() {
+    setup_dirs
+    checkout master
+    checkout gh-pages
+    generate_site
+    update_pages
+    push_pages
+    clean_dirs
+    echo "Published! :-)"
+}
+
+setup_dirs() {
+    src_repo_dir=$(cd $(dirname $0) > /dev/null && pwd)
+    tmp_dir=$(mktemp -d)
+    cd $tmp_dir
+    pwd
+}
+
+checkout() {
+    git clone $src_repo_dir $1
+    cd $1
+    git checkout $1
+    cd ..
+}
+
+generate_site() {
+    cd master
+    publish_rev_name=$(git log -1 --oneline)
+    ghc --make site.hs && ./site clean && ./site build
+    cd ..
+}
+
+update_pages() {
+    cd gh-pages
+    git rm -rf .
+    mv ../master/_site/* .
+    echo "rickardlindberg.me" >> CNAME
+    git add .
+    git commit -m "publishing $publish_rev_name"
+    cd ..
+}
+
+push_pages() {
+    cd gh-pages
+    git push
+    cd ..
+}
+
+clean_dirs() {
+    rm -rf $tmp_dir
+}
+
+main
