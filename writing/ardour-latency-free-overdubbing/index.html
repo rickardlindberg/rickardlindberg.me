@@ -1,524 +1,157 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
-<title>Latency free overdubbing in Ardour</title>
-<style type="text/css">
-
-/*
-:Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7434 2012-05-11 21:06:27Z milde $
-:Copyright: This stylesheet has been placed in the public domain.
-
-Default cascading style sheet for the HTML output of Docutils.
-
-See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
-customize this style sheet.
-*/
-
-/* used to remove borders from tables and images */
-.borderless, table.borderless td, table.borderless th {
-  border: 0 }
-
-table.borderless td, table.borderless th {
-  /* Override padding for "table.docutils td" with "! important".
-     The right padding separates the table cells. */
-  padding: 0 0.5em 0 0 ! important }
-
-.first {
-  /* Override more specific margin styles with "! important". */
-  margin-top: 0 ! important }
-
-.last, .with-subtitle {
-  margin-bottom: 0 ! important }
-
-.hidden {
-  display: none }
-
-a.toc-backref {
-  text-decoration: none ;
-  color: black }
-
-blockquote.epigraph {
-  margin: 2em 5em ; }
-
-dl.docutils dd {
-  margin-bottom: 0.5em }
-
-object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
-  overflow: hidden;
-}
-
-/* Uncomment (and remove this text!) to get bold-faced definition list terms
-dl.docutils dt {
-  font-weight: bold }
-*/
-
-div.abstract {
-  margin: 2em 5em }
-
-div.abstract p.topic-title {
-  font-weight: bold ;
-  text-align: center }
-
-div.admonition, div.attention, div.caution, div.danger, div.error,
-div.hint, div.important, div.note, div.tip, div.warning {
-  margin: 2em ;
-  border: medium outset ;
-  padding: 1em }
-
-div.admonition p.admonition-title, div.hint p.admonition-title,
-div.important p.admonition-title, div.note p.admonition-title,
-div.tip p.admonition-title {
-  font-weight: bold ;
-  font-family: sans-serif }
-
-div.attention p.admonition-title, div.caution p.admonition-title,
-div.danger p.admonition-title, div.error p.admonition-title,
-div.warning p.admonition-title {
-  color: red ;
-  font-weight: bold ;
-  font-family: sans-serif }
-
-/* Uncomment (and remove this text!) to get reduced vertical space in
-   compound paragraphs.
-div.compound .compound-first, div.compound .compound-middle {
-  margin-bottom: 0.5em }
-
-div.compound .compound-last, div.compound .compound-middle {
-  margin-top: 0.5em }
-*/
-
-div.dedication {
-  margin: 2em 5em ;
-  text-align: center ;
-  font-style: italic }
-
-div.dedication p.topic-title {
-  font-weight: bold ;
-  font-style: normal }
-
-div.figure {
-  margin-left: 2em ;
-  margin-right: 2em }
-
-div.footer, div.header {
-  clear: both;
-  font-size: smaller }
-
-div.line-block {
-  display: block ;
-  margin-top: 1em ;
-  margin-bottom: 1em }
-
-div.line-block div.line-block {
-  margin-top: 0 ;
-  margin-bottom: 0 ;
-  margin-left: 1.5em }
-
-div.sidebar {
-  margin: 0 0 0.5em 1em ;
-  border: medium outset ;
-  padding: 1em ;
-  background-color: #ffffee ;
-  width: 40% ;
-  float: right ;
-  clear: right }
-
-div.sidebar p.rubric {
-  font-family: sans-serif ;
-  font-size: medium }
-
-div.system-messages {
-  margin: 5em }
-
-div.system-messages h1 {
-  color: red }
-
-div.system-message {
-  border: medium outset ;
-  padding: 1em }
-
-div.system-message p.system-message-title {
-  color: red ;
-  font-weight: bold }
-
-div.topic {
-  margin: 2em }
-
-h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
-h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
-  margin-top: 0.4em }
-
-h1.title {
-  text-align: center }
-
-h2.subtitle {
-  text-align: center }
-
-hr.docutils {
-  width: 75% }
-
-img.align-left, .figure.align-left, object.align-left {
-  clear: left ;
-  float: left ;
-  margin-right: 1em }
-
-img.align-right, .figure.align-right, object.align-right {
-  clear: right ;
-  float: right ;
-  margin-left: 1em }
-
-img.align-center, .figure.align-center, object.align-center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.align-left {
-  text-align: left }
-
-.align-center {
-  clear: both ;
-  text-align: center }
-
-.align-right {
-  text-align: right }
-
-/* reset inner alignment in figures */
-div.align-right {
-  text-align: inherit }
-
-/* div.align-center * { */
-/*   text-align: left } */
-
-ol.simple, ul.simple {
-  margin-bottom: 1em }
-
-ol.arabic {
-  list-style: decimal }
-
-ol.loweralpha {
-  list-style: lower-alpha }
-
-ol.upperalpha {
-  list-style: upper-alpha }
-
-ol.lowerroman {
-  list-style: lower-roman }
-
-ol.upperroman {
-  list-style: upper-roman }
-
-p.attribution {
-  text-align: right ;
-  margin-left: 50% }
-
-p.caption {
-  font-style: italic }
-
-p.credits {
-  font-style: italic ;
-  font-size: smaller }
-
-p.label {
-  white-space: nowrap }
-
-p.rubric {
-  font-weight: bold ;
-  font-size: larger ;
-  color: maroon ;
-  text-align: center }
-
-p.sidebar-title {
-  font-family: sans-serif ;
-  font-weight: bold ;
-  font-size: larger }
-
-p.sidebar-subtitle {
-  font-family: sans-serif ;
-  font-weight: bold }
-
-p.topic-title {
-  font-weight: bold }
-
-pre.address {
-  margin-bottom: 0 ;
-  margin-top: 0 ;
-  font: inherit }
-
-pre.literal-block, pre.doctest-block, pre.math, pre.code {
-  margin-left: 2em ;
-  margin-right: 2em }
-
-pre.code .ln { /* line numbers */
-  color: grey;
-}
-
-.code {
-  background-color: #eeeeee
-}
-
-span.classifier {
-  font-family: sans-serif ;
-  font-style: oblique }
-
-span.classifier-delimiter {
-  font-family: sans-serif ;
-  font-weight: bold }
-
-span.interpreted {
-  font-family: sans-serif }
-
-span.option {
-  white-space: nowrap }
-
-span.pre {
-  white-space: pre }
-
-span.problematic {
-  color: red }
-
-span.section-subtitle {
-  /* font-size relative to parent (h1..h6 element) */
-  font-size: 80% }
-
-table.citation {
-  border-left: solid 1px gray;
-  margin-left: 1px }
-
-table.docinfo {
-  margin: 2em 4em }
-
-table.docutils {
-  margin-top: 0.5em ;
-  margin-bottom: 0.5em }
-
-table.footnote {
-  border-left: solid 1px black;
-  margin-left: 1px }
-
-table.docutils td, table.docutils th,
-table.docinfo td, table.docinfo th {
-  padding-left: 0.5em ;
-  padding-right: 0.5em ;
-  vertical-align: top }
-
-table.docutils th.field-name, table.docinfo th.docinfo-name {
-  font-weight: bold ;
-  text-align: left ;
-  white-space: nowrap ;
-  padding-left: 0 }
-
-h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
-h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
-  font-size: 100% }
-
-ul.auto-toc {
-  list-style-type: none }
-
-</style>
-</head>
-<body>
-<div class="document" id="latency-free-overdubbing-in-ardour">
-<h1 class="title">Latency free overdubbing in Ardour</h1>
-
-<!-- rst3: filename: index.html -->
-<p>In this article I explain how to set up JACK and Ardour for latency free
-overdubbing.</p>
-<p>Please send feedback to <a class="reference external" href="mailto:ricli85&#64;gmail.com">ricli85&#64;gmail.com</a>.</p>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      index | Rickard's personal homepage
+    </title>
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </head>
+  <body>
+    <h1>index</h1>
+    <hr>
+    <h1 id="latency-free-overdubbing-in-ardour">Latency free overdubbing in Ardour</h1>
+<p>In this article I explain how to set up JACK and Ardour for latency free overdubbing.</p>
+<p>Please send feedback to <script type="text/javascript">
+<!--
+h='&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#114;&#x69;&#x63;&#108;&#x69;&#56;&#x35;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>ricli85 at gmail dot com</noscript>.</p>
 <p>First version published 30 September 2013.</p>
-<div class="section" id="where-is-latency-introduced">
-<h1>Where is latency introduced?</h1>
-<p>Let's say we have one track with a metronome click. Now we want to record a
-chord progression over this metronome click.</p>
-<pre class="literal-block">
-playback  |&gt;   &gt;   &gt;   &gt;   |&gt;   &gt;   &gt;   &gt;   |
+<h2 id="where-is-latency-introduced">Where is latency introduced?</h2>
+<p>Let’s say we have one track with a metronome click. Now we want to record a chord progression over this metronome click. :</p>
+<pre><code>playback  |&gt;   &gt;   &gt;   &gt;   |&gt;   &gt;   &gt;   &gt;   |
 ----------|----------------|----------------|
 recording |                |                |
-                           t
-</pre>
-<p>At time t, we are at the beginning of bar 2. It starts with a metronome click.
-At time t, Ardour sends the first sample of the metronome click to the speakers.
-It passes various stages in the computer and a DA converter in our audio
-interface. It will take an amout of time before we actually hear the sound. We
-call that time output delay (OD). When we hear the sound we react to it and play
-a chord on our instrument. It will take an amount of time for our microphone to
-capture the sound, convert it to a digital signal, and send it to Ardour. We
-call that time input delay (ID).</p>
-<ul class="simple">
-<li>At time t       - Ardour sends playback signal to speakers</li>
-<li>At time t+OD    - We hear the metronome click</li>
+                           t</code></pre>
+<p>At time t, we are at the beginning of bar 2. It starts with a metronome click. At time t, Ardour sends the first sample of the metronome click to the speakers. It passes various stages in the computer and a DA converter in our audio interface. It will take an amout of time before we actually hear the sound. We call that time output delay (OD). When we hear the sound we react to it and play a chord on our instrument. It will take an amount of time for our microphone to capture the sound, convert it to a digital signal, and send it to Ardour. We call that time input delay (ID).</p>
+<ul>
+<li>At time t - Ardour sends playback signal to speakers</li>
+<li>At time t+OD - We hear the metronome click</li>
 <li>At time t+OD+ID - Our reaction has been recorded and arrived in Ardour</li>
 </ul>
-<p>The time between Ardour sending the signal to the speakers and it receiving a
-recorded signal back is thus OD+ID.</p>
-<p>In order for the two tracks to line up perfectly, Ardour has to compensate for
-this latency. It can do that, but we need to know the input and output latency
-of our system.</p>
-</div>
-<div class="section" id="measure-i-o-latency">
-<h1>Measure I/O latency</h1>
-<div class="section" id="setup">
-<h2>Setup</h2>
-<p>In order to measure the I/O latency, we need to create a loop. That way a test
-program can send a signal and measure the time it takes for the signal to travel
-through the system.</p>
-<p>I use a Zoom H4n as a USB audio interface. The first way to close the loop is
-with a direct patch cable:</p>
-<img alt="direct.jpg" src="direct.jpg" />
-<p>We connect the patch cable from the headphone line out to a line in. The H4n has
-combo inputs that works for microphones, electric instrument, or line level
-sources.</p>
+<p>The time between Ardour sending the signal to the speakers and it receiving a recorded signal back is thus OD+ID.</p>
+<p>In order for the two tracks to line up perfectly, Ardour has to compensate for this latency. It can do that, but we need to know the input and output latency of our system.</p>
+<h2 id="measure-io-latency">Measure I/O latency</h2>
+<h3 id="setup">Setup</h3>
+<p>In order to measure the I/O latency, we need to create a loop. That way a test program can send a signal and measure the time it takes for the signal to travel through the system.</p>
+<p>I use a Zoom H4n as a USB audio interface. The first way to close the loop is with a direct patch cable:</p>
+<p><img src="direct.jpg" alt="image" /></p>
+<p>We connect the patch cable from the headphone line out to a line in. The H4n has combo inputs that works for microphones, electric instrument, or line level sources.</p>
 <p>The second way to close the loop is with a speaker and a microphone:</p>
-<img alt="mic.jpg" src="mic.jpg" />
-<p>We connect headphones to the headphone line out and put them close to the built
-in microphones on the H4n.</p>
-</div>
-<div class="section" id="process">
-<h2>Process</h2>
-<p>Now that we have the loop set up in hardware, this is the process to measure the
-I/O latency:</p>
-<ol class="arabic">
-<li><p class="first"><strong>Start JACK with the given settings</strong></p>
-<p>From QjackCtl, click &quot;Setup...&quot;:</p>
-<img alt="jack_setup.png" src="jack_setup.png" />
-<p>Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O
-are both set to 0 (default).</p>
-<p>Click &quot;OK&quot; to close the dialog, then click &quot;Start&quot;.</p>
-</li>
-<li><p class="first"><strong>Start jack_iodelay</strong></p>
+<p><img src="mic.jpg" alt="image" /></p>
+<p>We connect headphones to the headphone line out and put them close to the built in microphones on the H4n.</p>
+<h3 id="process">Process</h3>
+<p>Now that we have the loop set up in hardware, this is the process to measure the I/O latency:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Start JACK with the given settings</strong></p>
+<p>From QjackCtl, click “Setup…”:</p>
+<p><img src="jack_setup.png" alt="image" /></p>
+<p>Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O are both set to 0 (default).</p>
+<p>Click “OK” to close the dialog, then click “Start”.</p></li>
+<li><p><strong>Start jack_iodelay</strong></p>
 <p>Run the following command in the terminal:</p>
-<pre class="literal-block">
-jack_iodelay
-</pre>
-</li>
-<li><p class="first"><strong>Connect</strong></p>
-<p>From QjackCtl, click &quot;Connect&quot;:</p>
-<img alt="jack_connect.png" src="jack_connect.png" />
-<p>This will create the loop in software as well so that jack_iodelay can
-capture the signal that it sends out.</p>
-</li>
-<li><p class="first"><strong>Observe output</strong></p>
+<pre><code>jack_iodelay</code></pre></li>
+<li><p><strong>Connect</strong></p>
+<p>From QjackCtl, click “Connect”:</p>
+<p><img src="jack_connect.png" alt="image" /></p>
+<p>This will create the loop in software as well so that jack_iodelay can capture the signal that it sends out.</p></li>
+<li><p><strong>Observe output</strong></p>
 <p>We should see something like this:</p>
-<pre class="literal-block">
-4921.269 frames    102.526 ms total roundtrip latency
+<pre><code>4921.269 frames    102.526 ms total roundtrip latency
   extra loopback latency: 1849 frames
-  use 924 for the backend arguments -I and -O
-</pre>
-<p>Note that the suggested number (924) is only valid for the configuration that
-we entered in step 1.</p>
-<p>To compensate for the roundtrip latency, we should enter this number for both
-the input and the output latency in the settings dialog in step 1.</p>
-</li>
+  use 924 for the backend arguments -I and -O</code></pre>
+<p>Note that the suggested number (924) is only valid for the configuration that we entered in step 1.</p>
+<p>To compensate for the roundtrip latency, we should enter this number for both the input and the output latency in the settings dialog in step 1.</p></li>
 </ol>
-</div>
-<div class="section" id="results">
-<h2>Results</h2>
-<p>The Zoom H4n supports 44.1kHz and 48kHz. I ended up with the following
-measurements:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="18%" />
-<col width="15%" />
-<col width="15%" />
-<col width="10%" />
-<col width="23%" />
-<col width="19%" />
-</colgroup>
-<thead valign="bottom">
-<tr><th class="head">Sample rate (kHz)</th>
-<th class="head">Frames/Period</th>
-<th class="head">Periods/Buffer</th>
-<th class="head">Loop type</th>
-<th class="head">Roundtrip latency (ms)</th>
-<th class="head">Suggested I/O</th>
+<h3 id="results">Results</h3>
+<p>The Zoom H4n supports 44.1kHz and 48kHz. I ended up with the following measurements:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Sample rate (kHz)</th>
+<th align="left">Frames/Period</th>
+<th align="left">Periods/Buffer</th>
+<th align="left">Loop type</th>
+<th align="left">Roundtrip latency (ms)</th>
+<th align="left">Suggested I/O</th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr><td>44.1</td>
-<td>1024</td>
-<td>2</td>
-<td>Direct</td>
-<td>&nbsp;</td>
-<td>~1100 (increasing)</td>
+<tbody>
+<tr class="odd">
+<td align="left">44.1</td>
+<td align="left">1024</td>
+<td align="left">2</td>
+<td align="left">Direct</td>
+<td align="left"></td>
+<td align="left">~1100 (increasing)</td>
 </tr>
-<tr><td>44.1</td>
-<td>1323 (44.1*30)</td>
-<td>2</td>
-<td>Direct</td>
-<td>&nbsp;</td>
-<td>~1000 (increasing)</td>
+<tr class="even">
+<td align="left">44.1</td>
+<td align="left">1323 (44.1*30)</td>
+<td align="left">2</td>
+<td align="left">Direct</td>
+<td align="left"></td>
+<td align="left">~1000 (increasing)</td>
 </tr>
-<tr><td>48</td>
-<td>1024</td>
-<td>2</td>
-<td>Direct</td>
-<td>101.5</td>
-<td>~897</td>
+<tr class="odd">
+<td align="left">48</td>
+<td align="left">1024</td>
+<td align="left">2</td>
+<td align="left">Direct</td>
+<td align="left">101.5</td>
+<td align="left">~897</td>
 </tr>
-<tr><td>48</td>
-<td>1024</td>
-<td>2</td>
-<td>Mic</td>
-<td>122.4</td>
-<td>~895</td>
+<tr class="even">
+<td align="left">48</td>
+<td align="left">1024</td>
+<td align="left">2</td>
+<td align="left">Mic</td>
+<td align="left">122.4</td>
+<td align="left">~895</td>
 </tr>
-<tr><td>48</td>
-<td>1024</td>
-<td>3</td>
-<td>Direct</td>
-<td>122.8</td>
-<td>~899</td>
+<tr class="odd">
+<td align="left">48</td>
+<td align="left">1024</td>
+<td align="left">3</td>
+<td align="left">Direct</td>
+<td align="left">122.8</td>
+<td align="left">~899</td>
 </tr>
-<tr><td>48</td>
-<td>1024</td>
-<td>3</td>
-<td>Mic</td>
-<td>122.4</td>
-<td>~889</td>
+<tr class="even">
+<td align="left">48</td>
+<td align="left">1024</td>
+<td align="left">3</td>
+<td align="left">Mic</td>
+<td align="left">122.4</td>
+<td align="left">~889</td>
 </tr>
-<tr><td>48</td>
-<td>1056 (48*22)</td>
-<td>2</td>
-<td>Direct</td>
-<td>104.4</td>
-<td>~920</td>
+<tr class="odd">
+<td align="left">48</td>
+<td align="left">1056 (48*22)</td>
+<td align="left">2</td>
+<td align="left">Direct</td>
+<td align="left">104.4</td>
+<td align="left">~920</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="conclusions">
-<h2>Conclusions</h2>
-<div class="section" id="usb-and-48khz">
-<h3>USB and 48kHz</h3>
-<p>When measuring using 44.1kHz, the suggested value for latency I/O kept
-increasing. I asked about this on IRC:</p>
-<pre class="literal-block">
-&lt;ricli85&gt; Some reports on the increasing number that jack_iodelay gives me:
+<h3 id="conclusions">Conclusions</h3>
+<h4 id="usb-and-48khz">USB and 48kHz</h4>
+<p>When measuring using 44.1kHz, the suggested value for latency I/O kept increasing. I asked about this on IRC:</p>
+<pre><code>&lt;ricli85&gt; Some reports on the increasing number that jack_iodelay gives me:
 If I set 48kHz sample rate and frames/period=1056 (multiple of 48), I seem
 to get a more stable number.
-&lt;las&gt; ricli85: many USB devices work correctly *only* at 48kHz
-</pre>
+&lt;las&gt; ricli85: many USB devices work correctly *only* at 48kHz</code></pre>
 <p>Conclusion: Always use 48kHz sample rate for our USB audio interface.</p>
-</div>
-<div class="section" id="persios-buffer">
-<h3>Persios/buffer</h3>
-<p>This parameter doesn't seem to have any effect on the roundtrip latency.</p>
-</div>
-<div class="section" id="direct-vs-mic">
-<h3>Direct vs mic</h3>
-<p>The roundtrip latency seems to be smaller when using the mic than when using the
-direct patch cable.</p>
-<p>This is a bit surprising to me, because when using a mic, the sound has to
-travel that extra distance through the air. But the delay was not significantly
-smaller, and during the measurements, the delay number kept going up and down
-(although stabalizing around some value).</p>
-</div>
-</div>
-</div>
-</div>
-</body>
+<h4 id="persiosbuffer">Persios/buffer</h4>
+<p>This parameter doesn’t seem to have any effect on the roundtrip latency.</p>
+<h4 id="direct-vs-mic">Direct vs mic</h4>
+<p>The roundtrip latency seems to be smaller when using the mic than when using the direct patch cable.</p>
+<p>This is a bit surprising to me, because when using a mic, the sound has to travel that extra distance through the air. But the delay was not significantly smaller, and during the measurements, the delay number kept going up and down (although stabalizing around some value).</p>
+    <hr>
+    Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+  </body>
 </html>
