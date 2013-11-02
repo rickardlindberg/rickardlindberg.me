@@ -5,6 +5,8 @@ import System.FilePath
 
 import Hakyll
 
+exportToWebserver = True
+
 main :: IO ()
 main = hakyll $ do
     htmlRoutePandoc "index.markdown"
@@ -25,7 +27,10 @@ idRouteCopy pattern = match pattern $ do
     compile $ copyFileCompiler
 
 deIndexUrls :: Item String -> Compiler (Item String)
-deIndexUrls item = return $ fmap (withUrls stripIndexHtml) item
+deIndexUrls item =
+    if exportToWebserver
+        then return $ fmap (withUrls stripIndexHtml) item
+        else return item
 
 stripIndexHtml :: String -> String
 stripIndexHtml url =
