@@ -98,7 +98,7 @@ http://apps.linuxaudio.org/wiki/jack_latency_tests
 call_docutils=True
 code_mode=False
 stylesheet_path=.
-write_intermediate_file=False
+write_intermediate_file=True
 @c
 
 ##################################
