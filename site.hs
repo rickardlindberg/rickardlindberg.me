@@ -11,6 +11,7 @@ main :: IO ()
 main = hakyll $ do
     htmlRoutePandoc "index.markdown"
     htmlRoutePandoc "writing/ardour-latency-free-overdubbing/index.rst"
+    idRouteCopy "css/**"
     idRouteCopy "writing/**/*.png"
     idRouteCopy "writing/**/*.jpg"
     match "templates/*" $ compile templateCompiler
