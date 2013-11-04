@@ -1,0 +1,25 @@
+Today's thought is about how the size of code relates to its readability.
+
+I think it's safe to say that a function that fits on a screen is easier to
+read than a function that does not fit on a screen. If it does not fit on a
+screen, you have to scroll up and down and you can not look at the whole thing
+at once.
+
+But what if a function depends on a global variable defined somewhere? In order
+to understand that function, you also need to understand how that global
+variable is used. Do other functions use it? How does that affect this
+particular function?
+
+So the fact that a function fits on a screen does not automatically make it
+easy to read. In order for it to be easy to read, the whole unit must fit on a
+screen. You want to be able to understand a piece of code in isolation without
+jumping around the code base.
+
+Of course a piece of code can use other parts of the code base that does not
+fit on the screen, but if the two are nicely separated and not intermingled,
+you can understand them both in isolation. You don't have to jump back and
+forth a lot to understand how they work together.
+
+--
+
+* [Comments on Google+](https://plus.google.com/u/0/112175093836850283531/posts/Hv1DugP9anN)
