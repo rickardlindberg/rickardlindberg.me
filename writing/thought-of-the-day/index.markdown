@@ -1,3 +1,9 @@
+---
+title: Thought of the day
+---
+
+*This is a series of posts I did during the summer of 2013.*
+
 Everyday I sit down for 25 minutes and write down a thought about programming.
 Whatever comes out gets published.
 
