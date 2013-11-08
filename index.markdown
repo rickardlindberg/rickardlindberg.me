@@ -2,8 +2,6 @@
 title: Welcome
 ---
 
-# Welcome
-
 My name is **Rickard Lindberg**. Welcome to my personal homepage.
 
 ## Writing
