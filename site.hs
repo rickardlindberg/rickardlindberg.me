@@ -11,6 +11,7 @@ main :: IO ()
 main = hakyll $ do
     htmlRoutePandoc "index.markdown"
     htmlRoutePandoc "writing/ardour-latency-free-overdubbing/index.rst"
+    htmlRoutePandoc "writing/thought-of-the-day/index.markdown"
     idRouteCopy "css/**"
     idRouteCopy "writing/**/*.png"
     idRouteCopy "writing/**/*.jpg"
