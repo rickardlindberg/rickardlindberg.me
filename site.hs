@@ -9,20 +9,34 @@ exportToWebserver = True
 
 main :: IO ()
 main = hakyll $ do
-    htmlRoutePandoc "index.markdown"
-    htmlRoutePandoc "writing/ardour-latency-free-overdubbing/index.rst"
-    htmlRoutePandoc "writing/thought-of-the-day/index.markdown"
+
+    match "index.markdown" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+            >>= deIndexUrls
+
+    match "writing/ardour-latency-free-overdubbing/index.rst" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+            >>= deIndexUrls
+
+    match "writing/thought-of-the-day/index.markdown" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+            >>= deIndexUrls
+
     idRouteCopy "css/**"
     idRouteCopy "writing/**/*.png"
     idRouteCopy "writing/**/*.jpg"
     match "templates/*" $ compile templateCompiler
-
-htmlRoutePandoc pattern = match pattern $ do
-    route $ setExtension "html"
-    compile $ pandocCompiler
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
-        >>= relativizeUrls
-        >>= deIndexUrls
 
 idRouteCopy pattern = match pattern $ do
     route $ idRoute
