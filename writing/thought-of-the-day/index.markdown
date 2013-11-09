@@ -13,5 +13,4 @@ A second intention is to practice writing and publishing even though I don't
 feel it's 100% complete.
 
 $for(posts)$
-* [$title$]($url$) - $date$
-$endfor$
+* [$title$]($url$) - $date$$endfor$
