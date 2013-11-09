@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Data.List
+import Data.Monoid
 import System.FilePath
 
 import Hakyll
@@ -9,6 +10,11 @@ exportToWebserver = True
 
 main :: IO ()
 main = hakyll $ do
+
+    let postContext = dateField "date" "%B %e, %Y" `mappend` defaultContext
+    let contextWithPosts = listField "posts" postContext (loadAll "writing/thought-of-the-day/thoughts/*") `mappend`
+                           constField "foo" "hehe, I'm foo" `mappend`
+                           defaultContext
 
     match "index.markdown" $ do
         route $ setExtension "html"
@@ -27,8 +33,18 @@ main = hakyll $ do
 
     match "writing/thought-of-the-day/index.markdown" $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ getResourceBody
+            >>= applyAsTemplate contextWithPosts
+            >>= return . renderPandoc
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+            >>= deIndexUrls
+
+    match "writing/thought-of-the-day/thoughts/*.markdown" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" contextWithPosts
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= relativizeUrls
             >>= deIndexUrls
