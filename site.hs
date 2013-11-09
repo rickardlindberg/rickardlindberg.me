@@ -42,7 +42,11 @@ main = hakyll $ do
             >>= deIndexUrls
 
     match "writing/thought-of-the-day/thoughts/*.markdown" $ do
-        route $ setExtension "html"
+        route $ customRoute (\identifier ->
+            let filePath = toFilePath identifier
+            in  (takeDirectory . takeDirectory) filePath
+                </> takeBaseName filePath
+                </> "index.html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" contextWithPosts
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
