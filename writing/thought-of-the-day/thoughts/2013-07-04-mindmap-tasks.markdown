@@ -1,3 +1,7 @@
+---
+title: Mindmap tasks
+---
+
 Today's thought is about using mind maps to keep track of work.
 
 When programming, we often need to keep track of what do do next:

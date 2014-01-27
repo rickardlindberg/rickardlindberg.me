@@ -1,3 +1,7 @@
+---
+title: Features and bugs
+---
+
 Today's thought is about features and bugs.
 
 It is quite common that we categorize our work as either implementing a new

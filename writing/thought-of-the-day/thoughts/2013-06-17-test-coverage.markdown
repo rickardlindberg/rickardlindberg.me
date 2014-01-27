@@ -1,3 +1,7 @@
+---
+title: Test coverage
+---
+
 Today's though is about how to know when test coverage is good enough.
 
 One benefit of having good test coverage is that you are less afraid to modify

@@ -1,3 +1,7 @@
+---
+title: Confidence in changing code
+---
+
 Today's thought is about what makes me confident in changing code.
 
 Sometimes I am afraid when I change a piece of code. Other times I am not. What

@@ -1,3 +1,7 @@
+---
+title: Using tests for feedback
+---
+
 Today's thought is about using tests to give you feedback about your code.
 
 I remember watching a screencast series with Kent Beck where he showed how he

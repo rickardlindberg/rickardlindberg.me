@@ -1,3 +1,7 @@
+---
+title: What tests to keep?
+---
+
 Today's thought is about what tests to keep to get the maximum benefit out of
 them.
 

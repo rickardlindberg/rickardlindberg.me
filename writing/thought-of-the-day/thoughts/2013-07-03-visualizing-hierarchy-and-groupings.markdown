@@ -1,3 +1,7 @@
+---
+title: Visualizing hierarchy and grouping
+---
+
 Today's thought is about visualizing hierarchy and groupings in code.
 
 One place that does this fairly good is documentation for Haskell libraries.

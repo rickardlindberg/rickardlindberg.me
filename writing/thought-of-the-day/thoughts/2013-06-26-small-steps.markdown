@@ -1,3 +1,7 @@
+---
+title: Small steps
+---
+
 Today's thought is about taking small steps.
 
 Yesterday I watched a presentation by J. B. Rainsberger where he gave an

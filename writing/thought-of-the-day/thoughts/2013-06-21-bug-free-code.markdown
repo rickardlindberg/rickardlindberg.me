@@ -1,3 +1,7 @@
+---
+title: Bug free code
+---
+
 Today's thought is about bugs.
 
 When developing software, we try to avoid introducing bugs. We test our code to

@@ -1,3 +1,7 @@
+---
+title: Formatting code
+---
+
 Today's thought is about formatting code.
 
 We have coding standards that dictate how we should format our code. When we

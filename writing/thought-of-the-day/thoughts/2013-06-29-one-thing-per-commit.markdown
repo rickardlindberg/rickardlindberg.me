@@ -1,3 +1,7 @@
+---
+title: One thing per commit
+---
+
 Today's thought is about doing only one thing per commit.
 
 Yesterday when I was making a change to a piece of code, I didn't make sure to

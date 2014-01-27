@@ -1,3 +1,7 @@
+---
+title: Cohesion an naming
+---
+
 Today's thought is about the relation between naming and cohesion.
 
 I just watched a live-streamed hangout initiated by J. B. Rainsberger where the

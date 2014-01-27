@@ -1,3 +1,7 @@
+---
+title: Refactoring step in TDD
+---
+
 Today's thought is about the refactoring step in TDD.
 
 Today we practiced the bowling kata in the office. One thin I noticed was how

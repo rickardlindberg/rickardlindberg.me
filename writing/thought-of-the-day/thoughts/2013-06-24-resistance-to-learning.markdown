@@ -1,3 +1,7 @@
+---
+title: Resistance to learning
+---
+
 Today's thought is about resistance to learning.
 
 I feel like there is often a resistance to learning and using new languages and

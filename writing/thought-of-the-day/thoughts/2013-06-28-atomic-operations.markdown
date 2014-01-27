@@ -1,3 +1,7 @@
+---
+title: Atomic operations
+---
+
 Today's thought is about atomic operations.
 
 I've thought about this before, and I came to think about it again today. What

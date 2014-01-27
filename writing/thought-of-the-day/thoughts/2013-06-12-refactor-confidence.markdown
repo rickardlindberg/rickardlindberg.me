@@ -1,3 +1,7 @@
+---
+title: Refactor with higher confidence
+---
+
 Today's thought is about how you can refactor code with higher confidence.
 
 Imagine how you would change your attitude towards refactoring code if you knew

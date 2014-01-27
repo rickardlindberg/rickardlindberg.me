@@ -1,3 +1,7 @@
+---
+title: Documenting projects
+---
+
 Today's thought is about documenting projects.
 
 I think documenting projects is important. That doesn't mean that I like to

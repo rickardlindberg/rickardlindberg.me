@@ -1,3 +1,7 @@
+---
+title: Smallest possible thing
+---
+
 Today's thought is about the smallest thing that could possibly work.
 
 Doing the smallest thing that could possibly work means not designing solutions

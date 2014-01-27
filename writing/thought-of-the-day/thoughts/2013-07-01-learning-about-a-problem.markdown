@@ -1,3 +1,7 @@
+---
+title: Learning about a problem
+---
+
 Today's thought is about how we learn to solve problems.
 
 When we do code katas, we solve the same problem over and over again. We might

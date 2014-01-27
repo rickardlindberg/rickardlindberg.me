@@ -1,3 +1,7 @@
+---
+title: Duplicated code
+---
+
 Today's thought is about duplicated code.
 
 Duplicated code is seen as a bad thing that should be avoided at all cost. But is it sometimes ok to duplicate code?

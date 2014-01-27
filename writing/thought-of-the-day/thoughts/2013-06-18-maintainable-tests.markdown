@@ -1,3 +1,7 @@
+---
+title: Maintainable tests
+---
+
 Today's thought is about how to write more maintainable tests.
 
 I discussed this topic with a college after a coding dojo we had today.

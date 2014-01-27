@@ -1,3 +1,7 @@
+---
+title: Constant progress
+---
+
 Today's thought is about constant progress.
 
 TDD is said to enable you to make constant progress. There is always a small
