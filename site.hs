@@ -54,6 +54,7 @@ main = hakyll $ do
             >>= deIndexUrls
 
     idRouteCopy "css/**"
+    idRouteCopy "images/**"
     idRouteCopy "writing/**/*.png"
     idRouteCopy "writing/**/*.jpg"
     match "templates/*" $ compile templateCompiler
