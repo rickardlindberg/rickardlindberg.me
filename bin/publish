@@ -30,7 +30,7 @@ checkout() {
 generate_site() {
     cd master
     publish_rev_name=$(git log -1 --oneline)
-    ghc --make site.hs && ./site clean && ./site build
+    HAKYLL_BUILD_TARGET=webserver ./bin/build
     cd ..
 }
 

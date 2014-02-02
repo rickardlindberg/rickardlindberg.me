@@ -1,35 +1,36 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Control.Monad
 import Data.List
 import Data.Monoid
+import Hakyll
+import System.Environment
 import System.FilePath
 
-import Hakyll
-
-exportToWebserver = True
-
 main :: IO ()
-main = hakyll $ do
+main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
 
     let postContext = dateField "date" "%B %e, %Y" `mappend` defaultContext
     let contextWithPosts = listField "posts" postContext (loadAll "writing/thought-of-the-day/thoughts/*") `mappend`
                            constField "foo" "hehe, I'm foo" `mappend`
                            defaultContext
 
+    let processUrls x = if shouldDeIndexUrls
+                           then relativizeUrls x >>= deIndexUrls
+                           else relativizeUrls x
+
     match "index.markdown" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-            >>= deIndexUrls
+            >>= processUrls
 
     match "writing/ardour-latency-free-overdubbing/index.rst" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-            >>= deIndexUrls
+            >>= processUrls
 
     match "writing/thought-of-the-day/index.markdown" $ do
         route $ setExtension "html"
@@ -38,8 +39,7 @@ main = hakyll $ do
             >>= return . renderPandoc
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-            >>= deIndexUrls
+            >>= processUrls
 
     match "writing/thought-of-the-day/thoughts/*.markdown" $ do
         route $ customRoute (\identifier ->
@@ -50,8 +50,7 @@ main = hakyll $ do
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" contextWithPosts
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
-            >>= deIndexUrls
+            >>= processUrls
 
     idRouteCopy "css/**"
     idRouteCopy "images/**"
@@ -63,11 +62,12 @@ idRouteCopy pattern = match pattern $ do
     route $ idRoute
     compile $ copyFileCompiler
 
+hasHakyllBuildTarget :: String -> IO Bool
+hasHakyllBuildTarget target = fmap (elem ("HAKYLL_BUILD_TARGET", target))
+                                   getEnvironment
+
 deIndexUrls :: Item String -> Compiler (Item String)
-deIndexUrls item =
-    if exportToWebserver
-        then return $ fmap (withUrls stripIndexHtml) item
-        else return item
+deIndexUrls item = return $ fmap (withUrls stripIndexHtml) item
 
 stripIndexHtml :: String -> String
 stripIndexHtml url =
