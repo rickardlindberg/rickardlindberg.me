@@ -14,7 +14,7 @@ main() {
 }
 
 setup_dirs() {
-    src_repo_dir=$(cd $(dirname $0) > /dev/null && pwd)
+    src_repo_dir=$(cd $(dirname $0)/.. > /dev/null && pwd)
     tmp_dir=$(mktemp -d)
     cd $tmp_dir
     pwd
