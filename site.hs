@@ -11,9 +11,6 @@ main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
 
     let postContext = dateField "date" "%B %e, %Y" `mappend` defaultContext
-    let contextWithPosts = listField "posts" postContext (loadAll "writing/thought-of-the-day/thoughts/*") `mappend`
-                           constField "foo" "hehe, I'm foo" `mappend`
-                           defaultContext
 
     let processUrls x = if shouldDeIndexUrls
                            then relativizeUrls x >>= deIndexUrls
@@ -32,10 +29,16 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
+    let thoughtOfTheDayContext = listField "thoughts" postContext (loadAll "writing/thought-of-the-day/thoughts/*")
+                                 `mappend`
+                                 listField "thoughts2" postContext (loadAll "writing/thought-of-the-day/thoughts2/*")
+                                 `mappend`
+                                 defaultContext
+
     match "writing/thought-of-the-day/index.markdown" $ do
         route $ setExtension "html"
         compile $ getResourceBody
-            >>= applyAsTemplate contextWithPosts
+            >>= applyAsTemplate thoughtOfTheDayContext
             >>= return . renderPandoc
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
@@ -48,7 +51,18 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/title.html" contextWithPosts
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= processUrls
+
+    match "writing/thought-of-the-day/thoughts2/*.markdown" $ do
+        route $ customRoute (\identifier ->
+            let filePath = toFilePath identifier
+            in  (takeDirectory . takeDirectory) filePath
+                </> takeBaseName filePath
+                </> "index.html")
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 

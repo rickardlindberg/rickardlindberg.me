@@ -2,15 +2,23 @@
 title: Thought of the day
 ---
 
-*This is a series of posts I did during the summer of 2013.*
+Thought of the day started out as a series of posts during the summer of 2013.
+The idea I had was to sit down every day for 25 minutes and write down a
+thought about programming. Whatever came out got published.
 
-Everyday I sit down for 25 minutes and write down a thought about programming.
-Whatever comes out gets published.
+My intention was to share thoughts and ideas I have about programming. A second
+intention was to practice writing and publishing even though I don't feel it's
+100% complete.
 
-My intention is to share thoughts/ideas I have about programming.
+I continued the series in May 2014, but this time limiting the time to 15
+minutes.
 
-A second intention is to practice writing and publishing even though I don't
-feel it's 100% complete.
+## Part 1 (June-July 2013)
 
-$for(posts)$
+$for(thoughts)$
+* [$title$]($url$) - $date$$endfor$
+
+## Part 2 (May 2014-)
+
+$for(thoughts2)$
 * [$title$]($url$) - $date$$endfor$
