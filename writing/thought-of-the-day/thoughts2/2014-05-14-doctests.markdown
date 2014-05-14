@@ -1,0 +1,27 @@
+---
+title: Exploring with doctest
+---
+
+Today's thought is about using exploration to implement a function.
+
+Lately, I've been experimenting with
+[doctest](http://docs.python.org/2/library/doctest.html) in Python. Doctest
+allows you to write examples in the documentation string of a function that can
+be executed and checked automatically.
+
+One approach I've used that I find valuable at times is to write an example
+where I make a call to the function I'm developing and expecting the outcome to
+be something it will obviously not be. Then when I run the example, I see the
+output (because it doesn't match what I stated the expected output should be).
+At this point I can continue the implementation and see how the output of the
+function changes.  When I've reached the desired result, I can copy the output
+of the example into the documentation string, and I now have a regression test.
+
+Sometimes this exploratory style of programming has been useful. Sometimes I've
+ended up throwing the code away because what I was trying to do turned out to
+be a bad idea. But I like the exploratory environment with a doctest example
+and seeing the output change.
+
+--
+
+* [Comments on Google+](https://plus.google.com/112175093836850283531/posts/LEkXXNDY3e6)
