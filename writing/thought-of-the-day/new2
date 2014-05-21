@@ -2,3 +2,5 @@
 name=thoughts2/$(date +%F)-$1.markdown
 cp template2.markdown $name
 gvim --nofork $name
+git add $name
+git commit -m "New thought $name."
