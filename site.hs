@@ -29,6 +29,13 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
+    match "writing/xmodmap-on-fedora/index.markdown" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= processUrls
+
     let thoughtOfTheDayContext = listField "thoughts" postContext (loadAll "writing/thought-of-the-day/thoughts/*")
                                  `mappend`
                                  listField "thoughts2" postContext (loadAll "writing/thought-of-the-day/thoughts2/*")

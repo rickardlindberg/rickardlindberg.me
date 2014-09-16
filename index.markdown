@@ -12,6 +12,7 @@ contains only some of my writings.
 This is where I write about how I solved a particular problem in the hope that
 it will help someone else:
 
+- [Xmodmap on Fedora](/writing/xmodmap-on-fedora/index.html "Xmodmap on Fedora")
 - [Latency free overdubbing in Ardour](/writing/ardour-latency-free-overdubbing/index.html "Latency free overdubbing in Ardour")
 
 ## Series
