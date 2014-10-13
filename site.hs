@@ -26,12 +26,14 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
     match "writing/ardour-latency-free-overdubbing/index.rst" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/flattr_howto.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
     match "writing/xmodmap-on-fedora/index.markdown" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/flattr_howto.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
