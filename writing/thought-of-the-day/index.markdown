@@ -18,7 +18,7 @@ minutes.
 $for(thoughts)$
 * [$title$]($url$) - $date$$endfor$
 
-## Part 2 (May 2014-)
+## Part 2 (May-June 2014)
 
 $for(thoughts2)$
 * [$title$]($url$) - $date$$endfor$
