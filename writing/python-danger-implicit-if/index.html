@@ -39,7 +39,7 @@ if a_list:
 <li><code>&quot;hello&quot;</code> (non-empty string)</li>
 <li><code>88</code> (the number 88)</li>
 </ul>
-<p>So if we are only interested in knowing if a value is truthy, we do not need to make an explicit comparison in the if statement. The first example with an explicit comparison would look like this:</p>
+<p>So if we are only interested in knowing if a value is truthy, we do not need to make an explicit comparison in the if statement. The above example with an explicit comparison would look like this:</p>
 <pre><code>if a_list != []:
     # do something</code></pre>
 <p>We can argue that the first example read better because there is less cruft in the expression, but there is one real danger in being implicit. Consider a function that returns either a number or None if no number could be returned. We want to run some code only if we get a number back:</p>
