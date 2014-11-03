@@ -15,6 +15,10 @@ it will help someone else:
 - [Xmodmap on Fedora](/writing/xmodmap-on-fedora/index.html "Xmodmap on Fedora")
 - [Latency free overdubbing in Ardour](/writing/ardour-latency-free-overdubbing/index.html "Latency free overdubbing in Ardour")
 
+## Programming tips
+
+- [The danger with implicit if statements in Python](/writing/python-danger-implicit-if/index.html "The danger with implicit if statements in Python")
+
 ## Series
 
 - [Thought of the day](/writing/thought-of-the-day/index.html "Thought of the day") - A daily thought about programming.
