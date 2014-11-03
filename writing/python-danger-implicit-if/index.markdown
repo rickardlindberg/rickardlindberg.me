@@ -26,7 +26,7 @@ Some examples of expressions that will evaluate to true:
 * `88` (the number 88)
 
 So if we are only interested in knowing if a value is truthy, we do not need to
-make an explicit comparison in the if statement. The first example with an
+make an explicit comparison in the if statement. The above example with an
 explicit comparison would look like this:
 
     if a_list != []:
