@@ -1,0 +1,31 @@
+---
+layout: nil
+---
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+  <title>reflectionsonprogramming.com</title>
+  <link href="http://reflectionsonprogramming.com/"/>
+  <link type="application/atom+xml" rel="self" href="http://reflectionsonprogramming.com/atom.xml"/>
+  <updated>{{ site.time | date_to_xmlschema }}</updated>
+  <id>http://reflectionsonprogramming.com/</id>
+  <author>
+    <name>Rickard Lindberg</name>
+    <email>ricli85@gmail.com</email>
+  </author>
+
+  {% for post in site.posts %}
+  <entry>
+    <id>http://reflectionsonprogramming.com{{ post.id }}</id>
+    <link type="text/html" rel="alternate" href="http://reflectionsonprogramming.com{{ post.url }}"/>
+    <title>{{ post.title }}</title>
+    <updated>{{ post.date | date_to_xmlschema }}</updated>
+    <author>
+      <name>Rickard Lindberg</name>
+      <uri>http://reflectionsonprogramming.com/</uri>
+    </author>
+    <content type="html">{{ post.content | xml_escape }}</content>
+  </entry>
+  {% endfor %}
+ 
+</feed>
