@@ -23,6 +23,13 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
+    match "projects/index.textile" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= processUrls
+
     match "writing/ardour-latency-free-overdubbing/index.rst" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
