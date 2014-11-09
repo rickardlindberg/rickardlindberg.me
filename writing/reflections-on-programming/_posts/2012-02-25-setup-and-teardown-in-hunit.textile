@@ -22,7 +22,7 @@ h2. Python implementation
 
 In Python, I would implement it like this:
 
-{% highlight python %}
+<pre class="python">
 class TestOrgApp(unittest.TestCase):
 
     def setUp(self):
@@ -33,7 +33,7 @@ class TestOrgApp(unittest.TestCase):
 
     def testCanImportFile(self):
         # Test that does something with self.tmp_dir
-{% endhighlight %}
+</pre>
 
 Before each test is run, we create a temporary directory somewhere in the file system. Each test can use that directory for any purpose. It is then automatically removed after each test is run. (@shutil.rmtree@ removes the directory and all of its content.)
 
@@ -43,7 +43,7 @@ h2. A test case in HUnit
 
 Before I explain how you can achieve the same behavior in HUnit, let me show you what a simple test file can look like. Here is an example:
 
-{% highlight haskell %}
+<pre class="haskell">
 import Test.HUnit
 
 tests = test
@@ -55,26 +55,26 @@ tests = test
     ]
 
 main = runTestTT tests
-{% endhighlight %}
+</pre>
 
 Each test case is represented by a do-block. In this case, the do-block creates an IO action. You can think of it as a function that can perform IO operations such as reading a file from disk. A test can also be preceded with a label to give it a name.
 
 If we run this, we get
 
-{% highlight text %}
+<pre>
 Cases: 2  Tried: 2  Errors: 0  Failures: 0
 Counts {cases = 2, tried = 2, errors = 0, failures = 0}
-{% endhighlight %}
+</pre>
 
 If we make a mistake, we get
 
-{% highlight text %}
+<pre>
 ### Failure in: 1:can add large numbers
 expected: 31
  but got: 30
 Cases: 2  Tried: 2  Errors: 0  Failures: 1
 Counts {cases = 2, tried = 2, errors = 0, failures = 1}
-{% endhighlight %}
+</pre>
 
 Notice that there is no notion of a test class or @setUp@ and @tearDown@ methods in this file. A test suite is just a list of functions which each performs a test.
 
@@ -82,52 +82,52 @@ h2. Haskell implementation
 
 The way you implement @setUp@ and @tearDown@ in a HUnit is to include it in every test function that needs it. Something like this:
 
-{% highlight haskell %}
+<pre class="haskell">
 "can import file" ~: do
     tmpDir <- createDirectory "/tmp/org-app-test"
     -- Test that does something with tmpDir
     removeDirectoryRecursive tmpDir
-{% endhighlight %}
+</pre>
 
 This almost works. It fails if an exception is thrown in the test code. Then @removeDirectoryRecursive@ is never called. We need to fix that.
 
 We can extract this pattern into a function:
 
-{% highlight haskell %}
+<pre class="haskell">
 withTemporaryDirectory :: (FilePath -> IO ()) -> IO ()
 withTemporaryDirectory = bracket setUp tearDown
     where
         tmpDir   = "/tmp/org-app-test"
         setUp    = createDirectory tmpDir >> return tmpDir
         tearDown = removeDirectoryRecursive
-{% endhighlight %}
+</pre>
 
 The "@bracket@":http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Exception-Base.html#v:bracket function is similar to a try-finally block. It will always run the @setUp@ function. If that succeeds, it will run the function passed in (the test in our case), and then always run the @tearDown@ function, no matter if the test throws and exception or not.
 
 It is roughly equivalent to this:
 
-{% highlight python %}
+<pre class="python">
 tmpDir = setUp()
 try:
     # Test that does something with tmpDir
 finally:
     tearDown(tmpDir)
-{% endhighlight %}
+</pre>
 
 We can use @withTemporaryDirectory@ like this:
 
-{% highlight haskell %}
+<pre class="haskell">
 "can import file" ~: withTemporaryDirectory $ \tmpDir -> do
     -- Test that does something with tmpDir
-{% endhighlight %}
+</pre>
 
 The backslash syntax introduces a lambda function. So the test calls @withTemporaryDirectory@ with one argument which is a function. (The signature of the function is @FilePath -> IO ()@.) That function is run by @withTemporaryDirectory@ in between the @setUp@ and @tearDown@.
 
 So for every test that needs this setup, we just need to insert this snippet between the label and the do:
 
-{% highlight haskell %}
+<pre class="haskell">
 withTemporaryDirectory $ \tmpDir ->
-{% endhighlight %}
+</pre>
 
 h2. The beauty
 

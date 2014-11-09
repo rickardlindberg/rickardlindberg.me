@@ -8,12 +8,12 @@ h2. A typical code base
 
 A typical code base is organized something like this:
 
-{% highlight text %}
+<pre>
 - doc/
 - src/
 - test/
 - README
-{% endhighlight %}
+</pre>
 
 If we want to understand how a particular part of the code works, it is helpful to find the related documentation in the doc folder and the related tests in the test folder. The problem is that all information related to a particular thing is not kept together. We have to look for it in different places in the file system.
 
@@ -37,7 +37,7 @@ Why don't we write tests next to the implementation?
 
 Sometimes we do: In Python, there is a module called "doctest":http://docs.python.org/3.3/library/doctest.html that allows us to embed test code in comments right next to functions. It looks like this:
 
-{% highlight python %}
+<pre class="python">
 def factorial(n):
     """
     >>> [factorial(n) for n in range(6)]
@@ -49,7 +49,7 @@ def factorial(n):
         result *= factor
         factor += 1
     return result
-{% endhighlight %}
+</pre>
 
 But most of the time, we don't write our tests like this. Why?
 
@@ -57,7 +57,7 @@ Some tests are not suitable as doctests: They might involve multiple functions s
 
 But I believe the biggest reason why we don't mix test code and source code is that we don't want to mix different things at the same level in the same source file. In the example above, it is pretty obvious that the test belongs to the factorial function because of the indentation, but consider this example:
 
-{% highlight python %}
+<pre class="python">
 def implementation(...):
     ...
 
@@ -66,17 +66,17 @@ def test_implementation(...):
 
 def another_implementation(...):
     ...
-{% endhighlight %}
+</pre>
 
 In this example, the invisible organization is this:
 
-{% highlight text %}
+<pre>
 unit 1
     implementation
     test_implementation
 unit 2
     another_implementation
-{% endhighlight %}
+</pre>
 
 We don't immediately see which parts of the file are related. We can only guess this organization from the formatting of the text and the naming. But guessing is the best we can do.
 
@@ -84,7 +84,7 @@ Unless we put a single unit of code in a file, the source file will have differe
 
 One solution to this problem is to put section comments in our files:
 
-{% highlight python %}
+<pre class="python">
 # Unit 1
 
 def implementation(...):
@@ -97,7 +97,7 @@ def test_implementation(...):
 
 def another_implementation(...):
     ...
-{% endhighlight %}
+</pre>
 
 It might make it easier to know where a section begins and ends, but when scrolling through the file, it is still just a wall of text with no obvious structure. It is not an ideal way to show organization.
 

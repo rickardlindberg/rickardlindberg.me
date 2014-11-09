@@ -8,7 +8,7 @@ h2. Mirrored test folder
 
 This is the most common way I've seen to organize tests. You have a test folder that mirrors your source folder and you store tests in files with similar names to the source files.
 
-{% highlight text %}
+<pre>
 /src
     /foo-stuff
         /Foo.py
@@ -19,7 +19,7 @@ This is the most common way I've seen to organize tests. You have a test folder 
         /FooTest.py
     /bar-stuff
         /BarTest.py
-{% endhighlight %}
+</pre>
 
 To me, this structure indicates that you should have one test file per source file. The test tree looks incomplete otherwise. I don't like the idea that you should have one test file per source file. I think it's a bad guideline for what tests to write.
 
@@ -31,7 +31,7 @@ h2. Flat test folder
 
 Another way I've tried to organize my tests is to have a flat test folder where the names of the test files don't have to correspond to the names of the source files (but they can).
 
-{% highlight text %}
+<pre>
 /src
     /foo-stuff
         /Foo.py
@@ -40,7 +40,7 @@ Another way I've tried to organize my tests is to have a flat test folder where 
 /tests
     /TestFoo.py
     /TestBaz.py
-{% endhighlight %}
+</pre>
 
 The test folder doesn't look incomplete just because there is no test file for bar. Perhaps bar contains code that is tested through foo, and there is no need to test bar explicitly.
 
@@ -52,7 +52,7 @@ h2. Test files together with source files
 
 This is similar to the first structure, but the test files live in the source tree instead of in a separate test folder.
 
-{% highlight text %}
+<pre>
 /src
     /foo-stuff
         /Foo.py
@@ -60,7 +60,7 @@ This is similar to the first structure, but the test files live in the source tr
     /bar-stuff
         /Bar.py
         /BarTest.py
-{% endhighlight %}
+</pre>
 
 I think this structure still suffers from one test file per source file.
 
@@ -72,13 +72,13 @@ h2. Tests in the same file
 
 In this structure, tests are stored together with the implementation. In the same file. I've not seen this used very often. But frameworks like "doctest":http://docs.python.org/library/doctest.html allow you to do this.
 
-{% highlight text %}
+<pre>
 /src
     /foo-stuff
         /Foo.py
     /bar-stuff
         /Bar.py
-{% endhighlight %}
+</pre>
 
 In this structure, a source file is easy to move around. And all documentation in form of tests automatically moves with it. Even if you move part of a source file, the tests automatically moves with it since the tests are written right beside the functions. I like this.
 

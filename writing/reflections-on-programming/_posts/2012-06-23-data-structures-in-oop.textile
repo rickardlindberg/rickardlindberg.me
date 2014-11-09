@@ -35,20 +35,20 @@ The interface for working with this data structure looks like this:
 
 A typical session looks like this:
 
-{% highlight python %}
+<pre class="python">
 events = Events("path/to/events.txt")
 firstEvent = events.getAllEvents()[0]
 firstEvent.text = "a new text"
 events.saveEvent(firstEvent)
-{% endhighlight %}
+</pre>
 
 Or like this:
 
-{% highlight python %}
+<pre class="python">
 events = Events("path/to/events.txt")
 firstEvent = events.getAllEvents()[0]
 events.deleteCategory(firstEvent.category)
-{% endhighlight %}
+</pre>
 
 The @Events@ object knows about the rules of the data structure and ensures that they are followed.
 
@@ -56,11 +56,11 @@ h2. The issue with mutable objects
 
 Consider the following session:
 
-{% highlight python %}
+<pre class="python">
 events = Events("path/to/events.txt")
 firstCategory = events.getAllCategories()[0]
 firstCategory.name = "new name"
-{% endhighlight %}
+</pre>
 
 At first, it looks like it doesn't do much. But consider the case when @firstCategory@ is a mutable object. When we change the name, the data structure will also be aware of this new name since @firstCategory@ refers to the same object that the data structure knows about and that was sent in return to @getAllCategories()@.
 
@@ -72,12 +72,12 @@ One solution is to make our objects immutable. In order to change a property in 
 
 We could write helper methods like @setName@ that returns a new @Event@ that has all the values from the previous one but the name different:
 
-{% highlight python %}
+<pre class="python">
 events = Events("path/to/events.txt")
 firstCategory = events.getAllCategories()[0]
 firstCategoryEdited = firstCategory.setName("new name")
 events.saveCategory(firstCategoryEdited)
-{% endhighlight %}
+</pre>
 
 Here a call to @saveCategory@ is necessary for the data structure to find out about the edited category.
 
@@ -97,13 +97,13 @@ Now that we have immutable objects, the only way to distinguish one object from 
 
 This causes a problem with events. One rule was that we could have two events with the exact same fields. But when we edit one, the other should not be changed:
 
-{% highlight python %}
+<pre class="python">
 events = Events("path/to/events.txt")
 events.saveEvent(Event("July 5", "my birthday"), original=None)
 events.saveEvent(Event("July 5", "my birthday"), original=None)
 birthday = events.getAllEvents()[0]
 event.saveEvent(birthday.setTime("July 6"), original=birthday)
-{% endhighlight %}
+</pre>
 
 After this session we should have two events: one on July 5 and one on July 6.  But when we save (assuming the save now also takes the original so it knows what to replace) we can not know that only the first event should be updated.  So we end up with two events on both July 6.
 

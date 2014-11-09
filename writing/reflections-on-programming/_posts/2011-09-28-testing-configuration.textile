@@ -6,7 +6,7 @@ A while ago I fixed a bug in "simple review":/projects/#simplereview that had to
 
 The tests I had at that point looked like this:
 
-{% highlight python %}
+<pre class="python">
 def test_escapes_quotes_in_string_values(self):
     self.assertEquals('"\\"hello\\""', simplereview.json.json_value('"hello"'))
 
@@ -15,20 +15,20 @@ def test_escapes_backslash_in_string_values(self):
 
 def test_escapes_all_correctly(self):
     self.assertEquals('"he\\"ll\\\\o"', simplereview.json.json_value('he"ll\\o'))
-{% endhighlight %}
+</pre>
 
 And the implementation for the escaping part looked like this:
 
-{% highlight python %}
+<pre class="python">
 def _string_escape(string):
     return string.replace("\\", "\\\\").replace('"', '\\"')
-{% endhighlight %}
+</pre>
 
 h2. Adding tests to expose the bug
 
 To fix this problem, I started adding more tests, and ended up with the following:
 
-{% highlight python %}
+<pre class="python">
 def test_escapes_quotes_in_string_values(self):
     self.assertEquals('"hell\\"o"', json_value('hell"o'))
 
@@ -55,11 +55,11 @@ def test_escapes_tab_in_string_values(self):
 
 def test_escapes_all_correctly(self):
     self.assertEquals('"he\\"ll\\\\o"', json_value('he"ll\\o'))
-{% endhighlight %}
+</pre>
 
 And I ended up with the following implementation:
 
-{% highlight python %}
+<pre class="python">
 def _string_escape(string):
     replacements = (
         ('\\' , '\\\\'),
@@ -74,7 +74,7 @@ def _string_escape(string):
     for (a, b) in replacements:
         string = string.replace(a, b)
     return string
-{% endhighlight %}
+</pre>
 
 h2. Repetitive tests
 

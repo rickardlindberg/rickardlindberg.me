@@ -27,7 +27,7 @@ The three last fields are dynamic and change values as a job run. A job has diff
 
 Whenever a file changes on disk, we go through the list of jobs and update the ones for which the regular expression match. Pseudo code for a file change looks like this:
 
-{% highlight python %}
+<pre class="python">
 def fileChanged(fileName):
     for job in jobList:
         if job.matchExpr matches fileName:
@@ -35,18 +35,18 @@ def fileChanged(fileName):
             job.status = working
             job.output = ""
             job.thread = threadId
-{% endhighlight %}
+</pre>
 
 Corey thought it would be better to split the job list into two parts: one that contained the static information about jobs, and one that contained the dynamic information about jobs. With this separation, when a file changes on disk we can first filter out the jobs for which the regular expression match, and then pass them to a function which run them. In pseudo code it looks like this:
 
-{% highlight python %}
+<pre class="python">
 def fileChanged(fileName):
     jobsToRun = filterJobsMatching(fileName)
     for job in jobsToRun:
         thredId = runExternalProcess(job.name, job.args)
         runningJob = RunningJob(status=working, output="", thread=threadId)
         updateRunningJobList(runningJob, job.id)
-{% endhighlight %}
+</pre>
 
 h2. The refactoring process
 

@@ -12,7 +12,7 @@ In this case, the technologies were Haskell and GTK (with Haskell bindings). I h
 
 I copied a hello world example from the "Gtk2Hs":http://projects.haskell.org/gtk2hs/ website and pasted into a source file. It looked like this:
 
-{% highlight haskell %}
+<pre class="haskell">
 import Graphics.UI.Gtk
 
 main = do
@@ -25,13 +25,13 @@ main = do
     onDestroy window mainQuit
     widgetShowAll window
     mainGUI
-{% endhighlight %}
+</pre>
 
 Compiling was easy once I had downloaded the required libraries. They were all available through the package management system on my GNU/Linux system. I made a script for compiling so that I wouldn't have to remember how to do it:
 
-{% highlight bash %}
+<pre class="bash">
 ghc --make Main.hs -o org-app
-{% endhighlight %}
+</pre>
 
 (The make flag tells @ghc@ to figure out all dependencies so you only need to specify the top level program you want to compile. When you compile your project multiple times, @ghc@ will only recompile files that have changed.)
 
@@ -41,12 +41,12 @@ h2. Using Glade to design the GUI
 
 The hello world program constructs the GUI in code by creating widgets and manually placing them on a window:
 
-{% highlight haskell %}
+<pre class="haskell">
 window <- windowNew
 button <- buttonNew
 set window [ containerBorderWidth := 10, containerChild := button ]
 set button [ buttonLabel := "Hello World" ]
-{% endhighlight %}
+</pre>
 
 I've had experiences designing GUIs like this and it's quite tedious. It takes a long time to get all parameters right so that your windows look the way you imagined. The code also becomes rather long and messy.
 
@@ -54,7 +54,7 @@ For GTK, there is a tool called "Glade":http://glade.gnome.org/ which lets you d
 
 I wanted to try this approach. I decided to see if I could transform the hello world example from the first commit using Glade. I came up with this:
 
-{% highlight haskell %}
+<pre class="haskell">
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Builder
 
@@ -72,23 +72,23 @@ main = do
 
     widgetShowAll mainWindow
     mainGUI
-{% endhighlight %}
+</pre>
 
 Now the widgets are loaded from the XML file @interface.glade@ and we only have to hook up the event handlers. The text and position of the hello world button is stored in the glade file. Instead of this:
 
-{% highlight haskell %}
+<pre class="haskell">
 window <- windowNew
 button <- buttonNew
 set window [ containerBorderWidth := 10, containerChild := button ]
 set button [ buttonLabel := "Hello World" ]
-{% endhighlight %}
+</pre>
 
 We have this:
 
-{% highlight haskell %}
+<pre class="haskell">
 mainWindow <- builderGetObject builder castToWindow "main_window"
 helloWorldButton <- builderGetObject builder castToButton "hello_world_button"
-{% endhighlight %}
+</pre>
 
 This doesn't look like less code (it's actually the exact same number of lines in total), but when the GUI gets more complex, I think this will pay off.
 
