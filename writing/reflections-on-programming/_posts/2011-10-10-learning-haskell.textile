@@ -42,7 +42,7 @@ One thing that makes it hard to take small steps in Haskell is that your code wi
 
 h2. Structure of solution
 
-My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from "Parsing with Haskell Introduction":http://thor.info.uaic.ro/~grigoras/diplome/9.pdf.)
+My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from "Parsing with Haskell Introduction":http://thor.info.uaic.ro/~grigoras/diplome/9.pdf .)
 
 When this happened I thought about "Structure and Interpretation of Computer Programs":http://mitpress.mit.edu/sicp/. In particular how they described that a powerful way to solve a complex problem is to design a language in which that problem is trivial to solve. It felt like I had done exactly that, and it felt powerful.
 

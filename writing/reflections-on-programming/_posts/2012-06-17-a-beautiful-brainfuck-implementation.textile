@@ -198,7 +198,7 @@ toByteCode tokens = toByteCode' tokens BEND
 
 There is one special trick going on here, and that is in the last case where we create the loop instruction. @toByteCode'@ takes as last argument the instruction that should be at the end. At the top level, we pass in @BEND@, but when creating the loop, we pass in the loop itself. So the last instruction of the loop links to the loop itself.
 
-Below is a picture of the byte code representation of this Brainfuck program "@.[-.]>@":
+Below is a picture of the byte code representation of this Brainfuck program "@.[-.]>@" :
 
 !/images/brainfuck-byte-code.png()!
 
