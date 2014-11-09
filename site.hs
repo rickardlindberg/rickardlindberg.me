@@ -50,7 +50,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
+            >>= loadAndApplyTemplate "templates/flattr_post.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
