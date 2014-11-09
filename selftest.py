@@ -26,7 +26,9 @@ def check(base):
             else:
                 print("OK")
                 if url.startswith(base):
-                    for match in re.finditer(r"<a href=\"(.*?)\"", content):
+                    for match in re.finditer(r"<a.*?href=\"(.*?)\"", content):
+                        to_process.append(urlparse.urljoin(url, match.group(1)))
+                    for match in re.finditer(r"<img.*?src=\"(.*?)\"", content):
                         to_process.append(urlparse.urljoin(url, match.group(1)))
     print("Summary:")
     for url in bad:
