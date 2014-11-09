@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Hello world in Haskell and GTK | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>Hello world in Haskell and GTK</h1>
+<p>In this post I explain how I got started writing code for the <a href="../../../writing/reflections-on-programming/2012-01-11-application-development-series-intro/">file organization application</a>. I describe the first two commits and the thoughts behind them.</p>
+<h2 id="starting-with-a-skeleton">Starting with a skeleton</h2>
+<p>Since I was unfamiliar with the technologies that I had chosen, my first goal was to get a hello world program working. If I can get that working, I gain confidence that I can use the technologies together.</p>
+<p>In this case, the technologies were Haskell and GTK (with Haskell bindings). I had played with Haskell before but was completely new to GTK (although not to event-driven GUI programming).</p>
+<p>I copied a hello world example from the <a href="http://projects.haskell.org/gtk2hs/">Gtk2Hs</a> website and pasted into a source file. It looked like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
+
+main <span class="fu">=</span> <span class="kw">do</span>
+    initGUI
+    window <span class="ot">&lt;-</span> windowNew
+    button <span class="ot">&lt;-</span> buttonNew
+    set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
+    set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]
+    onClicked button (putStrLn <span class="st">&quot;Hello World&quot;</span>)
+    onDestroy window mainQuit
+    widgetShowAll window
+    mainGUI</code></pre>
+<p>Compiling was easy once I had downloaded the required libraries. They were all available through the package management system on my GNU/Linux system. I made a script for compiling so that I wouldn’t have to remember how to do it:</p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ghc</span> --make Main.hs -o org-app</code></pre>
+<p>(The make flag tells <code>ghc</code> to figure out all dependencies so you only need to specify the top level program you want to compile. When you compile your project multiple times, <code>ghc</code> will only recompile files that have changed.)</p>
+<p>And that was the first commit: a working skeleton on which to build. I could now easily explore features of GTK and GUI programming in Haskell by playing around with the hello world program.</p>
+<h2 id="using-glade-to-design-the-gui">Using Glade to design the GUI</h2>
+<p>The hello world program constructs the GUI in code by creating widgets and manually placing them on a window:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
+button <span class="ot">&lt;-</span> buttonNew
+set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
+set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre>
+<p>I’ve had experiences designing GUIs like this and it’s quite tedious. It takes a long time to get all parameters right so that your windows look the way you imagined. The code also becomes rather long and messy.</p>
+<p>For GTK, there is a tool called <a href="http://glade.gnome.org/">Glade</a> which lets you design your widgets visually and then load them from an XML file in code.</p>
+<p>I wanted to try this approach. I decided to see if I could transform the hello world example from the first commit using Glade. I came up with this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
+<span class="kw">import </span><span class="dt">Graphics.UI.Gtk.Builder</span>
+
+main <span class="fu">=</span> <span class="kw">do</span>
+    initGUI
+
+    builder <span class="ot">&lt;-</span> builderNew
+    builderAddFromFile builder <span class="st">&quot;interface.glade&quot;</span>
+
+    mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
+    onDestroy mainWindow mainQuit
+
+    helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span>
+    onClicked helloWorldButton (putStrLn <span class="st">&quot;Hello World&quot;</span>)
+
+    widgetShowAll mainWindow
+    mainGUI</code></pre>
+<p>Now the widgets are loaded from the XML file <code>interface.glade</code> and we only have to hook up the event handlers. The text and position of the hello world button is stored in the glade file. Instead of this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
+button <span class="ot">&lt;-</span> buttonNew
+set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
+set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre>
+<p>We have this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
+helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></code></pre>
+<p>This doesn’t look like less code (it’s actually the exact same number of lines in total), but when the GUI gets more complex, I think this will pay off.</p>
+<p>And that was the second commit.</p>
+<h2 id="confident-to-move-forward">Confident to move forward</h2>
+<p>At this point there are no tests or no code specific to the application. But the code proves that these technologies can be used together, and I’ve gained confidence that I can move forward.</p>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

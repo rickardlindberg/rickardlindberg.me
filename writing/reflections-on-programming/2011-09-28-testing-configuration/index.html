@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Testing configuration | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>Testing configuration</h1>
+<p>A while ago I fixed a bug in <a href="../../../projects/">simple review</a> that had to do with escaping. The problem was that not all characters were escaped when converting a Python string to a JSON string.</p>
+<p>The tests I had at that point looked like this:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;</span><span class="ch">\\</span><span class="st">&quot;hello</span><span class="ch">\\</span><span class="st">&quot;&quot;'</span>, simplereview.json.json_value(<span class="st">'&quot;hello&quot;'</span>))
+
+<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_all_correctly(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre>
+<p>And the implementation for the escaping part looked like this:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
+    <span class="kw">return</span> string.replace(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">&quot;</span>, <span class="st">&quot;</span><span class="ch">\\\\</span><span class="st">&quot;</span>).replace(<span class="st">'&quot;'</span>, <span class="st">'</span><span class="ch">\\</span><span class="st">&quot;'</span>)</code></pre>
+<h2 id="adding-tests-to-expose-the-bug">Adding tests to expose the bug</h2>
+<p>To fix this problem, I started adding more tests, and ended up with the following:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">&quot;o&quot;'</span>, json_value(<span class="st">'hell&quot;o'</span>))
+
+<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_forward_slash_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">/o&quot;'</span>, json_value(<span class="st">'hell/o'</span>))
+
+<span class="kw">def</span> test_escapes_backspace_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">bo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\b</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_formfeed_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">fo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\f</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_newline_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">no&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\n</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_carriage_return_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">ro&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\r</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_tab_in_string_values(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">to&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\t</span><span class="st">o'</span>))
+
+<span class="kw">def</span> test_escapes_all_correctly(<span class="ot">self</span>):
+    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre>
+<p>And I ended up with the following implementation:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
+    replacements = (
+        (<span class="st">'</span><span class="ch">\\</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\\\</span><span class="st">'</span>),
+        (<span class="st">'&quot;'</span>  , <span class="st">'</span><span class="ch">\\</span><span class="st">&quot;'</span> ),
+        (<span class="st">'/'</span>  , <span class="st">'</span><span class="ch">\\</span><span class="st">/'</span> ),
+        (<span class="st">'</span><span class="ch">\b</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">b'</span> ),
+        (<span class="st">'</span><span class="ch">\f</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">f'</span> ),
+        (<span class="st">'</span><span class="ch">\n</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">n'</span> ),
+        (<span class="st">'</span><span class="ch">\r</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">r'</span> ),
+        (<span class="st">'</span><span class="ch">\t</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">t'</span> ),
+    )
+    <span class="kw">for</span> (a, b) in replacements:
+        string = string.replace(a, b)
+    <span class="kw">return</span> string</code></pre>
+<h2 id="repetitive-tests">Repetitive tests</h2>
+<p>Pretty soon (long before I had written tests for all characters to escape), I refactored the implementation to look like above: the strings to replace were configured in a list and the logic for doing the replacements was separate.</p>
+<p>I could have extracted the code that did the replacement to a function like <code>replace_in_order(replacements)</code> to make the distinction even more clear.</p>
+<p>When I wrote tests for the later characters to escape, the only thing I had to do to make them pass was to add a configuration line to the <code>replacements</code> variable.</p>
+<p>It felt like the benefit of writing the additional tests were not that big. I was certainly not driving the design in any direction and I’m not sure that I even tested the correctness. I could have written the wrong assert (messed up a backspace or read the JSON specification wrong for example) and then done the same mistake in the configuration.</p>
+<h2 id="different-ways-of-testing">Different ways of testing</h2>
+<p>I started to think about a different way to test this functionality without writing repetitive tests. What if I extracted the <code>replace_in_order</code> function and then wrote tests for that one in isolation. (Those test would not necessarily have anything to do with escaping characters.)</p>
+<p>If I did that, then I would not have any tests for the configuration list itself. You can then argue that the configuration is really simple and the best way to verify that it is correct is to read the JSON specification and compare it to the configuration.</p>
+<p>We could also write a small integration test to make sure that the correct configuration is used with <code>replace_in_order</code>. I’m not sure if that is a good approach though.</p>
+<h2 id="what-is-configuration-anyway">What is configuration anyway?</h2>
+<p>We have treated the <code>replacements</code> list as configuration to <code>replace_in_order</code> and discussed whether writing unit tests for that particular configuration is worthwhile.</p>
+<p>But dividing code into configuration and non-configuration doesn’t really make sense. In the same way that <code>replace_in_order</code> can be configured to work as a JSON string escape function, the Python interpreter can be configured to work as a web application by giving it some Python code that implements a web application.</p>
+<p>So there is really only configuration. The only difference is what it configures.</p>
+<p>A more relevant property to look at might be complexity.</p>
+<h2 id="order-complexity">Order complexity</h2>
+<p>The JSON escape configuration might seem simple at first, but there is a hidden complexity: the order is important. Since all replacements adds a <code>\</code> in the output, we must have the configuration that escapes <code>\</code> first.</p>
+<p>Similarly, we could not write a configuration that replaced all “a” with “b” and all “b” with “a”.</p>
+<p>To remove this complexity from this configuration we could implement the replacement function so that the order is not important. It would then have to scan the string only once and replace matches it finds on the way.</p>
+<h2 id="sub-match-complexity">Sub match complexity</h2>
+<p>Assuming we remove the order complexity, there is still another complexity left that has to do with sub matches. What if we have the following configuration:</p>
+<ul>
+<li>“a” -&gt; “b”</li>
+<li>“ab” -&gt; “ba”</li>
+</ul>
+<p>Would the string “ab” be converted to “bb” or “ba”? The implementation can either search for matches in order (then “bb” is the result), search for the longest matching string (then “ba” is the result), or the shortest matching string (then “bb” is the result). No matter which, it has to be clear when writing the configuration.</p>
+<h2 id="reasons-to-break">Reasons to break</h2>
+<p>Given the current implementation of the replacement logic, the JSON string escaping functionality can break for the following reasons:</p>
+<ol>
+<li>There is a bug in <code>replace_in_order</code></li>
+<li>The order of the replacement strings is incorrect</li>
+<li>The replacement strings does not match the JSON specification</li>
+<li>The parts are not put together correctly (the correct configuration is not passed to <code>replace_in_order</code> for example)</li>
+</ol>
+<p>The first reason to break can be controlled with unit tests for <code>replace_in_order</code>.</p>
+<p>The second reason to break can be removed by implementing <code>replace_in_order</code> differently so that the order of configuration strings is not important. (It would then also have to change name.)</p>
+<p>The third reason to break is a little tricky to test automatically. To do that you need to send an escaped string to some JSON library and then get it back and see that it looks the same. Perhaps reading the JSON specification and comparing it with the <code>replacements</code> list is an acceptable compromise.</p>
+<p>The fourth reason to break can be controlled by having a small integration test.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>To determine if it is worthwhile to write a unit test for a particular piece of code, you can reason about the different ways your code can break without your test suite catching it. If you conclude that the risk is low, you can perhaps skip writing unit tests. Perhaps it is better to test a particular functionality in another way. But it seems like a good idea to remove as much risk as possible.</p>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

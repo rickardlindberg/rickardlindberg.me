@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      A refactoring story | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>A refactoring story</h1>
+<p>This story begins in a hotel lobby in Stockholm. That’s where <a href="http://coreyhaines.com/">Corey Haines</a> and I met a Monday afternoon to code some Haskell. I had invited Corey to a Haskell workshop I hosted the week before, but unfortunately he couldn’t make it. I didn’t want to miss the opportunity to get together with him, so that’s why I found myself with a beer and my laptop, walking through the code for <a href="http://github.com/rickardlindberg/codemonitor">codemonitor</a>, explaining it to Corey, this Monday afternoon in a hotel lobby in Stockholm.</p>
+<p>Codemonitor is a Haskell application I’ve written that listens for file changes on disk. When a file changes, it runs a set of jobs that you configure. It can for example be used to automatically run your test suite whenever you change a source file.</p>
+<p>I had an idea for a feature we could work on this afternoon, but we ended up doing a big refactoring instead. In this post I explain how starting out slightly different helped us move forward.</p>
+<h2 id="the-goal-of-the-refactoring">The goal of the refactoring</h2>
+<p>Internally, codemonitor maintains a list of jobs. The job data structure has the following fields:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>The first four fields are static and describe the job. Match expression is a regular expression that is applied to a filename to determine if this job should run when a file changes.</p>
+<p>The three last fields are dynamic and change values as a job run. A job has different status depending on if it is running or if it has finished running and failed for example.</p>
+<p>Whenever a file changes on disk, we go through the list of jobs and update the ones for which the regular expression match. Pseudo code for a file change looks like this:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> fileChanged(fileName):
+    <span class="kw">for</span> job in jobList:
+        <span class="kw">if</span> job.matchExpr matches fileName:
+            thredId = runExternalProcess(job.name, job.args)
+            job.status = working
+            job.output = <span class="st">&quot;&quot;</span>
+            job.thread = threadId</code></pre>
+<p>Corey thought it would be better to split the job list into two parts: one that contained the static information about jobs, and one that contained the dynamic information about jobs. With this separation, when a file changes on disk we can first filter out the jobs for which the regular expression match, and then pass them to a function which run them. In pseudo code it looks like this:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> fileChanged(fileName):
+    jobsToRun = filterJobsMatching(fileName)
+    <span class="kw">for</span> job in jobsToRun:
+        thredId = runExternalProcess(job.name, job.args)
+        runningJob = RunningJob(status=working, output=<span class="st">&quot;&quot;</span>, thread=threadId)
+        updateRunningJobList(runningJob, job.<span class="dt">id</span>)</code></pre>
+<h2 id="the-refactoring-process">The refactoring process</h2>
+<p>We had codemonitor running on itself at all times while doing this refactoring. As soon as we made a change that broke the code (either so it did not compile or so that the tests didn’t pass) we got notified with a big red screen and an error message.</p>
+<h2 id="the-initial-attempt">The initial attempt</h2>
+<p>We started by creating a new data structure for the dynamic part of a job that we called running job info. It had the following fields:</p>
+<ul>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>We removed those fields from the job data structure so that it only contained the static part:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+</ul>
+<p>Then we found the places in the source code where the job data structure was used. We examined those cases and figured out if only the static, only the dynamic, or both parts were needed. We found a few functions where only the dynamic part of a job was used. We selected one of those and changed the type to take the running job info data structure instead of the old job data structure.</p>
+<p>That of course led to compilation errors because the function was still called with the wrong data. (We had just changed the type signature.) So we followed the error messages and fixed the places where the calls were made.</p>
+<p>Unfortunately, this approach wasn’t very successful. The compiler kept giving us new type checking errors. That first change had forced us to change in a lot of places in order to get it to compile. We kept thinking that we only needed to change these current errors, and everything would be fine. The problem was that we had been thinking that for the last hour or so.</p>
+<h2 id="starting-out-in-a-different-way">Starting out in a different way</h2>
+<p>Clearly, the steps we had tried to take weren’t small enough. So we decided to start over using a different approach.</p>
+<p>Instead of splitting the job data structure, we added another field to it containing the dynamic part. The addition of the additional field broke one place in the code where the job data structure was created, but other than that, we were green. We were relieved that we had a change that didn’t break the build and we could do our first commit of the day. Whew!</p>
+<p>At this point our data structure for jobs looked like this:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+<li><strong>Running job info</strong></li>
+</ul>
+<p>And the data structure for running job info looked like this:</p>
+<ul>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>Notice that we chose to duplicate the dynamic part in running job info. If we instead had moved fields into running job info, we would have more compilation errors, but we wanted to minimize the errors so we could work in small steps.</p>
+<p>The next thing we did was to always update the running job info when we updated the dynamic fields in the job data structure. With this change, we could read the dynamic fields from the running job info instead of the job data structure. We did that, and eventually we had removed all dependencies on the dynamic fields in the job data structure, so they could be removed, leaving only these fields:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Running job info</li>
+</ul>
+<p>Around this point we had to stop. It was time for dinner, and we were feeling happy about the progress we had made.</p>
+<p>The next day, I continued the refactoring on my own. Everything went smoothly following this path: I was able to pull the running job info out of the job data structure into its own list, realized that the running job info didn’t need to contain all that information, shrunk it, and as a result I could simplify another subsystem.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Because we started the refactoring in a slightly different way the second time, we were able to take small steps towards the goal while all the time having working code.</p>
+<p>If you feel stuck with a refactoring, you might want to start it out in a different way to see what happens.</p>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

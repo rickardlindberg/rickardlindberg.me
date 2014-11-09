@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      A beautiful Brainfuck implementation | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>A beautiful Brainfuck implementation</h1>
+<p>Recently I’ve been writing interpreters for the Brainfuck programming language in Haskell. I’ve also held two workshops where I’ve taught Haskell, and in those workshops, the last exercise is to work on a Brainfuck interpreter.</p>
+<p>I’ve experimented with different solutions both to see what they feel like and also to see how they affect performance.</p>
+<p>The fifth version became particularly beautiful, and I shall share that beauty with you in this post. This version is inspired by ideas that <a href="http://raek.se/">raek</a> presented to me during and after a workshop.</p>
+<h2 id="the-brainfuck-language">The Brainfuck language</h2>
+<p>If you are not familiar with Brainfuck, go read on <a href="http://en.wikipedia.org/wiki/Brainfuck">Wikipedia</a>. I will not explain it here.</p>
+<h2 id="haskell-knowledge">Haskell knowledge</h2>
+<p>I’m going to assume that you are a bit familiar with Haskell. If there is something in particular that you do not understand, feel free to ask in the comments.</p>
+<h2 id="the-main-function">The main function</h2>
+<p>The function we are implementing is this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">execute ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+execute program <span class="fu">=</span> interact (run (compile program) emptyDataMap)</code></pre>
+<p>The Brainfuck program enters our <code>execute</code> function as a string. We compile the program to an internal representation and then <code>run</code> it together with a data tape, <code>emptyDataMap</code>, that holds the data for the Brainfuck program.</p>
+<p><code>interact</code> passes stdin to our <code>run</code> function and prints the output of it on stdout.</p>
+<h2 id="the-data-tape">The data tape</h2>
+<p>We represent the Brainfuck data tape with a typeclass. That allows us to experiment with different data structures without changing the interpreter. The typeclass looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Data</span> d <span class="kw">where</span>
+<span class="ot">    emptyData       ::</span> d
+<span class="ot">    dataGet         ::</span> d <span class="ot">-&gt;</span> <span class="dt">Int</span>
+<span class="ot">    dataModifyValue ::</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> d <span class="ot">-&gt;</span> d
+<span class="ot">    dataModifyPos   ::</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> d <span class="ot">-&gt;</span> d</code></pre>
+<p>First of all we need a way to create a data tape. Next we need a way to extract the integer at the current position. And finally we need to be able to change the value at the current position and also change the position itself.</p>
+<h3 id="a-concrete-implementation">A concrete implementation</h3>
+<p>A concrete implementation of this typeclass is presented below:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">DataMap</span> <span class="fu">=</span> <span class="dt">DataMap</span>
+    {<span class="ot"> currentPos ::</span> <span class="dt">Int</span>
+    ,<span class="ot"> values     ::</span> <span class="dt">M.Map</span> <span class="dt">Int</span> <span class="dt">Int</span>
+    }
+
+<span class="ot">emptyDataMap ::</span> <span class="dt">DataMap</span>
+emptyDataMap <span class="fu">=</span> <span class="dt">DataMap</span> <span class="dv">0</span> M.empty
+
+<span class="kw">instance</span> <span class="dt">Data</span> <span class="dt">DataMap</span> <span class="kw">where</span>
+    emptyData <span class="fu">=</span> emptyDataMap
+
+    dataGet dat <span class="fu">=</span> M.findWithDefault <span class="dv">0</span> (currentPos dat) (values dat)
+
+    dataModifyValue fn dat <span class="fu">=</span> dat { values <span class="fu">=</span> newValues }
+        <span class="kw">where</span>
+            oldValue  <span class="fu">=</span> dataGet dat
+            newValues <span class="fu">=</span> M.insert (currentPos dat) (fn oldValue) (values dat)
+
+    dataModifyPos fn dat <span class="fu">=</span> dat { currentPos <span class="fu">=</span> fn (currentPos dat) }</code></pre>
+<p>The most interesting thing to note is that we use a <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/containers/Data-Map.html">map</a> instead of a list structure. This makes it easy to create an infinite tape. If we ask for a value at a position that does not yet exist, we just return the default value 0.</p>
+<h3 id="general-helper-functions">General helper functions</h3>
+<p>To make it easier to work with the data tape, we have these general helper functions that only depend on the interface of the typeclass:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">dataMoveRight ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> d
+dataMoveRight <span class="fu">=</span> dataModifyPos inc
+
+<span class="ot">dataMoveLeft ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> d
+dataMoveLeft <span class="fu">=</span> dataModifyPos dec
+
+<span class="ot">dataGetAscii ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> <span class="dt">Char</span>
+dataGetAscii dat <span class="fu">=</span> C.chr <span class="fu">$</span> dataGet dat
+
+<span class="ot">dataWriteAscii ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> d <span class="ot">-&gt;</span> d
+dataWriteAscii i <span class="fu">=</span> dataModifyValue (const <span class="fu">$</span> C.ord i)
+
+<span class="ot">dataIncValue ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> d
+dataIncValue <span class="fu">=</span> dataModifyValue inc
+
+<span class="ot">dataDecValue ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> d
+dataDecValue <span class="fu">=</span> dataModifyValue dec
+
+<span class="ot">inc ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+inc <span class="fu">=</span> (<span class="fu">+</span><span class="dv">1</span>)
+
+<span class="ot">dec ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+dec x <span class="fu">=</span> x <span class="fu">-</span> <span class="dv">1</span></code></pre>
+<h2 id="compiling">Compiling</h2>
+<p>With the data tape out of the way, let’s look at how a Brainfuck program is represented in Haskell. The source code is transformed in two steps: first the program is converted to a list of tokens, and then those tokens are converted to a sort of byte code that the <code>run</code> function interprets.</p>
+<p>Making this separation has the benefit that each function that does a transformation can focus on doing only one transformation. The parsing function only needs to deal with the problem of getting the structure of a Brainfuck program represented in Haskell, and does not have to know anything about how this later gets executed.</p>
+<h3 id="parsing-tokens">Parsing tokens</h3>
+<p>The data structure for tokens looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Token</span>
+    <span class="fu">=</span> <span class="dt">TInc</span>
+    <span class="fu">|</span> <span class="dt">TDec</span>
+    <span class="fu">|</span> <span class="dt">TLeft</span>
+    <span class="fu">|</span> <span class="dt">TRight</span>
+    <span class="fu">|</span> <span class="dt">TPrint</span>
+    <span class="fu">|</span> <span class="dt">TRead</span>
+    <span class="fu">|</span> <span class="dt">TLoop</span> [<span class="dt">Token</span>]
+    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre>
+<p>This is a tree-like structure where all tokens are leaves except for loops which in turn have a list of tokens inside of them.</p>
+<p>The function that converts a Brainfuck program to a list of tokens uses the <a href="http://legacy.cs.uu.nl/daan/parsec.html">Parsec</a> library and looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseTokens ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
+parseTokens input <span class="fu">=</span>
+    <span class="kw">case</span> parse bfTokens fileName (removeComments input) <span class="kw">of</span>
+        <span class="dt">Left</span>  err <span class="ot">-&gt;</span> error (show err)
+        <span class="dt">Right</span> x   <span class="ot">-&gt;</span> x
+    <span class="kw">where</span>
+<span class="ot">        fileName ::</span> <span class="dt">String</span>
+        fileName <span class="fu">=</span> <span class="st">&quot;&quot;</span>
+<span class="ot">        removeComments ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+        removeComments <span class="fu">=</span> filter (<span class="ot">`elem`</span> <span class="st">&quot;+-&lt;&gt;.,[]&quot;</span>)
+<span class="ot">        bfTokens ::</span> <span class="dt">Parser</span> [<span class="dt">Token</span>]
+        bfTokens <span class="fu">=</span> many bfToken
+<span class="ot">        bfToken ::</span> <span class="dt">Parser</span> <span class="dt">Token</span>
+        bfToken  <span class="fu">=</span>  fmap (const <span class="dt">TInc</span>)   (char <span class="ch">'+'</span>)
+                <span class="fu">&lt;|&gt;</span> fmap (const <span class="dt">TDec</span>)   (char <span class="ch">'-'</span>)
+                <span class="fu">&lt;|&gt;</span> fmap (const <span class="dt">TLeft</span>)  (char <span class="ch">'&lt;'</span>)
+                <span class="fu">&lt;|&gt;</span> fmap (const <span class="dt">TRight</span>) (char <span class="ch">'&gt;'</span>)
+                <span class="fu">&lt;|&gt;</span> fmap (const <span class="dt">TPrint</span>) (char <span class="ch">'.'</span>)
+                <span class="fu">&lt;|&gt;</span> fmap (const <span class="dt">TRead</span>)  (char <span class="ch">','</span>)
+                <span class="fu">&lt;|&gt;</span> fmap <span class="dt">TLoop</span>          (between (char <span class="ch">'['</span>) (char <span class="ch">']'</span>)
+                                                 bfTokens)</code></pre>
+<p><code>bfTokens</code> is our parser. It parses a list of <code>bfToken</code>. <code>bfToken</code> defines a few cases saying that a token is either a plus, or a minus, and so on. The last case says: match a left bracket, then a list of tokens, then a right bracket, and put those tokens inside a <code>TLoop</code>.</p>
+<p>Our parser is run on the line with the case-expression. Parsing something with Parsec can either fail or succeed. If parsing fails, we call <code>error</code> and make the interpreter crash. If parsing succeeds, we return the result (which is a list of tokens).</p>
+<p>Before we pass the input string to the parser, we remove all comments by keeping only the characters from the input string that mean something in Brainfuck.</p>
+<h3 id="converting-tokens-to-byte-code">Converting tokens to byte code</h3>
+<p>The byte code that <code>run</code> interprets looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">ByteCode</span>
+    <span class="fu">=</span> <span class="dt">BInc</span>   <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BDec</span>   <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BLeft</span>  <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BRight</span> <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BPrint</span> <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BRead</span>  <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BLoop</span>  <span class="dt">ByteCode</span> <span class="dt">ByteCode</span>
+    <span class="fu">|</span> <span class="dt">BEND</span>
+    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre>
+<p>This is a recursive data type. Every byte code instruction except <code>BEND</code> contains the byte code instruction following it. The loop instruction has two byte codes to continue with: either we enter the loop or we continue after it.</p>
+<p>The function that converts tokens to byte code looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">toByteCode ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">ByteCode</span>
+toByteCode tokens <span class="fu">=</span> toByteCode' tokens <span class="dt">BEND</span>
+    <span class="kw">where</span>
+<span class="ot">        toByteCode' ::</span> [<span class="dt">Token</span>] <span class="ot">-&gt;</span> <span class="dt">ByteCode</span> <span class="ot">-&gt;</span> <span class="dt">ByteCode</span>
+        toByteCode' []            end <span class="fu">=</span> end
+        toByteCode' (<span class="dt">TInc</span>    <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BInc</span>   (toByteCode' xs end)
+        toByteCode' (<span class="dt">TDec</span>    <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BDec</span>   (toByteCode' xs end)
+        toByteCode' (<span class="dt">TLeft</span>   <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BLeft</span>  (toByteCode' xs end)
+        toByteCode' (<span class="dt">TRight</span>  <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BRight</span> (toByteCode' xs end)
+        toByteCode' (<span class="dt">TPrint</span>  <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BPrint</span> (toByteCode' xs end)
+        toByteCode' (<span class="dt">TRead</span>   <span class="fu">:</span>xs) end <span class="fu">=</span> <span class="dt">BRead</span>  (toByteCode' xs end)
+        toByteCode' (<span class="dt">TLoop</span> ls<span class="fu">:</span>xs) end <span class="fu">=</span> <span class="kw">let</span> inner <span class="fu">=</span> toByteCode' ls loop
+                                            rest  <span class="fu">=</span> toByteCode' xs end
+                                            loop  <span class="fu">=</span> <span class="dt">BLoop</span> inner rest
+                                        <span class="kw">in</span>  loop</code></pre>
+<p>There is one special trick going on here, and that is in the last case where we create the loop instruction. <code>toByteCode'</code> takes as last argument the instruction that should be at the end. At the top level, we pass in <code>BEND</code>, but when creating the loop, we pass in the loop itself. So the last instruction of the loop links to the loop itself.</p>
+<p>Below is a picture of the byte code representation of this Brainfuck program “<code>.[-.]&gt;</code>” :</p>
+<p><img src="../../../images/brainfuck-byte-code.png" alt /></p>
+<p>Compiling the whole program is just a matter of combining the parsing with the byte code convertion:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">compile ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">ByteCode</span>
+compile <span class="fu">=</span> toByteCode <span class="fu">.</span> parseTokens</code></pre>
+<h2 id="running-byte-code">Running byte code</h2>
+<p>The <code>run</code> function looks like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">run ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> <span class="dt">ByteCode</span> <span class="ot">-&gt;</span> d <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+run <span class="dt">BEND</span>               dat input  <span class="fu">=</span> <span class="st">&quot;done!\n&quot;</span>
+run (<span class="dt">BInc</span>   next)      dat input  <span class="fu">=</span>                      run next (dataIncValue dat)     input
+run (<span class="dt">BDec</span>   next)      dat input  <span class="fu">=</span>                      run next (dataDecValue dat)     input
+run (<span class="dt">BLeft</span>  next)      dat input  <span class="fu">=</span>                      run next (dataMoveLeft dat)     input
+run (<span class="dt">BRight</span> next)      dat input  <span class="fu">=</span>                      run next (dataMoveRight dat)    input
+run (<span class="dt">BPrint</span> next)      dat input  <span class="fu">=</span> (dataGetAscii dat) <span class="fu">:</span> run next dat                    input
+run (<span class="dt">BRead</span>  next)      dat (i<span class="fu">:</span>is) <span class="fu">=</span>                      run next (dataWriteAscii i dat) is
+run (<span class="dt">BLoop</span>  loop next) dat input
+    <span class="fu">|</span> dataGet dat <span class="fu">==</span> <span class="dv">0</span>            <span class="fu">=</span>                      run next dat                    input
+    <span class="fu">|</span> otherwise                   <span class="fu">=</span>                      run loop dat                    input</code></pre>
+<p>It takes as input a byte code, the Brainfuck data tape, and the user input. The return value is a string which is the output of the program.</p>
+<p>The formatting reveals that there are only two byte codes which modify the output, and that is <code>BEND</code> and <code>BPrint</code>. In the same way, we can see that <code>BRead</code> is the only byte code that consumes input. All other byte codes just pass the input along to the next instruction. About half of the byte codes do something with the data tape. In those cases, a modified data tape is passed to the recursive call to <code>run</code>.</p>
+<p>When running a loop instruction, we examine the current value on data tape and decide which branch of instructions to continue with.</p>
+<h2 id="the-beauty">The beauty</h2>
+<p>I find this implementation beautiful because every piece of the program does one specific thing and the pieces are combined to form a whole. The program is also compact. But it’s not compact because text has been crammed together. It’s compact because combining different pieces in Haskell does not require much syntactic noise.</p>
+<p>Because I’ve never felt this kind of beauty in my object oriented code, I suspect that it is the way functional languages allow you to combine pieces that make them more beautiful to me.</p>
+<p>If you want to look closer at the source code or look at other implementations, it is up on <a href="https://github.com/rickardlindberg/brainfuck">github</a>.</p>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

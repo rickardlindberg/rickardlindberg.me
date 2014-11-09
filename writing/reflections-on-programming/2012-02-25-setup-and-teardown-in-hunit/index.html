@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Setup and teardown in HUnit | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>Setup and teardown in HUnit</h1>
+<p>I was pairing with <a href="http://twitter.com/testobsessed">@testobsessed</a> on the <a href="../../../writing/reflections-on-programming/2012-01-11-application-development-series-intro/">file organization application</a> and we were writing tests in HUnit (the xUnit framework for Haskell).</p>
+<p>We noticed that HUnit has no built-in support for <code>setUp</code> and <code>tearDown</code>.</p>
+<p>In this post I explain how it can be implemented in HUnit. I explain how it is different from traditional xUnit frameworks and highlight why I think it’s more beautiful.</p>
+<p>Also, thanks to <a href="http://jasani.org/2007/12/05/unit-testing-with-hunit-in-haskell/">this blog post</a> for giving us the idea how to implement it.</p>
+<h2 id="problem">Problem</h2>
+<p>We were writing sort of like an acceptance test for importing files: when you import a file, it should be moved from its source directory to a new directory inside the destination directory. Additional meta data about the imported file should also be written.</p>
+<p>To write this test, we need a temporary directory where we can create files to import and also create the destination directory where the files should be imported to.</p>
+<p>When the test has run, we want the temporary directory to disappear so we don’t fill up the file system with test files.</p>
+<h2 id="python-implementation">Python implementation</h2>
+<p>In Python, I would implement it like this:</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> TestOrgApp(unittest.TestCase):
+
+    <span class="kw">def</span> setUp(<span class="ot">self</span>):
+        <span class="ot">self</span>.tmp_dir = tempfile.mkdtemp(prefix=<span class="st">&quot;org-app-test&quot;</span>)
+
+    <span class="kw">def</span> tearDown(<span class="ot">self</span>):
+        shutil.rmtree(<span class="ot">self</span>.tmp_dir)
+
+    <span class="kw">def</span> testCanImportFile(<span class="ot">self</span>):
+        <span class="co"># Test that does something with self.tmp_dir</span></code></pre>
+<p>Before each test is run, we create a temporary directory somewhere in the file system. Each test can use that directory for any purpose. It is then automatically removed after each test is run. (<code>shutil.rmtree</code> removes the directory and all of its content.)</p>
+<p>It works similarly in other xUnit frameworks.</p>
+<h2 id="a-test-case-in-hunit">A test case in HUnit</h2>
+<p>Before I explain how you can achieve the same behavior in HUnit, let me show you what a simple test file can look like. Here is an example:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.HUnit</span>
+
+tests <span class="fu">=</span> test
+    [ <span class="st">&quot;can add small numbers&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
+        (<span class="dv">1</span> <span class="fu">+</span> <span class="dv">2</span>) <span class="fu">@?=</span> <span class="dv">3</span>
+
+    , <span class="st">&quot;can add large numbers&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
+        (<span class="dv">10</span> <span class="fu">+</span> <span class="dv">20</span>) <span class="fu">@?=</span> <span class="dv">30</span>
+    ]
+
+main <span class="fu">=</span> runTestTT tests</code></pre>
+<p>Each test case is represented by a do-block. In this case, the do-block creates an IO action. You can think of it as a function that can perform IO operations such as reading a file from disk. A test can also be preceded with a label to give it a name.</p>
+<p>If we run this, we get</p>
+<pre><code>Cases: 2  Tried: 2  Errors: 0  Failures: 0
+Counts {cases = 2, tried = 2, errors = 0, failures = 0}</code></pre>
+<p>If we make a mistake, we get</p>
+<pre><code>### Failure in: 1:can add large numbers
+expected: 31
+ but got: 30
+Cases: 2  Tried: 2  Errors: 0  Failures: 1
+Counts {cases = 2, tried = 2, errors = 0, failures = 1}</code></pre>
+<p>Notice that there is no notion of a test class or <code>setUp</code> and <code>tearDown</code> methods in this file. A test suite is just a list of functions which each performs a test.</p>
+<h2 id="haskell-implementation">Haskell implementation</h2>
+<p>The way you implement <code>setUp</code> and <code>tearDown</code> in a HUnit is to include it in every test function that needs it. Something like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
+    tmpDir <span class="ot">&lt;-</span> createDirectory <span class="st">&quot;/tmp/org-app-test&quot;</span>
+    <span class="co">-- Test that does something with tmpDir</span>
+    removeDirectoryRecursive tmpDir</code></pre>
+<p>This almost works. It fails if an exception is thrown in the test code. Then <code>removeDirectoryRecursive</code> is never called. We need to fix that.</p>
+<p>We can extract this pattern into a function:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">withTemporaryDirectory ::</span> (FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+withTemporaryDirectory <span class="fu">=</span> bracket setUp tearDown
+    <span class="kw">where</span>
+        tmpDir   <span class="fu">=</span> <span class="st">&quot;/tmp/org-app-test&quot;</span>
+        setUp    <span class="fu">=</span> createDirectory tmpDir <span class="fu">&gt;&gt;</span> return tmpDir
+        tearDown <span class="fu">=</span> removeDirectoryRecursive</code></pre>
+<p>The <a href="http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Exception-Base.html#v:bracket"><code>bracket</code></a> function is similar to a try-finally block. It will always run the <code>setUp</code> function. If that succeeds, it will run the function passed in (the test in our case), and then always run the <code>tearDown</code> function, no matter if the test throws and exception or not.</p>
+<p>It is roughly equivalent to this:</p>
+<pre class="sourceCode python"><code class="sourceCode python">tmpDir = setUp()
+<span class="kw">try</span>:
+    <span class="co"># Test that does something with tmpDir</span>
+<span class="kw">finally</span>:
+    tearDown(tmpDir)</code></pre>
+<p>We can use <code>withTemporaryDirectory</code> like this:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span> <span class="kw">do</span>
+    <span class="co">-- Test that does something with tmpDir</span></code></pre>
+<p>The backslash syntax introduces a lambda function. So the test calls <code>withTemporaryDirectory</code> with one argument which is a function. (The signature of the function is <code>FilePath -&gt; IO ()</code>.) That function is run by <code>withTemporaryDirectory</code> in between the <code>setUp</code> and <code>tearDown</code>.</p>
+<p>So for every test that needs this setup, we just need to insert this snippet between the label and the do:</p>
+<pre class="sourceCode haskell"><code class="sourceCode haskell">withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span></code></pre>
+<h2 id="the-beauty">The beauty</h2>
+<p>I think several aspects of this approach are more elegant than in traditional xUnit frameworks:</p>
+<ul>
+<li>The fixture has a name: <code>withTemporaryDirectory</code>; In the Python example it doesn’t.</li>
+</ul>
+<ul>
+<li>The fixture is encapsulated in <code>withTemporaryDirectory</code> instead of being spread out in different methods in a class. It can be reused by other tests in other files. We can achieve almost the same thing in Python if we write only the test fixture in a class and then tests that need that fixture inherit from than one instead of <code>TestCase</code>. But it is not as flexible.</li>
+</ul>
+<ul>
+<li>It’s clear which tests use this fixture; In the Python example it might be all tests in the class, or it might be just a few, or none.</li>
+</ul>
+<ul>
+<li>Compared to traditional xUnit frameworks, you are more explicit about what a test needs. You don’t need to scroll up a page to find what the <code>setUp</code> and <code>tearDown</code> actually do. It’s all encapsulated in the test function. Even though it’s more explicit in Haskell, it’s not much less readable.</li>
+</ul>
+<ul>
+<li>To understand how <code>setUp</code> and <code>tearDown</code> works in traditional xUnit frameworks, you probably have to read the manual. But in the example above, you can figure out what’s going on by just reading the test function and <code>withTemporaryDirectory</code>.</li>
+</ul>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

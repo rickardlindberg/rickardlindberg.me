@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Closing the feedback loop | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>Closing the feedback loop</h1>
+<p><em>This post was originally published 4 July 2010. The blog it was published on is no longer active, and I therefore decided to move the post over here.</em></p>
+<p><em>I never used the tool I describe in this post. I guess it was because I could run my tests as fast from within Vim. However, after watching Bret Victor’s amazing talk <a href="http://vimeo.com/36579366">Inventing on Principle</a>, I was inspired to build a tool like this again. It should be able to visualize more aspects of your code other than the tests passing or failing. The goal should be to give you quicker feedback on your changes. I shall write more about my attempts at building this tool in the future.</em></p>
+<p>I have recently spent some time reading the book <em>Working Effectively with Legacy Code</em> by Michael Feathers. I find it interesting because it describes techniques for making bad code better.</p>
+<p>Feathers defines legacy code as code that does not have tests and further argues that code without tests is bad code. If you believe in this statement and have the intention of converting a piece of legacy code to code that is tested you face a problem: legacy code is often hard to test because it often has many dependencies that are hard to construct in tests. The main part of the book describes techniques for solving this problem: getting tests in place for legacy code.</p>
+<p>In one of the introductory chapters the author talks about the effect that feedback has on changing code. Feedback here means the time it takes before you see the effect of a change in the code. If you have to manually perform some action in a GUI to see the effect of a change it will probably take you a minute ore two. If you have to do that many times you will perhaps become frustrated and bored. If you instead can run a set of automated tests to ensure that your change is good, the thing that you are working on can be implemented faster. The shorter the feedback loop, the better.</p>
+<p>If you work in this modify-test fashion, you are likely leaving your editor and pressing a button to run your tests after you have finished an edit. In the book, Feathers suggests that this cycle can be shortened by running the tests continuously. In particular, the tests could be run as soon as you type a key in your IDE. That sounded interesting to me so I decided to implement a simple application for use in the <a href="../../../projects/">Timeline</a> project that do something similar.</p>
+<p>The application is a small GUI application that looks like in the pictures below. When you start it, it will run all tests (using the console based test script) and display the output. If all tests passed the top part will become green, otherwise it will become red. The special thing with this application is that it monitors the file system for changes and whenever it detects a change, it runs the tests again. So as soon as you hit save in your editor, the tests will run again automatically. That way you never have to leave your editor to find out how the change you made in the code affected the system. (Of course this relies on writing tests as well as code.)</p>
+<p><img src="../../../images/running.png" title="GUI Test Runner: Running" alt="GUI Test Runner: Running" /><br />The application is running the tests on start-up. It will also re-run them every time it detects a change in a file.</p>
+<p><img src="../../../images/success.png" title="GUI Test Runner: Success" alt="GUI Test Runner: Success" /><br />The application ran the tests and they all passed.</p>
+<p><img src="../../../images/failure.png" title="GUI Test Runner: Failure" alt="GUI Test Runner: Failure" /><br />The application ran the tests and some of them failed. You can quickly edit your code to try to fix the errors, and when you save, you find out if you fixed them or not.</p>
+<p>I will start using this tool when working on <a href="../../../projects/">Timeline</a> and see how it affects my productivity and code quality.</p>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

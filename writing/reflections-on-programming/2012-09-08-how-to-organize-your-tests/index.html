@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      How to organize your tests? | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-16 prepend-4 append-4">
+        <h1>How to organize your tests?</h1>
+<p>This is a question I’ve been unable to find a satisfactory answer to since I started writing tests for my code. In this post I present my current thoughts.</p>
+<h2 id="mirrored-test-folder">Mirrored test folder</h2>
+<p>This is the most common way I’ve seen to organize tests. You have a test folder that mirrors your source folder and you store tests in files with similar names to the source files.</p>
+<pre><code>/src
+    /foo-stuff
+        /Foo.py
+    /bar-stuff
+        /Bar.py
+/tests
+    /foo-stuff
+        /FooTest.py
+    /bar-stuff
+        /BarTest.py</code></pre>
+<p>To me, this structure indicates that you should have one test file per source file. The test tree looks incomplete otherwise. I don’t like the idea that you should have one test file per source file. I think it’s a bad guideline for what tests to write.</p>
+<p>Another thing I don’t like about this structure is that it’s harder to move code around. If you move a source file, you also have to move a test file. Even if tools can help with this, the files are still coupled to the project file structure. You can’t easily copy one part of the project for use in a different project.</p>
+<p>There is also no obvious place to store non unit tests. What if a test uses code from both foo and bar? This is a minor problem and can be solved by including a separate top level folder for them.</p>
+<h2 id="flat-test-folder">Flat test folder</h2>
+<p>Another way I’ve tried to organize my tests is to have a flat test folder where the names of the test files don’t have to correspond to the names of the source files (but they can).</p>
+<pre><code>/src
+    /foo-stuff
+        /Foo.py
+    /bar-stuff
+        /Bar.py
+/tests
+    /TestFoo.py
+    /TestBaz.py</code></pre>
+<p>The test folder doesn’t look incomplete just because there is no test file for bar. Perhaps bar contains code that is tested through foo, and there is no need to test bar explicitly.</p>
+<p>The baz test file might contain non unit tests. Those kinds of tests fit better in this structure than in the previous one. Although, you might want to keep these in a separate top-level folder anyway.</p>
+<p>It is now slightly easier to move a source file within the project, but the problem that a unit of code is hard to move to another project still remains.</p>
+<h2 id="test-files-together-with-source-files">Test files together with source files</h2>
+<p>This is similar to the first structure, but the test files live in the source tree instead of in a separate test folder.</p>
+<pre><code>/src
+    /foo-stuff
+        /Foo.py
+        /FooTest.py
+    /bar-stuff
+        /Bar.py
+        /BarTest.py</code></pre>
+<p>I think this structure still suffers from one test file per source file.</p>
+<p>It does make a unit of code slightly easier to move since the test file and the source file live in the same folder. But if if you want to move some code out of a source file, you still need to move part of the test code as well.</p>
+<p>In addition, this structure might clutter the source tree and make it harder to see how the source code is organized.</p>
+<h2 id="tests-in-the-same-file">Tests in the same file</h2>
+<p>In this structure, tests are stored together with the implementation. In the same file. I’ve not seen this used very often. But frameworks like <a href="http://docs.python.org/library/doctest.html">doctest</a> allow you to do this.</p>
+<pre><code>/src
+    /foo-stuff
+        /Foo.py
+    /bar-stuff
+        /Bar.py</code></pre>
+<p>In this structure, a source file is easy to move around. And all documentation in form of tests automatically moves with it. Even if you move part of a source file, the tests automatically moves with it since the tests are written right beside the functions. I like this.</p>
+<p>One downside might be that the implementation becomes harder to read because there is test code in the way. Some functions might need complicated test code. Mock objects take up space for example.</p>
+<h2 id="related-reading-elsewhere">Related reading elsewhere</h2>
+<ul>
+<li><a href="http://pragprog.com/magazines/2012-09/thinking-functionally-with-haskell">Thinking Functionally with Haskell</a> by Paul Callaghan. Talks about how static typing is a form of testing, and argues that with more powerful type systems, we can express more tests as types. If types are a form of tests, maybe tests should live in the source code?</li>
+</ul>
+<ul>
+<li><a href="http://www.markhneedham.com/blog/2012/02/20/coding-packaging-by-vertical-slice/">Coding: Packaging by vertical slice</a> by Mark Needham. Talks about two different ways to structure source code.</li>
+</ul>
+<hr>
+<p>
+    <span style="float: right;">
+    <script id="fbdnfid">(function(i){var f,s=document.getElementById(i);f=document.createElement('iframe');f.src='//api.flattr.com/button/view/?uid=rickardlindberg&url='+encodeURIComponent(document.URL);f.title='Flattr';f.height=62;f.width=55;f.style.borderWidth=0;s.parentNode.insertBefore(f,s);})('fbdnfid');</script>
+    </span>
+
+    <strong>Did you like this post? Show your appreciation by flattering
+        it.</strong>
+</p>
+
+
+        <hr>
+        <p><a href="../../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
