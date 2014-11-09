@@ -30,6 +30,31 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
+    let reflectionsOnProgrammingContext = listField "posts" postContext (loadAll "writing/reflections-on-programming/_posts/*")
+                                          `mappend`
+                                          defaultContext
+
+    match "writing/reflections-on-programming/index.markdown" $ do
+        route $ setExtension "html"
+        compile $ getResourceBody
+            >>= applyAsTemplate reflectionsOnProgrammingContext
+            >>= return . renderPandoc
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= processUrls
+
+    match "writing/reflections-on-programming/_posts/*.textile" $ do
+        route $ customRoute (\identifier ->
+            let filePath = toFilePath identifier
+            in  (takeDirectory . takeDirectory) filePath
+                </> takeBaseName filePath
+                </> "index.html")
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= processUrls
+
     match "writing/ardour-latency-free-overdubbing/index.rst" $ do
         route $ setExtension "html"
         compile $ pandocCompiler

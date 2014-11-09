@@ -22,4 +22,4 @@ it will help someone else:
 ## Series
 
 - [Thought of the day](/writing/thought-of-the-day/index.html "Thought of the day") - A daily thought about programming.
-- [Reflections on Programming](http://reflectionsonprogramming.com/) - Another blog that I have.
+- [Reflections on programming](/writing/reflections-on-programming/index.html) - Another blog that I had.
