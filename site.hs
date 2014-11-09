@@ -30,7 +30,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
-    let reflectionsOnProgrammingContext = listField "posts" postContext (loadAll "writing/reflections-on-programming/_posts/*")
+    let reflectionsOnProgrammingContext = listField "posts" postContext (loadAll "writing/reflections-on-programming/*.textile")
                                           `mappend`
                                           defaultContext
 
@@ -43,10 +43,10 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
-    match "writing/reflections-on-programming/_posts/*.textile" $ do
+    match "writing/reflections-on-programming/*.textile" $ do
         route $ customRoute (\identifier ->
             let filePath = toFilePath identifier
-            in  (takeDirectory . takeDirectory) filePath
+            in  takeDirectory filePath
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
