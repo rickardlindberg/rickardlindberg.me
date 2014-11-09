@@ -6,7 +6,10 @@ import urlparse
 def check_single(url):
     response = requests.get(url, timeout=5.0)
     if response.status_code == 200:
-        return response.text
+        if response.headers["Content-Type"].startswith("text/"):
+            return response.text
+        else:
+            return ""
     else:
         return None
 
