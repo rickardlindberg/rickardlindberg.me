@@ -1,9 +1,10 @@
 ---
 title: Xmodmap on Fedora
+date: 2014-09-17
 ---
 
 *This text was in my notes for quite a while before I published it on my
-website on 17 September 2014.*
+website.*
 
 I have the following in my `~/.Xmodmap`:
 

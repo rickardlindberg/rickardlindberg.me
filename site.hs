@@ -10,7 +10,7 @@ import System.FilePath
 main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
 
-    let postContext = dateField "date" "%B %e, %Y" `mappend` defaultContext
+    let postContext = dateField "date" "%e %B %Y" `mappend` defaultContext
 
     let processUrls x = if shouldDeIndexUrls
                            then relativizeUrls x >>= deIndexUrls
@@ -51,7 +51,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> "index.html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/flattr_post.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
@@ -66,7 +66,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/flattr_howto.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
@@ -74,7 +74,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/flattr_programming_tips.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
@@ -101,7 +101,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> "index.html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
@@ -113,7 +113,7 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> "index.html")
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
+            >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 

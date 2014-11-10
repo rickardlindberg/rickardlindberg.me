@@ -9,12 +9,12 @@ title: Latency free overdubbing in Ardour
 Latency free overdubbing in Ardour
 ##################################
 
+*Published on 30 September 2013.*
+
 In this article I explain how to set up JACK and Ardour for latency free
 overdubbing.
 
 Please send feedback to ricli85@gmail.com.
-
-First version published 30 September 2013.
 
 Where is latency introduced?
 ++++++++++++++++++++++++++++
