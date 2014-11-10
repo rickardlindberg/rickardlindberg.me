@@ -104,7 +104,7 @@ dec x <span class="fu">=</span> x <span class="fu">-</span> <span class="dv">1</
     <span class="fu">|</span> <span class="dt">TLoop</span> [<span class="dt">Token</span>]
     <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre>
 <p>This is a tree-like structure where all tokens are leaves except for loops which in turn have a list of tokens inside of them.</p>
-<p>The function that converts a Brainfuck program to a list of tokens uses the <a href="http://legacy.cs.uu.nl/daan/parsec.html">Parsec</a> library and looks like this:</p>
+<p>The function that converts a Brainfuck program to a list of tokens uses the <a href="https://hackage.haskell.org/package/parsec">Parsec</a> library and looks like this:</p>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">parseTokens ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Token</span>]
 parseTokens input <span class="fu">=</span>
     <span class="kw">case</span> parse bfTokens fileName (removeComments input) <span class="kw">of</span>
