@@ -2,6 +2,8 @@
 title: Learning Haskell
 ---
 
+_10 November 2014: Fixed broken link to pdf about parsing in Haskell. Not certain I got the same pdf._
+
 I've wanted to learn Haskell for quite some time now. I've had the book "Real World Haskell":http://book.realworldhaskell.org/read/ sitting in my bookshelf for a little over a year. I have read parts of it but never written any programs. This weekend I took the opportunity to learn some Haskell by writing code for a real project. What follows are my first impressions.
 
 h2. Why Haskell?
@@ -42,7 +44,7 @@ One thing that makes it hard to take small steps in Haskell is that your code wi
 
 h2. Structure of solution
 
-My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from "Parsing with Haskell Introduction":http://thor.info.uaic.ro/~grigoras/diplome/9.pdf .)
+My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from "Parsing with Haskell Introduction":http://fileadmin.cs.lth.se/cs/Education/EDAN40/assignment4/parser.pdf .)
 
 When this happened I thought about "Structure and Interpretation of Computer Programs":http://mitpress.mit.edu/sicp/. In particular how they described that a powerful way to solve a complex problem is to design a language in which that problem is trivial to solve. It felt like I had done exactly that, and it felt powerful.
 
