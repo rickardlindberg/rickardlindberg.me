@@ -21,6 +21,9 @@
     <div class="container noshowgrid">
       <div class="span-16 prepend-4 append-4">
         <h1>Does TDD have less advantage in Haskell?</h1>
+
+<p><i>Published on  2 November 2011.</i></p>
+
 <p>In his talk about <a href="https://vimeo.com/30893836">fast rails tests</a>, Corey Haines discusses the fundamental difference between test first programming and test driven development. The difference is how you respond to pain. If your tests are difficult to write or painful to run, do you change your tests or do you change your design? If you are doing TDD you let the pain from the tests drive a better design. The idea is that if your code is easy to test, it is better designed than if it’s hard to test.</p>
 <p>So what makes something painful to test? In the talk, it was using a third party library (rails) which took a long time to both load and run. I think it took long to run mainly because it was interacting with a database. So if you write your code in such a way that it does not depend on external resources, it is easier to test, and therefore also better designed.</p>
 <p>In Haskell (<a href="../../../writing/reflections-on-programming/2011-10-10-learning-haskell/">which I’m currently learning</a> ) you make a distinction between pure and impure functions. Pure functions do not have side effects and they always return the same value when called with the same arguments. Pure functions are therefore easy to test.</p>
