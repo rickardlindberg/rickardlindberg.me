@@ -7,6 +7,10 @@ title: Welcome
 My name is **Rickard Lindberg**. Welcome to my personal homepage. It currently
 contains only some of my writings.
 
+## Code
+
+- [Gists](/code/gists.html "Gists")
+
 ## Howto articles
 
 This is where I write about how I solved a particular problem in the hope that
