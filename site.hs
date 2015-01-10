@@ -30,13 +30,6 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
-    match "code/gists.markdown" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/title.html" defaultContext
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= processUrls
-
     let reflectionsOnProgrammingContext = listField "posts" postContext (loadAll "writing/reflections-on-programming/*.textile")
                                           `mappend`
                                           defaultContext

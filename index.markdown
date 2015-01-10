@@ -9,7 +9,9 @@ contains only some of my writings.
 
 ## Code
 
-- [Gists](/code/gists.html "Gists")
+- [Timeline](http://thetimelineproj.sourceforge.net/ "The timeline project")
+- [GitHub](https://github.com/rickardlindberg "My projects on GitHub")
+- [Gists](https://gist.github.com/rickardlindberg "Gists")
 
 ## Howto articles
 
