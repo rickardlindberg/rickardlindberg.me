@@ -69,7 +69,7 @@ instance Data DataMap where
     dataModifyPos fn dat = dat { currentPos = fn (currentPos dat) }
 </pre>
 
-The most interesting thing to note is that we use a "map":http://www.haskell.org/ghc/docs/latest/html/libraries/containers/Data-Map.html instead of a list structure. This makes it easy to create an infinite tape. If we ask for a value at a position that does not yet exist, we just return the default value 0.
+The most interesting thing to note is that we use a "map":http://hackage.haskell.org/packages/archive/containers/0.5.0.0/doc/html/Data-Map-Lazy.html instead of a list structure. This makes it easy to create an infinite tape. If we ask for a value at a position that does not yet exist, we just return the default value 0.
 
 h3. General helper functions
 
