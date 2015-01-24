@@ -66,7 +66,7 @@ emptyDataMap <span class="fu">=</span> <span class="dt">DataMap</span> <span cla
             newValues <span class="fu">=</span> M.insert (currentPos dat) (fn oldValue) (values dat)
 
     dataModifyPos fn dat <span class="fu">=</span> dat { currentPos <span class="fu">=</span> fn (currentPos dat) }</code></pre>
-<p>The most interesting thing to note is that we use a <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/containers/Data-Map.html">map</a> instead of a list structure. This makes it easy to create an infinite tape. If we ask for a value at a position that does not yet exist, we just return the default value 0.</p>
+<p>The most interesting thing to note is that we use a <a href="http://hackage.haskell.org/packages/archive/containers/0.5.0.0/doc/html/Data-Map-Lazy.html">map</a> instead of a list structure. This makes it easy to create an infinite tape. If we ask for a value at a position that does not yet exist, we just return the default value 0.</p>
 <h3 id="general-helper-functions">General helper functions</h3>
 <p>To make it easier to work with the data tape, we have these general helper functions that only depend on the interface of the typeclass:</p>
 <pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">dataMoveRight ::</span> <span class="dt">Data</span> d <span class="ot">=&gt;</span> d <span class="ot">-&gt;</span> d
