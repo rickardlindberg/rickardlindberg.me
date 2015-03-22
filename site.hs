@@ -10,8 +10,6 @@ import System.FilePath
 main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
 
-    let postContext = dateField "date" "%e %B %Y" `mappend` defaultContext
-
     let processUrls x = if shouldDeIndexUrls
                            then relativizeUrls x >>= deIndexUrls
                            else relativizeUrls x
@@ -50,7 +48,6 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_post.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
@@ -58,25 +55,17 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
     match "writing/ardour-latency-free-overdubbing/index.rst" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_howto.html" defaultContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
     match "writing/xmodmap-on-fedora/index.markdown" $ do
         route $ setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_howto.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
-    match "writing/python-danger-implicit-if/index.markdown" $ do
-        route $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_programming_tips.html" defaultContext
-            >>= loadAndApplyTemplate "templates/title.html" postContext
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= processUrls
+    post processUrls "writing/python-danger-implicit-if/index.markdown"
 
     let thoughtOfTheDayContext = listField "thoughts" postContext (loadAll "writing/thought-of-the-day/thoughts/*")
                                  `mappend`
@@ -100,7 +89,6 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
@@ -112,7 +100,6 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
                 </> takeBaseName filePath
                 </> "index.html")
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/flattr_thought.html" defaultContext
             >>= loadAndApplyTemplate "templates/title.html" postContext
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
@@ -124,10 +111,18 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
 
     match "templates/*" $ compile templateCompiler
 
-verbatimCopy :: Pattern -> Rules()
+verbatimCopy :: Pattern -> Rules ()
 verbatimCopy pattern = match pattern $ do
     route idRoute
     compile copyFileCompiler
+
+post :: (Item String -> Compiler (Item String)) -> Pattern -> Rules ()
+post processUrls pattern = match pattern $ do
+    route $ setExtension "html"
+    compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/title.html" postContext
+        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+        >>= processUrls
 
 hasHakyllBuildTarget :: String -> IO Bool
 hasHakyllBuildTarget target = fmap (elem ("HAKYLL_BUILD_TARGET", target))
@@ -141,3 +136,7 @@ stripIndexHtml url =
     if "index.html" `isSuffixOf` url && (head url) `elem` "/."
         then take (length url - 10) url
         else url
+
+postContext :: Context String
+postContext = dateField "date" "%e %B %Y" `mappend`
+              defaultContext
