@@ -117,15 +117,17 @@ main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
             >>= processUrls
 
-    idRouteCopy "css/**"
-    idRouteCopy "images/**"
-    idRouteCopy "writing/**/*.png"
-    idRouteCopy "writing/**/*.jpg"
+    verbatimCopy "css/**"
+    verbatimCopy "images/**"
+    verbatimCopy "writing/**/*.png"
+    verbatimCopy "writing/**/*.jpg"
+
     match "templates/*" $ compile templateCompiler
 
-idRouteCopy pattern = match pattern $ do
-    route $ idRoute
-    compile $ copyFileCompiler
+verbatimCopy :: Pattern -> Rules()
+verbatimCopy pattern = match pattern $ do
+    route idRoute
+    compile copyFileCompiler
 
 hasHakyllBuildTarget :: String -> IO Bool
 hasHakyllBuildTarget target = fmap (elem ("HAKYLL_BUILD_TARGET", target))
