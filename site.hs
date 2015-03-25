@@ -35,7 +35,7 @@ rules processUrls = do
     match "writing/python-danger-implicit-if/index.markdown" $ do
         post processUrls
 
-    match "writing/search-replace-accross-files-in-vim/index.markdown" $ do
+    match "writing/search-and-replace-in-vim/index.markdown" $ do
         post processUrls
 
     match "writing/reflections-on-programming/index.markdown" $ do

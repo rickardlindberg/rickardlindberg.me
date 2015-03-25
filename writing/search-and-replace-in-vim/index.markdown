@@ -1,13 +1,13 @@
 ---
-title: Search and replace across files in Vim
+title: Search and replace in Vim
 date: 2015-03-21
 ---
 
 In this article I explain how I do search and replace in Vim.
 
 As a programmer, I constantly rename variables, functions, and classes. The
-easier it is to rename something, the more likely I am to do it. Renaming
-is probably one of the most important refactorings.
+easier it is to rename something, the more likely I am to do it. I think
+renaming is probably one of the most important refactorings.
 
 At the heart of my workflow is the substitute command. I'll show you how I
 use it to do renames in a single file and then show you how I have extended it
