@@ -13,7 +13,7 @@ At the heart of my workflow is the substitute command. I'll show you how I
 use it to do renames in a single file and then show you how I have extended it
 to work across multiple files.
 
-## Single file
+## In a single file
 
 The basic substitution pattern I use is the following:
 
@@ -111,9 +111,14 @@ I have automated this process. Let's start with the grep command:
 
 ## Resouces
 
-http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html
+The latest version of my search and replace configuration can be found at
+[vimrc_search_replace.vim](https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim).
 
-http://vimcasts.org/episodes/project-wide-find-and-replace/
+Other articles on the subject of search and replace in Vim that I found
+interesting:
 
-The latest version can be found here:
-https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim
+* [Vimcasts - Project-wide find and replace](http://vimcasts.org/episodes/project-wide-find-and-replace/)
+
+* [Ibrahim Ahmed - Vim: Find and replace text across files](http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html)
+
+* [The Geek Stuff - Vi and Vim Editor: 12 Powerful Find and Replace Examples](http://www.thegeekstuff.com/2009/04/vi-vim-editor-search-and-replace-examples/)
