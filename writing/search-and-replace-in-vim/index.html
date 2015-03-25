@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Search and replace in Vim | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-18 prepend-3 append-3">
+        <h1>Search and replace in Vim</h1>
+
+<p><em>Published on 21 March 2015.</em></p>
+
+<p>In this article I explain how I do search and replace in Vim.</p>
+<p>As a programmer, I constantly rename variables, functions, and classes. The easier it is to rename something, the more likely I am to do it. I think renaming is probably one of the most important refactorings.</p>
+<p>At the heart of my workflow is the substitute command. I’ll show you how I use it to do renames in a single file and then show you how I have extended it to work across multiple files.</p>
+<h2 id="single-file">Single file</h2>
+<p>The basic substitution pattern I use is the following:</p>
+<pre><code>:%s/\&lt;Foo\&gt;/Bar/gc</code></pre>
+<ul>
+<li><code>%</code> makes the substitution work in the whole file.</li>
+<li>The brackets around <code>Foo</code> (<code>\&lt;</code> and <code>\&gt;</code>) ensure that it only matches <code>Foo</code> if it is not part of another word. For example, it matches <code>Foo</code>, but not <code>FooBar</code> or <code>GetFoo</code>. This is almost always what I want. Say I want to rename a function called <code>getCategory</code>, then I want to avoid renaming something called <code>getCategoryId</code>.</li>
+<li><code>g</code> makes it replace all occurances on a line.</li>
+<li><code>c</code> makes me confirm each substituation. I like that.</li>
+</ul>
+<p>Ususally I want to rename the thing that is under the cursor. When I enter the substitution command I can hit <code>&lt;C-r&gt;&lt;C-w&gt;</code> to insert the word that is under the cursor, like this:</p>
+<pre><code>:%s/\&lt;&lt;C-r&gt;&lt;C-w&gt;\&gt;/replacement/gc</code></pre>
+<p>This type of search and replace I do very often. I have a function that can type this command for me:</p>
+<pre><code>function! GetSubstituteCommand(range, term)
+  return a:range . &quot;s&quot; . input(&quot;:s&quot;, &quot;/\\&lt;&quot; . a:term . &quot;\\&gt;/&quot; . a:term . &quot;/gc\&lt;C-f&gt;F/F/l&quot;)
+endfunction</code></pre>
+<p>The call to <code>input</code> makes it possible for me to edit the substitution before I proceed. Usually I just need to modify the replacement. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand(&quot;%&quot;, &quot;getCategory&quot;)</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
+<pre><code>/\&lt;getCategory\&gt;/getCategory/gc</code></pre>
+<p>Say I type <code>cwfetchCategory&lt;CR&gt;</code> (change word, type <code>fetchCategory</code>, hit enter). The return value is then:</p>
+<pre><code>%s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
+<p>I can execute that command and then I can say yes/no to all substitutions:</p>
+<pre><code>function! SubstituteInFile(text)
+    execute GetSubstituteCommand(&quot;%&quot;, a:text)
+endfunction</code></pre>
+<p>And bind it to a key like this where the word under the cursor is used as the search text:</p>
+<pre><code>map ,rw :call SubstituteInFile(expand(&quot;&lt;cword&gt;&quot;))&lt;CR&gt;</code></pre>
+<p>That is the basics. Whenever I want to rename something in a file, I do the following:</p>
+<ul>
+<li>Place the cursor somewhere on the word.</li>
+<li>Hit <code>,rw</code>.</li>
+<li>Edit the replacement.</li>
+<li>Hit enter.</li>
+<li>Say yes/no to all matched substitutions.</li>
+</ul>
+<h2 id="across-multiple-files">Across multiple files</h2>
+<p>The problem with renames is that they are not always local to the file. If I rename a function I also need to use the new name in all files where that function is called.</p>
+<p>Vim’s substitute command does not work across files, so I use ack from within Vim to find all matches. In my <code>.vimrc</code> I have this:</p>
+<pre><code>set grepprg=ack</code></pre>
+<p>Then I can find all matches like this:</p>
+<pre><code>:grep -w 'getCategory'</code></pre>
+<p>The <code>-w</code> flag is the equivalent of Vim’s <code>\&lt;</code> and <code>\&gt;</code>.</p>
+<p>For each line that matches, I can run the following substitute command:</p>
+<pre><code>s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
+<p>Notice that I do not use the percent sign here. Now I want the substitute command to run only on the line where ack found a match.</p>
+<p>Then I can go to the next match and run the substitute command again and repeat that process until all matches have been processed.</p>
+<p>I have automated this process. Let’s start with the grep command:</p>
+<pre><code>function! GetGrepCommand(term)
+  return &quot;grep &quot; . input(&quot;:grep &quot;, &quot;-w '&quot; . a:term . &quot;'\&lt;C-f&gt;F'F'l&quot;)
+endfunction</code></pre>
+<h2 id="resouces">Resouces</h2>
+<p>http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html</p>
+<p>http://vimcasts.org/episodes/project-wide-find-and-replace/</p>
+<p>The latest version can be found here: https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim</p>
+
+        <hr>
+        <p><a href="../../">Home</a></p>
+        <hr>
+        <p>Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
