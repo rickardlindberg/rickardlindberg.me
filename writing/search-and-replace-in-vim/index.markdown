@@ -3,6 +3,8 @@ title: Search and replace in Vim
 date: 2015-03-21
 ---
 
+**This article is a draft.**
+
 In this article I explain how I do search and replace in Vim.
 
 As a programmer, I constantly rename variables, functions, and classes. The
