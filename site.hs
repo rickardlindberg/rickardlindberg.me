@@ -28,7 +28,7 @@ rules processUrls = do
             let ctx = (createPostsContext RecentFirst [("posts", allPosts)])
             makeItem ""
                 >>= loadAndApplyTemplate "templates/index.html" ctx
-                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls
 
     match "projects/index.textile" $ do
