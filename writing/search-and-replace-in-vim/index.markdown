@@ -141,7 +141,7 @@ The `-w` flag is the equivalent of Vim's `\<` and `\>`.
 Typical customizations that I do:
 
 * Add `--python` or equivalent to only search in Python files.
-* Add a directory to only do the search and replace in certain directories.
+* Add a directory to only do the search in certain directories.
 
 After the grep command is created, the search command is created in the same
 way as before. But notice the lack of the `%` range. After both commands have
@@ -164,7 +164,11 @@ before I move on to the next match. `QuickfixDo` looks like this:
         endwhile
     endfunction
 
-## Resources
+The workflow for renames across multiple files contains only an extra grep step
+compared to the single file workflow. The defaults ensure that the matches
+found by the grep command are also found by the substitute command.
+
+## Further reading
 
 The latest version of my search and replace configuration can be found at
 [vimrc_search_replace.vim](https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim).
