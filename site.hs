@@ -40,6 +40,9 @@ rules processUrls = do
     match postsWithDirectoryNamePattern $ do
         post processUrls
 
+    match "drafts/learning-microservice-architecture/index.lhs" $ do
+        post processUrls
+
     match "writing/reflections-on-programming/index.markdown" $ do
         pageAsTemplate
             (createPostsContext Chronological
