@@ -1,15 +1,17 @@
 ---
 title: Search and replace in Vim
-date: 2015-03-21
+date: 2015-03-28
 ---
-
-**This article is a draft.**
 
 In this article I explain how I do search and replace in Vim.
 
 As a programmer, I constantly rename variables, functions, and classes. The
 easier it is to rename something, the more likely I am to do it. I think
 renaming is probably one of the most important refactorings.
+
+The advantage of being able to do it with Vim is that it is language
+independent. If I don't have an IDE or a refactoring tool to help me, I can
+always use Vim.
 
 At the heart of my workflow is the substitute command. I'll show you how I
 use it to do renames in a single file and then show you how I have extended it
@@ -76,7 +78,7 @@ Let me explain how this substitute command works:
   100% accurate, and therefore I like to manually confirm each substitution.
 
 So the Vim script I have written for renames in a single file is basically just
-to help me type the substitute command I use most ofter faster.
+to help me type the substitute command I use most often faster.
 
 ## Across multiple files
 
@@ -123,7 +125,7 @@ with the cursor placed over `g`:
 
     -w 'getCategory'
 
-Say I just type enter here. The return value is then the following:
+Say I just hit enter here. The return value is then the following:
 
     grep -w 'getCategory'
 
@@ -144,15 +146,17 @@ Typical customizations that I do:
 * Add a directory to only do the search in certain directories.
 
 After the grep command is created, the search command is created in the same
-way as before. But notice the lack of the `%` range. After both commands have
-been created, the grep command is executed.
+way as before. But notice the lack of the `%` range. That is because now I only
+want the substitute command to operate on a single line, and not the whole
+file. After both commands have been created, the grep command is executed.
 
 Now the quickfix list is populated with the search results and I can step
 through it and do the substitution on each matched line. That is what
 `QuickfixDo` is for: It will run an arbitrary command on each line in the
-quickfix list. In this case I pass the substitute command plus the update
-command.  That ensures that I save the file if the substitution did any changes
-before I move on to the next match. `QuickfixDo` looks like this:
+quickfix list. In this case I pass the substitute command (without the `%`
+range) plus the update command.  That ensures that I save the file if the
+substitution did any changes before I move on to the next match. `QuickfixDo`
+looks like this:
 
     function! QuickfixDo(command)
         let itemCount = len(getqflist())
