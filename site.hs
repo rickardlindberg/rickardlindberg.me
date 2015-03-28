@@ -103,6 +103,7 @@ page processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
         >>= loadAndApplyTemplate "templates/title.html" defaultContext
+        >>= loadAndApplyTemplate "templates/footer.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
 
@@ -113,6 +114,7 @@ pageAsTemplate context processUrls = do
         >>= applyAsTemplate context
         >>= return . renderPandoc
         >>= loadAndApplyTemplate "templates/title.html" defaultContext
+        >>= loadAndApplyTemplate "templates/footer.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
 
@@ -125,6 +127,7 @@ postWithOwnTitle :: (Item String -> Compiler (Item String)) -> Rules ()
 postWithOwnTitle processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/footer.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
 
@@ -141,6 +144,7 @@ createPostsContext postOrder = foldr
 compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
 compilePost processUrls = compile $ pandocCompiler
     >>= loadAndApplyTemplate "templates/title.html" postContext
+    >>= loadAndApplyTemplate "templates/footer.html" defaultContext
     >>= loadAndApplyTemplate "templates/default.html" defaultContext
     >>= processUrls
 
