@@ -1,5 +1,6 @@
 ---
 title: Latency free overdubbing in Ardour
+date: 2013-09-30
 ---
 
 .. rst3: filename: index.html

@@ -22,44 +22,73 @@ rules processUrls = do
     match "writing/**/*.jpg" $ do
         verbatimCopy
 
-    match ("index.markdown" .||.
-           "projects/index.textile") $ do
+    match "index.markdown" $ do
+        pageAsTemplate
+            (createPostsContext RecentFirst
+                [("posts", allPosts)])
+            processUrls
+
+    match "projects/index.textile" $ do
         page processUrls
 
-    match "writing/ardour-latency-free-overdubbing/index.rst" $ do
+    match postsWithOwnTitlePattern $ do
         postWithOwnTitle processUrls
 
-    match "writing/xmodmap-on-fedora/index.markdown" $ do
-        post processUrls
-
-    match "writing/python-danger-implicit-if/index.markdown" $ do
-        post processUrls
-
-    match "writing/search-and-replace-in-vim/index.markdown" $ do
+    match postsWithDirectoryNamePattern $ do
         post processUrls
 
     match "writing/reflections-on-programming/index.markdown" $ do
         pageAsTemplate
-            (createPostsContext "writing/reflections-on-programming/*.textile")
+            (createPostsContext Chronological
+                [("posts", reflectionsOnProgrammingPattern)])
             processUrls
-    match "writing/reflections-on-programming/*.textile" $ do
+    match reflectionsOnProgrammingPattern $ do
         routeIndex
         compilePost processUrls
 
     match "writing/thought-of-the-day/index.markdown" $ do
         pageAsTemplate
-            (listField "thoughts" postContext (loadAll "writing/thought-of-the-day/thoughts/*")
-             `mappend`
-             listField "thoughts2" postContext (loadAll "writing/thought-of-the-day/thoughts2/*")
-             `mappend`
-             defaultContext)
+            (createPostsContext Chronological
+                [ ("thoughts", thoughtOfTheDay1Pattern)
+                , ("thoughts2", thoughtOfTheDay2Pattern)
+                ])
             processUrls
-    match "writing/thought-of-the-day/thoughts/*.markdown" $ do
+    match thoughtOfTheDay1Pattern $ do
         routeUpIndex
         compilePost processUrls
-    match "writing/thought-of-the-day/thoughts2/*.markdown" $ do
+    match thoughtOfTheDay2Pattern $ do
         routeUpIndex
         compilePost processUrls
+
+allPosts :: Pattern
+allPosts =
+         thoughtOfTheDay1Pattern
+    .||. thoughtOfTheDay2Pattern
+    .||. reflectionsOnProgrammingPattern
+    .||. postsWithDirectoryNamePattern
+    .||. postsWithOwnTitlePattern
+
+thoughtOfTheDay1Pattern :: Pattern
+thoughtOfTheDay1Pattern =
+    "writing/thought-of-the-day/thoughts/*.markdown"
+
+thoughtOfTheDay2Pattern :: Pattern
+thoughtOfTheDay2Pattern =
+    "writing/thought-of-the-day/thoughts2/*.markdown"
+
+reflectionsOnProgrammingPattern :: Pattern
+reflectionsOnProgrammingPattern =
+    "writing/reflections-on-programming/*.textile"
+
+postsWithDirectoryNamePattern :: Pattern
+postsWithDirectoryNamePattern =
+         "writing/xmodmap-on-fedora/index.markdown"
+    .||. "writing/python-danger-implicit-if/index.markdown"
+    .||. "writing/search-and-replace-in-vim/index.markdown"
+
+postsWithOwnTitlePattern :: Pattern
+postsWithOwnTitlePattern =
+    "writing/ardour-latency-free-overdubbing/index.rst"
 
 verbatimCopy :: Rules ()
 verbatimCopy = do
@@ -96,11 +125,15 @@ postWithOwnTitle processUrls = do
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
 
-createPostsContext :: Pattern -> Context String
-createPostsContext pattern =
-    listField "posts" postContext (loadAll pattern)
-    `mappend`
+data PostOrder = RecentFirst | Chronological
+
+createPostsContext :: PostOrder -> [(String, Pattern)] -> Context String
+createPostsContext postOrder = foldr
+    (\(key, pattern) x -> listField key postContext (load postOrder pattern) `mappend` x)
     defaultContext
+    where
+        load RecentFirst pattern = recentFirst =<< loadAll pattern
+        load Chronological pattern = chronological =<< loadAll pattern
 
 compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
 compilePost processUrls = compile $ pandocCompiler
