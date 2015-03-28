@@ -17,113 +17,90 @@ to work across multiple files.
 
 ## In a single file
 
-The basic substitute pattern I use is the following:
+When I want to rename something in a single file, I do the following:
 
-    :%s/\<Foo\>/Bar/gc
+* Place the cursor somewhere on the word I want to rename.
+* Hit `,rw` (rename word).
+* Customize the pre-entered substitute command if needed. Usually I just need
+  to edit the replacement.
+* Hit enter.
+* Hit y/n to confirm each substitution.
 
-* `%` makes the substitute work in the whole file.
-* The brackets around `Foo` (`\<` and `\>`) ensure that it only matches `Foo`
-  if it is not part of another word. For example, it matches `Foo`, but
-  not `FooBar` or `GetFoo`. This is almost always what I want. Say I want to
-  rename a function called `getCategory`, then I want to avoid renaming
-  something called `getCategoryId`.
-* `g` makes it replace all occurances on a line.
-* `c` makes me confirm each substituation. Textual search and replace is not
-  100% accurate, and therefore I like to manually confirm each substitution.
-
-Usually I want to rename the thing that is under the cursor. When I enter the
-substitute command I can hit `<C-r><C-w>` to insert the word that is under
-the cursor, like this:
-
-    :%s/\<<C-r><C-w>\>/replacement/gc
-
-This type of search and replace I do very often. I have automated the process
-with Vim script. Let's start with the mapping:
+Now I will explain how I have built this workflow. Let me start with the
+mapping:
 
     map ,rw :call SubstituteInFile(expand("<cword>"))<CR>
 
-The first thing that happens when I hit `,rw` (rename word) is that
-`expand("<cword>")` is evaluated. It returns the word that is under the cursor.
-(In the same way that typing `<C-r><C-w>` does.) That word gets passed to
-`SubstituteInFile`:
+The first thing that happens when I hit `,rw` is that `expand("<cword>")` is
+evaluated. It returns the word that is under the cursor. That word gets passed
+to `SubstituteInFile`:
 
     function! SubstituteInFile(text)
         execute GetSubstituteCommand("%", a:text)
     endfunction
 
 It calls `GetSubstituteCommand` with the `%` range and the passed in text. The
-search command that is returned gets executed. This is the equivalent of typing
-the following:
-
-    :%s/\<Foo\>/Bar/gc
-
-Here is `GetSubstituteCommand`:
+search command that is returned gets executed. Here is `GetSubstituteCommand`:
 
     function! GetSubstituteCommand(range, term)
       return a:range . "s" . input(":s", "/\\<" . a:term . "\\>/" . a:term . "/gc\<C-f>F/F/l")
     endfunction
 
 The call to `input` makes it possible for me to edit the substitute command
-before I proceed. Usually I just need to modify the replacement. The last bit
-in the input `\<C-f>F/F/l` drops me into the command-line window and moves the
-cursor to the first character of the replacement. That way I can quickly edit
-it. Say I make the following call: `GetSubstituteCommand("%", "getCategory")`.
-The command-line window shows the following with the cursor placed over `g` in
-the replacement:
+before I proceed. The last bit in the input `\<C-f>F/F/l` drops me into the
+command-line window and moves the cursor to the first character of the
+replacement. That way I can quickly edit it. Say I make the following call:
+`GetSubstituteCommand("%", "getCategory")`. The command-line window shows the
+following with the cursor placed over `g` in the replacement:
 
     /\<getCategory\>/getCategory/gc
 
 Say I type `cwfetchCategory<CR>` (change word, type `fetchCategory`, hit
-enter). The return value is then:
+enter). The return value is the following:
 
     %s/\<getCategory\>/fetchCategory/gc
 
-That's the basics. Whenever I want to rename something in a file, I do the
-following:
+Running execute on that command is the equivalent of typing the following:
 
-* Place the cursor somewhere on the word I want to rename.
-* Hit `,rw`.
-* Edit the replacement and customize the substitute command if needed.
-* Hit enter.
-* Hit y/n to confirm each substitution.
+    :%s/\<getCategory\>/fetchCategory/gc
+
+Let me explain how this substitute command works:
+
+* `%` makes the substitute work in the whole file.
+* The brackets around `getCategory` (`\<` and `\>`) ensure that it only matches
+  `getCategory` if it is not part of another word. For example, it matches
+  `getCategory`, but not `getCategoryId` or `ungetCategory`. This is almost
+  always what I want.
+* `g` makes it replace all occurrences on a line. Not just the first.
+* `c` makes me confirm each substitution. Textual search and replace is not
+  100% accurate, and therefore I like to manually confirm each substitution.
+
+So the Vim script I have written for renames in a single file is basically just
+to help me type the substitute command I use most ofter faster.
 
 ## Across multiple files
 
-The problem with renames is that they are not always local to the file. If I
+The problem with renames is that they are not always local to a file. If I
 rename a function I also need to use the new name in all files where that
-function is called.
+function is called. My workflow involves both the grep command and the
+substitute command. It looks like this:
 
-Vim's substitute command does not work across files, so I use
-[ack](http://beyondgrep.com/) from within Vim to find all matches. In my
-`.vimrc` I have this:
+* Place the cursor somewhere on the word I want to rename.
+* Hit `,mrw` (multiple rename word).
+* Customize the pre-entered grep command if needed.
+* Hit enter.
+* Customize the pre-entered substitute command if needed. Usually I just need
+  to edit the replacement.
+* Hit enter.
+* Hit y/n to confirm each substitution.
 
-    set grepprg=ack
-
-Then I find all matches like this:
-
-    :grep -w 'getCategory'
-
-The `-w` flag is the equivalent of Vim's `\<` and `\>`.
-
-When grep have run, the cursor is placed on the line of the first match. Then I
-run the following substitute command:
-
-    s/\<getCategory\>/fetchCategory/gc
-
-This is the same substitute command as previously, except there is no percent
-sign here. Here I want the substitute command to work only on the line where
-ack found a match, not on the whole file.
-
-Then I go to the next match and run the substitute command again and repeat
-that process until all matches have been processed.
-
-This is of course a lot of manual work that can be automated with Vim script.
-Let's start with the mapping:
+Now I will explain how I have built this workflow. Let me start with the
+mapping:
 
     map ,mrw :call SubstituteInCodebase(expand("<cword>"))<CR>
 
-When I hit `,mrw` (multiple rename word), the word under the cursor is passed
-to `SubstituteInCodebase`:
+When I hit `,mrw`, the word under the cursor is passed to
+`SubstituteInCodebase`:
 
     function! SubstituteInCodebase(text)
         let grepCommand = GetGrepCommand(a:text)
@@ -140,24 +117,42 @@ like this:
     endfunction
 
 Similar to `GetSubstituteCommand` it drops me into command-line window so that
-I can customize the search. Typical customizations that I do:
+I can customize the grep command. Say I make the following call:
+`GetGrepCommand("getCategory")`. The command-line window shows the following
+with the cursor placed over `g`:
 
-* Add `--python` or equivalent to only search in Python files.
-* Add a directory to only do the substitution in certain directories.
+    -w 'getCategory'
 
-After the grep command is created, the search command is created in the same
-way as before. But notice the lack of the `%` range. After both commands have
-been created, the grep command is executed. This is the equivalent of typing
-the following:
+Say I just type enter here. The return value is then the following:
+
+    grep -w 'getCategory'
+
+Running execute on that command is the equivalent of typing the following:
 
     :grep -w 'getCategory'
 
-Now the quickfix lis is populated with the search results and I can step
+I use [ack](http://beyondgrep.com/) as my grep program. In my `.vimrc` I have
+this:
+
+    set grepprg=ack
+
+The `-w` flag is the equivalent of Vim's `\<` and `\>`.
+
+Typical customizations that I do:
+
+* Add `--python` or equivalent to only search in Python files.
+* Add a directory to only do the search and replace in certain directories.
+
+After the grep command is created, the search command is created in the same
+way as before. But notice the lack of the `%` range. After both commands have
+been created, the grep command is executed.
+
+Now the quickfix list is populated with the search results and I can step
 through it and do the substitution on each matched line. That is what
 `QuickfixDo` is for: It will run an arbitrary command on each line in the
-quickfix list. In this case I pass the search command plus the update command.
-That ensures that I save the file if the substitution did any changes before I
-move on to the next match. `QuickfixDo` looks like this:
+quickfix list. In this case I pass the substitute command plus the update
+command.  That ensures that I save the file if the substitution did any changes
+before I move on to the next match. `QuickfixDo` looks like this:
 
     function! QuickfixDo(command)
         let itemCount = len(getqflist())
@@ -169,18 +164,7 @@ move on to the next match. `QuickfixDo` looks like this:
         endwhile
     endfunction
 
-That's it. Whenever I want to rename something across files, I do the
-following:
-
-* Place the cursor somewhere on the word I want to rename.
-* Hit `,mrw`.
-* Customize the grep command if needed.
-* Hit enter.
-* Edit the replacement and customize the substitute command if needed.
-* Hit enter.
-* Hit y/n to confirm each substitution.
-
-## Resouces
+## Resources
 
 The latest version of my search and replace configuration can be found at
 [vimrc_search_replace.vim](https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim).
