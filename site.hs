@@ -22,11 +22,14 @@ rules processUrls = do
     match "writing/**/*.jpg" $ do
         verbatimCopy
 
-    match "index.markdown" $ do
-        pageAsTemplate
-            (createPostsContext RecentFirst
-                [("posts", allPosts)])
-            processUrls
+    create ["index.html"] $ do
+        route idRoute
+        compile $ do
+            let ctx = (createPostsContext RecentFirst [("posts", allPosts)])
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/index.html" ctx
+                >>= loadAndApplyTemplate "templates/default.html" defaultContext
+                >>= processUrls
 
     match "projects/index.textile" $ do
         page processUrls
