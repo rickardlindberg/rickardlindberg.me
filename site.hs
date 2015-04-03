@@ -130,6 +130,7 @@ postWithOwnTitle :: (Item String -> Compiler (Item String)) -> Rules ()
 postWithOwnTitle processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
+        >>= loadAndApplyTemplate "templates/feedback.html" defaultContext
         >>= loadAndApplyTemplate "templates/footer.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
@@ -147,6 +148,7 @@ createPostsContext postOrder = foldr
 compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
 compilePost processUrls = compile $ pandocCompiler
     >>= loadAndApplyTemplate "templates/title.html" postContext
+    >>= loadAndApplyTemplate "templates/feedback.html" defaultContext
     >>= loadAndApplyTemplate "templates/footer.html" defaultContext
     >>= loadAndApplyTemplate "templates/default.html" defaultContext
     >>= processUrls
