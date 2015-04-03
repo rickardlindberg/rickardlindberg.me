@@ -6,6 +6,7 @@ import Data.Monoid
 import Hakyll
 import System.Environment
 import System.FilePath
+import Network.HTTP.Base
 
 rules :: (Item String -> Compiler (Item String)) -> Rules ()
 rules processUrls = do
@@ -130,7 +131,7 @@ postWithOwnTitle :: (Item String -> Compiler (Item String)) -> Rules ()
 postWithOwnTitle processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
-        >>= loadAndApplyTemplate "templates/feedback.html" defaultContext
+        >>= loadAndApplyTemplate "templates/feedback.html" feedbackContext
         >>= loadAndApplyTemplate "templates/footer.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
@@ -148,7 +149,7 @@ createPostsContext postOrder = foldr
 compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
 compilePost processUrls = compile $ pandocCompiler
     >>= loadAndApplyTemplate "templates/title.html" postContext
-    >>= loadAndApplyTemplate "templates/feedback.html" defaultContext
+    >>= loadAndApplyTemplate "templates/feedback.html" feedbackContext
     >>= loadAndApplyTemplate "templates/footer.html" defaultContext
     >>= loadAndApplyTemplate "templates/default.html" defaultContext
     >>= processUrls
@@ -171,6 +172,7 @@ postContext :: Context String
 postContext = dateField "date" "%e %B %Y" `mappend`
               defaultContext
 
+
 main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
     rules $ \x -> if shouldDeIndexUrls
@@ -189,3 +191,8 @@ stripIndexHtml url =
     if "index.html" `isSuffixOf` url && (head url) `elem` "/."
         then take (length url - 10) url
         else url
+
+feedbackContext :: Context String
+feedbackContext = defaultContext <> field "titleUrlEncoded" x
+    where
+        x y = fmap urlEncode (getMetadataField' (itemIdentifier y) "title")
