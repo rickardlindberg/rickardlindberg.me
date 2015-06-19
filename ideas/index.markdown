@@ -7,6 +7,30 @@ about in the future.
 
 * * *
 
+A follow up to [Data structures in
+OOP](/writing/reflections-on-programming/2012-06-23-data-structures-in-oop/index.html).
+
+Explore designs for an object oriented program that works with data of the
+following kind:
+
+* There are events
+* Events can belong to a category
+* Multiple events can belong to the same category
+* There can not be two categories with the same name
+* There can be two events with the same text
+
+Areas of interest:
+
+* Modification: what is the interface for modifying these relationships in an
+  OOP way?
+
+* How can we save snapshot of this structure for easy undo? (Object copy with
+  copy.deepcopy?)
+
+* How do we move entities between different sets?
+
+* * *
+
 Host [Timeline][timeline] on our own machines or host it distributed?
 
 [SourceForge](https://sourceforge.net/) seems to have [some
