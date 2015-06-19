@@ -7,6 +7,10 @@ about in the future.
 
 * * *
 
+Convert microservice draft post to [IPython][ipython] notebook.
+
+* * *
+
 A follow up to [Data structures in
 OOP](/writing/reflections-on-programming/2012-06-23-data-structures-in-oop/index.html).
 
@@ -54,7 +58,7 @@ programming paradigms.
 * * *
 
 Learn [Docker](https://www.docker.com/) by setting up an environment for
-running [IPython](http://ipython.org/).
+running [IPython][ipython].
 
 * * *
 
@@ -69,7 +73,7 @@ domain specific language so that it can be compiled to run on Android as well.
 
 * * *
 
-Play with [IPython](http://ipython.org/) to do science on the
+Play with [IPython][ipython] to do science on the
 [Timeline][timeline] repo.
 
 - [Ruby Rogues episode that inspired me](http://devchat.tv/ruby-rogues/184-rr-what-we-actually-know-about-software-development-and-why-we-believe-it-s-true-with-greg-wilson-and-andreas-stefik)
@@ -77,3 +81,4 @@ Play with [IPython](http://ipython.org/) to do science on the
 - [Wikipedia: Scientific method](http://en.wikipedia.org/wiki/Scientific_method)
 
 [timeline]: http://thetimelineproj.sourceforge.net/
+[ipython]: http://ipython.org/
