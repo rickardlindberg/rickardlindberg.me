@@ -7,6 +7,14 @@ about in the future.
 
 * * *
 
+Jenkins machine that builds [Timeline][timeline] documentation does not seem to
+[handle](https://jenkins.rickardlindberg.me/job/timeline-doc/242/console) code
+directives in restructured text:
+
+Why?
+
+* * *
+
 Convert microservice draft post to [IPython][ipython] notebook.
 
 * * *
@@ -71,14 +79,19 @@ Maybe try to use it for [Timeline][timeline] live discussions.
 Extract timeline canvas component from [Timeline][timeline]. Define it in a
 domain specific language so that it can be compiled to run on Android as well.
 
-* * *
+Completed ideas
+---------------
 
-Play with [IPython][ipython] to do science on the
-[Timeline][timeline] repo.
+Play with [IPython][ipython] to do science on the [Timeline][timeline] repo.
 
 - [Ruby Rogues episode that inspired me](http://devchat.tv/ruby-rogues/184-rr-what-we-actually-know-about-software-development-and-why-we-believe-it-s-true-with-greg-wilson-and-andreas-stefik)
 - [Example notebook](http://nbviewer.ipython.org/github/tarmstrong/code-analysis/blob/master/IPythonReviewTime.ipynb)
 - [Wikipedia: Scientific method](http://en.wikipedia.org/wiki/Scientific_method)
+
+*Completed 21 June 2015 by publishing first analysis article
+[here](http://thetimelineproj.sourceforge.net/analysis-timeline-emails.html).*
+
+
 
 [timeline]: http://thetimelineproj.sourceforge.net/
 [ipython]: http://ipython.org/
