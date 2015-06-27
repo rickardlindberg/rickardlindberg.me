@@ -3,15 +3,45 @@ title: Ideas
 ---
 
 This page contains ideas that I think would be interesting to work on or think
-about in the future.
+about. I collect them here so that I can come back to them when I have time an
+motivation.
 
 * * *
 
-Jenkins machine that builds [Timeline][timeline] documentation does not seem to
-[handle](https://jenkins.rickardlindberg.me/job/timeline-doc/242/console) code
-directives in restructured text:
+Make science page on my homepage where I collect and learn.
 
-Why?
+http://users.encs.concordia.ca/~pcr/paper/Rahman2015IEEES-preprint.pdf
+
+* * *
+
+Can we write test cases using IPython Notebook? Would it serve as good
+documentation as well?
+
+[https://github.com/ipython/ipython/wiki/Cookbook:-Notebook-utilities](https://github.com/ipython/ipython/wiki/Cookbook:-Notebook-utilities)
+
+* * *
+
+Build code reader tool that aids the reading of source code. What features
+should it have?
+
+Highlights [last copy paste
+row](http://www.st.ewi.tudelft.nl/~mbeller/publications/2015_beller_zaidman_karpov_the_last_line_effect_preprint.pdf),
+shows all files that are modified together.
+
+Get some inspiration from scientific papers:
+[http://software-carpentry.org/blog/2015/05/icse2015.html](http://software-carpentry.org/blog/2015/05/icse2015.html)
+
+What aids reading code?
+
+- Syntax highlighting?
+- Navigation?
+- Highlight piece of text?
+
+How to do experiments?
+
+Build tool where these features can be toggled and then run experiments to see
+which aids reading. For example: ask a group of people to answer a question
+about a piece of code using and not using syntax highlighting.
 
 * * *
 
@@ -81,6 +111,16 @@ domain specific language so that it can be compiled to run on Android as well.
 
 Completed ideas
 ---------------
+
+Jenkins machine that builds [Timeline][timeline] documentation does not seem to
+[handle](https://jenkins.rickardlindberg.me/job/timeline-doc/242/console) code
+directives in restructured text:
+
+Why?
+
+*Completed 22 June 2015 by upgrading the docutils python package.*
+
+* * *
 
 Play with [IPython][ipython] to do science on the [Timeline][timeline] repo.
 
