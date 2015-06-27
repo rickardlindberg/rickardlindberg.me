@@ -32,7 +32,7 @@ rules processUrls = do
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls
 
-    match "writing/python-datetime-precision/index.html" $ do
+    match "writing/*/index.html" $ do
         htmlPage processUrls
 
     match "projects/index.textile" $ do
@@ -80,6 +80,7 @@ allPosts =
     .||. reflectionsOnProgrammingPattern
     .||. postsWithDirectoryNamePattern
     .||. postsWithOwnTitlePattern
+    .||. "writing/*/index.html"
 
 thoughtOfTheDay1Pattern :: Pattern
 thoughtOfTheDay1Pattern =
@@ -98,7 +99,6 @@ postsWithDirectoryNamePattern =
          "writing/xmodmap-on-fedora/index.markdown"
     .||. "writing/python-danger-implicit-if/index.markdown"
     .||. "writing/search-and-replace-in-vim/index.markdown"
-    .||. "writing/*/index.html"
 
 postsWithOwnTitlePattern :: Pattern
 postsWithOwnTitlePattern =
