@@ -32,6 +32,9 @@ rules processUrls = do
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls
 
+    match "writing/python-datetime-precision/index.html" $ do
+        htmlPage processUrls
+
     match "projects/index.textile" $ do
         page processUrls
 
@@ -95,6 +98,7 @@ postsWithDirectoryNamePattern =
          "writing/xmodmap-on-fedora/index.markdown"
     .||. "writing/python-danger-implicit-if/index.markdown"
     .||. "writing/search-and-replace-in-vim/index.markdown"
+    .||. "writing/*/index.html"
 
 postsWithOwnTitlePattern :: Pattern
 postsWithOwnTitlePattern =
@@ -104,6 +108,15 @@ verbatimCopy :: Rules ()
 verbatimCopy = do
     route idRoute
     compile copyFileCompiler
+
+htmlPage :: (Item String -> Compiler (Item String)) -> Rules ()
+htmlPage processUrls = do
+    route idRoute
+    compile $ getResourceBody
+        >>= loadAndApplyTemplate "templates/title.html" defaultContext
+        >>= loadAndApplyTemplate "templates/footer.html" defaultContext
+        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+        >>= processUrls
 
 page :: (Item String -> Compiler (Item String)) -> Rules ()
 page processUrls = do
