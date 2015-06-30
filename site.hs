@@ -33,7 +33,7 @@ rules processUrls = do
                 >>= processUrls
 
     match "writing/*/index.html" $ do
-        htmlPage processUrls
+        htmlPost processUrls
 
     match "projects/index.textile" $ do
         page processUrls
@@ -109,8 +109,8 @@ verbatimCopy = do
     route idRoute
     compile copyFileCompiler
 
-htmlPage :: (Item String -> Compiler (Item String)) -> Rules ()
-htmlPage processUrls = do
+htmlPost :: (Item String -> Compiler (Item String)) -> Rules ()
+htmlPost processUrls = do
     route idRoute
     compile $ getResourceBody
         >>= loadAndApplyTemplate "templates/title.html" defaultContext
