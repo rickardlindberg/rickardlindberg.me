@@ -3,8 +3,19 @@ title: Ideas
 ---
 
 This page contains ideas that I think would be interesting to work on or think
-about. I collect them here so that I can come back to them when I have time an
+about. I collect them here so that I can come back to them when I have time and
 motivation.
+
+* * *
+
+Improve my IPython Notebook workflow for this website:
+
+- Make export more automatic
+- Fix CSS
+
+* * *
+
+Implement textual similarity algorithm. How similar are two lines of text?
 
 * * *
 
@@ -42,6 +53,8 @@ How to do experiments?
 Build tool where these features can be toggled and then run experiments to see
 which aids reading. For example: ask a group of people to answer a question
 about a piece of code using and not using syntax highlighting.
+
+**What is the simplest first version of this tool?**
 
 * * *
 
