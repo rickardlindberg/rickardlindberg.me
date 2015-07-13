@@ -8,6 +8,38 @@ motivation.
 
 * * *
 
+Use Discourse for Timeline discussions?
+
+* * *
+
+Being afraid to change code is a sad thing.
+
+Is breaking things better that being afraid to change?
+
+Can we refactor modules internally and then create compatibility APIs that we
+deprecate and later remove. For example, in Python, we can create a class
+alias:
+
+    class NewNameOfClass(object):
+        ...
+
+    OldNameOfClass = NewNameOfClass
+
+* * *
+
+How to get more people involved in the development of Timeline?
+
+There are plenty of things you con do without having to do programming. I'm
+thinking the most useful thin you can contribute is your domain expertise. How
+do you use Timeline? What problems are you facing? Help propose solutions to
+problems and help test them out and give feedback.
+
+How can we create a community of Timeline people working together to build this
+piece of software. Pull-request model focuses much on code. But how can we best
+collaborate about the non-programming things?
+
+* * *
+
 Improve my IPython Notebook workflow for this website:
 
 - Make export more automatic
@@ -142,7 +174,7 @@ Play with [IPython][ipython] to do science on the [Timeline][timeline] repo.
 - [Wikipedia: Scientific method](http://en.wikipedia.org/wiki/Scientific_method)
 
 *Completed 21 June 2015 by publishing first analysis article
-[here](http://thetimelineproj.sourceforge.net/analysis-timeline-emails.html).*
+[here](/writing/analysis-timeline-emails/index.html).*
 
 
 
