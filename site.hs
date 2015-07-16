@@ -38,9 +38,6 @@ rules processUrls = do
     match "projects/index.textile" $ do
         page processUrls
 
-    match "ideas/index.markdown" $ do
-        page processUrls
-
     match postsWithOwnTitlePattern $ do
         postWithOwnTitle processUrls
 
