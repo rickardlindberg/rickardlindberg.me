@@ -37,7 +37,7 @@ rules processUrls = do
     match "projects/index.textile" $ do
         page processUrls
 
-    match "archive/index.markdown" $ do
+    match "writing/index.markdown" $ do
         pageAsTemplate
             (createPostsContext RecentFirst [("posts", allPosts)])
             processUrls
