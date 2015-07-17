@@ -26,9 +26,8 @@ rules processUrls = do
     create ["index.html"] $ do
         route idRoute
         compile $ do
-            let ctx = (createPostsContext RecentFirst [("posts", allPosts)])
             makeItem ""
-                >>= loadAndApplyTemplate "templates/index.html" ctx
+                >>= loadAndApplyTemplate "templates/index.html" defaultContext
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls
 
@@ -37,6 +36,11 @@ rules processUrls = do
 
     match "projects/index.textile" $ do
         page processUrls
+
+    match "archive/index.markdown" $ do
+        pageAsTemplate
+            (createPostsContext RecentFirst [("posts", allPosts)])
+            processUrls
 
     match postsWithOwnTitlePattern $ do
         postWithOwnTitle processUrls
