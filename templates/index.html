@@ -1,12 +1,31 @@
-<div class="prepend-1 span-9 append-1">
+<div class="span-10 append-2">
 
-    <p>Hi! My name is <strong>Rickard Lindberg</strong>. Welcome to my personal
-    homepage. It mostly contains my writing. Enjoy!</p>
+    <h1>Welcome</h1>
+
+    <p class="large"><i>Hi! My name is <strong>Rickard Lindberg</strong>.
+        Welcome to my personal homepage. It mostly contains my writing.
+    Enjoy!</i></p>
 
 </div>
 
-<div class="span-6 append-1 last">
+<div class="span-6 last">
 
     <p><img width="230" src="/images/avatar.png"></p>
+
+</div>
+
+<hr>
+
+<div class="span-18 last">
+
+    <h2>Recent posts</h2>
+
+    <ul>
+    $for(posts)$
+    <li><a href="$url$">$title$</a> - $date$</li>
+    $endfor$
+    </ul>
+
+    <p>All posts can be found on the <a href="/writing/index.html">writing page</a>.</p>
 
 </div>

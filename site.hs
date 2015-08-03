@@ -27,7 +27,7 @@ rules processUrls = do
         route idRoute
         compile $ do
             makeItem ""
-                >>= loadAndApplyTemplate "templates/index.html" defaultContext
+                >>= loadAndApplyTemplate "templates/index.html" recentPostsContext
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls
 
@@ -157,6 +157,12 @@ createPostsContext postOrder = foldr
     where
         load RecentFirst pattern = recentFirst =<< loadAll pattern
         load Chronological pattern = chronological =<< loadAll pattern
+
+recentPostsContext :: Context String
+recentPostsContext =
+    listField "posts" postContext (fmap (take 5) . recentFirst =<< loadAll allPosts)
+    `mappend`
+    defaultContext
 
 compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
 compilePost processUrls = compile $ pandocCompiler
