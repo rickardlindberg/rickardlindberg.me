@@ -14,6 +14,8 @@ rules processUrls = do
     match "templates/*" $ do
         compile templateCompiler
 
+    match "cv-rickard-lindberg.pdf" $ do
+        verbatimCopy
     match "css/**" $ do
         verbatimCopy
     match "images/**" $ do
