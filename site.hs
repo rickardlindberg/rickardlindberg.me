@@ -39,6 +39,9 @@ rules processUrls = do
     match "projects/index.textile" $ do
         page processUrls
 
+    match "contact/index.markdown" $ do
+        page processUrls
+
     match "writing/index.markdown" $ do
         pageAsTemplate
             (createPostsContext RecentFirst [("posts", allPosts)])
