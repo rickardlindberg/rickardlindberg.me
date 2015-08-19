@@ -37,7 +37,7 @@
 <p>Since I was unfamiliar with the technologies that I had chosen, my first goal was to get a hello world program working. If I can get that working, I gain confidence that I can use the technologies together.</p>
 <p>In this case, the technologies were Haskell and GTK (with Haskell bindings). I had played with Haskell before but was completely new to GTK (although not to event-driven GUI programming).</p>
 <p>I copied a hello world example from the <a href="http://projects.haskell.org/gtk2hs/">Gtk2Hs</a> website and pasted into a source file. It looked like this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
 
 main <span class="fu">=</span> <span class="kw">do</span>
     initGUI
@@ -48,21 +48,21 @@ main <span class="fu">=</span> <span class="kw">do</span>
     onClicked button (putStrLn <span class="st">&quot;Hello World&quot;</span>)
     onDestroy window mainQuit
     widgetShowAll window
-    mainGUI</code></pre>
+    mainGUI</code></pre></div>
 <p>Compiling was easy once I had downloaded the required libraries. They were all available through the package management system on my GNU/Linux system. I made a script for compiling so that I wouldn’t have to remember how to do it:</p>
-<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ghc</span> --make Main.hs -o org-app</code></pre>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ghc</span> --make Main.hs -o org-app</code></pre></div>
 <p>(The make flag tells <code>ghc</code> to figure out all dependencies so you only need to specify the top level program you want to compile. When you compile your project multiple times, <code>ghc</code> will only recompile files that have changed.)</p>
 <p>And that was the first commit: a working skeleton on which to build. I could now easily explore features of GTK and GUI programming in Haskell by playing around with the hello world program.</p>
 <h2 id="using-glade-to-design-the-gui">Using Glade to design the GUI</h2>
 <p>The hello world program constructs the GUI in code by creating widgets and manually placing them on a window:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
 button <span class="ot">&lt;-</span> buttonNew
 set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
-set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre>
+set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre></div>
 <p>I’ve had experiences designing GUIs like this and it’s quite tedious. It takes a long time to get all parameters right so that your windows look the way you imagined. The code also becomes rather long and messy.</p>
 <p>For GTK, there is a tool called <a href="http://glade.gnome.org/">Glade</a> which lets you design your widgets visually and then load them from an XML file in code.</p>
 <p>I wanted to try this approach. I decided to see if I could transform the hello world example from the first commit using Glade. I came up with this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
 <span class="kw">import </span><span class="dt">Graphics.UI.Gtk.Builder</span>
 
 main <span class="fu">=</span> <span class="kw">do</span>
@@ -78,15 +78,15 @@ main <span class="fu">=</span> <span class="kw">do</span>
     onClicked helloWorldButton (putStrLn <span class="st">&quot;Hello World&quot;</span>)
 
     widgetShowAll mainWindow
-    mainGUI</code></pre>
+    mainGUI</code></pre></div>
 <p>Now the widgets are loaded from the XML file <code>interface.glade</code> and we only have to hook up the event handlers. The text and position of the hello world button is stored in the glade file. Instead of this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
 button <span class="ot">&lt;-</span> buttonNew
 set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
-set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre>
+set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre></div>
 <p>We have this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell">mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
-helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
+helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></code></pre></div>
 <p>This doesn’t look like less code (it’s actually the exact same number of lines in total), but when the GUI gets more complex, I think this will pay off.</p>
 <p>And that was the second commit.</p>
 <h2 id="confident-to-move-forward">Confident to move forward</h2>
@@ -100,19 +100,27 @@ helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToBu
           <ul>
           <li><a href="../../../">Home</a></li>
           <li><a href="../../../writing/">Writing</a></li>
-          <li><a href="../../../projects/">Projects</a></li>
           <li><a href="../../../contact/">Contact</a></li>
           <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
           </ul>
 
         </div>
 
-        <div class="span-6 last">
+        <div class="span-6">
 
           <p><strong>Me elsewhere</strong></p>
           <ul>
           <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
           <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
           </ul>
 
         </div>

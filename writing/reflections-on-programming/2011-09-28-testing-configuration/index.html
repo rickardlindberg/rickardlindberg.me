@@ -32,50 +32,50 @@
 
 <p><em>Published on 28 September 2011.</em></p>
 
-<p>A while ago I fixed a bug in <a href="../../../projects/">simple review</a> that had to do with escaping. The problem was that not all characters were escaped when converting a Python string to a JSON string.</p>
+<p>A while ago I fixed a bug in <a href="https://github.com/rickardlindberg/simple-review">simple review</a> that had to do with escaping. The problem was that not all characters were escaped when converting a Python string to a JSON string.</p>
 <p>The tests I had at that point looked like this:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;</span><span class="ch">\\</span><span class="st">&quot;hello</span><span class="ch">\\</span><span class="st">&quot;&quot;'</span>, simplereview.json.json_value(<span class="st">'&quot;hello&quot;'</span>))
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;</span><span class="ch">\\</span><span class="st">&quot;hello</span><span class="ch">\\</span><span class="st">&quot;&quot;'</span>, simplereview.json.json_value(<span class="st">'&quot;hello&quot;'</span>))
 
-<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_all_correctly(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre>
+<span class="kw">def</span> test_escapes_all_correctly(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, simplereview.json.json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre></div>
 <p>And the implementation for the escaping part looked like this:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
-    <span class="kw">return</span> string.replace(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">&quot;</span>, <span class="st">&quot;</span><span class="ch">\\\\</span><span class="st">&quot;</span>).replace(<span class="st">'&quot;'</span>, <span class="st">'</span><span class="ch">\\</span><span class="st">&quot;'</span>)</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
+    <span class="cf">return</span> string.replace(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">&quot;</span>, <span class="st">&quot;</span><span class="ch">\\\\</span><span class="st">&quot;</span>).replace(<span class="st">'&quot;'</span>, <span class="st">'</span><span class="ch">\\</span><span class="st">&quot;'</span>)</code></pre></div>
 <h2 id="adding-tests-to-expose-the-bug">Adding tests to expose the bug</h2>
 <p>To fix this problem, I started adding more tests, and ended up with the following:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">&quot;o&quot;'</span>, json_value(<span class="st">'hell&quot;o'</span>))
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> test_escapes_quotes_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">&quot;o&quot;'</span>, json_value(<span class="st">'hell&quot;o'</span>))
 
-<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_backslash_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\\</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_forward_slash_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">/o&quot;'</span>, json_value(<span class="st">'hell/o'</span>))
+<span class="kw">def</span> test_escapes_forward_slash_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">/o&quot;'</span>, json_value(<span class="st">'hell/o'</span>))
 
-<span class="kw">def</span> test_escapes_backspace_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">bo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\b</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_backspace_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">bo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\b</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_formfeed_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">fo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\f</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_formfeed_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">fo&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\f</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_newline_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">no&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\n</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_newline_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">no&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\n</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_carriage_return_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">ro&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\r</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_carriage_return_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">ro&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\r</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_tab_in_string_values(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">to&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\t</span><span class="st">o'</span>))
+<span class="kw">def</span> test_escapes_tab_in_string_values(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;hell</span><span class="ch">\\</span><span class="st">to&quot;'</span>, json_value(<span class="st">'hell</span><span class="ch">\t</span><span class="st">o'</span>))
 
-<span class="kw">def</span> test_escapes_all_correctly(<span class="ot">self</span>):
-    <span class="ot">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre>
+<span class="kw">def</span> test_escapes_all_correctly(<span class="va">self</span>):
+    <span class="va">self</span>.assertEquals(<span class="st">'&quot;he</span><span class="ch">\\</span><span class="st">&quot;ll</span><span class="ch">\\\\</span><span class="st">o&quot;'</span>, json_value(<span class="st">'he&quot;ll</span><span class="ch">\\</span><span class="st">o'</span>))</code></pre></div>
 <p>And I ended up with the following implementation:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
-    replacements = (
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> _string_escape(string):
+    replacements <span class="op">=</span> (
         (<span class="st">'</span><span class="ch">\\</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\\\</span><span class="st">'</span>),
         (<span class="st">'&quot;'</span>  , <span class="st">'</span><span class="ch">\\</span><span class="st">&quot;'</span> ),
         (<span class="st">'/'</span>  , <span class="st">'</span><span class="ch">\\</span><span class="st">/'</span> ),
@@ -85,9 +85,9 @@
         (<span class="st">'</span><span class="ch">\r</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">r'</span> ),
         (<span class="st">'</span><span class="ch">\t</span><span class="st">'</span> , <span class="st">'</span><span class="ch">\\</span><span class="st">t'</span> ),
     )
-    <span class="kw">for</span> (a, b) in replacements:
-        string = string.replace(a, b)
-    <span class="kw">return</span> string</code></pre>
+    <span class="cf">for</span> (a, b) <span class="op">in</span> replacements:
+        string <span class="op">=</span> string.replace(a, b)
+    <span class="cf">return</span> string</code></pre></div>
 <h2 id="repetitive-tests">Repetitive tests</h2>
 <p>Pretty soon (long before I had written tests for all characters to escape), I refactored the implementation to look like above: the strings to replace were configured in a list and the logic for doing the replacements was separate.</p>
 <p>I could have extracted the code that did the replacement to a function like <code>replace_in_order(replacements)</code> to make the distinction even more clear.</p>
@@ -136,19 +136,27 @@
           <ul>
           <li><a href="../../../">Home</a></li>
           <li><a href="../../../writing/">Writing</a></li>
-          <li><a href="../../../projects/">Projects</a></li>
           <li><a href="../../../contact/">Contact</a></li>
           <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
           </ul>
 
         </div>
 
-        <div class="span-6 last">
+        <div class="span-6">
 
           <p><strong>Me elsewhere</strong></p>
           <ul>
           <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
           <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
           </ul>
 
         </div>

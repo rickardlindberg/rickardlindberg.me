@@ -50,28 +50,28 @@
 <h3 id="tests-and-implementation">Tests and implementation</h3>
 <p>Why don’t we write tests next to the implementation?</p>
 <p>Sometimes we do: In Python, there is a module called <a href="http://docs.python.org/3.3/library/doctest.html">doctest</a> that allows us to embed test code in comments right next to functions. It looks like this:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> factorial(n):
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> factorial(n):
     <span class="co">&quot;&quot;&quot;</span>
 <span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span>
 <span class="co">    [1, 1, 2, 6, 24, 120]</span>
 <span class="co">    &quot;&quot;&quot;</span>
-    result = <span class="dv">1</span>
-    factor = <span class="dv">2</span>
-    <span class="kw">while</span> factor &lt;= n:
-        result *= factor
-        factor += <span class="dv">1</span>
-    <span class="kw">return</span> result</code></pre>
+    result <span class="op">=</span> <span class="dv">1</span>
+    factor <span class="op">=</span> <span class="dv">2</span>
+    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:
+        result <span class="op">*=</span> factor
+        factor <span class="op">+=</span> <span class="dv">1</span>
+    <span class="cf">return</span> result</code></pre></div>
 <p>But most of the time, we don’t write our tests like this. Why?</p>
 <p>Some tests are not suitable as doctests: They might involve multiple functions so it is not obvious under which function to place them for example.</p>
 <p>But I believe the biggest reason why we don’t mix test code and source code is that we don’t want to mix different things at the same level in the same source file. In the example above, it is pretty obvious that the test belongs to the factorial function because of the indentation, but consider this example:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> implementation(...):
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> implementation(...):
     ...
 
 <span class="kw">def</span> test_implementation(...):
     ...
 
 <span class="kw">def</span> another_implementation(...):
-    ...</code></pre>
+    ...</code></pre></div>
 <p>In this example, the invisible organization is this:</p>
 <pre><code>unit 1
     implementation
@@ -81,7 +81,7 @@ unit 2
 <p>We don’t immediately see which parts of the file are related. We can only guess this organization from the formatting of the text and the naming. But guessing is the best we can do.</p>
 <p>Unless we put a single unit of code in a file, the source file will have different things mixed together at the same level. We never know when the tests for one function ends and the implementation for the next begins.</p>
 <p>One solution to this problem is to put section comments in our files:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Unit 1</span>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Unit 1</span>
 
 <span class="kw">def</span> implementation(...):
     ...
@@ -92,7 +92,7 @@ unit 2
 <span class="co"># Unit 2</span>
 
 <span class="kw">def</span> another_implementation(...):
-    ...</code></pre>
+    ...</code></pre></div>
 <p>It might make it easier to know where a section begins and ends, but when scrolling through the file, it is still just a wall of text with no obvious structure. It is not an ideal way to show organization.</p>
 <h3 id="documentation-and-implementation">Documentation and implementation</h3>
 <p>Why don’t we write documentation next to the implementation?</p>
@@ -139,19 +139,27 @@ unit 2
           <ul>
           <li><a href="../../../">Home</a></li>
           <li><a href="../../../writing/">Writing</a></li>
-          <li><a href="../../../projects/">Projects</a></li>
           <li><a href="../../../contact/">Contact</a></li>
           <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
           </ul>
 
         </div>
 
-        <div class="span-6 last">
+        <div class="span-6">
 
           <p><strong>Me elsewhere</strong></p>
           <ul>
           <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
           <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
           </ul>
 
         </div>

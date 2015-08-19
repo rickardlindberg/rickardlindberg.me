@@ -42,21 +42,21 @@
 <p>When the test has run, we want the temporary directory to disappear so we don’t fill up the file system with test files.</p>
 <h2 id="python-implementation">Python implementation</h2>
 <p>In Python, I would implement it like this:</p>
-<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> TestOrgApp(unittest.TestCase):
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> TestOrgApp(unittest.TestCase):
 
-    <span class="kw">def</span> setUp(<span class="ot">self</span>):
-        <span class="ot">self</span>.tmp_dir = tempfile.mkdtemp(prefix=<span class="st">&quot;org-app-test&quot;</span>)
+    <span class="kw">def</span> setUp(<span class="va">self</span>):
+        <span class="va">self</span>.tmp_dir <span class="op">=</span> tempfile.mkdtemp(prefix<span class="op">=</span><span class="st">&quot;org-app-test&quot;</span>)
 
-    <span class="kw">def</span> tearDown(<span class="ot">self</span>):
-        shutil.rmtree(<span class="ot">self</span>.tmp_dir)
+    <span class="kw">def</span> tearDown(<span class="va">self</span>):
+        shutil.rmtree(<span class="va">self</span>.tmp_dir)
 
-    <span class="kw">def</span> testCanImportFile(<span class="ot">self</span>):
-        <span class="co"># Test that does something with self.tmp_dir</span></code></pre>
+    <span class="kw">def</span> testCanImportFile(<span class="va">self</span>):
+        <span class="co"># Test that does something with self.tmp_dir</span></code></pre></div>
 <p>Before each test is run, we create a temporary directory somewhere in the file system. Each test can use that directory for any purpose. It is then automatically removed after each test is run. (<code>shutil.rmtree</code> removes the directory and all of its content.)</p>
 <p>It works similarly in other xUnit frameworks.</p>
 <h2 id="a-test-case-in-hunit">A test case in HUnit</h2>
 <p>Before I explain how you can achieve the same behavior in HUnit, let me show you what a simple test file can look like. Here is an example:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.HUnit</span>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.HUnit</span>
 
 tests <span class="fu">=</span> test
     [ <span class="st">&quot;can add small numbers&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
@@ -66,7 +66,7 @@ tests <span class="fu">=</span> test
         (<span class="dv">10</span> <span class="fu">+</span> <span class="dv">20</span>) <span class="fu">@?=</span> <span class="dv">30</span>
     ]
 
-main <span class="fu">=</span> runTestTT tests</code></pre>
+main <span class="fu">=</span> runTestTT tests</code></pre></div>
 <p>Each test case is represented by a do-block. In this case, the do-block creates an IO action. You can think of it as a function that can perform IO operations such as reading a file from disk. A test can also be preceded with a label to give it a name.</p>
 <p>If we run this, we get</p>
 <pre><code>Cases: 2  Tried: 2  Errors: 0  Failures: 0
@@ -80,31 +80,31 @@ Counts {cases = 2, tried = 2, errors = 0, failures = 1}</code></pre>
 <p>Notice that there is no notion of a test class or <code>setUp</code> and <code>tearDown</code> methods in this file. A test suite is just a list of functions which each performs a test.</p>
 <h2 id="haskell-implementation">Haskell implementation</h2>
 <p>The way you implement <code>setUp</code> and <code>tearDown</code> in a HUnit is to include it in every test function that needs it. Something like this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> <span class="kw">do</span>
     tmpDir <span class="ot">&lt;-</span> createDirectory <span class="st">&quot;/tmp/org-app-test&quot;</span>
     <span class="co">-- Test that does something with tmpDir</span>
-    removeDirectoryRecursive tmpDir</code></pre>
+    removeDirectoryRecursive tmpDir</code></pre></div>
 <p>This almost works. It fails if an exception is thrown in the test code. Then <code>removeDirectoryRecursive</code> is never called. We need to fix that.</p>
 <p>We can extract this pattern into a function:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">withTemporaryDirectory ::</span> (FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">withTemporaryDirectory ::</span> (FilePath <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
 withTemporaryDirectory <span class="fu">=</span> bracket setUp tearDown
     <span class="kw">where</span>
         tmpDir   <span class="fu">=</span> <span class="st">&quot;/tmp/org-app-test&quot;</span>
         setUp    <span class="fu">=</span> createDirectory tmpDir <span class="fu">&gt;&gt;</span> return tmpDir
-        tearDown <span class="fu">=</span> removeDirectoryRecursive</code></pre>
+        tearDown <span class="fu">=</span> removeDirectoryRecursive</code></pre></div>
 <p>The <a href="http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Exception-Base.html#v:bracket"><code>bracket</code></a> function is similar to a try-finally block. It will always run the <code>setUp</code> function. If that succeeds, it will run the function passed in (the test in our case), and then always run the <code>tearDown</code> function, no matter if the test throws and exception or not.</p>
 <p>It is roughly equivalent to this:</p>
-<pre class="sourceCode python"><code class="sourceCode python">tmpDir = setUp()
-<span class="kw">try</span>:
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">tmpDir <span class="op">=</span> setUp()
+<span class="cf">try</span>:
     <span class="co"># Test that does something with tmpDir</span>
-<span class="kw">finally</span>:
-    tearDown(tmpDir)</code></pre>
+<span class="cf">finally</span>:
+    tearDown(tmpDir)</code></pre></div>
 <p>We can use <code>withTemporaryDirectory</code> like this:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span> <span class="kw">do</span>
-    <span class="co">-- Test that does something with tmpDir</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="st">&quot;can import file&quot;</span> <span class="fu">~:</span> withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span> <span class="kw">do</span>
+    <span class="co">-- Test that does something with tmpDir</span></code></pre></div>
 <p>The backslash syntax introduces a lambda function. So the test calls <code>withTemporaryDirectory</code> with one argument which is a function. (The signature of the function is <code>FilePath -&gt; IO ()</code>.) That function is run by <code>withTemporaryDirectory</code> in between the <code>setUp</code> and <code>tearDown</code>.</p>
 <p>So for every test that needs this setup, we just need to insert this snippet between the label and the do:</p>
-<pre class="sourceCode haskell"><code class="sourceCode haskell">withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">withTemporaryDirectory <span class="fu">$</span> \tmpDir <span class="ot">-&gt;</span></code></pre></div>
 <h2 id="the-beauty">The beauty</h2>
 <p>I think several aspects of this approach are more elegant than in traditional xUnit frameworks:</p>
 <ul>
@@ -131,19 +131,27 @@ withTemporaryDirectory <span class="fu">=</span> bracket setUp tearDown
           <ul>
           <li><a href="../../../">Home</a></li>
           <li><a href="../../../writing/">Writing</a></li>
-          <li><a href="../../../projects/">Projects</a></li>
           <li><a href="../../../contact/">Contact</a></li>
           <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
           </ul>
 
         </div>
 
-        <div class="span-6 last">
+        <div class="span-6">
 
           <p><strong>Me elsewhere</strong></p>
           <ul>
           <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
           <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
           </ul>
 
         </div>

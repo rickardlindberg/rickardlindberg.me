@@ -36,19 +36,19 @@
 <p>In order to test my ideas, I will build a small framework. I want to implement a message bus where anyone can publish and subscribe to messages. That way each microservice does not have to know about each other. They just need to know how to connect to the bus.</p>
 <p>I’m not sure if you always implement microservice architecture with a message bus, but from Fred’s presentations, I got the feeling that’s how he did it.</p>
 <p>My implementation will be in Haskell and use ZeroMQ for communication. First up are necessary imports:</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> <span class="ot">{-# LANGUAGE OverloadedStrings #-}</span>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> <span class="ot">{-# LANGUAGE OverloadedStrings #-}</span>
 <span class="ot">&gt;</span> 
 <span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">Control.Concurrent</span>
 <span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">Control.Monad</span>
 <span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">Data.ByteString.Char8</span> (<span class="dt">ByteString</span>(), pack, unpack, append)
 <span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">Data.Time</span>
 <span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">System.Environment</span>
-<span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">System.ZMQ3.Monadic</span></code></pre>
+<span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">System.ZMQ3.Monadic</span></code></pre></div>
 <p>Next, let’s define the two endpoints for publishing and subscribing to messages on the bus.</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> pubUrl <span class="fu">=</span> <span class="st">&quot;inproc://publish&quot;</span>
-<span class="ot">&gt;</span> subUrl <span class="fu">=</span> <span class="st">&quot;inproc://subscribe&quot;</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> pubUrl <span class="fu">=</span> <span class="st">&quot;inproc://publish&quot;</span>
+<span class="ot">&gt;</span> subUrl <span class="fu">=</span> <span class="st">&quot;inproc://subscribe&quot;</span></code></pre></div>
 <p>The bus itself is implemented with a proxy between XPub and XSub sockets. When the XPub and XSub sockets have been bound to their endpoint, the proxy starts in the background along with any nodes that should be on the bus. The main node is run in the foreground and should act as the entry point for the bus.</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; bus ::</span> <span class="dt">ZMQ</span> z () <span class="ot">-&gt;</span> [<span class="dt">ZMQ</span> z ()] <span class="ot">-&gt;</span> <span class="dt">ZMQ</span> z ()
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; bus ::</span> <span class="dt">ZMQ</span> z () <span class="ot">-&gt;</span> [<span class="dt">ZMQ</span> z ()] <span class="ot">-&gt;</span> <span class="dt">ZMQ</span> z ()
 <span class="ot">&gt;</span> bus main nodes <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">&gt;</span>     busPub <span class="ot">&lt;-</span> socket <span class="dt">XPub</span>
 <span class="ot">&gt;</span>     busSub <span class="ot">&lt;-</span> socket <span class="dt">XSub</span>
@@ -56,9 +56,9 @@
 <span class="ot">&gt;</span>     bind busSub pubUrl
 <span class="ot">&gt;</span>     async <span class="fu">$</span> proxy busSub busPub <span class="dt">Nothing</span>
 <span class="ot">&gt;</span>     mapM_ async nodes
-<span class="ot">&gt;</span>     main</code></pre>
+<span class="ot">&gt;</span>     main</code></pre></div>
 <p>Let’s define two functions that make it easier to get Pub and Sub sockets for use on the bus.</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; getPublisher ::</span> <span class="dt">ZMQ</span> z (<span class="dt">Socket</span> z <span class="dt">Pub</span>)
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; getPublisher ::</span> <span class="dt">ZMQ</span> z (<span class="dt">Socket</span> z <span class="dt">Pub</span>)
 <span class="ot">&gt;</span> getPublisher <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">&gt;</span>     s <span class="ot">&lt;-</span> socket <span class="dt">Pub</span>
 <span class="ot">&gt;</span>     connect s pubUrl
@@ -69,15 +69,15 @@
 <span class="ot">&gt;</span>     s <span class="ot">&lt;-</span> socket <span class="dt">Sub</span>
 <span class="ot">&gt;</span>     connect s subUrl
 <span class="ot">&gt;</span>     subscribe s topic
-<span class="ot">&gt;</span>     return s</code></pre>
+<span class="ot">&gt;</span>     return s</code></pre></div>
 <p>And a function to make logging to the console easier:</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; zmqLog ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">ZMQ</span> z ()
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; zmqLog ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">ZMQ</span> z ()
 <span class="ot">&gt;</span> zmqLog message <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">&gt;</span>     t <span class="ot">&lt;-</span> liftIO getCurrentTime
 <span class="ot">&gt;</span>     <span class="kw">let</span> x <span class="fu">=</span> show t <span class="fu">++</span> <span class="st">&quot;: &quot;</span> <span class="fu">++</span> message
-<span class="ot">&gt;</span>     liftIO <span class="fu">$</span> putStrLn x</code></pre>
+<span class="ot">&gt;</span>     liftIO <span class="fu">$</span> putStrLn x</code></pre></div>
 <h2 id="example-usage">Example usage</h2>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; examplePublisher ::</span> <span class="dt">ZMQ</span> z ()
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; examplePublisher ::</span> <span class="dt">ZMQ</span> z ()
 <span class="ot">&gt;</span> examplePublisher <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">&gt;</span>     pub <span class="ot">&lt;-</span> getPublisher
 <span class="ot">&gt;</span>     forever <span class="fu">$</span> <span class="kw">do</span>
@@ -93,7 +93,7 @@
 <span class="ot">&gt;</span>         zmqLog <span class="fu">$</span> unpack message
 <span class="ot">&gt;</span> 
 <span class="ot">&gt; exampleMain ::</span> <span class="dt">IO</span> ()
-<span class="ot">&gt;</span> exampleMain <span class="fu">=</span> runZMQ <span class="fu">$</span> bus (forever <span class="fu">$</span> return ()) [examplePublisher, exampleSubscriber]</code></pre>
+<span class="ot">&gt;</span> exampleMain <span class="fu">=</span> runZMQ <span class="fu">$</span> bus (forever <span class="fu">$</span> return ()) [examplePublisher, exampleSubscriber]</code></pre></div>
 <h2 id="kata">Kata</h2>
 <p>First, I need a problem to solve. Is microservice architecture only suited for some kinds of problems? It seems like you want to solve small problems, like the string calculator kata, within a single microservice. But let’s try to break it up. How can we partition the string calculator into multiple microservices?</p>
 <p>“” -&gt; 0 “5” -&gt; 5 “2,3” -&gt; 5 “1,2,3” -&gt; 6</p>
@@ -103,7 +103,7 @@
 <li>split string on numbers</li>
 </ul>
 <p>The code bellow is specific to the problem being solved. It uses the bus framework above.</p>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; kataMain ::</span> <span class="dt">IO</span> ()
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; kataMain ::</span> <span class="dt">IO</span> ()
 <span class="ot">&gt;</span> kataMain <span class="fu">=</span> runZMQ <span class="fu">$</span> bus repl [logger, singleNumbers]
 <span class="ot">&gt;</span> 
 <span class="ot">&gt; repl ::</span> <span class="dt">ZMQ</span> z ()
@@ -133,14 +133,14 @@
 <span class="ot">&gt;</span>         send pub [] (<span class="st">&quot;conclusion &quot;</span> <span class="ot">`append`</span> pack (show <span class="fu">$</span> parseNum <span class="fu">$</span> unwords <span class="fu">$</span> tail <span class="fu">$</span> words <span class="fu">$</span> unpack query))
 <span class="ot">&gt;</span>     <span class="kw">where</span>
 <span class="ot">&gt;         parseNum ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
-<span class="ot">&gt;</span>         parseNum <span class="fu">=</span> read</code></pre>
+<span class="ot">&gt;</span>         parseNum <span class="fu">=</span> read</code></pre></div>
 <h2 id="putting-it-together">Putting it together</h2>
-<pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; main ::</span> <span class="dt">IO</span> ()
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; main ::</span> <span class="dt">IO</span> ()
 <span class="ot">&gt;</span> main <span class="fu">=</span> <span class="kw">do</span>
 <span class="ot">&gt;</span>     args <span class="ot">&lt;-</span> getArgs
 <span class="ot">&gt;</span>     <span class="kw">case</span> args <span class="kw">of</span>
 <span class="ot">&gt;</span>         [<span class="st">&quot;example&quot;</span>] <span class="ot">-&gt;</span> exampleMain
-<span class="ot">&gt;</span>         [<span class="st">&quot;kata&quot;</span>] <span class="ot">-&gt;</span> kataMain</code></pre>
+<span class="ot">&gt;</span>         [<span class="st">&quot;kata&quot;</span>] <span class="ot">-&gt;</span> kataMain</code></pre></div>
 
         <hr>
 
@@ -150,19 +150,27 @@
           <ul>
           <li><a href="../../">Home</a></li>
           <li><a href="../../writing/">Writing</a></li>
-          <li><a href="../../projects/">Projects</a></li>
           <li><a href="../../contact/">Contact</a></li>
           <li><a href="../../cv-rickard-lindberg.pdf">CV</a></li>
           </ul>
 
         </div>
 
-        <div class="span-6 last">
+        <div class="span-6">
 
           <p><strong>Me elsewhere</strong></p>
           <ul>
           <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
           <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
           </ul>
 
         </div>
