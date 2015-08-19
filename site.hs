@@ -136,7 +136,7 @@ pageAsTemplate context processUrls = do
     route $ setExtension "html"
     compile $ getResourceBody
         >>= applyAsTemplate context
-        >>= return . renderPandoc
+        >>= renderPandoc
         >>= loadAndApplyTemplate "templates/title.html" defaultContext
         >>= loadAndApplyTemplate "templates/default.html" defaultContext
         >>= processUrls
