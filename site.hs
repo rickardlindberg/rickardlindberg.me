@@ -36,9 +36,6 @@ rules processUrls = do
     match "writing/*/index.html" $ do
         htmlPost processUrls
 
-    match "projects/index.textile" $ do
-        page processUrls
-
     match "contact/index.markdown" $ do
         page processUrls
 
