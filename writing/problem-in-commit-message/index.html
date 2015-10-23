@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Problem statements in commit messages | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-18 prepend-3 append-3">
+        <div>
+            <center>
+            <strong>
+            <a href="../../" class="small">rickardlindberg.me</a>
+            </strong>
+            </center>
+        </div>
+        <hr>
+        <h1>Problem statements in commit messages</h1>
+
+<p><em>Published on 23 October 2015.</em></p>
+
+<p>I’ve been influenced by <a href="http://hintjens.com/">Pieter Hintjens</a> recently. He talks, among other things, about a software development process where each patch must solve a single identified problem. He talks about a trick to start your commit messages with “Problem:”. The reason behind it is that you should only be solving problems, not implement features (that someone might or might not need later).</p>
+<p>One day I made a connection between that idea and <a href="https://twitter.com/scichelli/status/556154967002578944">this tweet</a>:</p>
+<blockquote>
+<p>“Commit messages should say why you made a change, not what you changed.” ~<span class="citation">@brndnpugh</span></p>
+</blockquote>
+<p>If you implement Pieter’s trick and start each commit message with “Problem:” you are more likely to do what the tweet suggest. The commit message becomes the problem statement. The why. The reason you are writing this patch. The diff itself becomes the solution. The what.</p>
+<p>Most of the time you can probably figure out the solution by looking at the diff. Here is an example of that:</p>
+<pre><code># HG changeset patch
+# User Rickard Lindberg &lt;ricli85@gmail.com&gt;
+# Date 1445582758 -7200
+#      Fri Oct 23 08:45:58 2015 +0200
+# Node ID 8c9046e688c23fc0eab2e830df962988edf11518
+# Parent  ca24accb9910a5080b3fcf3925110cb1ce9637b3
+Problem: Controls are not properly aligned in duplicate event dialog.
+
+diff -r ca24accb9910 -r 8c9046e688c2 source/timelinelib/wxgui/dialogs/duplicateevent/view.py
+--- a/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:39:16 2015 +0200
++++ b/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:45:58 2015 +0200
+@@ -31,20 +31,44 @@
+     &lt;BoxSizerVertical&gt;
+ 
+         &lt;BoxSizerHorizontal border=&quot;ALL&quot; &gt;
+-            &lt;StaticText label=&quot;$(nbr_of_duplicates_text)&quot; /&gt;
++            &lt;StaticText
++                label=&quot;$(nbr_of_duplicates_text)&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+             &lt;Spacer /&gt;
+-            &lt;SpinCtrl width=&quot;50&quot; name=&quot;sc_nbr_of_duplicates&quot; /&gt;
++            &lt;SpinCtrl
++                width=&quot;50&quot;
++                name=&quot;sc_nbr_of_duplicates&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+         &lt;/BoxSizerHorizontal&gt;
+ 
+-        &lt;RadioBox label=&quot;$(period_text)&quot; name=&quot;rb_periods&quot; choices=&quot;$(period_choices)&quot; border=&quot;LEFT|RIGHT|BOTTOM&quot; /&gt;
++        &lt;RadioBox
++            label=&quot;$(period_text)&quot;
++            name=&quot;rb_periods&quot;
++            choices=&quot;$(period_choices)&quot;
++            border=&quot;LEFT|RIGHT|BOTTOM&quot;
++        /&gt;
+ 
+         &lt;BoxSizerHorizontal border=&quot;LEFT|RIGHT|BOTTOM&quot; &gt;
+-            &lt;StaticText label=&quot;$(frequency_text)&quot; /&gt;
++            &lt;StaticText
++                label=&quot;$(frequency_text)&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+             &lt;Spacer /&gt;
+-            &lt;SpinCtrl width=&quot;50&quot; name=&quot;sc_frequency&quot; /&gt;
++            &lt;SpinCtrl
++                width=&quot;50&quot;
++                name=&quot;sc_frequency&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+         &lt;/BoxSizerHorizontal&gt;
+ 
+-        &lt;RadioBox label=&quot;$(direction_text)&quot; name=&quot;rb_direction&quot; choices=&quot;$(direction_choices)&quot; border=&quot;LEFT|RIGHT|BOTTOM&quot; /&gt;
++        &lt;RadioBox
++            label=&quot;$(direction_text)&quot;
++            name=&quot;rb_direction&quot;
++            choices=&quot;$(direction_choices)&quot;
++            border=&quot;LEFT|RIGHT|BOTTOM&quot;
++        /&gt;
+ 
+         &lt;DialogButtonsOkCancelSizer
+             border=&quot;LEFT|RIGHT|BOTTOM&quot;</code></pre>
+<p>(The changes to <code>RadioBox</code> are not related to solving the problem of alignment. They are just style changes to improve readability. They should have been in a separate commit.)</p>
+<p>If you think it will be hard, you can perhaps spell out the solution in the commit message. But after the problem statement. Here is one example of that:</p>
+<pre><code># HG changeset patch
+# User Rickard Lindberg &lt;ricli85@gmail.com&gt;
+# Date 1445583177 -7200
+#      Fri Oct 23 08:52:57 2015 +0200
+# Node ID c2b3d89a28a64112d2a8ca0545a8c8a32230b4bb
+# Parent  8c9046e688c23fc0eab2e830df962988edf11518
+Problem: Whole spin control is not visible.
+
+This is a problem on Linux using wxPython 3.
+
+Solution: Use default size.
+
+diff -r 8c9046e688c2 -r c2b3d89a28a6 source/timelinelib/wxgui/dialogs/duplicateevent/view.py
+--- a/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:45:58 2015 +0200
++++ b/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:52:57 2015 +0200
+@@ -37,7 +37,6 @@
+             /&gt;
+             &lt;Spacer /&gt;
+             &lt;SpinCtrl
+-                width=&quot;50&quot;
+                 name=&quot;sc_nbr_of_duplicates&quot;
+                 align=&quot;ALIGN_CENTER_VERTICAL&quot;
+             /&gt;
+@@ -57,7 +56,6 @@
+             /&gt;
+             &lt;Spacer /&gt;
+             &lt;SpinCtrl
+-                width=&quot;50&quot;
+                 name=&quot;sc_frequency&quot;
+                 align=&quot;ALIGN_CENTER_VERTICAL&quot;
+             /&gt;</code></pre>
+<p>Another post about commit messages:</p>
+<ul>
+<li><a href="https://arialdomartini.wordpress.com/2012/09/03/pre-emptive-commit-comments/" class="uri">https://arialdomartini.wordpress.com/2012/09/03/pre-emptive-commit-comments/</a></li>
+</ul>
+
+        <hr>
+
+        <div class="span-6">
+
+          <p><strong>Navigation</strong></p>
+          <ul>
+          <li><a href="../../">Home</a></li>
+          <li><a href="../../writing/">Writing</a></li>
+          <li><a href="../../contact/">Contact</a></li>
+          <li><a href="../../cv-rickard-lindberg.pdf">CV</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6">
+
+          <p><strong>Me elsewhere</strong></p>
+          <ul>
+          <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
+          <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
+          </ul>
+
+        </div>
+        <hr>
+        <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
