@@ -1,5 +1,5 @@
 ---
-title: Problem descriptions in commit messages
+title: Problem statements in commit messages
 date: 2015-10-23
 ---
 
@@ -17,7 +17,7 @@ tweet](https://twitter.com/scichelli/status/556154967002578944):
 
 If you implement Pieter's trick and start each commit message with "Problem:"
 you are more likely to do what the tweet suggest. The commit message becomes
-the problem definition. The why. The reason you are writing this patch. The
+the problem statement. The why. The reason you are writing this patch. The
 diff itself becomes the solution. The what.
 
 Most of the time you can probably figure out the solution by looking at the
