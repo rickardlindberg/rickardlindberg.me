@@ -7,7 +7,8 @@ I've been influenced by [Pieter Hintjens](http://hintjens.com/) recently. He
 talks, among other things, about a software development process where each
 patch must solve a single identified problem. He talks about a trick to start
 your commit messages with "Problem:". The reason behind it is that you should
-only be solving problems, not implement features (that we might not need).
+only be solving problems, not implement features (that someone might or might
+not need later).
 
 One day I made a connection between that idea and [this
 tweet](https://twitter.com/scichelli/status/556154967002578944):
