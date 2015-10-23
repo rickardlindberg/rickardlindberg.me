@@ -101,6 +101,7 @@ postsWithDirectoryNamePattern :: Pattern
 postsWithDirectoryNamePattern =
          "writing/xmodmap-on-fedora/index.markdown"
     .||. "writing/python-danger-implicit-if/index.markdown"
+    .||. "writing/problem-in-commit-message/index.markdown"
     .||. "writing/search-and-replace-in-vim/index.markdown"
 
 postsWithOwnTitlePattern :: Pattern
