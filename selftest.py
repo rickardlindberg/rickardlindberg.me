@@ -6,7 +6,7 @@ import urlparse
 def check_single(url):
     try:
         response = requests.get(url, timeout=15.0)
-    except requests.exceptions.Timeout:
+    except:
         return None
     else:
         if response.status_code == 200:
