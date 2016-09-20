@@ -1,6 +1,6 @@
 ---
-title: Tell, don't ask, example
-date: 2016-09-18
+title: Tell, don't ask example
+date: 2016-09-20
 ---
 
 I recently read *The Pragmatic Programmer*, and in one of the exercises you
@@ -60,7 +60,7 @@ The result of running the parser on the example is the following:
 In this solution, each line is converted to a command object (a tuple) and all
 commands are returned in a list. This list of commands is a kind of parse tree,
 and it is easier to work with than the plain text. It is up to the consumer of
-the parse tree what to do with it next.
+the parse tree what to do next.
 
 Here is an example showing how the parse tree can be pretty printed (formatted
 to text again after being parsed):
