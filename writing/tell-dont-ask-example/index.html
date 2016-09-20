@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>
+      Tell, don't ask example | Rickard's personal homepage
+    </title>
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="../../css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]>
+      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <![endif]-->
+    <link rel="stylesheet" href="../../css/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../css/syntax.css" type="text/css">
+  </head>
+  <body>
+    <div class="container noshowgrid">
+      <div class="span-18 prepend-3 append-3">
+        <div>
+            <center>
+            <strong>
+            <a href="../../" class="small">rickardlindberg.me</a>
+            </strong>
+            </center>
+        </div>
+        <hr>
+        <h1>Tell, don't ask example</h1>
+
+<p><em>Published on 20 September 2016.</em></p>
+
+<p>I recently read <em>The Pragmatic Programmer</em>, and in one of the exercises you should write a parser for a DSL that controls a drawing package. Here is the example from the book:</p>
+<pre><code>P 2  # select pen 2
+D    # pen down
+W 2  # draw west 2cm
+N 1  # then north 1
+E 2  # then east 2
+S 1  # then back south
+U    # pen up</code></pre>
+<p>Here is one solution to this problem (in Python):</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Parser(<span class="bu">object</span>):
+
+    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
+        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
+            result <span class="op">=</span> []
+            <span class="cf">for</span> line <span class="op">in</span> f:
+                result.append(<span class="va">self</span>.parse_line(line))
+            <span class="cf">return</span> result
+
+    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
+        patterns <span class="op">=</span> [
+            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;select_pen&quot;</span>, <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_down&quot;</span>,   <span class="va">None</span>)),
+            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;west&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;north&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;east&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;south&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_up&quot;</span>,     <span class="va">None</span>)),
+        ]
+        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+            match <span class="op">=</span> re.search(pattern, line)
+            <span class="cf">if</span> match:
+                <span class="cf">return</span> fn(match)</code></pre></div>
+<p>The result of running the parser on the example is the following:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
+    (<span class="st">'select_pen'</span>, <span class="dv">2</span>),
+    (<span class="st">'pen_down'</span>, <span class="va">None</span>),
+    (<span class="st">'west'</span>, <span class="dv">2</span>),
+    (<span class="st">'north'</span>, <span class="dv">1</span>),
+    (<span class="st">'east'</span>, <span class="dv">2</span>),
+    (<span class="st">'south'</span>, <span class="dv">1</span>),
+    (<span class="st">'pen_up'</span>, <span class="va">None</span>)
+]</code></pre></div>
+<p>In this solution, each line is converted to a command object (a tuple) and all commands are returned in a list. This list of commands is a kind of parse tree, and it is easier to work with than the plain text. It is up to the consumer of the parse tree what to do next.</p>
+<p>Here is an example showing how the parse tree can be pretty printed (formatted to text again after being parsed):</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> pretty_print(commands):
+    <span class="cf">for</span> (command, argument) <span class="op">in</span> commands:
+        <span class="cf">if</span> command <span class="op">==</span> <span class="st">&quot;select_pen&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(argument))
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_down&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;west&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(argument))
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;north&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(argument))
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;east&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(argument))
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;south&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(argument))
+        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_up&quot;</span>:
+            <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
+<p>If run on the example, the following output is obtained:</p>
+<pre><code>P 2
+D
+W 2
+N 1
+E 2
+S 1
+U</code></pre>
+<p>The original program is obtained except for all the comments that have been stripped. Notice that the <code>pretty_print</code> function has to know about the structure of the parse tree: it has to know that it is a list of commands and that each command is a tuple with two entries (some of which might be <code>None</code>). The lack of a final else-statement is also unsatisfactory.</p>
+<p>In object oriented terms, the parser is <strong>asked</strong> for a list of commands. How would a solution look like if the <em>Tell, don’t ask</em> principle is applied? Here is one alternative:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Parser(<span class="bu">object</span>):
+
+    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, interpreter):
+        <span class="va">self</span>._interpreter <span class="op">=</span> interpreter
+
+    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
+        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
+            <span class="cf">for</span> line <span class="op">in</span> f:
+                <span class="va">self</span>.parse_line(line)
+
+    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
+        patterns <span class="op">=</span> [
+            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.select_pen(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_down()),
+            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.west(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.north(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.east(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.south(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
+            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_up()),
+        ]
+        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+            match <span class="op">=</span> re.search(pattern, line)
+            <span class="cf">if</span> match:
+                fn(match)</code></pre></div>
+<p>This parser returns nothing. Instead it depends on an interpreter that it forwards calls to: It <strong>tells</strong> the interpreter to handle various commands. An interpreter can be any object supporting the command-methods. Here is what the pretty printer from the first example would look like:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> PrettyPrinter(<span class="bu">object</span>):
+
+    <span class="kw">def</span> select_pen(<span class="va">self</span>, number):
+        <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(number))
+
+    <span class="kw">def</span> pen_down(<span class="va">self</span>):
+        <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
+
+    <span class="kw">def</span> west(<span class="va">self</span>, amount):
+        <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(amount))
+
+    <span class="kw">def</span> north(<span class="va">self</span>, amount):
+        <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(amount))
+
+    <span class="kw">def</span> east(<span class="va">self</span>, amount):
+        <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(amount))
+
+    <span class="kw">def</span> south(<span class="va">self</span>, amount):
+        <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(amount))
+
+    <span class="kw">def</span> pen_up(<span class="va">self</span>):
+        <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
+<p>The pretty printer no longer has to do the looping. It doesn’t have to bother with arguments being <code>None</code> either. Instead it just has one method to handle each type of command.</p>
+<p>Try to compare the solutions and think about in what situations one is better than the other. What has to change if a new command is added? What has to change to do some actual drawing instead of pretty printing? What if both drawing and pretty printing must be supported?</p>
+<p>See also:</p>
+<ul>
+<li><a href="http://martinfowler.com/bliki/TellDontAsk.html" class="uri">http://martinfowler.com/bliki/TellDontAsk.html</a></li>
+<li><a href="https://pragprog.com/articles/tell-dont-ask" class="uri">https://pragprog.com/articles/tell-dont-ask</a></li>
+</ul>
+
+        <hr>
+
+        <div class="span-6">
+
+          <p><strong>Navigation</strong></p>
+          <ul>
+          <li><a href="../../">Home</a></li>
+          <li><a href="../../writing/">Writing</a></li>
+          <li><a href="../../contact/">Contact</a></li>
+          <li><a href="../../cv-rickard-lindberg.pdf">CV</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6">
+
+          <p><strong>Me elsewhere</strong></p>
+          <ul>
+          <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
+          <li><a href="http://twitter.com/ricli85">Twitter</a></li>
+          </ul>
+
+        </div>
+
+        <div class="span-6 last">
+
+          <p><strong>Projects</strong></p>
+          <ul>
+          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
+          </ul>
+
+        </div>
+        <hr>
+        <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
