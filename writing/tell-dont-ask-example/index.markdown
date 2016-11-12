@@ -3,6 +3,9 @@ title: Tell, don't ask example
 date: 2016-09-20
 ---
 
+*12 November 2016: Added sentence to introduction giving an overview of the
+article.*
+
 I recently read *The Pragmatic Programmer*, and in one of the exercises you
 should write a parser for a DSL that controls a drawing package. Here is the
 example from the book:
@@ -15,7 +18,8 @@ example from the book:
     S 1  # then back south
     U    # pen up
 
-Here is one solution to this problem (in Python):
+In this article I explore two solutions to this problem where the direction of
+control differs. Here is the first (in Python):
 
 ```python
 class Parser(object):
