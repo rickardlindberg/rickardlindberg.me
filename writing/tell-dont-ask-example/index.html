@@ -32,6 +32,7 @@
 
 <p><em>Published on 20 September 2016.</em></p>
 
+<p><em>12 November 2016: Added sentence to introduction giving an overview of the article.</em></p>
 <p>I recently read <em>The Pragmatic Programmer</em>, and in one of the exercises you should write a parser for a DSL that controls a drawing package. Here is the example from the book:</p>
 <pre><code>P 2  # select pen 2
 D    # pen down
@@ -40,7 +41,7 @@ N 1  # then north 1
 E 2  # then east 2
 S 1  # then back south
 U    # pen up</code></pre>
-<p>Here is one solution to this problem (in Python):</p>
+<p>In this article I explore two solutions to this problem where the direction of control differs. Here is the first (in Python):</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Parser(<span class="bu">object</span>):
 
     <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
