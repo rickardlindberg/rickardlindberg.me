@@ -41,7 +41,7 @@ creates a generator, it is not executed until the collection is accessed (which
 happened in the else-clause). So the exception was actually raised when
 starting looping over items.
 
-## What about skipping the else-caluse?
+## What about skipping the else-clause?
 
 To ensure that an exception from the generator is caught, the `main` function
 could be written like this:
