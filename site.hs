@@ -104,6 +104,7 @@ postsWithDirectoryNamePattern =
     .||. "writing/problem-in-commit-message/index.markdown"
     .||. "writing/search-and-replace-in-vim/index.markdown"
     .||. "writing/tell-dont-ask-example/index.markdown"
+    .||. "writing/bitten-by-python-generators/index.markdown"
 
 postsWithOwnTitlePattern :: Pattern
 postsWithOwnTitlePattern =
