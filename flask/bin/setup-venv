@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ ! -d venv ]; then
+    python -m virtualenv venv
+fi
+
+. ./venv/bin/activate
+
+pip install flask

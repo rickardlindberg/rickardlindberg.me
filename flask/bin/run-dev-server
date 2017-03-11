@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+VENV_ACTIVATE=./venv/bin/activate
+
+if [ ! -e $VENV_ACTIVATE ]; then
+    echo "Did not find $VENV_ACTIVATE"
+    exit 1
+fi
+
+. ./venv/bin/activate
+
+export FLASK_APP=rickardlindberglib
+export FLASK_DEBUG=1
+
+flask run
