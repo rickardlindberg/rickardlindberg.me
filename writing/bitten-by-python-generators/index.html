@@ -50,7 +50,7 @@
         <span class="cf">if</span> item.is_good():
             <span class="cf">yield</span> item</code></pre></div>
 <p>The exception actually came from <code>read_items_from_disk</code>, but since this code creates a generator, it is not executed until the collection is accessed (which happened in the else-clause). So the exception was actually raised when starting looping over items.</p>
-<h2 id="what-about-skipping-the-else-caluse">What about skipping the else-caluse?</h2>
+<h2 id="what-about-skipping-the-else-clause">What about skipping the else-clause?</h2>
 <p>To ensure that an exception from the generator is caught, the <code>main</code> function could be written like this:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
     <span class="cf">try</span>:
