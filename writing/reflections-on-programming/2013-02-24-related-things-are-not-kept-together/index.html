@@ -144,19 +144,19 @@ unit 2
 <h2 id="leo">Leo</h2>
 <p>At a first glance, Leo looks like an outliner.</p>
 <p>Here I’ve replicated parts of the file structure of <a href="https://github.com/kajgo/photobox">an Android project</a> inside Leo:</p>
-<p><img src="leo-photobox-file-structure.png" title="Replicated file structure in Leo." alt="Replicated file structure in Leo." /></p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-file-structure.png" title="Replicated file structure in Leo." alt="Replicated file structure in Leo." /></p>
 <p>Every node that starts with shadow tells Leo that it is stored in an external file. When we modify it in Leo, it will be modified on disk as well. The outline mirrors the structure of the file system. So the file <code>IntroActivity.java</code> is located in the folder <code>photobox/src/com/photobox/app/</code>.</p>
 <p>So far, this doesn’t add much value. It looks exactly like the file system. Let’s see how Leo allows us to improve our organization.</p>
 <p>Inside each file, we can create nodes to explicitly show the structure of our source file (the poor alternative to this is section comments):</p>
-<p><img src="leo-photobox-class-structure.png" title="Show structure inside files." alt="Show structure inside files." /></p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure.png" title="Show structure inside files." alt="Show structure inside files." /></p>
 <p>In this example, each method in the class is put in its own node. If we want, we can group related methods together under a name:</p>
-<p><img src="leo-photobox-class-structure-grouping.png" title="Create more structure inside files." alt="Create more structure inside files." /></p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure-grouping.png" title="Create more structure inside files." alt="Create more structure inside files." /></p>
 <p>This is a bit better, but we still don’t have related things together. We can solve that by using clones in Leo. Clones allow us to show one node in multiple places in the outline.</p>
 <p>Let’s say we want to gather all information about photo collections in one place. First we create a node called “Photo collection”, then we clone the “class PhotoCollection” and “class PhotoCollectionTest” nodes and put them as children to “Photo collection” :</p>
-<p><img src="leo-photobox-clones.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-clones.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
 <p>When we change a cloned node, all places where that clone appears in the outline are changed. So if we want to work with photo collections, we never have to touch the “Files” tree. We can spend all time in “Photo collection” because all things related to that area is visible there as well.</p>
 <p>Another example of clones shows how things related to the intro screen in the app have been kept together under a node:</p>
-<p><img src="leo-photobox-another-view.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-another-view.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
 <h2 id="summary">Summary</h2>
 <p>I hope that I’ve convinced you that using only the file system to organize our code bases makes them hard to understand. It makes them hard to understand because related things are not kept together, and the structure is not clearly visible. I also hope that I’ve given you some ideas how we can improve the situation.</p>
 

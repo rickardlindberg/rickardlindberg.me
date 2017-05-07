@@ -200,7 +200,7 @@ toByteCode tokens <span class="fu">=</span> toByteCode' tokens <span class="dt">
                                         <span class="kw">in</span>  loop</code></pre></div>
 <p>There is one special trick going on here, and that is in the last case where we create the loop instruction. <code>toByteCode'</code> takes as last argument the instruction that should be at the end. At the top level, we pass in <code>BEND</code>, but when creating the loop, we pass in the loop itself. So the last instruction of the loop links to the loop itself.</p>
 <p>Below is a picture of the byte code representation of this Brainfuck program “<code>.[-.]&gt;</code>” :</p>
-<p><img src="brainfuck-byte-code.png" alt /></p>
+<p><img src="../../../writing/reflections-on-programming/2012-06-17-a-beautiful-brainfuck-implementation/brainfuck-byte-code.png" alt /></p>
 <p>Compiling the whole program is just a matter of combining the parsing with the byte code convertion:</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">compile ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">ByteCode</span>
 compile <span class="fu">=</span> toByteCode <span class="fu">.</span> parseTokens</code></pre></div>

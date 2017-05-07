@@ -84,17 +84,17 @@ recording |                |                |
 <h3 id="setup">Setup</h3>
 <p>In order to measure the I/O latency, we need to create a loop. That way a test program can send a signal and measure the time it takes for the signal to travel through the system.</p>
 <p>I use a Zoom H4n as a USB audio interface. The first way to close the loop is with a direct patch cable:</p>
-<p><img src="direct.jpg" alt="image" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/direct.jpg" alt="image" /></p>
 <p>We connect the patch cable from the headphone line out to a line in. The H4n has combo inputs that works for microphones, electric instrument, or line level sources.</p>
 <p>The second way to close the loop is with a speaker and a microphone:</p>
-<p><img src="mic.jpg" alt="image" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/mic.jpg" alt="image" /></p>
 <p>We connect headphones to the headphone line out and put them close to the built in microphones on the H4n.</p>
 <h3 id="process">Process</h3>
 <p>Now that we have the loop set up in hardware, this is the process to measure the I/O latency:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Start JACK with the given settings</strong></p>
 <p>From QjackCtl, click “Setup…”:</p>
-<p><img src="jack_setup.png" alt="image" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_setup.png" alt="image" /></p>
 <p>Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O are both set to 0 (default).</p>
 <p>Click “OK” to close the dialog, then click “Start”.</p></li>
 <li><p><strong>Start jack_iodelay</strong></p>
@@ -102,7 +102,7 @@ recording |                |                |
 <pre><code>jack_iodelay</code></pre></li>
 <li><p><strong>Connect</strong></p>
 <p>From QjackCtl, click “Connect”:</p>
-<p><img src="jack_connect.png" alt="image" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_connect.png" alt="image" /></p>
 <p>This will create the loop in software as well so that jack_iodelay can capture the signal that it sends out.</p></li>
 <li><p><strong>Observe output</strong></p>
 <p>We should see something like this:</p>
