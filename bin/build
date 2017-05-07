@@ -5,4 +5,26 @@ set -e
 build_dir=_build
 
 mkdir -p $build_dir
-ghc --make site.hs -outputdir $build_dir -o $build_dir/site && $build_dir/site rebuild
+
+ghc --make site.hs -outputdir $build_dir -o $build_dir/site
+
+$build_dir/site rebuild
+
+echo "Copy files for url-compatibility"
+mkdir -p _site/images
+
+cp _site/avatar.png _site/images
+cp _site/writing/reflections-on-programming/2012-01-11-application-development-series-intro/org-app-sketch.png _site/images
+cp _site/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-another-view.png _site/images
+cp _site/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-clones.png _site/images
+cp _site/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure.png _site/images
+cp _site/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-file-structure.png _site/images
+cp _site/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure-grouping.png _site/images
+cp _site/writing/reflections-on-programming/2012-06-23-data-structures-in-oop/event-data-structure.png _site/images
+cp _site/writing/reflections-on-programming/2012-06-23-data-structures-in-oop/events-interface.png _site/images
+cp _site/writing/reflections-on-programming/2012-06-17-a-beautiful-brainfuck-implementation/brainfuck-byte-code.png _site/images
+cp _site/writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/running.png _site/images
+cp _site/writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/success.png _site/images
+cp _site/writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/failure.png _site/images
+cp _site/writing/reflections-on-programming/2011-10-10-learning-haskell/fp_oop_structure.png _site/images
+echo DONE
