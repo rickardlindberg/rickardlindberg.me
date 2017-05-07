@@ -87,7 +87,7 @@ feedRules isBuildTargetWebserver = do
         feedPosts =
             loadAllSnapshots allPosts "postContentOnly"
             >>= recentFirst
-            >>= return . (take 15)
+            -- >>= return . (take 15)
         feedContext =
             postContext isBuildTargetWebserver
             `mappend`
