@@ -144,6 +144,7 @@ htmlPost isBuildTargetWebserver = do
     route idRoute
     compile $ getResourceBody
         >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+        >>= processUrls isBuildTargetWebserver
         >>= saveSnapshot "postContentOnly"
         >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
         >>= processUrls isBuildTargetWebserver
@@ -175,6 +176,7 @@ postWithOwnTitle :: Bool -> (Item String -> Compiler (Item String)) -> Rules ()
 postWithOwnTitle isBuildTargetWebserver processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
+        >>= processUrls isBuildTargetWebserver
         >>= saveSnapshot "postContentOnly"
         >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
         >>= processUrls
@@ -198,6 +200,7 @@ recentPostsContext isBuildTargetWebserver =
 compilePost :: Bool -> Rules ()
 compilePost isBuildTargetWebserver = compile $ pandocCompiler
     >>= loadAndApplyTemplate "templates/title.html" (postContext isBuildTargetWebserver)
+    >>= processUrls isBuildTargetWebserver
     >>= saveSnapshot "postContentOnly"
     >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
     >>= processUrls isBuildTargetWebserver
