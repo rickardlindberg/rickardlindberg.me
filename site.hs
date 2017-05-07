@@ -20,6 +20,8 @@ rules processUrls = do
         verbatimCopy
     match "images/**" $ do
         verbatimCopy
+    match "avatar.png" $ do
+        verbatimCopy
     match "writing/**/*.png" $ do
         verbatimCopy
     match "writing/**/*.jpg" $ do
