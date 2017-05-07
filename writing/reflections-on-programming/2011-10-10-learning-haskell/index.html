@@ -1,34 +1,63 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
       Learning Haskell | Rickard's personal homepage
     </title>
 
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
     <meta name="keywords" content="programming, writing" />
     <meta name="description" content="Rickard's personal homepage.">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-    <link rel="stylesheet" href="../../../css/blueprint/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="../../../css/blueprint/print.css" type="text/css" media="print">
-    <!--[if lt IE 8]>
-      <link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection">
-    <![endif]-->
-    <link rel="stylesheet" href="../../../css/layout.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="../../../css/syntax.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
   </head>
   <body>
-    <div class="container noshowgrid">
-      <div class="span-18 prepend-3 append-3">
-        <div>
-            <center>
-            <strong>
-            <a href="../../../" class="small">rickardlindberg.me</a>
-            </strong>
-            </center>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
         </div>
-        <hr>
-        <h1>Learning Haskell</h1>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
+              </ul>
+            </li>
+
+            <li><a href="../../../contact/">Contact</a></li>
+            <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Learning Haskell</h1>
 
 <p><em>Published on 10 October 2011.</em></p>
 
@@ -56,47 +85,21 @@
 <p>My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from <a href="http://fileadmin.cs.lth.se/cs/Education/EDAN40/assignment4/parser.pdf">Parsing with Haskell Introduction</a> .)</p>
 <p>When this happened I thought about <a href="http://mitpress.mit.edu/sicp/">Structure and Interpretation of Computer Programs</a>. In particular how they described that a powerful way to solve a complex problem is to design a language in which that problem is trivial to solve. It felt like I had done exactly that, and it felt powerful.</p>
 <p>When reading the code for the parser, I can focus on one layer at a time. Compared to OOP where you have a web of objects communicating with each other, it feels like the layered structure is easier to understand:</p>
-<p><img src="../../../images/fp_oop_structure.png" title="Structure of FP and OOP." alt="Structure of FP and OOP." /></p>
+<p><img src="fp_oop_structure.png" title="Structure of FP and OOP." alt="Structure of FP and OOP." /></p>
 <h2 id="reuse-of-code">Reuse of code</h2>
 <p>The reuse of code feels different in Haskell than in OOP. Firstly I think it is because the layered approach lends itself better to reuse than the web of objects. Secondly I think it is because you write pure functions with no side effects.</p>
 <h2 id="summary">Summary</h2>
 <p>I had a pleasant weekend learning Haskell and I’m looking forward to learning more.</p>
 
-        <hr>
+      <hr>
+      <center>
+      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </center>
+    </div><!-- /.container -->
 
-        <div class="span-6">
-
-          <p><strong>Navigation</strong></p>
-          <ul>
-          <li><a href="../../../">Home</a></li>
-          <li><a href="../../../writing/">Writing</a></li>
-          <li><a href="../../../contact/">Contact</a></li>
-          <li><a href="../../../cv-rickard-lindberg.pdf">CV</a></li>
-          </ul>
-
-        </div>
-
-        <div class="span-6">
-
-          <p><strong>Me elsewhere</strong></p>
-          <ul>
-          <li><a href="https://github.com/rickardlindberg">GitHub</a> (<a href="https://gist.github.com/rickardlindberg">my gists</a>)</li>
-          <li><a href="http://twitter.com/ricli85">Twitter</a></li>
-          </ul>
-
-        </div>
-
-        <div class="span-6 last">
-
-          <p><strong>Projects</strong></p>
-          <ul>
-          <li><a href="http://thetimelineproj.sourceforge.net">Timeline</a></li>
-          </ul>
-
-        </div>
-        <hr>
-        <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
-      </div>
-    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>
