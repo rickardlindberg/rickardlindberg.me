@@ -68,7 +68,7 @@ rules isBuildTargetWebserver = do
             (createPostsContext isBuildTargetWebserver RecentFirst [("posts", allPosts)])
 
     match postsWithOwnTitlePattern $ do
-        postWithOwnTitle isBuildTargetWebserver (processUrls isBuildTargetWebserver)
+        postWithOwnTitle isBuildTargetWebserver
 
     match postsWithDirectoryNamePattern $ do
         post isBuildTargetWebserver
@@ -172,14 +172,14 @@ post isBuildTargetWebserver = do
     route $ setExtension "html"
     compilePost isBuildTargetWebserver
 
-postWithOwnTitle :: Bool -> (Item String -> Compiler (Item String)) -> Rules ()
-postWithOwnTitle isBuildTargetWebserver processUrls = do
+postWithOwnTitle :: Bool -> Rules ()
+postWithOwnTitle isBuildTargetWebserver = do
     route $ setExtension "html"
     compile $ pandocCompiler
         >>= processUrls isBuildTargetWebserver
         >>= saveSnapshot "postContentOnly"
         >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-        >>= processUrls
+        >>= processUrls isBuildTargetWebserver
 
 data PostOrder = RecentFirst | Chronological
 
