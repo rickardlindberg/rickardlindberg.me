@@ -8,6 +8,15 @@ import System.Environment
 import System.FilePath
 import Network.HTTP.Base
 
+myFeedConfiguration :: FeedConfiguration
+myFeedConfiguration = FeedConfiguration
+    { feedTitle       = "Rickard's personal homepage: latest posts"
+    , feedDescription = "Rickard's personal homepage: latest posts"
+    , feedAuthorName  = "Rickard Lindberg"
+    , feedAuthorEmail = "ricli85@gmail.com"
+    , feedRoot        = "http://rickardlindberg.me"
+    }
+
 rules :: Bool -> Rules ()
 rules isBuildTargetWebserver = do
 
@@ -33,7 +42,21 @@ rules isBuildTargetWebserver = do
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls isBuildTargetWebserver
 
-    match "writing/*/index.html" $ do
+    create ["atom.xml"] $ do
+        route idRoute
+        compile $ do
+            let feedContext = postContext isBuildTargetWebserver `mappend` bodyField "description"
+            posts <- recentFirst =<< loadAllSnapshots allPosts "postContentOnly"
+            renderAtom myFeedConfiguration feedContext posts
+
+    create ["rss.xml"] $ do
+        route idRoute
+        compile $ do
+            let feedContext = postContext isBuildTargetWebserver `mappend` bodyField "description"
+            posts <- recentFirst =<< loadAllSnapshots allPosts "postContentOnly"
+            renderRss myFeedConfiguration feedContext posts
+
+    match htmlPostPattern $ do
         htmlPost isBuildTargetWebserver
 
     match "contact/index.markdown" $ do
@@ -80,7 +103,7 @@ allPosts =
     .||. reflectionsOnProgrammingPattern
     .||. postsWithDirectoryNamePattern
     .||. postsWithOwnTitlePattern
-    .||. "writing/*/index.html"
+    .||. htmlPostPattern
 
 thoughtOfTheDay1Pattern :: Pattern
 thoughtOfTheDay1Pattern =
@@ -107,6 +130,10 @@ postsWithOwnTitlePattern :: Pattern
 postsWithOwnTitlePattern =
     "writing/ardour-latency-free-overdubbing/index.rst"
 
+htmlPostPattern :: Pattern
+htmlPostPattern =
+    "writing/*/index.html"
+
 verbatimCopy :: Rules ()
 verbatimCopy = do
     route idRoute
@@ -117,6 +144,7 @@ htmlPost isBuildTargetWebserver = do
     route idRoute
     compile $ getResourceBody
         >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+        >>= saveSnapshot "postContentOnly"
         >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
         >>= processUrls isBuildTargetWebserver
 
@@ -147,6 +175,7 @@ postWithOwnTitle :: Bool -> (Item String -> Compiler (Item String)) -> Rules ()
 postWithOwnTitle isBuildTargetWebserver processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
+        >>= saveSnapshot "postContentOnly"
         >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
         >>= processUrls
 
@@ -169,6 +198,7 @@ recentPostsContext isBuildTargetWebserver =
 compilePost :: Bool -> Rules ()
 compilePost isBuildTargetWebserver = compile $ pandocCompiler
     >>= loadAndApplyTemplate "templates/title.html" (postContext isBuildTargetWebserver)
+    >>= saveSnapshot "postContentOnly"
     >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
     >>= processUrls isBuildTargetWebserver
 
