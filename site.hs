@@ -26,6 +26,10 @@ rules isBuildTargetWebserver = do
         verbatimCopy
     match "writing/**/*.jpg" $ do
         verbatimCopy
+    match ("projects/*.png" .||. "projects/**/*.png" ) $ do
+        verbatimCopy
+    match ("projects/*.gif" .||. "projects/**/*.gif" ) $ do
+        verbatimCopy
 
     create ["index.html"] $ do
         route idRoute
@@ -37,6 +41,13 @@ rules isBuildTargetWebserver = do
 
     match htmlPostPattern $ do
         htmlPost isBuildTargetWebserver
+
+    match ("projects/index.html" .||. "projects/**/index.html") $ do
+        route idRoute
+        compile $ getResourceBody
+            >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+            >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+            >>= processUrls isBuildTargetWebserver
 
     match "contact/index.markdown" $ do
         page isBuildTargetWebserver
