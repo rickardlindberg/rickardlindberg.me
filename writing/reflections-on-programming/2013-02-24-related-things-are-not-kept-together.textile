@@ -143,7 +143,7 @@ At a first glance, Leo looks like an outliner.
 
 Here I've replicated parts of the file structure of "an Android project":https://github.com/kajgo/photobox inside Leo:
 
-!/images/leo-photobox-file-structure.png(Replicated file structure in Leo.)!
+!leo-photobox-file-structure.png(Replicated file structure in Leo.)!
 
 Every node that starts with shadow tells Leo that it is stored in an external file. When we modify it in Leo, it will be modified on disk as well. The outline mirrors the structure of the file system. So the file @IntroActivity.java@ is located in the folder @photobox/src/com/photobox/app/@.
 
@@ -151,23 +151,23 @@ So far, this doesn't add much value. It looks exactly like the file system. Let'
 
 Inside each file, we can create nodes to explicitly show the structure of our source file (the poor alternative to this is section comments):
 
-!/images/leo-photobox-class-structure.png(Show structure inside files.)!
+!leo-photobox-class-structure.png(Show structure inside files.)!
 
 In this example, each method in the class is put in its own node. If we want, we can group related methods together under a name:
 
-!/images/leo-photobox-class-structure-grouping.png(Create more structure inside files.)!
+!leo-photobox-class-structure-grouping.png(Create more structure inside files.)!
 
 This is a bit better, but we still don't have related things together. We can solve that by using clones in Leo. Clones allow us to show one node in multiple places in the outline.
 
 Let's say we want to gather all information about photo collections in one place. First we create a node called "Photo collection", then we clone the "class PhotoCollection" and "class PhotoCollectionTest" nodes and put them as children to "Photo collection" :
 
-!/images/leo-photobox-clones.png(Using clones to create different views.)!
+!leo-photobox-clones.png(Using clones to create different views.)!
 
 When we change a cloned node, all places where that clone appears in the outline are changed. So if we want to work with photo collections, we never have to touch the "Files" tree. We can spend all time in "Photo collection" because all things related to that area is visible there as well.
 
 Another example of clones shows how things related to the intro screen in the app have been kept together under a node:
 
-!/images/leo-photobox-another-view.png(Using clones to create different views.)!
+!leo-photobox-another-view.png(Using clones to create different views.)!
 
 h2. Summary
 
