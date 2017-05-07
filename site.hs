@@ -8,17 +8,10 @@ import System.Environment
 import System.FilePath
 import Network.HTTP.Base
 
-myFeedConfiguration :: FeedConfiguration
-myFeedConfiguration = FeedConfiguration
-    { feedTitle       = "Rickard's personal homepage: latest posts"
-    , feedDescription = "Rickard's personal homepage: latest posts"
-    , feedAuthorName  = "Rickard Lindberg"
-    , feedAuthorEmail = "ricli85@gmail.com"
-    , feedRoot        = "http://rickardlindberg.me"
-    }
-
 rules :: Bool -> Rules ()
 rules isBuildTargetWebserver = do
+
+    feedRules isBuildTargetWebserver
 
     match "templates/*" $ do
         compile templateCompiler
@@ -41,20 +34,6 @@ rules isBuildTargetWebserver = do
                 >>= loadAndApplyTemplate "templates/index.html" (recentPostsContext isBuildTargetWebserver)
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
                 >>= processUrls isBuildTargetWebserver
-
-    create ["atom.xml"] $ do
-        route idRoute
-        compile $ do
-            let feedContext = postContext isBuildTargetWebserver `mappend` bodyField "description"
-            posts <- recentFirst =<< loadAllSnapshots allPosts "postContentOnly"
-            renderAtom myFeedConfiguration feedContext posts
-
-    create ["rss.xml"] $ do
-        route idRoute
-        compile $ do
-            let feedContext = postContext isBuildTargetWebserver `mappend` bodyField "description"
-            posts <- recentFirst =<< loadAllSnapshots allPosts "postContentOnly"
-            renderRss myFeedConfiguration feedContext posts
 
     match htmlPostPattern $ do
         htmlPost isBuildTargetWebserver
@@ -95,6 +74,31 @@ rules isBuildTargetWebserver = do
     match thoughtOfTheDay2Pattern $ do
         routeUpIndex
         compilePost isBuildTargetWebserver
+
+feedRules :: Bool -> Rules ()
+feedRules isBuildTargetWebserver = do
+    create ["atom.xml"] $ do
+        route idRoute
+        compile $ feedPosts >>= renderAtom feedConfiguration feedContext
+    create ["rss.xml"] $ do
+        route idRoute
+        compile $ feedPosts >>= renderRss feedConfiguration feedContext
+    where
+        feedPosts =
+            loadAllSnapshots allPosts "postContentOnly"
+            >>= recentFirst
+            >>= return . (take 15)
+        feedContext =
+            postContext isBuildTargetWebserver
+            `mappend`
+            bodyField "description"
+        feedConfiguration = FeedConfiguration
+            { feedTitle       = "Rickard's personal homepage: latest posts"
+            , feedDescription = "Rickard's personal homepage: latest posts"
+            , feedAuthorName  = "Rickard Lindberg"
+            , feedAuthorEmail = "ricli85@gmail.com"
+            , feedRoot        = "http://rickardlindberg.me"
+            }
 
 allPosts :: Pattern
 allPosts =
@@ -217,8 +221,10 @@ routeIndex = route $ customRoute (\identifier ->
         </> "index.html")
 
 postContext :: Bool -> Context String
-postContext isBuildTargetWebserver = dateField "date" "%e %B %Y" `mappend`
-              (baseContext isBuildTargetWebserver)
+postContext isBuildTargetWebserver =
+    dateField "date" "%e %B %Y"
+    `mappend`
+    (baseContext isBuildTargetWebserver)
 
 baseContext :: Bool -> Context String
 baseContext isBuildTargetWebserver =
