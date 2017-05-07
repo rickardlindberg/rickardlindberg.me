@@ -1,0 +1,23 @@
+/*
+ * Ensure that body is not behind the navbar (which by default is 50px).
+ */
+body {
+  padding-top: 50px;
+}
+
+/*
+ * Reduce default size of container if screen width is >= 768px.
+ *
+ * This overrides container max width from bootstrap since it is loaded
+ * afterwards.
+ */
+@media (min-width: 768px) {
+  .container {
+    max-width: 740px;
+  }
+}
+
+.welcome-panel {
+  padding: 20px 15px;
+  text-align: center;
+}

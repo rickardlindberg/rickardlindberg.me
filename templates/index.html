@@ -1,31 +1,20 @@
-<div class="span-10 append-2">
+<div class="welcome-panel">
 
-    <h1>Welcome</h1>
+  <h1>Welcome</h1>
 
-    <p class="large"><i>Hi! My name is <strong>Rickard Lindberg</strong>.
-        Welcome to my personal homepage. It mostly contains my writing.
-    Enjoy!</i></p>
+  <p class="lead">My name is Rickard Lindberg. Welcome to my personal homepage.
+  It mostly contains my writing. Enjoy!</p>
 
-</div>
-
-<div class="span-6 last">
-
-    <p><img width="230" src="/images/avatar.png"></p>
+  <p><img width="256" src="/images/avatar.png"></p>
 
 </div>
 
-<hr>
+<h2>Recent posts</h2>
 
-<div class="span-18 last">
+<ul>
+$for(posts)$
+<li><a href="$url$">$title$</a> - $date$</li>
+$endfor$
+</ul>
 
-    <h2>Recent posts</h2>
-
-    <ul>
-    $for(posts)$
-    <li><a href="$url$">$title$</a> - $date$</li>
-    $endfor$
-    </ul>
-
-    <p>All posts can be found on the <a href="/writing/index.html">writing page</a>.</p>
-
-</div>
+<p>All posts can be found on the <a href="/writing/index.html">writing page</a>.</p>

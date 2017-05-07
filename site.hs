@@ -16,7 +16,7 @@ rules processUrls = do
 
     match "cv-rickard-lindberg.pdf" $ do
         verbatimCopy
-    match "css/**" $ do
+    match "static/**" $ do
         verbatimCopy
     match "images/**" $ do
         verbatimCopy
