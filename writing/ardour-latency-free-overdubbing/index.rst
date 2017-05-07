@@ -63,7 +63,7 @@ through the system.
 I use a Zoom H4n as a USB audio interface. The first way to close the loop is
 with a direct patch cable:
 
-.. image:: direct.jpg
+.. image:: /writing/ardour-latency-free-overdubbing/direct.jpg
 
 We connect the patch cable from the headphone line out to a line in. The H4n has
 combo inputs that works for microphones, electric instrument, or line level
@@ -71,7 +71,7 @@ sources.
 
 The second way to close the loop is with a speaker and a microphone:
 
-.. image:: mic.jpg
+.. image:: /writing/ardour-latency-free-overdubbing/mic.jpg
 
 We connect headphones to the headphone line out and put them close to the built
 in microphones on the H4n.
@@ -86,7 +86,7 @@ I/O latency:
 
    From QjackCtl, click "Setup...":
    
-   .. image:: jack_setup.png
+   .. image:: /writing/ardour-latency-free-overdubbing/jack_setup.png
    
    Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O
    are both set to 0 (default).
@@ -103,7 +103,7 @@ I/O latency:
 
    From QjackCtl, click "Connect":
    
-   .. image:: jack_connect.png
+   .. image:: /writing/ardour-latency-free-overdubbing/jack_connect.png
    
    This will create the loop in software as well so that jack_iodelay can
    capture the signal that it sends out.
