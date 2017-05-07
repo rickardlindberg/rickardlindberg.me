@@ -8,8 +8,8 @@ import System.Environment
 import System.FilePath
 import Network.HTTP.Base
 
-rules :: (Item String -> Compiler (Item String)) -> Rules ()
-rules processUrls = do
+rules :: Bool -> Rules ()
+rules isBuildTargetWebserver = do
 
     match "templates/*" $ do
         compile templateCompiler
@@ -29,49 +29,49 @@ rules processUrls = do
         route idRoute
         compile $ do
             makeItem ""
-                >>= loadAndApplyTemplate "templates/index.html" recentPostsContext
+                >>= loadAndApplyTemplate "templates/index.html" (recentPostsContext isBuildTargetWebserver)
                 >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
-                >>= processUrls
+                >>= processUrls isBuildTargetWebserver
 
     match "writing/*/index.html" $ do
-        htmlPost processUrls
+        htmlPost isBuildTargetWebserver
 
     match "contact/index.markdown" $ do
-        page processUrls
+        page isBuildTargetWebserver
 
     match "writing/index.markdown" $ do
         pageAsTemplate
-            (createPostsContext RecentFirst [("posts", allPosts)])
-            processUrls
+            isBuildTargetWebserver
+            (createPostsContext isBuildTargetWebserver RecentFirst [("posts", allPosts)])
 
     match postsWithOwnTitlePattern $ do
-        postWithOwnTitle processUrls
+        postWithOwnTitle isBuildTargetWebserver (processUrls isBuildTargetWebserver)
 
     match postsWithDirectoryNamePattern $ do
-        post processUrls
+        post isBuildTargetWebserver
 
     match "writing/reflections-on-programming/index.markdown" $ do
         pageAsTemplate
-            (createPostsContext Chronological
+            isBuildTargetWebserver
+            (createPostsContext isBuildTargetWebserver Chronological
                 [("posts", reflectionsOnProgrammingPattern)])
-            processUrls
     match reflectionsOnProgrammingPattern $ do
         routeIndex
-        compilePost processUrls
+        compilePost isBuildTargetWebserver
 
     match "writing/thought-of-the-day/index.markdown" $ do
         pageAsTemplate
-            (createPostsContext Chronological
+            isBuildTargetWebserver
+            (createPostsContext isBuildTargetWebserver Chronological
                 [ ("thoughts", thoughtOfTheDay1Pattern)
                 , ("thoughts2", thoughtOfTheDay2Pattern)
                 ])
-            processUrls
     match thoughtOfTheDay1Pattern $ do
         routeUpIndex
-        compilePost processUrls
+        compilePost isBuildTargetWebserver
     match thoughtOfTheDay2Pattern $ do
         routeUpIndex
-        compilePost processUrls
+        compilePost isBuildTargetWebserver
 
 allPosts :: Pattern
 allPosts =
@@ -112,65 +112,65 @@ verbatimCopy = do
     route idRoute
     compile copyFileCompiler
 
-htmlPost :: (Item String -> Compiler (Item String)) -> Rules ()
-htmlPost processUrls = do
+htmlPost :: Bool -> Rules ()
+htmlPost isBuildTargetWebserver = do
     route idRoute
     compile $ getResourceBody
-        >>= loadAndApplyTemplate "templates/title.html" defaultContext
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
-        >>= processUrls
+        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+        >>= processUrls isBuildTargetWebserver
 
-page :: (Item String -> Compiler (Item String)) -> Rules ()
-page processUrls = do
+page :: Bool -> Rules ()
+page isBuildTargetWebserver = do
     route $ setExtension "html"
     compile $ pandocCompiler
-        >>= loadAndApplyTemplate "templates/title.html" defaultContext
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
-        >>= processUrls
+        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+        >>= processUrls isBuildTargetWebserver
 
-pageAsTemplate :: Context String -> (Item String -> Compiler (Item String)) -> Rules ()
-pageAsTemplate context processUrls = do
+pageAsTemplate :: Bool -> Context String -> Rules ()
+pageAsTemplate isBuildTargetWebserver context = do
     route $ setExtension "html"
     compile $ getResourceBody
         >>= applyAsTemplate context
         >>= renderPandoc
-        >>= loadAndApplyTemplate "templates/title.html" defaultContext
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
-        >>= processUrls
+        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+        >>= processUrls isBuildTargetWebserver
 
-post :: (Item String -> Compiler (Item String)) -> Rules ()
-post processUrls = do
+post :: Bool -> Rules ()
+post isBuildTargetWebserver = do
     route $ setExtension "html"
-    compilePost processUrls
+    compilePost isBuildTargetWebserver
 
-postWithOwnTitle :: (Item String -> Compiler (Item String)) -> Rules ()
-postWithOwnTitle processUrls = do
+postWithOwnTitle :: Bool -> (Item String -> Compiler (Item String)) -> Rules ()
+postWithOwnTitle isBuildTargetWebserver processUrls = do
     route $ setExtension "html"
     compile $ pandocCompiler
-        >>= loadAndApplyTemplate "templates/default.html" defaultContext
+        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
         >>= processUrls
 
 data PostOrder = RecentFirst | Chronological
 
-createPostsContext :: PostOrder -> [(String, Pattern)] -> Context String
-createPostsContext postOrder = foldr
-    (\(key, pattern) x -> listField key postContext (load postOrder pattern) `mappend` x)
-    defaultContext
+createPostsContext :: Bool -> PostOrder -> [(String, Pattern)] -> Context String
+createPostsContext isBuildTargetWebserver postOrder = foldr
+    (\(key, pattern) x -> listField key (postContext isBuildTargetWebserver) (load postOrder pattern) `mappend` x)
+    (baseContext isBuildTargetWebserver)
     where
         load RecentFirst pattern = recentFirst =<< loadAll pattern
         load Chronological pattern = chronological =<< loadAll pattern
 
-recentPostsContext :: Context String
-recentPostsContext =
-    listField "posts" postContext (fmap (take 5) . recentFirst =<< loadAll allPosts)
+recentPostsContext :: Bool -> Context String
+recentPostsContext isBuildTargetWebserver =
+    listField "posts" (postContext isBuildTargetWebserver) (fmap (take 5) . recentFirst =<< loadAll allPosts)
     `mappend`
-    defaultContext
+    (baseContext isBuildTargetWebserver)
 
-compilePost :: (Item String -> Compiler (Item String)) -> Rules ()
-compilePost processUrls = compile $ pandocCompiler
-    >>= loadAndApplyTemplate "templates/title.html" postContext
-    >>= loadAndApplyTemplate "templates/default.html" defaultContext
-    >>= processUrls
+compilePost :: Bool -> Rules ()
+compilePost isBuildTargetWebserver = compile $ pandocCompiler
+    >>= loadAndApplyTemplate "templates/title.html" (postContext isBuildTargetWebserver)
+    >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+    >>= processUrls isBuildTargetWebserver
 
 routeUpIndex :: Rules ()
 routeUpIndex = route $ customRoute (\identifier ->
@@ -186,20 +186,31 @@ routeIndex = route $ customRoute (\identifier ->
         </> takeBaseName filePath
         </> "index.html")
 
-postContext :: Context String
-postContext = dateField "date" "%e %B %Y" `mappend`
-              defaultContext
+postContext :: Bool -> Context String
+postContext isBuildTargetWebserver = dateField "date" "%e %B %Y" `mappend`
+              (baseContext isBuildTargetWebserver)
 
+baseContext :: Bool -> Context String
+baseContext isBuildTargetWebserver =
+    if isBuildTargetWebserver
+        then
+            field "url" (fmap (maybe "" (stripIndexHtml . toUrl)) . getRoute . itemIdentifier)
+            `mappend`
+            defaultContext
+        else defaultContext
 
 main :: IO ()
-main = hasHakyllBuildTarget "webserver" >>= \shouldDeIndexUrls -> hakyll $ do
-    rules $ \x -> if shouldDeIndexUrls
-       then relativizeUrls x >>= deIndexUrls
-       else relativizeUrls x
+main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
 
 hasHakyllBuildTarget :: String -> IO Bool
 hasHakyllBuildTarget target = fmap (elem ("HAKYLL_BUILD_TARGET", target))
                                    getEnvironment
+
+processUrls :: Bool -> Item String -> Compiler (Item String)
+processUrls isBuildTargetWebserver x =
+    if isBuildTargetWebserver
+        then relativizeUrls x >>= deIndexUrls
+        else relativizeUrls x
 
 deIndexUrls :: Item String -> Compiler (Item String)
 deIndexUrls item = return $ fmap (withUrls stripIndexHtml) item
