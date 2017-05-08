@@ -4,119 +4,71 @@ import Control.Monad
 import Data.List
 import Data.Monoid
 import Hakyll
+import Network.HTTP.Base
 import System.Environment
 import System.FilePath
-import Network.HTTP.Base
+
+main :: IO ()
+main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
+    where
+        hasHakyllBuildTarget :: String -> IO Bool
+        hasHakyllBuildTarget target =
+            fmap (elem ("HAKYLL_BUILD_TARGET", target))
+            getEnvironment
 
 rules :: Bool -> Rules ()
 rules isBuildTargetWebserver = do
+    rulesTemplates
+    rulesStaticFiles
+    rulesFeeds                             isBuildTargetWebserver
+    rulesPageIndexHtmlTemplate             isBuildTargetWebserver
+    rulesPageIndexHtmlTemplateWithoutTitle isBuildTargetWebserver
+    rulesPageIndexPandoc                   isBuildTargetWebserver
+    rulesPageIndexPandocTemplate           isBuildTargetWebserver
+    rulesPostIndexHtml                     isBuildTargetWebserver
+    rulesPostIndexPandoc                   isBuildTargetWebserver
+    rulesPostIndexPandocWithOwnTitle       isBuildTargetWebserver
+    rulesPostIndexUpOneUpPandoc            isBuildTargetWebserver
+    rulesPostNamePandoc                    isBuildTargetWebserver
 
-    feedRules isBuildTargetWebserver
-
+rulesTemplates :: Rules ()
+rulesTemplates = do
     match "templates/*" $ do
         compile templateCompiler
 
-    match "cv-rickard-lindberg.pdf" $ do
-        verbatimCopy
-    match "static/**" $ do
-        verbatimCopy
-    match "avatar.png" $ do
-        verbatimCopy
-    match "writing/**/*.png" $ do
-        verbatimCopy
-    match "writing/**/*.jpg" $ do
-        verbatimCopy
-    match ("projects/*.png" .||. "projects/**/*.png" ) $ do
-        verbatimCopy
-    match ("projects/*.gif" .||. "projects/**/*.gif" ) $ do
-        verbatimCopy
-
-    create ["index.html"] $ do
+rulesStaticFiles :: Rules ()
+rulesStaticFiles = do
+    match
+        (
+             "avatar.png"
+        .||. "cv-rickard-lindberg.pdf"
+        .||. "projects/*.gif"
+        .||. "projects/**/*.gif"
+        .||. "projects/*.png"
+        .||. "projects/**/*.png"
+        .||. "static/**"
+        .||. "writing/**/*.jpg"
+        .||. "writing/**/*.png"
+        ) $ do
         route idRoute
-        compile $ do
-            makeItem ""
-                >>= loadAndApplyTemplate "templates/index.html" (recentPostsContext isBuildTargetWebserver)
-                >>= loadAndApplyTemplate "templates/default.html" (bodyField "body")
-                >>= processUrls isBuildTargetWebserver
+        compile copyFileCompiler
 
-    match htmlPostPattern $ do
-        htmlPost isBuildTargetWebserver
-
-    match "projects/index.html" $ do
-        route idRoute
-        compile $ getResourceBody
-            >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
-            >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-            >>= processUrls isBuildTargetWebserver
-
-    match "projects/timeline/index.html" $ do
-        route idRoute
-        compile $ getResourceBody
-            >>= applyAsTemplate (createRelatedPostsContext isBuildTargetWebserver "timeline")
-            >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
-            >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-            >>= processUrls isBuildTargetWebserver
-
-    match "projects/select/index.html" $ do
-        let context = baseContext isBuildTargetWebserver
-        route idRoute
-        compile $ getResourceBody
-            >>= loadAndApplyTemplate "templates/title.html" context
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
-
-    match "contact/index.markdown" $ do
-        page isBuildTargetWebserver
-
-    match "writing/index.markdown" $ do
-        pageAsTemplate
-            isBuildTargetWebserver
-            (createPostsContext isBuildTargetWebserver RecentFirst [("posts", allPosts)])
-
-    match postsWithOwnTitlePattern $ do
-        postWithOwnTitle isBuildTargetWebserver
-
-    match postsWithDirectoryNamePattern $ do
-        post isBuildTargetWebserver
-
-    match "writing/reflections-on-programming/index.markdown" $ do
-        pageAsTemplate
-            isBuildTargetWebserver
-            (createPostsContext isBuildTargetWebserver Chronological
-                [("posts", reflectionsOnProgrammingPattern)])
-    match reflectionsOnProgrammingPattern $ do
-        routeIndex
-        compilePost isBuildTargetWebserver
-
-    match "writing/thought-of-the-day/index.markdown" $ do
-        pageAsTemplate
-            isBuildTargetWebserver
-            (createPostsContext isBuildTargetWebserver Chronological
-                [ ("thoughts", thoughtOfTheDay1Pattern)
-                , ("thoughts2", thoughtOfTheDay2Pattern)
-                ])
-    match thoughtOfTheDay1Pattern $ do
-        routeUpIndex
-        compilePost isBuildTargetWebserver
-    match thoughtOfTheDay2Pattern $ do
-        routeUpIndex
-        compilePost isBuildTargetWebserver
-
-feedRules :: Bool -> Rules ()
-feedRules isBuildTargetWebserver = do
-    create ["atom.xml"] $ do
-        route idRoute
-        compile $ feedPosts >>= renderAtom feedConfiguration feedContext
-    create ["rss.xml"] $ do
-        route idRoute
-        compile $ feedPosts >>= renderRss feedConfiguration feedContext
+rulesFeeds :: Bool -> Rules ()
+rulesFeeds isBuildTargetWebserver = do
+    create ["atom.xml"] $
+        process renderAtom
+    create ["rss.xml"] $
+        process renderRss
     where
+        process render = do
+            route idRoute
+            compile $ feedPosts >>= render feedConfiguration feedContext
         feedPosts =
-            loadAllSnapshots allPosts "postContentOnly"
+            loadAllSnapshots patternAllPosts "postContentOnly"
             >>= recentFirst
             >>= return . (take 15)
         feedContext =
-            postContext isBuildTargetWebserver
+            contextPost isBuildTargetWebserver
             `mappend`
             bodyField "description"
         feedConfiguration = FeedConfiguration
@@ -127,29 +79,167 @@ feedRules isBuildTargetWebserver = do
             , feedRoot        = "http://rickardlindberg.me"
             }
 
-allPosts :: Pattern
-allPosts =
-         thoughtOfTheDay1Pattern
-    .||. thoughtOfTheDay2Pattern
-    .||. reflectionsOnProgrammingPattern
-    .||. postsWithDirectoryNamePattern
-    .||. postsWithOwnTitlePattern
-    .||. htmlPostPattern
+rulesPageIndexHtmlTemplate :: Bool -> Rules ()
+rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
+    match "projects/index.html" $
+        process $ contextBase isBuildTargetWebserver
+    match "projects/timeline/index.html" $
+        process $ contextRelatedPosts isBuildTargetWebserver "timeline"
+    match "projects/select/index.html" $
+        process $ contextBase isBuildTargetWebserver
+    where
+        process context = do
+            route idRoute
+            compile $ getResourceBody
+                >>= applyAsTemplate context
+                >>= loadAndApplyTemplate "templates/title.html" context
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
 
-thoughtOfTheDay1Pattern :: Pattern
-thoughtOfTheDay1Pattern =
+rulesPageIndexHtmlTemplateWithoutTitle :: Bool -> Rules ()
+rulesPageIndexHtmlTemplateWithoutTitle isBuildTargetWebserver = do
+    match "index.html" $
+        process $ contextRecentPosts isBuildTargetWebserver
+    where
+        process context = do
+            route idRoute
+            compile $ getResourceBody
+                >>= applyAsTemplate context
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
+
+rulesPageIndexPandoc :: Bool -> Rules ()
+rulesPageIndexPandoc isBuildTargetWebserver = do
+    match "contact/index.markdown" $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextBase isBuildTargetWebserver
+
+rulesPageIndexPandocTemplate :: Bool -> Rules ()
+rulesPageIndexPandocTemplate isBuildTargetWebserver = do
+    match "writing/index.markdown" $
+        process $ contextPosts isBuildTargetWebserver recentFirst
+                [("posts", patternAllPosts)]
+    match "writing/reflections-on-programming/index.markdown" $
+        process $ contextPosts isBuildTargetWebserver chronological
+                [("posts", patternReflectionsOnProgramming)]
+    match "writing/thought-of-the-day/index.markdown" $
+        process $ contextPosts isBuildTargetWebserver chronological
+                [ ("thoughts", patternThoughtOfTheDay1)
+                , ("thoughts2", patternThoughtOfTheDay2)
+                ]
+    where
+        process context = do
+            route $ setExtension "html"
+            compile $ getResourceBody
+                >>= applyAsTemplate context
+                >>= renderPandoc
+                >>= loadAndApplyTemplate "templates/title.html" context
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
+
+rulesPostIndexHtml :: Bool -> Rules ()
+rulesPostIndexHtml isBuildTargetWebserver = do
+    match patternPostIndexHtml $ do
+        route idRoute
+        compile $ getResourceBody
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= saveSnapshot "postContentOnly"
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextBase isBuildTargetWebserver
+
+rulesPostIndexPandoc :: Bool -> Rules ()
+rulesPostIndexPandoc isBuildTargetWebserver = do
+    match patternPostIndexPandoc $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= saveSnapshot "postContentOnly"
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextPost isBuildTargetWebserver
+
+rulesPostIndexPandocWithOwnTitle :: Bool -> Rules ()
+rulesPostIndexPandocWithOwnTitle isBuildTargetWebserver = do
+    match patternPostIndexPandocWithOwnTitle $ do
+        route $ setExtension "html"
+        compile $ pandocCompiler
+            >>= saveSnapshot "postContentOnly"
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextBase isBuildTargetWebserver
+
+rulesPostIndexUpOneUpPandoc :: Bool -> Rules ()
+rulesPostIndexUpOneUpPandoc isBuildTargetWebserver = do
+    match patternThoughtOfTheDay1 $ process
+    match patternThoughtOfTheDay2 $ process
+    where
+        process = do
+            route upIndex
+            compile $ pandocCompiler
+                >>= loadAndApplyTemplate "templates/title.html" context
+                >>= saveSnapshot "postContentOnly"
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
+        context = contextPost isBuildTargetWebserver
+        upIndex = customRoute (\identifier ->
+            let filePath = toFilePath identifier
+            in  (takeDirectory . takeDirectory) filePath
+                </> takeBaseName filePath
+                </> "index.html")
+
+rulesPostNamePandoc :: Bool -> Rules ()
+rulesPostNamePandoc isBuildTargetWebserver = do
+    match patternReflectionsOnProgramming $ process
+    where
+        process = do
+            route routeIndex
+            compile $ pandocCompiler
+                >>= loadAndApplyTemplate "templates/title.html" (contextPost isBuildTargetWebserver)
+                >>= saveSnapshot "postContentOnly"
+                >>= loadAndApplyTemplate "templates/default.html" (contextBase isBuildTargetWebserver)
+                >>= processUrls isBuildTargetWebserver
+        routeIndex = customRoute (\identifier ->
+            let filePath = toFilePath identifier
+            in  takeDirectory filePath
+                </> takeBaseName filePath
+                </> "index.html")
+
+patternAllPosts :: Pattern
+patternAllPosts =
+         patternThoughtOfTheDay1
+    .||. patternThoughtOfTheDay2
+    .||. patternReflectionsOnProgramming
+    .||. patternPostIndexHtml
+    .||. patternPostIndexPandoc
+    .||. patternPostIndexPandocWithOwnTitle
+
+patternThoughtOfTheDay1 :: Pattern
+patternThoughtOfTheDay1 =
     "writing/thought-of-the-day/thoughts/*.markdown"
 
-thoughtOfTheDay2Pattern :: Pattern
-thoughtOfTheDay2Pattern =
+patternThoughtOfTheDay2 :: Pattern
+patternThoughtOfTheDay2 =
     "writing/thought-of-the-day/thoughts2/*.markdown"
 
-reflectionsOnProgrammingPattern :: Pattern
-reflectionsOnProgrammingPattern =
+patternReflectionsOnProgramming :: Pattern
+patternReflectionsOnProgramming =
     "writing/reflections-on-programming/*.textile"
 
-postsWithDirectoryNamePattern :: Pattern
-postsWithDirectoryNamePattern =
+patternPostIndexHtml :: Pattern
+patternPostIndexHtml =
+    "writing/*/index.html"
+
+patternPostIndexPandoc :: Pattern
+patternPostIndexPandoc =
          "writing/xmodmap-on-fedora/index.markdown"
     .||. "writing/python-danger-implicit-if/index.markdown"
     .||. "writing/problem-in-commit-message/index.markdown"
@@ -157,132 +247,55 @@ postsWithDirectoryNamePattern =
     .||. "writing/tell-dont-ask-example/index.markdown"
     .||. "writing/bitten-by-python-generators/index.markdown"
 
-postsWithOwnTitlePattern :: Pattern
-postsWithOwnTitlePattern =
+patternPostIndexPandocWithOwnTitle :: Pattern
+patternPostIndexPandocWithOwnTitle =
     "writing/ardour-latency-free-overdubbing/index.rst"
 
-htmlPostPattern :: Pattern
-htmlPostPattern =
-    "writing/*/index.html"
-
-verbatimCopy :: Rules ()
-verbatimCopy = do
-    route idRoute
-    compile copyFileCompiler
-
-htmlPost :: Bool -> Rules ()
-htmlPost isBuildTargetWebserver = do
-    route idRoute
-    compile $ getResourceBody
-        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
-        >>= saveSnapshot "postContentOnly"
-        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-        >>= processUrls isBuildTargetWebserver
-
-page :: Bool -> Rules ()
-page isBuildTargetWebserver = do
-    route $ setExtension "html"
-    compile $ pandocCompiler
-        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
-        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-        >>= processUrls isBuildTargetWebserver
-
-pageAsTemplate :: Bool -> Context String -> Rules ()
-pageAsTemplate isBuildTargetWebserver context = do
-    route $ setExtension "html"
-    compile $ getResourceBody
-        >>= applyAsTemplate context
-        >>= renderPandoc
-        >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
-        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-        >>= processUrls isBuildTargetWebserver
-
-post :: Bool -> Rules ()
-post isBuildTargetWebserver = do
-    route $ setExtension "html"
-    compilePost isBuildTargetWebserver
-
-postWithOwnTitle :: Bool -> Rules ()
-postWithOwnTitle isBuildTargetWebserver = do
-    route $ setExtension "html"
-    compile $ pandocCompiler
-        >>= saveSnapshot "postContentOnly"
-        >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-        >>= processUrls isBuildTargetWebserver
-
-data PostOrder = RecentFirst | Chronological
-
-createPostsContext :: Bool -> PostOrder -> [(String, Pattern)] -> Context String
-createPostsContext isBuildTargetWebserver postOrder = foldr
-    (\(key, pattern) x -> listField key (postContext isBuildTargetWebserver) (load postOrder pattern) `mappend` x)
-    (baseContext isBuildTargetWebserver)
+contextRelatedPosts :: Bool -> String -> Context String
+contextRelatedPosts isBuildTargetWebserver tagName =
+    contextPosts isBuildTargetWebserver filterPosts [("relatedPosts", patternAllPosts)]
     where
-        load RecentFirst pattern = recentFirst =<< loadAll pattern
-        load Chronological pattern = chronological =<< loadAll pattern
-
-createRelatedPostsContext :: Bool -> String -> Context String
-createRelatedPostsContext isBuildTargetWebserver tagName =
-    listField "relatedPosts" (postContext isBuildTargetWebserver) (load x)
-    `mappend`
-    (baseContext isBuildTargetWebserver)
-    where
-        x :: Compiler [Item String]
-        x = loadAll allPosts
-        load :: Compiler [Item String] -> Compiler [Item String]
-        load foo = foo >>= (filterM includeItem) >>= recentFirst
-        includeItem :: Item String -> Compiler Bool
-        includeItem item = do
+        filterPosts patternAllPosts = filterM isRelated patternAllPosts >>= recentFirst
+        isRelated item = do
             tags <- getTags (itemIdentifier item)
             return $ tagName `elem` tags
 
-recentPostsContext :: Bool -> Context String
-recentPostsContext isBuildTargetWebserver =
-    listField "posts" (postContext isBuildTargetWebserver) (fmap (take 5) . recentFirst =<< loadAll allPosts)
-    `mappend`
-    (baseContext isBuildTargetWebserver)
+contextRecentPosts :: Bool -> Context String
+contextRecentPosts isBuildTargetWebserver =
+    contextPosts
+        isBuildTargetWebserver
+        (fmap (take 5) . recentFirst)
+        [("posts", patternAllPosts)]
 
-compilePost :: Bool -> Rules ()
-compilePost isBuildTargetWebserver = compile $ pandocCompiler
-    >>= loadAndApplyTemplate "templates/title.html" (postContext isBuildTargetWebserver)
-    >>= saveSnapshot "postContentOnly"
-    >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
-    >>= processUrls isBuildTargetWebserver
+contextPosts :: Bool -> ([Item String] -> Compiler [Item String]) -> [(String, Pattern)] -> Context String
+contextPosts isBuildTargetWebserver transformItems =
+    foldr (mappend . createPostsListField) context
+    where
+        context = contextPost isBuildTargetWebserver
+        createPostsListField (fieldName, pattern) =
+            listField fieldName context $ loadAll pattern >>= transformItems
 
-routeUpIndex :: Rules ()
-routeUpIndex = route $ customRoute (\identifier ->
-    let filePath = toFilePath identifier
-    in  (takeDirectory . takeDirectory) filePath
-        </> takeBaseName filePath
-        </> "index.html")
-
-routeIndex :: Rules ()
-routeIndex = route $ customRoute (\identifier ->
-    let filePath = toFilePath identifier
-    in  takeDirectory filePath
-        </> takeBaseName filePath
-        </> "index.html")
-
-postContext :: Bool -> Context String
-postContext isBuildTargetWebserver =
+contextPost :: Bool -> Context String
+contextPost isBuildTargetWebserver =
     dateField "date" "%e %B %Y"
     `mappend`
-    (baseContext isBuildTargetWebserver)
+    (contextBase isBuildTargetWebserver)
 
-baseContext :: Bool -> Context String
-baseContext isBuildTargetWebserver =
+contextBase :: Bool -> Context String
+contextBase isBuildTargetWebserver =
     if isBuildTargetWebserver
         then
             field "url" (fmap (maybe "" (stripIndexHtml . toUrl)) . getRoute . itemIdentifier)
             `mappend`
             defaultContext
         else defaultContext
-
-main :: IO ()
-main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
-
-hasHakyllBuildTarget :: String -> IO Bool
-hasHakyllBuildTarget target = fmap (elem ("HAKYLL_BUILD_TARGET", target))
-                                   getEnvironment
+    where
+        defaultContext =
+            bodyField     "body"     `mappend`
+            metadataField            `mappend`
+            urlField      "url"      `mappend`
+            pathField     "path"     `mappend`
+            missingField
 
 processUrls :: Bool -> Item String -> Compiler (Item String)
 processUrls isBuildTargetWebserver x =
