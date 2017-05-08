@@ -42,11 +42,27 @@ rules isBuildTargetWebserver = do
     match htmlPostPattern $ do
         htmlPost isBuildTargetWebserver
 
-    match ("projects/index.html" .||. "projects/**/index.html") $ do
+    match "projects/index.html" $ do
         route idRoute
         compile $ getResourceBody
             >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
             >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+            >>= processUrls isBuildTargetWebserver
+
+    match "projects/timeline/index.html" $ do
+        route idRoute
+        compile $ getResourceBody
+            >>= applyAsTemplate (createRelatedPostsContext isBuildTargetWebserver "timeline")
+            >>= loadAndApplyTemplate "templates/title.html" (baseContext isBuildTargetWebserver)
+            >>= loadAndApplyTemplate "templates/default.html" (baseContext isBuildTargetWebserver)
+            >>= processUrls isBuildTargetWebserver
+
+    match "projects/select/index.html" $ do
+        let context = baseContext isBuildTargetWebserver
+        route idRoute
+        compile $ getResourceBody
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
 
     match "contact/index.markdown" $ do
@@ -203,6 +219,21 @@ createPostsContext isBuildTargetWebserver postOrder = foldr
     where
         load RecentFirst pattern = recentFirst =<< loadAll pattern
         load Chronological pattern = chronological =<< loadAll pattern
+
+createRelatedPostsContext :: Bool -> String -> Context String
+createRelatedPostsContext isBuildTargetWebserver tagName =
+    listField "relatedPosts" (postContext isBuildTargetWebserver) (load x)
+    `mappend`
+    (baseContext isBuildTargetWebserver)
+    where
+        x :: Compiler [Item String]
+        x = loadAll allPosts
+        load :: Compiler [Item String] -> Compiler [Item String]
+        load foo = foo >>= (filterM includeItem) >>= recentFirst
+        includeItem :: Item String -> Compiler Bool
+        includeItem item = do
+            tags <- getTags (itemIdentifier item)
+            return $ tagName `elem` tags
 
 recentPostsContext :: Bool -> Context String
 recentPostsContext isBuildTargetWebserver =
