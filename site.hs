@@ -85,7 +85,7 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
         process $ contextBase isBuildTargetWebserver
     match "projects/timeline/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "timeline"
-    match "projects/select/index.html" $
+    match "projects/rlselect/index.html" $
         process $ contextBase isBuildTargetWebserver
     where
         process context = do
