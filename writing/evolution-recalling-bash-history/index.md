@@ -1,17 +1,11 @@
 ---
 title: Evolution of recalling Bash history
-date: 2017-05-16
+date: 2017-05-19
 tags: rlselect
 ---
 
-Bash is the interactive UNIX shell that I use when I work in a terminal. It
-shows me a prompt where I can type a command and press enter to execute it. It
-shows me the output of the command followed by a new prompt:
-
-    $ date<Enter>
-    Wed May 10 08:04:26 CEST 2017
-
-    $
+This article is about how I've become more efficient at using Bash, the
+interactive UNIX shell.
 
 When I work in Bash, I often want to execute a command again. In the beginning
 I re-typed the command and pressed enter. This worked fine for short commands,
@@ -131,26 +125,32 @@ what I was looking for was to just execute a dummy command. Usually I selected
 
 Then I was introduced to [hstr](https://github.com/dvorka/hstr) by a colleague.
 It worked like a replacement for <kbd>Ctrl-R</kbd>. When I invoked it, it
-dropped into a console UI where my last history entries were shown. I could
+dropped into a text UI where my last history entries were shown. I could
 also type part of a command to narrow down the list. If I changed the search
-string, the narrowed down list changed accordingly.  When I had found a match I
+string, the narrowed down list changed accordingly.  When I found a match I
 could similarly press <kbd>Tab</kbd> to insert the command at the prompt or
-press <kbd>Enter</kbd> to execute it immediately.
+press <kbd>Enter</kbd> to execute it immediately. It looked like this:
 
 [![Demo of hstr (from their website)](/writing/evolution-recalling-bash-history/hh-animated-01.gif)](https://github.com/dvorka/hstr)
 
-This solved my frustrations with Bash's interactive search command. For me,
-this was a far easier way to find items from my history. The fact that it
-showed the last commands also helped me. I could visually inspect them, and
-they would guide my search.
+This solved my frustrations with Bash's interactive search. For me, this was a
+far easier way to find items from my history. The fact that it showed the last
+commands also helped me. I could visually inspect them, and they would guide my
+search.
 
 hstr was so good that I wanted to use a similar selection mechanism for other
 things, but hstr was only for Bash history. I ended up writing my own selection
-program. The core selection program is called `rlselect` and then there are
-multiple programs that use it to allow selections of specific things.
-`rlselect-history` is a replacement for <kbd>Ctrl-R</kbd>/hstr:
+program: [rlselect](/projects/rlselect/index.html). Partly because I wanted
+such a program, but also because it seemed like a fun program to write. The
+core selection program is called `rlselect` and then there are multiple
+programs that use it to allow selecting specific things. `rlselect-history` is
+a replacement for <kbd>Ctrl-R</kbd>/hstr:
 
 [![Demo of rlselect](/writing/evolution-recalling-bash-history/rlselect_history_demo.gif)](/projects/rlselect/index.html)
 
 There are some differences between hstr and `rlselect-history`. I took only the
 parts I personally wanted from hstr and put them into `rlselect-history`.
+
+If you want to improve your Bash usage, I suggest taking a look at
+[hstr](https://github.com/dvorka/hstr) or
+[rlselect](/projects/rlselect/index.html).
