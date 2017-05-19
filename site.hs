@@ -49,6 +49,7 @@ rulesStaticFiles = do
         .||. "static/**"
         .||. "writing/**/*.jpg"
         .||. "writing/**/*.png"
+        .||. "writing/**/*.gif"
         ) $ do
         route idRoute
         compile copyFileCompiler
@@ -86,7 +87,7 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
     match "projects/timeline/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "timeline"
     match "projects/rlselect/index.html" $
-        process $ contextBase isBuildTargetWebserver
+        process $ contextRelatedPosts isBuildTargetWebserver "rlselect"
     where
         process context = do
             route idRoute
@@ -246,6 +247,7 @@ patternPostIndexPandoc =
     .||. "writing/search-and-replace-in-vim/index.markdown"
     .||. "writing/tell-dont-ask-example/index.markdown"
     .||. "writing/bitten-by-python-generators/index.markdown"
+    .||. "writing/evolution-recalling-bash-history/index.md"
 
 patternPostIndexPandocWithOwnTitle :: Pattern
 patternPostIndexPandocWithOwnTitle =
