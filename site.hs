@@ -310,6 +310,6 @@ deIndexUrls item = return $ fmap (withUrls stripIndexHtml) item
 
 stripIndexHtml :: String -> String
 stripIndexHtml url =
-    if "index.html" `isSuffixOf` url && (head url) `elem` "/."
+    if "index.html" `isSuffixOf` url && (head url) `elem` ("/." :: String)
         then take (length url - 10) url
         else url
