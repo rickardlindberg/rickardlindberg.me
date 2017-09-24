@@ -71,7 +71,7 @@ U    # pen up</code></pre>
     <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
         <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
             result <span class="op">=</span> []
-            <span class="cf">for</span> line <span class="op">in</span> f:
+            <span class="cf">for</span> line <span class="kw">in</span> f:
                 result.append(<span class="va">self</span>.parse_line(line))
             <span class="cf">return</span> result
 
@@ -85,7 +85,7 @@ U    # pen up</code></pre>
             (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;south&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
             (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_up&quot;</span>,     <span class="va">None</span>)),
         ]
-        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
             match <span class="op">=</span> re.search(pattern, line)
             <span class="cf">if</span> match:
                 <span class="cf">return</span> fn(match)</code></pre></div>
@@ -102,19 +102,19 @@ U    # pen up</code></pre>
 <p>In this solution, each line is converted to a command object (a tuple) and all commands are returned in a list. This list of commands is a kind of parse tree, and it is easier to work with than the plain text. It is up to the consumer of the parse tree what to do next.</p>
 <p>Here is an example showing how the parse tree can be pretty printed (formatted to text again after being parsed):</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> pretty_print(commands):
-    <span class="cf">for</span> (command, argument) <span class="op">in</span> commands:
+    <span class="cf">for</span> (command, argument) <span class="kw">in</span> commands:
         <span class="cf">if</span> command <span class="op">==</span> <span class="st">&quot;select_pen&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_down&quot;</span>:
             <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;west&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;north&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;east&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;south&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_up&quot;</span>:
             <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
 <p>If run on the example, the following output is obtained:</p>
@@ -134,7 +134,7 @@ U</code></pre>
 
     <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
         <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
-            <span class="cf">for</span> line <span class="op">in</span> f:
+            <span class="cf">for</span> line <span class="kw">in</span> f:
                 <span class="va">self</span>.parse_line(line)
 
     <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
@@ -147,7 +147,7 @@ U</code></pre>
             (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.south(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
             (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_up()),
         ]
-        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
             match <span class="op">=</span> re.search(pattern, line)
             <span class="cf">if</span> match:
                 fn(match)</code></pre></div>
@@ -155,22 +155,22 @@ U</code></pre>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> PrettyPrinter(<span class="bu">object</span>):
 
     <span class="kw">def</span> select_pen(<span class="va">self</span>, number):
-        <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(number))
+        <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(number))
 
     <span class="kw">def</span> pen_down(<span class="va">self</span>):
         <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
 
     <span class="kw">def</span> west(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> north(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> east(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> south(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> pen_up(<span class="va">self</span>):
         <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>

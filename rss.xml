@@ -93,13 +93,13 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
     <span class="cf">except</span>:
         logging.exception(<span class="st">&quot;Could not get items&quot;</span>)
     <span class="cf">else</span>:
-        <span class="cf">for</span> item <span class="op">in</span> items:
+        <span class="cf">for</span> item <span class="kw">in</span> items:
             process_item(item)</code></pre></div>
 <p>Can you spot the error? What could possible go wrong with this code?</p>
 <p>When I was debugging it, it was printing the info message, but did not log an exception. Execution continued in the else-clause, but suddenly an exception was raised when looping over the items (outside of <code>process_item</code>). How can that happen? The except-clause should catch all exceptions. And just iterating over a collection should not raise an exception.</p>
 <p>The answer is that <code>get_the_items</code> returned a generator. It looked like this:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    <span class="cf">for</span> item <span class="op">in</span> read_items_from_disk():
+    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
         <span class="cf">if</span> item.is_good():
             <span class="cf">yield</span> item</code></pre></div>
 <p>The exception actually came from <code>read_items_from_disk</code>, but since this code creates a generator, it is not executed until the collection is accessed (which happened in the else-clause). So the exception was actually raised when starting looping over items.</p>
@@ -108,7 +108,7 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
     <span class="cf">try</span>:
         logging.info(<span class="st">&quot;Processing items&quot;</span>)
-        <span class="cf">for</span> item <span class="op">in</span> get_the_items():
+        <span class="cf">for</span> item <span class="kw">in</span> get_the_items():
             process_item(item)
     <span class="cf">except</span>:
         logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</code></pre></div>
@@ -117,7 +117,7 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 <p>I made <code>get_the_items</code> return a generator mainly because I thought it read better. The alternative I came up with looked like this:</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
     items <span class="op">=</span> []
-    <span class="cf">for</span> item <span class="op">in</span> read_items_from_disk():
+    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
         <span class="cf">if</span> item.is_good():
             items.append(item)
     <span class="cf">return</span> items</code></pre></div>
@@ -127,7 +127,7 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
     <span class="cf">return</span> [
         item
-        <span class="cf">for</span> item <span class="op">in</span> read_items_from_disk()
+        <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk()
         <span class="cf">if</span> item.is_good()
     ]</code></pre></div>
 <p>I find this code reads as good as the generator version (even though it is two lines longer). This is what I ended up using. But <code>get_the_items</code> was a bit more complicated than in the example, so I had to divide it into two list comprehensions.</p>
@@ -163,7 +163,7 @@ U    # pen up</code></pre>
     <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
         <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
             result <span class="op">=</span> []
-            <span class="cf">for</span> line <span class="op">in</span> f:
+            <span class="cf">for</span> line <span class="kw">in</span> f:
                 result.append(<span class="va">self</span>.parse_line(line))
             <span class="cf">return</span> result
 
@@ -177,7 +177,7 @@ U    # pen up</code></pre>
             (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;south&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
             (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_up&quot;</span>,     <span class="va">None</span>)),
         ]
-        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
             match <span class="op">=</span> re.search(pattern, line)
             <span class="cf">if</span> match:
                 <span class="cf">return</span> fn(match)</code></pre></div>
@@ -194,19 +194,19 @@ U    # pen up</code></pre>
 <p>In this solution, each line is converted to a command object (a tuple) and all commands are returned in a list. This list of commands is a kind of parse tree, and it is easier to work with than the plain text. It is up to the consumer of the parse tree what to do next.</p>
 <p>Here is an example showing how the parse tree can be pretty printed (formatted to text again after being parsed):</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> pretty_print(commands):
-    <span class="cf">for</span> (command, argument) <span class="op">in</span> commands:
+    <span class="cf">for</span> (command, argument) <span class="kw">in</span> commands:
         <span class="cf">if</span> command <span class="op">==</span> <span class="st">&quot;select_pen&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_down&quot;</span>:
             <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;west&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;north&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;east&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;south&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(argument))
+            <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
         <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_up&quot;</span>:
             <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
 <p>If run on the example, the following output is obtained:</p>
@@ -226,7 +226,7 @@ U</code></pre>
 
     <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
         <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
-            <span class="cf">for</span> line <span class="op">in</span> f:
+            <span class="cf">for</span> line <span class="kw">in</span> f:
                 <span class="va">self</span>.parse_line(line)
 
     <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
@@ -239,7 +239,7 @@ U</code></pre>
             (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.south(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
             (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_up()),
         ]
-        <span class="cf">for</span> (pattern, fn) <span class="op">in</span> patterns:
+        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
             match <span class="op">=</span> re.search(pattern, line)
             <span class="cf">if</span> match:
                 fn(match)</code></pre></div>
@@ -247,22 +247,22 @@ U</code></pre>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> PrettyPrinter(<span class="bu">object</span>):
 
     <span class="kw">def</span> select_pen(<span class="va">self</span>, number):
-        <span class="bu">print</span>(<span class="st">&quot;P {}&quot;</span>.<span class="bu">format</span>(number))
+        <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(number))
 
     <span class="kw">def</span> pen_down(<span class="va">self</span>):
         <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
 
     <span class="kw">def</span> west(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;W {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> north(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;N {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> east(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;E {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> south(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;S {}&quot;</span>.<span class="bu">format</span>(amount))
+        <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
 
     <span class="kw">def</span> pen_up(<span class="va">self</span>):
         <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
@@ -6449,6 +6449,7 @@ CIIgCIIgCIIgCIIgCIIgCELM8P9G1uBbs4qPYAAAAABJRU5ErkJggg==
 
 <p><em>Published on 28 March 2015.</em></p>
 
+<p><em>24 September 2017: Fixed broken link to “Vim: Find and replace text across files.”</em></p>
 <p>In this article I explain how I do search and replace in Vim.</p>
 <p>As a programmer, I constantly rename variables, functions, and classes. The easier it is to rename something, the more likely I am to do it. I think renaming is probably one of the most important refactorings.</p>
 <p>The advantage of being able to do it with Vim is that it is language independent. If I don’t have an IDE or a refactoring tool to help me, I can always use Vim.</p>
@@ -6541,7 +6542,7 @@ endfunction</code></pre>
 <p>Other articles on the subject of search and replace in Vim that I found interesting:</p>
 <ul>
 <li><p><a href="http://vimcasts.org/episodes/project-wide-find-and-replace/">Vimcasts - Project-wide find and replace</a></p></li>
-<li><p><a href="http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html">Ibrahim Ahmed - Vim: Find and replace text across files</a></p></li>
+<li><p><a href="https://web.archive.org/web/20150928211530/http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html">Ibrahim Ahmed - Vim: Find and replace text across files</a></p></li>
 <li><p><a href="http://www.thegeekstuff.com/2009/04/vi-vim-editor-search-and-replace-examples/">The Geek Stuff - Vi and Vim Editor: 12 Powerful Find and Replace Examples</a></p></li>
 </ul>
 ]]></description>

@@ -55,12 +55,7 @@
       <h1 id="latency-free-overdubbing-in-ardour">Latency free overdubbing in Ardour</h1>
 <p><em>Published on 30 September 2013.</em></p>
 <p>In this article I explain how to set up JACK and Ardour for latency free overdubbing.</p>
-<p>Please send feedback to <script type="text/javascript">
-<!--
-h='&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#114;&#x69;&#x63;&#108;&#x69;&#56;&#x35;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>ricli85 at gmail dot com</noscript>.</p>
+<p>Please send feedback to <a href="mailto:ricli85@gmail.com">ricli85@gmail.com</a>.</p>
 <h2 id="where-is-latency-introduced">Where is latency introduced?</h2>
 <p>Let’s say we have one track with a metronome click. Now we want to record a chord progression over this metronome click. :</p>
 <pre><code>playback  |&gt;   &gt;   &gt;   &gt;   |&gt;   &gt;   &gt;   &gt;   |
@@ -112,70 +107,70 @@ recording |                |                |
 <table>
 <thead>
 <tr class="header">
-<th align="left">Sample rate (kHz)</th>
-<th align="left">Frames/Period</th>
-<th align="left">Periods/Buffer</th>
-<th align="left">Loop type</th>
-<th align="left">Roundtrip latency (ms)</th>
-<th align="left">Suggested I/O</th>
+<th>Sample rate (kHz)</th>
+<th>Frames/Period</th>
+<th>Periods/Buffer</th>
+<th>Loop type</th>
+<th>Roundtrip latency (ms)</th>
+<th>Suggested I/O</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">44.1</td>
-<td align="left">1024</td>
-<td align="left">2</td>
-<td align="left">Direct</td>
-<td align="left"></td>
-<td align="left">~1100 (increasing)</td>
+<td>44.1</td>
+<td>1024</td>
+<td>2</td>
+<td>Direct</td>
+<td></td>
+<td>~1100 (increasing)</td>
 </tr>
 <tr class="even">
-<td align="left">44.1</td>
-<td align="left">1323 (44.1*30)</td>
-<td align="left">2</td>
-<td align="left">Direct</td>
-<td align="left"></td>
-<td align="left">~1000 (increasing)</td>
+<td>44.1</td>
+<td>1323 (44.1*30)</td>
+<td>2</td>
+<td>Direct</td>
+<td></td>
+<td>~1000 (increasing)</td>
 </tr>
 <tr class="odd">
-<td align="left">48</td>
-<td align="left">1024</td>
-<td align="left">2</td>
-<td align="left">Direct</td>
-<td align="left">101.5</td>
-<td align="left">~897</td>
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Direct</td>
+<td>101.5</td>
+<td>~897</td>
 </tr>
 <tr class="even">
-<td align="left">48</td>
-<td align="left">1024</td>
-<td align="left">2</td>
-<td align="left">Mic</td>
-<td align="left">122.4</td>
-<td align="left">~895</td>
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~895</td>
 </tr>
 <tr class="odd">
-<td align="left">48</td>
-<td align="left">1024</td>
-<td align="left">3</td>
-<td align="left">Direct</td>
-<td align="left">122.8</td>
-<td align="left">~899</td>
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Direct</td>
+<td>122.8</td>
+<td>~899</td>
 </tr>
 <tr class="even">
-<td align="left">48</td>
-<td align="left">1024</td>
-<td align="left">3</td>
-<td align="left">Mic</td>
-<td align="left">122.4</td>
-<td align="left">~889</td>
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~889</td>
 </tr>
 <tr class="odd">
-<td align="left">48</td>
-<td align="left">1056 (48*22)</td>
-<td align="left">2</td>
-<td align="left">Direct</td>
-<td align="left">104.4</td>
-<td align="left">~920</td>
+<td>48</td>
+<td>1056 (48*22)</td>
+<td>2</td>
+<td>Direct</td>
+<td>104.4</td>
+<td>~920</td>
 </tr>
 </tbody>
 </table>

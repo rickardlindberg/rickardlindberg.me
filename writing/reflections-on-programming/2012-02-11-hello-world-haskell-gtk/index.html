@@ -74,7 +74,7 @@ main <span class="fu">=</span> <span class="kw">do</span>
     widgetShowAll window
     mainGUI</code></pre></div>
 <p>Compiling was easy once I had downloaded the required libraries. They were all available through the package management system on my GNU/Linux system. I made a script for compiling so that I wouldn’t have to remember how to do it:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">ghc</span> --make Main.hs -o org-app</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">ghc</span> --make Main.hs -o org-app</code></pre></div>
 <p>(The make flag tells <code>ghc</code> to figure out all dependencies so you only need to specify the top level program you want to compile. When you compile your project multiple times, <code>ghc</code> will only recompile files that have changed.)</p>
 <p>And that was the first commit: a working skeleton on which to build. I could now easily explore features of GTK and GUI programming in Haskell by playing around with the hello world program.</p>
 <h2 id="using-glade-to-design-the-gui">Using Glade to design the GUI</h2>
