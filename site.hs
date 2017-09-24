@@ -80,7 +80,7 @@ rulesTags isBuildTargetWebserver tags = do
             route   $ constRoute $ "tags" </> tag </> "atom.xml"
             compile $ loadAllSnapshots pattern "postContentOnly"
                 >>= fmap (take 15) . recentFirst
-                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
+                >>= renderAtom (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
 
 rulesFeeds :: Bool -> Rules ()
 rulesFeeds isBuildTargetWebserver = do
