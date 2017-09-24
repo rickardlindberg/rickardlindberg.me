@@ -19,13 +19,15 @@ main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
 
 rules :: Bool -> Rules ()
 rules isBuildTargetWebserver = do
+    tags <- buildTags patternAllPosts (fromCapture "tags/*/index.html")
     rulesTemplates
     rulesStaticFiles
+    rulesTags                              isBuildTargetWebserver tags
     rulesFeeds                             isBuildTargetWebserver
     rulesPageIndexHtmlTemplate             isBuildTargetWebserver
     rulesPageIndexHtmlTemplateWithoutTitle isBuildTargetWebserver
     rulesPageIndexPandoc                   isBuildTargetWebserver
-    rulesPageIndexPandocTemplate           isBuildTargetWebserver
+    rulesPageIndexPandocTemplate           isBuildTargetWebserver tags
     rulesPostIndexHtml                     isBuildTargetWebserver
     rulesPostIndexPandoc                   isBuildTargetWebserver
     rulesPostIndexPandocWithOwnTitle       isBuildTargetWebserver
@@ -55,6 +57,31 @@ rulesStaticFiles = do
         route idRoute
         compile copyFileCompiler
 
+rulesTags :: Bool -> Tags -> Rules ()
+rulesTags isBuildTargetWebserver tags = do
+    tagsRules tags $ \tag pattern -> do
+        let context = contextBase isBuildTargetWebserver
+                      `mappend`
+                      constField "title" ("Posts tagged " ++ tag)
+                      `mappend`
+                      listField "posts" (contextPost isBuildTargetWebserver) (recentFirst =<< loadAll pattern)
+        route idRoute
+        compile $ makeItem ""
+            >>= loadAndApplyTemplate "templates/tag.html" context
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+        version "rss" $ do
+            route   $ constRoute $ "tags" </> tag </> "rss.xml"
+            compile $ loadAllSnapshots pattern "postContentOnly"
+                >>= fmap (take 15) . recentFirst
+                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
+        version "atom" $ do
+            route   $ constRoute $ "tags" </> tag </> "atom.xml"
+            compile $ loadAllSnapshots pattern "postContentOnly"
+                >>= fmap (take 15) . recentFirst
+                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
+
 rulesFeeds :: Bool -> Rules ()
 rulesFeeds isBuildTargetWebserver = do
     create ["atom.xml"] $
@@ -64,22 +91,11 @@ rulesFeeds isBuildTargetWebserver = do
     where
         process render = do
             route idRoute
-            compile $ feedPosts >>= render feedConfiguration feedContext
+            compile $ feedPosts >>= render (feedConfiguration "latest posts") (contextFeed isBuildTargetWebserver)
         feedPosts =
             loadAllSnapshots patternAllPosts "postContentOnly"
             >>= recentFirst
             >>= return . (take 15)
-        feedContext =
-            contextPost isBuildTargetWebserver
-            `mappend`
-            bodyField "description"
-        feedConfiguration = FeedConfiguration
-            { feedTitle       = "Rickard's personal homepage: latest posts"
-            , feedDescription = "Rickard's personal homepage: latest posts"
-            , feedAuthorName  = "Rickard Lindberg"
-            , feedAuthorEmail = "ricli85@gmail.com"
-            , feedRoot        = "http://rickardlindberg.me"
-            }
 
 rulesPageIndexHtmlTemplate :: Bool -> Rules ()
 rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
@@ -121,11 +137,14 @@ rulesPageIndexPandoc isBuildTargetWebserver = do
     where
         context = contextBase isBuildTargetWebserver
 
-rulesPageIndexPandocTemplate :: Bool -> Rules ()
-rulesPageIndexPandocTemplate isBuildTargetWebserver = do
+rulesPageIndexPandocTemplate :: Bool -> Tags -> Rules ()
+rulesPageIndexPandocTemplate isBuildTargetWebserver tags = do
     match "writing/index.markdown" $
-        process $ contextPosts isBuildTargetWebserver recentFirst
-                [("posts", patternAllPosts)]
+        process $
+            contextPosts isBuildTargetWebserver recentFirst
+            [("posts", patternAllPosts)]
+            `mappend`
+            (field "tagcloud" $ \_ -> renderTagCloud 80 140 tags)
     match "writing/reflections-on-programming/index.markdown" $
         process $ contextPosts isBuildTargetWebserver chronological
                 [("posts", patternReflectionsOnProgramming)]
@@ -278,6 +297,12 @@ contextPosts isBuildTargetWebserver transformItems =
         createPostsListField (fieldName, pattern) =
             listField fieldName context $ loadAll pattern >>= transformItems
 
+contextFeed :: Bool -> Context String
+contextFeed isBuildTargetWebserver =
+    contextPost isBuildTargetWebserver
+    `mappend`
+    bodyField "description"
+
 contextPost :: Bool -> Context String
 contextPost isBuildTargetWebserver =
     dateField "date" "%e %B %Y"
@@ -299,6 +324,15 @@ contextBase isBuildTargetWebserver =
             urlField      "url"      `mappend`
             pathField     "path"     `mappend`
             missingField
+
+feedConfiguration :: String -> FeedConfiguration
+feedConfiguration text = FeedConfiguration
+    { feedTitle       = "Rickard's personal homepage: " ++ text
+    , feedDescription = "Rickard's personal homepage: " ++ text
+    , feedAuthorName  = "Rickard Lindberg"
+    , feedAuthorEmail = "ricli85@gmail.com"
+    , feedRoot        = "http://rickardlindberg.me"
+    }
 
 processUrls :: Bool -> Item String -> Compiler (Item String)
 processUrls isBuildTargetWebserver x =
