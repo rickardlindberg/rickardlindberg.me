@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
-    xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <channel>
-        <title>Rickard's personal homepage: latest posts tagged python</title>
-        <link>http://rickardlindberg.me</link>
-        <description><![CDATA[Rickard's personal homepage: latest posts tagged python]]></description>
-        <atom:link href="http://rickardlindberg.me/tags/python/atom.xml" rel="self"
-                   type="application/rss+xml" />
-        <lastBuildDate>Sat, 11 Mar 2017 00:00:00 UT</lastBuildDate>
-        <item>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Rickard's personal homepage: latest posts tagged "python"</title>
+    <link href="http://rickardlindberg.me/tags/python/atom.xml" rel="self" />
+    <link href="http://rickardlindberg.me" />
+    <id>http://rickardlindberg.me/tags/python/atom.xml</id>
+    <author>
+        <name>Rickard Lindberg</name>
+        <email>ricli85@gmail.com</email>
+    </author>
+    <updated>2017-03-11T00:00:00Z</updated>
+    <entry>
     <title>Bitten by Python generators</title>
-    <link>http://rickardlindberg.me/writing/bitten-by-python-generators/</link>
-    <description><![CDATA[<h1>Bitten by Python generators</h1>
+    <link href="http://rickardlindberg.me/writing/bitten-by-python-generators/" />
+    <id>http://rickardlindberg.me/writing/bitten-by-python-generators/</id>
+    <published>2017-03-11T00:00:00Z</published>
+    <updated>2017-03-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Bitten by Python generators</h1>
 
 <p><em>Published on 11 March 2017.</em></p>
 
@@ -66,15 +70,15 @@
 <p>In my case I had already read all items into memory in a previous step. The <code>get_the_items</code> function was mainly used to transform and filter the items. So I would not have used much less memory by using generators. Also, my collections were small, so having them in memory was not a problem.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>Generators have some nice properties that can be useful. However, after being bitten by them I now think they should only be used if those properties are absolutely needed. I will favor list comprehensions over generators if I can afford to keep the whole collection in memory.</p>
-]]></description>
-    <pubDate>Sat, 11 Mar 2017 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/bitten-by-python-generators/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
+]]></summary>
+</entry>
+<entry>
     <title>Precision of datetime in Python</title>
-    <link>http://rickardlindberg.me/writing/python-datetime-precision/</link>
-    <description><![CDATA[<h1>Precision of datetime in Python</h1>
+    <link href="http://rickardlindberg.me/writing/python-datetime-precision/" />
+    <id>http://rickardlindberg.me/writing/python-datetime-precision/</id>
+    <published>2015-06-27T00:00:00Z</published>
+    <updated>2015-06-27T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Precision of datetime in Python</h1>
 
 <p><em>Published on 2015-06-27.</em></p>
 
@@ -389,15 +393,15 @@ dtype: object</pre>
 </div>
 </div>
 
-]]></description>
-    <pubDate>Sat, 27 Jun 2015 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/python-datetime-precision/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
+]]></summary>
+</entry>
+<entry>
     <title>The danger with implicit if statements in Python</title>
-    <link>http://rickardlindberg.me/writing/python-danger-implicit-if/</link>
-    <description><![CDATA[<h1>The danger with implicit if statements in Python</h1>
+    <link href="http://rickardlindberg.me/writing/python-danger-implicit-if/" />
+    <id>http://rickardlindberg.me/writing/python-danger-implicit-if/</id>
+    <published>2014-11-03T00:00:00Z</published>
+    <updated>2014-11-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>The danger with implicit if statements in Python</h1>
 
 <p><em>Published on  3 November 2014.</em></p>
 
@@ -439,11 +443,7 @@ if number:
 <pre><code>if number is not None:
     # do something</code></pre>
 <p>I have made this mistake more than once, and I’m starting to think that explicit if statements should always be used except in special cases.</p>
-]]></description>
-    <pubDate>Mon, 03 Nov 2014 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/python-danger-implicit-if/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
+]]></summary>
+</entry>
 
-    </channel>
-</rss>
+</feed>
