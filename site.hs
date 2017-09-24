@@ -7,6 +7,7 @@ import Hakyll
 import Network.HTTP.Base
 import System.Environment
 import System.FilePath
+import Text.Pandoc.Options
 
 main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
@@ -113,7 +114,7 @@ rulesPageIndexPandoc :: Bool -> Rules ()
 rulesPageIndexPandoc isBuildTargetWebserver = do
     match "contact/index.markdown" $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ myPandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" context
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
@@ -159,7 +160,7 @@ rulesPostIndexPandoc :: Bool -> Rules ()
 rulesPostIndexPandoc isBuildTargetWebserver = do
     match patternPostIndexPandoc $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ myPandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
             >>= loadAndApplyTemplate "templates/default.html" context
@@ -171,7 +172,7 @@ rulesPostIndexPandocWithOwnTitle :: Bool -> Rules ()
 rulesPostIndexPandocWithOwnTitle isBuildTargetWebserver = do
     match patternPostIndexPandocWithOwnTitle $ do
         route $ setExtension "html"
-        compile $ pandocCompiler
+        compile $ myPandocCompiler
             >>= saveSnapshot "postContentOnly"
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
@@ -185,7 +186,7 @@ rulesPostIndexUpOneUpPandoc isBuildTargetWebserver = do
     where
         process = do
             route upIndex
-            compile $ pandocCompiler
+            compile $ myPandocCompiler
                 >>= loadAndApplyTemplate "templates/title.html" context
                 >>= saveSnapshot "postContentOnly"
                 >>= loadAndApplyTemplate "templates/default.html" context
@@ -203,7 +204,7 @@ rulesPostNamePandoc isBuildTargetWebserver = do
     where
         process = do
             route routeIndex
-            compile $ pandocCompiler
+            compile $ myPandocCompiler
                 >>= loadAndApplyTemplate "templates/title.html" (contextPost isBuildTargetWebserver)
                 >>= saveSnapshot "postContentOnly"
                 >>= loadAndApplyTemplate "templates/default.html" (contextBase isBuildTargetWebserver)
@@ -313,3 +314,7 @@ stripIndexHtml url =
     if "index.html" `isSuffixOf` url && (head url) `elem` ("/." :: String)
         then take (length url - 10) url
         else url
+
+myPandocCompiler :: Compiler (Item String)
+myPandocCompiler =
+    pandocCompilerWith defaultHakyllReaderOptions defaultHakyllWriterOptions { writerEmailObfuscation = JavascriptObfuscation }
