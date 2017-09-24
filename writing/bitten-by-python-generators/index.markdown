@@ -1,6 +1,7 @@
 ---
 title: Bitten by Python generators
 date: 2017-03-11
+tags: python
 ---
 
 Today I found a bug in a piece of Python code that I had written. The buggy

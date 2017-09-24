@@ -1,6 +1,7 @@
 ---
 title: The danger with implicit if statements in Python
 date: 2014-11-03
+tags: python
 ---
 
 In Python we can put an expression in an if statement that is not a boolean.
