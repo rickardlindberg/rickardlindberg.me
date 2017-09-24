@@ -58,29 +58,27 @@ rulesStaticFiles = do
         compile copyFileCompiler
 
 rulesTags :: Bool -> Tags -> Rules ()
-rulesTags isBuildTargetWebserver tags = do
-    tagsRules tags $ \tag pattern -> do
-        let context = contextBase isBuildTargetWebserver
-                      `mappend`
-                      constField "title" ("Posts tagged " ++ tag)
-                      `mappend`
-                      listField "posts" (contextPost isBuildTargetWebserver) (recentFirst =<< loadAll pattern)
-        route idRoute
-        compile $ makeItem ""
-            >>= loadAndApplyTemplate "templates/tag.html" context
-            >>= loadAndApplyTemplate "templates/title.html" context
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
-        version "rss" $ do
-            route   $ constRoute $ "tags" </> tag </> "rss.xml"
-            compile $ loadAllSnapshots pattern "postContentOnly"
-                >>= fmap (take 15) . recentFirst
-                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
-        version "atom" $ do
-            route   $ constRoute $ "tags" </> tag </> "atom.xml"
-            compile $ loadAllSnapshots pattern "postContentOnly"
-                >>= fmap (take 15) . recentFirst
-                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
+rulesTags isBuildTargetWebserver tags = tagsRules tags $ \tag pattern -> do
+    let context = contextBase isBuildTargetWebserver
+                  `mappend`
+                  constField "tag" tag
+                  `mappend`
+                  listField "posts" (contextPost isBuildTargetWebserver) (recentFirst =<< loadAll pattern)
+    route idRoute
+    compile $ makeItem ""
+        >>= loadAndApplyTemplate "templates/tag.html" context
+        >>= loadAndApplyTemplate "templates/default.html" context
+        >>= processUrls isBuildTargetWebserver
+    version "rss" $ do
+        route   $ constRoute $ "tags" </> tag </> "rss.xml"
+        compile $ loadAllSnapshots pattern "postContentOnly"
+            >>= fmap (take 15) . recentFirst
+            >>= renderRss (feedConfiguration $ "latest posts tagged \"" ++ tag ++ "\"") (contextFeed isBuildTargetWebserver)
+    version "atom" $ do
+        route   $ constRoute $ "tags" </> tag </> "atom.xml"
+        compile $ loadAllSnapshots pattern "postContentOnly"
+            >>= fmap (take 15) . recentFirst
+            >>= renderAtom (feedConfiguration $ "latest posts tagged \"" ++ tag ++ "\"") (contextFeed isBuildTargetWebserver)
 
 rulesFeeds :: Bool -> Rules ()
 rulesFeeds isBuildTargetWebserver = do
