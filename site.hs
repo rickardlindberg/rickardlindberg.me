@@ -71,16 +71,17 @@ rulesTags isBuildTargetWebserver tags = do
             >>= loadAndApplyTemplate "templates/title.html" context
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
-        version "rss" $ do
-            route   $ constRoute $ "tags" </> tag </> "rss.xml"
+        feedVersion "rss" tag pattern renderRss
+        feedVersion "atom" tag pattern renderAtom
+    where
+        feedVersion name tag pattern render = version name $ do
+            route $ customRoute $ \identifier ->
+                replaceFileName (toFilePath identifier) (name ++ ".xml")
             compile $ loadAllSnapshots pattern "postContentOnly"
                 >>= fmap (take 15) . recentFirst
-                >>= renderRss (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
-        version "atom" $ do
-            route   $ constRoute $ "tags" </> tag </> "atom.xml"
-            compile $ loadAllSnapshots pattern "postContentOnly"
-                >>= fmap (take 15) . recentFirst
-                >>= renderAtom (feedConfiguration $ "latest posts tagged " ++ tag) (contextFeed isBuildTargetWebserver)
+                >>= render
+                    (feedConfiguration $ "latest posts tagged " ++ tag)
+                    (contextFeed isBuildTargetWebserver)
 
 rulesFeeds :: Bool -> Rules ()
 rulesFeeds isBuildTargetWebserver = do
