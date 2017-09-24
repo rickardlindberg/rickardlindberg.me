@@ -3,6 +3,8 @@ title: Search and replace in Vim
 date: 2015-03-28
 ---
 
+*24 September 2017: Fixed broken link to "Vim: Find and replace text across files."*
+
 In this article I explain how I do search and replace in Vim.
 
 As a programmer, I constantly rename variables, functions, and classes. The
@@ -182,6 +184,6 @@ interesting:
 
 * [Vimcasts - Project-wide find and replace](http://vimcasts.org/episodes/project-wide-find-and-replace/)
 
-* [Ibrahim Ahmed - Vim: Find and replace text across files](http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html)
+* [Ibrahim Ahmed - Vim: Find and replace text across files](https://web.archive.org/web/20150928211530/http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html)
 
 * [The Geek Stuff - Vi and Vim Editor: 12 Powerful Find and Replace Examples](http://www.thegeekstuff.com/2009/04/vi-vim-editor-search-and-replace-examples/)
