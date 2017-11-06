@@ -72,26 +72,28 @@ less credible.
 
 SourceForge has been a good home for Timeline so far, but we would also like to
 have registration free discussions and pull requests. There is also a worry
-that SourceForge will treat us badly.
+that SourceForge will do something undesirable as described in the Notepad++
+article.
 
 Moving to GitHub does not add any value to us because it does not provide the
-additional features we want and it is a proprietary platform. As far as I know,
-GitHub does not support anonymous users to send feedback via email, so if we
-move, we loose that feature that we have today.
+additional features we want and it is also a proprietary platform. As far as I
+know, GitHub does not support anonymous users to send feedback via email, so if
+we move, we loose that feature that works well today.
 
-We could install an existing free platform like GitLab on our own servers. That
-would get rid of the worry that the platform might treat us badly. But I've not
-yet seen a platform that provides registration free discussions and pull
-requests. Perhaps those features can be added to an existing platform, but I
-think it might be difficult because most platforms require registered users,
-and these two features have to work without it.
+We could install an existing free platform like
+[GitLab](https://about.gitlab.com/) on our own servers. That would get rid of
+the worry that the platform might do something undesirable. But I've not yet
+seen a platform that provides registration free discussions and pull requests.
+Perhaps those features can be added to an existing platform, but I think it
+might be difficult because most platforms require registered users, and these
+two features have to work without it.
 
 My feeling is that the approach needed for these two features might justify a
 completely new platform. My suggested way forward is therefore to develop a new
 platform whose core features are registration free discussions and pull
 requests. In addition, it would need features common to many platforms like
-hosting of binaries and a project web page.
+hosting of releases and a project web page.
 
 I've started prototyping what such a platform might look like. I might write
-down what I think are the minimum set of features needed in order to create a
-platform that is better for Timeline than the current alternatives.
+down what I think are the minimum set of features needed to create a platform
+that is better for Timeline than the current alternatives.
