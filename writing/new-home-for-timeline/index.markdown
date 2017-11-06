@@ -80,13 +80,12 @@ additional features we want and it is also a proprietary platform. As far as I
 know, GitHub does not support anonymous users to send feedback via email, so if
 we move, we loose that feature that works well today.
 
-We could install an existing free platform like
-[GitLab](https://about.gitlab.com/) on our own servers. That would get rid of
-the worry that the platform might do something undesirable. But I've not yet
-seen a platform that provides registration free discussions and pull requests.
-Perhaps those features can be added to an existing platform, but I think it
-might be difficult because most platforms require registered users, and these
-two features have to work without it.
+We could install an existing free platform like GitLab on our own servers. That
+would get rid of the worry that the platform might do something undesirable.
+But I've not yet seen a platform that provides registration free discussions
+and pull requests.  Perhaps those features can be added to an existing
+platform, but I think it might be difficult because most platforms require
+registered users, and these two features have to work without it.
 
 My feeling is that the approach needed for these two features might justify a
 completely new platform. My suggested way forward is therefore to develop a new
