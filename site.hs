@@ -269,6 +269,7 @@ patternPostIndexPandoc =
     .||. "writing/tell-dont-ask-example/index.markdown"
     .||. "writing/bitten-by-python-generators/index.markdown"
     .||. "writing/evolution-recalling-bash-history/index.md"
+    .||. "writing/new-home-for-timeline/index.markdown"
 
 patternPostIndexPandocWithOwnTitle :: Pattern
 patternPostIndexPandocWithOwnTitle =
