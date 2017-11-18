@@ -11,17 +11,17 @@ class Compiler(object):
     def compile(self, program):
         self._input = program
         self._pos = 0
-        self._output = ""
+        self._output = ''
         self._level = 0
         self.program()
         return self._output
 
     def _re(self, pattern):
-        match = re.match(r"\s*({})".format(pattern), self._input[self._pos:])
+        match = re.match(r'\s*({})'.format(pattern), self._input[self._pos:])
         if match:
             self._pos += len(match.group(0))
             return match.group(1)
-        raise MaybeParseError("re not found")
+        raise MaybeParseError('re not found')
 
     def _backup(self):
         return (self._pos, self._output, self._level)
@@ -31,8 +31,8 @@ class Compiler(object):
 
     def _write(self, text):
         for ch in text:
-            if self._output and self._output[-1] == "\n" and ch != "\n":
-                self._output += "    " * self._level
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
             self._output += ch
 
     def _indent(self):
@@ -49,13 +49,89 @@ class Meta0(Compiler):
             backup = self._backup()
             match = self._re("compiler")
             match = self._re("[a-zA-Z0-9]+")
+            self._write("import re\n")
+            self._write("import sys\n")
+            self._write("\n")
+            self._write("\n")
+            self._write("class MaybeParseError(Exception):\n")
+            self._indent()
+            self._write("pass\n")
+            self._dedent()
+            self._write("\n")
+            self._write("\n")
+            self._write("class Compiler(object):\n")
+            self._write("\n")
+            self._indent()
+            self._write("def compile(self, program):\n")
+            self._indent()
+            self._write("self._input = program\n")
+            self._write("self._pos = 0\n")
+            self._write("self._output = ''\n")
+            self._write("self._level = 0\n")
+            self._write("self.program()\n")
+            self._write("return self._output\n")
+            self._dedent()
+            self._write("\n")
+            self._write("def _re(self, pattern):\n")
+            self._indent()
+            self._write("match = re.match(r'\s*({})'.format(pattern), self._input[self._pos:])\n")
+            self._write("if match:\n")
+            self._indent()
+            self._write("self._pos += len(match.group(0))\n")
+            self._write("return match.group(1)\n")
+            self._dedent()
+            self._write("raise MaybeParseError('re not found')\n")
+            self._dedent()
+            self._write("\n")
+            self._write("def _backup(self):\n")
+            self._indent()
+            self._write("return (self._pos, self._output, self._level)\n")
+            self._dedent()
+            self._write("\n")
+            self._write("def _restore(self, backup):\n")
+            self._indent()
+            self._write("self._pos, self._output, self._level = backup\n")
+            self._dedent()
+            self._write("\n")
+            self._write("def _write(self, text):\n")
+            self._indent()
+            self._write("for ch in text:\n")
+            self._indent()
+            self._write("if self._output and self._output[-1] == '\\n' and ch != '\\n':\n")
+            self._indent()
+            self._write("self._output += '    ' * self._level\n")
+            self._dedent()
+            self._write("self._output += ch\n")
+            self._dedent()
+            self._dedent()
+            self._write("\n")
+            self._write("def _indent(self):\n")
+            self._indent()
+            self._write("self._level += 1\n")
+            self._dedent()
+            self._write("\n")
+            self._write("def _dedent(self):\n")
+            self._indent()
+            self._write("self._level -= 1\n")
+            self._dedent()
+            self._write("\n")
+            self._write("\n")
+            self._dedent()
             self._write("class ")
             self._write(match)
             self._write("(Compiler):\n")
             self._indent()
-            match = self._re("\\{")
+            self.lbracket()
             self.rules()
-            match = self._re("\\}")
+            self.rbracket()
+            self._dedent()
+            self._write("\n")
+            self._write("\n")
+            self._write("if __name__ == '__main__':\n")
+            self._indent()
+            self._write("sys.stdout.write(")
+            self._write(match)
+            self._write("().compile(sys.stdin.read()))\n")
             self._dedent()
             return
         except MaybeParseError:
@@ -279,6 +355,24 @@ class Meta0(Compiler):
             self._restore(backup)
         raise MaybeParseError('no choice found')
 
+    def lbracket(self):
+        try:
+            backup = self._backup()
+            match = self._re("\\{")
+            return
+        except MaybeParseError:
+            self._restore(backup)
+        raise MaybeParseError('no choice found')
 
-if __name__ == "__main__":
+    def rbracket(self):
+        try:
+            backup = self._backup()
+            match = self._re("\\}")
+            return
+        except MaybeParseError:
+            self._restore(backup)
+        raise MaybeParseError('no choice found')
+
+
+if __name__ == '__main__':
     sys.stdout.write(Meta0().compile(sys.stdin.read()))

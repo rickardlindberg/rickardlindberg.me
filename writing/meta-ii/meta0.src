@@ -1,7 +1,78 @@
 compiler Meta0 {
     program      = "compiler"
-                   "[a-zA-Z0-9]+"        { "class " % "(Compiler):\n" > }
-                   "\\{" rules "\\}"     { < }
+                   "[a-zA-Z0-9]+"
+                   {
+                       "import re\n"
+                       "import sys\n"
+                       "\n"
+                       "\n"
+                       "class MaybeParseError(Exception):\n"
+                       >
+                           "pass\n"
+                       <
+                       "\n"
+                       "\n"
+                       "class Compiler(object):\n"
+                       "\n"
+                       >
+                           "def compile(self, program):\n"
+                           >
+                               "self._input = program\n"
+                               "self._pos = 0\n"
+                               "self._output = ''\n"
+                               "self._level = 0\n"
+                               "self.program()\n"
+                               "return self._output\n"
+                           <
+                           "\n"
+                           "def _re(self, pattern):\n"
+                           >
+                               "match = re.match(r'\s*({})'.format(pattern), self._input[self._pos:])\n"
+                               "if match:\n"
+                               >
+                                   "self._pos += len(match.group(0))\n"
+                                   "return match.group(1)\n"
+                               <
+                               "raise MaybeParseError('re not found')\n"
+                           <
+                           "\n"
+                           "def _backup(self):\n"
+                           > "return (self._pos, self._output, self._level)\n" <
+                           "\n"
+                           "def _restore(self, backup):\n"
+                           > "self._pos, self._output, self._level = backup\n" <
+                           "\n"
+                           "def _write(self, text):\n"
+                           >
+                               "for ch in text:\n"
+                               >
+                                   "if self._output and self._output[-1] == '\\n' and ch != '\\n':\n"
+                                   > "self._output += '    ' * self._level\n" <
+                                   "self._output += ch\n"
+                               <
+                           <
+                           "\n"
+                           "def _indent(self):\n"
+                           > "self._level += 1\n" <
+                           "\n"
+                           "def _dedent(self):\n"
+                           > "self._level -= 1\n" <
+                           "\n"
+                           "\n"
+                       <
+                       "class " % "(Compiler):\n"
+                       >
+                   }
+                   lbracket rules rbracket
+                   {
+                       <
+                       "\n"
+                       "\n"
+                       "if __name__ == '__main__':\n"
+                       >
+                       "sys.stdout.write(" % "().compile(sys.stdin.read()))\n"
+                       <
+                   }
                  ;
     rules        = rule moreRules
                  ;
@@ -39,5 +110,9 @@ compiler Meta0 {
                  | "<"               { "self._dedent()\n" }
                  ;
     empty        = ""
+                 ;
+    lbracket     = "\\{"
+                 ;
+    rbracket     = "\\}"
                  ;
 }
