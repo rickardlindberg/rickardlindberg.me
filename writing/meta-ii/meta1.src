@@ -1,0 +1,95 @@
+compiler Meta1 {
+  program      = "compiler\\b"
+                 "[a-zA-Z0-9]+"
+                 {
+                   "import re\n"
+                   "import sys\n"
+                   "\n"
+                   "\n"
+                   "class MaybeParseError(Exception):\n" >
+                     "pass\n"
+                   <
+                   "\n"
+                   "\n"
+                   "class " % "(object):\n"
+                   "\n" >
+                     "def compile(self, program):\n" >
+                       "self._input = program\n"
+                       "self._pos = 0\n"
+                       "self._output = ''\n"
+                       "self._level = 0\n"
+                       "self.program()\n"
+                       "return self._output\n"
+                     <
+                     "\n"
+                     "def _match(self, pattern):\n" >
+                       "match = re.match(r'\s*({})'.format(pattern), self._input[self._pos:])\n"
+                       "if match:\n" >
+                         "self._pos += len(match.group(0))\n"
+                         "return match.group(1)\n"
+                       <
+                       "raise MaybeParseError('pattern not found')\n"
+                     <
+                     "\n"
+                     "def _write(self, text):\n" >
+                       "for ch in text:\n" >
+                         "if self._output and self._output[-1] == '\\n' and ch != '\\n':\n" >
+                           "self._output += '    ' * self._level\n"
+                         <
+                         "self._output += ch\n"
+                       <
+                     <
+                 }
+                 lbracket rules rbracket
+                 {
+                   <
+                   "\n"
+                   "\n"
+                   "if __name__ == '__main__':\n" >
+                     "sys.stdout.write(" % "().compile(sys.stdin.read()))\n"
+                   <
+                 }
+               ;
+  rules        = rule moreRules;
+  moreRules    = rules | empty;
+  rule         = "[a-zA-Z0-9]+"
+                 { "\ndef " % "(self):\n" > }
+                 "="
+                 choices
+                 { "raise MaybeParseError('no choice found')\n" < }
+                 ";"
+               ;
+  choices      = choice moreChoices;
+  moreChoices  = "\\|" choices | empty;
+  choice       = {
+                   "try:\n"
+                   >
+                   "backup = self._pos, self._output, self._level\n"
+                 }
+                 sequence
+                 {
+                   "return\n"
+                   <
+                   "except MaybeParseError:\n" >
+                     "self._pos, self._output, self._level = backup\n"
+                   <
+                 }
+               ;
+  sequence     = part moreParts;
+  moreParts    = sequence | empty;
+  part         = output
+               | "\x22.*?\x22"  { "match = self._match(" % ")\n" }
+               | "[a-zA-Z0-9]+" { "self." % "()\n" }
+               ;
+  output       = lbracket outParts rbracket ;
+  outParts     = outPart moreOutParts ;
+  moreOutParts = outParts | empty ;
+  outPart      = "\x22.*?\x22" { "self._write(" % ")\n" }
+               | "%"           { "self._write(match)\n" }
+               | ">"           { "self._level += 1\n" }
+               | "<"           { "self._level -= 1\n" }
+               ;
+  empty        = "";
+  lbracket     = "\\{";
+  rbracket     = "\\}";
+}
