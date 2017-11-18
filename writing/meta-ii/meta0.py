@@ -13,15 +13,7 @@ class Compiler(object):
         self._pos = 0
         self._output = ""
         self._level = 0
-        try:
-            self.program()
-        except MaybeParseError as e:
-            sys.stderr.write("ERROR: {}".format(e))
-            sys.stderr.write("\n==== REST ====\n")
-            sys.stderr.write(self._input[self._pos:self._pos+10])
-            sys.stderr.write("\n=== OUTPUT ===\n")
-            sys.stderr.write(self._output)
-            sys.stderr.write("\n==============\n")
+        self.program()
         return self._output
 
     def _re(self, pattern):
@@ -50,7 +42,7 @@ class Compiler(object):
         self._level -= 1
 
 
-class Meta1(Compiler):
+class Meta0(Compiler):
 
     def program(self):
         try:
@@ -289,4 +281,4 @@ class Meta1(Compiler):
 
 
 if __name__ == "__main__":
-    sys.stdout.write(Meta1().compile(sys.stdin.read()))
+    sys.stdout.write(Meta0().compile(sys.stdin.read()))
