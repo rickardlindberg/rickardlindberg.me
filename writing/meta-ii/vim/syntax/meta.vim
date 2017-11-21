@@ -1,4 +1,5 @@
 syntax keyword metaKeyword compiler
+syntax keyword metaKeyword program
 
 syntax region metaString start=+"+ end=+"+
 
