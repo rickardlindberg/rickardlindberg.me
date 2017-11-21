@@ -20,6 +20,19 @@ def main():
             "supports groups in regexps"
         ]
     )
+    # Iteration 2: extract verbatim sections
+    b.make(
+        "meta2step.meta1", "meta1.py",
+        "meta2step.py", [
+            "generates compiler that reads verbatim"
+        ]
+    )
+    b.make(
+        "meta2.meta2", "meta2step.py",
+        "meta2.py", [
+            "that reads verbatim"
+        ]
+    )
 
 
 class Bootstrapper(object):

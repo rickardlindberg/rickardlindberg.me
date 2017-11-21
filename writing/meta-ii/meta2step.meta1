@@ -1,0 +1,50 @@
+compiler Meta2Step {
+  program      = verbatim
+                 "compiler"
+                 "[a-zA-Z0-9]+"
+                 {
+                   "class " % "(Compiler):\n"
+                   >
+                 }
+                 lbracket rules rbracket
+                 {
+                   <
+                 }
+                 verbatim
+               ;
+  verbatim     = "<<<\n((.|\n)*?)\n>>>\n" { % }
+               | empty
+               ;
+  rules        = rule moreRules;
+  moreRules    = rules | empty;
+  rule         = "[a-zA-Z]+"
+                 { "\ndef " % "(self):\n" > }
+                 "="
+                 choices
+                 { "raise MaybeParseError('no choice found')\n" < }
+                 ";"
+               ;
+  choices      = choice moreChoices;
+  moreChoices  = "\\|" choices | empty;
+  choice       = { "try:\n" > "backup = self._backup()\n" }
+                 sequence
+                 { "return\n" < "except MaybeParseError:\n" > "self._restore(backup)\n" < }
+               ;
+  sequence     = part moreParts;
+  moreParts    = sequence | empty;
+  part         = output
+               | "\x22.*?\x22" { "match = self._re(" % ")\n" }
+               | "[a-zA-Z]+"   { "self." % "()\n" }
+               ;
+  output       = "{" outParts "}";
+  outParts     = outPart moreOutParts;
+  moreOutParts = outParts | empty;
+  outPart      = "\x22.*?\x22" { "self._write(" % ")\n" }
+               | "%"           { "self._write(match)\n" }
+               | ">"           { "self._indent()\n" }
+               | "<"           { "self._dedent()\n" }
+               ;
+  empty        = "";
+  lbracket     = "\\{";
+  rbracket     = "\\}";
+}
