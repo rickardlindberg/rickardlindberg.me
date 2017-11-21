@@ -45,6 +45,17 @@ def main():
         "meta3.py", [
         ]
     )
+    # Iteration 4: cleanup
+    b.make(
+        "meta3cleanup.meta3", "meta3.py",
+        "meta3cleanup1.py", [
+        ]
+    )
+    b.make(
+        "meta3cleanup.meta3", "meta3cleanup1.py",
+        "meta3cleanup2.py", [
+        ]
+    )
 
 
 class Bootstrapper(object):
