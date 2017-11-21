@@ -1,6 +1,5 @@
 compiler Meta1 {
-  program      = verbatim
-                 "compiler"
+  program      = "compiler"
                  "[a-zA-Z0-9]+"
                  {
                    "import re\n"
@@ -25,13 +24,13 @@ compiler Meta1 {
                      "\n"
                      "def _re(self, pattern):\n" >
                        "self._pos += len(re.match(r'\s*', self._input[self._pos:]).group(0))\n"
-                       "match = re.match(pattern, self._input[self._pos:], flags=re.MULTILINE|re.DOTALL)\n"
+                       "match = re.match(pattern, self._input[self._pos:])\n"
                        "if match:\n" >
                          "self._pos += len(match.group(0))\n"
                          "if match.groups():\n"
-                         > "return match.group(1)\n" <
+                           > "return match.group(1)\n" <
                          "else:\n"
-                         > "return match.group(0)\n" <
+                           > "return match.group(0)\n" <
                        <
                        "raise MaybeParseError('re not found')\n"
                      <
@@ -73,10 +72,7 @@ compiler Meta1 {
                    "sys.stdout.write(" % "().compile(sys.stdin.read()))\n"
                    <
                  }
-                 verbatim
                ;
-  verbatim     = "^<<<\\n(.*?)^>>>$" { % }
-               | empty;
   rules        = rule moreRules;
   moreRules    = rules | empty;
   rule         = "[a-zA-Z]+"
