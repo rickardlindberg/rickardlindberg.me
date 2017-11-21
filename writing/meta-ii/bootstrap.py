@@ -33,6 +33,18 @@ def main():
             "that reads verbatim"
         ]
     )
+    # Iteration 3: add . output operator
+    b.make(
+        "meta3.meta2", "meta2.py",
+        "meta3step.py", [
+            "compiler that recognizes . output operator"
+        ]
+    )
+    b.make(
+        "meta3.meta3", "meta3step.py",
+        "meta3.py", [
+        ]
+    )
 
 
 class Bootstrapper(object):
