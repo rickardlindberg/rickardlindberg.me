@@ -14,6 +14,10 @@ compilers called META II. I wanted to understand how META II worked, and did it
 by implementing a similar language and writing an article explaining how I did
 it.
 
+## Design goals
+
+Small and elegant yet practical.
+
 ## Examples
 
 A compiler is something that takes a source program on stdin and writes a
@@ -46,6 +50,21 @@ First version:
 
 Show how to incrementally produce new metacompilers with new features.
 
+## More examples
+
+What can we do with RLMeta?
+
+* "Binary" output for compilation to AST
+* DSL for writing tests of RLMeta programs: RLMetaTest
+
+## Limitations
+
+Because RLMeta wants to be small and elegant, some features are not
+implemented:
+
+* ..
+* ..
+
 ## Resources
 
 The following resources helped me understand META II:
@@ -54,3 +73,8 @@ The following resources helped me understand META II:
 * Original paper: http://www.hcs64.com/files/pd1-3-schorre.pdf
 * http://www.bayfronttechnologies.com/mc_tutorial.html
 * https://github.com/melvinzhang/meta2-lua
+
+Further reading:
+
+* Ohm
+    * https://news.ycombinator.com/item?id=15491336
