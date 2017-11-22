@@ -55,23 +55,23 @@ class Bootstrapper(object):
             ["diff", compiler, "-"]
         )
         if success:
-            symlink(src, "meta.meta")
-            symlink(compiler, "meta.py")
+            symlink(src, "rlmeta.rlmeta")
+            symlink(compiler, "rlmeta.py")
             print("  Meta: YES")
         else:
             print("  Meta: no")
 
 
 def src(version):
-    return "meta{}.meta".format(version)
+    return "rlmeta{}.rlmeta".format(version)
 
 
 def pycompiler(version):
-    return "meta{}.py".format(version)
+    return "rlmeta{}.py".format(version)
 
 
 def pyout(version):
-    return "meta{}.py".format(version)
+    return "rlmeta{}.py".format(version)
 
 
 def run_compiler(src, compiler, check_return=True):

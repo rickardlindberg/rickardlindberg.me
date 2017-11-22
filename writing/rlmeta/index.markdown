@@ -23,7 +23,7 @@ target program on stdout:
 
 Show some example compilers written in RLMeta to demonstrate how it works.
 
-:include examples.metatest
+:include examples.rlmetatest
 
 ## Implementation RLMeta
 

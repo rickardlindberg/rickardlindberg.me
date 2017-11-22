@@ -30,4 +30,4 @@ hi def link metaOperator        Operator
 hi def link metaOutputOperator  Delimiter
 hi def link metaBlock           Include
 
-let b:current_syntax = "meta"
+let b:current_syntax = "rlmeta"

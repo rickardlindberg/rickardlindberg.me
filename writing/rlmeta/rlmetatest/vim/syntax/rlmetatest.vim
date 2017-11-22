@@ -11,4 +11,4 @@ syntax match bodyPart +---+
 hi def link headerPart       Define
 hi def link bodyPart         Operator
 
-let b:current_syntax = "metatest"
+let b:current_syntax = "rlmetatest"
