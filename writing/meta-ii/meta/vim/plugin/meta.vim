@@ -1,1 +1,1 @@
-au BufRead,BufNewFile *.meta* setf meta
+au BufRead,BufNewFile *.meta setf meta

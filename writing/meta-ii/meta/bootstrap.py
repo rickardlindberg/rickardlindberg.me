@@ -4,17 +4,17 @@ import sys
 
 def main():
     b = Bootstrapper()
-    b.start("meta0.meta0", "meta0.py")
+    b.start("meta0.meta", "meta0.py")
     # Iteration 1: add support for groups in regexps
     b.make(
-        "meta1.meta0", "meta0.py",
+        "meta1.meta", "meta0.py",
         "meta1step.py", [
             "recognizes meta0",
             "generates compiler that supports groups in regexps",
         ]
     )
     b.make(
-        "meta1.meta0", "meta1step.py",
+        "meta1.meta", "meta1step.py",
         "meta1.py", [
             "recognizes meta1",
             "supports groups in regexps"
@@ -22,37 +22,37 @@ def main():
     )
     # Iteration 2: extract verbatim sections
     b.make(
-        "meta2step.meta1", "meta1.py",
+        "meta2step.meta", "meta1.py",
         "meta2step.py", [
             "generates compiler that reads verbatim"
         ]
     )
     b.make(
-        "meta2.meta2", "meta2step.py",
+        "meta2.meta", "meta2step.py",
         "meta2.py", [
             "that reads verbatim"
         ]
     )
     # Iteration 3: add . output operator
     b.make(
-        "meta3.meta2", "meta2.py",
+        "meta3.meta", "meta2.py",
         "meta3step.py", [
             "compiler that recognizes . output operator"
         ]
     )
     b.make(
-        "meta3.meta3", "meta3step.py",
+        "meta4.meta", "meta3step.py",
         "meta3.py", [
         ]
     )
     # Iteration 4: cleanup
     b.make(
-        "meta3cleanup.meta3", "meta3.py",
+        "meta5.meta", "meta3.py",
         "meta3cleanup1.py", [
         ]
     )
     b.make(
-        "meta3cleanup.meta3", "meta3cleanup1.py",
+        "meta5.meta", "meta3cleanup1.py",
         "meta3cleanup2.py", [
         ]
     )
