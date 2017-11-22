@@ -5,58 +5,34 @@ import sys
 
 def main():
     b = Bootstrapper()
-    b.start("meta0.meta", "meta0.py")
+    b.start(src("0"), pycompiler("0"))
     # Iteration 1: add support for groups in regexps
-    b.make(
-        "meta1.meta", "meta0.py",
-        "meta1step.py", [
-            "recognizes meta0",
-            "generates compiler that supports groups in regexps",
-        ]
-    )
-    b.make(
-        "meta1.meta", "meta1step.py",
-        "meta1.py", [
-            "recognizes meta1",
-            "supports groups in regexps"
-        ]
-    )
+    b.make(src("1"), pycompiler("0"), pyout("1step"), [
+        "recognizes meta0",
+        "generates pycompiler that supports groups in regexps",
+    ])
+    b.make(src("1"), pycompiler("1step"), pyout("1"), [
+        "recognizes meta1",
+        "supports groups in regexps"
+    ])
     # Iteration 2: extract verbatim sections
-    b.make(
-        "meta2step.meta", "meta1.py",
-        "meta2step.py", [
-            "generates compiler that reads verbatim"
-        ]
-    )
-    b.make(
-        "meta2.meta", "meta2step.py",
-        "meta2.py", [
-            "that reads verbatim"
-        ]
-    )
+    b.make(src("2step"), pycompiler("1"), pyout("2step"), [
+        "generates pycompiler that reads verbatim"
+    ])
+    b.make(src("2"), pycompiler("2step"), pyout("2"), [
+        "that reads verbatim"
+    ])
     # Iteration 3: add . output operator
-    b.make(
-        "meta3.meta", "meta2.py",
-        "meta3step.py", [
-            "compiler that recognizes . output operator"
-        ]
-    )
-    b.make(
-        "meta4.meta", "meta3step.py",
-        "meta3.py", [
-        ]
-    )
+    b.make(src("3"), pycompiler("2"), pyout("3step"), [
+        "pycompiler that recognizes . output operator"
+    ])
+    b.make(src("4"), pycompiler("3step"), pyout("3"), [
+    ])
     # Iteration 4: cleanup
-    b.make(
-        "meta5.meta", "meta3.py",
-        "meta3cleanup1.py", [
-        ]
-    )
-    b.make(
-        "meta5.meta", "meta3cleanup1.py",
-        "meta3cleanup2.py", [
-        ]
-    )
+    b.make(src("5"), pycompiler("3"), pyout("3cleanup1"), [
+    ])
+    b.make(src("5"), pycompiler("3cleanup1"), pyout("3cleanup2"), [
+    ])
 
 
 class Bootstrapper(object):
@@ -84,6 +60,18 @@ class Bootstrapper(object):
             print("  Meta: YES")
         else:
             print("  Meta: no")
+
+
+def src(version):
+    return "meta{}.meta".format(version)
+
+
+def pycompiler(version):
+    return "meta{}.py".format(version)
+
+
+def pyout(version):
+    return "meta{}.py".format(version)
 
 
 def run_compiler(src, compiler, check_return=True):
