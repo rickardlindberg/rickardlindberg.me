@@ -1,0 +1,23 @@
+digraph {
+    subgraph one {
+        one_99 [label="99"]
+    }
+    subgraph two {
+        two_plus [label="+"]
+        two_1 [label="1"]
+        two_99 [label="99"]
+        two_plus -> two_1
+        two_plus -> two_99
+    }
+    subgraph three {
+        three_minus [label="-"]
+        three_times [label="*"]
+        three_one [label="1"]
+        three_3_1 [label="3"]
+        three_3_2 [label="3"]
+        three_minus -> three_times
+        three_minus -> three_one
+        three_times -> three_3_1
+        three_times -> three_3_2
+    }
+}
