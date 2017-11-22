@@ -1,0 +1,18 @@
+# alternation
+  compiler Alternation {
+    program = "a" { % }
+            | "b" { % }
+            ;
+  }
+:
+  abc
+==>
+  a
+---
+  bc
+==>
+  b
+---
+  c
+==>
+---

@@ -1,0 +1,19 @@
+compiler Test {
+  program   = testCase testCases;
+  testCases = testCase testCases | empty;
+  testCase  = "# (.*)\\n"
+              verbatim
+              ":\\n"
+              examples
+            ;
+  examples  = example examples | empty;
+  example   = verbatim
+              "==>\\n"
+              verbatim
+              "---\\n"
+            ;
+  verbatim  = line lines | empty;
+  line      = "  (.*)\\n" { % }
+            ;
+  empty     = "";
+}
