@@ -1,4 +1,5 @@
 from subprocess import Popen, PIPE
+import os
 import sys
 
 
@@ -78,6 +79,8 @@ class Bootstrapper(object):
             ["diff", compiler, "-"]
         )
         if success:
+            symlink(src, "meta.meta")
+            symlink(compiler, "meta.py")
             print("  Meta: YES")
         else:
             print("  Meta: no")
@@ -96,6 +99,12 @@ def run(stdin, cmd):
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate(stdin)
     return p.returncode == 0, stdout, stderr
+
+
+def symlink(src, target):
+    if os.path.islink(target):
+        os.remove(target)
+    os.symlink(src, target)
 
 
 def read(path):
