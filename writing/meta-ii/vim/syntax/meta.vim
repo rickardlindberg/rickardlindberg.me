@@ -17,6 +17,8 @@ syntax match metaBlock +}+
 
 syntax region metaVerbatim start=+<<<+ end=+>>>+
 
+syntax sync fromstart
+
 hi def link metaKeyword         Keyword
 hi def link metaString          String
 hi def link metaVerbatim        Underlined
