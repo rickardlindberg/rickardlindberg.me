@@ -46,6 +46,15 @@ First version:
     rlmeta0.rlmeta (rlmeta0 written in itself)
     rlmeta0.py (hand coded)
 
+Rough steps:
+
+* Draft rlmeta0.rlmeta on paper
+* Type it digitally
+* Sketched template for rlmeta0.py
+* Translated one rule at a time
+* Realized that grammar was wrong
+* Fixed grammar/compiler back and forth until I had a metacompiler
+
 ### Discuss limitation on RLMeta0
 
 - whitespace should be handled in grammar
