@@ -46,9 +46,20 @@ First version:
     rlmeta0.rlmeta (rlmeta0 written in itself)
     rlmeta0.py (hand coded)
 
+### Discuss limitation on RLMeta0
+
+- whitespace should be handled in grammar
+- repetitions: ? + *
+- assign match to names instead of using %
+- get rid of regex matching
+
 ### Improving RLMeta0
 
 Show how to incrementally produce new metacompilers with new features.
+
+1. Describe feature to implement
+2. Present source language diff
+3. Present bootsrap diagram
 
 ## More examples
 
