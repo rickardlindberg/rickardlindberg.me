@@ -6,7 +6,6 @@ import sys
 def main():
     b = Bootstrapper()
     b.start(src("0"), pycompiler("0"))
-    # Iteration 1: add support for groups in regexps
     b.make(src("1"), pycompiler("0"), pyout("1"), [
         "recognizes identifier bindings",
         "generates compilers that bind identifiers",
