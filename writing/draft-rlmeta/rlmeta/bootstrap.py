@@ -7,47 +7,38 @@ def main():
     b = Bootstrapper()
     b.start(src("0"), pycompiler("0"))
     # Iteration 1: add support for groups in regexps
-    b.make(src("1"), pycompiler("0"), pyout("1step"), [
-        "recognizes meta0",
-        "generates pycompiler that supports groups in regexps",
+    b.make(src("1"), pycompiler("0"), pyout("1"), [
+        "recognizes identifier bindings",
+        "generates compilers that bind identifiers",
     ])
-    b.make(src("1"), pycompiler("1step"), pyout("1"), [
-        "recognizes meta1",
-        "supports groups in regexps"
-    ])
-    # Iteration 2: extract verbatim sections
-    b.make(src("2step"), pycompiler("1"), pyout("2step"), [
-        "generates pycompiler that reads verbatim"
-    ])
-    b.make(src("2"), pycompiler("2step"), pyout("2"), [
-        "that reads verbatim"
-    ])
-    # Iteration 3: add . output operator
-    b.make(src("3"), pycompiler("2"), pyout("3step"), [
-        "pycompiler that recognizes . output operator"
-    ])
-    b.make(src("4"), pycompiler("3step"), pyout("3"), [
-    ])
-    # Iteration 4: cleanup
-    b.make(src("5"), pycompiler("3"), pyout("3cleanup1"), [
-    ])
-    b.make(src("5"), pycompiler("3cleanup1"), pyout("3cleanup2"), [
+    b.make(src("2"), pycompiler("1"), pyout("2"), [
+        "uses identifier binding",
     ])
 
 
 class Bootstrapper(object):
 
     def start(self, src, compiler):
-        print("Start: {} / [{}]".format(src, compiler))
+        print("{} / [{}]".format(src, compiler).center(80))
         self.check_meta(src, compiler)
+        self._last_source = src
 
     def make(self, src, compiler, out, out_desctiption):
-        print("")
-        print("Making: {} -> [{}] => {}".format(src, compiler, out))
+        print("-"*79)
+        print("{} -> [{}] => {}".format(src, compiler, out).center(79))
+        print(" Source diff:")
+        success, stdout, stderr = run("", ["diff", self._last_source, src])
+        for line in stdout.splitlines():
+            print("   {}".format(line))
+        print(" Creates compiler that:")
+        for line in out_desctiption:
+            print("   - {}".format(line))
         write(out, run_compiler(src, compiler))
         self.check_meta(src, out)
-        for line in out_desctiption:
-            print("  - {}".format(line))
+        print(" Compiler diff:")
+        print("   - diff {} {}".format(compiler, out))
+        print("   - meld {} {}".format(compiler, out))
+        self._last_source = src
 
     def check_meta(self, src, compiler):
         success, stdout, stderr = run(
@@ -57,9 +48,9 @@ class Bootstrapper(object):
         if success:
             symlink(src, "rlmeta.rlmeta")
             symlink(compiler, "rlmeta.py")
-            print("  Meta: YES")
+            print(" Is meta compiler: YES")
         else:
-            print("  Meta: no")
+            print(" Is meta compiler: no")
 
 
 def src(version):
