@@ -13,6 +13,10 @@ def main():
     b.make(src("2"), pycompiler("1"), pyout("2"), [
         "uses identifier binding",
     ])
+    b.make(src("3"), pycompiler("2"), pyout("3"), [
+        "cleans up identifier uses",
+        "also recognizes slightly different identifiers (all can have numbers)",
+    ])
 
 
 class Bootstrapper(object):
