@@ -17,6 +17,12 @@ def main():
         "cleans up identifier uses",
         "also recognizes slightly different identifiers (all can have numbers)",
     ])
+    b.make(src("4"), pycompiler("3"), pyout("4"), [
+        "generates compilers that recognize swapped identifiers",
+    ])
+    b.make(src("5"), pycompiler("4"), pyout("5"), [
+        "recognizes swapped identifiers",
+    ])
 
 
 class Bootstrapper(object):
