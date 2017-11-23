@@ -6,6 +6,7 @@ import sys
 def main():
     b = Bootstrapper()
     b.start(src("0"), pycompiler("0"))
+    # Add identifier bindings
     b.make(src("1"), pycompiler("0"), pyout("1"), [
         "recognizes identifier bindings",
         "generates compilers that bind identifiers",
@@ -13,10 +14,12 @@ def main():
     b.make(src("2"), pycompiler("1"), pyout("2"), [
         "uses identifier binding",
     ])
+    # Clean up uses of identifiers
     b.make(src("3"), pycompiler("2"), pyout("3"), [
         "cleans up identifier uses",
         "also recognizes slightly different identifiers (all can have numbers)",
     ])
+    # Swap identifier bindings order
     b.make(src("4"), pycompiler("3"), pyout("4"), [
         "generates compilers that recognize swapped identifiers",
     ])
