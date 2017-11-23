@@ -12,7 +12,7 @@ compiler Test {
               verbatim
               "---\\n"
             ;
-  verbatim  = line lines | empty;
+  verbatim  = line verbatim | empty;
   line      = "  (.*)\\n" { % }
             ;
   empty     = "";
