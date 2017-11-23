@@ -26,6 +26,10 @@ def main():
     b.make(src("5"), pycompiler("4"), pyout("5"), [
         "recognizes swapped identifiers",
     ])
+    # Extract runtime from grammar
+    b.make(src("6"), pycompiler("5"), pyout("6"), [
+        "extracts runtime from grammar",
+    ])
 
 
 class Bootstrapper(object):
