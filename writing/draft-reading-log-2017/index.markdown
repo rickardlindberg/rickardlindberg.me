@@ -35,3 +35,7 @@ in relation to that.
     * ...
     * Squek: bootstrapping mechanism for something much better than Smalltalk
       * How do I obsolete it?
+
+* [Dan Ingalls: Object-Oriented Programming](https://www.youtube.com/watch?v=P2mh92d-T3Y&t=851s)
+  Implement small object oriented base language like Lua.
+  Postfix notation.
