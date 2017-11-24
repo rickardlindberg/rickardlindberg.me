@@ -92,6 +92,13 @@ implemented:
 * ..
 * ..
 
+## Lessons learned
+
+Compiling something other than itself is useful. I got a metacompiler that did
+not generate runtime. So it worked for the meta case, but not for a compiler
+that did not include verbatim runtime. Discovered during development of
+rlmetatest.
+
 ## Resources
 
 The following resources helped me understand META II:
