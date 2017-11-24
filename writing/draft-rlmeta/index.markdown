@@ -77,6 +77,10 @@ What feature to choose?
 3. Implement that
 4. Go back
 
+## Alternative bootstrap process
+
+Implement in other language. Via Ohm?
+
 ## More examples
 
 What can we do with RLMeta?
