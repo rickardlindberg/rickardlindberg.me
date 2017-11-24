@@ -37,6 +37,12 @@ def main():
     b.make(src("8"), pycompiler("7"), pyout("8"), [
         "use repetition",
     ])
+    # TODO: Prelude with empty and space
+    # TODO: Remove space from regex
+    # TODO: Support parenthesis (anonymous rules)
+    # TODO: Distinguish re patterns / text patterns / output patterns
+    # TODO: Prevent repetition of output since it will create infinite loop?
+    # TODO: Memoize results? Speed up PEG & more elegant solution?
 
 
 class Bootstrapper(object):
