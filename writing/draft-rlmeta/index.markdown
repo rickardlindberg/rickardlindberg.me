@@ -70,6 +70,13 @@ Show how to incrementally produce new metacompilers with new features.
 2. Present source language diff
 3. Present bootsrap diagram
 
+What feature to choose?
+
+1. Try implementing it
+2. See what is missing
+3. Implement that
+4. Go back
+
 ## More examples
 
 What can we do with RLMeta?
