@@ -30,6 +30,13 @@ def main():
     b.make(src("6"), pycompiler("5"), pyout("6"), [
         "extracts runtime from grammar",
     ])
+    # Support repetition
+    b.make(src("7"), pycompiler("6"), pyout("7"), [
+        "recognizes repetition",
+    ])
+    b.make(src("8"), pycompiler("7"), pyout("8"), [
+        "use repetition",
+    ])
 
 
 class Bootstrapper(object):
