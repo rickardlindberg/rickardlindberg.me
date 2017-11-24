@@ -88,6 +88,11 @@ What can we do with RLMeta?
 * "Binary" output for compilation to AST
 * DSL for writing tests of RLMeta programs: RLMetaTest
 
+## Ideas
+
+* Prelude that includes space, empty, identifier
+* Binary helpers (A, B, S) for ASTs?
+
 ## Limitations
 
 Because RLMeta wants to be small and elegant, some features are not
