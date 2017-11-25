@@ -43,6 +43,9 @@ def main():
     b.make(src("10"), pycompiler("9"), pyout("10"), [
         "uses different space mechanisms",
     ])
+    b.make(src("11"), pycompiler("10"), pyout("11"), [
+        "clean up",
+    ])
     # TODO: Prelude with empty and space
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
