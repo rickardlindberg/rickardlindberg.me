@@ -37,15 +37,18 @@ def main():
     b.make(src("8"), pycompiler("7"), pyout("8"), [
         "use repetition",
     ])
+    # Nicer handling of space
     b.make(src("9"), pycompiler("8"), pyout("9"), [
         "generates compilers that match space differently",
     ])
     b.make(src("10"), pycompiler("9"), pyout("10"), [
         "uses different space mechanisms",
     ])
+    # Clean up
     b.make(src("11"), pycompiler("10"), pyout("11"), [
         "clean up",
     ])
+    # Prelude
     b.make(src("12"), pycompiler("11"), pyout("12"), [
         "recognizes prelude",
         "generates compilers that uses prelude",
