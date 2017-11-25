@@ -46,6 +46,16 @@ def main():
     b.make(src("11"), pycompiler("10"), pyout("11"), [
         "clean up",
     ])
+    b.make(src("12"), pycompiler("11"), pyout("12"), [
+        "recognizes prelude",
+        "generates compilers that used prelude",
+    ])
+    b.make(src("13"), pycompiler("12"), pyout("13"), [
+        "use prelude",
+    ])
+    b.make(src("14"), pycompiler("13"), pyout("14"), [
+        "use space from prelude",
+    ])
     # TODO: Prelude with empty and space
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
