@@ -1,27 +1,22 @@
 compiler MetaTest {
-  Program   = { "set -e\n" }
-              *TestCase;
-  TestCase  = "# " "(.*)" { "echo 'compiling " % "'\n" } "\\n"
-              { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py\n" }
-              verbatim
-              { "EOF\n" }
-              { "echo 'ok'\n" }
-              ":\\n"
-              *example
-            ;
-  example   = { "cat << EOF > test-src\n" }
-              verbatim
-              { "EOF\n" }
-              "==>\\n"
-              { "cat << EOF > test-out\n" }
-              verbatim
-              { "EOF\n" }
-              "---\\n"
-              { "cat test-src | python test-compiler.py > test-actual-out\n" }
-              { "diff test-out test-actual-out\n" }
-            ;
-  verbatim  = *line;
-  line      = "  " ".*\\n" { % }
-            | "\\n"        { % }
-            ;
+  Program  = { "set -e" . } *TestCase;
+  TestCase = "# " "(.*)" { "echo 'compiling " % "'" . } "\\n"
+             { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" . }
+             verbatim
+             { "EOF" . }
+             { "echo 'ok'" . }
+             ":\\n"
+             *example
+           ;
+  example  = { "cat << EOF > test-src" . } verbatim { "EOF" . }
+             "==>\\n"
+             { "cat << EOF > test-out" . } verbatim { "EOF" . }
+             "---\\n"
+             { "cat test-src | python test-compiler.py > test-actual-out" . }
+             { "diff test-out test-actual-out" . }
+           ;
+  verbatim = *line;
+  line     = "  " ".*?\\n" { % }
+           | "\\n"         { % }
+           ;
 }
