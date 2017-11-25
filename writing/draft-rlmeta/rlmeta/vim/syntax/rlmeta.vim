@@ -4,6 +4,7 @@ endif
 
 syntax keyword metaKeyword compiler
 syntax keyword metaKeyword Program
+syntax keyword metaKeyword EOF
 
 syntax region metaTargetLanguage start=+"+ end=+"+
 

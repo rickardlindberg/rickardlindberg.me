@@ -120,6 +120,16 @@ def main():
     b.make(src("27"), pycompiler("31"), pyout("32"), [
         "",
     ])
+    # Add EOF
+    b.make(src("28"), pycompiler("32"), pyout("33"), [
+        "recognize EOF",
+    ])
+    b.make(src("28"), pycompiler("33"), pyout("34"), [
+        "",
+    ])
+    b.make(src("29"), pycompiler("34"), pyout("35"), [
+        "use eof",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
