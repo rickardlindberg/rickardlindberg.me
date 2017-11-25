@@ -93,6 +93,16 @@ def main():
     b.make(src("20"), pycompiler("23"), pyout("24"), [
         "",
     ])
+    # Add . newline operator and clean up
+    b.make(src("21"), pycompiler("24"), pyout("25"), [
+        "",
+    ])
+    b.make(src("22"), pycompiler("25"), pyout("26"), [
+        "",
+    ])
+    b.make(src("22"), pycompiler("26"), pyout("27"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?

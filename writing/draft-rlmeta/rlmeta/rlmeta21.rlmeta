@@ -123,6 +123,7 @@ compiler Meta {
                ;
   Output       = "\x22.*?\x22" { "self._write(" % ")\n" }
                | Identifier:x  { "self._write(" x ")\n" }
+               | "[.]"         { "self._write('\\n')\n" }
                | "%"           { "self._write(match)\n" }
                | ">"           { "self._indent()\n" }
                | "<"           { "self._dedent()\n" }
