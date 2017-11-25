@@ -151,6 +151,13 @@ def main():
     b.make(src("32"), pycompiler("40"), pyout("41"), [
         "",
     ])
+    # Cleaner compiler string code
+    b.make(src("33"), pycompiler("41"), pyout("42"), [
+        "",
+    ])
+    b.make(src("34"), pycompiler("42"), pyout("43"), [
+        "use dollar string",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?

@@ -24,7 +24,7 @@ syntax match metaBlock +}+
 
 syntax region metaVerbatim start=+<<<+ end=+>>>+
 
-syntax region metaCompilerLanguage start=+->+ end=+$+
+syntax region metaCompilerLanguage start=+\$+ end=+\$+ skip=+\\\$+
 
 syntax sync fromstart
 
