@@ -1,18 +1,18 @@
 # alternation
   compiler Alternation {
-    Program = /a/ { % . }
-            | /b/ { % . }
+    Program = /a/ { "an a" . }
+            | /b/ { "a b" . }
             |     { "nothing" . }
             ;
   }
 :
   abc
 ==>
-  a
+  an a
 ---
   bc
 ==>
-  b
+  a b
 ---
   c
 ==>

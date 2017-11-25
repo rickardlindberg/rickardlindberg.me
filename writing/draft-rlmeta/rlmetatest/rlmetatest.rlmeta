@@ -1,6 +1,6 @@
 compiler MetaTest {
   Program  = { "set -e" . } *TestCase;
-  TestCase = /# / /(.*)/ { "echo 'compiling " % "'" . } /\n/
+  TestCase = /# / /(.*)/:x { "echo 'compiling " x "'" . } /\n/
              { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" . }
              verbatim
              { "EOF" . }
@@ -16,7 +16,7 @@ compiler MetaTest {
              { "diff test-out test-actual-out" . }
            ;
   verbatim = *line;
-  line     = /  / /.*?\n/ { % }
-           | /\n/         { % }
+  line     = /  / /.*?\n/:x { x }
+           | /\n/:x         { x }
            ;
 }
