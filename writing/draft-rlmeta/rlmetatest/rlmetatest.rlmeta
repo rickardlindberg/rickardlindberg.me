@@ -1,7 +1,7 @@
 compiler Test {
-  program   = testCase testCases;
+  Program   = testCase testCases;
   testCases = testCase testCases | empty;
-  testCase  = "# (.*)\\n"
+  testCase  = "# (.*)\\n" { % }
               verbatim
               ":\\n"
               examples
@@ -13,7 +13,8 @@ compiler Test {
               "---\\n"
             ;
   verbatim  = line verbatim | empty;
-  line      = "  (.*)\\n" { % }
+  line      = "  " ".*\\n" { % }
             ;
   empty     = "";
+  space     = "\\s*";
 }
