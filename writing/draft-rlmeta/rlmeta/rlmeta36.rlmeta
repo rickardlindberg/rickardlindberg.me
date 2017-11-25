@@ -87,7 +87,6 @@ if __name__ == '__main__':
 >>>
 
 compiler Meta {
-
   Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
   Statement    = Constant | Compiler;
   Constant     = Name:x Verbatim:y { x " = " y .. };
@@ -97,19 +96,18 @@ compiler Meta {
   CompilerName = /Prelude/ { "class Prelude(Compiler):" .> }
                | Name:x    { "class " x "(Prelude):" .> } $x$
                ;
-  Rule         = RuleName space /=/
-                 { "choices = []" . }
-                 Choice *MoreChoices
-                 { "return self._or(choices)" . < }
-                 space /;/
-               ;
+  Rule         = RuleName space /=/ Choices space /;/ { < };
   RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
                | SmallName:x  { . "def " x "(self):" .> }
                ;
-  MoreChoices  = /\|/ Choice;
+  Choices      = { "_choices = []" . }
+                 Choice *NextChoice
+                 { "return self._or(_choices)" . }
+               ;
+  NextChoice   = /\|/ Choice;
   Choice       = { "def " # "():" .> "match = None" . }
                  Repetition *Repetition ChoiceReturn
-                 { < "choices.append(" @ ")" . }
+                 { < "_choices.append(" @ ")" . }
                ;
   ChoiceReturn = DollarString:x { "return " x . }
                |                { "return match" . }
