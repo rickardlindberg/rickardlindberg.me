@@ -59,6 +59,13 @@ def main():
     b.make(src("14"), pycompiler("13"), pyout("14"), [
         "use space from prelude",
     ])
+    # Return stuff
+    b.make(src("15"), pycompiler("14"), pyout("15"), [
+        "recognizes choice returns",
+    ])
+    b.make(src("16"), pycompiler("15"), pyout("16"), [
+        "uses choice returns",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?
