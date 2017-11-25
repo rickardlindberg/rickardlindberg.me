@@ -1,0 +1,142 @@
+PRELUDE <<<
+compiler Prelude {
+  space = /\s*/;
+  empty = //;
+}
+>>>
+
+RUNTIME <<<
+import re
+import sys
+
+PRELUDE = ''
+
+class MaybeParseError(Exception):
+    pass
+
+class Compiler(object):
+
+    def compile(self, program):
+        self._label_counter = 0
+        self._input = PRELUDE + program
+        self._pos = 0
+        self._output = ''
+        self._level = 0
+        self.Program()
+        return self._output
+
+    def _re(self, pattern):
+        match = re.match(pattern, self._input[self._pos:])
+        if match:
+            self._pos += len(match.group(0))
+            return match.group(0)
+        raise MaybeParseError('re not found')
+
+    def _eof(self):
+        self.space()
+        if len(self._input[self._pos:]) > 0:
+          raise MaybeParseError('EOF not found')
+
+    def _star(self, parser):
+      while True:
+        try:
+          self._try(parser)
+        except MaybeParseError:
+          return
+
+    def _or(self, parsers):
+      for parser in parsers:
+        try:
+          return self._try(parser)
+        except MaybeParseError:
+          pass
+      raise MaybeParseError('no choice found')
+
+    def _try(self, parser):
+      try:
+        backup = self._pos, self._output, self._level
+        return parser()
+      except MaybeParseError:
+        self._pos, self._output, self._level = backup
+        raise
+
+    def _write(self, text):
+        for ch in text:
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
+            self._output += ch
+
+    def _indent(self):
+        self._level += 1
+
+    def _dedent(self):
+        self._level -= 1
+
+    def _geneate_and_write_label(self):
+        self._label_counter += 1
+        self._write_label(self._label_counter)
+        return self._label_counter
+
+    def _write_label(self, value):
+        self._write("label" + str(value))
+>>>
+
+MAIN <<<
+if __name__ == '__main__':
+    sys.stdout.write(_last_grammar().compile(sys.stdin.read()))
+>>>
+
+compiler Meta {
+
+  Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
+  Statement    = Constant | Compiler;
+  Constant     = Name:x Verbatim:y { x " = " y .. };
+  Compiler     = /compiler/ space CompilerName:x space /{/
+                 Rule *Rule { <. "_last_grammar = " x .. } space /}/
+               ;
+  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> }
+               | Name:x    { "class " x "(Prelude):" .> } $x$
+               ;
+  Rule         = RuleName space /=/
+                 { "choices = []" . }
+                 Choice *MoreChoices
+                 { "return self._or(choices)" . < }
+                 space /;/
+               ;
+  RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
+               | SmallName:x  { . "def " x "(self):" .> }
+               ;
+  MoreChoices  = /\|/ Choice;
+  Choice       = { "def choice():" .> "match = None" . }
+                 Repetition *Repetition ChoiceReturn
+                 { < "choices.append(choice)" . }
+               ;
+  ChoiceReturn = DollarString:x { "return " x . }
+               |                { "return match" . }
+               ;
+  Repetition   = /[*]/ { "def repetition():" .> } Part { < "self._star(repetition)" . }
+               | Part
+               ;
+  Part         = /{/ Output *Output space /}/
+               | SlashString:x /:/ Name:y  { y " = self._re(" x ")" . }
+               | SlashString:x             { "match = self._re(" x ")" . }
+               | /EOF/                     { "self._eof()" . }
+               | Name:x /:/ Name:y         { y " = self." x "()" . }
+               | Name:x                    { "self." x "()" . }
+               ;
+  Output       = String:x { "self._write(" x ")" . }
+               | Name:x   { "self._write(" x ")" . }
+               | /[.]/    { "self._write('\n')" . }
+               | />/      { "self._indent()" . }
+               | /</      { "self._dedent()" . }
+               | /[#]/    { "_label = self._geneate_and_write_label()" . }
+               | /[@]/    { "self._write_label(_label)" . }
+               ;
+  SlashString  = /\/.*?\/(?<!\\\/)/ $repr(match[1:-1].replace("\\/", "/"))$;
+  String       = /".*?"(?<!\\")/ $repr(match[1:-1].replace("\\\"", "\""))$;
+  DollarString = /\$.*?\$(?<!\\\$)/ $match[1:-1].replace("\\\$", "\$")$;
+  Verbatim     = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ $repr(x)$;
+  BigName      = /[A-Z][a-zA-Z0-9]*/;
+  SmallName    = /[a-z][a-zA-Z0-9]*/;
+  Name         = /[a-zA-Z][a-zA-Z0-9]*/;
+}

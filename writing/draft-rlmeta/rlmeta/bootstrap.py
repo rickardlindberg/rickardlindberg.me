@@ -158,6 +158,16 @@ def main():
     b.make(src("34"), pycompiler("42"), pyout("43"), [
         "use dollar string",
     ])
+    # Generate labels
+    b.make(src("35"), pycompiler("43"), pyout("44"), [
+        "add support for labels",
+    ])
+    b.make(src("36"), pycompiler("44"), pyout("45"), [
+        "use labels",
+    ])
+    b.make(src("36"), pycompiler("45"), pyout("46"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?

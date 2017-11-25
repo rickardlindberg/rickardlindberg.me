@@ -14,10 +14,12 @@ syntax match metaOperator +=+
 syntax match metaOperator +|+
 syntax match metaOperator +;+
 
-syntax match metaOutputOperator +%+
-syntax match metaOutputOperator +<+
-syntax match metaOutputOperator +>+
-syntax match metaOutputOperator +[.]+
+syntax match metaOutputOperator +[%]+
+syntax match metaOutputOperator +[<]+
+syntax match metaOutputOperator +[>]+
+syntax match metaOutputOperator +[<]+
+syntax match metaOutputOperator +[#]+
+syntax match metaOutputOperator +[@]+
 
 syntax match metaBlock +{+
 syntax match metaBlock +}+
