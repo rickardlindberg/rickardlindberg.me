@@ -1,8 +1,8 @@
 # alternation
   compiler Alternation {
-    Program = /a/ { % "\n" }
-            | /b/ { % "\n" }
-            |     { "nothing\n"}
+    Program = /a/ { % . }
+            | /b/ { % . }
+            |     { "nothing" . }
             ;
   }
 :
@@ -25,11 +25,20 @@
   hello\nthere
   >>>
   compiler ConstantOutput {
-    Program = { "a\n" X "\nb\n" };
+    Program = { "a" . X . "b" . };
   }
 :
 ==>
   a
   hello\nthere
   b
+---
+
+# verbatim literal string output
+  compiler ConstantOutput {
+    Program = { "a \n b \" c" . };
+  }
+:
+==>
+  a \n b " c
 ---

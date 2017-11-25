@@ -113,6 +113,13 @@ def main():
     b.make(src("25"), pycompiler("29"), pyout("30"), [
         "use slash strings",
     ])
+    # Literal string verbatim
+    b.make(src("26"), pycompiler("30"), pyout("31"), [
+        "",
+    ])
+    b.make(src("27"), pycompiler("31"), pyout("32"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
