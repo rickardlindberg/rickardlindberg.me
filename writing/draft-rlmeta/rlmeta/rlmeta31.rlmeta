@@ -66,10 +66,7 @@ compiler Meta {
                ;
   Compiler     = /compiler/ space CompilerName:x space /{/
                  Rule *Rule { <. "_last_grammar = " x .. } space /}/
-               | Constant
-               ;
-  Constant     = Name:x space /<<<\n/ constatIn:y { x " = " y .. } /\n>>>\n/;
-  constatIn    = /(.|\n)*?(?=\n>>>\n)/ -> repr(match)
+               | Name:x ConstString:y { x " = " y .. }
                ;
   CompilerName = /Prelude/ { "class Prelude(Compiler):" .> } -> "Prelude"
                | Name:x    { "class " x "(Prelude):" .> } -> x
@@ -106,21 +103,23 @@ compiler Meta {
                | Part
                ;
   Part         = /{/ Output *Output space /}/
-               | slashString:x /:/ Name:y  { y " = self._re(" x ")" . }
-               | slashString:x             { "match = self._re(" x ")" . }
+               | SlashString:x /:/ Name:y  { y " = self._re(" x ")" . }
+               | SlashString:x             { "match = self._re(" x ")" . }
                | /EOF/                     { "self._eof()" . }
                | Name:x /:/ Name:y         { y " = self." x "()" . }
                | Name:x                    { "self." x "()" . }
                ;
-  slashString  = /\/.*?\/(?<!\\\/)/ -> repr(match[1:-1].replace("\\/", "/"))
-               ;
-  Output       = string:x { "self._write(" x ")" . }
+  Output       = String:x { "self._write(" x ")" . }
                | Name:x   { "self._write(" x ")" . }
                | /[.]/    { "self._write('\n')" . }
                | />/      { "self._indent()" . }
                | /</      { "self._dedent()" . }
                ;
-  string       = /".*?"(?<!\\")/ -> repr(match[1:-1].replace("\\\"", "\""))
+  SlashString  = /\/.*?\/(?<!\\\/)/ -> repr(match[1:-1].replace("\\/", "/"))
+               ;
+  String       = /".*?"(?<!\\")/ -> repr(match[1:-1].replace("\\\"", "\""))
+               ;
+  ConstString  = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ -> repr(x)
                ;
   BigName      = /[A-Z][a-zA-Z0-9]*/;
   SmallName    = /[a-z][a-zA-Z0-9]*/;
