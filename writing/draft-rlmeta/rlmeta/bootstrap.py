@@ -130,6 +130,13 @@ def main():
     b.make(src("29"), pycompiler("34"), pyout("35"), [
         "use eof",
     ])
+    # cleaner .space()
+    b.make(src("30"), pycompiler("35"), pyout("36"), [
+        "",
+    ])
+    b.make(src("30"), pycompiler("36"), pyout("37"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?

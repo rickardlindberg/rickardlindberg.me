@@ -1,0 +1,129 @@
+PRELUDE
+<<<
+compiler Prelude {
+  space = /\s*/;
+  empty = //;
+}
+>>>
+
+RUNTIME
+<<<
+import re
+import sys
+
+PRELUDE = ''
+
+class MaybeParseError(Exception):
+    pass
+
+class Compiler(object):
+
+    def compile(self, program):
+        self._input = PRELUDE + program
+        self._pos = 0
+        self._output = ''
+        self._level = 0
+        self.Program()
+        return self._output
+
+    def _re(self, pattern):
+        match = re.match(pattern, self._input[self._pos:])
+        if match:
+            self._pos += len(match.group(0))
+            return match.group(0)
+        raise MaybeParseError('re not found')
+
+    def _eof(self):
+        self.space()
+        if len(self._input[self._pos:]) > 0:
+          raise MaybeParseError('EOF not found')
+
+    def _backup(self):
+        return (self._pos, self._output, self._level)
+
+    def _restore(self, backup):
+        self._pos, self._output, self._level = backup
+
+    def _write(self, text):
+        for ch in text:
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
+            self._output += ch
+
+    def _indent(self):
+        self._level += 1
+
+    def _dedent(self):
+        self._level -= 1
+>>>
+
+compiler Meta {
+
+  Program      = { RUNTIME .. } Compiler *Compiler {
+                   "if __name__ == '__main__':" .>
+                     "sys.stdout.write(_last_grammar().compile(sys.stdin.read()))" .<
+                 } EOF
+                 ;
+  Compiler     = /compiler/ space CompilerName:x space /{/
+                 Rule *Rule { <. "_last_grammar = " x .. } space /}/
+               | Constant
+               ;
+  Constant     = Name:x space /<<<\n/ constatIn:y { x " = " y .. } /\n>>>\n/;
+  constatIn    = /(.|\n)*?(?=\n>>>\n)/ -> repr(match)
+               ;
+  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> } -> "Prelude"
+               | Name:x    { "class " x "(Prelude):" .> } -> x
+               ;
+  Rule         = RuleName space /=/ Choice *MoreChoices {
+                   "raise MaybeParseError('no choice found')" . <
+                 } space /;/
+               ;
+  RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
+               | SmallName:x  { . "def " x "(self):" .> }
+               ;
+  MoreChoices  = /\|/ Choice;
+  Choice       = {
+                   "try:" .>
+                     "match = None" .
+                     "backup = self._backup()" .
+                 } Repetition *Repetition ChoiceReturn { <
+                   "except MaybeParseError:" .>
+                     "self._restore(backup)" .<
+                 }
+               ;
+  ChoiceReturn = /->/ space /.*?(?=\n)/ { "return " % . } /\n/
+               |                        { "return match" . }
+               ;
+  Repetition   = /[*]/ {
+                   "while True:" .>
+                     "try:" .>
+                       "backup = self._backup()" .
+                 } Part { <
+                     "except MaybeParseError:" .>
+                       "self._restore(backup)" .
+                       "break" .<<
+                 }
+               | Part
+               ;
+  Part         = /{/ Output *Output space /}/
+               | slashString:x /:/ Name:y  { y " = self._re(" x ")" . }
+               | slashString:x             { "match = self._re(" x ")" . }
+               | /EOF/                     { "self._eof()" . }
+               | Name:x /:/ Name:y         { y " = self." x "()" . }
+               | Name:x                    { "self." x "()" . }
+               ;
+  slashString  = /\/.*?\/(?<!\\\/)/ -> repr(match[1:-1].replace("\\/", "/"))
+               ;
+  Output       = string:x { "self._write(" x ")" . }
+               | Name:x   { "self._write(" x ")" . }
+               | /[.]/    { "self._write('\n')" . }
+               | /%/      { "self._write(match)" . }
+               | />/      { "self._indent()" . }
+               | /</      { "self._dedent()" . }
+               ;
+  string       = /".*?"(?<!\\")/ -> repr(match[1:-1].replace("\\\"", "\""))
+               ;
+  BigName      = /[A-Z][a-zA-Z0-9]*/;
+  SmallName    = /[a-z][a-zA-Z0-9]*/;
+  Name         = /[a-zA-Z][a-zA-Z0-9]*/;
+}
