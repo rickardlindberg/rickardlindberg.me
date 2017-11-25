@@ -12,4 +12,5 @@ pushd rlmetatest
 ./compile.sh
 popd
 
-cat examples.rlmetatest | python rlmetatest/rlmetatest.py
+cat examples.rlmetatest | python rlmetatest/rlmetatest.py > examples.sh
+bash examples.sh

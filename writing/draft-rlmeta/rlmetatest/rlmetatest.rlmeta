@@ -1,18 +1,27 @@
-compiler Test {
-  Program   = testCase testCases;
-  testCases = testCase testCases | empty;
-  testCase  = "# (.*)\\n" { % }
+compiler MetaTest {
+  Program   = { "set -e\n" }
+              *TestCase;
+  TestCase  = "# " "(.*)" { "echo 'compiling " % "'\n" } "\\n"
+              { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py\n" }
               verbatim
+              { "EOF\n" }
+              { "echo 'ok'\n" }
               ":\\n"
-              examples
+              *example
             ;
-  examples  = example examples | empty;
-  example   = verbatim
-              "==>\\n"
+  example   = { "cat << EOF > test-src\n" }
               verbatim
+              { "EOF\n" }
+              "==>\\n"
+              { "cat << EOF > test-out\n" }
+              verbatim
+              { "EOF\n" }
               "---\\n"
+              { "cat test-src | python test-compiler.py > test-actual-out\n" }
+              { "diff test-out test-actual-out\n" }
             ;
-  verbatim  = line verbatim | empty;
+  verbatim  = *line;
   line      = "  " ".*\\n" { % }
+            | "\\n"        { % }
             ;
 }
