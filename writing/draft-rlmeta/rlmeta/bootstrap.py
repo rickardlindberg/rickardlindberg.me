@@ -144,6 +144,13 @@ def main():
     b.make(src("31"), pycompiler("38"), pyout("39"), [
         "",
     ])
+    # Cleaner try/except handling
+    b.make(src("32"), pycompiler("39"), pyout("40"), [
+        "",
+    ])
+    b.make(src("32"), pycompiler("40"), pyout("41"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?

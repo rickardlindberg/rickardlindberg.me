@@ -1,13 +1,11 @@
-PRELUDE
-<<<
+PRELUDE <<<
 compiler Prelude {
   space = /\s*/;
   empty = //;
 }
 >>>
 
-RUNTIME
-<<<
+RUNTIME <<<
 import re
 import sys
 
@@ -38,11 +36,28 @@ class Compiler(object):
         if len(self._input[self._pos:]) > 0:
           raise MaybeParseError('EOF not found')
 
-    def _backup(self):
-        return (self._pos, self._output, self._level)
+    def _star(self, parser):
+      while True:
+        try:
+          self._try(parser)
+        except MaybeParseError:
+          return
 
-    def _restore(self, backup):
+    def _or(self, parsers):
+      for parser in parsers:
+        try:
+          return self._try(parser)
+        except MaybeParseError:
+          pass
+      raise MaybeParseError('no choice found')
+
+    def _try(self, parser):
+      try:
+        backup = self._pos, self._output, self._level
+        return parser()
+      except MaybeParseError:
         self._pos, self._output, self._level = backup
+        raise
 
     def _write(self, text):
         for ch in text:
@@ -57,51 +72,40 @@ class Compiler(object):
         self._level -= 1
 >>>
 
-MAIN
-<<<
+MAIN <<<
 if __name__ == '__main__':
     sys.stdout.write(_last_grammar().compile(sys.stdin.read()))
 >>>
 
 compiler Meta {
 
-  Program      = { RUNTIME .. } Compiler *Compiler { MAIN } EOF;
+  Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
+  Statement    = Constant | Compiler;
+  Constant     = Name:x Verbatim:y { x " = " y .. };
   Compiler     = /compiler/ space CompilerName:x space /{/
                  Rule *Rule { <. "_last_grammar = " x .. } space /}/
-               | Name:x ConstString:y { x " = " y .. }
                ;
-  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> } -> "Prelude"
+  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> }
                | Name:x    { "class " x "(Prelude):" .> } -> x
                ;
-  Rule         = RuleName space /=/ Choice *MoreChoices {
-                   "raise MaybeParseError('no choice found')" . <
-                 } space /;/
+  Rule         = RuleName space /=/
+                 { "choices = []" . }
+                 Choice *MoreChoices
+                 { "return self._or(choices)" . < }
+                 space /;/
                ;
   RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
                | SmallName:x  { . "def " x "(self):" .> }
                ;
   MoreChoices  = /\|/ Choice;
-  Choice       = {
-                   "try:" .>
-                     "match = None" .
-                     "backup = self._backup()" .
-                 } Repetition *Repetition ChoiceReturn { <
-                   "except MaybeParseError:" .>
-                     "self._restore(backup)" .<
-                 }
+  Choice       = { "def choice():" .> "match = None" . }
+                 Repetition *Repetition ChoiceReturn
+                 { < "choices.append(choice)" . }
                ;
   ChoiceReturn = /->/ space /.*?(?=\n)/:x { "return " x . } /\n/
                |                          { "return match" . }
                ;
-  Repetition   = /[*]/ {
-                   "while True:" .>
-                     "try:" .>
-                       "backup = self._backup()" .
-                 } Part { <
-                     "except MaybeParseError:" .>
-                       "self._restore(backup)" .
-                       "break" .<<
-                 }
+  Repetition   = /[*]/ { "def repetition():" .> } Part { < "self._star(repetition)" . }
                | Part
                ;
   Part         = /{/ Output *Output space /}/
@@ -121,7 +125,7 @@ compiler Meta {
                ;
   String       = /".*?"(?<!\\")/ -> repr(match[1:-1].replace("\\\"", "\""))
                ;
-  ConstString  = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ -> repr(x)
+  Verbatim     = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ -> repr(x)
                ;
   BigName      = /[A-Z][a-zA-Z0-9]*/;
   SmallName    = /[a-z][a-zA-Z0-9]*/;
