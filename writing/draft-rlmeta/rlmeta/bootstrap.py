@@ -48,7 +48,7 @@ def main():
     ])
     b.make(src("12"), pycompiler("11"), pyout("12"), [
         "recognizes prelude",
-        "generates compilers that used prelude",
+        "generates compilers that uses prelude",
     ])
     b.make(src("13"), pycompiler("12"), pyout("13"), [
         "use prelude",
