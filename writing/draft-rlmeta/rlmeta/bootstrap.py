@@ -86,6 +86,13 @@ def main():
     b.make(src("19"), pycompiler("21"), pyout("22"), [
         "",
     ])
+    # Extract runtime
+    b.make(src("20"), pycompiler("22"), pyout("23"), [
+        "",
+    ])
+    b.make(src("20"), pycompiler("23"), pyout("24"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?

@@ -1,0 +1,131 @@
+PRELUDE
+<<<
+compiler Prelude {
+  space = "\\s*";
+  empty = "";
+}
+>>>
+
+RUNTIME
+<<<
+import re
+import sys
+
+
+PRELUDE = ''
+
+
+class MaybeParseError(Exception):
+    pass
+
+
+class Compiler(object):
+
+    def compile(self, program):
+        self._input = PRELUDE + program
+        self._pos = 0
+        self._output = ''
+        self._level = 0
+        self.Program()
+        return self._output
+
+    def _re(self, pattern):
+        match = re.match(pattern, self._input[self._pos:])
+        if match:
+            self._pos += len(match.group(0))
+            return match.group(0)
+        raise MaybeParseError('re not found')
+
+    def _backup(self):
+        return (self._pos, self._output, self._level)
+
+    def _restore(self, backup):
+        self._pos, self._output, self._level = backup
+
+    def _write(self, text):
+        for ch in text:
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
+            self._output += ch
+
+    def _indent(self):
+        self._level += 1
+
+    def _dedent(self):
+        self._level -= 1
+
+
+>>>
+
+compiler Meta {
+
+  Program      = { RUNTIME } Compiler *Compiler {
+                   "if __name__ == '__main__':\n" >
+                     "sys.stdout.write(_last_grammar().compile(sys.stdin.read()))\n" <
+                 }
+                 ;
+  Compiler     = "compiler" space CompilerName:name space "{"
+                 Rule *Rule { <
+                   "\n"
+                   "\n"
+                   "_last_grammar = " name "\n"
+                   "\n"
+                   "\n"
+                 } space "}"
+               | Constant
+               ;
+  Constant     = Identifier:name space "<<<\\n"
+                 constatIn:x { name " = " x "\n\n\n" }
+                 "\\n>>>\\n"
+               ;
+  constatIn    = "(.|\\n)*?(?=\\n>>>\\n)" -> repr(match)
+               ;
+  CompilerName = "Prelude"       { "class Prelude(Compiler):\n" > } -> "Prelude"
+               | Identifier:name { "class " name "(Prelude):\n" > } -> name
+               ;
+  Rule         = Identifier:x {
+                   "\n"
+                   "def " x "(self):\n" >
+                     "if '" x "'[0].isupper():\n" >
+                       "self.space()\n" <
+                 } space "=" Choice *MoreChoices {
+                     "raise MaybeParseError('no choice found')\n" <
+                 } space ";"
+               ;
+  MoreChoices  = "\\|" Choice;
+  Choice       = {
+                   "try:\n" >
+                     "match = None\n"
+                     "backup = self._backup()\n"
+                 } Repetition *Repetition ChoiceReturn { <
+                   "except MaybeParseError:\n" >
+                     "self._restore(backup)\n" <
+                 }
+               ;
+  ChoiceReturn = "->" space ".*?(?=\\n)" { "return " % "\n" } "\\n"
+               |                         { "return match\n" }
+               ;
+  Repetition   = "[*]" {
+                   "while True:\n" >
+                     "try:\n" >
+                       "backup = self._backup()\n"
+                 } Part { <
+                     "except MaybeParseError:\n" >
+                       "self._restore(backup)\n"
+                       "break\n" <<
+                 }
+               | Part
+               ;
+  Part         = "{" Output *Output space "}"
+               | "\x22.*?\x22"                 { "match = self._re(" % ")\n" }
+               | Identifier:x ":" Identifier:y { y " = self." x "()\n" }
+               | Identifier:x                  { "self." x "()\n" }
+               ;
+  Output       = "\x22.*?\x22" { "self._write(" % ")\n" }
+               | Identifier:x  { "self._write(" x ")\n" }
+               | "%"           { "self._write(match)\n" }
+               | ">"           { "self._indent()\n" }
+               | "<"           { "self._dedent()\n" }
+               ;
+  Identifier   = "[a-zA-Z0-9]+";
+}
