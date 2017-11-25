@@ -56,7 +56,6 @@ def main():
     b.make(src("14"), pycompiler("13"), pyout("14"), [
         "use space from prelude",
     ])
-    # TODO: Prelude with empty and space
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?
