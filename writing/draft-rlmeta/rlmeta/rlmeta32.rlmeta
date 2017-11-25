@@ -1,11 +1,13 @@
-PRELUDE <<<
+PRELUDE
+<<<
 compiler Prelude {
   space = /\s*/;
   empty = //;
 }
 >>>
 
-RUNTIME <<<
+RUNTIME
+<<<
 import re
 import sys
 
@@ -55,20 +57,20 @@ class Compiler(object):
         self._level -= 1
 >>>
 
-MAIN <<<
+MAIN
+<<<
 if __name__ == '__main__':
     sys.stdout.write(_last_grammar().compile(sys.stdin.read()))
 >>>
 
 compiler Meta {
 
-  Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
-  Statement    = Constant | Compiler;
-  Constant     = Name:x Verbatim:y { x " = " y .. };
+  Program      = { RUNTIME .. } Compiler *Compiler { MAIN } EOF;
   Compiler     = /compiler/ space CompilerName:x space /{/
                  Rule *Rule { <. "_last_grammar = " x .. } space /}/
+               | Name:x ConstString:y { x " = " y .. }
                ;
-  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> }
+  CompilerName = /Prelude/ { "class Prelude(Compiler):" .> } -> "Prelude"
                | Name:x    { "class " x "(Prelude):" .> } -> x
                ;
   Rule         = RuleName space /=/ Choice *MoreChoices {
@@ -119,7 +121,7 @@ compiler Meta {
                ;
   String       = /".*?"(?<!\\")/ -> repr(match[1:-1].replace("\\\"", "\""))
                ;
-  Verbatim     = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ -> repr(x)
+  ConstString  = /<<<\n/ /(.|\n)*?(?=\n>>>\n)/:x /\n>>>\n/ -> repr(x)
                ;
   BigName      = /[A-Z][a-zA-Z0-9]*/;
   SmallName    = /[a-z][a-zA-Z0-9]*/;

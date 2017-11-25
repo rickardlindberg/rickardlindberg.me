@@ -141,6 +141,9 @@ def main():
     b.make(src("31"), pycompiler("37"), pyout("38"), [
         "",
     ])
+    b.make(src("31"), pycompiler("38"), pyout("39"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
