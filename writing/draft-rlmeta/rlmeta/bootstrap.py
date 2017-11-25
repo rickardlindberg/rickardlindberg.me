@@ -147,6 +147,8 @@ def main():
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
+    # TODO: Get rid of re by using PEG
+    # TODO: Have only one exception handler (and rename exception to # ParseFailed)
 
 
 class Bootstrapper(object):
