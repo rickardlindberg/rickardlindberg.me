@@ -66,6 +66,16 @@ def main():
     b.make(src("16"), pycompiler("15"), pyout("16"), [
         "uses choice returns",
     ])
+    # Extract constants
+    b.make(src("17"), pycompiler("16"), pyout("17"), [
+        "add support for constants",
+    ])
+    b.make(src("18"), pycompiler("17"), pyout("18"), [
+        "use constants",
+    ])
+    b.make(src("18"), pycompiler("18"), pyout("19"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?

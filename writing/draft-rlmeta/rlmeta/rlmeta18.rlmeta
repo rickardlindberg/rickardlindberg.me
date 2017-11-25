@@ -1,0 +1,135 @@
+PRELUDE
+<<<
+compiler Prelude {
+  space = "\\s*";
+  empty = "";
+}
+>>>
+
+compiler Meta {
+
+  Program      = {
+                   "import re\n"
+                   "import sys\n"
+                   "\n"
+                   "\n"
+                   "PRELUDE = ''\n"
+                   "\n"
+                   "\n"
+                   "class MaybeParseError(Exception):\n" >
+                     "pass\n"
+                   <
+                   "\n"
+                   "\n"
+                   "class Compiler(object):\n"
+                   "\n" >
+                     "def compile(self, program):\n" >
+                       "self._input = PRELUDE + program\n"
+                       "self._pos = 0\n"
+                       "self._output = ''\n"
+                       "self._level = 0\n"
+                       "self.Program()\n"
+                       "return self._output\n"
+                     <
+                     "\n"
+                     "def _re(self, pattern):\n" >
+                       "match = re.match(pattern, self._input[self._pos:])\n"
+                       "if match:\n" >
+                         "self._pos += len(match.group(0))\n"
+                         "return match.group(0)\n"
+                       <
+                       "raise MaybeParseError('re not found')\n"
+                     <
+                     "\n"
+                     "def _backup(self):\n"
+                     > "return (self._pos, self._output, self._level)\n" <
+                     "\n"
+                     "def _restore(self, backup):\n"
+                     > "self._pos, self._output, self._level = backup\n" <
+                     "\n"
+                     "def _write(self, text):\n"
+                     >
+                       "for ch in text:\n"
+                       >
+                         "if self._output and self._output[-1] == '\\n' and ch != '\\n':\n"
+                         > "self._output += '    ' * self._level\n" <
+                         "self._output += ch\n"
+                       <
+                     <
+                     "\n"
+                     "def _indent(self):\n"
+                     > "self._level += 1\n" <
+                     "\n"
+                     "def _dedent(self):\n"
+                     > "self._level -= 1\n" <
+                     "\n"
+                     "\n"
+                   <
+                 } Compiler *Compiler {
+                   "if __name__ == '__main__':\n" >
+                     "sys.stdout.write(_last_grammar().compile(sys.stdin.read()))\n" <
+                 }
+                 ;
+  Compiler     = "compiler" space CompilerName:name space "{"
+                 Rule *Rule { <
+                   "\n"
+                   "\n"
+                   "_last_grammar = " name "\n"
+                   "\n"
+                   "\n"
+                 } space "}"
+               | Constant
+               ;
+  Constant     = Identifier:name space "<<<"
+                 "(.|\\n)*?(?=>>>)" { name " = '''" % "'''\n\n" }
+                 ">>>"
+               ;
+  CompilerName = "Prelude"       { "class Prelude(Compiler):\n" > } -> "Prelude"
+               | Identifier:name { "class " name "(Prelude):\n" > } -> name
+               ;
+  Rule         = Identifier:x {
+                   "\n"
+                   "def " x "(self):\n" >
+                     "if '" x "'[0].isupper():\n" >
+                       "self.space()\n" <
+                 } space "=" Choice *MoreChoices {
+                     "raise MaybeParseError('no choice found')\n" <
+                 } space ";"
+               ;
+  MoreChoices  = "\\|" Choice;
+  Choice       = {
+                   "try:\n" >
+                     "match = None\n"
+                     "backup = self._backup()\n"
+                 } Repetition *Repetition ChoiceReturn { <
+                   "except MaybeParseError:\n" >
+                     "self._restore(backup)\n" <
+                 }
+               ;
+  ChoiceReturn = "->" space ".*?(?=\\n)" { "return " % "\n" } "\\n"
+               |                         { "return match\n" }
+               ;
+  Repetition   = "[*]" {
+                   "while True:\n" >
+                     "try:\n" >
+                       "backup = self._backup()\n"
+                 } Part { <
+                     "except MaybeParseError:\n" >
+                       "self._restore(backup)\n"
+                       "break\n" <<
+                 }
+               | Part
+               ;
+  Part         = "{" Output *Output space "}"
+               | "\x22.*?\x22"                 { "match = self._re(" % ")\n" }
+               | Identifier:x ":" Identifier:y { y " = self." x "()\n" }
+               | Identifier:x                  { "self." x "()\n" }
+               ;
+  Output       = "\x22.*?\x22" { "self._write(" % ")\n" }
+               | Identifier:x  { "self._write(" x ")\n" }
+               | "%"           { "self._write(match)\n" }
+               | ">"           { "self._indent()\n" }
+               | "<"           { "self._dedent()\n" }
+               ;
+  Identifier   = "[a-zA-Z0-9]+";
+}
