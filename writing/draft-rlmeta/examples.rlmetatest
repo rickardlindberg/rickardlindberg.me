@@ -18,3 +18,18 @@
 ==>
   nothing
 ---
+
+# verbatim output
+  X
+  <<<
+  hello\nthere
+  >>>
+  compiler ConstantOutput {
+    Program = { "a\n" X "\nb\n" };
+  }
+:
+==>
+  a
+  hello\nthere
+  b
+---

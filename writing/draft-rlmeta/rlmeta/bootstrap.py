@@ -76,6 +76,16 @@ def main():
     b.make(src("18"), pycompiler("18"), pyout("19"), [
         "",
     ])
+    # Copy constants verbatim
+    b.make(src("19"), pycompiler("19"), pyout("20"), [
+        "",
+    ])
+    b.make(src("19"), pycompiler("20"), pyout("21"), [
+        "",
+    ])
+    b.make(src("19"), pycompiler("21"), pyout("22"), [
+        "",
+    ])
     # TODO: Support parenthesis (anonymous rules)
     # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?
