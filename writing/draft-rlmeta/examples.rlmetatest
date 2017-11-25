@@ -1,7 +1,7 @@
 # alternation
   compiler Alternation {
-    Program = "a" { % "\n" }
-            | "b" { % "\n" }
+    Program = /a/ { % "\n" }
+            | /b/ { % "\n" }
             |     { "nothing\n"}
             ;
   }

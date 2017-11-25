@@ -103,8 +103,17 @@ def main():
     b.make(src("22"), pycompiler("26"), pyout("27"), [
         "",
     ])
+    # Change match re syntax to slash
+    b.make(src("23"), pycompiler("27"), pyout("28"), [
+        "recognizes named constants",
+    ])
+    b.make(src("24"), pycompiler("28"), pyout("29"), [
+        "recognizes slash strings",
+    ])
+    b.make(src("25"), pycompiler("29"), pyout("30"), [
+        "use slash strings",
+    ])
     # TODO: Support parenthesis (anonymous rules)
-    # TODO: Distinguish re patterns / text patterns / output patterns
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
 
