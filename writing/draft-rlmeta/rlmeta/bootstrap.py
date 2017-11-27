@@ -202,6 +202,16 @@ def main():
     b.make(src("44"), pycompiler("55"), pyout("56"), [
         "use literal matching",
     ])
+    # Get rid of final re in Meta
+    b.make(src("45"), pycompiler("56"), pyout("57"), [
+        "",
+    ])
+    b.make(src("45"), pycompiler("57"), pyout("58"), [
+        "",
+    ])
+    b.make(src("46"), pycompiler("58"), pyout("59"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
