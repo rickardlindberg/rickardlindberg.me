@@ -175,8 +175,11 @@ def main():
     b.make(src("38"), pycompiler("47"), pyout("48"), [
         "use parenthesis",
     ])
+    # Prevent repetition of output since it will create infinite loop?
+    b.make(src("39"), pycompiler("48"), pyout("49"), [
+        "",
+    ])
     # TODO: Get rid of re by using PEG
-    # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
