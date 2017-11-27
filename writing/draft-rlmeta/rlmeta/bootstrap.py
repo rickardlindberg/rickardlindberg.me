@@ -185,6 +185,7 @@ def main():
     # TODO: Split parsing and code generation?
     # TODO: Rename Meta to RLMeta
     # TODO: Add "->" return arrow?
+    # TODO: Add default start rule syntax? Default to first defined?
 
 
 class Bootstrapper(object):
