@@ -94,11 +94,11 @@ compiler Meta {
                  Rule *Rule { <. "_last_grammar = " x .. } space /}/
                ;
   CompilerName = /Prelude/ { "class Prelude(Compiler):" .> }
-               | Name:x    { "class " x "(Prelude):" .> } $x$
+               | Name:x    { "class " x "(Prelude):"    .> } $x$
                ;
   Rule         = RuleName space /=/ Choices space /;/ { < };
   RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
-               | SmallName:x  { . "def " x "(self):" .> }
+               | SmallName:x  { . "def " x "(self):" .>                  }
                ;
   Choices      = { "_choices = []" . }
                  Choice *NextChoice
@@ -109,26 +109,26 @@ compiler Meta {
                  Repetition *Repetition ChoiceReturn
                  { < "_choices.append(" @ ")" . }
                ;
-  ChoiceReturn = DollarString:x { "return " x . }
+  ChoiceReturn = DollarString:x { "return " x    . }
                |                { "return match" . }
                ;
   Repetition   = /[*]/ { "def " # "():" .> } Part { < "self._star(" @ ")" . }
                | Part
                ;
   Part         = /{/ Output *Output space /}/
-               | SlashString:x /:/ Name:y  { y " = self._re(" x ")" . }
+               | SlashString:x /:/ Name:y  { y " = self._re(" x ")"    . }
                | SlashString:x             { "match = self._re(" x ")" . }
-               | /EOF/                     { "self._eof()" . }
-               | Name:x /:/ Name:y         { y " = self." x "()" . }
-               | Name:x                    { "self." x "()" . }
+               | /EOF/                     { "self._eof()"             . }
+               | Name:x /:/ Name:y         { y " = self." x "()"       . }
+               | Name:x                    { "self." x "()"            . }
                ;
-  Output       = String:x { "self._write(" x ")" . }
-               | Name:x   { "self._write(" x ")" . }
-               | /[.]/    { "self._write('\n')" . }
-               | />/      { "self._indent()" . }
-               | /</      { "self._dedent()" . }
+  Output       = String:x { "self._write(" x ")"                       . }
+               | Name:x   { "self._write(" x ")"                       . }
+               | /[.]/    { "self._write('\n')"                        . }
+               | />/      { "self._indent()"                           . }
+               | /</      { "self._dedent()"                           . }
                | /[#]/    { "_label = self._geneate_and_write_label()" . }
-               | /[@]/    { "self._write_label(_label)" . }
+               | /[@]/    { "self._write_label(_label)"                . }
                ;
   SlashString  = /\/.*?\/(?<!\\\/)/ $repr(match[1:-1].replace("\\/", "/"))$;
   String       = /".*?"(?<!\\")/ $repr(match[1:-1].replace("\\\"", "\""))$;
