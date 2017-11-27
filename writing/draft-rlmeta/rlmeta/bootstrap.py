@@ -179,7 +179,22 @@ def main():
     b.make(src("39"), pycompiler("48"), pyout("49"), [
         "",
     ])
-    # TODO: Get rid of re by using PEG
+    # Get rid of re by using PEG
+    b.make(src("40"), pycompiler("49"), pyout("50"), [
+        "support naming everything",
+    ])
+    b.make(src("40"), pycompiler("50"), pyout("51"), [
+        "",
+    ])
+    b.make(src("41"), pycompiler("51"), pyout("52"), [
+        "add support for not",
+    ])
+    b.make(src("42"), pycompiler("52"), pyout("53"), [
+        "use not",
+    ])
+    b.make(src("42"), pycompiler("53"), pyout("54"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
