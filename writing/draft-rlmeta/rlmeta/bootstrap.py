@@ -195,6 +195,13 @@ def main():
     b.make(src("42"), pycompiler("53"), pyout("54"), [
         "",
     ])
+    # Add literal matching (to replace simple re:s)
+    b.make(src("43"), pycompiler("54"), pyout("55"), [
+        "",
+    ])
+    b.make(src("44"), pycompiler("55"), pyout("56"), [
+        "use literal matching",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
