@@ -9,10 +9,15 @@ syntax keyword metaKeyword EOF
 syntax region metaTargetLanguage start=+"+ end=+"+
 
 syntax region metaRe start=+/+ end=+/+ skip=+\\/+
+syntax region metaRe start=+'+ end=+'+ skip=+\\'+
+
+syntax match metaRe +\\n+
 
 syntax match metaOperator +=+
 syntax match metaOperator +|+
 syntax match metaOperator +;+
+syntax match metaOperator +*+
+syntax match metaOperator +!+
 
 syntax match metaOutputOperator +[%]+
 syntax match metaOutputOperator +[<]+
