@@ -168,7 +168,13 @@ def main():
     b.make(src("36"), pycompiler("45"), pyout("46"), [
         "",
     ])
-    # TODO: Support parenthesis (anonymous rules)
+    # Support parenthesis (anonymous rules)
+    b.make(src("37"), pycompiler("46"), pyout("47"), [
+        "add support for parenthesis",
+    ])
+    b.make(src("38"), pycompiler("47"), pyout("48"), [
+        "use parenthesis",
+    ])
     # TODO: Get rid of re by using PEG
     # TODO: Prevent repetition of output since it will create infinite loop?
     # TODO: Memoize results? Speed up PEG & more elegant solution?
