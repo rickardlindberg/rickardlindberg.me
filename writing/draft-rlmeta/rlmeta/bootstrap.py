@@ -242,6 +242,13 @@ def main():
     b.make(src("51"), pycompiler("67"), pyout("68"), [
         "",
     ])
+    # Remove re completely
+    b.make(src("52"), pycompiler("68"), pyout("69"), [
+        "",
+    ])
+    b.make(src("52"), pycompiler("69"), pyout("70"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
@@ -250,7 +257,6 @@ def main():
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Fix runtime indentation
     # TODO: Clean up duplication in runtime
-    # TODO: Remove re completely
     # TODO: Support more escape sequences in strings
 
 
