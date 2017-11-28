@@ -220,6 +220,17 @@ def main():
         "",
     ])
     b.make(src("48"), pycompiler("61"), pyout("62"), [
+    # Move EOF to prelude
+    b.make(src("49"), pycompiler("62"), pyout("63"), [
+        "",
+    ])
+    b.make(src("49"), pycompiler("63"), pyout("64"), [
+        "",
+    ])
+    b.make(src("50"), pycompiler("64"), pyout("65"), [
+        "",
+    ])
+    b.make(src("50"), pycompiler("65"), pyout("66"), [
         "",
     ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
