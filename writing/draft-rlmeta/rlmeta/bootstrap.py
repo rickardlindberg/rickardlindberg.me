@@ -220,6 +220,8 @@ def main():
         "",
     ])
     b.make(src("48"), pycompiler("61"), pyout("62"), [
+        "",
+    ])
     # Move EOF to prelude
     b.make(src("49"), pycompiler("62"), pyout("63"), [
         "",
@@ -231,6 +233,13 @@ def main():
         "",
     ])
     b.make(src("50"), pycompiler("65"), pyout("66"), [
+        "",
+    ])
+    # Conditions
+    b.make(src("51"), pycompiler("66"), pyout("67"), [
+        "add support for conditions",
+    ])
+    b.make(src("51"), pycompiler("67"), pyout("68"), [
         "",
     ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
