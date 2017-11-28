@@ -42,7 +42,7 @@ class Compiler(object):
         self._level -= 1
 
 
-class Meta(Compiler):
+class RLMeta(Compiler):
 
     def program(self):
         try:
@@ -375,4 +375,4 @@ class Meta(Compiler):
 
 
 if __name__ == '__main__':
-    sys.stdout.write(Meta().compile(sys.stdin.read()))
+    sys.stdout.write(RLMeta().compile(sys.stdin.read()))

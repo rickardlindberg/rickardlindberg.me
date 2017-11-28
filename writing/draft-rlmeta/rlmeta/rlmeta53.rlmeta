@@ -137,7 +137,7 @@ if __name__ == '__main__':
         sys.exit(str(e))
 >>>
 
-compiler Meta {
+compiler RLMeta {
   Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
   Statement    = Constant | Compiler;
   Constant     = Name:x Verbatim:y { x " = " y .. };

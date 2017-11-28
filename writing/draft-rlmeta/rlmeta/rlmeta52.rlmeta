@@ -103,7 +103,7 @@ if __name__ == '__main__':
     sys.stdout.write(_last_grammar().compile(sys.stdin.read()))
 >>>
 
-compiler Meta {
+compiler RLMeta {
   Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
   Statement    = Constant | Compiler;
   Constant     = Name:x Verbatim:y { x " = " y .. };

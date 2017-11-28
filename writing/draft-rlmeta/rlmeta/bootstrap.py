@@ -202,7 +202,7 @@ def main():
     b.make(src("44"), pycompiler("55"), pyout("56"), [
         "use literal matching",
     ])
-    # Get rid of final re in Meta
+    # Get rid of final re in RLMeta
     b.make(src("45"), pycompiler("56"), pyout("57"), [
         "",
     ])
@@ -261,7 +261,6 @@ def main():
     ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
-    # TODO: Rename Meta to RLMeta
     # TODO: Add "->" return arrow?
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Clean up duplication in runtime
