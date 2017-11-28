@@ -249,13 +249,21 @@ def main():
     b.make(src("52"), pycompiler("69"), pyout("70"), [
         "",
     ])
+    # Clean up runtime
+    b.make(src("53"), pycompiler("70"), pyout("71"), [
+        "",
+    ])
+    b.make(src("53"), pycompiler("71"), pyout("72"), [
+        "",
+    ])
+    b.make(src("53"), pycompiler("72"), pyout("73"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
-    # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
     # TODO: Rename Meta to RLMeta
     # TODO: Add "->" return arrow?
     # TODO: Add default start rule syntax? Default to first defined?
-    # TODO: Fix runtime indentation
     # TODO: Clean up duplication in runtime
     # TODO: Support more escape sequences in strings
 

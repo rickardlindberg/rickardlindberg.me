@@ -1,0 +1,201 @@
+
+PRELUDE <<<
+compiler Prelude {
+  space = *(' ' | \n);
+  EOF = !any;
+  lower = any:x?$x in 'abcdefghijklmnopqrstuvwxyz'$;
+  upper = any:x?$x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'$;
+  digit = any:x?$x in '0123456789'$;
+}
+>>>
+
+RUNTIME <<<
+import sys
+
+PRELUDE = ''
+
+class _ParseFailed(Exception):
+    pass
+
+class _Input(object):
+
+    def __init__(self, program):
+        self._input = PRELUDE + program
+        self._pos = 0
+
+    def save(self):
+        return self._pos
+
+    def restore(self, state):
+        self._pos = state
+
+    def next(self):
+        if len(self._input[self._pos:]) > 0:
+            x = self._input[self._pos]
+            self._pos += 1
+            return x
+        else:
+            self.fail('eof reached')
+
+    def fail(self, message):
+        raise _ParseFailed(message)
+
+class _Output(object):
+
+    def __init__(self):
+        self._label_counter = 0
+        self._output = ''
+        self._level = 0
+
+    def save(self):
+        return self._output, self._level
+
+    def restore(self, state):
+        self._output, self._level = state
+
+    def geneate_and_write_label(self):
+        self._label_counter += 1
+        self.write_label(self._label_counter)
+        return self._label_counter
+
+    def write_label(self, value):
+        self.write("label" + str(value))
+
+    def write(self, text):
+        for ch in text:
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
+            self._output += ch
+
+    def indent(self):
+        self._level += 1
+
+    def dedent(self):
+        self._level -= 1
+
+    def collect(self):
+        return self._output
+
+class _PEG(object):
+
+    def _run(self, program):
+        self._input = _Input(program)
+        self._output = _Output()
+        self.Program()
+        return self._output.collect()
+
+    def _text(self, text):
+        for char in text:
+            if self._any() != char:
+                self._input.fail('char not match')
+        return text
+
+    def _any(self):
+        return self._input.next()
+
+    def _star(self, parser):
+        result = []
+        while True:
+            state = self._save()
+            try:
+                result.append(parser())
+            except _ParseFailed:
+                self._restore(*state)
+                return result
+
+    def _not(self, parser):
+        state = self._save()
+        try:
+            parser()
+        except _ParseFailed:
+            return
+        finally:
+            self._restore(*state)
+        self._input.fail('not failure')
+
+    def _or(self, parsers):
+        for parser in parsers:
+            state = self._save()
+            try:
+                return parser()
+            except _ParseFailed:
+                self._restore(*state)
+        self._input.fail('no choice found')
+
+    def _save(self):
+        return self._input.save(), self._output.save()
+
+    def _restore(self, input_state, output_state):
+        self._input.restore(input_state)
+        self._output.restore(output_state)
+>>>
+
+MAIN <<<
+if __name__ == '__main__':
+    try:
+        sys.stdout.write(_last_grammar()._run(sys.stdin.read()))
+    except _ParseFailed as e:
+        sys.exit(str(e))
+>>>
+
+compiler Meta {
+  Program      = { RUNTIME .. } Statement *Statement { MAIN } EOF;
+  Statement    = Constant | Compiler;
+  Constant     = Name:x Verbatim:y { x " = " y .. };
+  Compiler     = 'compiler' space CompilerName:x space '{'
+                 Rule *Rule { <. "_last_grammar = " x .. } space '}'
+               ;
+  CompilerName = 'Prelude' { "class Prelude(_PEG):"  .> }
+               | Name:x    { "class " x "(Prelude):" .> } $x$
+               ;
+  Rule         = RuleName space '=' Choices space ';' { < };
+  RuleName     = BigName:x    { . "def " x "(self):" .> "self.space()" . }
+               | SmallName:x  { . "def " x "(self):" .>                  }
+               ;
+  Choices      = { "_choices = []" . }
+                 Choice *(space '|' Choice)
+                 { "return self._or(_choices)" . }
+               ;
+  Choice       = { "def " # "():" .> "match = None" . }
+                 Expr *Expr ChoiceReturn
+                 { < "_choices.append(" @ ")" . }
+               ;
+  Expr         = OutputExpr | Binding;
+  OutputExpr   = '{' OutputPart *OutputPart space '}';
+  OutputPart   = String:x { "self._output.write(" x ")"                       . }
+               | Name:x   { "self._output.write(" x ")"                       . }
+               | '.'      { "self._output.write('\n')"                        . }
+               | '>'      { "self._output.indent()"                           . }
+               | '<'      { "self._output.dedent()"                           . }
+               | '#'      { "_label = self._output.geneate_and_write_label()" . }
+               | '@'      { "self._output.write_label(_label)"                . }
+               ;
+  Binding      = MatchExpr ':' Name:y '?' DollarString:x {
+                   y " = match" .
+                   "if not (" x "):" .>
+                     "self._input.fail('char not match')" .<
+                 }
+               | MatchExpr ':' Name:y { y " = match" . }
+               | MatchExpr
+               ;
+  MatchExpr    = '*' { "def " # "():" .> } MatchPart { "return match" .< "match = self._star(" @ ")" . }
+               | '!' { "def " # "():" .> } MatchPart { "return match" .< "match = self._not(" @ ")" . }
+               | MatchPart
+               ;
+  MatchPart    = LiteralString:x           { "match = self._text(" x ")" . }
+               | '\n'                      { "match = self._text('\n')"  . }
+               | 'any'                     { "match = self._any()"       . }
+               | Name:x                    { "match = self." x "()"      . }
+               | '(' { "def " # "():" .> } Choices:x ')' { < "match = " @ "()" . }
+               ;
+  ChoiceReturn = DollarString:x { "return " x    . }
+               |                { "return match" . }
+               ;
+  LiteralString= '\'' *('\\'' $"'"$ | !'\'' any):x '\'' $repr("".join(x))$;
+  String       = '"'  *('\"'  $'"'$  | !'"'  any):x '"'  $repr("".join(x))$;
+  DollarString = '$'  *('\$'  $"\$"$ | !'$'  any):x '$'  $"".join(x)$;
+  Verbatim     = '<<<'\n *(!(\n'>>>'\n) any):x \n'>>>'\n $repr("".join(x))$;
+  BigName      = upper:x *(upper | lower | digit):y $x+"".join(y)$;
+  SmallName    = lower:x *(upper | lower | digit):y $x+"".join(y)$;
+  Name         = (upper | lower):x *(upper | lower | digit):y $x+"".join(y)$;
+}
