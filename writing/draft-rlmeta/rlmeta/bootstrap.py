@@ -241,6 +241,8 @@ def main():
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Fix runtime indentation
     # TODO: Clean up duplication in runtime
+    # TODO: Remove re completely
+    # TODO: Support more escape sequences in strings
 
 
 class Bootstrapper(object):
