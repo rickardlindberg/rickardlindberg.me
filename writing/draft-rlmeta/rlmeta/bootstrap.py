@@ -266,6 +266,7 @@ def main():
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Clean up duplication in runtime
     # TODO: Support more escape sequences in strings
+    # TODO: Better error handling
 
 
 class Bootstrapper(object):
