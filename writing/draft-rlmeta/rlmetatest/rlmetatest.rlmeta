@@ -1,4 +1,4 @@
-compiler MetaTest {
+compiler RLMetaTest {
   Program  = { "set -e" . } *TestCase;
   TestCase = '# ' toEol:x { "echo 'compiling " x "'" . }
              { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" . }
