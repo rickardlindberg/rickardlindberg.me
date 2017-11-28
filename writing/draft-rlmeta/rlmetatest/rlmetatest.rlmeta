@@ -1,22 +1,23 @@
 compiler MetaTest {
   Program  = { "set -e" . } *TestCase;
-  TestCase = /# / /(.*)/:x { "echo 'compiling " x "'" . } /\n/
+  TestCase = '# ' toEol:x { "echo 'compiling " x "'" . }
              { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" . }
              verbatim
              { "EOF" . }
              { "echo 'ok'" . }
-             /:\n/
+             ':'\n
              *example
            ;
   example  = { "cat << EOF > test-src" . } verbatim { "EOF" . }
-             /==>\n/
+             '==>'\n
              { "cat << EOF > test-out" . } verbatim { "EOF" . }
-             /---\n/
+             '---'\n
              { "cat test-src | python test-compiler.py > test-actual-out" . }
              { "diff test-out test-actual-out" . }
            ;
   verbatim = *line;
-  line     = /  / /.*?\n/:x { x }
-           | /\n/:x         { x }
+  line     = '  ' toEol:x { x }
+           | \n:x         { x }
            ;
+  toEol    = *(!\n any):x $"".join(x)$;
 }

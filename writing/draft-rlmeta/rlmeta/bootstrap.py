@@ -212,6 +212,16 @@ def main():
     b.make(src("46"), pycompiler("58"), pyout("59"), [
         "",
     ])
+    # Remove slash string
+    b.make(src("47"), pycompiler("59"), pyout("60"), [
+        "",
+    ])
+    b.make(src("47"), pycompiler("60"), pyout("61"), [
+        "",
+    ])
+    b.make(src("48"), pycompiler("61"), pyout("62"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Rename exception to ParseFailed
     # TODO: Split parsing and code generation?
