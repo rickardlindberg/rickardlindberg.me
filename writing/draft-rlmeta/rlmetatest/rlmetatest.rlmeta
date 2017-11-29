@@ -1,23 +1,24 @@
 compiler RLMetaTest {
-  Program  = { "set -e" . } *TestCase;
-  TestCase = '# ' toEol:x { "echo 'compiling " x "'" . }
-             { "cat << EOF | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" . }
-             verbatim
-             { "EOF" . }
-             { "echo 'ok'" . }
-             ':'\n
-             *example
-           ;
-  example  = { "cat << EOF > test-src" . } verbatim { "EOF" . }
-             '==>'\n
-             { "cat << EOF > test-out" . } verbatim { "EOF" . }
-             '---'\n
-             { "cat test-src | python test-compiler.py > test-actual-out" . }
-             { "diff test-out test-actual-out" . }
-           ;
+  Program = *TestCase:x {
+    "set -e" . x
+  };
+  TestCase = '# ' toEol:x verbatim:y ':'\n *example:z {
+    "echo 'compiling " @x "'" .
+    "cat << 'EOF' | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" .
+    y
+    "EOF" .
+    "echo 'ok'" .
+    z
+  };
+  example = verbatim:x '==>'\n verbatim:y '---'\n {
+    "cat << 'EOF' > test-src" . x "EOF" .
+    "cat << 'EOF' > test-out" . y "EOF" .
+    "cat test-src | python test-compiler.py > test-actual-out" .
+    "diff test-out test-actual-out" .
+  };
   verbatim = *line;
-  line     = '  ' toEol:x { x }
-           | \n:x         { x }
+  line     = '  ' toEol:x { @x }
+           | \n:x         { @x }
            ;
-  toEol    = *(!\n any):x $"".join(x)$;
+  toEol    = *(!\n any):x { -> $"".join(x.value())$ };
 }

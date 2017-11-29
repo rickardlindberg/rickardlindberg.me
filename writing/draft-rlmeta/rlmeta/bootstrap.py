@@ -259,6 +259,23 @@ def main():
     b.make(src("53"), pycompiler("72"), pyout("73"), [
         "",
     ])
+    # Better error handling
+    b.make(src("54"), pycompiler("73"), pyout("74"), [
+        "",
+    ])
+    b.make(src("54"), pycompiler("74"), pyout("75"), [
+        "",
+    ])
+    # Semantic action rewrite
+    b.make(src("55"), pycompiler("75"), pyout("76"), [
+        "recognizes new syntax",
+    ])
+    b.make(src("56"), pycompiler("76"), pyout("77"), [
+        "uses new syntax",
+    ])
+    b.make(src("56"), pycompiler("77"), pyout("78"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add "->" return arrow?
