@@ -281,7 +281,6 @@ def main():
     ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
-    # TODO: Add "->" return arrow?
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Clean up duplication in runtime
     # TODO: Support more escape sequences in strings
