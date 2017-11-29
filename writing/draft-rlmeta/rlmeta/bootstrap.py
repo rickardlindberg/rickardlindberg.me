@@ -276,6 +276,9 @@ def main():
     b.make(src("56"), pycompiler("77"), pyout("78"), [
         "",
     ])
+    b.make(src("56"), pycompiler("78"), pyout("79"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add "->" return arrow?
