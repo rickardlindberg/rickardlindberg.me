@@ -167,43 +167,48 @@ if __name__ == '__main__':
 >>>
 
 compiler RLMeta {
-  Program      = Statement:x *Statement:xs EOF { @$RUNTIME$ .. x xs @$MAIN$ };
+  Program      = *Statement:x EOF { @$RUNTIME$ .. x @$MAIN$ };
   Statement    = Constant | Compiler;
   Constant     = Name:x Verbatim:y { @x " = " @y .. };
-  Compiler     = 'compiler' space CompilerName:x space '{' Rule:r *Rule:rs space '}'
+  Compiler     = 'compiler' CompilerName:x space '{' Rule:r *Rule:rs space '}'
                  { x r rs <. "_last_grammar = " @x .. }
                ;
-  CompilerName = 'Prelude' { "class Prelude(_PEG):"  .> -> $"Prelude"$ }
+  CompilerName = 'Prelude' { "class Prelude(_PEG):"   .> -> $"Prelude"$ }
                | Name:x    { "class " @x "(Prelude):" .> -> $x.value()$ }
                ;
   Rule         = RuleName:x space '=' Choices:y space ';' { x y < };
   RuleName     = BigName:x    { . "def " @x "(self):" .> "self.space()" . }
                | SmallName:x  { . "def " @x "(self):" .>                  }
                ;
-  Choices      = Choice:x *(space '|' Choice):xs
-                 { "_choices = []" . x xs "return self._or(_choices)" . }
+  Choices      = Choice:x *(space '|' Choice):xs {
+                   "_choices = []" .
+                   x xs
+                   "return self._or(_choices)" .
+                 }
                ;
-  Choice       = *Binding:x Semantic:y
-                 { "def " # "():" .> "match = None" . x y < "_choices.append(" @ ")" . }
+  Choice       = *Binding:x Semantic:y {
+                   "def " # "():" .> "match = None" . x y <
+                   "_choices.append(" @ ")" .
+                 }
                ;
   Semantic     = '{' *SemPart:x SemReturn:y space '}'
                  { "def " # "():" .> x y < "return _SemanticAction(" @ ")" . }
                | { "return match" . }
                ;
-  SemPart      = String:x           { "self._output.write(" @x ")"                      . }
-               | Name:x             { @x ".run()"                                       . }
-               | '.'                { "self._output.write('\n')"                        . }
-               | '>'                { "self._output.indent()"                           . }
-               | '<'                { "self._output.dedent()"                           . }
-               | '#'                { "_label = self._output.geneate_and_write_label()" . }
-               | '@' Name:x         { "self._output.write(" @x ".value())"              . }
-               | '@' DollarString:x { "self._output.write(" @x ")"                      . }
-               | '@'                { "self._output.write_label(_label)"                . }
+  SemPart      = String:x     { "self._output.write(" @x ")"                      . }
+               | Name:x       { @x ".run()"                                       . }
+               | '.'          { "self._output.write('\n')"                        . }
+               | '>'          { "self._output.indent()"                           . }
+               | '<'          { "self._output.dedent()"                           . }
+               | '#'          { "_label = self._output.geneate_and_write_label()" . }
+               | '@' Name:x   { "self._output.write(" @x ".value())"              . }
+               | '@' Native:x { "self._output.write(" @x ")"                      . }
+               | '@'          { "self._output.write_label(_label)"                . }
                ;
-  SemReturn    = '->' DollarString:x { "return " @x    . }
-               |                     { "return match" . }
+  SemReturn    = '->' Native:x { "return " @x   . }
+               |               { "return match" . }
                ;
-  Binding      = MatchExpr:e ':' Name:y '?' DollarString:x {
+  Binding      = MatchExpr:e ':' Name:y '?' Native:x {
                    e
                    @y " = match" .
                    "if not (" @x "):" .>
@@ -212,8 +217,14 @@ compiler RLMeta {
                | MatchExpr:e ':' Name:y { e @y " = match" . }
                | MatchExpr
                ;
-  MatchExpr    = '*' MatchPart:x { "def " # "():" .> x "return match" .< "match = self._star(" @ ")" . }
-               | '!' MatchPart:x { "def " # "():" .> x "return match" .< "match = self._not(" @ ")" . }
+  MatchExpr    = '*' MatchPart:x {
+                   "def " # "():" .> x "return match" .<
+                   "match = self._star(" @ ")" .
+                 }
+               | '!' MatchPart:x {
+                   "def " # "():" .> x "return match" .<
+                   "match = self._not(" @ ")" .
+                 }
                | MatchPart
                ;
   MatchPart    = LiteralString:x   { "match = self._text(" @x ")"            . }
@@ -224,7 +235,7 @@ compiler RLMeta {
                ;
   LiteralString= '\'' *('\\'' { -> $"'"$ } | !'\'' any):x '\'' { -> $repr("".join(x.value()))$ };
   String       = '"'  *('\"'  { -> $'"'$ }  | !'"'  any):x '"'  { -> $repr("".join(x.value()))$ };
-  DollarString = '$'  *('\$'  { -> $"\$"$ } | !'$'  any):x '$'  { -> $"".join(x.value())$ };
+  Native       = '$'  *('\$'  { -> $"\$"$ } | !'$'  any):x '$'  { -> $"".join(x.value())$ };
   Verbatim     = '<<<'\n *(!(\n'>>>'\n) any):x \n'>>>'\n { -> $repr("".join(x.value()))$ };
   BigName      = upper:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
   SmallName    = lower:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
