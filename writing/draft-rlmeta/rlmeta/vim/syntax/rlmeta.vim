@@ -10,13 +10,11 @@ syntax region metaTargetLanguage start=+"+ end=+"+
 
 syntax region metaLiteral start=+'+ end=+'+ skip=+\\'\|\\\\\|\\n+
 
-syntax match metaLiteral +\\n+
-
-syntax match metaOperator +=+
-syntax match metaOperator +|+
-syntax match metaOperator +;+
-syntax match metaOperator +*+
-syntax match metaOperator +!+
+syntax match metaOperator +[=]+
+syntax match metaOperator +[|]+
+syntax match metaOperator +[;]+
+syntax match metaOperator +[*]+
+syntax match metaOperator +[!]+
 
 syntax match metaOutputOperator +[.]+
 syntax match metaOutputOperator +[-][>]+
