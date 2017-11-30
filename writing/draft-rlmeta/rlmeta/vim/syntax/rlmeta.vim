@@ -5,6 +5,11 @@ endif
 syntax keyword metaKeyword compiler
 syntax keyword metaKeyword Program
 syntax keyword metaKeyword end
+syntax keyword metaKeyword any
+syntax keyword metaKeyword upper
+syntax keyword metaKeyword lower
+syntax keyword metaKeyword digit
+syntax keyword metaKeyword space
 
 syntax region metaTargetLanguage start=+"+ end=+"+
 
