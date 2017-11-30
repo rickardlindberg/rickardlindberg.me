@@ -300,6 +300,13 @@ def main():
     b.make(src("60"), pycompiler("83"), pyout("84"), [
         "",
     ])
+    # Rename EOF to end
+    b.make(src("61"), pycompiler("84"), pyout("85"), [
+        "Rename EOF to end (1)",
+    ])
+    b.make(src("62"), pycompiler("85"), pyout("86"), [
+        "Rename EOF to end (2)",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add default start rule syntax? Default to first defined?
