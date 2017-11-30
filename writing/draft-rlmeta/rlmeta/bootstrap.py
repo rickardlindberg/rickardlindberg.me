@@ -293,6 +293,10 @@ def main():
     b.make(src("59"), pycompiler("81"), pyout("82"), [
         "",
     ])
+    # Cleanup?
+    b.make(src("60"), pycompiler("82"), pyout("83"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add default start rule syntax? Default to first defined?
