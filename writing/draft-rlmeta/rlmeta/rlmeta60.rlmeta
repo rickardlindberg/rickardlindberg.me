@@ -219,21 +219,15 @@ compiler RLMeta {
   MatchExpr    = MatchExpr1:e ':' Name:y { e @y " = match" . }
                | MatchExpr1
                ;
-  MatchExpr1   = '*' MatchExpr2:x {
-                   "def " # "():" .> x "return match" .<
-                   "match = self._star(" @ ")" .
-                 }
-               | '!' MatchExpr2:x {
-                   "def " # "():" .> x "return match" .<
-                   "match = self._not(" @ ")" .
-                 }
-               | MatchExpr2
+  MatchExpr1   = '*' MatchExpr2:x { x "match = self._star(" @x ")" . }
+               | '!' MatchExpr2:x { x "match = self._not(" @x ")"  . }
+               |     MatchExpr2:x { x "match = " @x "()"           . }
                ;
-  MatchExpr2   = LiteralString:x    { "match = self._text(" @x ")"            . }
-               | 'any'              { "match = self._any()"                   . }
-               | Name:x             { "match = self." @x "()"                 . }
-               | '(' RuleBody:x ')' { "def " # "():" .> x < "match = " @ "()" . }
-               | '[' any:x '-' any:y ']' { "match = self._class(" @$repr(x.value())$ ", " @$repr(y.value())$ ")" . }
+  MatchExpr2   = LiteralString:x    { -> $"(lambda: self._text(" + x.value() + "))"$ }
+               | 'any'              { -> $"self._any"$                 }
+               | Name:x             { -> $"self." + x.value()$           }
+               | '(' RuleBody:x ')' { "def " # "():" .> x < -> $"label" + str(_label)$ }
+               | '[' any:x '-' any:y ']' { -> $"(lambda: self._class(" + repr(x.value()) + ", " + repr(y.value()) + "))"$ }
                ;
 
   LiteralString= '\'' *(escapes | !'\'' any):x '\'' { -> $repr("".join(x.value()))$ };
