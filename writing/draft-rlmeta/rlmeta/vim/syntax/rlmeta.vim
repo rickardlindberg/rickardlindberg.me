@@ -8,7 +8,7 @@ syntax keyword metaKeyword EOF
 
 syntax region metaTargetLanguage start=+"+ end=+"+
 
-syntax region metaLiteral start=+'+ end=+'+ skip=+\\'+
+syntax region metaLiteral start=+'+ end=+'+ skip=+\\'\|\\\\\|\\n+
 
 syntax match metaLiteral +\\n+
 

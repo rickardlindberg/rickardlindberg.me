@@ -2,7 +2,7 @@ compiler RLMetaTest {
   Program = *TestCase:x {
     "set -e" . x
   };
-  TestCase = '# ' toEol:x verbatim:y ':'\n *example:z {
+  TestCase = '# ' toEol:x verbatim:y ':\n' *example:z {
     "echo 'compiling " @x "'" .
     "cat << 'EOF' | tee test-compiler.rlmeta | python ./rlmeta/rlmeta.py > test-compiler.py" .
     y
@@ -10,7 +10,7 @@ compiler RLMetaTest {
     "echo 'ok'" .
     z
   };
-  example = verbatim:x '==>'\n verbatim:y '---'\n {
+  example = verbatim:x '==>\n' verbatim:y '---\n' {
     "cat << 'EOF' > test-src" . x "EOF" .
     "cat << 'EOF' > test-out" . y "EOF" .
     "cat test-src | python test-compiler.py > test-actual-out" .
@@ -18,7 +18,7 @@ compiler RLMetaTest {
   };
   verbatim = *line;
   line     = '  ' toEol:x { @x }
-           | \n:x         { @x }
+           | '\n':x       { @x }
            ;
-  toEol    = *(!\n any):x { -> $"".join(x.value())$ };
+  toEol    = *(!'\n' any):x { -> $"".join(x.value())$ };
 }

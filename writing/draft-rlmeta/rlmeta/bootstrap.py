@@ -279,11 +279,17 @@ def main():
     b.make(src("56"), pycompiler("78"), pyout("79"), [
         "",
     ])
+    # Support more escape sequences in strings
+    b.make(src("57"), pycompiler("79"), pyout("80"), [
+        "",
+    ])
+    b.make(src("58"), pycompiler("80"), pyout("81"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Clean up duplication in runtime
-    # TODO: Support more escape sequences in strings
     # TODO: Better error handling
 
 
