@@ -22,11 +22,12 @@ syntax match metaOperator +[*]+
 syntax match metaOperator +[!]+
 
 syntax match metaOutputOperator +[.]+
-syntax match metaOutputOperator +[-][>]+
 syntax match metaOutputOperator +[>]+
 syntax match metaOutputOperator +[<]+
 syntax match metaOutputOperator +[#]+
 syntax match metaOutputOperator +[@]+
+
+syntax match metaReturn +[-][>]+
 
 syntax match metaBlock +{+
 syntax match metaBlock +}+
@@ -41,6 +42,7 @@ hi def link metaKeyword           Keyword
 hi def link metaTargetLanguage    Underlined
 hi def link metaVerbatim          Underlined
 hi def link metaCompilerLanguage  Special
+hi def link metaReturn            Todo
 hi def link metaLiteral           String
 hi def link metaOutputOperator    Macro
 hi def link metaOperator          Operator
