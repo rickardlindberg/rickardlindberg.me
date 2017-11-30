@@ -286,6 +286,13 @@ def main():
     b.make(src("58"), pycompiler("80"), pyout("81"), [
         "",
     ])
+    # Character classes
+    b.make(src("59"), pycompiler("80"), pyout("81"), [
+        "",
+    ])
+    b.make(src("59"), pycompiler("81"), pyout("82"), [
+        "",
+    ])
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add default start rule syntax? Default to first defined?
