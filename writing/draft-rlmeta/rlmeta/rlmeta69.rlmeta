@@ -1,0 +1,258 @@
+PRELUDE <<<
+compiler Prelude {
+  space = *(' ' | '\n');
+  end = !any;
+  lower = [a-z];
+  upper = [A-Z];
+  digit = [0-9];
+  sepBy :what :sep = :what:x *(:sep :what):xs { -> $[x.value()]+xs.value()$ }
+                   |                          { -> $[]$ }
+                   ;
+}
+>>>
+
+RUNTIME <<<
+import sys
+
+PRELUDE = ''
+
+class _ParseFailed(Exception):
+
+    def __init__(self, message, pos):
+        Exception.__init__(self, message)
+        self.pos = pos
+
+class _SemanticAction(object):
+
+    def __init__(self, fn):
+        self._fn = fn
+        self._is_run = False
+
+    def run(self):
+        self._value = self._fn()
+        self._is_run = True
+        return self._value
+
+    def value(self):
+        if not self._is_run:
+            return self.run()
+        return self._value
+
+class _Input(object):
+
+    def __init__(self, program):
+        self._input = PRELUDE + program
+        self._pos = 0
+
+    def save(self):
+        return self._pos
+
+    def restore(self, state):
+        self._pos = state
+
+    def next(self):
+        if len(self._input[self._pos:]) > 0:
+            x = self._input[self._pos]
+            self._pos += 1
+            return x
+        else:
+            self.fail('eof not expected')
+
+    def fail(self, message, pos_diff=0):
+        raise _ParseFailed(
+            "{}: {!r}".format(
+                message,
+                self._input[self._pos+pos_diff:self._pos+pos_diff+20]
+            ),
+            self._pos+pos_diff
+        )
+
+class _Output(object):
+
+    def __init__(self):
+        self._label_counter = 0
+        self._output = ''
+        self._level = 0
+
+    def geneate_and_write_label(self):
+        self._label_counter += 1
+        self.write_label(self._label_counter)
+        return self._label_counter
+
+    def write_label(self, value):
+        self.write("label" + str(value))
+
+    def write(self, text):
+        for ch in text:
+            if self._output and self._output[-1] == '\n' and ch != '\n':
+                self._output += '    ' * self._level
+            self._output += ch
+
+    def indent(self):
+        self._level += 1
+
+    def dedent(self):
+        self._level -= 1
+
+    def collect(self):
+        return self._output
+
+class _PEG(object):
+
+    def _compile(self, program):
+        self._interpret(program)
+        return self._output.collect()
+
+    def _interpret(self, program):
+        self._output = _Output()
+        return self._parse(program).run()
+
+    def _parse(self, program):
+        self._input = _Input(program)
+        self._longets_exception = None
+        try:
+            return self.Program()
+        except _ParseFailed:
+            raise self._longets_exception
+
+    def _register_exception(self, e):
+        if self._longets_exception is None or e.pos >= self._longets_exception.pos:
+            self._longets_exception = e
+
+    def _text(self, text):
+        for char in text:
+            if self._input.next() != char:
+                self._input.fail('char not match {!r}'.format(text), -1)
+        return _SemanticAction(lambda: text)
+
+    def _class(self, start, stop):
+        x = self._input.next()
+        if start <= x <= stop:
+            return _SemanticAction(lambda: x)
+        self._input.fail('class not match {}-{}'.format(start, stop), -1)
+
+    def _any(self):
+        value = self._input.next()
+        return _SemanticAction(lambda: value)
+
+    def _star(self, parser):
+        result = []
+        while True:
+            state = self._input.save()
+            try:
+                result.append(parser())
+            except _ParseFailed as e:
+                self._register_exception(e)
+                self._input.restore(state)
+                return _SemanticAction(lambda: [x.value() for x in result])
+
+    def _not(self, parser):
+        state = self._input.save()
+        try:
+            parser()
+        except _ParseFailed:
+            return
+        finally:
+            self._input.restore(state)
+        self._input.fail('not failure {}'.format(parser))
+
+    def _or(self, parsers):
+        for parser in parsers:
+            state = self._input.save()
+            try:
+                return parser()
+            except _ParseFailed as e:
+                self._register_exception(e)
+                self._input.restore(state)
+        self._input.fail('no choice found')
+>>>
+
+MAIN <<<
+if __name__ == '__main__':
+    try:
+        sys.stdout.write(_last_grammar()._compile(sys.stdin.read()))
+    except _ParseFailed as e:
+        sys.exit(str(e))
+>>>
+
+compiler RLMeta {
+  Program      = *Statement:x space end { @$RUNTIME$ .. x @$MAIN$ };
+  Statement    = Constant | Compiler;
+  Constant     = Name:x Verbatim:y { @x " = " @y .. };
+  Compiler     = 'compiler' CompilerName:x space '{' Rule:r *Rule:rs space '}'
+                 { x r rs <. "_last_grammar = " @x .. }
+               ;
+  CompilerName = 'Prelude' { "class Prelude(_PEG):"   .> -> "Prelude" }
+               | Name:x    { "class " @x "(Prelude):" .> -> x }
+               ;
+
+  Rule         = RuleName:x space '=' RuleBody:y space ';' { x y < };
+  RuleName     = BigName:x   RuleArgs:y { . "def " @x "(self" @$"".join(y.value())$ "):" .> "self.space()" . }
+               | SmallName:x RuleArgs:y { . "def " @x "(self" @$"".join(y.value())$ "):" .>                  }
+               ;
+  RuleArgs     = *(space ':' SmallName:x { -> ", " x });
+  RuleBody     = sepBy(, Choice, space '|'):xs {
+                   "_choices = []" .
+                   xs
+                   "return self._or(_choices)" .
+                 }
+               ;
+  Choice       = *MatchExpr:x Action:y {
+                   "def " # "():" .> "match = None" . x y <
+                   "_choices.append(" @ ")" .
+                 }
+               ;
+  Action       = '{' *ActionBody:x ActionReturn:y space '}'
+                 { "def " # "():" .> x y < "return _SemanticAction(" @ ")" . }
+               | { "return match" . }
+               ;
+  ActionBody   = OutputString:x { "self._output.write(" @x ")"                      . }
+               | Name:x         { @x ".run()"                                       . }
+               | '.'            { "self._output.write('\\n')"                       . }
+               | '>'            { "self._output.indent()"                           . }
+               | '<'            { "self._output.dedent()"                           . }
+               | '#'            { "_label = self._output.geneate_and_write_label()" . }
+               | '@' Name:x     { "self._output.write(" @x ".value())"              . }
+               | '@' Native:x   { "self._output.write(" @x ")"                      . }
+               | '@'            { "self._output.write_label(_label)"                . }
+               ;
+  ActionReturn = '->' *ReturnFormat:x { "return " @$'+'.join(x.value())$  . }
+               |                      { "return match" . }
+               ;
+  ReturnFormat = OutputString
+               | Native
+               | Name:x { -> "x.value()" }
+               | '@'    { -> "'label'+str(_label)" }
+               ;
+
+  MatchExpr    = MatchExpr1:e ':' Name:y { e @y " = match" . }
+               | MatchExpr1
+               ;
+  MatchExpr1   = '*' MatchExpr2:x { x "match = self._star(" @x ")" . }
+               | '!' MatchExpr2:x { x "match = self._not(" @x ")"  . }
+               |     MatchExpr2:x { x "match = " @x "()"           . }
+               ;
+  MatchExpr2   = MatchString:x            { -> "(lambda: self._text(" x "))" }
+               | 'any'                    { -> "self._any"                   }
+               | Name:x '(' ArgList:y ')' { -> "(lambda: self." x "(" $y.value()$ "))" }
+               | Name:x                   { -> "self." x                     }
+               | ':' SmallName:x          { -> x                             }
+               | '(' RuleBody:x ')'       { "def " # "():" .> x < -> @       }
+               | '[' any:x '-' any:y ']'  { -> "(lambda: self._class(" $repr(x.value())$ ", " $repr(y.value())$ "))" }
+               ;
+  ArgList      = sepBy(, RuleBody:x { "def " # "():" .> x < -> @ }, ','):xs { xs -> $", ".join(xs.value())$ };
+
+  MatchString  = '\'' *(escapes | !'\'' any):x '\'' { -> $repr("".join(x.value()))$ };
+  OutputString = '\"' *(escapes | !'\"' any):x '\"' { -> $repr("".join(x.value()))$ };
+  escapes      = '\\n'  { -> "\n" }
+               | '\\t'  { -> "\t" }
+               | '\\\'' { -> "\'" }
+               | '\\"'  { -> "\"" }
+               | '\\\\' { -> "\\" }
+               ;
+  Native       = '$'  *('\\$'  { -> "$" } | !'$'  any):x '$'  { -> $"".join(x.value())$ };
+  Verbatim     = '<<<\n' *(!('\n>>>\n') any):x '\n>>>\n' { -> $repr("".join(x.value()))$ };
+  BigName      = upper:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
+  SmallName    = lower:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
+  Name         = (upper | lower):x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
+}
