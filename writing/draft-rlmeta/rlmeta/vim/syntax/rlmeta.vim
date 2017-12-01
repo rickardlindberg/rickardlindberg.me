@@ -11,9 +11,9 @@ syntax keyword metaKeyword lower
 syntax keyword metaKeyword digit
 syntax keyword metaKeyword space
 
-syntax region metaTargetLanguage start=+"+ end=+"+
+syntax region metaTargetLanguage start=+"+ end=+"+ skip=+\\'\|\\"\|\\\\\|\\n\|\\t+
 
-syntax region metaLiteral start=+'+ end=+'+ skip=+\\'\|\\\\\|\\n+
+syntax region metaLiteral start=+'+ end=+'+ skip=+\\'\|\\"\|\\\\\|\\n\|\\t+
 
 syntax match metaOperator +[=]+
 syntax match metaOperator +[|]+
