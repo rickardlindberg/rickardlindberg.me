@@ -351,6 +351,13 @@ def main():
     b.make(src("74"), pycompiler("97"), pyout("98"), [
         "",
     ])
+    # Clean up with higher order rules
+    b.make(src("75"), pycompiler("98"), pyout("99"), [
+        "",
+    ])
+    b.make(src("75"), pycompiler("99"), pyout("100"), [
+        "",
+    ])
     # TODO: Remove need for @ in dollar string output
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
