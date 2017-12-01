@@ -334,6 +334,16 @@ def main():
     b.make(src("70"), pycompiler("92"), pyout("93"), [
         "",
     ])
+    # Surround higher order function
+    b.make(src("71"), pycompiler("93"), pyout("94"), [
+        "",
+    ])
+    b.make(src("71"), pycompiler("94"), pyout("95"), [
+        "",
+    ])
+    b.make(src("72"), pycompiler("95"), pyout("96"), [
+        "",
+    ])
     # TODO: Remove need for @ in dollar string output
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
