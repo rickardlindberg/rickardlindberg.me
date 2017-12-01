@@ -314,11 +314,16 @@ def main():
     b.make(src("64"), pycompiler("87"), pyout("88"), [
         "",
     ])
+    # TODO: Remove need for @ in dollar string output
+    # TODO: Make ' and " strings behave the same
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
     # TODO: Add default start rule syntax? Default to first defined?
     # TODO: Clean up duplication in runtime
     # TODO: Better error handling
+    # TODO: Use only # for labels
+    # TODO: Make match, label, ect "private"
+    # TODO: Higher order rules: sepBy
 
 
 class Bootstrapper(object):
