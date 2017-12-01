@@ -321,6 +321,13 @@ def main():
     b.make(src("66"), pycompiler("89"), pyout("90"), [
         "",
     ])
+    # Higher order rules: sepBy
+    b.make(src("67"), pycompiler("90"), pyout("91"), [
+        "",
+    ])
+    b.make(src("68"), pycompiler("91"), pyout("92"), [
+        "",
+    ])
     # TODO: Remove need for @ in dollar string output
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
@@ -329,7 +336,6 @@ def main():
     # TODO: Better error handling
     # TODO: Use only # for labels
     # TODO: Make match, label, ect "private"
-    # TODO: Higher order rules: sepBy
 
 
 class Bootstrapper(object):
