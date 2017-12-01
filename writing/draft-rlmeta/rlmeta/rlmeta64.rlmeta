@@ -241,7 +241,7 @@ compiler RLMeta {
                | '\\\\' { -> $"\\"$  }
                ;
   String       = '"'  *('\"'  { -> $'"'$ }  | !'"'  any):x '"'  { -> $repr("".join(x.value()))$ };
-  Native       = '$'  *('\$'  { -> $"\$"$ } | !'$'  any):x '$'  { -> $"".join(x.value())$ };
+  Native       = '$'  *('\$'  { -> "$" } | !'$'  any):x '$'  { -> $"".join(x.value())$ };
   Verbatim     = '<<<\n' *(!('\n>>>\n') any):x '\n>>>\n' { -> $repr("".join(x.value()))$ };
   BigName      = upper:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
   SmallName    = lower:x *(upper | lower | digit):y { -> $x.value()+"".join(y.value())$ };
