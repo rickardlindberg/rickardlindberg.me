@@ -366,6 +366,7 @@ def main():
     # TODO: Better error handling
     # TODO: Use only # for labels
     # TODO: Make match, label, ect "private"
+    # TODO: Add _and to PEG (How to handle assignments?)
 
 
 class Bootstrapper(object):
