@@ -358,6 +358,13 @@ def main():
     b.make(src("75"), pycompiler("99"), pyout("100"), [
         "",
     ])
+    # Clean up
+    b.make(src("76"), pycompiler("100"), pyout("101"), [
+        "Get rid of _choices list",
+    ])
+    b.make(src("76"), pycompiler("101"), pyout("102"), [
+        "",
+    ])
     # TODO: Remove need for @ in dollar string output
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
