@@ -39,3 +39,15 @@ in relation to that.
 * [Dan Ingalls: Object-Oriented Programming](https://www.youtube.com/watch?v=P2mh92d-T3Y&t=851s)
   Implement small object oriented base language like Lua.
   Postfix notation.
+
+## December
+
+* [Is it really "Complex"? Or did we just make it "Complicated"?](https://www.youtube.com/watch?v=ubaX1Smg6pY)
+  I watched a similar talk by Alan many years ago. I got the same feeling of
+  agreement this time that we should absolutely design new languages to fit the
+  problem. Solving a programming problem should be first finding/designing the
+  perfect language to express that problem in, and then make that language run.
+  I want to experiment with this idea for Timeline. By how much can we shrink
+  code size by implementing Timeline in many languages (that all still compile
+  down to Python/wxPython code maybe) that are designed for the problems that
+  Timeline solve.
