@@ -37,8 +37,13 @@ in relation to that.
       * How do I obsolete it?
 
 * [Dan Ingalls: Object-Oriented Programming](https://www.youtube.com/watch?v=P2mh92d-T3Y&t=851s)
-  Implement small object oriented base language like Lua.
-  Postfix notation.
+  This was a simple yet detailed description of how Smalltak was implemented. I
+  got inspired to try to implement a small object oriented language in this way
+  to learn more about them. Two ideas I had about such language. First: can it use
+  postfix notation so that "object message1 message2" is interpreted like
+  "(object message1) message2"? Inspired by the syntax of
+  [Factor](https://en.wikipedia.org/wiki/Factor_(programming_language)).
+  Second: can such a language be a base for embedding, similar to Lua?
 
 ## December
 
