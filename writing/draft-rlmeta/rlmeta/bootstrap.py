@@ -375,6 +375,7 @@ def main():
     # TODO: Make match, label, ect "private"
     # TODO: Add _and to PEG (How to handle assignments?)
     # TODO: Handle latest exception at raise point instead of catch point?
+    # TODO: Make constans semantic actions that just output their value
 
 
 class Bootstrapper(object):
