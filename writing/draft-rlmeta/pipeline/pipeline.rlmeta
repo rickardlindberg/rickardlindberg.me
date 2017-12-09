@@ -1,0 +1,45 @@
+RUNTIME
+<<<
+from subprocess import Popen, PIPE
+
+def pipeline(processes):
+    def pipeline(process_input):
+        last_output = process_input
+        for process in processes:
+            last_output = process(last_output)
+        return last_output
+    return pipeline
+
+def reader(path):
+    def reader(process_input):
+        with open(path, "r") as f:
+            return f.read()
+    return reader
+
+def writer(path):
+    def writer(process_input):
+        with open(path, "w") as f:
+            f.write(process_input)
+            return ""
+    return writer
+
+def process(args):
+    def process(process_input):
+        p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        (stdout, stderr) = p.communicate(process_input)
+        if p.returncode != 0:
+            raise Exception("process failed")
+        return stdout
+    return process
+>>>
+
+compiler Pipeline {
+  Program  = Pipeline:x space end         { @$RUNTIME$ .. x @x"('')" };
+  Pipeline = sepBy(Command, space '|'):xs { xs # " = pipeline([" @$", ".join(xs.value())$ "])" . -> @ };
+  Command  = '#read'  Argument:x          {    # " = reader("  @$repr(x.value())$  ")"         . -> @ }
+           | '#write' Argument:x          {    # " = writer("  @$repr(x.value())$  ")"         . -> @ }
+           | *Argument:xs                 {    # " = process(" @$repr(xs.value())$ ")"         . -> @ }
+           ;
+  Argument = char:x *char:xs { -> $"".join([x.value()]+xs.value())$ };
+  char     = !('\n' | '\t' | ' ' | '|') any;
+}
