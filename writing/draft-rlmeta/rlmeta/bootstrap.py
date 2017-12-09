@@ -376,6 +376,7 @@ def main():
     # TODO: Add _and to PEG (How to handle assignments?)
     # TODO: Handle latest exception at raise point instead of catch point?
     # TODO: Make constans semantic actions that just output their value
+    # TODO: Not all buildins return sematic actions (_not)
 
 
 class Bootstrapper(object):
