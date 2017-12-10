@@ -3,30 +3,30 @@ RUNTIME
 from subprocess import Popen, PIPE
 
 def pipeline(processes):
-    def pipeline(process_input):
-        last_output = process_input
+    def pipeline(stdin):
+        last_output = stdin
         for process in processes:
             last_output = process(last_output)
         return last_output
     return pipeline
 
 def reader(path):
-    def reader(process_input):
+    def reader(stdin):
         with open(path, "r") as f:
             return f.read()
     return reader
 
 def writer(path):
-    def writer(process_input):
+    def writer(stdin):
         with open(path, "w") as f:
-            f.write(process_input)
+            f.write(stdin)
             return ""
     return writer
 
 def process(args):
-    def process(process_input):
+    def process(stdin):
         p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        (stdout, stderr) = p.communicate(process_input)
+        (stdout, stderr) = p.communicate(stdin)
         if p.returncode != 0:
             raise Exception("process failed")
         return stdout
@@ -34,12 +34,19 @@ def process(args):
 >>>
 
 compiler Pipeline {
-  Program  = Pipeline:x space end         { @$RUNTIME$ .. x @x"('')" };
-  Pipeline = sepBy(Command, space '|'):xs { xs # " = pipeline([" @$", ".join(xs.value())$ "])" . -> @ };
-  Command  = '#read'  Argument:x          {    # " = reader("  @$repr(x.value())$  ")"         . -> @ }
-           | '#write' Argument:x          {    # " = writer("  @$repr(x.value())$  ")"         . -> @ }
-           | *Argument:xs                 {    # " = process(" @$repr(xs.value())$ ")"         . -> @ }
-           ;
-  Argument = char:x *char:xs { -> $"".join([x.value()]+xs.value())$ };
-  char     = !('\n' | '\t' | ' ' | '|') any;
+  Program
+    = Pipeline:x space end    { @$RUNTIME$ .. x @x"('')" };
+  Pipeline
+    = sepBy(Command, Pipe):xs { xs # " = pipeline([" @$", ".join(xs.value())$ "])" . -> @ };
+  Command
+    = '#read'  Argument:x     {    # " = reader("  @$repr(x.value())$  ")"         . -> @ }
+    | '#write' Argument:x     {    # " = writer("  @$repr(x.value())$  ")"         . -> @ }
+    | *Argument:xs            {    # " = process(" @$repr(xs.value())$ ")"         . -> @ }
+    ;
+  Pipe
+    = '|';
+  Argument
+    = char:x *char:xs { -> $"".join([x.value()]+xs.value())$ };
+  char
+    = !('\n' | '\t' | ' ' | '|') any;
 }
