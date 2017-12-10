@@ -365,6 +365,13 @@ def main():
     b.make(src("76"), pycompiler("101"), pyout("102"), [
         "",
     ])
+    # Clean up semantic action context
+    b.make(src("77"), pycompiler("102"), pyout("103"), [
+        "",
+    ])
+    b.make(src("77"), pycompiler("103"), pyout("104"), [
+        "",
+    ])
     # TODO: Remove need for @ in dollar string output
     # TODO: Memoize results? Speed up PEG & more elegant solution?
     # TODO: Split parsing and code generation?
