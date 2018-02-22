@@ -25,6 +25,7 @@ rules isBuildTargetWebserver = do
     rulesTags                              isBuildTargetWebserver tags
     rulesFeeds                             isBuildTargetWebserver
     rulesPageIndexHtmlTemplate             isBuildTargetWebserver
+    rulesPageIndexHtml                     isBuildTargetWebserver
     rulesPageIndexHtmlTemplateWithoutTitle isBuildTargetWebserver
     rulesPageIndexPandoc                   isBuildTargetWebserver
     rulesPageIndexPandocTemplate           isBuildTargetWebserver tags
@@ -112,6 +113,17 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
             compile $ getResourceBody
                 >>= applyAsTemplate context
                 >>= loadAndApplyTemplate "templates/title.html" context
+                >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
+
+rulesPageIndexHtml :: Bool -> Rules ()
+rulesPageIndexHtml isBuildTargetWebserver = do
+    match "projects/rliterate/index.html" $
+        process $ contextRecentPosts isBuildTargetWebserver
+    where
+        process context = do
+            route idRoute
+            compile $ getResourceBody
                 >>= loadAndApplyTemplate "templates/default.html" context
                 >>= processUrls isBuildTargetWebserver
 
