@@ -13,6 +13,7 @@ setup_dirs() {
     book_folder=$src_repo_dir/projects/rliterate/book
     tmp_dir=$(mktemp -d)
     trap remove_tmp_dir EXIT
+    rliterate_dir=$tmp_dir/rliterate
 }
 
 remove_tmp_dir() {
@@ -33,7 +34,7 @@ echo_book() {
     echo "title: RLiterate"
     echo "---"
     echo ""
-    cat $tmp_dir/rliterate/README.md
+    python $rliterate_dir/rliterate.py $rliterate_dir/rliterate.rliterate --html
 }
 
 main
