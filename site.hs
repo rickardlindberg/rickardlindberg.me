@@ -107,6 +107,8 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
         process $ contextRelatedPosts isBuildTargetWebserver "timeline"
     match "projects/rlselect/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "rlselect"
+    match "projects/rliterate/index.html" $
+        process $ contextRelatedPosts isBuildTargetWebserver "rliterate"
     where
         process context = do
             route idRoute
@@ -118,7 +120,7 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
 
 rulesPageIndexHtml :: Bool -> Rules ()
 rulesPageIndexHtml isBuildTargetWebserver = do
-    match "projects/rliterate/index.html" $
+    match "projects/rliterate/book/index.html" $
         process $ contextRecentPosts isBuildTargetWebserver
     where
         process context = do
