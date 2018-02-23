@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+main() {
+    setup_dirs
+    clone_rliterate
+    import_rliterate
+}
+
+setup_dirs() {
+    src_repo_dir=$(cd $(dirname $0)/.. > /dev/null && pwd)
+    book_folder=$src_repo_dir/projects/rliterate/book
+    tmp_dir=$(mktemp -d)
+    trap remove_tmp_dir EXIT
+}
+
+remove_tmp_dir() {
+    rm -rf $tmp_dir
+}
+
+clone_rliterate() {
+    cd $tmp_dir
+    git clone git@github.com:rickardlindberg/rliterate.git
+}
+
+import_rliterate() {
+    echo_book > $book_folder/index.html
+}
+
+echo_book() {
+    echo "---"
+    echo "title: RLiterate"
+    echo "---"
+    echo ""
+    cat $tmp_dir/rliterate/README.md
+}
+
+main
