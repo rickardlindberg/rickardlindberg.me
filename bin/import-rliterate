@@ -23,6 +23,8 @@ remove_tmp_dir() {
 clone_rliterate() {
     cd $tmp_dir
     git clone git@github.com:rickardlindberg/rliterate.git
+    cd rliterate
+    git_hash=$(git rev-parse HEAD)
 }
 
 import_rliterate() {
@@ -35,6 +37,8 @@ echo_book() {
     echo "---"
     echo ""
     python $rliterate_dir/rliterate.py $rliterate_dir/rliterate.rliterate --html
+    echo "<hr>"
+    echo "<p><i>Generated from <a href=\"https://github.com/rickardlindberg/rliterate/commit/$git_hash\">$git_hash</a>.</i></p>"
 }
 
 main
