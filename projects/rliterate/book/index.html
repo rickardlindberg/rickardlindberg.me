@@ -4,8 +4,7 @@ title: RLiterate
 
 <h1>RLiterate</h1>
 
-<p>RLiterate is a tool for reading and authoring documents. Documents have pages organized in a hierarchy. Pages have a title and paragraphs. Paragraphs can be of different types. The different paragraph types is what make RLiterate documents special. Code paragraphs for example enable literate programming by allowing chunks of code to be defined and then be automatically assembled into the final source file. Text paragraphs are used for writing prose. RLiterate documents can also be exported to different formats for display in different mediums.
-</p>
+<p>RLiterate is a tool for reading and authoring documents. Documents have pages organized in a hierarchy. Pages have a title and paragraphs. Paragraphs can be of different types. The different paragraph types is what make RLiterate documents special. Code paragraphs for example enable literate programming by allowing chunks of code to be defined and then be automatically assembled into the final source file. Text paragraphs are used for writing prose. RLiterate documents can also be exported to different formats for display in different mediums.</p>
 
 <p>This book explains RLiterate and also includes the complete implementation of the program.</p>
 
@@ -53,8 +52,7 @@ Background</h2>
 
 The prototype</h3>
 
-<p>So I decided to build a prototype to learn what such a tool might be like.
-</p>
+<p>So I decided to build a prototype to learn what such a tool might be like.</p>
 
 <p>First I came up with a document model where pages were organized in a hierarchy and where each page had paragraphs that could be of different types. This idea was stolen from <a href="https://en.wikipedia.org/wiki/Smallest_Federated_Wiki">Smallest Federated Wiki</a>. The code paragraph would allow for literate programming. I also envisioned other paragraph types that would allow for more interaction. Perhaps one paragraph type could be <a href="http://graphviz.org/">Graphviz</a> code, and when edited, a generated graph would appear instead of the code.</p>
 
@@ -66,17 +64,19 @@ The prototype</h3>
 
 Why literate programming?</h3>
 
-<p>To me, the most central idea in literate programming is that we should write programs for other humans. Only secondary for the machine. I find code easier to understand if I can understand it in isolated pieces. One example where it is difficult to isolate a piece without literate programming is test code. Usually the test code is located in one file, and the implementation in another. To fully understand the piece it is useful to both read the tests and the implementation. To do this we have to find this related information in two unrelated files. I wrote about this problem in 2003 in <a href="http://rickardlindberg.me/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/">Related things are not kept together</a>. Literate programming allows us to present the test and the implementation in the same place, yet have the different pieces written to different files. The compiler might require that they are in separate files, but with literate programming, we care first about the other human that will read our code, and only second about the compiler.</p>
+<p>To me, the most central idea in literate programming is that we should write programs for other humans. Only secondary for the machine. I find code easier to understand if I can understand it in isolated pieces. One example where it is difficult to isolate a piece without literate programming is test code. Usually the test code is located in one file, and the implementation in another. To fully understand the piece it is useful to both read the tests and the implementation. To do this we have to find this related information in two unrelated files. I wrote about this problem in 2013 in <a href="http://rickardlindberg.me/writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/">Related things are not kept together</a>. Literate programming allows us to present the test and the implementation in the same place, yet have the different pieces written to different files. The compiler might require that they are in separate files, but with literate programming, we care first about the other human that will read our code, and only second about the compiler.</p>
 
-<p>Another argument for literate programming is to express the "why". Why is this code here? Timothy Daly talks about it in his talk <a href="https://www.youtube.com/watch?v=Av0PQDVTP4A">Literate Programming in the Large</a>. He also argues that programmers must change the mindset from wring a program to writing a book. Some more can be read here: http://axiom-developer.org/axiom-website/litprog.html.</p>
+<p>Another argument for literate programming is to express the "why". Why is this code here? Timothy Daly talks about it in his talk <a href="https://www.youtube.com/watch?v=Av0PQDVTP4A">Literate Programming in the Large</a>. He also argues that programmers must change the mindset from wring a program to writing a book. Some more can be read here: <a href="http://axiom-developer.org/axiom-website/litprog.html">http://axiom-developer.org/axiom-website/litprog.html</a>.</p>
 
 <p>Some more resources about literate programming:</p>
 
-<ul><li>https://www.youtube.com/watch?v=5V1ynVyud4M   "Eve" by Chris Granger </li>
+<ul><li><a href="https://www.youtube.com/watch?v=5V1ynVyud4M">"Eve" by Chris Granger</a></li>
 
-<li>http://eve-lang.com/deepdives/literate.html </li>
+<li><a href="http://eve-lang.com/deepdives/literate.html">http://eve-lang.com/deepdives/literate.html</a></li>
 
-<li>https://software-carpentry.org/blog/2011/03/literate-programming.html</li>
+<li><a href="https://software-carpentry.org/blog/2011/03/literate-programming.html">https://software-carpentry.org/blog/2011/03/literate-programming.html</a></li>
+
+<li><a href="http://akkartik.name/post/literate-programming">http://akkartik.name/post/literate-programming</a></li>
 
 </ul>
 
@@ -84,8 +84,7 @@ Why literate programming?</h3>
 
 Similar tools</h3>
 
-<p>I stumbled across <a href="http://projectured.org/">ProjecturED</a>. It is similar to RLiterate in the sense that it is an editor for richer documents. Not just text. The most interesting aspect for me is that a variable name exists in one place, but can be rendered in multiple. So a rename is really simple. With RLiterate, you have to do a search and replace. But with ProjecturED you just change the name and it replicates everywhere. This is an attractive feature and is made possible by the different document model. Probably RLiterate can never support that because a completely different approach needs to be taken, but it is an interesting project to investigate further.
-</p>
+<p>I stumbled across <a href="http://projectured.org/">ProjecturED</a>. It is similar to RLiterate in the sense that it is an editor for richer documents. Not just text. The most interesting aspect for me is that a variable name exists in one place, but can be rendered in multiple. So a rename is really simple. With RLiterate, you have to do a search and replace. But with ProjecturED you just change the name and it replicates everywhere. This is an attractive feature and is made possible by the different document model. Probably RLiterate can never support that because a completely different approach needs to be taken, but it is an interesting project to investigate further.</p>
 
 <h2><a name="4d689acb540d40ecb8b828701bb5bf74"></a>
 
@@ -895,7 +894,7 @@ Workspace</h4>
 </span><span class="">            </span><span class="bp">self</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="n">parent</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="n">value</span><span class="o">=</span><span class="n">paragraph</span><span class="o">.</span><span class="n">text</span><span class="p">,</span><span class="">
-</span><span class="">            </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="nb">min</span><span class="p">(</span><span class="n">MAX_EDITOR_HEIHGT</span><span class="p">,</span><span class=""> </span><span class="n">view</span><span class="o">.</span><span class="n">Size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="">
+</span><span class="">            </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="n">view</span><span class="o">.</span><span class="n">Size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">project</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">paragraph</span><span class="">
@@ -1133,7 +1132,7 @@ Workspace</h4>
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">MultilineTextCtrl</span><span class="p">(</span><span class="">
 </span><span class="">            </span><span class="bp">self</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="n">value</span><span class="o">=</span><span class="n">paragraph</span><span class="o">.</span><span class="n">text</span><span class="p">,</span><span class="">
-</span><span class="">            </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="nb">min</span><span class="p">(</span><span class="n">MAX_EDITOR_HEIHGT</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">Size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="">
+</span><span class="">            </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">Size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="">
 </span><span class="">
@@ -1598,7 +1597,7 @@ wxPython utilities</h4>
 
 <h5>Scrolling containers</h5>
 
-<p>The default scrolling window gives extra space. See https://stackoverflow.com/a/22817659. This custom control sovles this problem.</p>
+<p>The default scrolling window gives extra space. See <a href="https://stackoverflow.com/a/22817659">https://stackoverflow.com/a/22817659</a>. This custom control solves this problem.</p>
 
 <p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
 
@@ -1675,7 +1674,6 @@ Constants</h4>
 </span><span class="n">SHADOW_SIZE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">2</span><span class="">
 </span><span class="n">PARAGRAPH_SPACE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">15</span><span class="">
 </span><span class="n">CONTAINER_BORDER</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">PARAGRAPH_SPACE</span><span class="">
-</span><span class="n">MAX_EDITOR_HEIHGT</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">300</span><span class="">
 </span></pre></div>
 
 <h3><a name="276ff8047f7e46dea723c1822078ac26"></a>
@@ -1907,6 +1905,7 @@ Views</h4>
 </span><span class="">
 </span><span class="">    </span><span class="nd">@staticmethod</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">parse</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">        </span><span class="n">text</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">DictTextParagraph</span><span class="o">.</span><span class="n">normalise_space</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="n">fragments</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="">
 </span><span class="">        </span><span class="n">partial</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="s2">"</span><span class="s2">"</span><span class="">
 </span><span class="">        </span><span class="k">while</span><span class=""> </span><span class="n">text</span><span class="p">:</span><span class="">
@@ -1924,6 +1923,12 @@ Views</h4>
 </span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">partial</span><span class="p">:</span><span class="">
 </span><span class="">            </span><span class="n">fragments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Fragment</span><span class="p">(</span><span class="n">partial</span><span class="p">)</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">fragments</span><span class="">
+</span><span class="">
+</span><span class="">    </span><span class="n">SPACE_RE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"</span><span class="s2">\</span><span class="s2">s+</span><span class="s2">"</span><span class="p">)</span><span class="">
+</span><span class="">
+</span><span class="">    </span><span class="nd">@staticmethod</span><span class="">
+</span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">normalise_space</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">DictTextParagraph</span><span class="o">.</span><span class="n">SPACE_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">"</span><span class="s2"> </span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">PATTERNS</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">[</span><span class="">
 </span><span class="">        </span><span class="p">(</span><span class="">
@@ -1948,9 +1953,9 @@ Views</h4>
 </span><span class="">            </span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="p">)</span><span class="p">,</span><span class="">
 </span><span class="">        </span><span class="p">(</span><span class="">
-</span><span class="">            </span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"</span><span class="s2">\</span><span class="s2">[(.+?)</span><span class="s2">\</span><span class="s2">]</span><span class="s2">\</span><span class="s2">((.+?)</span><span class="s2">\</span><span class="s2">)</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span><span class="p">,</span><span class="">
+</span><span class="">            </span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"</span><span class="s2">\</span><span class="s2">[(.*?)</span><span class="s2">\</span><span class="s2">]</span><span class="s2">\</span><span class="s2">((.+?)</span><span class="s2">\</span><span class="s2">)</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="k">lambda</span><span class=""> </span><span class="n">match</span><span class="p">:</span><span class=""> </span><span class="n">Fragment</span><span class="p">(</span><span class="">
-</span><span class="">                </span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span><span class="">
+</span><span class="">                </span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class=""> </span><span class="ow">or</span><span class=""> </span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="p">,</span><span class="">
 </span><span class="">                </span><span class="n">token</span><span class="o">=</span><span class="n">Token</span><span class="o">.</span><span class="n">RLiterate</span><span class="o">.</span><span class="n">Link</span><span class="p">,</span><span class="">
 </span><span class="">                </span><span class="n">url</span><span class="o">=</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="">
 </span><span class="">            </span><span class="p">)</span><span class="">
@@ -2275,7 +2280,7 @@ Themes</h3>
 </span><span class="">        </span><span class="n">dc</span><span class="o">.</span><span class="n">SetTextForeground</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color_rgb</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p>Here is a theme based on solarized. Mostly stolen from https://github.com/honza/solarized-pygments/blob/master/solarized.py.</p>
+<p>Here is a theme based on solarized. Mostly stolen from <a href="https://github.com/honza/solarized-pygments/blob/master/solarized.py">https://github.com/honza/solarized-pygments/blob/master/solarized.py</a>.</p>
 
 <p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
 
@@ -2909,14 +2914,14 @@ Diffing</h3>
 
 <p>First associate <code>*.rliterate</code> files with <code>rliterate</code>. This file gos into your repository.</p>
 
-<p><code>.gitattributes</code></p>
+<p><code>&lt;&lt;$HOME/.config/git/attributes&gt;&gt;</code></p>
 
 <div class="highlight"><pre><span class="">*.rliterate diff=rliterate
 </span></pre></div>
 
 <p>Then define the <code>textconv</code> command in your git config:</p>
 
-<p><code>&lt;&lt;.gitconfig&gt;&gt;</code></p>
+<p><code>&lt;&lt;$HOME/.gitconfig&gt;&gt;</code></p>
 
 <div class="highlight"><pre><span class="">[diff "rliterate"]
       textconv=bash -c 'python $RLITERATE_ROOT/rliterate.py "$0" --diff'
@@ -2929,6 +2934,8 @@ Things I learned</h2>
 <p>DoDragDrop must be called from within an event handler.</p>
 
 <p>Font must be assigned before setting a label, otherwise size calculations will be wrong? Must investigate further.</p>
+
+<p>sizer.AddSpacer adding space in both directions</p>
 
 <h2><a name="0a165f3042ee4350b9bebb61213b44c5"></a>
 
@@ -3012,15 +3019,17 @@ TODO</h2>
 
 <li>Right click should only be generated on up if first down</li>
 
-<li>Workspace should not be wider that a column, that creates an unnecessary scrollbar</li>
-
 <li>Literate programming treats any target programming language as an assembly language</li>
 
 <li>TOC should only expand first 3(?) levels when opening a file for the first time</li>
 
 <li>Deleting root (even hoisted root) gives error</li>
 
-<li>Reading tool: Code can either be read in chunks or the final output. And you can follow links between them.</li>
+<li>Reading tool<ul><li>Code can either be read in chunks or the final output. And you can follow links between them.</li>
+
+</ul>
+
+</li>
 
 <li>Undo (use immutable data types (pyrsistent?))</li>
 
@@ -3032,8 +3041,6 @@ TODO</h2>
 
 <li><code>word_split</code> should put white space in separate fragment and rich text display should have <code>skip_leading_space</code> option</li>
 
-<li>Export to stand-alone html for use in blog</li>
-
 <li>Drag and drop does not work om Mac (incorrect coordinate calculations?)</li>
 
 <li>Dynamic scripting<ul><li>Show graph paragraph based on data paragraph defined earlier on the page (or on other page)</li>
@@ -3044,13 +3051,31 @@ TODO</h2>
 
 <li>Editors: highlight the word/fragment that is double clicked</li>
 
-<li>Paragraph editor has comment: extract comment to prose</li>
-
 <li>List code is messy</li>
 
-<li>Iternal links</li>
+<li>Support iternal links<ul><li>Create links between pages paragraph view &lt;-&gt; paragraph widget</li>
+
+</ul>
+
+</li>
+
+<li>Make intro shorter and move what is there to "tour" chapter.</li>
+
+<li>Make hoisted page a property</li>
+
+<li>Constants for border calculations are tricky. Especially calculation of page width. How to make simpler?</li>
+
+<li>Handle sizer code with helper to make it cleaner?</li>
+
+<li>Picture paragraph type</li>
+
+<li>Create more wx utility widgets to remove cruft. SingleLineTextCtrl for title?</li>
+
+<li>Only open code body editor when double clicked?</li>
+
+<li>Clean up TODO so that I know what it means one year from now.</li>
 
 </ul>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/88ac5316e63d85e914c2eb510d7540d3acc2aef2">88ac5316e63d85e914c2eb510d7540d3acc2aef2</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/10a8524f280db4e10547904bbc254b3e77d6df10">10a8524f280db4e10547904bbc254b3e77d6df10</a>.</i></p>
