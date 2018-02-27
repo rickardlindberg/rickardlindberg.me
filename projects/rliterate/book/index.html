@@ -104,9 +104,9 @@ Main frame</h4>
 
 <p>The main frame lays out two widgets horizontally: the table of contents and the workspace. It also creates the project from the specified file path.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">MainFrame</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Frame</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">MainFrame</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Frame</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">filepath</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">None</span><span class="p">)</span><span class="">
@@ -129,15 +129,15 @@ Table of contents</h4>
 
 <p>The main table of contents widget listens for changes to a project (only events related to changes in the document and the layout of the table of contents) and then re-renders itself.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContents</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContents</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="o">&lt;&lt;</span><span class="n">TableOfContents</span><span class="o">&gt;&gt;</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span><span class=""> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">project_listener</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">Listener</span><span class="p">(</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render_from_event</span><span class="p">,</span><span class="">
@@ -154,9 +154,9 @@ Table of contents</h4>
 
 <p>This seems to be needed for some reason:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_re_render_from_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_re_render_from_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">wx</span><span class="o">.</span><span class="n">CallAfter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">)</span><span class="">
 </span></pre></div>
 
@@ -164,9 +164,9 @@ Table of contents</h4>
 
 <p>The table of contents widget lays out two components in a vertical container: the unhoist button and the page container.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class=""> </span><span class="mi">255</span><span class="p">,</span><span class=""> </span><span class="mi">255</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -182,9 +182,9 @@ Table of contents</h4>
 
 <p>The unhoist button (only shown if a page has been hoisted):</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render_unhoist_button</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render_unhoist_button</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_hoisted_page</span><span class="p">(</span><span class="p">)</span><span class=""> </span><span class="ow">is</span><span class=""> </span><span class="ow">not</span><span class=""> </span><span class="bp">None</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">button</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">label</span><span class="o">=</span><span class="s2">"</span><span class="s2">unhoist</span><span class="s2">"</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="n">button</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="">
@@ -196,9 +196,9 @@ Table of contents</h4>
 
 <p>The page container is a scrolling container that contains a set of rows representing pages. Each row is appropriately intendent to create the illusion of a tree.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render_page_container</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render_page_container</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">page_sizer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">page_container</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">CompactScrolledWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">page_container</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">page_sizer</span><span class="p">)</span><span class="">
@@ -238,9 +238,9 @@ Table of contents</h4>
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">divider</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsDropPoint</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsDropPoint</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">divider</span><span class="p">,</span><span class=""> </span><span class="n">indentation</span><span class="p">,</span><span class=""> </span><span class="n">parent_page_id</span><span class="p">,</span><span class=""> </span><span class="n">before_page_id</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">divider</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">divider</span><span class="">
@@ -272,14 +272,14 @@ Table of contents</h4>
 
 <p>Inside the table of contents, pages can be dragged and drop. The drag is initiated in the row widget and handled in the table of contents widget.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">SetDropTarget</span><span class="p">(</span><span class="n">TableOfContentsDropTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">SetDropTarget</span><span class="p">(</span><span class="n">TableOfContentsDropTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsDropTarget</span><span class="p">(</span><span class="n">DropPointDropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsDropTarget</span><span class="p">(</span><span class="n">DropPointDropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">toc</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">DropPointDropTarget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">toc</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">page</span><span class="s2">"</span><span class="p">)</span><span class="">
@@ -295,9 +295,9 @@ Table of contents</h4>
 
 <p>The DropPointDropTarget requires FindClosestDropPoint to be defined on the target object. Here it is:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">client_pos</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">page_container</span><span class="o">.</span><span class="n">ScreenToClient</span><span class="p">(</span><span class="n">screen_pos</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">page_container</span><span class="o">.</span><span class="n">HitTest</span><span class="p">(</span><span class="n">client_pos</span><span class="p">)</span><span class=""> </span><span class="o">==</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">HT_WINDOW_INSIDE</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">scroll_pos</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">(</span><span class="n">scroll_x</span><span class="p">,</span><span class=""> </span><span class="n">scroll_y</span><span class="p">)</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">page_container</span><span class="o">.</span><span class="n">CalcUnscrolledPosition</span><span class="p">(</span><span class="n">client_pos</span><span class="p">)</span><span class="">
@@ -315,9 +315,9 @@ Table of contents</h4>
 
 <p>The row widget renders the page title at the appropriate indentation. If the page has children, an expand/collapse widget is also rendered to the left of the title.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsRow</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsRow</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page</span><span class="p">,</span><span class=""> </span><span class="n">indentation</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="">
@@ -331,9 +331,9 @@ Table of contents</h4>
 
 <p>Rendering lays out expand/collapse button (if the page has children) and the page title in a horizontal sizer:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContentsRow&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContentsRow&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="n">BORDER</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">2</span><span class="">
+<div class="rliterate-code-body"><pre><span class="n">BORDER</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">2</span><span class="">
 </span><span class="n">INDENTATION_SIZE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">16</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -359,9 +359,9 @@ Table of contents</h4>
 
 <p>Event handlers:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContentsRow&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContentsRow&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_on_click</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">open_pages</span><span class="p">(</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">page</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="p">,</span><span class=""> </span><span class="n">column_index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">_on_double_click</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -392,9 +392,9 @@ Table of contents</h4>
 
 <h5>Expand/Collapse widget</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsButton</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TableOfContentsButton</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">SIZE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">16</span><span class="">
 </span><span class="">
@@ -424,9 +424,9 @@ Table of contents</h4>
 
 <h5>Page context menu</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageContextMenu</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Menu</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageContextMenu</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Menu</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Menu</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
@@ -488,15 +488,15 @@ Workspace</h4>
 
 <p>The workspace is re-rendered whenever relevant parts of the project changes.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Workspace</span><span class="p">(</span><span class="n">CompactScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Workspace</span><span class="p">(</span><span class="n">CompactScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="o">&lt;&lt;</span><span class="n">Workspace</span><span class="o">&gt;&gt;</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">CompactScrolledWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">style</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">HSCROLL</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">project_listener</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">Listener</span><span class="p">(</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render_from_event</span><span class="p">,</span><span class="">
@@ -516,9 +516,9 @@ Workspace</h4>
 
 <p>Rendering a workspace means laying out a set of column widgets horizontally. Columns are filled with page containers.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class=""> </span><span class="mi">200</span><span class="p">,</span><span class=""> </span><span class="mi">200</span><span class="p">)</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">AddSpacer</span><span class="p">(</span><span class="n">PAGE_PADDING</span><span class="p">)</span><span class="">
@@ -552,9 +552,9 @@ Workspace</h4>
 
 <p>wx.CallAfter seems to be needed to correctly update scrollbars on an event notification. Resizing the window also works.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_re_render_from_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_re_render_from_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">wx</span><span class="o">.</span><span class="n">CallAfter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">)</span><span class="">
 </span></pre></div>
 
@@ -562,14 +562,14 @@ Workspace</h4>
 
 <p>Inside a workspace, paragraphs can be dragged and dropped. The drag is handled in the paragraph widget, but the drop is handled in the workspace widget.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">SetDropTarget</span><span class="p">(</span><span class="n">WorkspaceDropTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">SetDropTarget</span><span class="p">(</span><span class="n">WorkspaceDropTarget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">)</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">WorkspaceDropTarget</span><span class="p">(</span><span class="n">DropPointDropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">WorkspaceDropTarget</span><span class="p">(</span><span class="n">DropPointDropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">workspace</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">DropPointDropTarget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">workspace</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">paragraph</span><span class="s2">"</span><span class="p">)</span><span class="">
@@ -586,9 +586,9 @@ Workspace</h4>
 
 <p>The DropPointDropTarget requires FindClosestDropPoint to be defined on the target object. Here it is:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">find_first</span><span class="p">(</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span><span class="">
 </span><span class="">        </span><span class="k">lambda</span><span class=""> </span><span class="n">column</span><span class="p">:</span><span class=""> </span><span class="n">column</span><span class="o">.</span><span class="n">FindClosestDropPoint</span><span class="p">(</span><span class="n">screen_pos</span><span class="p">)</span><span class="">
@@ -599,9 +599,9 @@ Workspace</h4>
 
 <p>The column widget is a vertical scrolling container containing page containers.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Column</span><span class="p">(</span><span class="n">CompactScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Column</span><span class="p">(</span><span class="n">CompactScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">CompactScrolledWindow</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="">
@@ -645,9 +645,9 @@ Workspace</h4>
 
 <p>The page container widget draws a box with border. Inside the box a page widget is rendered.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageContainer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageContainer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="">
@@ -682,9 +682,9 @@ Workspace</h4>
 
 <h5>Page</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Page</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Page</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="">
@@ -697,9 +697,9 @@ Workspace</h4>
 
 <h6>Rendering</h6>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Page&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Page&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">drop_points</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="">
@@ -752,9 +752,9 @@ Workspace</h4>
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">add_paragraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">page_id</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageDropPoint</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">PageDropPoint</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">divider</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">,</span><span class=""> </span><span class="n">next_paragraph_id</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">divider</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">divider</span><span class="">
@@ -773,9 +773,9 @@ Workspace</h4>
 
 <h6>Dropping paragraphs</h6>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Page&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Page&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">FindClosestDropPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">screen_pos</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">client_pos</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">(</span><span class="n">client_x</span><span class="p">,</span><span class=""> </span><span class="n">client_y</span><span class="p">)</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">ScreenToClient</span><span class="p">(</span><span class="n">screen_pos</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">HitTest</span><span class="p">(</span><span class="n">client_pos</span><span class="p">)</span><span class=""> </span><span class="o">==</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">HT_WINDOW_INSIDE</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">min_or_none</span><span class="p">(</span><span class="">
@@ -786,9 +786,9 @@ Workspace</h4>
 
 <h5>Title</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Title</span><span class="p">(</span><span class="n">Editable</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Title</span><span class="p">(</span><span class="n">Editable</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">project</span><span class="">
@@ -822,9 +822,9 @@ Workspace</h4>
 
 <h6>Text</h6>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Text</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Text</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">CreateView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">TextView</span><span class="p">(</span><span class="">
@@ -845,9 +845,9 @@ Workspace</h4>
 
 <p>The view:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TextView</span><span class="p">(</span><span class="n">RichTextDisplay</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TextView</span><span class="p">(</span><span class="n">RichTextDisplay</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">fragments</span><span class="p">,</span><span class=""> </span><span class="n">base</span><span class="p">,</span><span class=""> </span><span class="n">indented</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">RichTextDisplay</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="">
@@ -885,9 +885,9 @@ Workspace</h4>
 
 <p>The editor:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">TextEdit</span><span class="p">(</span><span class="n">MultilineTextCtrl</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">TextEdit</span><span class="p">(</span><span class="n">MultilineTextCtrl</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">paragraph</span><span class="p">,</span><span class=""> </span><span class="n">view</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">MultilineTextCtrl</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="">
@@ -919,9 +919,9 @@ Workspace</h4>
 
 <p>A quote paragraph is the same as a text paragraph but the view is rendered indented.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Quote</span><span class="p">(</span><span class="n">Text</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Quote</span><span class="p">(</span><span class="n">Text</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">INDENT</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">20</span><span class="">
 </span><span class="">
@@ -948,9 +948,9 @@ Workspace</h4>
 
 <p>A list paragraph is the same as a text paragraph but renders differently. With bullets and indentation.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">List</span><span class="p">(</span><span class="n">Text</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">List</span><span class="p">(</span><span class="n">Text</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">INDENT</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">20</span><span class="">
 </span><span class="">
@@ -996,9 +996,9 @@ Workspace</h4>
 
 <h6>Code</h6>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Code</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Code</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">CreateView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">CodeView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="p">)</span><span class="">
@@ -1009,9 +1009,9 @@ Workspace</h4>
 
 <p>The view:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">CodeView</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">CodeView</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">BORDER</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">0</span><span class="">
 </span><span class="">    </span><span class="n">PADDING</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">5</span><span class="">
@@ -1022,10 +1022,11 @@ Workspace</h4>
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">base</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">Font</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">create_font</span><span class="p">(</span><span class="n">monospace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">vsizer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class="">
-</span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">vsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="">
-</span><span class="">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_create_path</span><span class="p">(</span><span class="n">paragraph</span><span class="p">)</span><span class="p">,</span><span class="">
-</span><span class="">            </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class=""> </span><span class="n">border</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BORDER</span><span class="">
-</span><span class="">        </span><span class="p">)</span><span class="">
+</span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">paragraph</span><span class="o">.</span><span class="n">has_path</span><span class="p">:</span><span class="">
+</span><span class="">            </span><span class="bp">self</span><span class="o">.</span><span class="n">vsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="">
+</span><span class="">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_create_path</span><span class="p">(</span><span class="n">paragraph</span><span class="p">)</span><span class="p">,</span><span class="">
+</span><span class="">                </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">ALL</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class=""> </span><span class="n">border</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BORDER</span><span class="">
+</span><span class="">            </span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">vsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="">
 </span><span class="">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_create_code</span><span class="p">(</span><span class="n">paragraph</span><span class="p">)</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">LEFT</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">BOTTOM</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">RIGHT</span><span class="o">|</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class=""> </span><span class="n">border</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BORDER</span><span class="">
@@ -1080,9 +1081,9 @@ Workspace</h4>
 </span><span class="">        </span><span class="n">post_edit_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">insert_between</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span><span class=""> </span><span class="n">items</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">insert_between</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span><span class=""> </span><span class="n">items</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">result</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="">
 </span><span class="">    </span><span class="k">for</span><span class=""> </span><span class="n">i</span><span class="p">,</span><span class=""> </span><span class="n">item</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">i</span><span class=""> </span><span class="o">&gt;</span><span class=""> </span><span class="mi">0</span><span class="p">:</span><span class="">
@@ -1093,9 +1094,9 @@ Workspace</h4>
 
 <p>The editor:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">CodeEditor</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">CodeEditor</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">BORDER</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">1</span><span class="">
 </span><span class="">    </span><span class="n">PADDING</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">3</span><span class="">
@@ -1155,9 +1156,9 @@ Workspace</h4>
 
 <p>A factory can not be edited, so only the view is provided.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Factory</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Factory</span><span class="p">(</span><span class="n">ParagraphBase</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">CreateView</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">view</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
@@ -1204,9 +1205,9 @@ Workspace</h4>
 
 <h6>Paragraph base</h6>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">ParagraphBase</span><span class="p">(</span><span class="n">Editable</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">ParagraphBase</span><span class="p">(</span><span class="n">Editable</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">,</span><span class=""> </span><span class="n">paragraph</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">project</span><span class="">
@@ -1268,9 +1269,9 @@ Workspace</h4>
 </span><span class="">        </span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">ParagraphContextMenu</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Menu</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">ParagraphContextMenu</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Menu</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">AppendItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">text</span><span class="p">,</span><span class=""> </span><span class="n">fn</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="">
@@ -1286,9 +1287,9 @@ Workspace</h4>
 
 <p>This class should be inherited, and the <code>CreateView</code> method should be implemented. <code>CreateEdit</code> must also be inherited if <code>EditStart</code> events are expected.</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes 1&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes 1&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Editable</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Editable</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="">
@@ -1306,14 +1307,14 @@ Workspace</h4>
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">GetTopLevelParent</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;constants&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;constants&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="n">EditStart</span><span class="p">,</span><span class=""> </span><span class="n">EVT_EDIT_START</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">newevent</span><span class="o">.</span><span class="n">NewCommandEvent</span><span class="p">(</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="n">EditStart</span><span class="p">,</span><span class=""> </span><span class="n">EVT_EDIT_START</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">newevent</span><span class="o">.</span><span class="n">NewCommandEvent</span><span class="p">(</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">post_edit_start</span><span class="p">(</span><span class="n">control</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">post_edit_start</span><span class="p">(</span><span class="n">control</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">wx</span><span class="o">.</span><span class="n">PostEvent</span><span class="p">(</span><span class="n">control</span><span class="p">,</span><span class=""> </span><span class="n">EditStart</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="p">)</span><span class="">
 </span></pre></div>
 
@@ -1323,9 +1324,9 @@ Drag &amp; drop</h4>
 
 <h5>RLiterate data object</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">RliterateDataObject</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">CustomDataObject</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">RliterateDataObject</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">CustomDataObject</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">kind</span><span class="p">,</span><span class=""> </span><span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">CustomDataObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">rliterate/{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -1343,9 +1344,9 @@ Drag &amp; drop</h4>
 
 <p>A drop target that can work with windows that supports FindClosestDropPoint.</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DropPointDropTarget</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">DropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DropPointDropTarget</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">DropTarget</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">window</span><span class="p">,</span><span class=""> </span><span class="n">kind</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">DropTarget</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
@@ -1386,9 +1387,9 @@ Drag &amp; drop</h4>
 
 <h5>Divider</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Divider</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Divider</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class=""> </span><span class="n">height</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="n">height</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">padding</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -1420,9 +1421,9 @@ wxPython utilities</h4>
 
 <h5>Mouse event helper</h5>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">MouseEventHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">MouseEventHelper</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@classmethod</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">bind</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class=""> </span><span class="n">windows</span><span class="p">,</span><span class=""> </span><span class="n">drag</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class=""> </span><span class="n">click</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class=""> </span><span class="n">right_click</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class="">
@@ -1498,15 +1499,15 @@ wxPython utilities</h4>
 
 <p>The rich text display widget displayes styled text fragments. It does so by drawing text on a DC.</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">RichTextDisplay</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">RichTextDisplay</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="o">&lt;&lt;</span><span class="n">RichTextDisplay</span><span class="o">&gt;&gt;</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">fragments</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">,</span><span class=""> </span><span class="n">project</span><span class="p">,</span><span class=""> </span><span class="n">fragments</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">wx</span><span class="o">.</span><span class="n">Panel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">parent</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">project</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">fragments</span><span class="">
@@ -1517,14 +1518,14 @@ wxPython utilities</h4>
 
 <p>First, the text fragment positions are calculated. For that a DC is needed. But the positions need to be calculated before we can draw on the panel, so a temporary memory DC is created.</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_set_fragments</span><span class="p">(</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_set_fragments</span><span class="p">(</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_set_fragments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_set_fragments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">dc</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">MemoryDC</span><span class="p">(</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="n">dc</span><span class="o">.</span><span class="n">SetFont</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetFont</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="n">dc</span><span class="o">.</span><span class="n">SelectObject</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EmptyBitmap</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -1571,14 +1572,14 @@ wxPython utilities</h4>
 
 <p>Drawing the rich text is just a matter of drawing all fragments at the pre-calculated positions:</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_PAINT</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_on_paint</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_PAINT</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_on_paint</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">_on_paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">_on_paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">dc</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">wx</span><span class="o">.</span><span class="n">PaintDC</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="k">for</span><span class=""> </span><span class="n">fragment</span><span class="p">,</span><span class=""> </span><span class="n">style</span><span class="p">,</span><span class=""> </span><span class="n">box</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">draw_fragments</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">style</span><span class="o">.</span><span class="n">apply_to_wx_dc</span><span class="p">(</span><span class="n">dc</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">GetFont</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -1587,9 +1588,9 @@ wxPython utilities</h4>
 
 <p>Some mouse move action:</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt; / &lt;&lt;RichTextDisplay&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">GetFragment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">position</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">GetFragment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">position</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">for</span><span class=""> </span><span class="n">fragment</span><span class="p">,</span><span class=""> </span><span class="n">style</span><span class="p">,</span><span class=""> </span><span class="n">box</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">draw_fragments</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">box</span><span class="o">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">position</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">            </span><span class="k">return</span><span class=""> </span><span class="n">fragment</span><span class="">
@@ -1599,9 +1600,9 @@ wxPython utilities</h4>
 
 <p>The default scrolling window gives extra space. See <a href="https://stackoverflow.com/a/22817659">https://stackoverflow.com/a/22817659</a>. This custom control solves this problem.</p>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">CompactScrolledWindow</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">CompactScrolledWindow</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">MIN_WIDTH</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">200</span><span class="">
 </span><span class="">    </span><span class="n">MIN_HEIGHT</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">200</span><span class="">
@@ -1641,9 +1642,9 @@ wxPython utilities</h4>
 
 <h5>Multiline text control</h5>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">MultilineTextCtrl</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">TextCtrl</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">MultilineTextCtrl</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">TextCtrl</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">MIN_HEIGHT</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">50</span><span class="">
 </span><span class="">
@@ -1667,9 +1668,9 @@ wxPython utilities</h4>
 
 Constants</h4>
 
-<p><code>rliterate.py / &lt;&lt;constants&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;constants&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="n">PAGE_BODY_WIDTH</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">600</span><span class="">
+<div class="rliterate-code-body"><pre><span class="n">PAGE_BODY_WIDTH</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">600</span><span class="">
 </span><span class="n">PAGE_PADDING</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">13</span><span class="">
 </span><span class="n">SHADOW_SIZE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">2</span><span class="">
 </span><span class="n">PARAGRAPH_SPACE</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">15</span><span class="">
@@ -1684,9 +1685,9 @@ Document model</h3>
 
 Document</h4>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Document</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Document</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@classmethod</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span><span class=""> </span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -1819,9 +1820,9 @@ Views</h4>
 
 <p>Views provide a read only interface to a document. It is the only way to query a document.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Document&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Document&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="n">page_id</span><span class=""> </span><span class="ow">is</span><span class=""> </span><span class="bp">None</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">page_id</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">root_page</span><span class="p">[</span><span class="s2">"</span><span class="s2">id</span><span class="s2">"</span><span class="p">]</span><span class="">
 </span><span class="">    </span><span class="n">page_dict</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_pages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page_id</span><span class="p">,</span><span class=""> </span><span class="bp">None</span><span class="p">)</span><span class="">
@@ -1830,9 +1831,9 @@ Views</h4>
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">DictPage</span><span class="p">(</span><span class="n">page_dict</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictPage</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictPage</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_dict</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_page_dict</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">page_dict</span><span class="">
@@ -1862,9 +1863,9 @@ Views</h4>
 </span><span class="">        </span><span class="p">]</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictParagraph</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictParagraph</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@staticmethod</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">create</span><span class="p">(</span><span class="n">paragraph_dict</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -1887,9 +1888,9 @@ Views</h4>
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_paragraph_dict</span><span class="p">[</span><span class="s2">"</span><span class="s2">type</span><span class="s2">"</span><span class="p">]</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictTextParagraph</span><span class="p">(</span><span class="n">DictParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictTextParagraph</span><span class="p">(</span><span class="n">DictParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@property</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">filename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -1970,15 +1971,15 @@ Views</h4>
 </span><span class="">                </span><span class="k">return</span><span class=""> </span><span class="n">match</span><span class="p">,</span><span class=""> </span><span class="n">fn</span><span class="p">(</span><span class="n">match</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictQuoteParagraph</span><span class="p">(</span><span class="n">DictTextParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictQuoteParagraph</span><span class="p">(</span><span class="n">DictTextParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">pass</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictListParagraph</span><span class="p">(</span><span class="n">DictTextParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictListParagraph</span><span class="p">(</span><span class="n">DictTextParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@property</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">item</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2045,9 +2046,9 @@ Views</h4>
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">child_type</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">child_type</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictCodeParagraph</span><span class="p">(</span><span class="n">DictParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DictCodeParagraph</span><span class="p">(</span><span class="n">DictParagraph</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@property</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2060,6 +2061,10 @@ Views</h4>
 </span><span class="">        </span><span class="k">except</span><span class="p">:</span><span class="">
 </span><span class="">            </span><span class="n">lexer</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">pygments</span><span class="o">.</span><span class="n">lexers</span><span class="o">.</span><span class="n">TextLexer</span><span class="p">(</span><span class="n">stripnl</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_tokens_to_fragments</span><span class="p">(</span><span class="n">lexer</span><span class="o">.</span><span class="n">get_tokens</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="p">)</span><span class="">
+</span><span class="">
+</span><span class="">    </span><span class="nd">@property</span><span class="">
+</span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">has_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="nb">len</span><span class="p">(</span><span class="s2">"</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="p">)</span><span class=""> </span><span class="o">&gt;</span><span class=""> </span><span class="mi">0</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="nd">@property</span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2094,9 +2099,9 @@ Views</h4>
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">fragments</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Fragment</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Fragment</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">text</span><span class="p">,</span><span class=""> </span><span class="n">token</span><span class="o">=</span><span class="n">Token</span><span class="o">.</span><span class="n">RLiterate</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">extra</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">text</span><span class="">
@@ -2121,15 +2126,15 @@ Layouts</h3>
 
 <p>The layout is recorded in a JSON object that is serialized to disk as soon as something changes.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Layout</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Layout</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="o">&lt;&lt;</span><span class="n">Layout</span><span class="o">&gt;&gt;</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="bp">self</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="k">lambda</span><span class=""> </span><span class="n">event</span><span class="p">:</span><span class=""> </span><span class="n">write_json_to_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="p">)</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2143,14 +2148,14 @@ Layouts</h3>
 
 <p>The hoisted page is stored in <code>toc.hoisted_page_id</code>:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">toc</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">{</span><span class="p">}</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">toc</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">{</span><span class="p">}</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_hoisted_page</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_hoisted_page</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"</span><span class="s2">hoisted_page_id</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="bp">None</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">set_hoisted_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2160,14 +2165,14 @@ Layouts</h3>
 
 <p>The collapsed pages are stored in <code>toc.collapsed</code>:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_toc_collapsed</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">collapsed</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_toc_collapsed</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_toc</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">collapsed</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">is_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">is_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">page_id</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_toc_collapsed</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">toggle_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_id</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2180,15 +2185,15 @@ Layouts</h3>
 
 <p>The scratch pages are stored in <code>workspace.scratch</code>:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_workspace</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">workspace</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">{</span><span class="p">}</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_workspace</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">workspace</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">{</span><span class="p">}</span><span class="p">)</span><span class="">
 </span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_scratch</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">scratch</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_scratch_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_scratch_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_scratch</span><span class="p">[</span><span class="p">:</span><span class="p">]</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">set_scratch_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">page_ids</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2197,14 +2202,14 @@ Layouts</h3>
 
 <p>The pages displayed in the columns in the workspace are stored in <code>workspace.columns</code>:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt; / &lt;&lt;__init__&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_columns</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">columns</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="p">)</span><span class="">
+<div class="rliterate-code-body"><pre><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_columns</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">ensure_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">columns</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="p">[</span><span class="p">]</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Layout&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="nd">@property</span><span class="">
+<div class="rliterate-code-body"><pre><span class="nd">@property</span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_columns</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="p">[</span><span class="n">column</span><span class="p">[</span><span class="p">:</span><span class="p">]</span><span class=""> </span><span class="k">for</span><span class=""> </span><span class="n">column</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_workspace_columns</span><span class="p">]</span><span class="">
@@ -2220,9 +2225,9 @@ Layouts</h3>
 
 <p>Finally we have a utility function for ensuring that a specific key exists in a dictionary.</p>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">ensure_key</span><span class="p">(</span><span class="n">a_dict</span><span class="p">,</span><span class=""> </span><span class="n">key</span><span class="p">,</span><span class=""> </span><span class="n">default</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">ensure_key</span><span class="p">(</span><span class="n">a_dict</span><span class="p">,</span><span class=""> </span><span class="n">key</span><span class="p">,</span><span class=""> </span><span class="n">default</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">if</span><span class=""> </span><span class="n">key</span><span class=""> </span><span class="ow">not</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="n">a_dict</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">a_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">default</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">a_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="">
@@ -2234,9 +2239,9 @@ Themes</h3>
 
 <p>Some parts of the application can be themed. Token types from pygments denote different things that can be styled.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">BaseTheme</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">BaseTheme</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">get_style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">token_type</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">token_type</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="p">:</span><span class="">
@@ -2244,9 +2249,9 @@ Themes</h3>
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">get_style</span><span class="p">(</span><span class="n">token_type</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Style</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Style</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">color</span><span class="p">,</span><span class=""> </span><span class="n">bold</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class=""> </span><span class="n">underlined</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span><span class=""> </span><span class="n">italic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class=""> </span><span class="n">monospace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">color</span><span class="">
@@ -2282,9 +2287,9 @@ Themes</h3>
 
 <p>Here is a theme based on solarized. Mostly stolen from <a href="https://github.com/honza/solarized-pygments/blob/master/solarized.py">https://github.com/honza/solarized-pygments/blob/master/solarized.py</a>.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">SolarizedTheme</span><span class="p">(</span><span class="n">BaseTheme</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">SolarizedTheme</span><span class="p">(</span><span class="n">BaseTheme</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="n">base03</span><span class="">  </span><span class="o">=</span><span class=""> </span><span class="s2">"</span><span class="s2">#002b36</span><span class="s2">"</span><span class="">
 </span><span class="">    </span><span class="n">base02</span><span class="">  </span><span class="o">=</span><span class=""> </span><span class="s2">"</span><span class="s2">#073642</span><span class="s2">"</span><span class="">
@@ -2336,9 +2341,9 @@ Project</h3>
 
 <p>A project is a container for a few other objects:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Project</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Project</span><span class="p">(</span><span class="n">Observable</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">filepath</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="">
@@ -2354,9 +2359,9 @@ Project</h3>
 
 <p>Wrapper methods for document:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">get_page</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">add_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2386,9 +2391,9 @@ Project</h3>
 
 <p>Wrapper methods for layout:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">toggle_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">toggle_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">toggle_collapsed</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">is_collapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
@@ -2416,9 +2421,9 @@ Project</h3>
 
 <p>Wrapper for theme:</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Project&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">get_style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">get_style</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">kwargs</span><span class="p">)</span><span class="">
 </span></pre></div>
 
@@ -2430,9 +2435,9 @@ Generating output</h3>
 
 Code files</h4>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">FileGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">FileGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">Listener</span><span class="p">(</span><span class="k">lambda</span><span class=""> </span><span class="n">event</span><span class="p">:</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_generate</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="">
@@ -2457,7 +2462,7 @@ Code files</h4>
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">_generate_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">for</span><span class=""> </span><span class="n">key</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_parts</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">            </span><span class="n">filepath</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_get_filepath</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="">
-</span><span class="">            </span><span class="k">if</span><span class=""> </span><span class="n">filepath</span><span class=""> </span><span class="ow">is</span><span class=""> </span><span class="ow">not</span><span class=""> </span><span class="bp">None</span><span class="p">:</span><span class="">
+</span><span class="">            </span><span class="k">if</span><span class=""> </span><span class="n">filepath</span><span class="p">:</span><span class="">
 </span><span class="">                </span><span class="k">with</span><span class=""> </span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">w</span><span class="s2">"</span><span class="p">)</span><span class=""> </span><span class="k">as</span><span class=""> </span><span class="n">f</span><span class="p">:</span><span class="">
 </span><span class="">                    </span><span class="bp">self</span><span class="o">.</span><span class="n">_render</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class=""> </span><span class="n">key</span><span class="p">)</span><span class="">
 </span><span class="">
@@ -2485,9 +2490,9 @@ Code files</h4>
 
 HTML</h4>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">HTMLBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">HTMLBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">document</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="o">*</span><span class="n">options</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">document</span><span class="">
@@ -2574,10 +2579,11 @@ HTML</h4>
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">escaped</span><span class="p">(</span><span class="n">fragment</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="nf">paragraph_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">code</span><span class="p">)</span><span class="p">:</span><span class="">
-</span><span class="">        </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">p</span><span class="s2">"</span><span class="p">)</span><span class="p">:</span><span class="">
-</span><span class="">            </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">code</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">newlines</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="p">:</span><span class="">
-</span><span class="">                </span><span class="bp">self</span><span class="o">.</span><span class="n">escaped</span><span class="p">(</span><span class="s2">"</span><span class="s2"> / </span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="p">)</span><span class="">
-</span><span class="">        </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">div</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">"</span><span class="s2">class</span><span class="s2">"</span><span class="p">:</span><span class=""> </span><span class="s2">"</span><span class="s2">highlight</span><span class="s2">"</span><span class="p">}</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">        </span><span class="k">if</span><span class=""> </span><span class="n">code</span><span class="o">.</span><span class="n">has_path</span><span class="p">:</span><span class="">
+</span><span class="">            </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">div</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">"</span><span class="s2">class</span><span class="s2">"</span><span class="p">:</span><span class=""> </span><span class="s2">"</span><span class="s2">rliterate-code-header</span><span class="s2">"</span><span class="p">}</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">                </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">p</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">newlines</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class="">                    </span><span class="bp">self</span><span class="o">.</span><span class="n">escaped</span><span class="p">(</span><span class="s2">"</span><span class="s2"> / </span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="p">)</span><span class="">
+</span><span class="">        </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">div</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s2">"</span><span class="s2">class</span><span class="s2">"</span><span class="p">:</span><span class=""> </span><span class="s2">"</span><span class="s2">rliterate-code-body</span><span class="s2">"</span><span class="p">}</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">            </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">"</span><span class="s2">pre</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="n">newlines</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">                </span><span class="k">for</span><span class=""> </span><span class="n">fragment</span><span class=""> </span><span class="ow">in</span><span class=""> </span><span class="n">code</span><span class="o">.</span><span class="n">formatted_text</span><span class="p">:</span><span class="">
 </span><span class="">                    </span><span class="k">with</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="">
@@ -2615,9 +2621,9 @@ Textual diffing</h4>
 
 <p>This generates a file that is suitable for textual diffing.</p>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">DiffBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">DiffBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">document</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">document</span><span class="">
@@ -2698,9 +2704,9 @@ Textual diffing</h4>
 
 Publish subscribe mechanisms</h3>
 
-<p><code>rliterate.py / &lt;&lt;base classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;base classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Observable</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Observable</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_notify_count</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="mi">0</span><span class="">
@@ -2741,15 +2747,15 @@ Publish subscribe mechanisms</h3>
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="bp">False</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">is_prefix</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class=""> </span><span class="n">right</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">is_prefix</span><span class="p">(</span><span class="n">left</span><span class="p">,</span><span class=""> </span><span class="n">right</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">left</span><span class=""> </span><span class="o">==</span><span class=""> </span><span class="n">right</span><span class="p">[</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="p">)</span><span class="p">]</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;classes&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">class</span><span class=""> </span><span class="nc">Listener</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">class</span><span class=""> </span><span class="nc">Listener</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
 </span><span class="">    </span><span class="k">def</span><span class=""> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class=""> </span><span class="n">fn</span><span class="p">,</span><span class=""> </span><span class="o">*</span><span class="n">events</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">fn</span><span class="">
@@ -2768,16 +2774,16 @@ Publish subscribe mechanisms</h3>
 
 JSON serialization mechanisms</h3>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">load_json_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">load_json_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">with</span><span class=""> </span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">r</span><span class="s2">"</span><span class="p">)</span><span class=""> </span><span class="k">as</span><span class=""> </span><span class="n">f</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="k">return</span><span class=""> </span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">write_json_to_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class=""> </span><span class="n">data</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">write_json_to_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class=""> </span><span class="n">data</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">with</span><span class=""> </span><span class="n">safely_write_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class=""> </span><span class="k">as</span><span class=""> </span><span class="n">f</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="">
 </span><span class="">            </span><span class="n">data</span><span class="p">,</span><span class=""> </span><span class="n">f</span><span class="p">,</span><span class="">
@@ -2787,9 +2793,9 @@ JSON serialization mechanisms</h3>
 
 <p>This functions tries to write safely to a file. The file will either be completely written or not modified at all. It is achieved by first writing to a temporary file and then performing a rename.</p>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="nd">@contextlib.contextmanager</span><span class="">
+<div class="rliterate-code-body"><pre><span class="nd">@contextlib.contextmanager</span><span class="">
 </span><span class="k">def</span><span class=""> </span><span class="nf">safely_write_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">with</span><span class=""> </span><span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="">
 </span><span class="">        </span><span class="nb">dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="p">,</span><span class="">
@@ -2804,9 +2810,9 @@ JSON serialization mechanisms</h3>
 
 Functions</h3>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">genid</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">genid</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">return</span><span class=""> </span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="">
 </span><span class="">
 </span><span class="">
@@ -2844,9 +2850,9 @@ Functions</h3>
 </span><span class="">            </span><span class="k">return</span><span class=""> </span><span class="n">index</span><span class="">
 </span></pre></div>
 
-<p><code>rliterate.py / &lt;&lt;functions&gt;&gt;</code></p>
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
 
-<div class="highlight"><pre><span class="k">def</span><span class=""> </span><span class="nf">edit_in_gvim</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class=""> </span><span class="n">filename</span><span class="p">)</span><span class="p">:</span><span class="">
+<div class="rliterate-code-body"><pre><span class="k">def</span><span class=""> </span><span class="nf">edit_in_gvim</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class=""> </span><span class="n">filename</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">    </span><span class="k">with</span><span class=""> </span><span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">"</span><span class="s2">-rliterate-external-</span><span class="s2">"</span><span class="o">+</span><span class="n">filename</span><span class="p">)</span><span class=""> </span><span class="k">as</span><span class=""> </span><span class="n">f</span><span class="p">:</span><span class="">
 </span><span class="">        </span><span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">(</span><span class="p">)</span><span class="">
@@ -2862,9 +2868,9 @@ Functions</h3>
 
 Main Python file</h3>
 
-<p><code>rliterate.py</code></p>
+<div class="rliterate-code-header"><p>rliterate.py</p></div>
 
-<div class="highlight"><pre><span class="kn">from</span><span class=""> </span><span class="nn">collections</span><span class=""> </span><span class="kn">import</span><span class=""> </span><span class="n">defaultdict</span><span class="">
+<div class="rliterate-code-body"><pre><span class="kn">from</span><span class=""> </span><span class="nn">collections</span><span class=""> </span><span class="kn">import</span><span class=""> </span><span class="n">defaultdict</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">contextlib</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">json</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">os</span><span class="">
@@ -2910,20 +2916,16 @@ Development</h2>
 
 Diffing</h3>
 
-<p>If <code>*.rliterate</code> documents are version controlled, the textual diff is hard to read. This problem can be sovled in Git by defining a textconv command that converts the <code>*.rliterate</code> document to text that is suitable for diffing. The <code>--diff</code> option to RLiterate outputs a document in a textual diff friendly format.</p>
+<p>If <code>*.rliterate</code> documents are version controlled, the textual diff is hard to read. This problem can be sovled in Git by defining a textconv command that converts the <code>*.rliterate</code> document to text that is suitable for diffing. The <code>--diff</code> option to RLiterate outputs a document in a diff friendly format.</p>
 
-<p>First associate <code>*.rliterate</code> files with <code>rliterate</code>. This file gos into your repository.</p>
+<p>First associate <code>*.rliterate</code> files with <code>rliterate</code> using a Git attributes file. I put mine in <code>$HOME/.config/git/attributes</code>:</p>
 
-<p><code>&lt;&lt;$HOME/.config/git/attributes&gt;&gt;</code></p>
-
-<div class="highlight"><pre><span class="">*.rliterate diff=rliterate
+<div class="rliterate-code-body"><pre><span class="">*.rliterate diff=rliterate
 </span></pre></div>
 
-<p>Then define the <code>textconv</code> command in your git config:</p>
+<p>Then define the <code>textconv</code> command in your git config (<code>$HOME/.gitconfig</code>):</p>
 
-<p><code>&lt;&lt;$HOME/.gitconfig&gt;&gt;</code></p>
-
-<div class="highlight"><pre><span class="">[diff "rliterate"]
+<div class="rliterate-code-body"><pre><span class="">[diff "rliterate"]
       textconv=bash -c 'python $RLITERATE_ROOT/rliterate.py "$0" --diff'
 </span></pre></div>
 
@@ -2943,13 +2945,29 @@ TODO</h2>
 
 <p>Random notes of what I might want to work on in the future.</p>
 
-<ul><li>Multiple editors can be opened (only last opened is saved)</li>
+<ul><li>Multiple editors can be opened but only last saved is saved</li>
 
-<li>Factory should drop right into edit mode</li>
+<li>Factory should drop right into edit mode when button is clicked</li>
 
-<li>Highlighting of toc rows is not always up to date</li>
+<li>Table of contents<ul><li>Highlighting of rows is not always up to date</li>
+
+<li>Highlight opened pages?</li>
+
+<li>Should only expand first 3(?) levels when opening a file for the first time?</li>
+
+</ul>
+
+</li>
+
+<li>Drag and drop<ul><li>Highlight object being dragged somehow (screenshot?)</li>
 
 <li>Invalid drop targets are still shown<ul><li>Hide dragged item?</li>
+
+</ul>
+
+</li>
+
+<li>Does not work om Mac (incorrect coordinate calculations?)</li>
 
 </ul>
 
@@ -2959,21 +2977,23 @@ TODO</h2>
 
 <li>Shift+Tab deletes: should dedent</li>
 
-</ul>
+<li>Save button is very far down if there is lots of code and only top is edited</li>
 
-</li>
-
-<li>Normalize paragraph when saving<ul><li>Split into multiple paragraphs on more than one newline</li>
-
-<li>Remove single newlines</li>
-
-<li>Remove paragraph if text is empty</li>
+<li>Only open code body editor when double clicked?</li>
 
 </ul>
 
 </li>
 
-<li>Missing page operations<ul><li>Add (before, after)</li>
+<li>Editors<ul><li>Save when clicking outside editor text field (how to do this?)</li>
+
+<li>Highlight the word/fragment that is double clicked</li>
+
+</ul>
+
+</li>
+
+<li>Missing page operations<ul><li>Add page before/after</li>
 
 </ul>
 
@@ -2985,19 +3005,9 @@ TODO</h2>
 
 </li>
 
-<li>File generator writes empty filename</li>
-
 <li>There is no way to control empty lines from placeholders</li>
 
-<li>There is no list paragraph type</li>
-
-<li>Save button (in code editor) is very far down if there is lots of code and only top is edited</li>
-
 <li>Not possible to go to a page with Ctrl+T</li>
-
-<li>Highlight object being dragged somehow (screenshot?)</li>
-
-<li>Save when clicking outside text field (how to do this?)</li>
 
 <li>This is really a writing tool<ul><li>Spell checking</li>
 
@@ -3005,27 +3015,13 @@ TODO</h2>
 
 </li>
 
-<li>Final test: rewrite rlselect (or other program) using rliterate<ol><li>Import all source code as is</li>
-
-<li>Write narrative</li>
-
-<li>Ensure generated files are not changed</li>
-
-</ol>
-
-</li>
-
-<li>Highlight active page in TOC</li>
-
 <li>Right click should only be generated on up if first down</li>
 
 <li>Literate programming treats any target programming language as an assembly language</li>
 
-<li>TOC should only expand first 3(?) levels when opening a file for the first time</li>
-
 <li>Deleting root (even hoisted root) gives error</li>
 
-<li>Reading tool<ul><li>Code can either be read in chunks or the final output. And you can follow links between them.</li>
+<li>Reading tool<ul><li>Code can either be read in chunks or the final source output. And you can follow links between them.</li>
 
 </ul>
 
@@ -3033,15 +3029,13 @@ TODO</h2>
 
 <li>Undo (use immutable data types (pyrsistent?))</li>
 
-<li>Diff two rliterate documents</li>
+<li>Diff/Merge of rliterate documents for collaboration</li>
 
 <li>Search and replace</li>
 
 <li>Highlight placeholders in code fragments</li>
 
-<li><code>word_split</code> should put white space in separate fragment and rich text display should have <code>skip_leading_space</code> option</li>
-
-<li>Drag and drop does not work om Mac (incorrect coordinate calculations?)</li>
+<li><code>word_split</code> should put white space in separate fragment and rich text display should have <code>skip_leading_space</code> option?</li>
 
 <li>Dynamic scripting<ul><li>Show graph paragraph based on data paragraph defined earlier on the page (or on other page)</li>
 
@@ -3049,11 +3043,9 @@ TODO</h2>
 
 </li>
 
-<li>Editors: highlight the word/fragment that is double clicked</li>
+<li>List code is messy (especially parsing)</li>
 
-<li>List code is messy</li>
-
-<li>Support iternal links<ul><li>Create links between pages paragraph view &lt;-&gt; paragraph widget</li>
+<li>Support internal links<ul><li>Create links between pages paragraph view &lt;-&gt; paragraph widget</li>
 
 </ul>
 
@@ -3061,21 +3053,23 @@ TODO</h2>
 
 <li>Make intro shorter and move what is there to "tour" chapter.</li>
 
-<li>Make hoisted page a property</li>
+<li>Make hoisted page a property? (Setter did not work well inside lambda)</li>
 
 <li>Constants for border calculations are tricky. Especially calculation of page width. How to make simpler?</li>
 
 <li>Handle sizer code with helper to make it cleaner?</li>
 
-<li>Picture paragraph type</li>
+<li>Picture paragraph type missing</li>
 
 <li>Create more wx utility widgets to remove cruft. SingleLineTextCtrl for title?</li>
 
-<li>Only open code body editor when double clicked?</li>
+<li>Refactoring: split paragraph (where clicked?)</li>
 
-<li>Clean up TODO so that I know what it means one year from now.</li>
+<li>Can not create new rliterate files</li>
+
+<li>Factory lacks buttons for quote and list paragraphs</li>
 
 </ul>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/10a8524f280db4e10547904bbc254b3e77d6df10">10a8524f280db4e10547904bbc254b3e77d6df10</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/c9cc2bf95e78154da41b20b48d3f30e052e3806a">c9cc2bf95e78154da41b20b48d3f30e052e3806a</a>.</i></p>
