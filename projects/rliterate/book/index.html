@@ -8,7 +8,7 @@ title: RLiterate
 
 <p>This book explains RLiterate and also includes the complete implementation of the program.</p>
 
-<ul><li><a href="#600aa145cf474a6aa732a4c4edb5f44b">A tour of RLiterate<ul><li><a href="#7f14d9ec23c0425c89039ea68dfdac16">Main GUI<ul></ul></a></li><li><a href="#3ad55f274f724ebab8cea5d5c63d8dc0">Reading tool<ul></ul></a></li><li><a href="#6c34776183394824824be039e65de531">Literate programming<ul></ul></a></li></ul></a></li><li><a href="#95150c4f0d92428bbeef4ae5a865398d">Background<ul><li><a href="#9b46f6326dda497fabbc1ef7f5247422">The prototype<ul></ul></a></li><li><a href="#f496615acbe44223a64e1db1fc154b12">Why literate programming?<ul></ul></a></li><li><a href="#e836cd0edf4a4b66ab8dd1e5d7fbbea3">Similar tools<ul></ul></a></li></ul></a></li><li><a href="#4d689acb540d40ecb8b828701bb5bf74">Implementation<ul><li><a href="#e418766e480b41b1844c8d754b3746fc">GUI wxPython<ul><li><a href="#8ab608f28a5046548963649371cab5fe">Main frame</a></li><li><a href="#c456e147b7b745ed80697c4faeb02bcb">Table of contents</a></li><li><a href="#4dd60465575c4297a25813f0478f15f9">Workspace</a></li><li><a href="#a6e8ca0aa83d4829b15c0424be259022">Drag &amp; drop</a></li><li><a href="#5c3647a616b8495f8bebd268be84377d">wxPython utilities</a></li><li><a href="#4495f053ab2d41a2a4ec70f55e929b9f">Constants</a></li></ul></a></li><li><a href="#276ff8047f7e46dea723c1822078ac26">Document model<ul><li><a href="#ce4dc071bada48bb9294c937631e0214">Document</a></li><li><a href="#9e63791b51374f2c924e871da5ddc5d7">Views</a></li></ul></a></li><li><a href="#f7f16199492c4bad80567c3a960b8bc9">Layouts<ul></ul></a></li><li><a href="#192db0d4b96e4162b3cf19f870ee287d">Themes<ul></ul></a></li><li><a href="#b376363cbd664a838d3bafb7bfae2281">Project<ul></ul></a></li><li><a href="#63ff2f7abea44406922c78b7683e2dd3">Generating output<ul><li><a href="#56b835fee5b24f8a8e59156506ac6464">Code files</a></li><li><a href="#162d5b5c668d4c958c88b7d37e6f5d3e">HTML</a></li><li><a href="#427cb0d170a04b9898b5b744cd15b263">Textual diffing</a></li></ul></a></li><li><a href="#01aa28a581e84f088104c6cd600d9c1d">Publish subscribe mechanisms<ul></ul></a></li><li><a href="#b73b797520334653a235e5e6a077e573">JSON serialization mechanisms<ul></ul></a></li><li><a href="#fddc930e6caa4a38bf6e7259e6e1034a">Functions<ul></ul></a></li><li><a href="#745dcf0d093a4f179dc7fbe1dc8b7bdd">Main Python file<ul></ul></a></li></ul></a></li><li><a href="#28b1947216874cedaf4ea69c2e2574b4">Development<ul><li><a href="#85bb3ad476d540bb8b6bfed905d158f0">Diffing<ul></ul></a></li></ul></a></li><li><a href="#cc36000ed12f4bfe88cefa2987fdb5cd">Things I learned<ul></ul></a></li><li><a href="#0a165f3042ee4350b9bebb61213b44c5">TODO<ul></ul></a></li></ul><h2><a name="600aa145cf474a6aa732a4c4edb5f44b"></a>
+<ul><li><a href="#600aa145cf474a6aa732a4c4edb5f44b">A tour of RLiterate<ul><li><a href="#7f14d9ec23c0425c89039ea68dfdac16">Main GUI<ul></ul></a></li><li><a href="#3ad55f274f724ebab8cea5d5c63d8dc0">Reading tool<ul></ul></a></li><li><a href="#6c34776183394824824be039e65de531">Literate programming<ul></ul></a></li></ul></a></li><li><a href="#cc3c314da5a944d18eec6628eb042ba0">Installing<ul></ul></a></li><li><a href="#95150c4f0d92428bbeef4ae5a865398d">Background<ul><li><a href="#9b46f6326dda497fabbc1ef7f5247422">The prototype<ul></ul></a></li><li><a href="#f496615acbe44223a64e1db1fc154b12">Why literate programming?<ul></ul></a></li><li><a href="#e836cd0edf4a4b66ab8dd1e5d7fbbea3">Similar tools<ul></ul></a></li></ul></a></li><li><a href="#28b1947216874cedaf4ea69c2e2574b4">Tips &amp; tricks<ul><li><a href="#85bb3ad476d540bb8b6bfed905d158f0">Diffing *.rliterate files<ul></ul></a></li></ul></a></li><li><a href="#4d689acb540d40ecb8b828701bb5bf74">Implementation<ul><li><a href="#e418766e480b41b1844c8d754b3746fc">GUI wxPython<ul><li><a href="#8ab608f28a5046548963649371cab5fe">Main frame</a></li><li><a href="#c456e147b7b745ed80697c4faeb02bcb">Table of contents</a></li><li><a href="#4dd60465575c4297a25813f0478f15f9">Workspace</a></li><li><a href="#a6e8ca0aa83d4829b15c0424be259022">Drag &amp; drop</a></li><li><a href="#5c3647a616b8495f8bebd268be84377d">wxPython utilities</a></li><li><a href="#4495f053ab2d41a2a4ec70f55e929b9f">Constants</a></li></ul></a></li><li><a href="#276ff8047f7e46dea723c1822078ac26">Document model<ul><li><a href="#ce4dc071bada48bb9294c937631e0214">Document</a></li><li><a href="#9e63791b51374f2c924e871da5ddc5d7">Views</a></li></ul></a></li><li><a href="#f7f16199492c4bad80567c3a960b8bc9">Layouts<ul></ul></a></li><li><a href="#192db0d4b96e4162b3cf19f870ee287d">Themes<ul></ul></a></li><li><a href="#b376363cbd664a838d3bafb7bfae2281">Project<ul></ul></a></li><li><a href="#63ff2f7abea44406922c78b7683e2dd3">Generating output<ul><li><a href="#56b835fee5b24f8a8e59156506ac6464">Code files</a></li><li><a href="#162d5b5c668d4c958c88b7d37e6f5d3e">HTML</a></li><li><a href="#427cb0d170a04b9898b5b744cd15b263">Textual diffing</a></li></ul></a></li><li><a href="#01aa28a581e84f088104c6cd600d9c1d">Publish subscribe mechanisms<ul></ul></a></li><li><a href="#b73b797520334653a235e5e6a077e573">JSON serialization mechanisms<ul></ul></a></li><li><a href="#fddc930e6caa4a38bf6e7259e6e1034a">Functions<ul></ul></a></li><li><a href="#745dcf0d093a4f179dc7fbe1dc8b7bdd">Main Python file<ul></ul></a></li></ul></a></li><li><a href="#cc36000ed12f4bfe88cefa2987fdb5cd">Things I learned<ul></ul></a></li><li><a href="#0a165f3042ee4350b9bebb61213b44c5">TODO<ul></ul></a></li></ul><h2><a name="600aa145cf474a6aa732a4c4edb5f44b"></a>
 
 A tour of RLiterate</h2>
 
@@ -39,6 +39,34 @@ Reading tool</h3>
 Literate programming</h3>
 
 <p>Describe how code paragraphs enable literate programming.</p>
+
+<h2><a name="cc3c314da5a944d18eec6628eb042ba0"></a>
+
+Installing</h2>
+
+<p>You need the following packages to run RLiterate:</p>
+
+<ul><li><a href="https://www.python.org/">Python</a><ul><li><a href="https://wxpython.org/">wxPython</a></li>
+
+<li><a href="http://pygments.org/">pygments</a></li>
+
+</ul>
+
+</li>
+
+</ul>
+
+<p>Here is how these dependencies can be installed on a Fedora system:</p>
+
+<div class="rliterate-code-body"><pre><span class="">dnf install python wxPython python2-pygments
+</span></pre></div>
+
+<p>Once the dependecnies are installed, run RLiterate like this:</p>
+
+<div class="rliterate-code-body"><pre><span class="">python rliterate.py rliterate.rliterate
+</span></pre></div>
+
+<p>You should now see the RLiterate GUI displaying.</p>
 
 <h2><a name="95150c4f0d92428bbeef4ae5a865398d"></a>
 
@@ -85,6 +113,27 @@ Why literate programming?</h3>
 Similar tools</h3>
 
 <p>I stumbled across <a href="http://projectured.org/">ProjecturED</a>. It is similar to RLiterate in the sense that it is an editor for richer documents. Not just text. The most interesting aspect for me is that a variable name exists in one place, but can be rendered in multiple. So a rename is really simple. With RLiterate, you have to do a search and replace. But with ProjecturED you just change the name and it replicates everywhere. This is an attractive feature and is made possible by the different document model. Probably RLiterate can never support that because a completely different approach needs to be taken, but it is an interesting project to investigate further.</p>
+
+<h2><a name="28b1947216874cedaf4ea69c2e2574b4"></a>
+
+Tips &amp; tricks</h2>
+
+<h3><a name="85bb3ad476d540bb8b6bfed905d158f0"></a>
+
+Diffing *.rliterate files</h3>
+
+<p>When <code>*.rliterate</code> files are version controlled, the textual diff is hard to read. This problem can be sovled in Git by defining a textconv command that converts the <code>*.rliterate</code> file to text that is suitable for diffing. The <code>--diff</code> option to RLiterate outputs a file in a diff friendly format.</p>
+
+<p>First associate <code>*.rliterate</code> files with <code>rliterate</code> using a Git attributes file. For example in <code>$HOME/.config/git/attributes</code>:</p>
+
+<div class="rliterate-code-body"><pre><span class="">*.rliterate diff=rliterate
+</span></pre></div>
+
+<p>Then define the <code>textconv</code> command in your git config (<code>$HOME/.gitconfig</code>):</p>
+
+<div class="rliterate-code-body"><pre><span class="">[diff "rliterate"]
+      textconv=bash -c 'python $RLITERATE_ROOT/rliterate.py "$0" --diff'
+</span></pre></div>
 
 <h2><a name="4d689acb540d40ecb8b828701bb5bf74"></a>
 
@@ -896,6 +945,7 @@ Workspace</h4>
 </span><span class="">            </span><span class="n">value</span><span class="o">=</span><span class="n">paragraph</span><span class="o">.</span><span class="n">text</span><span class="p">,</span><span class="">
 </span><span class="">            </span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class=""> </span><span class="n">view</span><span class="o">.</span><span class="n">Size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="p">)</span><span class="">
+</span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">Font</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">create_font</span><span class="p">(</span><span class="n">monospace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">project</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">paragraph</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">paragraph</span><span class="">
 </span><span class="">        </span><span class="bp">self</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">EVT_CHAR</span><span class="p">,</span><span class=""> </span><span class="bp">self</span><span class="o">.</span><span class="n">_on_char</span><span class="p">)</span><span class="">
@@ -2870,7 +2920,9 @@ Main Python file</h3>
 
 <div class="rliterate-code-header"><p>rliterate.py</p></div>
 
-<div class="rliterate-code-body"><pre><span class="kn">from</span><span class=""> </span><span class="nn">collections</span><span class=""> </span><span class="kn">import</span><span class=""> </span><span class="n">defaultdict</span><span class="">
+<div class="rliterate-code-body"><pre><span class="c1"># This file is automatically extracted from rliterate.rliterate.</span><span class="">
+</span><span class="">
+</span><span class="kn">from</span><span class=""> </span><span class="nn">collections</span><span class=""> </span><span class="kn">import</span><span class=""> </span><span class="n">defaultdict</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">contextlib</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">json</span><span class="">
 </span><span class="kn">import</span><span class=""> </span><span class="nn">os</span><span class="">
@@ -2906,27 +2958,6 @@ Main Python file</h3>
 </span><span class="">        </span><span class="n">main_frame</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">MainFrame</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="n">main_frame</span><span class="o">.</span><span class="n">Show</span><span class="p">(</span><span class="p">)</span><span class="">
 </span><span class="">        </span><span class="n">app</span><span class="o">.</span><span class="n">MainLoop</span><span class="p">(</span><span class="p">)</span><span class="">
-</span></pre></div>
-
-<h2><a name="28b1947216874cedaf4ea69c2e2574b4"></a>
-
-Development</h2>
-
-<h3><a name="85bb3ad476d540bb8b6bfed905d158f0"></a>
-
-Diffing</h3>
-
-<p>If <code>*.rliterate</code> documents are version controlled, the textual diff is hard to read. This problem can be sovled in Git by defining a textconv command that converts the <code>*.rliterate</code> document to text that is suitable for diffing. The <code>--diff</code> option to RLiterate outputs a document in a diff friendly format.</p>
-
-<p>First associate <code>*.rliterate</code> files with <code>rliterate</code> using a Git attributes file. I put mine in <code>$HOME/.config/git/attributes</code>:</p>
-
-<div class="rliterate-code-body"><pre><span class="">*.rliterate diff=rliterate
-</span></pre></div>
-
-<p>Then define the <code>textconv</code> command in your git config (<code>$HOME/.gitconfig</code>):</p>
-
-<div class="rliterate-code-body"><pre><span class="">[diff "rliterate"]
-      textconv=bash -c 'python $RLITERATE_ROOT/rliterate.py "$0" --diff'
 </span></pre></div>
 
 <h2><a name="cc36000ed12f4bfe88cefa2987fdb5cd"></a>
@@ -3051,7 +3082,11 @@ TODO</h2>
 
 </li>
 
-<li>Make intro shorter and move what is there to "tour" chapter.</li>
+<li>Make intro shorter and move what is there to "tour" chapter.<ul><li>Intro: a Word for programmers</li>
+
+</ul>
+
+</li>
 
 <li>Make hoisted page a property? (Setter did not work well inside lambda)</li>
 
@@ -3069,7 +3104,19 @@ TODO</h2>
 
 <li>Factory lacks buttons for quote and list paragraphs</li>
 
+<li>Allow fonts to be customized<ul><li>Prose</li>
+
+<li>Monospace</li>
+
+<li>Title</li>
+
+<li>TOC</li>
+
+</ul>
+
+</li>
+
 </ul>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/c9cc2bf95e78154da41b20b48d3f30e052e3806a">c9cc2bf95e78154da41b20b48d3f30e052e3806a</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/1982c679d3c18632966c7f0abd62b37ee2dcc830">1982c679d3c18632966c7f0abd62b37ee2dcc830</a>.</i></p>
