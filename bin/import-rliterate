@@ -28,7 +28,9 @@ clone_rliterate() {
 }
 
 import_rliterate() {
-    echo_book > $book_folder/index.html
+    cd $book_folder
+    echo_book > index.html
+    git add index.html
 }
 
 echo_book() {
