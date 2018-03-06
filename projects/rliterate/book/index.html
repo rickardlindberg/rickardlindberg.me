@@ -226,7 +226,7 @@ title: RLiterate
 <div class="rliterate-code-body"><pre><span class="">dnf install python wxPython python2-pygments
 </span></pre></div>
 
-<p>Once the those are installed, you can run RLiterate like this:</p>
+<p>Once they are installed, you can run RLiterate like this:</p>
 
 <div class="rliterate-code-body"><pre><span class="">python rliterate.py rliterate.rliterate
 </span></pre></div>
@@ -340,7 +340,7 @@ title: RLiterate
 
 </div>
 
-<p>At this point I had all the functionality in place for doing writing documents and embedding code in them. I imported all the code into an RLiterate document (previously it was written as a single Python file) and started extracting pieces and adding prose to explain the program. This was a tremendously rewarding experience. RLiterate was now bootstrapped.</p>
+<p>At this point I had all the functionality in place for writing documents and embedding code in them. I imported all the code into an RLiterate document (previously it was written as a single Python file) and started extracting pieces and adding prose to explain the program. This was a tremendously rewarding experience. RLiterate was now bootstrapped.</p>
 
 <p>As I continued to improve the RLiterate document, I noticed features I was lacking. I added them to the program and iterated.</p>
 
@@ -3506,7 +3506,7 @@ title: RLiterate
 
 <ul><li>Multiple editors can be opened but only last saved is saved</li>
 
-<li>Factory should drop right into edit mode when button is clicked</li>
+<li>Factory should drop right into edit mode when button is clicked?</li>
 
 <li>Table of contents<ul><li>Highlighting of rows is not always up to date</li>
 
@@ -3532,7 +3532,7 @@ title: RLiterate
 
 <li>Code editor<ul><li>Tab indents with tab: should indent 4 spaces?</li>
 
-<li>Shift+Tab deletes: should dedent</li>
+<li>Shift+Tab deletes: should dedent?</li>
 
 <li>Save button is very far down if there is lots of code and only top is edited</li>
 
@@ -3542,9 +3542,9 @@ title: RLiterate
 
 </li>
 
-<li>Editors<ul><li>Save when clicking outside editor text field (how to do this?)</li>
+<li>Editors<ul><li>Save when clicking outside editor text field? How to do this?</li>
 
-<li>Highlight the word/fragment that is double clicked</li>
+<li>Highlight the word/fragment that is double clicked?</li>
 
 </ul>
 
@@ -3584,13 +3584,13 @@ title: RLiterate
 
 </li>
 
-<li>Undo (use immutable data types (pyrsistent?))</li>
+<li>Undo? (use immutable data types (pyrsistent?))</li>
 
-<li>Diff/Merge of rliterate documents for collaboration</li>
+<li>Diff/Merge of RLiterate documents for collaboration?</li>
 
-<li>Search and replace</li>
+<li>Search and replace?</li>
 
-<li>Highlight placeholders in code fragments</li>
+<li>Highlight placeholders in code fragments <code>&lt;&lt; .. &gt;&gt;</code></li>
 
 <li><code>word_split</code> should put white space in separate fragment and rich text display should have <code>skip_leading_space</code> option?</li>
 
@@ -3606,11 +3606,15 @@ title: RLiterate
 
 <li>Constants for border calculations are tricky. Especially calculation of page width. How to make simpler?</li>
 
-<li>Handle sizer code with helper to make it cleaner?</li>
+<li>Handle sizer code with helper to make it cleaner?<ul><li>Sizer mixin?</li>
 
-<li>Create more wx utility widgets to remove cruft. SingleLineTextCtrl for title?</li>
+</ul>
 
-<li>Refactoring: split paragraph (where clicked?)</li>
+</li>
+
+<li>Create more wx utility widgets to remove cruft.</li>
+
+<li>Refactoring: split paragraph where clicked?</li>
 
 <li>Factory lacks buttons for quote and list paragraphs</li>
 
@@ -3626,7 +3630,7 @@ title: RLiterate
 
 </li>
 
-<li>Scroll column when dragging paragraphs so a drop can be made anywhere in a column</li>
+<li>Scroll column when dragging paragraphs so a drop can be made anywhere in a column?</li>
 
 <li>Clone paragraph would be really useful</li>
 
@@ -3682,11 +3686,27 @@ title: RLiterate
 
 </li>
 
+<li>Main window size is too small (had to resize to bigger all the time)</li>
+
 </ul>
 
 </li>
 
+<li>Highlight code without specifying filename?</li>
+
+<li>Link templates <code>[[wxdoc:Sizer]]</code>?</li>
+
+<li>Render an index of all code sections?</li>
+
+<li>HTML output should have <code>&lt;a name=...</code> for all pages <strong>and</strong> paragraphs</li>
+
+<li>Styled text control should not need a constant width?</li>
+
+<li>Decouple styled text control from RLiterate internals?</li>
+
+<li>Use panel in top level window (otherwise no tab cycling (reference?))</li>
+
 </ul>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/d152c9c19950335e07225b8180bd7527fb5b99d5">d152c9c19950335e07225b8180bd7527fb5b99d5</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/be3dcc8927cf553d6511d621ce59598c0ab31ed0">be3dcc8927cf553d6511d621ce59598c0ab31ed0</a>.</i></p>
