@@ -260,7 +260,7 @@
 
 <p>Assuming you have Git installed, you can clone the repository like this:</p>
 
-<div class="rliterate-code-body"><pre><span class>git clone git@github.com:rickardlindberg/rliterate.git
+<div class="rliterate-code-body"><pre><span class>git clone https://github.com/rickardlindberg/rliterate.git
 </span></pre></div>
 
 <p>Before you can run RLiterate, you need <a href="https://www.python.org/">Python</a> with the following libraries installed:</p>
@@ -489,17 +489,19 @@
 <div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;TableOfContents&gt;&gt;</p></div>
 
 <div class="rliterate-code-body"><pre><span class="k">def</span><span class> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class> </span><span class="o">=</span><span class> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class> </span><span class="mi">255</span><span class="p">,</span><span class> </span><span class="mi">255</span><span class="p">)</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>    </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class> </span><span class="o">=</span><span class> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class> </span><span class="mi">255</span><span class="p">,</span><span class> </span><span class="mi">255</span><span class="p">)</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">(</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class="k">def</span><span class> </span><span class="nf">_re_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">drop_points</span><span class> </span><span class="o">=</span><span class> </span><span class="p">[</span><span class="p">]</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Clear</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">_render_unhoist_button</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">_render_page_container</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>    </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">drop_points</span><span class> </span><span class="o">=</span><span class> </span><span class="p">[</span><span class="p">]</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Clear</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">_render_unhoist_button</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">_render_page_container</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
 </span></pre></div>
 
 <p>The unhoist button (only shown if a page has been hoisted):</p>
@@ -857,21 +859,26 @@
 <div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;classes&gt;&gt; / &lt;&lt;Workspace&gt;&gt;</p></div>
 
 <div class="rliterate-code-body"><pre><span class="k">def</span><span class> </span><span class="nf">_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class> </span><span class="mi">200</span><span class="p">,</span><span class> </span><span class="mi">200</span><span class="p">)</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class> </span><span class="o">=</span><span class> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">AddSpacer</span><span class="p">(</span><span class="n">PAGE_PADDING</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class> </span><span class="o">=</span><span class> </span><span class="p">[</span><span class="p">]</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>    </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">SetBackgroundColour</span><span class="p">(</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class> </span><span class="mi">200</span><span class="p">,</span><span class> </span><span class="mi">200</span><span class="p">)</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class> </span><span class="o">=</span><span class> </span><span class="n">wx</span><span class="o">.</span><span class="n">BoxSizer</span><span class="p">(</span><span class="n">wx</span><span class="o">.</span><span class="n">HORIZONTAL</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">AddSpacer</span><span class="p">(</span><span class="n">PAGE_PADDING</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class> </span><span class="o">=</span><span class> </span><span class="p">[</span><span class="p">]</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">_re_render</span><span class="p">(</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class="k">def</span><span class> </span><span class="nf">_re_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>    </span><span class="n">column_count_changed</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">_ensure_num_columns</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="n">last_column_changed_pages</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">False</span><span class>
-</span><span class>    </span><span class="k">for</span><span class> </span><span class="n">index</span><span class="p">,</span><span class> </span><span class="n">page_ids</span><span class> </span><span class="ow">in</span><span class> </span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>        </span><span class="n">last_column_changed_pages</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">SetPages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span><span class> </span><span class="n">page_ids</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="bp">self</span><span class="o">.</span><span class="n">Parent</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>    </span><span class="k">if</span><span class> </span><span class="n">column_count_changed</span><span class> </span><span class="ow">or</span><span class> </span><span class="n">last_column_changed_pages</span><span class="p">:</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">ScrollToEnd</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>    </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>        </span><span class="n">column_count_changed</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">_ensure_num_columns</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="n">last_column_changed_pages</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">False</span><span class>
+</span><span class>        </span><span class="k">for</span><span class> </span><span class="n">index</span><span class="p">,</span><span class> </span><span class="n">page_ids</span><span class> </span><span class="ow">in</span><span class> </span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>            </span><span class="n">last_column_changed_pages</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">SetPages</span><span class="p">(</span><span class>
+</span><span class>                </span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span><span class>
+</span><span class>                </span><span class="n">page_ids</span><span class>
+</span><span class>            </span><span class="p">)</span><span class>
+</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">Parent</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="k">if</span><span class> </span><span class="n">column_count_changed</span><span class> </span><span class="ow">or</span><span class> </span><span class="n">last_column_changed_pages</span><span class="p">:</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">ScrollToEnd</span><span class="p">(</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class="k">def</span><span class> </span><span class="nf">_ensure_num_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class> </span><span class="n">num</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class>    </span><span class="n">count_changed</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">False</span><span class>
@@ -1842,11 +1849,12 @@
 </span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">Bind</span><span class="p">(</span><span class="n">EVT_EDIT_START</span><span class="p">,</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">OnEditStart</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class>    </span><span class="k">def</span><span class> </span><span class="nf">OnEditStart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class> </span><span class="n">event</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">CreateEdit</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">SetFocus</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="p">,</span><span class> </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class> </span><span class="n">proportion</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Hide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">GetTopLevelParent</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">self</span><span class="o">.</span><span class="n">CreateEdit</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="o">.</span><span class="n">SetFocus</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="p">,</span><span class> </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class> </span><span class="n">proportion</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">Hide</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">GetTopLevelParent</span><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
 </span></pre></div>
 
 <div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;constants&gt;&gt;</p></div>
@@ -1944,15 +1952,17 @@
 </span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">SetSizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vsizer</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class>    </span><span class="k">def</span><span class> </span><span class="nf">Show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class> </span><span class="n">left_space</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">Show</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Clear</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">left_space</span><span class="p">,</span><span class> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">,</span><span class> </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class> </span><span class="n">proportion</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">Show</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Clear</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="p">(</span><span class="n">left_space</span><span class="p">,</span><span class> </span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">hsizer</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">,</span><span class> </span><span class="n">flag</span><span class="o">=</span><span class="n">wx</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span><span class> </span><span class="n">proportion</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class>    </span><span class="k">def</span><span class> </span><span class="nf">Hide</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">Hide</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class>        </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>        </span><span class="k">with</span><span class> </span><span class="n">flicker_free_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">Hide</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>            </span><span class="bp">self</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="p">)</span><span class>
 </span></pre></div>
 
 <h4><a name="5c3647a616b8495f8bebd268be84377d"></a>wxPython utilities</h4>
@@ -2212,6 +2222,19 @@
 <p>The minimum height is set to prevent the following error:</p>
 
 <p>Gtk-CRITICAL **: gtk_box_gadget_distribute: assertion 'size &gt;= 0' failed in GtkScrollbar</p>
+
+<h5><a name="32b95f00956d4ea08e09d4a7d7fd4bb2"></a>Flicker free drawing</h5>
+
+<p>This code seems to be needed on Windows only, but does not harm on other platforms. If many layout operations are done, the GUI otherwise becomes slow and flickers.</p>
+
+<div class="rliterate-code-header"><p>rliterate.py / &lt;&lt;functions&gt;&gt;</p></div>
+
+<div class="rliterate-code-body"><pre><span class="nd">@contextlib.contextmanager</span><span class>
+</span><span class="k">def</span><span class> </span><span class="nf">flicker_free_drawing</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class>    </span><span class="n">widget</span><span class="o">.</span><span class="n">Freeze</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class>    </span><span class="k">yield</span><span class>
+</span><span class>    </span><span class="n">widget</span><span class="o">.</span><span class="n">Thaw</span><span class="p">(</span><span class="p">)</span><span class>
+</span></pre></div>
 
 <h4><a name="4495f053ab2d41a2a4ec70f55e929b9f"></a>Constants</h4>
 
@@ -3553,8 +3576,6 @@
 
 </li>
 
-<li>Does not work on Mac (incorrect coordinate calculations?)</li>
-
 </ul>
 
 </li>
@@ -3681,12 +3702,44 @@
 
 </li>
 
-<li>Expalin how code paragraphs enable literate programming <a href="#6c34776183394824824be039e65de531"><em>Literate programming</em></a></li>
+<li>Expalin how code paragraphs enable literate programming (<a href="#6c34776183394824824be039e65de531"><em>Literate programming</em></a>)</li>
+
+<li>Issues noted when testing on Windows<ul><li><code>os.rename</code> does not work if file exists (<a href="#b73b797520334653a235e5e6a077e573"><em>JSON serialization mechanisms</em></a>)</li>
+
+<li>Scrolling a column up/down works differently (<a href="#94b57547a194415cb00feb2aaf486e27"><em>Scrolling containers</em></a>)</li>
+
+<li>Hovering a row in the toc does not highlight it</li>
+
+</ul>
+
+</li>
+
+<li>Issues when testing on OSX<ul><li>Monospace inline text is rendered at incorrect height (baseline is not the same) (<a href="#f2fd8440f526447fbcd4442951435021"><em>Rich text display</em></a>)</li>
+
+<li>Scrolling feels weird (<a href="#94b57547a194415cb00feb2aaf486e27"><em>Scrolling containers</em></a>)<ul><li>Probably incorrect usage of <code>GetWheelRotation</code> and <code>GetWheelDelta</code></li>
+
+</ul>
+
+</li>
+
+<li><code>"</code> and <code>'</code> is replaced when writing code in textbox</li>
+
+<li>Drag and drop does not work (<a href="#1d623dc7a566477786012227b9790d81"><em>Drop point drop target</em></a>)<ul><li><code>defResult</code> is never <code>wx.DragMove</code></li>
+
+<li>Program segfaults if that clause is removed and drop is done</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+</li>
 
 </ul>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/4c6053f27507ea5d416638b35340c00b1113494e">4c6053f27507ea5d416638b35340c00b1113494e</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate/commit/d152c9c19950335e07225b8180bd7527fb5b99d5">d152c9c19950335e07225b8180bd7527fb5b99d5</a>.</i></p>
 
       <hr>
       <center>
