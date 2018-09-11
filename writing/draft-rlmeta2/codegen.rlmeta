@@ -1,0 +1,21 @@
+CodeGenerator {
+  ast =
+    | ["Grammar" .:name ast*:xs]    -> { 'class ' name '(_RLMeta):' $ > xs < }
+    | ["Rule" .:name withNewVars:x] -> { 'def ' name '(self):' $ > 'return ' x '()' $ < }
+    | ["Or" asListItemNewVars*:xs]  -> { '(lambda: self._or([' $ > xs < ']))' }
+    | ["And" asListItem*:xs]        -> { '(lambda: self._and([' $ > xs < '])' }
+    | ["Binding" .:name ast:x]      -> { '(lambda: _vars.bind(' name ', ' x '()'))' }
+    | ["Star" ast:x]                -> { '(lambda: self._star(' x '))' }
+    | ["Not" ast:x]                 -> { '(lambda: self._negative_lookahead(' x '))' }
+    | ["Application" .:name]        -> { 'self.' name }
+    | ["MatchString" .:x]           -> { '(lambda: self._match_string(' repr(x) '))' }
+    | ["MatchCharsec" ..]           -> { '(lambda: self._match_charsec(' repr(x) '))' }
+    | ["Any"]                       -> { 'self._any' }
+    | ["Anonymous" withNewVars:x]   -> { x }
+    | ["Action" ast:x]              -> { '(lambda: ' x '())' }
+    | ["Action" ast:x ast:y]        -> { '(lambda: ' y '() && ' x ')' }
+    ;
+  asListItem            = ast:x         -> { x ',' $ };
+  asListItemWithNewVars = withNewVars:x -> { x ',' $ };
+  withNewVars           = ast:x         -> { '(lambda: (lambda _vars:' $ > x < ')(_Vars()))' };
+}
