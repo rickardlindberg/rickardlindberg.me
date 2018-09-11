@@ -37,7 +37,7 @@ Parser {
     ;
   action =
     | string:x                             -> ["RetString" x]
-    | space '[' actionList*:xs space ']    -> ["RetList" ~xs]
+    | space '[' actionList*:xs space ']'   -> ["RetList" ~xs]
     | space '{' out*:xs space '}'          -> ["RetOut" ~xs]
     | name:x '(' action*:xs ')'            -> ["RetCall" x ~xs]
     | name:x                               -> ["RetVar" x]
