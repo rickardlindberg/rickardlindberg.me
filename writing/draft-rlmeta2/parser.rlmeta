@@ -1,12 +1,12 @@
 Parser {
-  Grammar =
-    | name:x space '{' Rule*:ys space '}'  -> ["Grammar" x ~ys]
+  grammar =
+    | name:x space '{' rule*:ys space '}'  -> ["Grammar" x ~ys]
     ;
-  Rule =
+  rule =
     | name:x space '=' choice:y space ';'  -> ["Rule" x y]
     ;
   choice =
-    | (space '|' | Nothing) sequence:x
+    | (space '|' | nothing) sequence:x
       (space '|' sequence)*:xs             -> ["Or" x ~xs]
     ;
   sequence =
@@ -26,7 +26,7 @@ Parser {
     | name:x                               -> ["Application" x]
     | string:x                             -> ["MatchString" x]
     | charseq:x                            -> ["MatchCharsec" x]
-    | space 'Nothing' ![A-Za-z0-9]         -> ["Nothing"]
+    | space 'nothing' ![A-Za-z0-9]         -> ["Nothing"]
     | space '.'                            -> ["Any"]
     | space '(' choice:x space ')'         -> ["Anonymous" x]
     | space '[' class*:xs space ']'        -> ["Or" ~xs]
