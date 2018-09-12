@@ -22,7 +22,7 @@ Parser {
     | expr2
     ;
   expr2 =
-    | space '->' ret:x                         -> ["Action" x]
+    | space '->' return:x                      -> ["Action" x]
     | name:x                                   -> ["Application" x]
     | string:x                                 -> ["MatchString" x]
     | charseq:x                                -> ["MatchCharsec" x]
@@ -35,23 +35,22 @@ Parser {
     | char:x '-' char:y                        -> ["Range" x y]
     | char:x                                   -> ["MatchCharsec" x]
     ;
-  ret =
+  return =
     | string:x                                 -> ["RetString" x]
-    | space '[' retListItem*:xs space ']'      -> ["RetList" ~xs]
-    | space '{' out*:xs space '}'              -> ["RetOut" ~xs]
-    | name:x '(' ret*:xs ')'                   -> ["RetCall" x ~xs]
+    | charseq:x                                -> ["RetString" x]
+    | space '[' returnListItem*:xs space ']'   -> ["RetList" ~xs]
+    | space '{' stringBuild*:xs space '}'      -> ["RetBuilder" ~xs]
+    | name:x '(' return*:xs ')'                -> ["RetCall" x ~xs]
     | name:x                                   -> ["RetVar" x]
     ;
-  retListItem =
-    | space '~' name:x                         -> ["RetVarList" x]
-    | ret
+  returnListItem =
+    | space '~' name:x                         -> ["RetListItem" x]
+    | return
     ;
-  out =
-    | charseq:x                                -> ["OutCharsec" x]
-    | name:x                                   -> ["OutVar" x]
-    | space '$'                                -> ["OutNewline"]
-    | space '>'                                -> ["OutIndent"]
-    | space '<'                                -> ["OutDedent"]
+  stringBuild =
+    | space '>'                                -> ["RetIndent"]
+    | space '<'                                -> ["RetDedent"]
+    | return
     ;
   string   = space '"' (!'"' char)*:xs '"'     -> join(xs);
   charseq  = space '\'' (!'\'' char)*:xs '\''  -> join(xs);
