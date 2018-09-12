@@ -1,63 +1,63 @@
 Parser {
   grammar =
-    | name:x space '{' rule*:ys space '}'  -> ["Grammar" x ~ys]
+    | name:x space '{' rule*:ys space '}'      -> ["Grammar" x ~ys]
     ;
   rule =
-    | name:x space '=' choice:y space ';'  -> ["Rule" x y]
+    | name:x space '=' choices:y space ';'     -> ["Rule" x y]
     ;
-  choice =
+  choices =
     | (space '|' | nothing) sequence:x
-      (space '|' sequence)*:xs             -> ["Or" x ~xs]
+      (space '|' sequence)*:xs                 -> ["Or" x ~xs]
     ;
   sequence =
-    | expr:x expr*:xs                      -> ["And" x ~xs]
+    | expr:x expr*:xs                          -> ["And" x ~xs]
     ;
   expr =
-    | expr1:x ':' name:y                   -> ["Binding" y x]
+    | expr1:x ':' name:y                       -> ["Binding" y x]
     | expr1:x
     ;
   expr1 =
-    | expr2:x space '*'                    -> ["Star" x]
-    | space '!' expr2:x                    -> ["Not" x]
+    | expr2:x space '*'                        -> ["Star" x]
+    | space '!' expr2:x                        -> ["Not" x]
     | expr2
     ;
   expr2 =
-    | space '->' action:x                  -> ["Action" x]
-    | name:x                               -> ["Application" x]
-    | string:x                             -> ["MatchString" x]
-    | charseq:x                            -> ["MatchCharsec" x]
-    | space 'nothing' ![A-Za-z0-9]         -> ["Nothing"]
-    | space '.'                            -> ["Any"]
-    | space '(' choice:x space ')'         -> ["Anonymous" x]
-    | space '[' class*:xs space ']'        -> ["Or" ~xs]
+    | space '->' ret:x                         -> ["Action" x]
+    | name:x                                   -> ["Application" x]
+    | string:x                                 -> ["MatchString" x]
+    | charseq:x                                -> ["MatchCharsec" x]
+    | space 'nothing' ![A-Za-z0-9]             -> ["Nothing"]
+    | space '.'                                -> ["Any"]
+    | space '(' choices:x space ')'            -> ["Anonymous" x]
+    | space '[' charClass*:xs space ']'        -> ["Or" ~xs]
     ;
-  class =
-    | char:x '-' char:y                    -> ["Range" x y]
-    | char:x                               -> ["MatchCharsec" x]
+  charClass =
+    | char:x '-' char:y                        -> ["Range" x y]
+    | char:x                                   -> ["MatchCharsec" x]
     ;
-  action =
-    | string:x                             -> ["RetString" x]
-    | space '[' actionList*:xs space ']'   -> ["RetList" ~xs]
-    | space '{' out*:xs space '}'          -> ["RetOut" ~xs]
-    | name:x '(' action*:xs ')'            -> ["RetCall" x ~xs]
-    | name:x                               -> ["RetVar" x]
+  ret =
+    | string:x                                 -> ["RetString" x]
+    | space '[' retListItem*:xs space ']'      -> ["RetList" ~xs]
+    | space '{' out*:xs space '}'              -> ["RetOut" ~xs]
+    | name:x '(' ret*:xs ')'                   -> ["RetCall" x ~xs]
+    | name:x                                   -> ["RetVar" x]
     ;
-  actionList =
-    | space '~' name:x                     -> ["RetVarList" x]
-    | action
+  retListItem =
+    | space '~' name:x                         -> ["RetVarList" x]
+    | ret
     ;
   out =
-    | charseq:x                            -> ["OutCharsec" x]
-    | name:x                               -> ["OutVar" x ~xs]
-    | space '$'                            -> ["OutNewline"]
-    | space '>'                            -> ["OutIndent"]
-    | space '<'                            -> ["OutDedent"]
+    | charseq:x                                -> ["OutCharsec" x]
+    | name:x                                   -> ["OutVar" x]
+    | space '$'                                -> ["OutNewline"]
+    | space '>'                                -> ["OutIndent"]
+    | space '<'                                -> ["OutDedent"]
     ;
-  string   = space '"' (!'"' char)*:xs '"'       -> join(xs);
-  charseq  = space '\'' (!'\'' char)*:xs '\''    -> join(xs);
+  string   = space '"' (!'"' char)*:xs '"'     -> join(xs);
+  charseq  = space '\'' (!'\'' char)*:xs '\''  -> join(xs);
   char     = '\\' escape | .;
   escape   = '\\' -> "\\" | '\'' -> "'"
            | '"'  -> "\"" | 'n'  -> "\n";
-  name     = [a-zA-Z]:x [a-zA-Z0-9]*:xs    -> join([x ~xs]);
+  name     = [a-zA-Z]:x [a-zA-Z0-9]*:xs        -> join([x ~xs]);
   space    = [ \t\n]*;
 }
