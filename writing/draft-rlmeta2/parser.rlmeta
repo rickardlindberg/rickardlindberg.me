@@ -10,7 +10,7 @@ Parser {
       (space '|' sequence)*:xs                 -> ["Or" x ~xs]
     ;
   sequence =
-    | expr:x expr*:xs                          -> ["And" x ~xs]
+    | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
     ;
   expr =
     | expr1:x ':' name:y                       -> ["Binding" y x]
@@ -28,7 +28,7 @@ Parser {
     | charseq:x                                -> ["MatchCharsec" x]
     | space 'nothing' ![A-Za-z0-9]             -> ["Nothing"]
     | space '.'                                -> ["Any"]
-    | space '(' choices:x space ')'            -> ["Anonymous" x]
+    | space '(' choices:x space ')'            -> x
     | space '[' charClass*:xs space ']'        -> ["Or" ~xs]
     ;
   charClass =
