@@ -1,18 +1,37 @@
 CodeGenerator {
   ast =
-    | ["Grammar" .:x ast*:xs]       -> { 'class ' x '(_RLMeta):\n' > xs < }
-    | ["Rule" .:x ast:x]            -> { 'def ' x '(self):\n' > 'return ' x '()\n' < }
-    | ["Or" asListItem*:xs]         -> { '(lambda: self._or([\n' > xs < ']))' }
-    | ["And" asListItem*:xs]        -> { '(lambda: self._and([\n' > xs < '])' }
-    | ["Scope" ast:x]               -> { '(lambda: (lambda _vars:\n' > x < ')(_Vars()))' }
-    | ["Binding" .:x ast:y]         -> { '(lambda: _vars.bind(' x ', ' y '()'))' }
-    | ["Star" ast:x]                -> { '(lambda: self._star(' x '))' }
-    | ["Not" ast:x]                 -> { '(lambda: self._negative_lookahead(' x '))' }
-    | ["Application" .:x]           -> { 'self.' x }
-    | ["MatchString" .:x]           -> { '(lambda: self._match_string(' repr(x) '))' }
-    | ["MatchCharsec" .:x]          -> { '(lambda: self._match_charsec(' repr(x) '))' }
-    | ["Any"]                       -> { 'self._any' }
-    | ["Action" ast:x]              -> { '(lambda: ' x '())' }
+    | ["Grammar" .:x ast*:xs]  -> { 'class ' x '(_RLMeta):\n' > xs < }
+    | ["Rule" .:x ast:x]       -> { 'def ' x '(self):\n' > 'return ' x '()\n' < }
+    | ["Application" .:x]      -> { 'self.' x }
+    | ["Any"]                  -> { 'self._any' }
+    | ["RetString" .:x]        -> { repr(x) }
+    | ["RetList" astList:x]    -> { x }
+    | ["RetBuilder" astSeq:x]  -> { '_builder(' x ')' }
+    | ["RetCall" .:x astSeq:y] -> { x '(' y ')' }
+    | ["RetVar" .:x]           -> { '_vars.lookup(' reps(x) ')' }
+    | ["RetIndent" .:x]        -> { '_indent()' }
+    | ["RetDedent" .:x]        -> { '_dedent()' }
+    | astFnBody:x              -> { '(lambda: ' > x < ')' }
     ;
-  asListItem = ast:x                -> { x ',\n' };
+  astFnBody =
+    | ["Or" asListItem*:xs]    -> { 'self._or([\n' > xs < '])' }
+    | ["Scope" ast:x]          -> { '(lambda _vars:\n' > x < ')(_Vars())' }
+    | ["And" asListItem*:xs]   -> { 'self._and([\n' > xs < '])' }
+    | ["Binding" .:x ast:y]    -> { '_vars.bind(' x ', ' y)' }
+    | ["Star" ast:x]           -> { 'self._star(' x ')' }
+    | ["Not" ast:x]            -> { 'self._negative_lookahead(' x ')' }
+    | ["Action" ast:x]         -> { '_Action(lambda: ' x '))' }
+    | ["MatchString" .:x]      -> { 'self._match_string(' repr(x) ')' }
+    | ["MatchCharsec" .:x]     -> { 'self._match_charsec(' repr(x) ')' }
+    | ["Nothing"]              -> { 'None' }
+    | ["Range" .:x .:y]        -> { 'self._range(' x ',' y ')' }
+    | ["MatchCharsec" .:x]     -> { 'self._charsec(' x ')' }
+    ;
+  asListItem = ast:x           -> { x ',\n' };
+  astList = astListItem:x (
+              astListItem:x    -> { '+' x }
+            )*:xs              -> { x xs };
+  astListItem =
+    | ["RetSplice" ast:x]      -> { x }
+    | ast:x                    -> { '[' x ']' }
 }

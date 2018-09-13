@@ -44,7 +44,7 @@ Parser {
     | name:x                                   -> ["RetVar" x]
     ;
   returnListItem =
-    | space '~' name:x                         -> ["RetListItem" x]
+    | space '~' name:x                         -> ["RetSplice" x]
     | return
     ;
   stringBuild =

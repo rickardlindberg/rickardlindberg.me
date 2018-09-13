@@ -24,6 +24,16 @@
 ],
 "id":"c4d0a4ba10e04d94b0ed0b90034714e6",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Include live demo that readers can play with.",
+"type":"text"
+}
+],
+"id":"476723b2b7e046a4a2c0b809b1ce4bfc",
+"type":"text"
 }
 ],
 "title":"Expression interpreter"
@@ -31,7 +41,18 @@
 {
 "children":[],
 "id":"25d640e9b62e4609b81d5b50b20a4433",
-"paragraphs":[],
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Include live demo that readers can play with.",
+"type":"text"
+}
+],
+"id":"3a4cf141dca74bfcabba53cdcef0350f",
+"type":"text"
+}
+],
 "title":"Code translator"
 },
 {
@@ -78,7 +99,7 @@
 "type":"variable"
 },
 {
-"text":" ast node is created:",
+"text":" AST node is created:",
 "type":"text"
 }
 ],
@@ -156,7 +177,7 @@
 "type":"variable"
 },
 {
-"text":" ast node is matched a Python class with the same name is generated that inherits from ",
+"text":" AST node is matched a Python class with the same name is generated that inherits from ",
 "type":"text"
 },
 {
@@ -173,6 +194,7 @@
 },
 {
 "chunkpath":[
+"rules",
 "ast"
 ],
 "filepath":[
@@ -196,7 +218,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs]       -> { 'class ' x '(",
+"text":"*:xs]  -> { 'class ' x '(",
 "type":"code"
 },
 {
@@ -295,6 +317,7 @@
 },
 {
 "chunkpath":[
+"rules",
 "ast"
 ],
 "filepath":[
@@ -424,7 +447,7 @@
 "type":"variable"
 },
 {
-"text":" ast node is matched a Python method with the same name is generated:",
+"text":" AST node is matched a Python method with the same name is generated:",
 "type":"text"
 }
 ],
@@ -433,6 +456,7 @@
 },
 {
 "chunkpath":[
+"rules",
 "ast"
 ],
 "filepath":[
@@ -456,7 +480,7 @@
 "type":"variable"
 },
 {
-"text":":x]            -> { 'def ' x '(self):\\n' > 'return ' x '()\\n' < }\n",
+"text":":x]       -> { 'def ' x '(self):\\n' > 'return ' x '()\\n' < }\n",
 "type":"code"
 }
 ],
@@ -569,7 +593,7 @@
 "type":"variable"
 },
 {
-"text":" ast node is found ...:",
+"text":" AST node is found ...:",
 "type":"text"
 }
 ],
@@ -578,7 +602,8 @@
 },
 {
 "chunkpath":[
-"ast"
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -601,7 +626,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs]         -> { '(lambda: self.",
+"text":"*:xs]    -> { 'self.",
 "type":"code"
 },
 {
@@ -609,7 +634,7 @@
 "type":"variable"
 },
 {
-"text":"([\\n' > xs < ']))' }\n",
+"text":"([\\n' > xs < '])' }\n",
 "type":"code"
 }
 ],
@@ -710,11 +735,11 @@
 "type":"text"
 },
 {
-"id":"efa7dd37aa9e46908ed34f8d31cd476d",
+"id":"8d17eff4871e411793cf0daf3a2ab204",
 "type":"variable"
 },
 {
-"text":" ast node is found ...:",
+"text":" AST node is found ...:",
 "type":"text"
 }
 ],
@@ -723,7 +748,41 @@
 },
 {
 "chunkpath":[
-"ast"
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"b845c4cee1734619991d56de83dce37d",
+"type":"variable"
+},
+{
+"text":"\" ast:x]          -> { '(lambda _vars:\\n' > x < ')(",
+"type":"code"
+},
+{
+"id":"ec2b7e954fe24f329250bd22c70538e4",
+"type":"variable"
+},
+{
+"text":"())' }\n",
+"type":"code"
+}
+],
+"id":"89d707f19bd84e5982dcc3f043a68111",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -746,7 +805,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs]        -> { '(lambda: self.",
+"text":"*:xs]   -> { 'self.",
 "type":"code"
 },
 {
@@ -759,38 +818,6 @@
 }
 ],
 "id":"3fe2404188684b7485049b6298e4ba3e",
-"type":"code"
-},
-{
-"chunkpath":[
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"b845c4cee1734619991d56de83dce37d",
-"type":"variable"
-},
-{
-"text":"\" ast:x]               -> { '(lambda: (lambda _vars:\\n' > x < ')(",
-"type":"code"
-},
-{
-"id":"ec2b7e954fe24f329250bd22c70538e4",
-"type":"variable"
-},
-{
-"text":"()))' }\n",
-"type":"code"
-}
-],
-"id":"89d707f19bd84e5982dcc3f043a68111",
 "type":"code"
 }
 ],
@@ -854,7 +881,8 @@
 },
 {
 "chunkpath":[
-"ast"
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -877,7 +905,7 @@
 "type":"variable"
 },
 {
-"text":":y]         -> { '(lambda: _vars.bind(' x ', ' y '()'))' }\n",
+"text":":y]    -> { '_vars.bind(' x ', ' y)' }\n",
 "type":"code"
 }
 ],
@@ -969,7 +997,8 @@
 },
 {
 "chunkpath":[
-"ast"
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -992,7 +1021,7 @@
 "type":"variable"
 },
 {
-"text":":x]                -> { '(lambda: self._star(' x '))' }\n",
+"text":":x]           -> { 'self._star(' x ')' }\n",
 "type":"code"
 }
 ],
@@ -1001,7 +1030,8 @@
 },
 {
 "chunkpath":[
-"ast"
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -1024,7 +1054,7 @@
 "type":"variable"
 },
 {
-"text":":x]                 -> { '(lambda: self._negative_lookahead(' x '))' }\n",
+"text":":x]            -> { 'self._negative_lookahead(' x ')' }\n",
 "type":"code"
 }
 ],
@@ -1220,103 +1250,8 @@
 },
 {
 "chunkpath":[
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"4852ced8038c4074a5a8104b8596e0e0",
-"type":"variable"
-},
-{
-"text":"\" .:x]           -> { 'self.' x }\n",
-"type":"code"
-}
-],
-"id":"412bfecbb7244810ba46e206486092c8",
-"type":"code"
-},
-{
-"chunkpath":[
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"10d9c2de82a14d12bd545133bd4e15f8",
-"type":"variable"
-},
-{
-"text":"\" .:x]           -> { '(lambda: self._match_string(' repr(x) '))' }\n",
-"type":"code"
-}
-],
-"id":"2d406fc305b34136a1280841c2098a7a",
-"type":"code"
-},
-{
-"chunkpath":[
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"8ff0b4980efa4e349ec5ef14815be6ec",
-"type":"variable"
-},
-{
-"text":"\" .:x]          -> { '(lambda: self._match_charsec(' repr(x) '))' }\n",
-"type":"code"
-}
-],
-"id":"b04618e300a746c6930f0c3c5ac338dc",
-"type":"code"
-},
-{
-"chunkpath":[
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"25ec6fc64b8b4a39a9df41daa690386f",
-"type":"variable"
-},
-{
-"text":"\"]                       -> { 'self._any' }\n",
-"type":"code"
-}
-],
-"id":"982a4ec2696d466ab86d17115f366f87",
-"type":"code"
-},
-{
-"chunkpath":[
-"ast"
+"rules",
+"astFnBody"
 ],
 "filepath":[
 "codegen.rlmeta"
@@ -1339,11 +1274,136 @@
 "type":"variable"
 },
 {
-"text":":x]              -> { '(lambda: ' x '())' }\n",
+"text":":x]         -> { '_Action(lambda: ' x '))' }\n",
 "type":"code"
 }
 ],
 "id":"48288d82d6984e2088ee6ce8a5a5253e",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"4852ced8038c4074a5a8104b8596e0e0",
+"type":"variable"
+},
+{
+"text":"\" .:x]      -> { 'self.' x }\n",
+"type":"code"
+}
+],
+"id":"412bfecbb7244810ba46e206486092c8",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"10d9c2de82a14d12bd545133bd4e15f8",
+"type":"variable"
+},
+{
+"text":"\" .:x]      -> { 'self._match_string(' repr(x) ')' }\n",
+"type":"code"
+}
+],
+"id":"2d406fc305b34136a1280841c2098a7a",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"8ff0b4980efa4e349ec5ef14815be6ec",
+"type":"variable"
+},
+{
+"text":"\" .:x]     -> { 'self._match_charsec(' repr(x) ')' }\n",
+"type":"code"
+}
+],
+"id":"b04618e300a746c6930f0c3c5ac338dc",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"736cd2768dcd4843b43aca56bea200d3",
+"type":"variable"
+},
+{
+"text":"\"]              -> { 'None' }\n",
+"type":"code"
+}
+],
+"id":"f89b8db315ca4734a535d6ffbbf464bb",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"25ec6fc64b8b4a39a9df41daa690386f",
+"type":"variable"
+},
+{
+"text":"\"]                  -> { 'self._any' }\n",
+"type":"code"
+}
+],
+"id":"982a4ec2696d466ab86d17115f366f87",
 "type":"code"
 }
 ],
@@ -1411,6 +1471,56 @@
 }
 ],
 "id":"40c6c6c91d9f4049b2e57266f4acdd7c",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"6860db9e40994ebfbe04834b4f12f721",
+"type":"variable"
+},
+{
+"text":"\" .:x .:y]        -> { 'self._range(' x ',' y ')' }\n",
+"type":"code"
+}
+],
+"id":"7ce8d15eb0a349e9a26f7c4b65cf23d8",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"8ff0b4980efa4e349ec5ef14815be6ec",
+"type":"variable"
+},
+{
+"text":"\" .:x]     -> { 'self._charsec(' x ')' }\n",
+"type":"code"
+}
+],
+"id":"7881da16f747453ea1ceb0908d005fee",
 "type":"code"
 }
 ],
@@ -1578,6 +1688,139 @@
 },
 {
 "chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"301f08856bf54373bc5975f75a315105",
+"type":"variable"
+},
+{
+"text":"\" .:x]        -> { repr(x) }\n",
+"type":"code"
+}
+],
+"id":"0fdb7fda246f4e99becb87637359df79",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"49ba1aa1e24e408ba2b32bff68a72840",
+"type":"variable"
+},
+{
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"2420b6bcf2374252a533688aa0b33b5f",
+"type":"variable"
+},
+{
+"text":":x]    -> { x }\n",
+"type":"code"
+}
+],
+"id":"47a643f9317f47afa2e6d5001b87a1ff",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
+"type":"variable"
+},
+{
+"text":"\" astSeq:x]  -> { '_builder(' x ')' }\n",
+"type":"code"
+}
+],
+"id":"74eb55bab93644eca5a621d9469c86dc",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"0a8e6be4bec3466bb658d7d4ff5bc5fd",
+"type":"variable"
+},
+{
+"text":"\" .:x astSeq:y] -> { x '(' y ')' }\n",
+"type":"code"
+}
+],
+"id":"a264ffede57c4b6aa108a23f741bd694",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"ae823ab23224415f9a539b0354f311b8",
+"type":"variable"
+},
+{
+"text":"\" .:x]           -> { '_vars.lookup(' reps(x) ')' }\n",
+"type":"code"
+}
+],
+"id":"544bade2ad6a463db74a4b66c7cba6f7",
+"type":"code"
+},
+{
+"chunkpath":[
 "rules"
 ],
 "filepath":[
@@ -1687,9 +1930,59 @@
 ],
 "id":"a3c04d0cc65d41c8af8017af890e7ea4",
 "type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"d34e449a8ca740d0a4b84921fc05b25f",
+"type":"variable"
+},
+{
+"text":"\" .:x]        -> { '_indent()' }\n",
+"type":"code"
 }
 ],
-"title":"Semantic action"
+"id":"1f9c2f35e18d4eac90c9b8e8a7db8b32",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"7b75cb86cab34645b43d69d790e6e206",
+"type":"variable"
+},
+{
+"text":"\" .:x]        -> { '_dedent()' }\n",
+"type":"code"
+}
+],
+"id":"c4aaf6182aa34e73924627f6961161d4",
+"type":"code"
+}
+],
+"title":"Semantic action body"
 },
 {
 "children":[],
@@ -1885,19 +2178,186 @@
 ],
 "fragments":[
 {
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"ast"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"  | ",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":":x              -> { '(lambda: ' > x < ')' }\n  ;\n",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"astFnBody"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"  ;\n",
+"type":"code"
+}
+],
+"id":"bc8464b515df4cf9a0be11f8757cfa24",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda.",
+"type":"text"
+}
+],
+"id":"1b8ad3a855444c598a016788f32237ab",
+"type":"text"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
 "id":"ccb3f676f6314d788147dc603933cd28",
 "type":"variable"
 },
 {
-"text":" = ast:x                -> { x ',\\n' };\n",
+"text":" = ast:x           -> { x ',\\n' };\n",
 "type":"code"
 }
 ],
 "id":"8f190300db404d17a2a8f5e36e95ddcd",
 "type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"2420b6bcf2374252a533688aa0b33b5f",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"19791660815a43e1b775ea6a29349648",
+"type":"variable"
+},
+{
+"text":":x (\n            ",
+"type":"code"
+},
+{
+"id":"19791660815a43e1b775ea6a29349648",
+"type":"variable"
+},
+{
+"text":":x    -> { '+' x }\n          )*:xs              -> { x xs };\n",
+"type":"code"
+}
+],
+"id":"eae26130c7a047daa3ae8fd86ea4a9b6",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"19791660815a43e1b775ea6a29349648",
+"type":"variable"
+},
+{
+"text":" =\n  | [\"",
+"type":"code"
+},
+{
+"id":"cf8770da147840679077788180e10778",
+"type":"variable"
+},
+{
+"text":"\" ast:x]      -> { x }\n  | ast:x                    -> { '[' x ']' }\n",
+"type":"code"
+}
+],
+"id":"a9726003d9ff409aab302f66b5756a5b",
+"type":"code"
 }
 ],
 "title":"Utils"
+},
+{
+"children":[],
+"id":"d9ea64bbdad3465897667ebec9d5ace1",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"TODO: Render parser here!",
+"type":"text"
+}
+],
+"id":"cbbb7c4cccc8418f9b22de8fe6b91c48",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: Render code generator here!",
+"type":"text"
+}
+],
+"id":"245b8164d0dc473b8854c2becb228910",
+"type":"text"
+}
+],
+"title":"Summary"
 }
 ],
 "id":"f5f122c94d3d4fa0b3a7e64a7fa0a724",
@@ -1962,26 +2422,7 @@
 "type":"variable"
 },
 {
-"text":" {\n  ",
-"type":"code"
-},
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
-"type":"variable"
-},
-{
-"text":" =\n",
-"type":"code"
-},
-{
-"path":[
-"ast"
-],
-"prefix":"    ",
-"type":"chunk"
-},
-{
-"text":"    ;\n",
+"text":" {\n",
 "type":"code"
 },
 {
@@ -2104,6 +2545,30 @@
 "id":"215a5e3e82864314a5558482ec470279",
 "paragraphs":[],
 "title":"Bootstrapped!"
+},
+{
+"children":[],
+"id":"2cf9cc82539149ea8e9225a95f6965cd",
+"paragraphs":[
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"How many times can a semantic action be evaluated?",
+"type":"text"
+}
+]
+}
+],
+"id":"9839e9dfe25e47a58b35987a6f5d6154",
+"type":"list"
+}
+],
+"title":"Discuss semantics"
 }
 ],
 "id":"9a483a4a28de4f298790297b5708b96f",
@@ -2119,7 +2584,7 @@
 "type":"text"
 }
 ],
-"title":"Implementing a programming language"
+"title":"Implementing programming languages"
 },
 "variables":{
 "0449532c17204462b4b4681b07ac12b5":"expr1",
@@ -2128,6 +2593,8 @@
 "10d9c2de82a14d12bd545133bd4e15f8":"MatchString",
 "1104a6a7ec934b48a4f1db64dcd27000":"_label",
 "1868228966e84ad698de9ff7fe063861":"space",
+"19791660815a43e1b775ea6a29349648":"astListItem",
+"2420b6bcf2374252a533688aa0b33b5f":"astList",
 "2508a37fdce84b31a7e6093a98c57506":"BuildCharsec",
 "25ec6fc64b8b4a39a9df41daa690386f":"Any",
 "26534c61b2d94990abb37ceeeb648e4f":"_ors",
@@ -2193,7 +2660,7 @@
 "c8edc6f14d27480e9f737a7697f07f07":"rule",
 "c9ecfed5791644a3b7ea2122d4ed87c9":"RetBuilder",
 "ccb3f676f6314d788147dc603933cd28":"asListItem",
-"cf8770da147840679077788180e10778":"RetListItem",
+"cf8770da147840679077788180e10778":"RetSplice",
 "d34e449a8ca740d0a4b84921fc05b25f":"RetIndent",
 "dc3d22a8b70043628b058ffd00659a5d":"BuildIndent",
 "dd463f369f79475da606b1cfc2d96076":"return",
@@ -2210,6 +2677,7 @@
 "f49eae10880e4186a37c021e34aea403":"_ands",
 "f8b8599256e946a08d2325d52bf8e10b":"BuildVar",
 "fdd8dd7ed7f54cc487c14cc791d637e2":"wrapInOr",
-"fe84c1eea3fc4476bbcb1c717c92d43b":"returnListItem"
+"fe84c1eea3fc4476bbcb1c717c92d43b":"returnListItem",
+"ff0229c63d8a4b4897faed8c38201de3":"astFnBody"
 }
 }
