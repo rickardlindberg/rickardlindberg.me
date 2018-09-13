@@ -30,7 +30,7 @@ Parser {
     | space '.'                                -> ["Any"]
     | space '(' choices:x space ')'            -> x
     | space '\'' char:x '-' char:y '\''        -> ["Range" x y]
-    | space '[' expr*:xs ']'                   -> ["MatchList" ["And" ~xs]]
+    | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
     ;
   return =
     | string:x                                 -> ["RetString" x]
