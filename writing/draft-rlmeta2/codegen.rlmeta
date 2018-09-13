@@ -28,10 +28,12 @@ CodeGenerator {
     | ["MatchCharsec" .:x]     -> { 'self._charsec(' x ')' }
     ;
   asListItem = ast:x           -> { x ',\n' };
-  astList = astListItem:x (
-              astListItem:x    -> { '+' x }
-            )*:xs              -> { x xs };
+  astList =
+    | astListItem:x astList:y  -> { x '+' y }
+    |                          -> { '[]' }
+    ;
   astListItem =
     | ["RetSplice" ast:x]      -> { x }
     | ast:x                    -> { '[' x ']' }
+    ;
 }
