@@ -54,7 +54,7 @@ Parser {
   char      = '\\' escape | .;
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n";
-  name      = nameStart:x nameChar*:xs          -> join([x ~xs]);
+  name      = nameStart:x nameChar*:xs         -> join([x ~xs]);
   nameStart = lower | upper;
   nameChar  = lower | upper | digit;
   lower     = 'a'-'z';
