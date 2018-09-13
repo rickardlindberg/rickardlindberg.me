@@ -26,14 +26,11 @@ Parser {
     | name:x                                   -> ["Application" x]
     | string:x                                 -> ["MatchString" x]
     | charseq:x                                -> ["MatchCharsec" x]
-    | space 'nothing' ![A-Za-z0-9]             -> ["Nothing"]
+    | space 'nothing' !nameChar                -> ["Nothing"]
     | space '.'                                -> ["Any"]
     | space '(' choices:x space ')'            -> x
-    | space '[' charClass*:xs space ']'        -> ["Or" ~xs]
-    ;
-  charClass =
-    | char:x '-' char:y                        -> ["Range" x y]
-    | char:x                                   -> ["MatchCharsec" x]
+    | space '\'' char:x '-' char:y '\''        -> ["Range" x y]
+    | space '[' expr*:xs ']'                   -> ["MatchList" ["And" ~xs]]
     ;
   return =
     | string:x                                 -> ["RetString" x]
@@ -52,11 +49,16 @@ Parser {
     | space '<'                                -> ["RetDedent"]
     | return
     ;
-  string   = space '"' (!'"' char)*:xs '"'     -> join(xs);
-  charseq  = space '\'' (!'\'' char)*:xs '\''  -> join(xs);
-  char     = '\\' escape | .;
-  escape   = '\\' -> "\\" | '\'' -> "'"
-           | '"'  -> "\"" | 'n'  -> "\n";
-  name     = [a-zA-Z]:x [a-zA-Z0-9]*:xs        -> join([x ~xs]);
-  space    = [ \t\n]*;
+  string    = space '"' (!'"' char)*:xs '"'    -> join(xs);
+  charseq   = space '\'' (!'\'' char)*:xs '\'' -> join(xs);
+  char      = '\\' escape | .;
+  escape    = '\\' -> "\\" | '\'' -> "'"
+            | '"'  -> "\"" | 'n'  -> "\n";
+  name      = nameStart:x nameChar*:xs          -> join([x ~xs]);
+  nameStart = lower | upper;
+  nameChar  = lower | upper | digit;
+  lower     = 'a'-'z';
+  upper     = 'A'-'Z';
+  digit     = '0'-'9';
+  space     = (' ' | '\t' | '\n')*;
 }

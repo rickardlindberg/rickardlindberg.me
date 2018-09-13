@@ -8,7 +8,7 @@ CodeGenerator {
     | ["RetList" astList:x]    -> { x }
     | ["RetBuilder" astSeq:x]  -> { '_builder(' x ')' }
     | ["RetCall" .:x astSeq:y] -> { x '(' y ')' }
-    | ["RetVar" .:x]           -> { '_vars.lookup(' reps(x) ')' }
+    | ["RetVar" .:x]           -> { '_vars.lookup(' repr(x) ')' }
     | ["RetIndent" .:x]        -> { '_indent()' }
     | ["RetDedent" .:x]        -> { '_dedent()' }
     | astFnBody:x              -> { '(lambda: ' > x < ')' }
@@ -17,7 +17,7 @@ CodeGenerator {
     | ["Or" asListItem*:xs]    -> { 'self._or([\n' > xs < '])' }
     | ["Scope" ast:x]          -> { '(lambda _vars:\n' > x < ')(_Vars())' }
     | ["And" asListItem*:xs]   -> { 'self._and([\n' > xs < '])' }
-    | ["Binding" .:x ast:y]    -> { '_vars.bind(' x ', ' y)' }
+    | ["Binding" .:x ast:y]    -> { '_vars.bind(' x ', ' y '())' }
     | ["Star" ast:x]           -> { 'self._star(' x ')' }
     | ["Not" ast:x]            -> { 'self._negative_lookahead(' x ')' }
     | ["Action" ast:x]         -> { '_Action(lambda: ' x '))' }
@@ -25,9 +25,10 @@ CodeGenerator {
     | ["MatchCharsec" .:x]     -> { 'self._match_charsec(' repr(x) ')' }
     | ["Nothing"]              -> { 'None' }
     | ["Range" .:x .:y]        -> { 'self._range(' x ',' y ')' }
-    | ["MatchCharsec" .:x]     -> { 'self._charsec(' x ')' }
+    | ["MatchList" ast:x]      -> { 'self._match_list(' x ')' }
     ;
   asListItem = ast:x           -> { x ',\n' };
+  astSeq = (ast:x -> { x ',' })*:xs -> { xs };
   astList =
     | astListItem:x astList:y  -> { x '+' y }
     |                          -> { '[]' }

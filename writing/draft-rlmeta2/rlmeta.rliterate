@@ -905,7 +905,7 @@
 "type":"variable"
 },
 {
-"text":":y]    -> { '_vars.bind(' x ', ' y)' }\n",
+"text":":y]    -> { '_vars.bind(' x ', ' y '())' }\n",
 "type":"code"
 }
 ],
@@ -1161,7 +1161,15 @@
 "type":"variable"
 },
 {
-"text":" 'nothing' ![A-Za-z0-9]             -> [\"",
+"text":" 'nothing' !",
+"type":"code"
+},
+{
+"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"type":"variable"
+},
+{
+"text":"                -> [\"",
 "type":"code"
 },
 {
@@ -1217,15 +1225,31 @@
 "type":"variable"
 },
 {
-"text":" '[' ",
+"text":" '\\'' ",
 "type":"code"
 },
 {
-"id":"87debc7f453a48eab28b89389b5474a3",
+"id":"e1248cbd01c54a1680793b61e7a048e1",
 "type":"variable"
 },
 {
-"text":"*:xs ",
+"text":":x '-' ",
+"type":"code"
+},
+{
+"id":"e1248cbd01c54a1680793b61e7a048e1",
+"type":"variable"
+},
+{
+"text":":y '\\''        -> [\"",
+"type":"code"
+},
+{
+"id":"6860db9e40994ebfbe04834b4f12f721",
+"type":"variable"
+},
+{
+"text":"\" x y]\n  | ",
 "type":"code"
 },
 {
@@ -1233,15 +1257,31 @@
 "type":"variable"
 },
 {
-"text":" ']'        -> [\"",
+"text":" '[' ",
 "type":"code"
 },
 {
-"id":"efa7dd37aa9e46908ed34f8d31cd476d",
+"id":"dfcaa421bd764cce9d99219c61883a45",
 "type":"variable"
 },
 {
-"text":"\" ~xs]\n  ;\n",
+"text":"*:xs ']'                   -> [\"",
+"type":"code"
+},
+{
+"id":"0c1a9537d33148388015163fc90329b3",
+"type":"variable"
+},
+{
+"text":"\" [\"",
+"type":"code"
+},
+{
+"id":"8d17eff4871e411793cf0daf3a2ab204",
+"type":"variable"
+},
+{
+"text":"\" ~xs]]\n  ;\n",
 "type":"code"
 }
 ],
@@ -1405,73 +1445,6 @@
 ],
 "id":"982a4ec2696d466ab86d17115f366f87",
 "type":"code"
-}
-],
-"title":"Expression level 2"
-},
-{
-"children":[],
-"id":"417a1cd5925e40c098771617be63361f",
-"paragraphs":[
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"id":"87debc7f453a48eab28b89389b5474a3",
-"type":"variable"
-},
-{
-"text":" =\n  | ",
-"type":"code"
-},
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":":x '-' ",
-"type":"code"
-},
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":":y                        -> [\"",
-"type":"code"
-},
-{
-"id":"6860db9e40994ebfbe04834b4f12f721",
-"type":"variable"
-},
-{
-"text":"\" x y]\n  | ",
-"type":"code"
-},
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":":x                                   -> [\"",
-"type":"code"
-},
-{
-"id":"8ff0b4980efa4e349ec5ef14815be6ec",
-"type":"variable"
-},
-{
-"text":"\" x]\n  ;\n",
-"type":"code"
-}
-],
-"id":"40c6c6c91d9f4049b2e57266f4acdd7c",
-"type":"code"
 },
 {
 "chunkpath":[
@@ -1512,19 +1485,27 @@
 "type":"code"
 },
 {
-"id":"8ff0b4980efa4e349ec5ef14815be6ec",
+"id":"0c1a9537d33148388015163fc90329b3",
 "type":"variable"
 },
 {
-"text":"\" .:x]     -> { 'self._charsec(' x ')' }\n",
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":":x]      -> { 'self._match_list(' x ')' }\n",
 "type":"code"
 }
 ],
-"id":"7881da16f747453ea1ceb0908d005fee",
+"id":"258fb08008994945961815115488a6d4",
 "type":"code"
 }
 ],
-"title":"Class"
+"title":"Expression level 2"
 },
 {
 "children":[],
@@ -1762,7 +1743,15 @@
 "type":"variable"
 },
 {
-"text":"\" astSeq:x]  -> { '_builder(' x ')' }\n",
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"18d86dcee79847818139f3dd7dc38d8a",
+"type":"variable"
+},
+{
+"text":":x]  -> { '_builder(' x ')' }\n",
 "type":"code"
 }
 ],
@@ -1787,7 +1776,15 @@
 "type":"variable"
 },
 {
-"text":"\" .:x astSeq:y] -> { x '(' y ')' }\n",
+"text":"\" .:x ",
+"type":"code"
+},
+{
+"id":"18d86dcee79847818139f3dd7dc38d8a",
+"type":"variable"
+},
+{
+"text":":y] -> { x '(' y ')' }\n",
 "type":"code"
 }
 ],
@@ -1812,7 +1809,7 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]           -> { '_vars.lookup(' reps(x) ')' }\n",
+"text":"\" .:x]           -> { '_vars.lookup(' repr(x) ')' }\n",
 "type":"code"
 }
 ],
@@ -2001,7 +1998,7 @@
 "type":"variable"
 },
 {
-"text":"   = ",
+"text":"    = ",
 "type":"code"
 },
 {
@@ -2017,7 +2014,7 @@
 "type":"variable"
 },
 {
-"text":")*:xs '\"'     -> join(xs);\n",
+"text":")*:xs '\"'    -> join(xs);\n",
 "type":"code"
 }
 ],
@@ -2037,7 +2034,7 @@
 "type":"variable"
 },
 {
-"text":"  = ",
+"text":"   = ",
 "type":"code"
 },
 {
@@ -2053,7 +2050,7 @@
 "type":"variable"
 },
 {
-"text":")*:xs '\\''  -> join(xs);\n",
+"text":")*:xs '\\'' -> join(xs);\n",
 "type":"code"
 }
 ],
@@ -2073,7 +2070,7 @@
 "type":"variable"
 },
 {
-"text":"     = '\\\\' ",
+"text":"      = '\\\\' ",
 "type":"code"
 },
 {
@@ -2101,7 +2098,7 @@
 "type":"variable"
 },
 {
-"text":"   = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n         | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\";\n",
+"text":"    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n          | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\";\n",
 "type":"code"
 }
 ],
@@ -2128,7 +2125,103 @@
 "type":"variable"
 },
 {
-"text":"     = [a-zA-Z]:x [a-zA-Z0-9]*:xs        -> join([x ~xs]);\n",
+"text":"      = ",
+"type":"code"
+},
+{
+"id":"7befab3d0c5747d687b20830147a70fa",
+"type":"variable"
+},
+{
+"text":":x ",
+"type":"code"
+},
+{
+"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"type":"variable"
+},
+{
+"text":"*:xs          -> join([x ~xs]);\n",
+"type":"code"
+},
+{
+"id":"7befab3d0c5747d687b20830147a70fa",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"8d8408b72eb3446ab5493dad2c80477e",
+"type":"variable"
+},
+{
+"text":" | ",
+"type":"code"
+},
+{
+"id":"0051e09230894b6696a82c3f05f6740a",
+"type":"variable"
+},
+{
+"text":";\n",
+"type":"code"
+},
+{
+"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"type":"variable"
+},
+{
+"text":"  = ",
+"type":"code"
+},
+{
+"id":"8d8408b72eb3446ab5493dad2c80477e",
+"type":"variable"
+},
+{
+"text":" | ",
+"type":"code"
+},
+{
+"id":"0051e09230894b6696a82c3f05f6740a",
+"type":"variable"
+},
+{
+"text":" | ",
+"type":"code"
+},
+{
+"id":"cc14e6fceec9478c8fdb4ac3a58dbf7a",
+"type":"variable"
+},
+{
+"text":";\n",
+"type":"code"
+},
+{
+"id":"8d8408b72eb3446ab5493dad2c80477e",
+"type":"variable"
+},
+{
+"text":"     = 'a'-'z';\n",
+"type":"code"
+},
+{
+"id":"0051e09230894b6696a82c3f05f6740a",
+"type":"variable"
+},
+{
+"text":"     = 'A'-'Z';\n",
+"type":"code"
+},
+{
+"id":"cc14e6fceec9478c8fdb4ac3a58dbf7a",
+"type":"variable"
+},
+{
+"text":"     = '0'-'9';\n",
 "type":"code"
 }
 ],
@@ -2155,7 +2248,7 @@
 "type":"variable"
 },
 {
-"text":"    = [ \\t\\n]*;\n",
+"text":"     = (' ' | '\\t' | '\\n')*;\n",
 "type":"code"
 }
 ],
@@ -2259,6 +2352,14 @@
 },
 {
 "text":" = ast:x           -> { x ',\\n' };\n",
+"type":"code"
+},
+{
+"id":"18d86dcee79847818139f3dd7dc38d8a",
+"type":"variable"
+},
+{
+"text":" = (ast:x -> { x ',' })*:xs -> { xs };\n",
 "type":"code"
 }
 ],
@@ -2594,12 +2695,15 @@
 "title":"Implementing programming languages"
 },
 "variables":{
+"0051e09230894b6696a82c3f05f6740a":"upper",
 "0449532c17204462b4b4681b07ac12b5":"expr1",
 "08c927c12a8741f9994399078b91d0b8":"_a864d6cb43244a1ca536085dd92431af",
 "0a8e6be4bec3466bb658d7d4ff5bc5fd":"RetCall",
+"0c1a9537d33148388015163fc90329b3":"MatchList",
 "10d9c2de82a14d12bd545133bd4e15f8":"MatchString",
 "1104a6a7ec934b48a4f1db64dcd27000":"_label",
 "1868228966e84ad698de9ff7fe063861":"space",
+"18d86dcee79847818139f3dd7dc38d8a":"astSeq",
 "19791660815a43e1b775ea6a29349648":"astListItem",
 "2420b6bcf2374252a533688aa0b33b5f":"astList",
 "2508a37fdce84b31a7e6093a98c57506":"BuildCharsec",
@@ -2630,9 +2734,11 @@
 "680e8a08749245bc9bbc232417da1d39":"choice",
 "6860db9e40994ebfbe04834b4f12f721":"Range",
 "6a519019bfac49598dc36620b5b58811":"Binding",
+"6b1fe389a7254359b3fbe4cb26ea084e":"nameChar",
 "736cd2768dcd4843b43aca56bea200d3":"Nothing",
 "739c23d655494bd8a8b9f16e3bd03a52":"wrapInAnd",
 "7b75cb86cab34645b43d69d790e6e206":"RetDedent",
+"7befab3d0c5747d687b20830147a70fa":"nameStart",
 "7d667137ca2f4350969bcf2044d677de":"choices",
 "7d82aaa0f3d34c059532d7a090654ab7":"string",
 "7f941dd526284ccc8143dbbc8ae8df3b":"sequence",
@@ -2644,6 +2750,7 @@
 "8c4b9e8c90ff4aa08d4840f8c1560522":"_match",
 "8cf9a10b04cc48a484e1cb7c6f1f2f28":"CodeGenerator",
 "8d17eff4871e411793cf0daf3a2ab204":"And",
+"8d8408b72eb3446ab5493dad2c80477e":"lower",
 "8f0ac7afdb164a6cb5287e9382330e91":"nothing",
 "8ff0b4980efa4e349ec5ef14815be6ec":"MatchCharsec",
 "91983a8c8ff04389a1c21c67abcebf46":"wrapInFn",
@@ -2666,6 +2773,7 @@
 "c590c92167d34fe4bfdbb084c03834c1":"_and",
 "c8edc6f14d27480e9f737a7697f07f07":"rule",
 "c9ecfed5791644a3b7ea2122d4ed87c9":"RetBuilder",
+"cc14e6fceec9478c8fdb4ac3a58dbf7a":"digit",
 "ccb3f676f6314d788147dc603933cd28":"asListItem",
 "cf8770da147840679077788180e10778":"RetSplice",
 "d34e449a8ca740d0a4b84921fc05b25f":"RetIndent",
