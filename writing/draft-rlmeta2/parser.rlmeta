@@ -4,8 +4,8 @@ Parser {
   rule =
     | name:x space '=' choices:y               -> ["Rule" x y]
   choices =
-    | (space '|' | nothing) sequence:x
-      (space '|' sequence)*:xs                 -> ["Or" x ~xs]
+    | (space '|' | nothing)
+      sequence:x (space '|' sequence)*:xs      -> ["Or" x ~xs]
   sequence =
     | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
   expr =
