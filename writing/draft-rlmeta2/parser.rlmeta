@@ -29,13 +29,13 @@ Parser {
     | string:x                                 -> ["String" x]
     | charseq:x                                -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
-    | space '{' stringBuild*:xs space '}'      -> ["ListBuilder" ~xs]
+    | space '{' buildExpr*:xs space '}'        -> ["ListBuilder" ~xs]
     | name:x space '(' hostExpr*:xs space ')'  -> ["FnCall" x ~xs]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
     | space '~' name:x                         -> ["ListItemSplice" x]
     | hostExpr
-  stringBuild =
+  buildExpr =
     | space '>'                                -> ["IndentBuilder"]
     | space '<'                                -> ["DedentBuilder"]
     | hostExpr
