@@ -1,5 +1,15 @@
 class _RLMeta(object):
-    pass
+
+    def __init__(self, in_stream, out_stream):
+        self.in_stream = in_stream
+        self.out_stream = out_stream
+
+    def run(self, rule_name):
+        result = getattr(self, rule_name)()
+        if hasattr(result, "to_rlmeta_output_stream"):
+            out_stream.write(result.to_rlmeta_output_stream())
+        else:
+            out_stream.write(result)
 class _Builder(object):
 
     def to_rlmeta_output_stream(self):

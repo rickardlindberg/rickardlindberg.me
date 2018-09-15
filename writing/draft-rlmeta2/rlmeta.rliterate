@@ -2653,7 +2653,23 @@
 "type":"variable"
 },
 {
-"text":"(object):\n    pass\n",
+"text":"(object):\n\n    def __init__(self, in_stream, out_stream):\n        self.in_stream = in_stream\n        self.out_stream = out_stream\n\n    def run(self, rule_name):\n        result = getattr(self, rule_name)()\n        if hasattr(result, \"",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"\"):\n            out_stream.write(result.",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"())\n        else:\n            out_stream.write(result)\n",
 "type":"code"
 }
 ],
