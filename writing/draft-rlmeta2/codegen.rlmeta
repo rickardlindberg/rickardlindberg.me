@@ -6,11 +6,11 @@ CodeGenerator {
     | ["Any"]                    -> { 'self._any' }
     | ["RetString" .:x]          -> { repr(x) }
     | ["RetList" astList:x]      -> { x }
-    | ["RetBuilder" astItems:x]  -> { '_builder(' x ')' }
+    | ["RetBuilder" astItems:x]  -> { '_ListBuilder([' x '])' }
     | ["RetCall" .:x astItems:y] -> { x '(' y ')' }
     | ["RetVar" .:x]             -> { '_vars.lookup(' repr(x) ')' }
-    | ["RetIndent" .:x]          -> { '_indent()' }
-    | ["RetDedent" .:x]          -> { '_dedent()' }
+    | ["RetIndent" .:x]          -> { '_IndentBuilder()' }
+    | ["RetDedent" .:x]          -> { '_DedentBuilder()' }
     | astFnBody:x                -> { '(lambda: ' > x < ')' }
   astFnBody =
     | ["Or" astItems:x]          -> { 'self._or([' x '])' }
