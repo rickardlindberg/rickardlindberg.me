@@ -764,7 +764,15 @@
 "type":"variable"
 },
 {
-"text":":x]            -> { '(lambda _vars:\\n' > x < ')(",
+"text":":x]            -> { '(lambda ",
+"type":"code"
+},
+{
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
+"type":"variable"
+},
+{
+"text":":\\n' > x < ')(",
 "type":"code"
 },
 {
@@ -872,7 +880,7 @@
 "type":"variable"
 },
 {
-"text":":x\n",
+"text":"\n",
 "type":"code"
 }
 ],
@@ -905,7 +913,15 @@
 "type":"variable"
 },
 {
-"text":":y]      -> { '_vars.bind(' x ', ' y '())' }\n",
+"text":":y]         -> { '",
+"type":"code"
+},
+{
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
+"type":"variable"
+},
+{
+"text":".bind(' x ', ' y '())' }\n",
 "type":"code"
 }
 ],
@@ -1097,7 +1113,7 @@
 "type":"variable"
 },
 {
-"text":":x                      -> [\"",
+"text":":x                    -> [\"",
 "type":"code"
 },
 {
@@ -1330,7 +1346,15 @@
 "type":"variable"
 },
 {
-"text":":x]           -> { '_Action(lambda: ' x '))' }\n",
+"text":":x]   -> { '",
+"type":"code"
+},
+{
+"id":"cbbcd925bc2c42b9add24aaa736f4d35",
+"type":"variable"
+},
+{
+"text":"(lambda: ' x '))' }\n",
 "type":"code"
 }
 ],
@@ -1355,7 +1379,7 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]        -> { 'self.' x }\n",
+"text":"\" .:x]              -> { 'self.' x }\n",
 "type":"code"
 }
 ],
@@ -1430,7 +1454,7 @@
 "type":"variable"
 },
 {
-"text":"\"]                -> { 'None' }\n",
+"text":"\"]           -> { 'None' }\n",
 "type":"code"
 }
 ],
@@ -1455,7 +1479,7 @@
 "type":"variable"
 },
 {
-"text":"\"]                    -> { 'self._any' }\n",
+"text":"\"]               -> { 'self._any' }\n",
 "type":"code"
 }
 ],
@@ -1480,7 +1504,15 @@
 "type":"variable"
 },
 {
-"text":"\" .:x .:y]          -> { 'self._range(' x ',' y ')' }\n",
+"text":"\" .:x .:y] -> { 'self.",
+"type":"code"
+},
+{
+"id":"53acf505e0ee41de85c674e211ecd39c",
+"type":"variable"
+},
+{
+"text":"(' x ',' y ')' }\n",
 "type":"code"
 }
 ],
@@ -1596,7 +1628,7 @@
 "type":"variable"
 },
 {
-"text":" ']'   -> [\"",
+"text":" ']' -> [\"",
 "type":"code"
 },
 {
@@ -1652,7 +1684,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs ')'                -> [\"",
+"text":"*:xs ')'              -> [\"",
 "type":"code"
 },
 {
@@ -1701,7 +1733,7 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]          -> { repr(x) }\n",
+"text":"\" .:x]             -> { repr(x) }\n",
 "type":"code"
 }
 ],
@@ -1734,7 +1766,7 @@
 "type":"variable"
 },
 {
-"text":":x]      -> { x }\n",
+"text":":x]         -> { x }\n",
 "type":"code"
 }
 ],
@@ -1767,7 +1799,7 @@
 "type":"variable"
 },
 {
-"text":":x]  -> { '",
+"text":":x] -> { '",
 "type":"code"
 },
 {
@@ -1808,7 +1840,7 @@
 "type":"variable"
 },
 {
-"text":":y] -> { x '(' y ')' }\n",
+"text":":y]  -> { x '(' y ')' }\n",
 "type":"code"
 }
 ],
@@ -1833,7 +1865,23 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]             -> { '_vars.lookup(' repr(x) ')' }\n",
+"text":"\" .:x]          -> { '",
+"type":"code"
+},
+{
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
+"type":"variable"
+},
+{
+"text":".lookup(' repr(x) ').",
+"type":"code"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":"()' }\n",
 "type":"code"
 }
 ],
@@ -1970,7 +2018,7 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]          -> { '",
+"text":"\" .:x]      -> { '",
 "type":"code"
 },
 {
@@ -2003,7 +2051,7 @@
 "type":"variable"
 },
 {
-"text":"\" .:x]          -> { '",
+"text":"\" .:x]      -> { '",
 "type":"code"
 },
 {
@@ -2019,7 +2067,7 @@
 "type":"code"
 }
 ],
-"title":"Semantic action body"
+"title":"Host (Python) expression"
 },
 {
 "children":[],
@@ -2410,7 +2458,7 @@
 "type":"variable"
 },
 {
-"text":"\" ast:x]        -> {     x  '+' }\n  | ",
+"text":"\" ast:x]   -> {     x  '+' }\n  | ",
 "type":"code"
 },
 {
@@ -2653,7 +2701,15 @@
 "type":"variable"
 },
 {
-"text":"(object):\n\n    def __init__(self, in_stream, out_stream):\n        self.in_stream = in_stream\n        self.out_stream = out_stream\n\n    def run(self, rule_name):\n        result = getattr(self, rule_name)()\n        if hasattr(result, \"",
+"text":"(object):\n\n    def __init__(self, in_stream, out_stream):\n        self.in_stream = in_stream\n        self.out_stream = out_stream\n\n    def run(self, rule_name):\n        result = getattr(self, rule_name)().",
+"type":"code"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":"()\n        if hasattr(result, \"",
 "type":"code"
 },
 {
@@ -3124,7 +3180,7 @@
 "0051e09230894b6696a82c3f05f6740a":"upper",
 "0449532c17204462b4b4681b07ac12b5":"expr1",
 "08c927c12a8741f9994399078b91d0b8":"_a864d6cb43244a1ca536085dd92431af",
-"0a8e6be4bec3466bb658d7d4ff5bc5fd":"RetCall",
+"0a8e6be4bec3466bb658d7d4ff5bc5fd":"FnCall",
 "0c1a9537d33148388015163fc90329b3":"MatchList",
 "10d9c2de82a14d12bd545133bd4e15f8":"MatchString",
 "1104a6a7ec934b48a4f1db64dcd27000":"_label",
@@ -3135,25 +3191,27 @@
 "229c153579734cffaa700c7e26bcd7f4":"_builder",
 "2420b6bcf2374252a533688aa0b33b5f":"astList",
 "2508a37fdce84b31a7e6093a98c57506":"BuildCharsec",
-"25ec6fc64b8b4a39a9df41daa690386f":"Any",
+"25ec6fc64b8b4a39a9df41daa690386f":"MatchAny",
 "26534c61b2d94990abb37ceeeb648e4f":"_ors",
+"289a3db9c53e420da4dbdbc94a32aadf":"_vars",
 "28ffce2da5724d248fa88ac555d118f8":"asListItemWithNewVars",
 "2aa377816ed3486da72cff7bd46190ad":"Grammar",
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
-"301f08856bf54373bc5975f75a315105":"RetString",
-"373f023f0f5f4744a7b309cf9a76d138":"Action",
+"301f08856bf54373bc5975f75a315105":"String",
+"373f023f0f5f4744a7b309cf9a76d138":"SemanticAction",
 "3e7232e282f642ab8ac4fbe709a32a99":"_result",
 "41435c2c862f40c1858cd2acd0b4f0bd":"Anonymous",
 "42f0b42533be4f7eb54c04f22a137669":"grammar",
 "43cd203f934f45c4be5ce3906b60ca5d":"_label",
-"4852ced8038c4074a5a8104b8596e0e0":"Application",
-"49ba1aa1e24e408ba2b32bff68a72840":"RetList",
+"4852ced8038c4074a5a8104b8596e0e0":"Apply",
+"49ba1aa1e24e408ba2b32bff68a72840":"List",
 "49dc22ba19624755a18a13a9e76734b1":"_Builder",
 "4c38cde583ac42ea8c7b9295a92e26f2":"_Output",
 "4e5409ddd4a34450b3c8b4cb8bc5dd60":"escape",
 "4e78a4bc50f744bb959c72b5918d9d32":"no_action",
 "50ee7994db484890abbeeb13330e22a7":"_AtomBuilder",
 "51046a6353b3472f8fe355d7f481eea9":"_b277e0c5612d4697bf8f8237494f8474",
+"53acf505e0ee41de85c674e211ecd39c":"_match_range",
 "56c85a8b77424f849f2a1b604066439e":"_or",
 "56d10f7bfcfd43bb996c3f76423b067b":"to_rlmeta_output_stream",
 "59d465325dd74411b347002179ecda0a":"_last_match",
@@ -3165,18 +3223,19 @@
 "63e215a62fb74cebb9c2939e751e326f":"start",
 "6544a37a96ce4294ab4553709d89f398":"_RLMeta",
 "680e8a08749245bc9bbc232417da1d39":"choice",
-"6860db9e40994ebfbe04834b4f12f721":"Range",
-"6a519019bfac49598dc36620b5b58811":"Binding",
+"6860db9e40994ebfbe04834b4f12f721":"MatchCharRange",
+"6a519019bfac49598dc36620b5b58811":"Bind",
 "6b1fe389a7254359b3fbe4cb26ea084e":"nameChar",
-"736cd2768dcd4843b43aca56bea200d3":"Nothing",
+"736cd2768dcd4843b43aca56bea200d3":"MatchNothing",
 "739c23d655494bd8a8b9f16e3bd03a52":"wrapInAnd",
-"7b75cb86cab34645b43d69d790e6e206":"RetDedent",
+"7b75cb86cab34645b43d69d790e6e206":"DedentBuilder",
 "7befab3d0c5747d687b20830147a70fa":"nameStart",
 "7d667137ca2f4350969bcf2044d677de":"choices",
 "7d82aaa0f3d34c059532d7a090654ab7":"string",
 "7d8a78dfe90743759bdd25cf45506815":"_IndentBuilder",
 "7f941dd526284ccc8143dbbc8ae8df3b":"sequence",
 "846fccf81eca4ab48a284407a1647eaa":"_vars",
+"85139f1436944deab62958b8a713d8aa":"eval",
 "85ee4a0a694641c3aa683a15e6a0ba5d":"astItems",
 "87bf33a4869b4d30944c4dd4388631a8":"statement",
 "87debc7f453a48eab28b89389b5474a3":"charClass",
@@ -3200,7 +3259,7 @@
 "a864d6cb43244a1ca536085dd92431af":"charseq",
 "aa94c870055a417b852e05100fb546c0":"BuildDedent",
 "ae2f859206d741eca9f5e10495cb8095":"stringBuild",
-"ae823ab23224415f9a539b0354f311b8":"RetVar",
+"ae823ab23224415f9a539b0354f311b8":"VarLookup",
 "af5dbdd6e27c451398b2b116b5ff42d3":"write",
 "b09ffc5c602a482982cec2726c306ace":"withNewVars",
 "b277e0c5612d4697bf8f8237494f8474":"_ListBuilder",
@@ -3213,13 +3272,14 @@
 "bfaedafcea7445e7b7ed19c9abb47736":"_DedentBuilder",
 "c590c92167d34fe4bfdbb084c03834c1":"_and",
 "c8edc6f14d27480e9f737a7697f07f07":"rule",
-"c9ecfed5791644a3b7ea2122d4ed87c9":"RetBuilder",
+"c9ecfed5791644a3b7ea2122d4ed87c9":"ListBuilder",
+"cbbcd925bc2c42b9add24aaa736f4d35":"_SemanticAction",
 "cc14e6fceec9478c8fdb4ac3a58dbf7a":"digit",
 "ccb3f676f6314d788147dc603933cd28":"astItem",
-"cf8770da147840679077788180e10778":"RetSplice",
-"d34e449a8ca740d0a4b84921fc05b25f":"RetIndent",
+"cf8770da147840679077788180e10778":"ListItemSplice",
+"d34e449a8ca740d0a4b84921fc05b25f":"IndentBuilder",
 "dc3d22a8b70043628b058ffd00659a5d":"BuildIndent",
-"dd463f369f79475da606b1cfc2d96076":"return",
+"dd463f369f79475da606b1cfc2d96076":"hostExpr",
 "de5ba4ce4509433c946eacf356d7cfaa":"class:x ",
 "de83a3a772234966ac566909fdfb0789":"file",
 "dfcaa421bd764cce9d99219c61883a45":"expr",
@@ -3233,7 +3293,7 @@
 "f49eae10880e4186a37c021e34aea403":"_ands",
 "f8b8599256e946a08d2325d52bf8e10b":"BuildVar",
 "fdd8dd7ed7f54cc487c14cc791d637e2":"wrapInOr",
-"fe84c1eea3fc4476bbcb1c717c92d43b":"returnListItem",
+"fe84c1eea3fc4476bbcb1c717c92d43b":"hostExprListItem",
 "ff0229c63d8a4b4897faed8c38201de3":"astFnBody"
 }
 }

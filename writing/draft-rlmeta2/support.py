@@ -5,7 +5,7 @@ class _RLMeta(object):
         self.out_stream = out_stream
 
     def run(self, rule_name):
-        result = getattr(self, rule_name)()
+        result = getattr(self, rule_name)().eval()
         if hasattr(result, "to_rlmeta_output_stream"):
             out_stream.write(result.to_rlmeta_output_stream())
         else:
