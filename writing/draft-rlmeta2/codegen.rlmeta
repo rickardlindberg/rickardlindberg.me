@@ -21,9 +21,9 @@ CodeGenerator {
     | ["MatchNothing"]           -> { 'None' }
     | ["Not" ast:x]              -> { 'self._negative_lookahead(' x ')' }
     | ["SemanticAction" ast:x]   -> { '_SemanticAction(lambda: ' x '))' }
+    | ["MatchCharRange" .:x .:y] -> { 'self._match_range(' x ',' y ')' }
     | ["MatchString" .:x]        -> { 'self._match_string(' repr(x) ')' }
     | ["MatchCharsec" .:x]       -> { 'self._match_charsec(' repr(x) ')' }
-    | ["MatchCharRange" .:x .:y] -> { 'self._match_range(' x ',' y ')' }
     | ["MatchList" ast:x]        -> { 'self._match_list(' x ')' }
   astItems    = astItem*:xs      -> { '\n' > xs < }
   astItem     = ast:x            -> { x ',\n' }

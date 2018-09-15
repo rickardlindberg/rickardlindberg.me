@@ -19,15 +19,15 @@ Parser {
   expr2 =
     | space '->' hostExpr:x                    -> ["SemanticAction" x]
     | name:x !(space '=')                      -> ["Apply" x]
-    | string:x                                 -> ["MatchString" x]
-    | charseq:x                                -> ["MatchCharsec" x]
+    | space char:x '-' char:y                  -> ["MatchCharRange" x y]
+    | space string:x                           -> ["MatchString" x]
+    | space charseq:x                          -> ["MatchCharsec" x]
     | space '.'                                -> ["MatchAny"]
     | space '(' choices:x space ')'            -> x
-    | space '\'' char:x '\'-\'' char:y '\''    -> ["MatchCharRange" x y]
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
   hostExpr =
-    | string:x                                 -> ["String" x]
-    | charseq:x                                -> ["String" x]
+    | space string:x                           -> ["String" x]
+    | space charseq:x                          -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' buildExpr*:xs space '}'        -> ["ListBuilder" ~xs]
     | name:x space '(' hostExpr*:xs space ')'  -> ["FnCall" x ~xs]
@@ -39,9 +39,10 @@ Parser {
     | space '>'                                -> ["IndentBuilder"]
     | space '<'                                -> ["DedentBuilder"]
     | hostExpr
-  string    = space '"' (!'"' char)*:xs '"'    -> join(xs)
-  charseq   = space '\'' (!'\'' char)*:xs '\'' -> join(xs)
-  char      = '\\' escape | .
+  string    = '"' (!'"' innerChar)*:xs '"'     -> join(xs)
+  charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> join(xs)
+  char      = '\'' !'\'' innerChar:x '\''      -> join(x)
+  innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
   name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
