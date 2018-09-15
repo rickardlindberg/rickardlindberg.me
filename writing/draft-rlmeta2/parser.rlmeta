@@ -9,7 +9,7 @@ Parser {
   sequence =
     | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
   expr =
-    | expr1:x ':' name:y                       -> ["Bind" y x]
+    | expr1:x space ':' name:y                 -> ["Bind" y x]
     | expr1
   expr1 =
     | expr2:x space '*'                        -> ["Star" x]
@@ -30,7 +30,7 @@ Parser {
     | charseq:x                                -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' stringBuild*:xs space '}'      -> ["ListBuilder" ~xs]
-    | name:x '(' hostExpr*:xs ')'              -> ["FnCall" x ~xs]
+    | name:x space '(' hostExpr*:xs space ')'  -> ["FnCall" x ~xs]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
     | space '~' name:x                         -> ["ListItemSplice" x]
@@ -44,7 +44,7 @@ Parser {
   char      = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
-  name      = nameStart:x nameChar*:xs         -> join([x ~xs])
+  name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
   nameStart = 'a'-'z' | 'A'-'Z'
   nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
   space     = (' ' | '\t' | '\n')*
