@@ -159,7 +159,7 @@
 "type":"variable"
 },
 {
-"text":"\" x ~ys]\n  ;\n",
+"text":"\" x ~ys]\n",
 "type":"code"
 }
 ],
@@ -413,15 +413,7 @@
 "type":"variable"
 },
 {
-"text":":y ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" ';'     -> [\"",
+"text":":y               -> [\"",
 "type":"code"
 },
 {
@@ -429,7 +421,7 @@
 "type":"variable"
 },
 {
-"text":"\" x y]\n  ;\n",
+"text":"\" x y]\n",
 "type":"code"
 }
 ],
@@ -575,7 +567,7 @@
 "type":"variable"
 },
 {
-"text":"\" x ~xs]\n  ;\n",
+"text":"\" x ~xs]\n",
 "type":"code"
 }
 ],
@@ -721,7 +713,7 @@
 "type":"variable"
 },
 {
-"text":"\" x ~xs]]\n  ;\n",
+"text":"\" x ~xs]]\n",
 "type":"code"
 }
 ],
@@ -880,7 +872,7 @@
 "type":"variable"
 },
 {
-"text":":x\n  ;\n",
+"text":":x\n",
 "type":"code"
 }
 ],
@@ -996,7 +988,7 @@
 "type":"variable"
 },
 {
-"text":"\n  ;\n",
+"text":"\n",
 "type":"code"
 }
 ],
@@ -1121,7 +1113,15 @@
 "type":"variable"
 },
 {
-"text":":x                                   -> [\"",
+"text":":x !(",
+"type":"code"
+},
+{
+"id":"1868228966e84ad698de9ff7fe063861",
+"type":"variable"
+},
+{
+"text":" '=')                      -> [\"",
 "type":"code"
 },
 {
@@ -1297,7 +1297,7 @@
 "type":"variable"
 },
 {
-"text":"\" ~xs]]\n  ;\n",
+"text":"\" ~xs]]\n",
 "type":"code"
 }
 ],
@@ -1676,7 +1676,7 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  ;\n",
+"text":"\" x]\n",
 "type":"code"
 }
 ],
@@ -1877,7 +1877,7 @@
 "type":"variable"
 },
 {
-"text":"\n  ;\n",
+"text":"\n",
 "type":"code"
 }
 ],
@@ -1937,7 +1937,7 @@
 "type":"variable"
 },
 {
-"text":"\n  ;\n",
+"text":"\n",
 "type":"code"
 }
 ],
@@ -2030,7 +2030,7 @@
 "type":"variable"
 },
 {
-"text":")*:xs '\"'    -> join(xs);\n",
+"text":")*:xs '\"'    -> join(xs)\n",
 "type":"code"
 }
 ],
@@ -2066,7 +2066,7 @@
 "type":"variable"
 },
 {
-"text":")*:xs '\\'' -> join(xs);\n",
+"text":")*:xs '\\'' -> join(xs)\n",
 "type":"code"
 }
 ],
@@ -2094,7 +2094,7 @@
 "type":"variable"
 },
 {
-"text":" | .;\n",
+"text":" | .\n",
 "type":"code"
 }
 ],
@@ -2114,7 +2114,7 @@
 "type":"variable"
 },
 {
-"text":"    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n          | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\";\n",
+"text":"    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n          | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n",
 "type":"code"
 }
 ],
@@ -2157,7 +2157,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs         -> join([x ~xs]);\n",
+"text":"*:xs         -> join([x ~xs])\n",
 "type":"code"
 },
 {
@@ -2165,7 +2165,7 @@
 "type":"variable"
 },
 {
-"text":" = 'a'-'z' | 'A'-'Z';\n",
+"text":" = 'a'-'z' | 'A'-'Z'\n",
 "type":"code"
 },
 {
@@ -2173,7 +2173,7 @@
 "type":"variable"
 },
 {
-"text":"  = 'a'-'z' | 'A'-'Z' | '0'-'9';\n",
+"text":"  = 'a'-'z' | 'A'-'Z' | '0'-'9'\n",
 "type":"code"
 }
 ],
@@ -2200,7 +2200,7 @@
 "type":"variable"
 },
 {
-"text":"     = (' ' | '\\t' | '\\n')*;\n",
+"text":"     = (' ' | '\\t' | '\\n')*\n",
 "type":"code"
 }
 ],
@@ -2246,7 +2246,7 @@
 "type":"variable"
 },
 {
-"text":":x                -> { '(lambda: ' > x < ')' }\n  ;\n",
+"text":":x                -> { '(lambda: ' > x < ')' }\n",
 "type":"code"
 },
 {
@@ -2263,10 +2263,6 @@
 ],
 "prefix":"  ",
 "type":"chunk"
-},
-{
-"text":"  ;\n",
-"type":"code"
 }
 ],
 "id":"bc8464b515df4cf9a0be11f8757cfa24",
@@ -2311,7 +2307,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs      -> { '\\n' > xs < };\n",
+"text":"*:xs      -> { '\\n' > xs < }\n",
 "type":"code"
 },
 {
@@ -2327,7 +2323,7 @@
 "type":"variable"
 },
 {
-"text":":x            -> { x ',\\n' };\n",
+"text":":x            -> { x ',\\n' }\n",
 "type":"code"
 }
 ],
@@ -2362,7 +2358,7 @@
 "type":"variable"
 },
 {
-"text":"*:xs  -> { '(' xs '[])' };\n",
+"text":"*:xs  -> { '(' xs '[])' }\n",
 "type":"code"
 }
 ],
@@ -2398,7 +2394,7 @@
 "type":"variable"
 },
 {
-"text":":x                      -> { '[' x ']+' }\n  ;\n",
+"text":":x                      -> { '[' x ']+' }\n",
 "type":"code"
 }
 ],

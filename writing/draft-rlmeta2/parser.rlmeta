@@ -1,29 +1,23 @@
 Parser {
   grammar =
     | name:x space '{' rule*:ys space '}'      -> ["Grammar" x ~ys]
-    ;
   rule =
-    | name:x space '=' choices:y space ';'     -> ["Rule" x y]
-    ;
+    | name:x space '=' choices:y               -> ["Rule" x y]
   choices =
     | (space '|' | nothing) sequence:x
       (space '|' sequence)*:xs                 -> ["Or" x ~xs]
-    ;
   sequence =
     | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
-    ;
   expr =
     | expr1:x ':' name:y                       -> ["Binding" y x]
     | expr1:x
-    ;
   expr1 =
     | expr2:x space '*'                        -> ["Star" x]
     | space '!' expr2:x                        -> ["Not" x]
     | expr2
-    ;
   expr2 =
     | space '->' return:x                      -> ["Action" x]
-    | name:x                                   -> ["Application" x]
+    | name:x !(space '=')                      -> ["Application" x]
     | string:x                                 -> ["MatchString" x]
     | charseq:x                                -> ["MatchCharsec" x]
     | space 'nothing' !nameChar                -> ["Nothing"]
@@ -31,7 +25,6 @@ Parser {
     | space '(' choices:x space ')'            -> x
     | space '\'' char:x '\'-\'' char:y '\''    -> ["Range" x y]
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
-    ;
   return =
     | string:x                                 -> ["RetString" x]
     | charseq:x                                -> ["RetString" x]
@@ -39,23 +32,20 @@ Parser {
     | space '{' stringBuild*:xs space '}'      -> ["RetBuilder" ~xs]
     | name:x '(' return*:xs ')'                -> ["RetCall" x ~xs]
     | name:x                                   -> ["RetVar" x]
-    ;
   returnListItem =
     | space '~' name:x                         -> ["RetSplice" x]
     | return
-    ;
   stringBuild =
     | space '>'                                -> ["RetIndent"]
     | space '<'                                -> ["RetDedent"]
     | return
-    ;
-  string    = space '"' (!'"' char)*:xs '"'    -> join(xs);
-  charseq   = space '\'' (!'\'' char)*:xs '\'' -> join(xs);
-  char      = '\\' escape | .;
+  string    = space '"' (!'"' char)*:xs '"'    -> join(xs)
+  charseq   = space '\'' (!'\'' char)*:xs '\'' -> join(xs)
+  char      = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
-            | '"'  -> "\"" | 'n'  -> "\n";
-  name      = nameStart:x nameChar*:xs         -> join([x ~xs]);
-  nameStart = 'a'-'z' | 'A'-'Z';
-  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9';
-  space     = (' ' | '\t' | '\n')*;
+            | '"'  -> "\"" | 'n'  -> "\n"
+  name      = nameStart:x nameChar*:xs         -> join([x ~xs])
+  nameStart = 'a'-'z' | 'A'-'Z'
+  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
+  space     = (' ' | '\t' | '\n')*
 }

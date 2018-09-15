@@ -12,7 +12,6 @@ CodeGenerator {
     | ["RetIndent" .:x]          -> { '_indent()' }
     | ["RetDedent" .:x]          -> { '_dedent()' }
     | astFnBody:x                -> { '(lambda: ' > x < ')' }
-    ;
   astFnBody =
     | ["Or" astItems:x]          -> { 'self._or([' x '])' }
     | ["Scope" ast:x]            -> { '(lambda _vars:\n' > x < ')(_Vars())' }
@@ -26,12 +25,10 @@ CodeGenerator {
     | ["Nothing"]                -> { 'None' }
     | ["Range" .:x .:y]          -> { 'self._range(' x ',' y ')' }
     | ["MatchList" ast:x]        -> { 'self._match_list(' x ')' }
-    ;
-  astItems    = astItem*:xs      -> { '\n' > xs < };
-  astItem     = ast:x            -> { x ',\n' };
-  astList     = astListItem*:xs  -> { '(' xs '[])' };
+  astItems    = astItem*:xs      -> { '\n' > xs < }
+  astItem     = ast:x            -> { x ',\n' }
+  astList     = astListItem*:xs  -> { '(' xs '[])' }
   astListItem =
     | ["RetSplice" ast:x]        -> {     x  '+' }
     | ast:x                      -> { '[' x ']+' }
-    ;
 }
