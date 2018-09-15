@@ -29,7 +29,7 @@ Parser {
     | space 'nothing' !nameChar                -> ["Nothing"]
     | space '.'                                -> ["Any"]
     | space '(' choices:x space ')'            -> x
-    | space '\'' char:x '-' char:y '\''        -> ["Range" x y]
+    | space '\'' char:x '\'-\'' char:y '\''    -> ["Range" x y]
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
     ;
   return =
@@ -55,10 +55,7 @@ Parser {
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n";
   name      = nameStart:x nameChar*:xs         -> join([x ~xs]);
-  nameStart = lower | upper;
-  nameChar  = lower | upper | digit;
-  lower     = 'a'-'z';
-  upper     = 'A'-'Z';
-  digit     = '0'-'9';
+  nameStart = 'a'-'z' | 'A'-'Z';
+  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9';
   space     = (' ' | '\t' | '\n')*;
 }
