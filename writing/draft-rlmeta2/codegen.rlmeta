@@ -7,10 +7,10 @@ CodeGenerator {
     | ["String" .:x]             -> { repr(x) }
     | ["List" astList:x]         -> { x }
     | ["ListBuilder" astItems:x] -> { '_ListBuilder([' x '])' }
-    | ["FnCall" .:x astItems:y]  -> { x '(' y ')' }
-    | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()' }
     | ["IndentBuilder" .:x]      -> { '_IndentBuilder()' }
     | ["DedentBuilder" .:x]      -> { '_DedentBuilder()' }
+    | ["FnCall" .:x astItems:y]  -> { x '(' y ')' }
+    | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()' }
     | astFnBody:x                -> { '(lambda:\n' > x < ')' }
   astFnBody =
     | ["Or" astItems:x]          -> { 'self._or([' x '])' }

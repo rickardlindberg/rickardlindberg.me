@@ -59,6 +59,129 @@
 "children":[
 {
 "children":[],
+"id":"a621d29c81334340a4f60e83003be93d",
+"paragraphs":[
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"ast"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"  | ",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":":x                -> { '(lambda:\\n' > x < ')' }\n",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"astFnBody"
+],
+"prefix":"  ",
+"type":"chunk"
+}
+],
+"id":"bc8464b515df4cf9a0be11f8757cfa24",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda.",
+"type":"text"
+}
+],
+"id":"1b8ad3a855444c598a016788f32237ab",
+"type":"text"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"85ee4a0a694641c3aa683a15e6a0ba5d",
+"type":"variable"
+},
+{
+"text":"    = ",
+"type":"code"
+},
+{
+"id":"ccb3f676f6314d788147dc603933cd28",
+"type":"variable"
+},
+{
+"text":"*:xs      -> { '\\n' > xs < }\n",
+"type":"code"
+},
+{
+"id":"ccb3f676f6314d788147dc603933cd28",
+"type":"variable"
+},
+{
+"text":"     = ",
+"type":"code"
+},
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":":x            -> { x ',\\n' }\n",
+"type":"code"
+}
+],
+"id":"8f190300db404d17a2a8f5e36e95ddcd",
+"type":"code"
+}
+],
+"title":"Code generator utilities"
+},
+{
+"children":[],
 "id":"a757df1ad1764cc996d9d3e0a0ce4d25",
 "paragraphs":[
 {
@@ -251,6 +374,54 @@
 ],
 "id":"4e3a4349f676432aa6ab703e6cd04414",
 "type":"text"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"6544a37a96ce4294ab4553709d89f398",
+"type":"variable"
+},
+{
+"text":"(object):\n\n    def __init__(self, in_stream, out_stream):\n        self.in_stream = in_stream\n        self.out_stream = out_stream\n\n    def run(self, rule_name):\n        result = getattr(self, rule_name)().",
+"type":"code"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":"()\n        if hasattr(result, \"",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"\"):\n            out_stream.write(result.",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"())\n        else:\n            out_stream.write(result)\n",
+"type":"code"
+}
+],
+"id":"5df5c3d0f1ae47b7821a5df66bbb63dc",
+"type":"code"
 },
 {
 "fragments":[
@@ -1146,23 +1317,22 @@
 "title":"Expression level 1"
 },
 {
+"children":[
+{
 "children":[],
-"id":"4e76262e4c9841db8c0b79401ac7a8ff",
+"id":"345f0cd3350b41129485f72b333a910f",
 "paragraphs":[
 {
 "chunkpath":[
-"rules"
+"rules",
+"expr2"
 ],
 "filepath":[
 "parser.rlmeta"
 ],
 "fragments":[
 {
-"id":"bd6daaaf4f8a47a1991da45be10921c3",
-"type":"variable"
-},
-{
-"text":" =\n  | ",
+"text":"| ",
 "type":"code"
 },
 {
@@ -1186,7 +1356,72 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"abbc1c45efe94a719d1fe1ab62ca8a49",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"373f023f0f5f4744a7b309cf9a76d138",
+"type":"variable"
+},
+{
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":":x]   -> { '",
+"type":"code"
+},
+{
+"id":"cbbcd925bc2c42b9add24aaa736f4d35",
+"type":"variable"
+},
+{
+"text":"(lambda: ' x '))' }\n",
+"type":"code"
+}
+],
+"id":"48288d82d6984e2088ee6ce8a5a5253e",
+"type":"code"
+}
+],
+"title":"Semantic action"
+},
+{
+"children":[],
+"id":"bf5ee2b347c7472fa301e780218e5ea6",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1210,7 +1445,56 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"ec59067ab11540bfa013d3856c713db8",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"4852ced8038c4074a5a8104b8596e0e0",
+"type":"variable"
+},
+{
+"text":"\" .:x]              -> { 'self.' x }\n",
+"type":"code"
+}
+],
+"id":"412bfecbb7244810ba46e206486092c8",
+"type":"code"
+}
+],
+"title":"Rule application"
+},
+{
+"children":[],
+"id":"2736f10773da4b9eb5491e08e0ebd1c0",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1242,7 +1526,64 @@
 "type":"variable"
 },
 {
-"text":"\" x y]\n  | ",
+"text":"\" x y]\n",
+"type":"code"
+}
+],
+"id":"c450a47241a448689d950257aa817da7",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"6860db9e40994ebfbe04834b4f12f721",
+"type":"variable"
+},
+{
+"text":"\" .:x .:y] -> { 'self.",
+"type":"code"
+},
+{
+"id":"53acf505e0ee41de85c674e211ecd39c",
+"type":"variable"
+},
+{
+"text":"(' x ',' y ')' }\n",
+"type":"code"
+}
+],
+"id":"7ce8d15eb0a349e9a26f7c4b65cf23d8",
+"type":"code"
+}
+],
+"title":"Match character range"
+},
+{
+"children":[],
+"id":"51a7017fa0d94bbb8534e172ea74c373",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1266,7 +1607,56 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"2e68adc773b945baa4039acf18cb9408",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"10d9c2de82a14d12bd545133bd4e15f8",
+"type":"variable"
+},
+{
+"text":"\" .:x]        -> { 'self._match_string(' repr(x) ')' }\n",
+"type":"code"
+}
+],
+"id":"2d406fc305b34136a1280841c2098a7a",
+"type":"code"
+}
+],
+"title":"Match string"
+},
+{
+"children":[],
+"id":"a4a9dc04e97c4e7e996cd27847399a90",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1290,7 +1680,56 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"bda22384f17e40ea8edd13f87f8b9f8c",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"astFnBody"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"8ff0b4980efa4e349ec5ef14815be6ec",
+"type":"variable"
+},
+{
+"text":"\" .:x]       -> { 'self._match_charsec(' repr(x) ')' }\n",
+"type":"code"
+}
+],
+"id":"b04618e300a746c6930f0c3c5ac338dc",
+"type":"code"
+}
+],
+"title":"Match character sequence"
+},
+{
+"children":[],
+"id":"e2c6fe8b8282406ebf41299436d3d9c4",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1306,7 +1745,56 @@
 "type":"variable"
 },
 {
-"text":"\"]\n  | ",
+"text":"\"]\n",
+"type":"code"
+}
+],
+"id":"cefd75a91eac4a14bda7f8123c41dd8f",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"25ec6fc64b8b4a39a9df41daa690386f",
+"type":"variable"
+},
+{
+"text":"\"]               -> { 'self._any' }\n",
+"type":"code"
+}
+],
+"id":"982a4ec2696d466ab86d17115f366f87",
+"type":"code"
+}
+],
+"title":"Match any"
+},
+{
+"children":[],
+"id":"d62f1ed095594a5c8f8e3d2d34dbed3e",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1330,7 +1818,31 @@
 "type":"variable"
 },
 {
-"text":" ')'            -> x\n  | ",
+"text":" ')'            -> x\n",
+"type":"code"
+}
+],
+"id":"c013d1870d9d4a42bf491400b4d40ef9",
+"type":"code"
+}
+],
+"title":"Match anonymous rule"
+},
+{
+"children":[],
+"id":"0db1882b30d44178a35a7ac4276e025e",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"expr2"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1374,181 +1886,7 @@
 "type":"code"
 }
 ],
-"id":"f05c9406eceb4daab6c376ababdb1679",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"astFnBody"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"373f023f0f5f4744a7b309cf9a76d138",
-"type":"variable"
-},
-{
-"text":"\" ",
-"type":"code"
-},
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
-"type":"variable"
-},
-{
-"text":":x]   -> { '",
-"type":"code"
-},
-{
-"id":"cbbcd925bc2c42b9add24aaa736f4d35",
-"type":"variable"
-},
-{
-"text":"(lambda: ' x '))' }\n",
-"type":"code"
-}
-],
-"id":"48288d82d6984e2088ee6ce8a5a5253e",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"4852ced8038c4074a5a8104b8596e0e0",
-"type":"variable"
-},
-{
-"text":"\" .:x]              -> { 'self.' x }\n",
-"type":"code"
-}
-],
-"id":"412bfecbb7244810ba46e206486092c8",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"astFnBody"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"6860db9e40994ebfbe04834b4f12f721",
-"type":"variable"
-},
-{
-"text":"\" .:x .:y] -> { 'self.",
-"type":"code"
-},
-{
-"id":"53acf505e0ee41de85c674e211ecd39c",
-"type":"variable"
-},
-{
-"text":"(' x ',' y ')' }\n",
-"type":"code"
-}
-],
-"id":"7ce8d15eb0a349e9a26f7c4b65cf23d8",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"astFnBody"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"10d9c2de82a14d12bd545133bd4e15f8",
-"type":"variable"
-},
-{
-"text":"\" .:x]        -> { 'self._match_string(' repr(x) ')' }\n",
-"type":"code"
-}
-],
-"id":"2d406fc305b34136a1280841c2098a7a",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"astFnBody"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"8ff0b4980efa4e349ec5ef14815be6ec",
-"type":"variable"
-},
-{
-"text":"\" .:x]       -> { 'self._match_charsec(' repr(x) ')' }\n",
-"type":"code"
-}
-],
-"id":"b04618e300a746c6930f0c3c5ac338dc",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"25ec6fc64b8b4a39a9df41daa690386f",
-"type":"variable"
-},
-{
-"text":"\"]               -> { 'self._any' }\n",
-"type":"code"
-}
-],
-"id":"982a4ec2696d466ab86d17115f366f87",
+"id":"90062785865d4c69bf5b887ef2dc3977",
 "type":"code"
 },
 {
@@ -1585,11 +1923,10 @@
 "type":"code"
 }
 ],
-"title":"Expression level 2"
-},
-{
-"children":[],
-"id":"768d143c206146ca8efba292c6e9169b",
+"title":"Match list"
+}
+],
+"id":"4e76262e4c9841db8c0b79401ac7a8ff",
 "paragraphs":[
 {
 "chunkpath":[
@@ -1600,11 +1937,44 @@
 ],
 "fragments":[
 {
-"id":"dd463f369f79475da606b1cfc2d96076",
+"id":"bd6daaaf4f8a47a1991da45be10921c3",
 "type":"variable"
 },
 {
-"text":" =\n  | ",
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"expr2"
+],
+"prefix":"  ",
+"type":"chunk"
+}
+],
+"id":"f05c9406eceb4daab6c376ababdb1679",
+"type":"code"
+}
+],
+"title":"Expression level 2"
+},
+{
+"children":[
+{
+"children":[],
+"id":"917ff3b686574c36ad433b23d6afd17e",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"hostExpr"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1628,7 +1998,66 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"4e8a93fe7e314817be5d38733f388eb0",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"301f08856bf54373bc5975f75a315105",
+"type":"variable"
+},
+{
+"text":"\" .:x]             -> { repr(x) }\n",
+"type":"code"
+}
+],
+"id":"0fdb7fda246f4e99becb87637359df79",
+"type":"code"
+}
+],
+"title":"String"
+},
+{
+"children":[],
+"id":"61c0f80a8e5f4522bcdd9e4f7b143f27",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Character sequence is just another way to say a string:",
+"type":"text"
+}
+],
+"id":"0044d259ce224f5eb078f8b0ac349194",
+"type":"text"
+},
+{
+"chunkpath":[
+"rules",
+"hostExpr"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1652,7 +2081,31 @@
 "type":"variable"
 },
 {
-"text":"\" x]\n  | ",
+"text":"\" x]\n",
+"type":"code"
+}
+],
+"id":"2160b0ae8ebd40b48f737d38078bfc4c",
+"type":"code"
+}
+],
+"title":"Character sequence"
+},
+{
+"children":[],
+"id":"35696c60128141d2a3f7e65bb332c9e0",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"hostExpr"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
 "type":"code"
 },
 {
@@ -1684,272 +2137,11 @@
 "type":"variable"
 },
 {
-"text":"\" ~xs]\n  | ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" '{' ",
-"type":"code"
-},
-{
-"id":"ae2f859206d741eca9f5e10495cb8095",
-"type":"variable"
-},
-{
-"text":"*:xs ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" '}'        -> [\"",
-"type":"code"
-},
-{
-"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
-"type":"variable"
-},
-{
-"text":"\" ~xs]\n  | ",
-"type":"code"
-},
-{
-"id":"8a8e32dcfa5545f7aa292dd7e696030a",
-"type":"variable"
-},
-{
-"text":":x ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" '(' ",
-"type":"code"
-},
-{
-"id":"dd463f369f79475da606b1cfc2d96076",
-"type":"variable"
-},
-{
-"text":"*:xs ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" ')'  -> [\"",
-"type":"code"
-},
-{
-"id":"0a8e6be4bec3466bb658d7d4ff5bc5fd",
-"type":"variable"
-},
-{
-"text":"\" x ~xs]\n  | ",
-"type":"code"
-},
-{
-"id":"8a8e32dcfa5545f7aa292dd7e696030a",
-"type":"variable"
-},
-{
-"text":":x                                   -> [\"",
-"type":"code"
-},
-{
-"id":"ae823ab23224415f9a539b0354f311b8",
-"type":"variable"
-},
-{
-"text":"\" x]\n",
+"text":"\" ~xs]\n",
 "type":"code"
 }
 ],
-"id":"f0b031c3724e42c5a0fb9704ef64976d",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"301f08856bf54373bc5975f75a315105",
-"type":"variable"
-},
-{
-"text":"\" .:x]             -> { repr(x) }\n",
-"type":"code"
-}
-],
-"id":"0fdb7fda246f4e99becb87637359df79",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"49ba1aa1e24e408ba2b32bff68a72840",
-"type":"variable"
-},
-{
-"text":"\" ",
-"type":"code"
-},
-{
-"id":"2420b6bcf2374252a533688aa0b33b5f",
-"type":"variable"
-},
-{
-"text":":x]         -> { x }\n",
-"type":"code"
-}
-],
-"id":"47a643f9317f47afa2e6d5001b87a1ff",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
-"type":"variable"
-},
-{
-"text":"\" ",
-"type":"code"
-},
-{
-"id":"85ee4a0a694641c3aa683a15e6a0ba5d",
-"type":"variable"
-},
-{
-"text":":x] -> { '",
-"type":"code"
-},
-{
-"id":"b277e0c5612d4697bf8f8237494f8474",
-"type":"variable"
-},
-{
-"text":"([' x '])' }\n",
-"type":"code"
-}
-],
-"id":"74eb55bab93644eca5a621d9469c86dc",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"0a8e6be4bec3466bb658d7d4ff5bc5fd",
-"type":"variable"
-},
-{
-"text":"\" .:x ",
-"type":"code"
-},
-{
-"id":"85ee4a0a694641c3aa683a15e6a0ba5d",
-"type":"variable"
-},
-{
-"text":":y]  -> { x '(' y ')' }\n",
-"type":"code"
-}
-],
-"id":"a264ffede57c4b6aa108a23f741bd694",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules",
-"ast"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"| [\"",
-"type":"code"
-},
-{
-"id":"ae823ab23224415f9a539b0354f311b8",
-"type":"variable"
-},
-{
-"text":"\" .:x]          -> { '",
-"type":"code"
-},
-{
-"id":"289a3db9c53e420da4dbdbc94a32aadf",
-"type":"variable"
-},
-{
-"text":".lookup(' repr(x) ').",
-"type":"code"
-},
-{
-"id":"85139f1436944deab62958b8a713d8aa",
-"type":"variable"
-},
-{
-"text":"()' }\n",
-"type":"code"
-}
-],
-"id":"544bade2ad6a463db74a4b66c7cba6f7",
+"id":"cd1e8eee75404c96b632dc01c89fa462",
 "type":"code"
 },
 {
@@ -2002,6 +2194,159 @@
 }
 ],
 "id":"f768cf3997814c6285c98edc162e886f",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"49ba1aa1e24e408ba2b32bff68a72840",
+"type":"variable"
+},
+{
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"2420b6bcf2374252a533688aa0b33b5f",
+"type":"variable"
+},
+{
+"text":":x]         -> { x }\n",
+"type":"code"
+}
+],
+"id":"47a643f9317f47afa2e6d5001b87a1ff",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"2420b6bcf2374252a533688aa0b33b5f",
+"type":"variable"
+},
+{
+"text":"     = ",
+"type":"code"
+},
+{
+"id":"19791660815a43e1b775ea6a29349648",
+"type":"variable"
+},
+{
+"text":"*:xs  -> { '(' xs '[])' }\n",
+"type":"code"
+}
+],
+"id":"eae26130c7a047daa3ae8fd86ea4a9b6",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"19791660815a43e1b775ea6a29349648",
+"type":"variable"
+},
+{
+"text":" =\n  | [\"",
+"type":"code"
+},
+{
+"id":"cf8770da147840679077788180e10778",
+"type":"variable"
+},
+{
+"text":"\" ast:x]   -> {     x  '+' }\n  | ",
+"type":"code"
+},
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":":x                      -> { '[' x ']+' }\n",
+"type":"code"
+}
+],
+"id":"a9726003d9ff409aab302f66b5756a5b",
+"type":"code"
+}
+],
+"title":"List"
+},
+{
+"children":[],
+"id":"05fae809599640ff8c0ef6ab4a21212b",
+"paragraphs":[
+{
+"chunkpath":[
+"rules",
+"hostExpr"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"| ",
+"type":"code"
+},
+{
+"id":"1868228966e84ad698de9ff7fe063861",
+"type":"variable"
+},
+{
+"text":" '{' ",
+"type":"code"
+},
+{
+"id":"ae2f859206d741eca9f5e10495cb8095",
+"type":"variable"
+},
+{
+"text":"*:xs ",
+"type":"code"
+},
+{
+"id":"1868228966e84ad698de9ff7fe063861",
+"type":"variable"
+},
+{
+"text":" '}'        -> [\"",
+"type":"code"
+},
+{
+"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
+"type":"variable"
+},
+{
+"text":"\" ~xs]\n",
+"type":"code"
+}
+],
+"id":"f2c2d41020ba4ad096e1c27393549301",
 "type":"code"
 },
 {
@@ -2078,6 +2423,47 @@
 "type":"code"
 },
 {
+"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
+"type":"variable"
+},
+{
+"text":"\" ",
+"type":"code"
+},
+{
+"id":"85ee4a0a694641c3aa683a15e6a0ba5d",
+"type":"variable"
+},
+{
+"text":":x] -> { '",
+"type":"code"
+},
+{
+"id":"b277e0c5612d4697bf8f8237494f8474",
+"type":"variable"
+},
+{
+"text":"([' x '])' }\n",
+"type":"code"
+}
+],
+"id":"74eb55bab93644eca5a621d9469c86dc",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules",
+"ast"
+],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
 "id":"d34e449a8ca740d0a4b84921fc05b25f",
 "type":"variable"
 },
@@ -2131,177 +2517,27 @@
 "type":"code"
 }
 ],
-"title":"Host (Python) expression"
+"title":"\"Builder\""
 },
 {
 "children":[],
-"id":"2057abb618bf4209950acd87fa49da5d",
+"id":"813b6da1fa2e42de8b3bc44b4fbd38d7",
 "paragraphs":[
 {
 "chunkpath":[
-"rules"
+"rules",
+"hostExpr"
 ],
 "filepath":[
 "parser.rlmeta"
 ],
 "fragments":[
 {
-"id":"7d82aaa0f3d34c059532d7a090654ab7",
-"type":"variable"
-},
-{
-"text":"    = '\"' (!'\"' ",
+"text":"| ",
 "type":"code"
 },
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":")*:xs '\"'     -> join(xs)\n",
-"type":"code"
-}
-],
-"id":"6b45edfd3ac04273aa9498dfcaa199fa",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"id":"a864d6cb43244a1ca536085dd92431af",
-"type":"variable"
-},
-{
-"text":"   = '\\'' (!'\\'' ",
-"type":"code"
-},
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":")*:xs '\\''  -> join(xs)\n",
-"type":"code"
-}
-],
-"id":"b3ea44957e4148ab9ded5e09fbe0fcab",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"id":"793e09d183c5498fa2587841cd94c126",
-"type":"variable"
-},
-{
-"text":"      = '\\'' !'\\'' ",
-"type":"code"
-},
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":":x '\\''      -> join(x)\n",
-"type":"code"
-}
-],
-"id":"f33996b91f214a82b9bc2e4a0c75ffff",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"id":"e1248cbd01c54a1680793b61e7a048e1",
-"type":"variable"
-},
-{
-"text":" = '\\\\' ",
-"type":"code"
-},
-{
-"id":"4e5409ddd4a34450b3c8b4cb8bc5dd60",
-"type":"variable"
-},
-{
-"text":" | .\n",
-"type":"code"
-}
-],
-"id":"65a3e78796854dcea2b7634d2a67bc4c",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"id":"4e5409ddd4a34450b3c8b4cb8bc5dd60",
-"type":"variable"
-},
-{
-"text":"    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n          | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n",
-"type":"code"
-}
-],
-"id":"ec0bcd3b02bf4077aa889dabf912dbb0",
-"type":"code"
-}
-],
-"title":"Character related"
-},
-{
-"children":[],
-"id":"19acecc9fbc44023a69cea9eadbe734d",
-"paragraphs":[
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
 {
 "id":"8a8e32dcfa5545f7aa292dd7e696030a",
-"type":"variable"
-},
-{
-"text":"      = ",
-"type":"code"
-},
-{
-"id":"1868228966e84ad698de9ff7fe063861",
-"type":"variable"
-},
-{
-"text":" ",
-"type":"code"
-},
-{
-"id":"7befab3d0c5747d687b20830147a70fa",
 "type":"variable"
 },
 {
@@ -2309,483 +2545,141 @@
 "type":"code"
 },
 {
-"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"id":"1868228966e84ad698de9ff7fe063861",
 "type":"variable"
 },
 {
-"text":"*:xs   -> join([x ~xs])\n",
+"text":" '(' ",
 "type":"code"
 },
 {
-"id":"7befab3d0c5747d687b20830147a70fa",
+"id":"dd463f369f79475da606b1cfc2d96076",
 "type":"variable"
 },
 {
-"text":" = 'a'-'z' | 'A'-'Z'\n",
+"text":"*:xs ",
 "type":"code"
 },
-{
-"id":"6b1fe389a7254359b3fbe4cb26ea084e",
-"type":"variable"
-},
-{
-"text":"  = 'a'-'z' | 'A'-'Z' | '0'-'9'\n",
-"type":"code"
-}
-],
-"id":"1c6666fb0163411abc814856a4265683",
-"type":"code"
-}
-],
-"title":"Name"
-},
-{
-"children":[],
-"id":"d729731e037a4a5aafa6da77d2b8bdb1",
-"paragraphs":[
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
 {
 "id":"1868228966e84ad698de9ff7fe063861",
 "type":"variable"
 },
 {
-"text":"     = (' ' | '\\t' | '\\n')*\n",
+"text":" ')'  -> [\"",
 "type":"code"
-}
-],
-"id":"d62875593bb44d2087124443aded53e5",
-"type":"code"
-}
-],
-"title":"Space"
 },
 {
-"children":[],
-"id":"a621d29c81334340a4f60e83003be93d",
-"paragraphs":[
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
+"id":"0a8e6be4bec3466bb658d7d4ff5bc5fd",
 "type":"variable"
 },
 {
-"text":" =\n",
+"text":"\" x ~xs]\n",
+"type":"code"
+}
+],
+"id":"009c0123d4f84ea7bc5b644789e03d58",
 "type":"code"
 },
 {
-"path":[
+"chunkpath":[
+"rules",
 "ast"
 ],
-"prefix":"  ",
-"type":"chunk"
-},
-{
-"text":"  | ",
-"type":"code"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":":x                -> { '(lambda:\\n' > x < ')' }\n",
-"type":"code"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":" =\n",
-"type":"code"
-},
-{
-"path":[
-"astFnBody"
-],
-"prefix":"  ",
-"type":"chunk"
-}
-],
-"id":"bc8464b515df4cf9a0be11f8757cfa24",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"The ",
-"type":"text"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda.",
-"type":"text"
-}
-],
-"id":"1b8ad3a855444c598a016788f32237ab",
-"type":"text"
-},
-{
-"chunkpath":[
-"rules"
-],
 "filepath":[
 "codegen.rlmeta"
 ],
 "fragments":[
+{
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"0a8e6be4bec3466bb658d7d4ff5bc5fd",
+"type":"variable"
+},
+{
+"text":"\" .:x ",
+"type":"code"
+},
 {
 "id":"85ee4a0a694641c3aa683a15e6a0ba5d",
 "type":"variable"
 },
 {
-"text":"    = ",
-"type":"code"
-},
-{
-"id":"ccb3f676f6314d788147dc603933cd28",
-"type":"variable"
-},
-{
-"text":"*:xs      -> { '\\n' > xs < }\n",
-"type":"code"
-},
-{
-"id":"ccb3f676f6314d788147dc603933cd28",
-"type":"variable"
-},
-{
-"text":"     = ",
-"type":"code"
-},
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
-"type":"variable"
-},
-{
-"text":":x            -> { x ',\\n' }\n",
+"text":":y]  -> { x '(' y ')' }\n",
 "type":"code"
 }
 ],
-"id":"8f190300db404d17a2a8f5e36e95ddcd",
+"id":"a264ffede57c4b6aa108a23f741bd694",
 "type":"code"
 }
 ],
-"title":"Utils"
+"title":"Function call"
 },
 {
 "children":[],
-"id":"b001fb2b5992493895297e938eb6e6a0",
+"id":"f05f1564a35d4da3922d3b9672384352",
 "paragraphs":[
 {
 "chunkpath":[
-"rules"
+"rules",
+"hostExpr"
 ],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"id":"2420b6bcf2374252a533688aa0b33b5f",
-"type":"variable"
-},
-{
-"text":"     = ",
-"type":"code"
-},
-{
-"id":"19791660815a43e1b775ea6a29349648",
-"type":"variable"
-},
-{
-"text":"*:xs  -> { '(' xs '[])' }\n",
-"type":"code"
-}
-],
-"id":"eae26130c7a047daa3ae8fd86ea4a9b6",
-"type":"code"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"codegen.rlmeta"
-],
-"fragments":[
-{
-"id":"19791660815a43e1b775ea6a29349648",
-"type":"variable"
-},
-{
-"text":" =\n  | [\"",
-"type":"code"
-},
-{
-"id":"cf8770da147840679077788180e10778",
-"type":"variable"
-},
-{
-"text":"\" ast:x]   -> {     x  '+' }\n  | ",
-"type":"code"
-},
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
-"type":"variable"
-},
-{
-"text":":x                      -> { '[' x ']+' }\n",
-"type":"code"
-}
-],
-"id":"a9726003d9ff409aab302f66b5756a5b",
-"type":"code"
-}
-],
-"title":"List generation"
-},
-{
-"children":[],
-"id":"d9ea64bbdad3465897667ebec9d5ace1",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"TODO: Render parser here!",
-"type":"text"
-}
-],
-"id":"cbbb7c4cccc8418f9b22de8fe6b91c48",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"TODO: Render code generator here!",
-"type":"text"
-}
-],
-"id":"245b8164d0dc473b8854c2becb228910",
-"type":"text"
-}
-],
-"title":"Summary"
-}
-],
-"id":"f5f122c94d3d4fa0b3a7e64a7fa0a724",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"We have seen RLMeta be used to implement an interpreter for a small expression language and a code translator. Next we explore how to write a grammar that translates RLMeta itself to Python.",
-"type":"text"
-}
-],
-"id":"4b16be114c27455a870fa89af76211d5",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"RLMeta is translated in two stages: the first translates RLMeta syntax to an abstract syntax tree (AST), and the second translates the AST to Python source code:",
-"type":"text"
-}
-],
-"id":"a476fb2e885b4071b0237eb5f6a17bf1",
-"type":"text"
-},
-{
-"chunkpath":[],
 "filepath":[
 "parser.rlmeta"
 ],
 "fragments":[
 {
-"id":"a304a36f0ab541209c9e8aa78f4edc46",
+"text":"| ",
+"type":"code"
+},
+{
+"id":"8a8e32dcfa5545f7aa292dd7e696030a",
 "type":"variable"
 },
 {
-"text":" {\n",
+"text":":x                                   -> [\"",
 "type":"code"
 },
 {
-"path":[
-"rules"
-],
-"prefix":"  ",
-"type":"chunk"
+"id":"ae823ab23224415f9a539b0354f311b8",
+"type":"variable"
 },
 {
-"text":"}\n",
+"text":"\" x]\n",
 "type":"code"
 }
 ],
-"id":"c94ba005404c45f78e7511793da8d554",
+"id":"e4954a411cdc4eee98faa1985f1de417",
 "type":"code"
 },
 {
-"chunkpath":[],
+"chunkpath":[
+"rules",
+"ast"
+],
 "filepath":[
 "codegen.rlmeta"
 ],
 "fragments":[
 {
-"id":"8cf9a10b04cc48a484e1cb7c6f1f2f28",
+"text":"| [\"",
+"type":"code"
+},
+{
+"id":"ae823ab23224415f9a539b0354f311b8",
 "type":"variable"
 },
 {
-"text":" {\n",
+"text":"\" .:x]          -> { '",
 "type":"code"
 },
 {
-"path":[
-"rules"
-],
-"prefix":"  ",
-"type":"chunk"
-},
-{
-"text":"}\n",
-"type":"code"
-}
-],
-"id":"1a998747fffd406f9b8f0bed1e8740a1",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"We translate the parser snippet manually according to the rules in ",
-"type":"text"
-},
-{
-"page_id":"a757df1ad1764cc996d9d3e0a0ce4d25",
-"text":null,
-"type":"reference"
-},
-{
-"text":":",
-"type":"text"
-}
-],
-"id":"e15758b35bd849fa958272f1878ad352",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"parser_bootstrap.py"
-],
-"fragments":[
-{
-"text":"class Parser(_RLMeta):\n",
-"type":"code"
-},
-{
-"path":[
-"rules"
-],
-"prefix":"    ",
-"type":"chunk"
-}
-],
-"id":"4549655f96c143b28ea9dc9e2f529384",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"We translate the code generator snippet manually according to the rules in ",
-"type":"text"
-},
-{
-"page_id":"a757df1ad1764cc996d9d3e0a0ce4d25",
-"text":null,
-"type":"reference"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"page_id":"e1799ddc14ce4a7f83c8f390f9bf8720",
-"text":null,
-"type":"reference"
-},
-{
-"text":", and ",
-"type":"text"
-},
-{
-"page_id":"c2a43ebb9a7d477f8dd7126f94bd33de",
-"text":null,
-"type":"reference"
-},
-{
-"text":":",
-"type":"text"
-}
-],
-"id":"669ce12e69364c3184a23416771003bf",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"codegen_bootstrap.py"
-],
-"fragments":[
-{
-"text":"class CodeGenerator(_RLMeta):\n    def ast(self):\n        ...\n",
-"type":"code"
-}
-],
-"id":"a02357700da84007a47547d026f46e78",
-"type":"code"
-}
-],
-"title":"RLMeta"
-},
-{
-"children":[
-{
-"children":[],
-"id":"91242da5efae4005ab67c1a63fe11dff",
-"paragraphs":[
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"6544a37a96ce4294ab4553709d89f398",
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
 "type":"variable"
 },
 {
-"text":"(object):\n\n    def __init__(self, in_stream, out_stream):\n        self.in_stream = in_stream\n        self.out_stream = out_stream\n\n    def run(self, rule_name):\n        result = getattr(self, rule_name)().",
+"text":".lookup(' repr(x) ').",
 "type":"code"
 },
 {
@@ -2793,31 +2687,48 @@
 "type":"variable"
 },
 {
-"text":"()\n        if hasattr(result, \"",
-"type":"code"
-},
-{
-"id":"56d10f7bfcfd43bb996c3f76423b067b",
-"type":"variable"
-},
-{
-"text":"\"):\n            out_stream.write(result.",
-"type":"code"
-},
-{
-"id":"56d10f7bfcfd43bb996c3f76423b067b",
-"type":"variable"
-},
-{
-"text":"())\n        else:\n            out_stream.write(result)\n",
+"text":"()' }\n",
 "type":"code"
 }
 ],
-"id":"5df5c3d0f1ae47b7821a5df66bbb63dc",
+"id":"544bade2ad6a463db74a4b66c7cba6f7",
 "type":"code"
 }
 ],
-"title":"Base class"
+"title":"Variable lookup"
+}
+],
+"id":"768d143c206146ca8efba292c6e9169b",
+"paragraphs":[
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"dd463f369f79475da606b1cfc2d96076",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"path":[
+"hostExpr"
+],
+"prefix":"  ",
+"type":"chunk"
+}
+],
+"id":"f0b031c3724e42c5a0fb9704ef64976d",
+"type":"code"
+}
+],
+"title":"Host (Python) expression"
 },
 {
 "children":[],
@@ -3183,10 +3094,358 @@
 }
 ],
 "title":"Output generation"
+},
+{
+"children":[],
+"id":"2057abb618bf4209950acd87fa49da5d",
+"paragraphs":[
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"7d82aaa0f3d34c059532d7a090654ab7",
+"type":"variable"
+},
+{
+"text":"    = '\"' (!'\"' ",
+"type":"code"
+},
+{
+"id":"e1248cbd01c54a1680793b61e7a048e1",
+"type":"variable"
+},
+{
+"text":")*:xs '\"'     -> join(xs)\n",
+"type":"code"
 }
 ],
-"id":"8b6a28adea24444d977d10d44e0a8382",
+"id":"6b45edfd3ac04273aa9498dfcaa199fa",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"a864d6cb43244a1ca536085dd92431af",
+"type":"variable"
+},
+{
+"text":"   = '\\'' (!'\\'' ",
+"type":"code"
+},
+{
+"id":"e1248cbd01c54a1680793b61e7a048e1",
+"type":"variable"
+},
+{
+"text":")*:xs '\\''  -> join(xs)\n",
+"type":"code"
+}
+],
+"id":"b3ea44957e4148ab9ded5e09fbe0fcab",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"793e09d183c5498fa2587841cd94c126",
+"type":"variable"
+},
+{
+"text":"      = '\\'' !'\\'' ",
+"type":"code"
+},
+{
+"id":"e1248cbd01c54a1680793b61e7a048e1",
+"type":"variable"
+},
+{
+"text":":x '\\''      -> join(x)\n",
+"type":"code"
+}
+],
+"id":"f33996b91f214a82b9bc2e4a0c75ffff",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"e1248cbd01c54a1680793b61e7a048e1",
+"type":"variable"
+},
+{
+"text":" = '\\\\' ",
+"type":"code"
+},
+{
+"id":"4e5409ddd4a34450b3c8b4cb8bc5dd60",
+"type":"variable"
+},
+{
+"text":" | .\n",
+"type":"code"
+}
+],
+"id":"65a3e78796854dcea2b7634d2a67bc4c",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"4e5409ddd4a34450b3c8b4cb8bc5dd60",
+"type":"variable"
+},
+{
+"text":"    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n          | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n",
+"type":"code"
+}
+],
+"id":"ec0bcd3b02bf4077aa889dabf912dbb0",
+"type":"code"
+}
+],
+"title":"Character related"
+},
+{
+"children":[],
+"id":"19acecc9fbc44023a69cea9eadbe734d",
 "paragraphs":[
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"8a8e32dcfa5545f7aa292dd7e696030a",
+"type":"variable"
+},
+{
+"text":"      = ",
+"type":"code"
+},
+{
+"id":"1868228966e84ad698de9ff7fe063861",
+"type":"variable"
+},
+{
+"text":" ",
+"type":"code"
+},
+{
+"id":"7befab3d0c5747d687b20830147a70fa",
+"type":"variable"
+},
+{
+"text":":x ",
+"type":"code"
+},
+{
+"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"type":"variable"
+},
+{
+"text":"*:xs   -> join([x ~xs])\n",
+"type":"code"
+},
+{
+"id":"7befab3d0c5747d687b20830147a70fa",
+"type":"variable"
+},
+{
+"text":" = 'a'-'z' | 'A'-'Z'\n",
+"type":"code"
+},
+{
+"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"type":"variable"
+},
+{
+"text":"  = 'a'-'z' | 'A'-'Z' | '0'-'9'\n",
+"type":"code"
+}
+],
+"id":"1c6666fb0163411abc814856a4265683",
+"type":"code"
+}
+],
+"title":"Name"
+},
+{
+"children":[],
+"id":"d729731e037a4a5aafa6da77d2b8bdb1",
+"paragraphs":[
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"1868228966e84ad698de9ff7fe063861",
+"type":"variable"
+},
+{
+"text":"     = (' ' | '\\t' | '\\n')*\n",
+"type":"code"
+}
+],
+"id":"d62875593bb44d2087124443aded53e5",
+"type":"code"
+}
+],
+"title":"Space"
+},
+{
+"children":[],
+"id":"d9ea64bbdad3465897667ebec9d5ace1",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"TODO: Render parser here!",
+"type":"text"
+}
+],
+"id":"cbbb7c4cccc8418f9b22de8fe6b91c48",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: Render code generator here!",
+"type":"text"
+}
+],
+"id":"245b8164d0dc473b8854c2becb228910",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: We are bootstrapped!",
+"type":"text"
+}
+],
+"id":"da8c48fabcb148018939b440751c952c",
+"type":"text"
+}
+],
+"title":"Summary"
+}
+],
+"id":"f5f122c94d3d4fa0b3a7e64a7fa0a724",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"We have seen RLMeta be used to implement an interpreter for a small expression language and a code translator. Next we explore how to write a grammar that translates RLMeta itself to Python.",
+"type":"text"
+}
+],
+"id":"4b16be114c27455a870fa89af76211d5",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"RLMeta is translated in two stages: the first translates RLMeta syntax to an abstract syntax tree (AST), and the second translates the AST to Python source code:",
+"type":"text"
+}
+],
+"id":"a476fb2e885b4071b0237eb5f6a17bf1",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"id":"a304a36f0ab541209c9e8aa78f4edc46",
+"type":"variable"
+},
+{
+"text":" {\n",
+"type":"code"
+},
+{
+"path":[
+"rules"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"c94ba005404c45f78e7511793da8d554",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"codegen.rlmeta"
+],
+"fragments":[
+{
+"id":"8cf9a10b04cc48a484e1cb7c6f1f2f28",
+"type":"variable"
+},
+{
+"text":" {\n",
+"type":"code"
+},
+{
+"path":[
+"rules"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"1a998747fffd406f9b8f0bed1e8740a1",
+"type":"code"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -3210,15 +3469,89 @@
 ],
 "id":"36fdd2e9ccf7430bbf84158437d5c067",
 "type":"code"
-}
-],
-"title":"Support library"
 },
 {
-"children":[],
-"id":"215a5e3e82864314a5558482ec470279",
-"paragraphs":[],
-"title":"Bootstrapped!"
+"fragments":[
+{
+"text":"We translate the parser snippet manually according to the rules in ",
+"type":"text"
+},
+{
+"page_id":"a757df1ad1764cc996d9d3e0a0ce4d25",
+"text":null,
+"type":"reference"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"e15758b35bd849fa958272f1878ad352",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"parser_bootstrap.py"
+],
+"fragments":[
+{
+"text":"class Parser(_RLMeta):\n",
+"type":"code"
+},
+{
+"path":[
+"rules"
+],
+"prefix":"    ",
+"type":"chunk"
+}
+],
+"id":"4549655f96c143b28ea9dc9e2f529384",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"We translate the code generator snippet manually according to the rules in ",
+"type":"text"
+},
+{
+"page_id":"a757df1ad1764cc996d9d3e0a0ce4d25",
+"text":null,
+"type":"reference"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"669ce12e69364c3184a23416771003bf",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"codegen_bootstrap.py"
+],
+"fragments":[
+{
+"text":"class CodeGenerator(_RLMeta):\n",
+"type":"code"
+},
+{
+"path":[
+"rules"
+],
+"prefix":"    ",
+"type":"chunk"
+}
+],
+"id":"a02357700da84007a47547d026f46e78",
+"type":"code"
+}
+],
+"title":"RLMeta"
 },
 {
 "children":[],

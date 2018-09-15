@@ -1,3 +1,1 @@
 class CodeGenerator(_RLMeta):
-    def ast(self):
-        ...
