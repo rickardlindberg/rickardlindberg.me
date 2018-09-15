@@ -21,7 +21,7 @@ Parser {
     | name:x !(space '=')                      -> ["Apply" x]
     | space char:x '-' char:y                  -> ["MatchCharRange" x y]
     | space string:x                           -> ["MatchString" x]
-    | space charseq:x                          -> ["MatchCharsec" x]
+    | space charseq:x                          -> ["MatchCharseq" x]
     | space '.'                                -> ["MatchAny"]
     | space '(' choices:x space ')'            -> x
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
