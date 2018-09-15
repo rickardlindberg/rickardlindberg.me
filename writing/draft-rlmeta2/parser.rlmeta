@@ -4,7 +4,7 @@ Parser {
   rule =
     | name:x space '=' choices:y               -> ["Rule" x y]
   choices =
-    | (space '|' | nothing)
+    | (space '|')?
       sequence:x (space '|' sequence)*:xs      -> ["Or" x ~xs]
   sequence =
     | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
@@ -13,11 +13,11 @@ Parser {
     | expr1
   expr1 =
     | expr2:x space '*'                        -> ["Star" x]
+    | expr2:x space '?'                        -> ["Or" x ["MatchNothing"]]
     | space '!' expr2:x                        -> ["Not" x]
     | expr2
   expr2 =
     | space '->' hostExpr:x                    -> ["SemanticAction" x]
-    | space 'nothing' !nameChar                -> ["MatchNothing"]
     | name:x !(space '=')                      -> ["Apply" x]
     | string:x                                 -> ["MatchString" x]
     | charseq:x                                -> ["MatchCharsec" x]

@@ -18,9 +18,9 @@ CodeGenerator {
     | ["And" astItems:x]         -> { 'self._and([' x '])' }
     | ["Bind" .:x ast:y]         -> { '_vars.bind(' x ', ' y '())' }
     | ["Star" ast:x]             -> { 'self._star(' x ')' }
+    | ["MatchNothing"]           -> { 'None' }
     | ["Not" ast:x]              -> { 'self._negative_lookahead(' x ')' }
     | ["SemanticAction" ast:x]   -> { '_SemanticAction(lambda: ' x '))' }
-    | ["MatchNothing"]           -> { 'None' }
     | ["MatchString" .:x]        -> { 'self._match_string(' repr(x) ')' }
     | ["MatchCharsec" .:x]       -> { 'self._match_charsec(' repr(x) ')' }
     | ["MatchCharRange" .:x .:y] -> { 'self._match_range(' x ',' y ')' }
