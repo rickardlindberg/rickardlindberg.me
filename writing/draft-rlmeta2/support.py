@@ -1,3 +1,9 @@
+class _Builder(object):
+
+    def to_rlmeta_output_stream(self):
+        output = _Output()
+        self.write(output)
+        return output.value
 class _RLMeta(object):
 
     def __init__(self, in_stream, out_stream):
@@ -10,12 +16,17 @@ class _RLMeta(object):
             out_stream.write(result.to_rlmeta_output_stream())
         else:
             out_stream.write(result)
-class _Builder(object):
 
-    def to_rlmeta_output_stream(self):
-        output = _Output()
-        self.write(output)
-        return output.value
+    def _star(self):
+        pass
+class _Vars(dict):
+
+    def bind(self, name, value):
+        self[name] = value
+        return value
+
+    def lookup(self, name):
+        return self[name]
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
