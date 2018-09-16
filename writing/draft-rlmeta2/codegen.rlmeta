@@ -6,7 +6,7 @@ CodeGenerator {
     | ["MatchAny"]               -> { 'self._any' }
     | ["String" .:x]             -> { repr(x) }
     | ["List" astList:x]         -> { x }
-    | ["ListBuilder" astItems:x] -> { '_ListBuilder([' x '])' }
+    | ["ListBuilder" astItems:x] -> { '_Builder.create([' x '])' }
     | ["IndentBuilder" .:x]      -> { '_IndentBuilder()' }
     | ["DedentBuilder" .:x]      -> { '_DedentBuilder()' }
     | ["FnCall" .:x astItems:y]  -> { x '(' y ')' }

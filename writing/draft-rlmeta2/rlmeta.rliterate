@@ -2647,7 +2647,15 @@
 "type":"code"
 },
 {
-"id":"b277e0c5612d4697bf8f8237494f8474",
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":".",
+"type":"code"
+},
+{
+"id":"2e8a56ad01dc4a289fbd584bc4874e7e",
 "type":"variable"
 },
 {
@@ -2656,6 +2664,77 @@
 }
 ],
 "id":"74eb55bab93644eca5a621d9469c86dc",
+"type":"code"
+},
+{
+"chunkpath":[
+"base classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":"(object):\n\n    @classmethod\n    def ",
+"type":"code"
+},
+{
+"id":"2e8a56ad01dc4a289fbd584bc4874e7e",
+"type":"variable"
+},
+{
+"text":"(self, item):\n        if isinstance(item, ",
+"type":"code"
+},
+{
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":"):\n            return item\n        elif isinstance(item, list):\n            return ",
+"type":"code"
+},
+{
+"id":"b277e0c5612d4697bf8f8237494f8474",
+"type":"variable"
+},
+{
+"text":"([",
+"type":"code"
+},
+{
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":".create(x) for x in item])\n        else:\n            return ",
+"type":"code"
+},
+{
+"id":"50ee7994db484890abbeeb13330e22a7",
+"type":"variable"
+},
+{
+"text":"(item)\n\n",
+"type":"code"
+},
+{
+"path":[
+"_Builder"
+],
+"prefix":"    ",
+"type":"chunk"
+}
+],
+"id":"b2a22c8337774967bcccbdd94d6d03a7",
 "type":"code"
 },
 {
@@ -2683,23 +2762,7 @@
 "type":"variable"
 },
 {
-"text":"):\n\n    def __init__(self, items):\n        self.items = [\n            item if isinstance(item, ",
-"type":"code"
-},
-{
-"id":"49dc22ba19624755a18a13a9e76734b1",
-"type":"variable"
-},
-{
-"text":")\n                else ",
-"type":"code"
-},
-{
-"id":"50ee7994db484890abbeeb13330e22a7",
-"type":"variable"
-},
-{
-"text":"(item)\n            for item in items\n        ]\n\n    def ",
+"text":"):\n\n    def __init__(self, items):\n        self.items = items\n\n    def ",
 "type":"code"
 },
 {
@@ -2934,22 +2997,15 @@
 },
 {
 "chunkpath":[
-"base classes"
+"base classes",
+"_Builder"
 ],
 "filepath":[
 "support.py"
 ],
 "fragments":[
 {
-"text":"class ",
-"type":"code"
-},
-{
-"id":"49dc22ba19624755a18a13a9e76734b1",
-"type":"variable"
-},
-{
-"text":"(object):\n\n    def ",
+"text":"def ",
 "type":"code"
 },
 {
@@ -2957,7 +3013,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        output = ",
+"text":"(self):\n    output = ",
 "type":"code"
 },
 {
@@ -2965,7 +3021,7 @@
 "type":"variable"
 },
 {
-"text":"()\n        self.",
+"text":"()\n    self.",
 "type":"code"
 },
 {
@@ -2973,11 +3029,11 @@
 "type":"variable"
 },
 {
-"text":"(output)\n        return output.value\n",
+"text":"(output)\n    return output.value\n",
 "type":"code"
 }
 ],
-"id":"b2a22c8337774967bcccbdd94d6d03a7",
+"id":"795bcf7836b44c17996097b87dddd617",
 "type":"code"
 },
 {
@@ -3039,7 +3095,15 @@
 "type":"code"
 },
 {
-"id":"b277e0c5612d4697bf8f8237494f8474",
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":".",
+"type":"code"
+},
+{
+"id":"2e8a56ad01dc4a289fbd584bc4874e7e",
 "type":"variable"
 },
 {
@@ -3051,15 +3115,7 @@
 "type":"variable"
 },
 {
-"text":"(),\n    support.",
-"type":"code"
-},
-{
-"id":"b277e0c5612d4697bf8f8237494f8474",
-"type":"variable"
-},
-{
-"text":"([\n        \"pass\\n\\n\",\n    ]),\n    support.",
+"text":"(),\n    [\n        \"pass\\n\\n\",\n    ],\n    support.",
 "type":"code"
 },
 {
@@ -3863,6 +3919,7 @@
 "28ffce2da5724d248fa88ac555d118f8":"asListItemWithNewVars",
 "2aa377816ed3486da72cff7bd46190ad":"Grammar",
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
+"2e8a56ad01dc4a289fbd584bc4874e7e":"create",
 "301f08856bf54373bc5975f75a315105":"String",
 "373f023f0f5f4744a7b309cf9a76d138":"SemanticAction",
 "3e7232e282f642ab8ac4fbe709a32a99":"_result",

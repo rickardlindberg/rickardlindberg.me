@@ -1,5 +1,14 @@
 class _Builder(object):
 
+    @classmethod
+    def create(self, item):
+        if isinstance(item, _Builder):
+            return item
+        elif isinstance(item, list):
+            return _ListBuilder([_Builder.create(x) for x in item])
+        else:
+            return _AtomBuilder(item)
+
     def to_rlmeta_output_stream(self):
         output = _Output()
         self.write(output)
@@ -30,11 +39,7 @@ class _Vars(dict):
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
-        self.items = [
-            item if isinstance(item, _Builder)
-                else _AtomBuilder(item)
-            for item in items
-        ]
+        self.items = items
 
     def write(self, output):
         for item in self.items:
