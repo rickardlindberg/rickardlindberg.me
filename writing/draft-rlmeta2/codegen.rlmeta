@@ -1,34 +1,34 @@
 CodeGenerator {
   ast =
-    | ["Grammar" .:x ast*:xs]    -> { 'class ' x '(_RLMeta):\n' > xs < }
+    | ["Grammar" .:x ast*:xs]    -> { 'class ' x '(_RLMeta):\n' > xs <            }
     | ["Rule" .:x ast:x]         -> { 'def ' x '(self):\n' > 'return ' x '()\n' < }
-    | ["Apply" .:x]              -> { 'self.' x }
-    | ["MatchAny"]               -> { 'self._any' }
-    | ["String" .:x]             -> { repr(x) }
-    | ["List" astList:x]         -> { x }
-    | ["ListBuilder" astItems:x] -> { '_Builder.create([' x '])' }
-    | ["IndentBuilder" .:x]      -> { '_IndentBuilder()' }
-    | ["DedentBuilder" .:x]      -> { '_DedentBuilder()' }
-    | ["FnCall" .:x astItems:y]  -> { x '(' y ')' }
-    | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()' }
+    | ["Apply" .:x]              -> { 'self.' x                                   }
+    | ["MatchAny"]               -> { 'self._any'                                 }
+    | ["String" .:x]             -> { repr(x)                                     }
+    | ["List" astList:x]         -> { x                                           }
+    | ["ListBuilder" astItems:x] -> { '_Builder.create([' x '])'                  }
+    | ["IndentBuilder" .:x]      -> { '_IndentBuilder()'                          }
+    | ["DedentBuilder" .:x]      -> { '_DedentBuilder()'                          }
+    | ["FnCall" .:x astItems:y]  -> { x '(' y ')'                                 }
+    | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()'          }
     | astFnBody:x                -> { '(lambda:\n' > x < ')' }
   astFnBody =
-    | ["Or" astItems:x]          -> { 'self._or([' x '])' }
-    | ["Scope" ast:x]            -> { '(lambda _vars:\n' > x < ')(_Vars())' }
-    | ["And" astItems:x]         -> { 'self._and([' x '])' }
-    | ["Bind" .:x ast:y]         -> { '_vars.bind(' x ', ' y '())' }
-    | ["Star" ast:x]             -> { 'self._star(' x ')' }
-    | ["MatchNothing"]           -> { 'None' }
-    | ["Not" ast:x]              -> { 'self._negative_lookahead(' x ')' }
-    | ["SemanticAction" ast:x]   -> { '_SemanticAction(lambda: ' x '))' }
-    | ["MatchCharRange" .:x .:y] -> { 'self._match_range(' x ',' y ')' }
-    | ["MatchString" .:x]        -> { 'self._match_string(' repr(x) ')' }
-    | ["MatchCharseq" .:x]       -> { 'self._match_charsec(' repr(x) ')' }
-    | ["MatchList" ast:x]        -> { 'self._match_list(' x ')' }
-  astItems    = astItem*:xs      -> { '\n' > xs < }
-  astItem     = ast:x            -> { x ',\n' }
-  astList     = astListItem*:xs  -> { '(' xs '[])' }
+    | ["Or" astItems:x]          -> { 'self._or([' x '])'                         }
+    | ["Scope" ast:x]            -> { '(lambda _vars:\n' > x < ')(_Vars())'       }
+    | ["And" astItems:x]         -> { 'self._and([' x '])'                        }
+    | ["Bind" .:x ast:y]         -> { '_vars.bind(' x ', ' y '())'                }
+    | ["Star" ast:x]             -> { 'self._star(' x ')'                         }
+    | ["MatchNothing"]           -> { 'None'                                      }
+    | ["Not" ast:x]              -> { 'self._negative_lookahead(' x ')'           }
+    | ["SemanticAction" ast:x]   -> { '_SemanticAction(lambda: ' x '))'           }
+    | ["MatchCharRange" .:x .:y] -> { 'self._match_range(' x ',' y ')'            }
+    | ["MatchString" .:x]        -> { 'self._match_string(' repr(x) ')'           }
+    | ["MatchCharseq" .:x]       -> { 'self._match_charsec(' repr(x) ')'          }
+    | ["MatchList" ast:x]        -> { 'self._match_list(' x ')'                   }
+  astItems = astItem*:xs         -> { '\n' > xs <                                 }
+  astItem  = ast:x               -> { x ',\n'                                     }
+  astList  = astListItem*:xs     -> { '(' xs '[])'                                }
   astListItem =
-    | ["ListItemSplice" ast:x]   -> {     x  '+' }
-    | ast:x                      -> { '[' x ']+' }
+    | ["ListItemSplice" ast:x]   -> {     x  '+'                                  }
+    | ast:x                      -> { '[' x ']+'                                  }
 }
