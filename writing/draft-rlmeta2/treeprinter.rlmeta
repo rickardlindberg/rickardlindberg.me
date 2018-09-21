@@ -1,0 +1,7 @@
+TreePrinter {
+  toHtmlList =
+    | toHtmlListItem:x     -> { "<ul>" x "</ul>"    }
+    | .:x                  -> { x                   }
+  toHtmlListItem =
+    | [.:x toHtmlList*:xs] -> { "<li>" x xs "</li>" }
+}

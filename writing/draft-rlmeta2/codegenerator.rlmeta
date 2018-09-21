@@ -11,7 +11,7 @@ CodeGenerator {
     | ["DedentBuilder" .:x]      -> { '_DedentBuilder()'                          }
     | ["FnCall" .:x astItems:y]  -> { x '(' y ')'                                 }
     | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()'          }
-    | astFnBody:x                -> { '(lambda:\n' > x < ')' }
+    | astFnBody:x                -> { '(lambda:\n' > x < '\n)' }
   astFnBody =
     | ["Or" astItems:x]          -> { 'self._or([' x '])'                         }
     | ["Scope" ast:x]            -> { '(lambda _vars:\n' > x < ')(_Vars())'       }
