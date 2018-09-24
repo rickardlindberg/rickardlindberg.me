@@ -14,20 +14,150 @@ class _Builder(object):
         self.write(output)
         return output.value
 class _RLMeta(object):
-
-    def __init__(self, in_stream, out_stream):
-        self.in_stream = in_stream
-        self.out_stream = out_stream
-
-    def run(self, rule_name):
-        result = getattr(self, rule_name)().eval()
+    def run(self, rule_name, input_object):
+        self._input = _Input.from_object(input_object)
+        self._memo = {}
+        result = self._match(rule_name).eval()
         if hasattr(result, "to_rlmeta_output_stream"):
-            out_stream.write(result.to_rlmeta_output_stream())
+            return result.to_rlmeta_output_stream()
         else:
-            out_stream.write(result)
+            return result
+    def _match(self, rule_name):
+        key = (rule_name, self._input.pos().key())
+        if key not in self._memo:
+            start_input = self._input
+            self._memo[key] = getattr(self, "_rule_{}".format(rule_name))()
+            sys.stderr.write("Matched {} at [{}, {}[\n".format(
+                rule_name,
+                start_input.pos().describe(),
+                self._input.pos().describe()
+            ))
+        return self._memo[key]
+    def _or(self, matchers):
+        saved_input = self._input
+        for matcher in matchers:
+            try:
+                return matcher()
+            except _MaybeParseError:
+                self._input = saved_input
+        raise _MaybeParseError()
+    def _and(self, matchers):
+        result = None
+        for matcher in matchers:
+            result = matcher()
+        return result
+    def _star(self, matcher):
+        result = []
+        while True:
+            saved_input = self._input
+            try:
+                result.append(matcher())
+            except _MaybeParseError:
+                self._input = saved_input
+                return result
+    def _negative_lookahead(self, matcher):
+        saved_input = self._input
+        try:
+            matcher()
+        except _MaybeParseError:
+            return _SemanticAction(lambda: None)
+        else:
+            raise _MaybeParseError()
+        finally:
+            self._input = saved_input
+    def _match_range(self, a, b):
+        next_objext, self._input = self._input.next()
+        if next_objext >= a and next_objext <= b:
+            return _SemanticAction(lambda: next_objext)
+        else:
+            raise _MaybeParseError()
+    def _match_string(self, string):
+        next_object, self._input = self._input.next()
+        if next_object == string:
+            return _SemanticAction(lambda: string)
+        else:
+            raise _MaybeParseError()
+    def _match_charsec(self, charseq):
+        for char in charseq:
+            next_object, self._input = self._input.next()
+            if next_object != char:
+                raise _MaybeParseError()
+        return _SemanticAction(lambda: charseq)
+    def _any(self, string):
+        next_object, self._input = self._input.next()
+        return _SemanticAction(lambda: next_object)
+    def _match_list(self, matcher):
+        next_object, next_input = self._input.next()
+        if isinstance(next_object, list):
+            self._input = self._input.nested(next_object)
+            matcher()
+            if self._input.empty():
+                self._input = next_input
+                return _SemanticAction(lambda: None)
+        raise _MaybeParseError()
+class _Input(object):
 
-    def _star(self):
-        pass
+    @classmethod
+    def from_object(cls, input_object):
+        if isinstance(input_object, list):
+            return cls(input_object, _TreePos())
+        else:
+            return cls(list(input_object), _StringPos())
+
+    def __init__(self, objects, pos):
+        self._objects = objcts
+        self._pos = pos
+
+    def pos(self):
+        return self._pos
+
+    def next(self):
+        next_object = self._objects[0]
+        return next_object, _Input(
+            self._objects[1:],
+            pos=self._pos.advance(next_object)
+        )
+
+    def empty(self):
+        return len(self._objects) == 0
+
+    def nested(self, input_object):
+        return _Input(input_object, self._pos.nest())
+class _StringPos(object):
+
+    def __init__(self, pos=0, line=1, column=1):
+        self._pos = pos
+        self._line = line
+        self._column = column
+
+    def key(self):
+        return self._pos
+
+    def advance(self, next_object):
+        if next_object == "\n":
+            return _StringPos(self._pos+1, self._line+1, 1)
+        else:
+            return _StringPos(self._pos+1, self._line, self._column+1)
+
+    def describe(self):
+        return "line: {}, column: {}".format(self._line, self._column)
+class _TreePos(object):
+
+    def __init__(self, parent=None, pos=0):
+        self._parent = [] if parent is None else parent
+        self._pos = pos
+
+    def key(self):
+        return tuple(self._parent) + (self._pos,)
+
+    def advance(self, next_object):
+        return _TreePos(self._parent, self._pos+1)
+
+    def nest(self):
+        return _TreePos(self._parent+[self._pos])
+
+    def describe(self):
+        return "[{}]".format(", ".join(str(x) for x in self.key()))
 class _Vars(dict):
 
     def bind(self, name, value):
