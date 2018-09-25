@@ -652,6 +652,45 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_hostExprListItem(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("~")
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("hostExpr")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["ListItemSplice"]+[_vars.lookup("x").eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("hostExpr")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
     def _rule_name(self):
         return self._match_charseq("n")
 
