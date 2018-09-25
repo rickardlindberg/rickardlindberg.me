@@ -900,6 +900,68 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_escape(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq("\\")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: "\\")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq("'")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: "'")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq("\"")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: "\"")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq("n")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: "\n")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
     def _rule_name(self):
         return self._match_charseq("n")
 
