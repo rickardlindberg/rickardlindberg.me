@@ -997,7 +997,32 @@ class Parser(_RLMeta):
         )()
 
     def _rule_nameStart(self):
-        return self._match_charseq("n")
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_range("a", "z")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_range("A", "Z")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
 
     def _rule_nameChar(self):
         return self._match_charseq("#")
