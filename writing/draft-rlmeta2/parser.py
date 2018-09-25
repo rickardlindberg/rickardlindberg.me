@@ -824,7 +824,7 @@ class Parser(_RLMeta):
                                             ])
                                         ))
                                     )())
-                                )
+                                ),
                                 (lambda:
                                     self._match_charseq("'")
                                 ),
