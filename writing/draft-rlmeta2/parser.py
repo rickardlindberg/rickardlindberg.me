@@ -874,15 +874,6 @@ class Parser(_RLMeta):
     def _rule_name(self):
         return self._match_charseq("n")
 
-    def _rule_char(self):
-        return self._match_charseq("#")
-
-    def _rule_string(self):
-        return self._match_charseq("#")
-
-    def _rule_charseq(self):
-        return self._match_charseq("#")
-
     def _rule_space(self):
         return self._match_charseq(" ")
 
