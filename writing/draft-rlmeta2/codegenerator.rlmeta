@@ -1,13 +1,13 @@
 CodeGenerator {
   ast =
     | ["Grammar" .:x ast*:xs]    -> { 'class ' x '(_RLMeta):\n' > xs <                    }
-    | ["Rule" .:x ast:x]         -> { '\ndef _rule_' x '(self):\n' > 'return ' x '()\n' < }
+    | ["Rule" .:x ast:y]         -> { '\ndef _rule_' x '(self):\n' > 'return ' y '()\n' < }
     | ["MatchAny"]               -> { 'self._any'                                         }
     | ["String" .:x]             -> { repr(x)                                             }
     | ["List" astList:x]         -> { x                                                   }
     | ["ListBuilder" astItems:x] -> { '_Builder.create([' x '])'                          }
-    | ["IndentBuilder" .:x]      -> { '_IndentBuilder()'                                  }
-    | ["DedentBuilder" .:x]      -> { '_DedentBuilder()'                                  }
+    | ["IndentBuilder"]          -> { '_IndentBuilder()'                                  }
+    | ["DedentBuilder"]          -> { '_DedentBuilder()'                                  }
     | ["FnCall" .:x astItems:y]  -> { x '(' y ')'                                         }
     | ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()'                  }
     | astFnBody:x                -> { '(lambda:\n' > x < '\n)' }

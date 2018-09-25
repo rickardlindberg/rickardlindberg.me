@@ -8,17 +8,73 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Grammar")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind("xs", (lambda:
+                                                    self._star((lambda:
+                                                        self._match("ast")
+                                                    ))
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "class ",
+                                        _vars.lookup("x").eval(),
+                                        "(_RLMeta):\n",
+                                        _IndentBuilder(),
+                                        _vars.lookup("xs").eval(),
+                                        _DedentBuilder(),
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Rule" .:x ast:x]         -> { '\ndef _rule_' x '(self):\n' > 'return ' x '()\n' < }
+                # ["Rule" .:x ast:y]         -> { '\ndef _rule_' x '(self):\n' > 'return ' y '()\n' < }
                 (lambda:
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Rule")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind("y", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "\ndef _rule_",
+                                        _vars.lookup("x").eval(),
+                                        "(self):\n",
+                                        _IndentBuilder(),
+                                        "return ",
+                                        _vars.lookup("y").eval(),
+                                        "()\n",
+                                        _DedentBuilder(),
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -28,7 +84,20 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchAny")
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._any",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -38,7 +107,25 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("String")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        repr(
+                                            _vars.lookup("x").eval(),
+                                        )
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -48,7 +135,25 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("List")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("astList")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup("x").eval(),
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -58,27 +163,73 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("ListBuilder")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("astItems")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_Builder.create([",
+                                        _vars.lookup("x").eval(),
+                                        "])",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["IndentBuilder" .:x]      -> { '_IndentBuilder()'                                  }
+                # ["IndentBuilder"]      -> { '_IndentBuilder()'                                  }
                 (lambda:
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("IndentBuilder")
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_IndentBuilder()",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["DedentBuilder" .:x]      -> { '_DedentBuilder()'                                  }
+                # ["DedentBuilder"]      -> { '_DedentBuilder()'                                  }
                 (lambda:
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("DedentBuilder")
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_DedentBuilder()",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -88,7 +239,31 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("FnCall")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind("y", (lambda:
+                                                    self._match("astItems")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup("x").eval(),
+                                        "(",
+                                        _vars.lookup("y").eval(),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -98,7 +273,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("VarLookup")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_vars.lookup(",
+                                        repr(
+                                            _vars.lookup("x").eval(),
+                                        ),
+                                        ").eval()",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -108,7 +303,18 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("astFnBody")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "(lambda:\n",
+                                        _vars.lookup("x").eval(),
+                                        "\n)",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -124,7 +330,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Or")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("astItems")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._or([",
+                                        _vars.lookup("x").eval(),
+                                        "])",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -134,7 +360,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Scope")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "(lambda _vars:\n",
+                                        _vars.lookup("x").eval(),
+                                        "()\n)(_Vars())",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -144,7 +390,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("And")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("astItems")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._and([",
+                                        _vars.lookup("x").eval(),
+                                        "])",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -154,7 +420,34 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Bind")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind("y", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_vars.bind(",
+                                        repr(
+                                            _vars.lookup("x").eval(),
+                                        ),
+                                        ", ",
+                                        _vars.lookup("y").eval(),
+                                        "())",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -164,7 +457,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Star")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._star(",
+                                        _vars.lookup("x").eval(),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -174,7 +487,20 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchNothing")
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "None",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -184,7 +510,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Not")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._negative_lookahead(",
+                                        _vars.lookup("x").eval(),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -194,7 +540,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("SemanticAction")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "_SemanticAction(lambda: ",
+                                        _vars.lookup("x").eval(),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -204,7 +570,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("Apply")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._match(",
+                                        repr(
+                                            _vars.lookup("x").eval()
+                                        ),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -214,7 +600,34 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchCharRange")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind("y", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._match_range(",
+                                        repr(
+                                            _vars.lookup("x").eval()
+                                        ),
+                                        ", ",
+                                        repr(
+                                            _vars.lookup("y").eval()
+                                        ),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -224,7 +637,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchString")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._match_string",
+                                        repr(
+                                            _vars.lookup("x").eval()
+                                        ),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -234,7 +667,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchCharseq")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._match_charseq",
+                                        repr(
+                                            _vars.lookup("x").eval()
+                                        ),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -244,7 +697,27 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("MatchList")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "self._match_list",
+                                        _vars.lookup("x").eval(),
+                                        ")",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -260,7 +733,21 @@ class CodeGenerator(_RLMeta):
                         (lambda:
                             # astItem*:xs         -> { '\n' > xs <                                         }
                             self._and([
-                                matchers,
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("astItem")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "\n",
+                                        _IndentBuilder(),
+                                        _vars.lookup("xs").eval(),
+                                        _DedentBuilder(),
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -276,7 +763,17 @@ class CodeGenerator(_RLMeta):
                         (lambda:
                             # ast:x               -> { x ',\n'                                             }
                             self._and([
-                                matchers,
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("ast")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup("x").eval(),
+                                        ",\n",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -292,7 +789,18 @@ class CodeGenerator(_RLMeta):
                         (lambda:
                             # astListItem*:xs     -> { '(' xs '[])'                                        }
                             self._and([
-                                matchers,
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star(astListItem)
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "(",
+                                        _vars.lookup("xs").eval(),
+                                        "[])",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -308,7 +816,26 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers,
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string("ListItemSplice")
+                                            ),
+                                            (lambda:
+                                                _vars.bind("x", (lambda:
+                                                    self._match("ast")
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup("x").eval(),
+                                        "+",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -318,7 +845,18 @@ class CodeGenerator(_RLMeta):
                     (lambda _vars:
                         (lambda:
                             self._and([
-                                matchers,
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("ast")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        "[",
+                                        _vars.lookup("x").eval(),
+                                        "]+",
+                                    ]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -329,4 +867,5 @@ class CodeGenerator(_RLMeta):
 import parserfull
 parser_ast = parserfull.Parser().run("grammar", open("parser.rlmeta").read())
 import pprint
+pprint.pprint(parser_ast)
 pprint.pprint(CodeGenerator().run("ast", parser_ast))

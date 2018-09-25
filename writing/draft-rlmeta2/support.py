@@ -88,7 +88,7 @@ class _Input(object):
     @classmethod
     def from_object(cls, input_object):
         if isinstance(input_object, list):
-            return cls(input_object, _TreePos())
+            return cls([input_object], _TreePos())
         else:
             return cls(list(input_object), _StringPos())
 
