@@ -1,18 +1,3 @@
-class _Builder(object):
-
-    @classmethod
-    def create(self, item):
-        if isinstance(item, _Builder):
-            return item
-        elif isinstance(item, list):
-            return _ListBuilder([_Builder.create(x) for x in item])
-        else:
-            return _AtomBuilder(item)
-
-    def to_rlmeta_output_stream(self):
-        output = _Output()
-        self.write(output)
-        return output.value
 class _RLMeta(object):
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)
@@ -38,9 +23,9 @@ class _RLMeta(object):
         for matcher in matchers:
             try:
                 return matcher()
-            except _MaybeParseError:
+            except _MatchError:
                 self._input = saved_input
-        raise _MaybeParseError()
+        raise _MatchError()
     def _and(self, matchers):
         result = None
         for matcher in matchers:
@@ -52,17 +37,17 @@ class _RLMeta(object):
             saved_input = self._input
             try:
                 result.append(matcher())
-            except _MaybeParseError:
+            except _MatchError:
                 self._input = saved_input
                 return result
     def _negative_lookahead(self, matcher):
         saved_input = self._input
         try:
             matcher()
-        except _MaybeParseError:
+        except _MatchError:
             return _SemanticAction(lambda: None)
         else:
-            raise _MaybeParseError()
+            raise _MatchError()
         finally:
             self._input = saved_input
     def _match_range(self, a, b):
@@ -70,18 +55,18 @@ class _RLMeta(object):
         if next_objext >= a and next_objext <= b:
             return _SemanticAction(lambda: next_objext)
         else:
-            raise _MaybeParseError()
+            raise _MatchError()
     def _match_string(self, string):
         next_object, self._input = self._input.next()
         if next_object == string:
             return _SemanticAction(lambda: string)
         else:
-            raise _MaybeParseError()
+            raise _MatchError()
     def _match_charsec(self, charseq):
         for char in charseq:
             next_object, self._input = self._input.next()
             if next_object != char:
-                raise _MaybeParseError()
+                raise _MatchError()
         return _SemanticAction(lambda: charseq)
     def _any(self, string):
         next_object, self._input = self._input.next()
@@ -94,7 +79,7 @@ class _RLMeta(object):
             if self._input.empty():
                 self._input = next_input
                 return _SemanticAction(lambda: None)
-        raise _MaybeParseError()
+        raise _MatchError()
 class _Input(object):
 
     @classmethod
@@ -158,6 +143,15 @@ class _TreePos(object):
 
     def describe(self):
         return "[{}]".format(", ".join(str(x) for x in self.key()))
+class _SemanticAction(object):
+
+    def __init__(self, fn):
+        self.fn = fn
+
+    def eval(self):
+        self.fn()
+class _MatchError(Exception):
+    pass
 class _Vars(dict):
 
     def bind(self, name, value):
@@ -166,6 +160,17 @@ class _Vars(dict):
 
     def lookup(self, name):
         return self[name]
+class _Builder(object):
+
+    @classmethod
+    def create(self, item):
+        if isinstance(item, _Builder):
+            return item
+        elif isinstance(item, list):
+            return _ListBuilder([_Builder.create(x) for x in item])
+        else:
+            return _AtomBuilder(item)
+
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
