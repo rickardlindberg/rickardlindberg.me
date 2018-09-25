@@ -778,7 +778,9 @@ class Parser(_RLMeta):
                                     self._match_charseq("\"")
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: join(_vars.lookup("xs").eval()))
+                                    _SemanticAction(lambda: join(
+                                        _vars.lookup("xs").eval(),
+                                    ))
                                 ),
                             ])
                         )()
