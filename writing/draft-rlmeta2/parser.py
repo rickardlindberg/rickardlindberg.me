@@ -176,6 +176,50 @@ class Parser(_RLMeta):
         )()
 
     def _rule_expr(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("expr1")
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq(":")
+                                ),
+                                (lambda:
+                                    _vars.bind("y", (lambda:
+                                        self._match("name")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Bind"]+[_vars.lookup("x").eval()]+[_vars.lookup("y").eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("expr1")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_expr1(self):
         return self._match_charseq("x")
 
     def _rule_name(self):
