@@ -1123,3 +1123,4 @@ class Parser(_RLMeta):
 
 import pprint
 pprint.pprint(Parser().run("grammar", open("parser.rlmeta").read()))
+pprint.pprint(Parser().run("grammar", open("codegenerator.rlmeta").read()))
