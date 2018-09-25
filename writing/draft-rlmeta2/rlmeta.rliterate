@@ -665,7 +665,7 @@
 "type":"variable"
 },
 {
-"text":"())\n\n    def __init__(self, objects, pos):\n        self._objects = objcts\n        self._pos = pos\n\n    def ",
+"text":"())\n\n    def __init__(self, objects, pos):\n        self._objects = objects\n        self._pos = pos\n\n    def ",
 "type":"code"
 },
 {
@@ -681,7 +681,23 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        next_object = self._objects[0]\n        return next_object, ",
+"text":"(self):\n        if self.",
+"type":"code"
+},
+{
+"id":"4ad80c8d1d814fefa2656595f1d841c6",
+"type":"variable"
+},
+{
+"text":"():\n            raise ",
+"type":"code"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":"()\n        next_object = self._objects[0]\n        return next_object, ",
 "type":"code"
 },
 {
@@ -1044,7 +1060,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { 'def _rule_' x '(self):\\n' > 'return ' x '()\\n' < ",
+"text":"-> { '\\ndef _rule_' x '(self):\\n' > 'return ' x '()\\n' < ",
 "type":"code"
 },
 {
@@ -1094,7 +1110,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        self.fn()\n",
+"text":"(self):\n        return self.fn()\n",
 "type":"code"
 }
 ],
@@ -1738,7 +1754,7 @@
 "type":"variable"
 },
 {
-"text":":\\n' > x < ')(",
+"text":":\\n' > x < '()\\n)(",
 "type":"code"
 },
 {
@@ -2043,7 +2059,7 @@
 "type":"variable"
 },
 {
-"text":"(' x ', ' y '())' ",
+"text":"(' repr(x) ', ' y '())' ",
 "type":"code"
 },
 {
@@ -2272,7 +2288,15 @@
 "type":"variable"
 },
 {
-"text":" = saved_input\n            return result\n",
+"text":" = saved_input\n            return ",
+"type":"code"
+},
+{
+"id":"cbbcd925bc2c42b9add24aaa736f4d35",
+"type":"variable"
+},
+{
+"text":"(lambda: [x.eval() for x in result])\n",
 "type":"code"
 }
 ],
@@ -2793,7 +2817,7 @@
 {
 "chunkpath":[
 "rules",
-"ast"
+"astFnBody"
 ],
 "filepath":[
 "codegenerator.rlmeta"
@@ -3472,7 +3496,7 @@
 "type":"variable"
 },
 {
-"text":"(self, string):\n    next_object, self.",
+"text":"(self):\n    next_object, self.",
 "type":"code"
 },
 {
@@ -5817,6 +5841,10 @@
 "support.py"
 ],
 "fragments":[
+{
+"text":"import sys\n",
+"type":"code"
+},
 {
 "path":[
 "classes"

@@ -1,3 +1,4 @@
+import sys
 class _RLMeta(object):
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)
@@ -39,7 +40,7 @@ class _RLMeta(object):
                 result.append(matcher())
             except _MatchError:
                 self._input = saved_input
-                return result
+                return _SemanticAction(lambda: [x.eval() for x in result])
     def _negative_lookahead(self, matcher):
         saved_input = self._input
         try:
@@ -68,7 +69,7 @@ class _RLMeta(object):
             if next_object != char:
                 raise _MatchError()
         return _SemanticAction(lambda: charseq)
-    def _any(self, string):
+    def _any(self):
         next_object, self._input = self._input.next()
         return _SemanticAction(lambda: next_object)
     def _match_list(self, matcher):
@@ -90,13 +91,15 @@ class _Input(object):
             return cls(list(input_object), _StringPos())
 
     def __init__(self, objects, pos):
-        self._objects = objcts
+        self._objects = objects
         self._pos = pos
 
     def pos(self):
         return self._pos
 
     def next(self):
+        if self.empty():
+            raise _MatchError()
         next_object = self._objects[0]
         return next_object, _Input(
             self._objects[1:],
@@ -149,7 +152,7 @@ class _SemanticAction(object):
         self.fn = fn
 
     def eval(self):
-        self.fn()
+        return self.fn()
 class _MatchError(Exception):
     pass
 class _Vars(dict):
