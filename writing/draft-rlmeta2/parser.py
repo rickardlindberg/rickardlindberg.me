@@ -963,11 +963,48 @@ class Parser(_RLMeta):
         )()
 
     def _rule_name(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("nameStart")
+                                    )())
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("nameChar")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: join(
+                                        ([_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]),
+                                    ))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_nameStart(self):
         return self._match_charseq("n")
+
+    def _rule_nameChar(self):
+        return self._match_charseq("#")
 
     def _rule_space(self):
         return self._match_charseq(" ")
 
 
 import pprint
-pprint.pprint(Parser().run("grammar", "n {n = |n }"))
+pprint.pprint(Parser().run("grammar", " n { n = | n }"))
