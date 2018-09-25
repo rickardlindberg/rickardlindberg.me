@@ -147,7 +147,36 @@ class Parser(_RLMeta):
         )()
 
     def _rule_sequence(self):
-        return self._match_charseq("s")
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("expr")
+                                    )())
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("expr")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Scope"]+(["And"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[])+[]))
+                                )
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_expr(self):
+        return self._match_charseq("x")
 
     def _rule_name(self):
         return self._match_charseq("n")
@@ -157,4 +186,4 @@ class Parser(_RLMeta):
 
 
 import pprint
-pprint.pprint(Parser().run("grammar", "n {n = |s }"))
+pprint.pprint(Parser().run("grammar", "n {n = |x }"))
