@@ -166,7 +166,7 @@ class Parser(_RLMeta):
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Scope"]+(["And"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[])+[]))
+                                    _SemanticAction(lambda: (["Scope"]+[(["And"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[])]+[]))
                                 )
                             ])
                         )()
@@ -199,7 +199,7 @@ class Parser(_RLMeta):
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Bind"]+[_vars.lookup("x").eval()]+[_vars.lookup("y").eval()]+[]))
+                                    _SemanticAction(lambda: (["Bind"]+[_vars.lookup("y").eval()]+[_vars.lookup("x").eval()]+[]))
                                 ),
                             ])
                         )()
@@ -237,6 +237,9 @@ class Parser(_RLMeta):
                                 (lambda:
                                     self._match_charseq("*")
                                 ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Star"]+[_vars.lookup("x").eval()]+[]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -256,6 +259,9 @@ class Parser(_RLMeta):
                                 (lambda:
                                     self._match_charseq("?")
                                 ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Or"]+[_vars.lookup("x").eval()]+[(["MatchNothing"]+[])]+[]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -274,6 +280,9 @@ class Parser(_RLMeta):
                                     _vars.bind("x", (lambda:
                                         self._match("expr2")
                                     )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Not"]+[_vars.lookup("x").eval()]+[]))
                                 ),
                             ])
                         )()

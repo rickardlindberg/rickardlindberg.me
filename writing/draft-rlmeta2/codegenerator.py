@@ -791,7 +791,9 @@ class CodeGenerator(_RLMeta):
                             self._and([
                                 (lambda:
                                     _vars.bind("xs", (lambda:
-                                        self._star(astListItem)
+                                        self._star((lambda:
+                                            self._match("astListItem")
+                                        ))
                                     )())
                                 ),
                                 (lambda:
