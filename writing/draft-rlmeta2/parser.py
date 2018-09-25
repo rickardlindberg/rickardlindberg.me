@@ -1064,7 +1064,57 @@ class Parser(_RLMeta):
         )()
 
     def _rule_space(self):
-        return self._match_charseq(" ")
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._star((lambda:
+                                        self._or([
+                                            (lambda:
+                                                (lambda _vars:
+                                                    (lambda:
+                                                        self._and([
+                                                            (lambda:
+                                                                self._match_charseq(" ")
+                                                            ),
+                                                        ])
+                                                    )()
+                                                )(_Vars())
+                                            ),
+                                            (lambda:
+                                                (lambda _vars:
+                                                    (lambda:
+                                                        self._and([
+                                                            (lambda:
+                                                                self._match_charseq("\t")
+                                                            ),
+                                                        ])
+                                                    )()
+                                                )(_Vars())
+                                            ),
+                                            (lambda:
+                                                (lambda _vars:
+                                                    (lambda:
+                                                        self._and([
+                                                            (lambda:
+                                                                self._match_charseq("\n")
+                                                            ),
+                                                        ])
+                                                    )()
+                                                )(_Vars())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
 
 
 import pprint
