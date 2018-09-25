@@ -16,7 +16,7 @@ class Parser(_RLMeta):
                                     self._match("space")
                                 ),
                                 (lambda:
-                                    self._match_charsec("{")
+                                    self._match_charseq("{")
                                 ),
                                 (lambda:
                                     _vars.bind("ys", (lambda:
@@ -29,7 +29,7 @@ class Parser(_RLMeta):
                                     self._match("space")
                                 ),
                                 (lambda:
-                                    self._match_charsec("}")
+                                    self._match_charseq("}")
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: (["Grammar"]+[_vars.lookup("x").eval()]+_vars.lookup("ys").eval()+[]))
@@ -57,7 +57,7 @@ class Parser(_RLMeta):
                                     self._match("space")
                                 ),
                                 (lambda:
-                                    self._match_charsec("=")
+                                    self._match_charseq("=")
                                 ),
                                 (lambda:
                                     _vars.bind("y", (lambda:
@@ -75,13 +75,13 @@ class Parser(_RLMeta):
         )()
 
     def _rule_name(self):
-        return self._match_charsec("n")
+        return self._match_charseq("n")
 
     def _rule_choices(self):
-        return self._match_charsec("c")
+        return self._match_charseq("c")
 
     def _rule_space(self):
-        return self._match_charsec(" ")
+        return self._match_charseq(" ")
 
 
 import pprint

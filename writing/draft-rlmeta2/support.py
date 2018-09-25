@@ -63,7 +63,7 @@ class _RLMeta(object):
             return _SemanticAction(lambda: string)
         else:
             raise _MatchError()
-    def _match_charsec(self, charseq):
+    def _match_charseq(self, charseq):
         for char in charseq:
             next_object, self._input = self._input.next()
             if next_object != char:
