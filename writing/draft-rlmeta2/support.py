@@ -14,7 +14,7 @@ class _RLMeta(object):
             start_input = self._input
             result = getattr(self, "_rule_{}".format(rule_name))()
             self._memo[key] = (result, self._input)
-            sys.stderr.write("Matched {} at \t[{}, {}[\n".format(
+            sys.stderr.write("Matched {} at \t[{}\t-\t{}[\n".format(
                 rule_name,
                 start_input.pos().describe(),
                 self._input.pos().describe()
