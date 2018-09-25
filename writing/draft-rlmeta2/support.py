@@ -176,6 +176,10 @@ class _Builder(object):
         else:
             return _AtomBuilder(item)
 
+    def to_rlmeta_output_stream(self):
+        output = _Output()
+        self.write(output)
+        return output.value
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
