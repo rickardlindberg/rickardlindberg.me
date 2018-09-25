@@ -604,7 +604,7 @@ class Parser(_RLMeta):
                             self._and([
                                 (lambda:
                                     _vars.bind("x", (lambda:
-                                        self._match("x")
+                                        self._match("name")
                                     )())
                                 ),
                                 (lambda:
@@ -1118,4 +1118,4 @@ class Parser(_RLMeta):
 
 
 import pprint
-pprint.pprint(Parser().run("grammar", " n { n = | n }"))
+pprint.pprint(Parser().run("grammar", open("parser.rlmeta").read()))
