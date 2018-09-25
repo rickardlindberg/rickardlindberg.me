@@ -871,6 +871,35 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_innerChar(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq("\\")
+                                ),
+                                (lambda:
+                                    self._match("escape")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                self._any,
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
     def _rule_name(self):
         return self._match_charseq("n")
 
