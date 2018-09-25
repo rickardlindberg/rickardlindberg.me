@@ -74,15 +74,87 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_choices(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._or([
+                                        (lambda:
+                                            self._or([
+                                                (lambda:
+                                                    (lambda _vars:
+                                                        (lambda:
+                                                            self._and([
+                                                                (lambda:
+                                                                    self._match("space")
+                                                                ),
+                                                                (lambda:
+                                                                    self._match_charseq("|")
+                                                                )
+                                                            ])
+                                                        )()
+                                                    )(_Vars())
+                                                ),
+                                            ])
+                                        ),
+                                        (lambda:
+                                            None
+                                        ),
+                                    ])
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("sequence")
+                                    )())
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._or([
+                                                (lambda:
+                                                    (lambda _vars:
+                                                        (lambda:
+                                                            self._and([
+                                                                (lambda:
+                                                                    self._match("space")
+                                                                ),
+                                                                (lambda:
+                                                                    self._match_charseq("|")
+                                                                ),
+                                                                (lambda:
+                                                                    self._match("sequence")
+                                                                ),
+                                                            ])
+                                                        )()
+                                                    )(_Vars())
+                                                )
+                                            ])
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["Or"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]))
+                                )
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_sequence(self):
+        return self._match_charseq("s")
+
     def _rule_name(self):
         return self._match_charseq("n")
-
-    def _rule_choices(self):
-        return self._match_charseq("c")
 
     def _rule_space(self):
         return self._match_charseq(" ")
 
 
 import pprint
-pprint.pprint(Parser().run("grammar", "n {n =c }"))
+pprint.pprint(Parser().run("grammar", "n {n = |s }"))

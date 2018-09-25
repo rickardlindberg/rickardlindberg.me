@@ -12,13 +12,15 @@ class _RLMeta(object):
         key = (rule_name, self._input.pos().key())
         if key not in self._memo:
             start_input = self._input
-            self._memo[key] = getattr(self, "_rule_{}".format(rule_name))()
+            result = getattr(self, "_rule_{}".format(rule_name))()
+            self._memo[key] = (result, self._input)
             sys.stderr.write("Matched {} at [{}, {}[\n".format(
                 rule_name,
                 start_input.pos().describe(),
                 self._input.pos().describe()
             ))
-        return self._memo[key]
+        result, self._input = self._memo[key]
+        return result
     def _or(self, matchers):
         saved_input = self._input
         for matcher in matchers:

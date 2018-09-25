@@ -601,7 +601,7 @@
 "type":"variable"
 },
 {
-"text":"\n        self.",
+"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
 "type":"code"
 },
 {
@@ -609,7 +609,23 @@
 "type":"variable"
 },
 {
-"text":"[key] = getattr(self, \"_rule_{}\".format(rule_name))()\n        sys.stderr.write(\"Matched {} at [{}, {}[\\n\".format(\n            rule_name,\n            start_input.pos().describe(),\n            self._input.pos().describe()\n        ))\n    return self.",
+"text":"[key] = (result, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":")\n        sys.stderr.write(\"Matched {} at [{}, {}[\\n\".format(\n            rule_name,\n            start_input.pos().describe(),\n            self._input.pos().describe()\n        ))\n    result, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -617,7 +633,7 @@
 "type":"variable"
 },
 {
-"text":"[key]\n",
+"text":"[key]\n    return result\n",
 "type":"code"
 }
 ],
