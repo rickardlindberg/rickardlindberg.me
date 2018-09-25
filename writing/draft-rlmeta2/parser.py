@@ -691,6 +691,57 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_buildExpr(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq(">")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["IndentBuilder"]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("<")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["DedentBuilder"]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("hostExpr")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
     def _rule_name(self):
         return self._match_charseq("n")
 
