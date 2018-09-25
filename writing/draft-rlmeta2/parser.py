@@ -220,6 +220,80 @@ class Parser(_RLMeta):
         )()
 
     def _rule_expr1(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("expr2")
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("*")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("expr2")
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("?")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("!")
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("expr2")
+                                    )())
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("expr2")
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_expr2(self):
         return self._match_charseq("x")
 
     def _rule_name(self):
