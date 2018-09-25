@@ -497,6 +497,161 @@ class Parser(_RLMeta):
             ])
         )()
 
+    def _rule_hostExpr(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("string")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["String"]+[_vars.lookup("x").eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("charseq")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["String"]+[_vars.lookup("x").eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("[")
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("hostExprListItem")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("]")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["List"]+_vars.lookup("xs").eval()+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("{")
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("buildExpr")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("}")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["ListBuilder"]+_vars.lookup("xs").eval()+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("x")
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq("(")
+                                ),
+                                (lambda:
+                                    _vars.bind("xs", (lambda:
+                                        self._star((lambda:
+                                            self._match("hostExpr")
+                                        ))
+                                    )())
+                                ),
+                                (lambda:
+                                    self._match("space")
+                                ),
+                                (lambda:
+                                    self._match_charseq(")")
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["FnCall"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind("x", (lambda:
+                                        self._match("name")
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (["VarLookup"]+[_vars.lookup("x").eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
     def _rule_name(self):
         return self._match_charseq("n")
 
