@@ -803,26 +803,28 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _vars.bind("xs", (lambda:
-                                        self._or([
-                                            (lambda:
-                                                (lambda _vars:
-                                                    (lambda:
-                                                        self._and([
-                                                            (lambda:
-                                                                self._negative_lookahead((lambda:
-                                                                    self._match_charseq("'")
-                                                                ))
-                                                            ),
-                                                            (lambda:
-                                                                self._match("innerChar")
-                                                            ),
-                                                        ])
-                                                    )()
-                                                )(_Vars())
-                                            ),
-                                        ])
+                                        self._star((lambda:
+                                            self._or([
+                                                (lambda:
+                                                    (lambda _vars:
+                                                        (lambda:
+                                                            self._and([
+                                                                (lambda:
+                                                                    self._negative_lookahead((lambda:
+                                                                        self._match_charseq("'")
+                                                                    ))
+                                                                ),
+                                                                (lambda:
+                                                                    self._match("innerChar")
+                                                                ),
+                                                            ])
+                                                        )()
+                                                    )(_Vars())
+                                                ),
+                                            ])
+                                        ))
                                     )())
-                                ),
+                                )
                                 (lambda:
                                     self._match_charseq("'")
                                 ),
