@@ -230,31 +230,31 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("name")
+                                    _vars.bind('x', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("{")
+                                    self._match_charseq('{')
                                 ),
                                 (lambda:
-                                    _vars.bind("ys", (lambda:
+                                    _vars.bind('ys', (lambda:
                                         self._star((lambda:
-                                            self._match("rule")
+                                            self._match('rule')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("}")
+                                    self._match_charseq('}')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Grammar"]+[_vars.lookup("x").eval()]+_vars.lookup("ys").eval()+[]))
+                                    _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))
                                 ),
                             ])
                         )()
@@ -271,23 +271,23 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("name")
+                                    _vars.bind('x', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("=")
+                                    self._match_charseq('=')
                                 ),
                                 (lambda:
-                                    _vars.bind("y", (lambda:
-                                        self._match("choices")
+                                    _vars.bind('y', (lambda:
+                                        self._match('choices')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Rule"]+[_vars.lookup("x").eval()]+[_vars.lookup("y").eval()]+[]))
+                                    _SemanticAction(lambda: (['Rule']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -312,11 +312,11 @@ class Parser(_RLMeta):
                                                         (lambda:
                                                             self._and([
                                                                 (lambda:
-                                                                    self._match("space")
+                                                                    self._match('space')
                                                                 ),
                                                                 (lambda:
-                                                                    self._match_charseq("|")
-                                                                )
+                                                                    self._match_charseq('|')
+                                                                ),
                                                             ])
                                                         )()
                                                     )(_Vars())
@@ -329,12 +329,12 @@ class Parser(_RLMeta):
                                     ])
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("sequence")
+                                    _vars.bind('x', (lambda:
+                                        self._match('sequence')
                                     )())
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
                                             self._or([
                                                 (lambda:
@@ -342,25 +342,25 @@ class Parser(_RLMeta):
                                                         (lambda:
                                                             self._and([
                                                                 (lambda:
-                                                                    self._match("space")
+                                                                    self._match('space')
                                                                 ),
                                                                 (lambda:
-                                                                    self._match_charseq("|")
+                                                                    self._match_charseq('|')
                                                                 ),
                                                                 (lambda:
-                                                                    self._match("sequence")
+                                                                    self._match('sequence')
                                                                 ),
                                                             ])
                                                         )()
                                                     )(_Vars())
-                                                )
+                                                ),
                                             ])
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Or"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]))
-                                )
+                                    _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -376,20 +376,20 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("expr")
+                                    _vars.bind('x', (lambda:
+                                        self._match('expr')
                                     )())
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("expr")
+                                            self._match('expr')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Scope"]+[(["And"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[])]+[]))
-                                )
+                                    _SemanticAction(lambda: (['Scope']+[(['And']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[])]+[]))
+                                ),
                             ])
                         )()
                     )(_Vars())
@@ -405,23 +405,23 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("expr1")
+                                    _vars.bind('x', (lambda:
+                                        self._match('expr1')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq(":")
+                                    self._match_charseq(':')
                                 ),
                                 (lambda:
-                                    _vars.bind("y", (lambda:
-                                        self._match("name")
+                                    _vars.bind('y', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Bind"]+[_vars.lookup("y").eval()]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['Bind']+[_vars.lookup('y').eval()]+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -432,7 +432,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("expr1")
+                                    self._match('expr1')
                                 ),
                             ])
                         )()
@@ -449,18 +449,18 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("expr2")
+                                    _vars.bind('x', (lambda:
+                                        self._match('expr2')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("*")
+                                    self._match_charseq('*')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Star"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['Star']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -471,18 +471,18 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("expr2")
+                                    _vars.bind('x', (lambda:
+                                        self._match('expr2')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("?")
+                                    self._match_charseq('?')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Or"]+[_vars.lookup("x").eval()]+[(["MatchNothing"]+[])]+[]))
+                                    _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+[(['MatchNothing']+[])]+[]))
                                 ),
                             ])
                         )()
@@ -493,18 +493,18 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("!")
+                                    self._match_charseq('!')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("expr2")
+                                    _vars.bind('x', (lambda:
+                                        self._match('expr2')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Not"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['Not']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -515,7 +515,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("expr2")
+                                    self._match('expr2')
                                 ),
                             ])
                         )()
@@ -532,18 +532,18 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("->")
+                                    self._match_charseq('->')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("hostExpr")
+                                    _vars.bind('x', (lambda:
+                                        self._match('hostExpr')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["SemanticAction"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['SemanticAction']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -554,8 +554,8 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("name")
+                                    _vars.bind('x', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
@@ -566,10 +566,10 @@ class Parser(_RLMeta):
                                                     (lambda:
                                                         self._and([
                                                             (lambda:
-                                                                self._match("space")
+                                                                self._match('space')
                                                             ),
                                                             (lambda:
-                                                                self._match_charseq("=")
+                                                                self._match_charseq('=')
                                                             ),
                                                         ])
                                                     )()
@@ -579,7 +579,7 @@ class Parser(_RLMeta):
                                     ))
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["Apply"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['Apply']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -590,23 +590,23 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("char")
+                                    _vars.bind('x', (lambda:
+                                        self._match('char')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match_charseq("-")
+                                    self._match_charseq('-')
                                 ),
                                 (lambda:
-                                    _vars.bind("y", (lambda:
-                                        self._match("char")
+                                    _vars.bind('y', (lambda:
+                                        self._match('char')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchCharRange"]+[_vars.lookup("x").eval()]+[_vars.lookup("y").eval()]+[]))
+                                    _SemanticAction(lambda: (['MatchCharRange']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -617,15 +617,15 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("string")
+                                    _vars.bind('x', (lambda:
+                                        self._match('string')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchString"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['MatchString']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -636,15 +636,15 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("charseq")
+                                    _vars.bind('x', (lambda:
+                                        self._match('charseq')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchCharseq"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['MatchCharseq']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -655,13 +655,13 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq(".")
+                                    self._match_charseq('.')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchAny"]+[]))
+                                    _SemanticAction(lambda: (['MatchAny']+[]))
                                 ),
                             ])
                         )()
@@ -672,24 +672,24 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("(")
+                                    self._match_charseq('(')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("choices")
+                                    _vars.bind('x', (lambda:
+                                        self._match('choices')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq(")")
+                                    self._match_charseq(')')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: _vars.lookup("x").eval())
+                                    _SemanticAction(lambda: _vars.lookup('x').eval())
                                 ),
                             ])
                         )()
@@ -700,26 +700,26 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("[")
+                                    self._match_charseq('[')
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("expr")
+                                            self._match('expr')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("]")
+                                    self._match_charseq(']')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchList"]+[(["And"]+_vars.lookup("xs").eval()+[])]+[]))
+                                    _SemanticAction(lambda: (['MatchList']+[(['And']+_vars.lookup('xs').eval()+[])]+[]))
                                 ),
                             ])
                         )()
@@ -736,15 +736,15 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("string")
+                                    _vars.bind('x', (lambda:
+                                        self._match('string')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["String"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['String']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -755,15 +755,15 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("charseq")
+                                    _vars.bind('x', (lambda:
+                                        self._match('charseq')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["String"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['String']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -774,26 +774,26 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("[")
+                                    self._match_charseq('[')
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("hostExprListItem")
+                                            self._match('hostExprListItem')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("]")
+                                    self._match_charseq(']')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["List"]+_vars.lookup("xs").eval()+[]))
+                                    _SemanticAction(lambda: (['List']+_vars.lookup('xs').eval()+[]))
                                 ),
                             ])
                         )()
@@ -804,26 +804,26 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("{")
+                                    self._match_charseq('{')
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("buildExpr")
+                                            self._match('buildExpr')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("}")
+                                    self._match_charseq('}')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["ListBuilder"]+_vars.lookup("xs").eval()+[]))
+                                    _SemanticAction(lambda: (['ListBuilder']+_vars.lookup('xs').eval()+[]))
                                 ),
                             ])
                         )()
@@ -834,31 +834,31 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("name")
+                                    _vars.bind('x', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("(")
+                                    self._match_charseq('(')
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("hostExpr")
+                                            self._match('hostExpr')
                                         ))
                                     )())
                                 ),
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq(")")
+                                    self._match_charseq(')')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["FnCall"]+[_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]))
+                                    _SemanticAction(lambda: (['FnCall']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]))
                                 ),
                             ])
                         )()
@@ -869,12 +869,12 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("name")
+                                    _vars.bind('x', (lambda:
+                                        self._match('name')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["VarLookup"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['VarLookup']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -891,18 +891,18 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq("~")
+                                    self._match_charseq('~')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("hostExpr")
+                                    _vars.bind('x', (lambda:
+                                        self._match('hostExpr')
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["ListItemSplice"]+[_vars.lookup("x").eval()]+[]))
+                                    _SemanticAction(lambda: (['ListItemSplice']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -913,7 +913,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("hostExpr")
+                                    self._match('hostExpr')
                                 ),
                             ])
                         )()
@@ -930,30 +930,13 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    self._match_charseq(">")
+                                    self._match_charseq('>')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["IndentBuilder"]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match("space")
-                                ),
-                                (lambda:
-                                    self._match_charseq("<")
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (["DedentBuilder"]+[]))
+                                    _SemanticAction(lambda: (['IndentBuilder']+[]))
                                 ),
                             ])
                         )()
@@ -964,7 +947,24 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("hostExpr")
+                                    self._match('space')
+                                ),
+                                (lambda:
+                                    self._match_charseq('<')
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (['DedentBuilder']+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match('hostExpr')
                                 ),
                             ])
                         )()
@@ -981,10 +981,10 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_charseq("\"")
+                                    self._match_charseq('"')
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
                                             self._or([
                                                 (lambda:
@@ -993,11 +993,11 @@ class Parser(_RLMeta):
                                                             self._and([
                                                                 (lambda:
                                                                     self._negative_lookahead((lambda:
-                                                                        self._match_charseq("\"")
+                                                                        self._match_charseq('"')
                                                                     ))
                                                                 ),
                                                                 (lambda:
-                                                                    self._match("innerChar")
+                                                                    self._match('innerChar')
                                                                 ),
                                                             ])
                                                         )()
@@ -1008,11 +1008,11 @@ class Parser(_RLMeta):
                                     )())
                                 ),
                                 (lambda:
-                                    self._match_charseq("\"")
+                                    self._match_charseq('"')
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: join(
-                                        _vars.lookup("xs").eval(),
+                                        _vars.lookup('xs').eval(),
                                     ))
                                 ),
                             ])
@@ -1033,7 +1033,7 @@ class Parser(_RLMeta):
                                     self._match_charseq("'")
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
                                             self._or([
                                                 (lambda:
@@ -1046,7 +1046,7 @@ class Parser(_RLMeta):
                                                                     ))
                                                                 ),
                                                                 (lambda:
-                                                                    self._match("innerChar")
+                                                                    self._match('innerChar')
                                                                 ),
                                                             ])
                                                         )()
@@ -1061,7 +1061,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: join(
-                                        _vars.lookup("xs").eval(),
+                                        _vars.lookup('xs').eval(),
                                     ))
                                 ),
                             ])
@@ -1087,8 +1087,8 @@ class Parser(_RLMeta):
                                     ))
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("innerChar")
+                                    _vars.bind('x', (lambda:
+                                        self._match('innerChar')
                                     )())
                                 ),
                                 (lambda:
@@ -1096,7 +1096,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: join(
-                                        _vars.lookup("x").eval()
+                                        _vars.lookup('x').eval(),
                                     ))
                                 ),
                             ])
@@ -1114,10 +1114,10 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_charseq("\\")
+                                    self._match_charseq('\\')
                                 ),
                                 (lambda:
-                                    self._match("escape")
+                                    self._match('escape')
                                 ),
                             ])
                         )()
@@ -1143,10 +1143,10 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_charseq("\\")
+                                    self._match_charseq('\\')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: "\\")
+                                    _SemanticAction(lambda: '\\')
                                 ),
                             ])
                         )()
@@ -1171,10 +1171,10 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_charseq("\"")
+                                    self._match_charseq('"')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: "\"")
+                                    _SemanticAction(lambda: '"')
                                 ),
                             ])
                         )()
@@ -1185,10 +1185,10 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_charseq("n")
+                                    self._match_charseq('n')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: "\n")
+                                    _SemanticAction(lambda: '\n')
                                 ),
                             ])
                         )()
@@ -1205,23 +1205,23 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match("space")
+                                    self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("nameStart")
+                                    _vars.bind('x', (lambda:
+                                        self._match('nameStart')
                                     )())
                                 ),
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("nameChar")
+                                            self._match('nameChar')
                                         ))
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: join(
-                                        ([_vars.lookup("x").eval()]+_vars.lookup("xs").eval()+[]),
+                                        ([_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]),
                                     ))
                                 ),
                             ])
@@ -1239,7 +1239,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_range("a", "z")
+                                    self._match_range('a', 'z')
                                 ),
                             ])
                         )()
@@ -1250,7 +1250,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_range("A", "Z")
+                                    self._match_range('A', 'Z')
                                 ),
                             ])
                         )()
@@ -1267,7 +1267,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_range("a", "z")
+                                    self._match_range('a', 'z')
                                 ),
                             ])
                         )()
@@ -1278,7 +1278,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_range("A", "Z")
+                                    self._match_range('A', 'Z')
                                 ),
                             ])
                         )()
@@ -1289,7 +1289,7 @@ class Parser(_RLMeta):
                         (lambda:
                             self._and([
                                 (lambda:
-                                    self._match_range("0", "9")
+                                    self._match_range('0', '9')
                                 ),
                             ])
                         )()
@@ -1313,7 +1313,7 @@ class Parser(_RLMeta):
                                                     (lambda:
                                                         self._and([
                                                             (lambda:
-                                                                self._match_charseq(" ")
+                                                                self._match_charseq(' ')
                                                             ),
                                                         ])
                                                     )()
@@ -1324,7 +1324,7 @@ class Parser(_RLMeta):
                                                     (lambda:
                                                         self._and([
                                                             (lambda:
-                                                                self._match_charseq("\t")
+                                                                self._match_charseq('\\t')
                                                             ),
                                                         ])
                                                     )()
@@ -1335,7 +1335,7 @@ class Parser(_RLMeta):
                                                     (lambda:
                                                         self._and([
                                                             (lambda:
-                                                                self._match_charseq("\n")
+                                                                self._match_charseq('\n')
                                                             ),
                                                         ])
                                                     )()
@@ -1355,7 +1355,6 @@ class CodeGenerator(_RLMeta):
     def _rule_ast(self):
         return (lambda:
             self._or([
-                # ["Grammar" .:x ast*:xs]    -> { 'class ' x '(_RLMeta):\n' > xs <                    }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1364,15 +1363,15 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Grammar")
+                                                self._match_string('Grammar')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                             (lambda:
-                                                _vars.bind("xs", (lambda:
+                                                _vars.bind('xs', (lambda:
                                                     self._star((lambda:
-                                                        self._match("ast")
+                                                        self._match('ast')
                                                     ))
                                                 )())
                                             ),
@@ -1381,11 +1380,11 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "class ",
-                                        _vars.lookup("x").eval(),
-                                        "(_RLMeta):\n",
+                                        'class ',
+                                        _vars.lookup('x').eval(),
+                                        '(_RLMeta):\n',
                                         _IndentBuilder(),
-                                        _vars.lookup("xs").eval(),
+                                        _vars.lookup('xs').eval(),
                                         _DedentBuilder(),
                                     ]))
                                 ),
@@ -1393,7 +1392,6 @@ class CodeGenerator(_RLMeta):
                         )()
                     )(_Vars())
                 ),
-                # ["Rule" .:x ast:y]         -> { '\ndef _rule_' x '(self):\n' > 'return ' y '()\n' < }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1402,14 +1400,14 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Rule")
+                                                self._match_string('Rule')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                             (lambda:
-                                                _vars.bind("y", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('y', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1417,13 +1415,13 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "\ndef _rule_",
-                                        _vars.lookup("x").eval(),
-                                        "(self):\n",
+                                        '\ndef _rule_',
+                                        _vars.lookup('x').eval(),
+                                        '(self):\n',
                                         _IndentBuilder(),
-                                        "return ",
-                                        _vars.lookup("y").eval(),
-                                        "()\n",
+                                        'return ',
+                                        _vars.lookup('y').eval(),
+                                        '()\n',
                                         _DedentBuilder(),
                                     ]))
                                 ),
@@ -1431,7 +1429,6 @@ class CodeGenerator(_RLMeta):
                         )()
                     )(_Vars())
                 ),
-                # ["MatchAny"]               -> { 'self._any'                                         }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1440,21 +1437,20 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchAny")
+                                                self._match_string('MatchAny')
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._any",
+                                        'self._any',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["String" .:x]             -> { repr(x)                                             }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1463,10 +1459,10 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("String")
+                                                self._match_string('String')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                         ])
                                     ))
@@ -1474,199 +1470,192 @@ class CodeGenerator(_RLMeta):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         repr(
-                                            _vars.lookup("x").eval(),
-                                        )
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["List" astList:x]         -> { x                                                   }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("List")
-                                            ),
-                                            (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("astList")
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup("x").eval(),
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["ListBuilder" astItems:x] -> { '_Builder.create([' x '])'                          }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("ListBuilder")
-                                            ),
-                                            (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("astItems")
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        "_Builder.create([",
-                                        _vars.lookup("x").eval(),
-                                        "])",
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["IndentBuilder"]      -> { '_IndentBuilder()'                                  }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("IndentBuilder")
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        "_IndentBuilder()",
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["DedentBuilder"]      -> { '_DedentBuilder()'                                  }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("DedentBuilder")
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        "_DedentBuilder()",
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["FnCall" .:x astItems:y]  -> { x '(' y ')'                                         }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("FnCall")
-                                            ),
-                                            (lambda:
-                                                _vars.bind("x", self._any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind("y", (lambda:
-                                                    self._match("astItems")
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup("x").eval(),
-                                        "(",
-                                        _vars.lookup("y").eval(),
-                                        ")",
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                # ["VarLookup" .:x]          -> { '_vars.lookup(' repr(x) ').eval()'                  }
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string("VarLookup")
-                                            ),
-                                            (lambda:
-                                                _vars.bind("x", self._any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        "_vars.lookup(",
-                                        repr(
-                                            _vars.lookup("x").eval(),
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ").eval()",
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # astFnBody:x                -> { '(lambda:\n' > x < '\n)' }
                 (lambda:
                     (lambda _vars:
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("astFnBody")
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('List')
+                                            ),
+                                            (lambda:
+                                                _vars.bind('x', (lambda:
+                                                    self._match('astList')
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup('x').eval(),
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('ListBuilder')
+                                            ),
+                                            (lambda:
+                                                _vars.bind('x', (lambda:
+                                                    self._match('astItems')
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        '_Builder.create([',
+                                        _vars.lookup('x').eval(),
+                                        '])',
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('IndentBuilder')
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        '_IndentBuilder()',
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('DedentBuilder')
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        '_DedentBuilder()',
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('FnCall')
+                                            ),
+                                            (lambda:
+                                                _vars.bind('x', self._any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind('y', (lambda:
+                                                    self._match('astItems')
+                                                )())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        _vars.lookup('x').eval(),
+                                        '(',
+                                        _vars.lookup('y').eval(),
+                                        ')',
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('VarLookup')
+                                            ),
+                                            (lambda:
+                                                _vars.bind('x', self._any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        '_vars.lookup(',
+                                        repr(
+                                            _vars.lookup('x').eval(),
+                                        ),
+                                        ').eval()',
+                                    ]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _vars.bind('x', (lambda:
+                                        self._match('astFnBody')
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "(lambda:\n",
+                                        '(lambda:\n',
                                         _IndentBuilder(),
-                                        _vars.lookup("x").eval(),
+                                        _vars.lookup('x').eval(),
                                         _DedentBuilder(),
-                                        "\n)",
+                                        '\n)',
                                     ]))
                                 ),
                             ])
@@ -1679,7 +1668,6 @@ class CodeGenerator(_RLMeta):
     def _rule_astFnBody(self):
         return (lambda:
             self._or([
-                # ["Or" astItems:x]          -> { 'self._or([' x '])'                                 }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1688,11 +1676,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Or")
+                                                self._match_string('Or')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("astItems")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('astItems')
                                                 )())
                                             ),
                                         ])
@@ -1700,16 +1688,15 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._or([",
-                                        _vars.lookup("x").eval(),
-                                        "])",
+                                        'self._or([',
+                                        _vars.lookup('x').eval(),
+                                        '])',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Scope" ast:x]            -> { '(lambda _vars:\n' > x < '()\n)(_Vars())'           }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1718,11 +1705,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Scope")
+                                                self._match_string('Scope')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1730,18 +1717,17 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "(lambda _vars:\n",
+                                        '(lambda _vars:\n',
                                         _IndentBuilder(),
-                                        _vars.lookup("x").eval(),
+                                        _vars.lookup('x').eval(),
                                         _DedentBuilder(),
-                                        "()\n)(_Vars())",
+                                        '()\n)(_Vars())',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["And" astItems:x]         -> { 'self._and([' x '])'                                }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1750,11 +1736,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("And")
+                                                self._match_string('And')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("astItems")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('astItems')
                                                 )())
                                             ),
                                         ])
@@ -1762,16 +1748,15 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._and([",
-                                        _vars.lookup("x").eval(),
-                                        "])",
+                                        'self._and([',
+                                        _vars.lookup('x').eval(),
+                                        '])',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Bind" .:x ast:y]         -> { '_vars.bind(' repr(x) ', ' y '())'                  }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1780,14 +1765,14 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Bind")
+                                                self._match_string('Bind')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                             (lambda:
-                                                _vars.bind("y", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('y', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1795,20 +1780,19 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "_vars.bind(",
+                                        '_vars.bind(',
                                         repr(
-                                            _vars.lookup("x").eval(),
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ", ",
-                                        _vars.lookup("y").eval(),
-                                        "())",
+                                        ', ',
+                                        _vars.lookup('y').eval(),
+                                        '())',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Star" ast:x]             -> { 'self._star(' x ')'                                 }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1817,11 +1801,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Star")
+                                                self._match_string('Star')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1829,16 +1813,15 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._star(",
-                                        _vars.lookup("x").eval(),
-                                        ")",
+                                        'self._star(',
+                                        _vars.lookup('x').eval(),
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["MatchNothing"]           -> { 'None'                                              }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1847,21 +1830,20 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchNothing")
+                                                self._match_string('MatchNothing')
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "None",
+                                        'None',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Not" ast:x]              -> { 'self._negative_lookahead(' x ')'                   }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1870,11 +1852,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Not")
+                                                self._match_string('Not')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1882,16 +1864,15 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._negative_lookahead(",
-                                        _vars.lookup("x").eval(),
-                                        ")",
+                                        'self._negative_lookahead(',
+                                        _vars.lookup('x').eval(),
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["SemanticAction" ast:x]   -> { '_SemanticAction(lambda: ' x ')'                    }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1900,11 +1881,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("SemanticAction")
+                                                self._match_string('SemanticAction')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -1912,16 +1893,15 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "_SemanticAction(lambda: ",
-                                        _vars.lookup("x").eval(),
-                                        ")",
+                                        '_SemanticAction(lambda: ',
+                                        _vars.lookup('x').eval(),
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["Apply" .:x]              -> { 'self._match(' repr(x) ')'                          }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1930,28 +1910,27 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("Apply")
+                                                self._match_string('Apply')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match(",
+                                        'self._match(',
                                         repr(
-                                            _vars.lookup("x").eval()
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ")",
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["MatchCharRange" .:x .:y] -> { 'self._match_range(' repr(x) ', ' repr(y) ')'       }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1960,35 +1939,34 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchCharRange")
+                                                self._match_string('MatchCharRange')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                             (lambda:
-                                                _vars.bind("y", self._any())
+                                                _vars.bind('y', self._any())
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_range(",
+                                        'self._match_range(',
                                         repr(
-                                            _vars.lookup("x").eval()
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ", ",
+                                        ', ',
                                         repr(
-                                            _vars.lookup("y").eval()
+                                            _vars.lookup('y').eval(),
                                         ),
-                                        ")",
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["MatchString" .:x]        -> { 'self._match_string(' repr(x) ')'                   }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -1997,28 +1975,27 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchString")
+                                                self._match_string('MatchString')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_string(",
+                                        'self._match_string(',
                                         repr(
-                                            _vars.lookup("x").eval()
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ")",
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["MatchCharseq" .:x]       -> { 'self._match_charseq(' repr(x) ')'                  }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -2027,28 +2004,27 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchCharseq")
+                                                self._match_string('MatchCharseq')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", self._any())
+                                                _vars.bind('x', self._any())
                                             ),
                                         ])
                                     ))
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_charseq(",
+                                        'self._match_charseq(',
                                         repr(
-                                            _vars.lookup("x").eval()
+                                            _vars.lookup('x').eval(),
                                         ),
-                                        ")",
+                                        ')',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ["MatchList" ast:x]        -> { 'self._match_list(' x ')'                           }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -2057,11 +2033,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("MatchList")
+                                                self._match_string('MatchList')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -2069,9 +2045,9 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_list(",
-                                        _vars.lookup("x").eval(),
-                                        ")",
+                                        'self._match_list(',
+                                        _vars.lookup('x').eval(),
+                                        ')',
                                     ]))
                                 ),
                             ])
@@ -2087,20 +2063,19 @@ class CodeGenerator(_RLMeta):
                 (lambda:
                     (lambda _vars:
                         (lambda:
-                            # astItem*:xs         -> { '\n' > xs <                                         }
                             self._and([
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("astItem")
+                                            self._match('astItem')
                                         ))
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "\n",
+                                        '\n',
                                         _IndentBuilder(),
-                                        _vars.lookup("xs").eval(),
+                                        _vars.lookup('xs').eval(),
                                         _DedentBuilder(),
                                     ]))
                                 ),
@@ -2117,17 +2092,16 @@ class CodeGenerator(_RLMeta):
                 (lambda:
                     (lambda _vars:
                         (lambda:
-                            # ast:x               -> { x ',\n'                                             }
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("ast")
+                                    _vars.bind('x', (lambda:
+                                        self._match('ast')
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup("x").eval(),
-                                        ",\n",
+                                        _vars.lookup('x').eval(),
+                                        ',\n',
                                     ]))
                                 ),
                             ])
@@ -2143,20 +2117,19 @@ class CodeGenerator(_RLMeta):
                 (lambda:
                     (lambda _vars:
                         (lambda:
-                            # astListItem*:xs     -> { '(' xs '[])'                                        }
                             self._and([
                                 (lambda:
-                                    _vars.bind("xs", (lambda:
+                                    _vars.bind('xs', (lambda:
                                         self._star((lambda:
-                                            self._match("astListItem")
+                                            self._match('astListItem')
                                         ))
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "(",
-                                        _vars.lookup("xs").eval(),
-                                        "[])",
+                                        '(',
+                                        _vars.lookup('xs').eval(),
+                                        '[])',
                                     ]))
                                 ),
                             ])
@@ -2169,7 +2142,6 @@ class CodeGenerator(_RLMeta):
     def _rule_astListItem(self):
         return (lambda:
             self._or([
-                # ["ListItemSplice" ast:x]   -> {     x  '+'                                          }
                 (lambda:
                     (lambda _vars:
                         (lambda:
@@ -2178,11 +2150,11 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string("ListItemSplice")
+                                                self._match_string('ListItemSplice')
                                             ),
                                             (lambda:
-                                                _vars.bind("x", (lambda:
-                                                    self._match("ast")
+                                                _vars.bind('x', (lambda:
+                                                    self._match('ast')
                                                 )())
                                             ),
                                         ])
@@ -2190,29 +2162,28 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup("x").eval(),
-                                        "+",
+                                        _vars.lookup('x').eval(),
+                                        '+',
                                     ]))
                                 ),
                             ])
                         )()
                     )(_Vars())
                 ),
-                # ast:x                      -> { '[' x ']+'                                          }
                 (lambda:
                     (lambda _vars:
                         (lambda:
                             self._and([
                                 (lambda:
-                                    _vars.bind("x", (lambda:
-                                        self._match("ast")
+                                    _vars.bind('x', (lambda:
+                                        self._match('ast')
                                     )())
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "[",
-                                        _vars.lookup("x").eval(),
-                                        "]+",
+                                        '[',
+                                        _vars.lookup('x').eval(),
+                                        ']+',
                                     ]))
                                 ),
                             ])
