@@ -14,11 +14,12 @@ class _RLMeta(object):
             start_input = self._input
             result = getattr(self, "_rule_{}".format(rule_name))()
             self._memo[key] = (result, self._input)
-            sys.stderr.write("Matched {} at \t[{}\t-\t{}[\n".format(
-                rule_name,
-                start_input.pos().describe(),
-                self._input.pos().describe()
-            ))
+            if "--debug" in sys.argv:
+                sys.stderr.write("Matched {} at \t[{}\t-\t{}[\n".format(
+                    rule_name,
+                    start_input.pos().describe(),
+                    self._input.pos().describe()
+                ))
         result, self._input = self._memo[key]
         return result
     def _or(self, matchers):
