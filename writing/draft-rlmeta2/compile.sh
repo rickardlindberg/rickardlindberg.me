@@ -11,4 +11,5 @@ set -a
 
 if diff $1 $2 > /dev/null; then
   echo "SAME"
+  rm $2
 fi
