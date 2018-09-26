@@ -5668,7 +5668,7 @@
 ],
 "fragments":[
 {
-"text":"def join(items):\n    return \"\".join(items)\n\nparser = Parser()\ncode_generator = CodeGenerator()\nsys.stdout.write(code_generator.run(\"ast\", parser.run(\"grammar\", sys.stdin.read())))\n",
+"text":"def join(items):\n    return \"\".join(items)\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
 "type":"code"
 }
 ],
