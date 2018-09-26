@@ -311,7 +311,9 @@ class CodeGenerator(_RLMeta):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         "(lambda:\n",
+                                        _IndentBuilder(),
                                         _vars.lookup("x").eval(),
+                                        _DedentBuilder(),
                                         "\n)",
                                     ]))
                                 ),
@@ -377,7 +379,9 @@ class CodeGenerator(_RLMeta):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         "(lambda _vars:\n",
+                                        _IndentBuilder(),
                                         _vars.lookup("x").eval(),
+                                        _DedentBuilder(),
                                         "()\n)(_Vars())",
                                     ]))
                                 ),
@@ -651,7 +655,7 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_string",
+                                        "self._match_string(",
                                         repr(
                                             _vars.lookup("x").eval()
                                         ),
@@ -681,7 +685,7 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_charseq",
+                                        "self._match_charseq(",
                                         repr(
                                             _vars.lookup("x").eval()
                                         ),
@@ -713,7 +717,7 @@ class CodeGenerator(_RLMeta):
                                 ),
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
-                                        "self._match_list",
+                                        "self._match_list(",
                                         _vars.lookup("x").eval(),
                                         ")",
                                     ]))
