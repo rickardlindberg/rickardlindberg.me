@@ -497,7 +497,7 @@ class Parser(_RLMeta):
                                     self._match_charseq("]")
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (["MatchList"]+(["And"]+_vars.lookup("xs").eval()+[])+[]))
+                                    _SemanticAction(lambda: (["MatchList"]+[(["And"]+_vars.lookup("xs").eval()+[])]+[]))
                                 ),
                             ])
                         )()
