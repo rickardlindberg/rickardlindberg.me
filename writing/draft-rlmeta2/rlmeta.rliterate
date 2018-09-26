@@ -122,7 +122,7 @@
 ],
 "fragments":[
 {
-"text":"from operator import add, mul\ncalculator = Calculator()\nwhile True:\n    line = raw_input(\"> \")\n    print(str(calculator.run(\"expression\", line)))\n",
+"text":"from operator import add, mul\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
 "type":"code"
 }
 ],
