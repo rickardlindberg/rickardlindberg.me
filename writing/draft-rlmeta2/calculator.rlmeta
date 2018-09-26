@@ -2,7 +2,7 @@ Calculator {
   expression =
     | additive
   additive =
-    | multitive:x '+' additive:x -> add(x y)
+    | multitive:x '+' additive:y -> add(x y)
     | multitive
   multitive =
     | digit:x '*' multitive:y    -> mul(x y)

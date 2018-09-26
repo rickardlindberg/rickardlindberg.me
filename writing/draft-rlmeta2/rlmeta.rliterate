@@ -43,7 +43,7 @@
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expression =\n    | additive\n  additive =\n    | multitive:x '+' additive:x ",
+"text":"Calculator {\n  expression =\n    | additive\n  additive =\n    | multitive:x '+' additive:y ",
 "type":"code"
 },
 {
@@ -114,6 +114,20 @@
 ],
 "id":"476723b2b7e046a4a2c0b809b1ce4bfc",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"calculator_runtime.py"
+],
+"fragments":[
+{
+"text":"from operator import add, mul\ncalculator = Calculator()\nwhile True:\n    line = raw_input(\"> \")\n    print(str(calculator.run(\"expression\", line)))\n",
+"type":"code"
+}
+],
+"id":"fbdd8daf52cc4865906eb0af2d00b84c",
+"type":"code"
 }
 ],
 "title":"Calculator"
