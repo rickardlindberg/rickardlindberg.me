@@ -5702,15 +5702,13 @@
 "id":"2c78e9d9104c4bddbdd1dfe6314506c9",
 "paragraphs":[
 {
-"chunkpath":[
-"functions"
-],
+"chunkpath":[],
 "filepath":[
-"support.py"
+"runtime.py"
 ],
 "fragments":[
 {
-"text":"def join(items):\n    return \"\".join(items)\n",
+"text":"def join(items):\n    return \"\".join(items)\n\nparser = Parser()\ncode_generator = CodeGenerator()\nsys.stdout.write(code_generator.run(\"ast\", parser.run(\"grammar\", sys.stdin.read())))\n",
 "type":"code"
 }
 ],
@@ -5718,7 +5716,7 @@
 "type":"code"
 }
 ],
-"title":"Misc"
+"title":"Runtime"
 },
 {
 "children":[],

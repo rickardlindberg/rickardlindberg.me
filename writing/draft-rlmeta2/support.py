@@ -220,5 +220,3 @@ class _Output(object):
             if self.value and ch != "\n" and self.value[-1] == "\n":
                 self.value += "    "*self.level
             self.value += ch
-def join(items):
-    return "".join(items)

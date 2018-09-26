@@ -865,9 +865,3 @@ class CodeGenerator(_RLMeta):
                 ),
             ])
         )()
-
-import parserfull
-parser_ast = parserfull.Parser().run("grammar", open("parser.rlmeta").read())
-import pprint
-pprint.pprint(parser_ast)
-print(CodeGenerator().run("ast", parser_ast))
