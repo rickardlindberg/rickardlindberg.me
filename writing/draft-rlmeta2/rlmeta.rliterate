@@ -2672,11 +2672,11 @@
 "type":"code"
 },
 {
-"id":"193b6786b4574a48b5e75f649420b08d",
+"id":"b062e0322e284160bf26034e9de32446",
 "type":"variable"
 },
 {
-"text":"().key())\n    if key in self.",
+"text":"())\n    if key in self.",
 "type":"code"
 },
 {
@@ -2748,7 +2748,7 @@
 "type":"variable"
 },
 {
-"text":"(cls, input_object):\n        if isinstance(input_object, basestring):\n            return cls(list(input_object), ",
+"text":"(cls, input_object):\n        if isinstance(input_object, basestring):\n            return ",
 "type":"code"
 },
 {
@@ -2756,7 +2756,7 @@
 "type":"variable"
 },
 {
-"text":"())\n        else:\n            return cls([input_object], ",
+"text":"(list(input_object))\n        else:\n            return ",
 "type":"code"
 },
 {
@@ -2764,15 +2764,7 @@
 "type":"variable"
 },
 {
-"text":"())\n\n    def __init__(self, objects, pos):\n        self._objects = objects\n        self._pos = pos\n\n    def ",
-"type":"code"
-},
-{
-"id":"193b6786b4574a48b5e75f649420b08d",
-"type":"variable"
-},
-{
-"text":"(self):\n        return self._pos\n\n    def ",
+"text":"([input_object])\n\n    def __init__(self, objects):\n        self._objects = objects\n\n    def ",
 "type":"code"
 },
 {
@@ -2796,15 +2788,7 @@
 "type":"variable"
 },
 {
-"text":"()\n        next_object = self._objects[0]\n        return next_object, ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":"(\n            self._objects[1:],\n            pos=self._pos.",
+"text":"()\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self.",
 "type":"code"
 },
 {
@@ -2812,7 +2796,7 @@
 "type":"variable"
 },
 {
-"text":"(next_object)\n        )\n\n    def ",
+"text":"(next_object, self._objects[1:]),\n        )\n\n    def ",
 "type":"code"
 },
 {
@@ -2820,31 +2804,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        return len(self._objects) == 0\n\n    def ",
-"type":"code"
-},
-{
-"id":"653fc20558a64badb437b07f3d1c8490",
-"type":"variable"
-},
-{
-"text":"(self, input_object):\n        return ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":"(input_object, self._pos.",
-"type":"code"
-},
-{
-"id":"db7a0c597eb84fc1b38a59b22f01eeef",
-"type":"variable"
-},
-{
-"text":"())\n",
+"text":"(self):\n        return len(self._objects) == 0\n",
 "type":"code"
 }
 ],
@@ -2868,7 +2828,23 @@
 "type":"variable"
 },
 {
-"text":"(object):\n\n    def __init__(self, pos=0, line=1, column=1):\n        self._pos = pos\n        self._line = line\n        self._column = column\n\n    def ",
+"text":"(",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":"):\n\n    def __init__(self, objects, line=1, column=1):\n        ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":".__init__(self, objects)\n        self._line = line\n        self._column = column\n\n    def ",
 "type":"code"
 },
 {
@@ -2876,31 +2852,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        return self._pos\n\n    def ",
-"type":"code"
-},
-{
-"id":"2f6729bf45e84649b3187f8016c3fec9",
-"type":"variable"
-},
-{
-"text":"(self, next_object):\n        if next_object == \"\\n\":\n            return ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(self._pos+1, self._line+1, 1)\n        else:\n            return ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(self._pos+1, self._line, self._column+1)\n\n    def ",
+"text":"(self):\n        return (self._line, self._column)\n\n    def ",
 "type":"code"
 },
 {
@@ -2908,7 +2860,31 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        return \"line: {}, column: {}\".format(self._line, self._column)\n",
+"text":"(self):\n        return \"line: {}, column: {}\".format(self._line, self._column)\n\n    def ",
+"type":"code"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":"(self, next_object, objects):\n        if next_object == \"\\n\":\n            return ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(objects, self._line+1, 1)\n        else:\n            return ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(objects, self._line, self._column+1)\n",
 "type":"code"
 }
 ],
@@ -2932,7 +2908,23 @@
 "type":"variable"
 },
 {
-"text":"(object):\n\n    def __init__(self, parent=None, pos=0):\n        self._parent = [] if parent is None else parent\n        self._pos = pos\n\n    def ",
+"text":"(",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":"):\n\n    def __init__(self, objects, parent=(), pos=0):\n        ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":".__init__(self, objects)\n        self._parent = parent\n        self._pos = pos\n\n    def ",
 "type":"code"
 },
 {
@@ -2940,39 +2932,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        return tuple(self._parent) + (self._pos,)\n\n    def ",
-"type":"code"
-},
-{
-"id":"2f6729bf45e84649b3187f8016c3fec9",
-"type":"variable"
-},
-{
-"text":"(self, next_object):\n        return ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(self._parent, self._pos+1)\n\n    def ",
-"type":"code"
-},
-{
-"id":"db7a0c597eb84fc1b38a59b22f01eeef",
-"type":"variable"
-},
-{
-"text":"(self):\n        return ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(self._parent+[self._pos])\n\n    def ",
+"text":"(self):\n        return self._parent + (self._pos,)\n\n    def ",
 "type":"code"
 },
 {
@@ -2988,7 +2948,39 @@
 "type":"variable"
 },
 {
-"text":"()))\n",
+"text":"()))\n\n    def ",
+"type":"code"
+},
+{
+"id":"653fc20558a64badb437b07f3d1c8490",
+"type":"variable"
+},
+{
+"text":"(self, input_object):\n        return ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(input_object, self._parent+(self._pos,))\n\n    def ",
+"type":"code"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":"(self, next_object, objects):\n        return ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(objects, self._parent, self._pos+1)\n",
 "type":"code"
 }
 ],
@@ -6318,8 +6310,9 @@
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
 "2e8a56ad01dc4a289fbd584bc4874e7e":"create",
 "2ea1b512b7444d8ab077edeba233a4f3":"codegeneratorpy",
-"2f6729bf45e84649b3187f8016c3fec9":"advance",
+"2f6729bf45e84649b3187f8016c3fec9":"_advance",
 "301f08856bf54373bc5975f75a315105":"String",
+"32f243f8879e4c38a5bfbd61623937d2":"_MatchError",
 "373f023f0f5f4744a7b309cf9a76d138":"SemanticAction",
 "3e7232e282f642ab8ac4fbe709a32a99":"_result",
 "3f3db8526d034826bb4d672abcc6029c":"calculatorpy",
@@ -6401,8 +6394,8 @@
 "ae2f859206d741eca9f5e10495cb8095":"buildExpr",
 "ae823ab23224415f9a539b0354f311b8":"VarLookup",
 "af5dbdd6e27c451398b2b116b5ff42d3":"write",
-"b058347d19484740b7e2dec4816c0978":"_TreePos",
-"b062e0322e284160bf26034e9de32446":"key",
+"b058347d19484740b7e2dec4816c0978":"_ListInput",
+"b062e0322e284160bf26034e9de32446":"as_key",
 "b09ffc5c602a482982cec2726c306ace":"withNewVars",
 "b2115b3eeaa143068958949787f5d104":"next",
 "b277e0c5612d4697bf8f8237494f8474":"_ListBuilder",
@@ -6424,7 +6417,7 @@
 "cf4267183a3b4175801c67496a385af6":"_input",
 "cf8770da147840679077788180e10778":"ListItemSplice",
 "d34e449a8ca740d0a4b84921fc05b25f":"IndentBuilder",
-"d6ed0f3ac9e84f60bae25485ddb2f97e":"_StringPos",
+"d6ed0f3ac9e84f60bae25485ddb2f97e":"_StringInput",
 "db7a0c597eb84fc1b38a59b22f01eeef":"nest",
 "dc3d22a8b70043628b058ffd00659a5d":"BuildIndent",
 "dd463f369f79475da606b1cfc2d96076":"hostExpr",

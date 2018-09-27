@@ -11,7 +11,7 @@ class _RLMeta(object):
         else:
             return result
     def _match(self, rule_name):
-        key = (rule_name, self._input.pos().key())
+        key = (rule_name, self._input.as_key())
         if key in self._memo:
             result, self._input = self._memo[key]
         else:
@@ -85,66 +85,60 @@ class _Input(object):
     @classmethod
     def from_object(cls, input_object):
         if isinstance(input_object, basestring):
-            return cls(list(input_object), _StringPos())
+            return _StringInput(list(input_object))
         else:
-            return cls([input_object], _TreePos())
+            return _ListInput([input_object])
 
-    def __init__(self, objects, pos):
+    def __init__(self, objects):
         self._objects = objects
-        self._pos = pos
-
-    def pos(self):
-        return self._pos
 
     def next(self):
         if self.is_at_end():
             raise _MatchError()
         next_object = self._objects[0]
-        return next_object, _Input(
-            self._objects[1:],
-            pos=self._pos.advance(next_object)
+        return (
+            next_object,
+            self._advance(next_object, self._objects[1:]),
         )
 
     def is_at_end(self):
         return len(self._objects) == 0
+class _StringInput(_Input):
 
-    def nested(self, input_object):
-        return _Input(input_object, self._pos.nest())
-class _StringPos(object):
-
-    def __init__(self, pos=0, line=1, column=1):
-        self._pos = pos
+    def __init__(self, objects, line=1, column=1):
+        _Input.__init__(self, objects)
         self._line = line
         self._column = column
 
-    def key(self):
-        return self._pos
-
-    def advance(self, next_object):
-        if next_object == "\n":
-            return _StringPos(self._pos+1, self._line+1, 1)
-        else:
-            return _StringPos(self._pos+1, self._line, self._column+1)
+    def as_key(self):
+        return (self._line, self._column)
 
     def describe(self):
         return "line: {}, column: {}".format(self._line, self._column)
-class _TreePos(object):
 
-    def __init__(self, parent=None, pos=0):
-        self._parent = [] if parent is None else parent
+    def _advance(self, next_object, objects):
+        if next_object == "\n":
+            return _StringInput(objects, self._line+1, 1)
+        else:
+            return _StringInput(objects, self._line, self._column+1)
+class _ListInput(_Input):
+
+    def __init__(self, objects, parent=(), pos=0):
+        _Input.__init__(self, objects)
+        self._parent = parent
         self._pos = pos
 
-    def key(self):
-        return tuple(self._parent) + (self._pos,)
-
-    def advance(self, next_object):
-        return _TreePos(self._parent, self._pos+1)
-
-    def nest(self):
-        return _TreePos(self._parent+[self._pos])
+    def as_key(self):
+        return self._parent + (self._pos,)
 
     def describe(self):
-        return "[{}]".format(", ".join(str(x) for x in self.key()))
+        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
+
+    def nested(self, input_object):
+        return _ListInput(input_object, self._parent+(self._pos,))
+
+    def _advance(self, next_object, objects):
+        return _ListInput(objects, self._parent, self._pos+1)
 class _SemanticAction(object):
 
     def __init__(self, fn):
@@ -229,7 +223,7 @@ class _RLMeta(object):
         else:
             return result
     def _match(self, rule_name):
-        key = (rule_name, self._input.pos().key())
+        key = (rule_name, self._input.as_key())
         if key in self._memo:
             result, self._input = self._memo[key]
         else:
@@ -303,66 +297,60 @@ class _Input(object):
     @classmethod
     def from_object(cls, input_object):
         if isinstance(input_object, basestring):
-            return cls(list(input_object), _StringPos())
+            return _StringInput(list(input_object))
         else:
-            return cls([input_object], _TreePos())
+            return _ListInput([input_object])
 
-    def __init__(self, objects, pos):
+    def __init__(self, objects):
         self._objects = objects
-        self._pos = pos
-
-    def pos(self):
-        return self._pos
 
     def next(self):
         if self.is_at_end():
             raise _MatchError()
         next_object = self._objects[0]
-        return next_object, _Input(
-            self._objects[1:],
-            pos=self._pos.advance(next_object)
+        return (
+            next_object,
+            self._advance(next_object, self._objects[1:]),
         )
 
     def is_at_end(self):
         return len(self._objects) == 0
+class _StringInput(_Input):
 
-    def nested(self, input_object):
-        return _Input(input_object, self._pos.nest())
-class _StringPos(object):
-
-    def __init__(self, pos=0, line=1, column=1):
-        self._pos = pos
+    def __init__(self, objects, line=1, column=1):
+        _Input.__init__(self, objects)
         self._line = line
         self._column = column
 
-    def key(self):
-        return self._pos
-
-    def advance(self, next_object):
-        if next_object == "\n":
-            return _StringPos(self._pos+1, self._line+1, 1)
-        else:
-            return _StringPos(self._pos+1, self._line, self._column+1)
+    def as_key(self):
+        return (self._line, self._column)
 
     def describe(self):
         return "line: {}, column: {}".format(self._line, self._column)
-class _TreePos(object):
 
-    def __init__(self, parent=None, pos=0):
-        self._parent = [] if parent is None else parent
+    def _advance(self, next_object, objects):
+        if next_object == "\n":
+            return _StringInput(objects, self._line+1, 1)
+        else:
+            return _StringInput(objects, self._line, self._column+1)
+class _ListInput(_Input):
+
+    def __init__(self, objects, parent=(), pos=0):
+        _Input.__init__(self, objects)
+        self._parent = parent
         self._pos = pos
 
-    def key(self):
-        return tuple(self._parent) + (self._pos,)
-
-    def advance(self, next_object):
-        return _TreePos(self._parent, self._pos+1)
-
-    def nest(self):
-        return _TreePos(self._parent+[self._pos])
+    def as_key(self):
+        return self._parent + (self._pos,)
 
     def describe(self):
-        return "[{}]".format(", ".join(str(x) for x in self.key()))
+        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
+
+    def nested(self, input_object):
+        return _ListInput(input_object, self._parent+(self._pos,))
+
+    def _advance(self, next_object, objects):
+        return _ListInput(objects, self._parent, self._pos+1)
 class _SemanticAction(object):
 
     def __init__(self, fn):
