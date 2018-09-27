@@ -2684,15 +2684,7 @@
 "type":"variable"
 },
 {
-"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":"[key] = (result, self.",
+"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end_input = self.",
 "type":"code"
 },
 {
@@ -2700,7 +2692,15 @@
 "type":"variable"
 },
 {
-"text":")\n        if \"--debug\" in sys.argv:\n            sys.stderr.write(\"Matched {} at \\t[{}\\t-\\t{}[\\n\".format(\n                rule_name,\n                start_input.pos().describe(),\n                self._input.pos().describe()\n            ))\n    result, self.",
+"text":"\n        self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":"[key] = (result, start_input, end_input)\n    result, _, self.",
 "type":"code"
 },
 {
@@ -5870,13 +5870,6 @@
 {
 "path":[
 "classes"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"path":[
-"functions"
 ],
 "prefix":"",
 "type":"chunk"
