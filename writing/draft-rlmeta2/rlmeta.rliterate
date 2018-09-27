@@ -2519,7 +2519,15 @@
 "type":"variable"
 },
 {
-"text":"(object):\n",
+"text":"(object):\n\n    def __init__(self, logger=None):\n        self.",
+"type":"code"
+},
+{
+"id":"938897d17c5542788155a92d7eddb73c",
+"type":"variable"
+},
+{
+"text":" = (lambda message: None) if logger is None else logger\n\n",
 "type":"code"
 },
 {
@@ -2611,7 +2619,7 @@
 "type":"variable"
 },
 {
-"text":" = {}\n    result = self.",
+"text":" = {}\n    try:\n        result = self.",
 "type":"code"
 },
 {
@@ -2627,7 +2635,7 @@
 "type":"variable"
 },
 {
-"text":"()\n    if hasattr(result, \"",
+"text":"()\n        if hasattr(result, \"",
 "type":"code"
 },
 {
@@ -2635,7 +2643,7 @@
 "type":"variable"
 },
 {
-"text":"\"):\n        return result.",
+"text":"\"):\n            return result.",
 "type":"code"
 },
 {
@@ -2643,7 +2651,23 @@
 "type":"variable"
 },
 {
-"text":"()\n    else:\n        return result\n",
+"text":"()\n        else:\n            return result\n    except ",
+"type":"code"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":":\n        self.",
+"type":"code"
+},
+{
+"id":"596495d8d3c041d190a3330d1707203c",
+"type":"variable"
+},
+{
+"text":"()\n        raise\n",
 "type":"code"
 }
 ],
@@ -2664,11 +2688,60 @@
 "type":"code"
 },
 {
+"id":"596495d8d3c041d190a3330d1707203c",
+"type":"variable"
+},
+{
+"text":"(self):\n    items = []\n    for (rule_name, _), (_, start, end) in self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":".items():\n        items.append((rule_name, start, end))\n    items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))\n    for item in items:\n        self.",
+"type":"code"
+},
+{
+"id":"938897d17c5542788155a92d7eddb73c",
+"type":"variable"
+},
+{
+"text":"(\"matched {: <20} {} -> {}\\n\".format(*item))\n",
+"type":"code"
+}
+],
+"id":"df47d99c26a64f7197d8d5dcfacd8838",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes",
+"_RLMeta"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
 "id":"826871508bad4fecb6e575779218874d",
 "type":"variable"
 },
 {
-"text":"(self, rule_name):\n    key = (rule_name, self._input.",
+"text":"(self, rule_name):\n    key = (rule_name, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":".",
 "type":"code"
 },
 {
@@ -2684,7 +2757,7 @@
 "type":"variable"
 },
 {
-"text":":\n        result, self.",
+"text":":\n        result, _, self.",
 "type":"code"
 },
 {
@@ -2700,7 +2773,15 @@
 "type":"variable"
 },
 {
-"text":"[key]\n    else:\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
+"text":"[key]\n    else:\n        start_input = self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
 "type":"code"
 },
 {
@@ -2708,7 +2789,7 @@
 "type":"variable"
 },
 {
-"text":"[key] = (result, self.",
+"text":"[key] = (result, start_input, self.",
 "type":"code"
 },
 {
@@ -2856,14 +2937,6 @@
 "type":"code"
 },
 {
-"id":"747c1862acef4f499e2a7f16cbdd472a",
-"type":"variable"
-},
-{
-"text":"(self):\n        return \"line: {}, column: {}\".format(self._line, self._column)\n\n    def ",
-"type":"code"
-},
-{
 "id":"2f6729bf45e84649b3187f8016c3fec9",
 "type":"variable"
 },
@@ -2884,7 +2957,7 @@
 "type":"variable"
 },
 {
-"text":"(objects, self._line, self._column+1)\n",
+"text":"(objects, self._line, self._column+1)\n\n    def __str__(self):\n        return \"L{:03d}:C{:03d}\".format(self._line, self._column)\n",
 "type":"code"
 }
 ],
@@ -2936,22 +3009,6 @@
 "type":"code"
 },
 {
-"id":"747c1862acef4f499e2a7f16cbdd472a",
-"type":"variable"
-},
-{
-"text":"(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"()))\n\n    def ",
-"type":"code"
-},
-{
 "id":"653fc20558a64badb437b07f3d1c8490",
 "type":"variable"
 },
@@ -2980,7 +3037,15 @@
 "type":"variable"
 },
 {
-"text":"(objects, self._parent, self._pos+1)\n",
+"text":"(objects, self._parent, self._pos+1)\n\n    def __str__(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"()))\n",
 "type":"code"
 }
 ],
@@ -6009,7 +6074,7 @@
 "type":"variable"
 },
 {
-"text":"\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
+"text":"\n\njoin = \"\".join\n\ndef compile_grammar(grammar, logger=None):\n    parser = Parser(logger)\n    code_generator = CodeGenerator(logger)\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        sys.stdout.write(compile_grammar(\n            sys.stdin.read(),\n            logger=sys.stderr.write\n        ))\n",
 "type":"code"
 }
 ],
@@ -6333,6 +6398,7 @@
 "5440b88cecfb4dafad63f0f7887b82ce":"_match_charseq",
 "56c85a8b77424f849f2a1b604066439e":"_or",
 "56d10f7bfcfd43bb996c3f76423b067b":"to_rlmeta_output_stream",
+"596495d8d3c041d190a3330d1707203c":"_dump_memo",
 "59d465325dd74411b347002179ecda0a":"_last_match",
 "5b90ab050b7547de847cab210d087685":"supportpy",
 "5bad22de76f845a68dd802dcb830efcc":"wrapFn",
@@ -6380,6 +6446,7 @@
 "8f0ac7afdb164a6cb5287e9382330e91":"nothing",
 "8ff0b4980efa4e349ec5ef14815be6ec":"MatchCharseq",
 "91983a8c8ff04389a1c21c67abcebf46":"wrapInFn",
+"938897d17c5542788155a92d7eddb73c":"_log",
 "94dd8ae9174644c2bb5e32d35f601486":"astSeqItem",
 "98e8edb80565419e93902ec6ebc5b352":"choice",
 "99f12ae30d1a42989f875222b33832ba":"support",

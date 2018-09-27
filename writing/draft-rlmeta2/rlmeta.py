@@ -2,21 +2,37 @@ import sys
 
 SUPPORT = """\
 class _RLMeta(object):
+
+    def __init__(self, logger=None):
+        self._log = (lambda message: None) if logger is None else logger
+
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)
         self._memo = {}
-        result = self._match(rule_name).eval()
-        if hasattr(result, "to_rlmeta_output_stream"):
-            return result.to_rlmeta_output_stream()
-        else:
-            return result
+        try:
+            result = self._match(rule_name).eval()
+            if hasattr(result, "to_rlmeta_output_stream"):
+                return result.to_rlmeta_output_stream()
+            else:
+                return result
+        except _MatchError:
+            self._dump_memo()
+            raise
+    def _dump_memo(self):
+        items = []
+        for (rule_name, _), (_, start, end) in self._memo.items():
+            items.append((rule_name, start, end))
+        items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))
+        for item in items:
+            self._log("matched {: <20} {} -> {}\n".format(*item))
     def _match(self, rule_name):
         key = (rule_name, self._input.as_key())
         if key in self._memo:
-            result, self._input = self._memo[key]
+            result, _, self._input = self._memo[key]
         else:
+            start_input = self._input
             result = getattr(self, "_rule_{}".format(rule_name))()
-            self._memo[key] = (result, self._input)
+            self._memo[key] = (result, start_input, self._input)
         return result
     def _or(self, matchers):
         saved_input = self._input
@@ -113,14 +129,14 @@ class _StringInput(_Input):
     def as_key(self):
         return (self._line, self._column)
 
-    def describe(self):
-        return "line: {}, column: {}".format(self._line, self._column)
-
     def _advance(self, next_object, objects):
         if next_object == "\n":
             return _StringInput(objects, self._line+1, 1)
         else:
             return _StringInput(objects, self._line, self._column+1)
+
+    def __str__(self):
+        return "L{:03d}:C{:03d}".format(self._line, self._column)
 class _ListInput(_Input):
 
     def __init__(self, objects, parent=(), pos=0):
@@ -131,14 +147,14 @@ class _ListInput(_Input):
     def as_key(self):
         return self._parent + (self._pos,)
 
-    def describe(self):
-        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
-
     def nested(self, input_object):
         return _ListInput(input_object, self._parent+(self._pos,))
 
     def _advance(self, next_object, objects):
         return _ListInput(objects, self._parent, self._pos+1)
+
+    def __str__(self):
+        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
 class _SemanticAction(object):
 
     def __init__(self, fn):
@@ -214,21 +230,37 @@ class _Output(object):
 """
 
 class _RLMeta(object):
+
+    def __init__(self, logger=None):
+        self._log = (lambda message: None) if logger is None else logger
+
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)
         self._memo = {}
-        result = self._match(rule_name).eval()
-        if hasattr(result, "to_rlmeta_output_stream"):
-            return result.to_rlmeta_output_stream()
-        else:
-            return result
+        try:
+            result = self._match(rule_name).eval()
+            if hasattr(result, "to_rlmeta_output_stream"):
+                return result.to_rlmeta_output_stream()
+            else:
+                return result
+        except _MatchError:
+            self._dump_memo()
+            raise
+    def _dump_memo(self):
+        items = []
+        for (rule_name, _), (_, start, end) in self._memo.items():
+            items.append((rule_name, start, end))
+        items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))
+        for item in items:
+            self._log("matched {: <20} {} -> {}\n".format(*item))
     def _match(self, rule_name):
         key = (rule_name, self._input.as_key())
         if key in self._memo:
-            result, self._input = self._memo[key]
+            result, _, self._input = self._memo[key]
         else:
+            start_input = self._input
             result = getattr(self, "_rule_{}".format(rule_name))()
-            self._memo[key] = (result, self._input)
+            self._memo[key] = (result, start_input, self._input)
         return result
     def _or(self, matchers):
         saved_input = self._input
@@ -325,14 +357,14 @@ class _StringInput(_Input):
     def as_key(self):
         return (self._line, self._column)
 
-    def describe(self):
-        return "line: {}, column: {}".format(self._line, self._column)
-
     def _advance(self, next_object, objects):
         if next_object == "\n":
             return _StringInput(objects, self._line+1, 1)
         else:
             return _StringInput(objects, self._line, self._column+1)
+
+    def __str__(self):
+        return "L{:03d}:C{:03d}".format(self._line, self._column)
 class _ListInput(_Input):
 
     def __init__(self, objects, parent=(), pos=0):
@@ -343,14 +375,14 @@ class _ListInput(_Input):
     def as_key(self):
         return self._parent + (self._pos,)
 
-    def describe(self):
-        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
-
     def nested(self, input_object):
         return _ListInput(input_object, self._parent+(self._pos,))
 
     def _advance(self, next_object, objects):
         return _ListInput(objects, self._parent, self._pos+1)
+
+    def __str__(self):
+        return "[{}]".format(", ".join(str(x) for x in self.as_key()))
 class _SemanticAction(object):
 
     def __init__(self, fn):
@@ -2400,13 +2432,16 @@ class CodeGenerator(_RLMeta):
 
 join = "".join
 
-def compile_grammar(grammar):
-    parser = Parser()
-    code_generator = CodeGenerator()
+def compile_grammar(grammar, logger=None):
+    parser = Parser(logger)
+    code_generator = CodeGenerator(logger)
     return code_generator.run("ast", parser.run("grammar", grammar))
 
 if __name__ == "__main__":
     if "--support" in sys.argv:
         sys.stdout.write(SUPPORT)
     else:
-        sys.stdout.write(compile_grammar(sys.stdin.read()))
+        sys.stdout.write(compile_grammar(
+            sys.stdin.read(),
+            logger=sys.stderr.write
+        ))
