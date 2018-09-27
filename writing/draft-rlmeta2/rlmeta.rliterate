@@ -171,7 +171,7 @@
 "type":"variable"
 },
 {
-"text":"\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
+"text":"\n\nif __name__ == \"__main__\":\n    calculator = Calculator(logger=sys.stderr.write)\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
 "type":"code"
 }
 ],
@@ -5987,6 +5987,14 @@
 "type":"code"
 },
 {
+"id":"d09ab0856aa0453385e2158fad4dde9c",
+"type":"variable"
+},
+{
+"text":"=$(cat support.py | python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))')\n",
+"type":"code"
+},
+{
 "id":"195e7fa2b75a40baa69b0bbf57a53150",
 "type":"variable"
 },
@@ -6042,15 +6050,15 @@
 ],
 "fragments":[
 {
-"text":"import sys\n\nSUPPORT = \"\"\"\\\\\n$",
+"text":"import sys\n\nSUPPORT = $",
 "type":"code"
 },
 {
-"id":"6352455a9a4f44c984b2c210151858a2",
+"id":"d09ab0856aa0453385e2158fad4dde9c",
 "type":"variable"
 },
 {
-"text":"\n\"\"\"\n\n$",
+"text":"\n\n$",
 "type":"code"
 },
 {
@@ -6483,6 +6491,7 @@
 "ccb3f676f6314d788147dc603933cd28":"astItem",
 "cf4267183a3b4175801c67496a385af6":"_input",
 "cf8770da147840679077788180e10778":"ListItemSplice",
+"d09ab0856aa0453385e2158fad4dde9c":"supportpypy",
 "d34e449a8ca740d0a4b84921fc05b25f":"IndentBuilder",
 "d6ed0f3ac9e84f60bae25485ddb2f97e":"_StringInput",
 "db7a0c597eb84fc1b38a59b22f01eeef":"nest",

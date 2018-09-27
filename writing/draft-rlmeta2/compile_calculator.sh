@@ -14,7 +14,7 @@ $supportpy
 $calculatorpy
 
 if __name__ == "__main__":
-    calculator = Calculator()
+    calculator = Calculator(logger=sys.stderr.write)
     while True:
         line = raw_input("> ")
         print(calculator.run("expression", line))

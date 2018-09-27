@@ -5,15 +5,14 @@ set -e
 rlmeta="$1"
 
 supportpy=$(cat support.py)
+supportpypy=$(cat support.py | python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))')
 parserpy=$(cat parser.rlmeta | python "$rlmeta")
 codegeneratorpy=$(cat codegenerator.rlmeta | python "$rlmeta")
 
 cat <<EOD
 import sys
 
-SUPPORT = """\\
-$supportpy
-"""
+SUPPORT = $supportpypy
 
 $supportpy
 

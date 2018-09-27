@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -7,6 +7,8 @@ set -e
 ./compile.sh rlmeta1.py > rlmeta2.py
 
 diff rlmeta1.py rlmeta2.py
+
+diff support.py <(python rlmeta2.py --support)
 
 mv rlmeta2.py rlmeta1.py
 
