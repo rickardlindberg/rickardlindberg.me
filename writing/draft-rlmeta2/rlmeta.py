@@ -79,7 +79,7 @@ class _RLMeta(object):
             matcher()
             if self._input.empty():
                 self._input = next_input
-                return _SemanticAction(lambda: None)
+                return _SemanticAction(lambda: next_object)
         raise _MatchError()
 class _Input(object):
 
@@ -298,7 +298,7 @@ class _RLMeta(object):
             matcher()
             if self._input.empty():
                 self._input = next_input
-                return _SemanticAction(lambda: None)
+                return _SemanticAction(lambda: next_object)
         raise _MatchError()
 class _Input(object):
 
