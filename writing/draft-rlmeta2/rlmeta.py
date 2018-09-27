@@ -1,4 +1,5 @@
 import sys
+
 class _RLMeta(object):
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)
@@ -221,6 +222,7 @@ class _Output(object):
             if self.value and ch != "\n" and self.value[-1] == "\n":
                 self.value += "    "*self.level
             self.value += ch
+
 class Parser(_RLMeta):
 
     def _rule_grammar(self):
@@ -1351,6 +1353,7 @@ class Parser(_RLMeta):
                 ),
             ])
         )()
+
 class CodeGenerator(_RLMeta):
 
     def _rule_ast(self):
@@ -2193,8 +2196,8 @@ class CodeGenerator(_RLMeta):
                 ),
             ])
         )()
-def join(items):
-    return "".join(items)
+
+join = "".join
 
 def compile_grammar(grammar):
     parser = Parser()

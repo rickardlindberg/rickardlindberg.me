@@ -1,4 +1,3 @@
-import sys
 class _RLMeta(object):
     def run(self, rule_name, input_object):
         self._input = _Input.from_object(input_object)

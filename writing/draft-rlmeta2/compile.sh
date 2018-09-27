@@ -1,15 +1,23 @@
 #!/bin/sh
 
-set -a
+rlmeta="$1"
 
-(
-  cat support.py
-  cat parser.rlmeta | python $1
-  cat codegenerator.rlmeta | python $1
-  cat runtime.py
-) > $2
+cat <<EOD
+import sys
 
-if diff $1 $2 > /dev/null; then
-  echo "SAME"
-  rm $2
-fi
+$(cat support.py)
+
+$(cat parser.rlmeta | python "$rlmeta")
+
+$(cat codegenerator.rlmeta | python "$rlmeta")
+
+join = "".join
+
+def compile_grammar(grammar):
+    parser = Parser()
+    code_generator = CodeGenerator()
+    return code_generator.run("ast", parser.run("grammar", grammar))
+
+if __name__ == "__main__":
+    sys.stdout.write(compile_grammar(sys.stdin.read()))
+EOD
