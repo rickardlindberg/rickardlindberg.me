@@ -11,6 +11,10 @@ codegeneratorpy=$(cat codegenerator.rlmeta | python "$rlmeta")
 cat <<EOD
 import sys
 
+SUPPORT = """\\
+$supportpy
+"""
+
 $supportpy
 
 $parserpy
@@ -25,5 +29,8 @@ def compile_grammar(grammar):
     return code_generator.run("ast", parser.run("grammar", grammar))
 
 if __name__ == "__main__":
-    sys.stdout.write(compile_grammar(sys.stdin.read()))
+    if "--support" in sys.argv:
+        sys.stdout.write(SUPPORT)
+    else:
+        sys.stdout.write(compile_grammar(sys.stdin.read()))
 EOD

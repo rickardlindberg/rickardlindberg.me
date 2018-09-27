@@ -120,7 +120,7 @@
 "type":"variable"
 },
 {
-"text":"=$(cat support.py)\n",
+"text":"=$(python rlmeta.py --support)\n",
 "type":"code"
 },
 {
@@ -5992,7 +5992,15 @@
 ],
 "fragments":[
 {
-"text":"import sys\n\n$",
+"text":"import sys\n\nSUPPORT = \"\"\"\\\\\n$",
+"type":"code"
+},
+{
+"id":"6352455a9a4f44c984b2c210151858a2",
+"type":"variable"
+},
+{
+"text":"\n\"\"\"\n\n$",
 "type":"code"
 },
 {
@@ -6016,7 +6024,7 @@
 "type":"variable"
 },
 {
-"text":"\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
+"text":"\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
 "type":"code"
 }
 ],

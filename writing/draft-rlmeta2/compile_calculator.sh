@@ -2,7 +2,7 @@
 
 set -e
 
-supportpy=$(cat support.py)
+supportpy=$(python rlmeta.py --support)
 calculatorpy=$(cat calculator.rlmeta | python rlmeta.py)
 
 cat <<EOD
