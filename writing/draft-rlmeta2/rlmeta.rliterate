@@ -112,7 +112,23 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/sh\n\ncat <<EOD\n",
+"text":"#!/bin/sh\n\nset -e\n\n",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"=$(cat support.py)\n",
+"type":"code"
+},
+{
+"id":"3f3db8526d034826bb4d672abcc6029c",
+"type":"variable"
+},
+{
+"text":"=$(cat calculator.rlmeta | python rlmeta.py)\n\ncat <<EOD\n",
 "type":"code"
 },
 {
@@ -139,7 +155,23 @@
 ],
 "fragments":[
 {
-"text":"import sys\nfrom operator import add, mul\n\n$(cat support.py)\n\n$(cat calculator.rlmeta | python rlmeta.py)\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
+"text":"import sys\nfrom operator import add, mul\n\n$",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"\n\n$",
+"type":"code"
+},
+{
+"id":"3f3db8526d034826bb4d672abcc6029c",
+"type":"variable"
+},
+{
+"text":"\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
 "type":"code"
 }
 ],
@@ -5885,7 +5917,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/sh\n\n",
+"text":"#!/bin/sh\n\nset -e\n\n",
 "type":"code"
 },
 {
@@ -5893,7 +5925,47 @@
 "type":"variable"
 },
 {
-"text":"=\"$1\"\n\ncat <<EOD\n",
+"text":"=\"$1\"\n\n",
+"type":"code"
+},
+{
+"id":"6352455a9a4f44c984b2c210151858a2",
+"type":"variable"
+},
+{
+"text":"=$(cat support.py)\n",
+"type":"code"
+},
+{
+"id":"195e7fa2b75a40baa69b0bbf57a53150",
+"type":"variable"
+},
+{
+"text":"=$(cat parser.rlmeta | python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\")\n",
+"type":"code"
+},
+{
+"id":"2ea1b512b7444d8ab077edeba233a4f3",
+"type":"variable"
+},
+{
+"text":"=$(cat codegenerator.rlmeta | python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\")\n\ncat <<EOD\n",
 "type":"code"
 },
 {
@@ -5920,23 +5992,31 @@
 ],
 "fragments":[
 {
-"text":"import sys\n\n$(cat support.py)\n\n$(cat parser.rlmeta | python \"$",
+"text":"import sys\n\n$",
 "type":"code"
 },
 {
-"id":"83ce9666a26449cd9936798594c99e3f",
+"id":"6352455a9a4f44c984b2c210151858a2",
 "type":"variable"
 },
 {
-"text":"\")\n\n$(cat codegenerator.rlmeta | python \"$",
+"text":"\n\n$",
 "type":"code"
 },
 {
-"id":"83ce9666a26449cd9936798594c99e3f",
+"id":"195e7fa2b75a40baa69b0bbf57a53150",
 "type":"variable"
 },
 {
-"text":"\")\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
+"text":"\n\n$",
+"type":"code"
+},
+{
+"id":"2ea1b512b7444d8ab077edeba233a4f3",
+"type":"variable"
+},
+{
+"text":"\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n",
 "type":"code"
 }
 ],
@@ -6212,6 +6292,7 @@
 "1868228966e84ad698de9ff7fe063861":"space",
 "18d86dcee79847818139f3dd7dc38d8a":"astSeq",
 "193b6786b4574a48b5e75f649420b08d":"pos",
+"195e7fa2b75a40baa69b0bbf57a53150":"parserpy",
 "19791660815a43e1b775ea6a29349648":"astListItem",
 "22163f4ee0fd4e68b2c95f94e111dee1":"dedent",
 "229c153579734cffaa700c7e26bcd7f4":"_builder",
@@ -6225,10 +6306,12 @@
 "2aa377816ed3486da72cff7bd46190ad":"Grammar",
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
 "2e8a56ad01dc4a289fbd584bc4874e7e":"create",
+"2ea1b512b7444d8ab077edeba233a4f3":"codegeneratorpy",
 "2f6729bf45e84649b3187f8016c3fec9":"advance",
 "301f08856bf54373bc5975f75a315105":"String",
 "373f023f0f5f4744a7b309cf9a76d138":"SemanticAction",
 "3e7232e282f642ab8ac4fbe709a32a99":"_result",
+"3f3db8526d034826bb4d672abcc6029c":"calculatorpy",
 "41435c2c862f40c1858cd2acd0b4f0bd":"Anonymous",
 "42f0b42533be4f7eb54c04f22a137669":"grammar",
 "43cd203f934f45c4be5ce3906b60ca5d":"_label",
@@ -6247,11 +6330,13 @@
 "56c85a8b77424f849f2a1b604066439e":"_or",
 "56d10f7bfcfd43bb996c3f76423b067b":"to_rlmeta_output_stream",
 "59d465325dd74411b347002179ecda0a":"_last_match",
+"5b90ab050b7547de847cab210d087685":"supportpy",
 "5bad22de76f845a68dd802dcb830efcc":"wrapFn",
 "5cb361e64daa4aea9637f5b3fd6b91f0":"action",
 "60d7dacf2a2b4336b0329665c2026cc0":"Star",
 "6230f0917e9f4954add45c5e39a557e0":"sequence",
 "630b364d3e7345c098bc8cff819f4d99":"Or",
+"6352455a9a4f44c984b2c210151858a2":"supportpy",
 "63d39eb3401840e681f80ff11203b175":"action",
 "63e215a62fb74cebb9c2939e751e326f":"start",
 "653fc20558a64badb437b07f3d1c8490":"nested",

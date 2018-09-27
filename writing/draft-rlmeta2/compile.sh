@@ -1,15 +1,21 @@
 #!/bin/sh
 
+set -e
+
 rlmeta="$1"
+
+supportpy=$(cat support.py)
+parserpy=$(cat parser.rlmeta | python "$rlmeta")
+codegeneratorpy=$(cat codegenerator.rlmeta | python "$rlmeta")
 
 cat <<EOD
 import sys
 
-$(cat support.py)
+$supportpy
 
-$(cat parser.rlmeta | python "$rlmeta")
+$parserpy
 
-$(cat codegenerator.rlmeta | python "$rlmeta")
+$codegeneratorpy
 
 join = "".join
 
