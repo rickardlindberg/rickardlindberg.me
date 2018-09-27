@@ -9,12 +9,11 @@ class _RLMeta(object):
             return result
     def _match(self, rule_name):
         key = (rule_name, self._input.pos().key())
-        if key not in self._memo:
-            start_input = self._input
+        if key in self._memo:
+            result, self._input = self._memo[key]
+        else:
             result = getattr(self, "_rule_{}".format(rule_name))()
-            end_input = self._input
-            self._memo[key] = (result, start_input, end_input)
-        result, _, self._input = self._memo[key]
+            self._memo[key] = (result, self._input)
         return result
     def _or(self, matchers):
         saved_input = self._input
@@ -74,7 +73,7 @@ class _RLMeta(object):
         if isinstance(next_object, list):
             self._input = self._input.nested(next_object)
             matcher()
-            if self._input.empty():
+            if self._input.is_at_end():
                 self._input = next_input
                 return _SemanticAction(lambda: next_object)
         raise _MatchError()
@@ -82,10 +81,10 @@ class _Input(object):
 
     @classmethod
     def from_object(cls, input_object):
-        if isinstance(input_object, list):
-            return cls([input_object], _TreePos())
-        else:
+        if isinstance(input_object, basestring):
             return cls(list(input_object), _StringPos())
+        else:
+            return cls([input_object], _TreePos())
 
     def __init__(self, objects, pos):
         self._objects = objects
@@ -95,7 +94,7 @@ class _Input(object):
         return self._pos
 
     def next(self):
-        if self.empty():
+        if self.is_at_end():
             raise _MatchError()
         next_object = self._objects[0]
         return next_object, _Input(
@@ -103,7 +102,7 @@ class _Input(object):
             pos=self._pos.advance(next_object)
         )
 
-    def empty(self):
+    def is_at_end(self):
         return len(self._objects) == 0
 
     def nested(self, input_object):

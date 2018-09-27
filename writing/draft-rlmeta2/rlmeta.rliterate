@@ -2668,7 +2668,15 @@
 "type":"variable"
 },
 {
-"text":"(self, rule_name):\n    key = (rule_name, self._input.pos().key())\n    if key not in self.",
+"text":"(self, rule_name):\n    key = (rule_name, self._input.",
+"type":"code"
+},
+{
+"id":"193b6786b4574a48b5e75f649420b08d",
+"type":"variable"
+},
+{
+"text":"().key())\n    if key in self.",
 "type":"code"
 },
 {
@@ -2676,31 +2684,7 @@
 "type":"variable"
 },
 {
-"text":":\n        start_input = self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end_input = self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":"\n        self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":"[key] = (result, start_input, end_input)\n    result, _, self.",
+"text":":\n        result, self.",
 "type":"code"
 },
 {
@@ -2716,7 +2700,23 @@
 "type":"variable"
 },
 {
-"text":"[key]\n    return result\n",
+"text":"[key]\n    else:\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":"[key] = (result, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":")\n    return result\n",
 "type":"code"
 }
 ],
@@ -2748,19 +2748,19 @@
 "type":"variable"
 },
 {
-"text":"(cls, input_object):\n        if isinstance(input_object, list):\n            return cls([input_object], ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"())\n        else:\n            return cls(list(input_object), ",
+"text":"(cls, input_object):\n        if isinstance(input_object, basestring):\n            return cls(list(input_object), ",
 "type":"code"
 },
 {
 "id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"())\n        else:\n            return cls([input_object], ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
 "type":"variable"
 },
 {
@@ -6329,7 +6329,7 @@
 "4852ced8038c4074a5a8104b8596e0e0":"Apply",
 "49ba1aa1e24e408ba2b32bff68a72840":"List",
 "49dc22ba19624755a18a13a9e76734b1":"_Builder",
-"4ad80c8d1d814fefa2656595f1d841c6":"empty",
+"4ad80c8d1d814fefa2656595f1d841c6":"is_at_end",
 "4c38cde583ac42ea8c7b9295a92e26f2":"_Output",
 "4e5409ddd4a34450b3c8b4cb8bc5dd60":"escape",
 "4e78a4bc50f744bb959c72b5918d9d32":"no_action",
