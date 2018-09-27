@@ -106,6 +106,47 @@
 "type":"image"
 },
 {
+"chunkpath":[],
+"filepath":[
+"compile_calculator.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/sh\n\ncat <<EOD\n",
+"type":"code"
+},
+{
+"path":[
+"calculator python file"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"EOD\n",
+"type":"code"
+}
+],
+"id":"1c648bdb39f54ee7ad86680530851375",
+"type":"code"
+},
+{
+"chunkpath":[
+"calculator python file"
+],
+"filepath":[
+"compile_calculator.sh"
+],
+"fragments":[
+{
+"text":"import sys\nfrom operator import add, mul\n\n$(cat support.py)\n\n$(cat calculator.rlmeta | python rlmeta.py)\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
+"type":"code"
+}
+],
+"id":"06fd6fc7c27940cda1755a1aec2fa358",
+"type":"code"
+},
+{
 "fragments":[
 {
 "text":"TODO: Include live demo that readers can play with.",
@@ -114,20 +155,6 @@
 ],
 "id":"476723b2b7e046a4a2c0b809b1ce4bfc",
 "type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"calculator_runtime.py"
-],
-"fragments":[
-{
-"text":"from operator import add, mul\n\nif __name__ == \"__main__\":\n    calculator = Calculator()\n    while True:\n        line = raw_input(\"> \")\n        print(calculator.run(\"expression\", line))\n",
-"type":"code"
-}
-],
-"id":"fbdd8daf52cc4865906eb0af2d00b84c",
-"type":"code"
 }
 ],
 "title":"Calculator"
@@ -5871,7 +5898,7 @@
 },
 {
 "path":[
-"document"
+"rlmeta python file"
 ],
 "prefix":"",
 "type":"chunk"
@@ -5886,7 +5913,7 @@
 },
 {
 "chunkpath":[
-"document"
+"rlmeta python file"
 ],
 "filepath":[
 "compile.sh"
@@ -5917,7 +5944,7 @@
 "type":"code"
 }
 ],
-"title":"Runtime"
+"title":"Putting it together"
 }
 ],
 "id":"f5f122c94d3d4fa0b3a7e64a7fa0a724",
