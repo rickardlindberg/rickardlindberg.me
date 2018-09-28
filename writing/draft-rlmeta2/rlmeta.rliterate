@@ -5975,7 +5975,7 @@
 "type":"variable"
 },
 {
-"text":"=\"$1\"\n\n",
+"text":"=\"$1\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\n",
 "type":"code"
 },
 {
@@ -5991,7 +5991,7 @@
 "type":"variable"
 },
 {
-"text":"=$(cat support.py | python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))')\n",
+"text":"=$(cat support.py | to_python_string)\n",
 "type":"code"
 },
 {
@@ -6368,7 +6368,7 @@
 "1868228966e84ad698de9ff7fe063861":"space",
 "18d86dcee79847818139f3dd7dc38d8a":"astSeq",
 "193b6786b4574a48b5e75f649420b08d":"pos",
-"195e7fa2b75a40baa69b0bbf57a53150":"parserpy",
+"195e7fa2b75a40baa69b0bbf57a53150":"parser_py",
 "19791660815a43e1b775ea6a29349648":"astListItem",
 "22163f4ee0fd4e68b2c95f94e111dee1":"dedent",
 "229c153579734cffaa700c7e26bcd7f4":"_builder",
@@ -6382,13 +6382,13 @@
 "2aa377816ed3486da72cff7bd46190ad":"Grammar",
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
 "2e8a56ad01dc4a289fbd584bc4874e7e":"create",
-"2ea1b512b7444d8ab077edeba233a4f3":"codegeneratorpy",
+"2ea1b512b7444d8ab077edeba233a4f3":"codegenerator_py",
 "2f6729bf45e84649b3187f8016c3fec9":"_advance",
 "301f08856bf54373bc5975f75a315105":"String",
 "32f243f8879e4c38a5bfbd61623937d2":"_MatchError",
 "373f023f0f5f4744a7b309cf9a76d138":"SemanticAction",
 "3e7232e282f642ab8ac4fbe709a32a99":"_result",
-"3f3db8526d034826bb4d672abcc6029c":"calculatorpy",
+"3f3db8526d034826bb4d672abcc6029c":"calculator_py",
 "41435c2c862f40c1858cd2acd0b4f0bd":"Anonymous",
 "42f0b42533be4f7eb54c04f22a137669":"grammar",
 "43cd203f934f45c4be5ce3906b60ca5d":"_label",
@@ -6408,13 +6408,13 @@
 "56d10f7bfcfd43bb996c3f76423b067b":"to_rlmeta_output_stream",
 "596495d8d3c041d190a3330d1707203c":"_dump_memo",
 "59d465325dd74411b347002179ecda0a":"_last_match",
-"5b90ab050b7547de847cab210d087685":"supportpy",
+"5b90ab050b7547de847cab210d087685":"support_py",
 "5bad22de76f845a68dd802dcb830efcc":"wrapFn",
 "5cb361e64daa4aea9637f5b3fd6b91f0":"action",
 "60d7dacf2a2b4336b0329665c2026cc0":"Star",
 "6230f0917e9f4954add45c5e39a557e0":"sequence",
 "630b364d3e7345c098bc8cff819f4d99":"Or",
-"6352455a9a4f44c984b2c210151858a2":"supportpy",
+"6352455a9a4f44c984b2c210151858a2":"support_py",
 "63d39eb3401840e681f80ff11203b175":"action",
 "63e215a62fb74cebb9c2939e751e326f":"start",
 "653fc20558a64badb437b07f3d1c8490":"nested",
@@ -6491,7 +6491,7 @@
 "ccb3f676f6314d788147dc603933cd28":"astItem",
 "cf4267183a3b4175801c67496a385af6":"_input",
 "cf8770da147840679077788180e10778":"ListItemSplice",
-"d09ab0856aa0453385e2158fad4dde9c":"supportpypy",
+"d09ab0856aa0453385e2158fad4dde9c":"support_py_string",
 "d34e449a8ca740d0a4b84921fc05b25f":"IndentBuilder",
 "d6ed0f3ac9e84f60bae25485ddb2f97e":"_StringInput",
 "db7a0c597eb84fc1b38a59b22f01eeef":"nest",

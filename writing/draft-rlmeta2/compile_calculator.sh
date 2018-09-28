@@ -2,16 +2,16 @@
 
 set -e
 
-supportpy=$(python rlmeta.py --support)
-calculatorpy=$(cat calculator.rlmeta | python rlmeta.py)
+support_py=$(python rlmeta.py --support)
+calculator_py=$(cat calculator.rlmeta | python rlmeta.py)
 
 cat <<EOD
 import sys
 from operator import add, mul
 
-$supportpy
+$support_py
 
-$calculatorpy
+$calculator_py
 
 if __name__ == "__main__":
     calculator = Calculator(logger=sys.stderr.write)

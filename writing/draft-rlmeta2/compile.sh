@@ -4,21 +4,25 @@ set -e
 
 rlmeta="$1"
 
-supportpy=$(cat support.py)
-supportpypy=$(cat support.py | python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))')
-parserpy=$(cat parser.rlmeta | python "$rlmeta")
-codegeneratorpy=$(cat codegenerator.rlmeta | python "$rlmeta")
+to_python_string() {
+    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'
+}
+
+support_py=$(cat support.py)
+support_py_string=$(cat support.py | to_python_string)
+parser_py=$(cat parser.rlmeta | python "$rlmeta")
+codegenerator_py=$(cat codegenerator.rlmeta | python "$rlmeta")
 
 cat <<EOD
 import sys
 
-SUPPORT = $supportpypy
+SUPPORT = $support_py_string
 
-$supportpy
+$support_py
 
-$parserpy
+$parser_py
 
-$codegeneratorpy
+$codegenerator_py
 
 join = "".join
 
