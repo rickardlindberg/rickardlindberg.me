@@ -13,7 +13,7 @@ support_py_string=$(cat support.py | to_python_string)
 parser_py=$(cat parser.rlmeta | python "$rlmeta")
 codegenerator_py=$(cat codegenerator.rlmeta | python "$rlmeta")
 
-cat <<EOD
+cat <<EOF
 import sys
 
 SUPPORT = $support_py_string
@@ -39,4 +39,4 @@ if __name__ == "__main__":
             sys.stdin.read(),
             logger=sys.stderr.write
         ))
-EOD
+EOF

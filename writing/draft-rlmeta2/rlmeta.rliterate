@@ -106,6 +106,16 @@
 "type":"image"
 },
 {
+"fragments":[
+{
+"text":"Here is a script that compiles the calculator grammar to a Python program that gives you a repl for arithmetic expressions:",
+"type":"text"
+}
+],
+"id":"186ed1d9c38546ef9ba79650ac0fc56c",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "compile_calculator.sh"
@@ -128,7 +138,7 @@
 "type":"variable"
 },
 {
-"text":"=$(cat calculator.rlmeta | python rlmeta.py)\n\ncat <<EOD\n",
+"text":"=$(cat calculator.rlmeta | python rlmeta.py)\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -139,7 +149,7 @@
 "type":"chunk"
 },
 {
-"text":"EOD\n",
+"text":"EOF\n",
 "type":"code"
 }
 ],
@@ -176,6 +186,28 @@
 }
 ],
 "id":"06fd6fc7c27940cda1755a1aec2fa358",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Example usage on the command line:",
+"type":"text"
+}
+],
+"id":"ec28001fbeda4bcca184b932f518b619",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ python <(./compile_calculator.sh)\n> 1+2*3\n7\n",
+"type":"code"
+}
+],
+"id":"46d623c62dc74aa981d97d3abc9b8848",
 "type":"code"
 },
 {
@@ -326,7 +358,16 @@
 "type":"variable"
 },
 {
-"text":" AST node is created:",
+"text":" AST node is created containing the name of the grammar and the list of ",
+"type":"text"
+},
+{
+"page_id":"e1799ddc14ce4a7f83c8f390f9bf8720",
+"text":null,
+"type":"reference"
+},
+{
+"text":" AST nodes:",
 "type":"text"
 }
 ],
@@ -5961,6 +6002,16 @@
 "id":"2c78e9d9104c4bddbdd1dfe6314506c9",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Now we have almost all pieces in place...",
+"type":"text"
+}
+],
+"id":"a4ae12eb01a5413a939a01c84a6d10cf",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "compile.sh"
@@ -6023,7 +6074,7 @@
 "type":"variable"
 },
 {
-"text":"\")\n\ncat <<EOD\n",
+"text":"\")\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -6034,7 +6085,7 @@
 "type":"chunk"
 },
 {
-"text":"EOD\n",
+"text":"EOF\n",
 "type":"code"
 }
 ],
@@ -6129,7 +6180,7 @@
 {
 "fragments":[
 {
-"text":"In order to implement the RLMeta compiler, the grammar for the parser and code generator have to be written. That is done in RLMeta. And the support Python library must be written. Here they are:",
+"text":"In order to implement the RLMeta compiler, the grammar for the parser and code generator have to be written. That is done in RLMeta. And the support Python library must be written.",
 "type":"text"
 }
 ],
@@ -6146,7 +6197,7 @@
 {
 "fragments":[
 {
-"text":"If we run RLmeta on the parser gramamr and the code generator grammar and combine it with the support library, we should get the functionality of the RLMeta compiler. But how can we run RLMeta before we have it? We have a bootstrapping problem.",
+"text":"If we run RLmeta on the parser grammarr and the code generator grammar and combine it with the support library, we should get the functionality of the RLMeta compiler. But how can we run RLMeta before we have it? We have a bootstrapping problem.",
 "type":"text"
 }
 ],

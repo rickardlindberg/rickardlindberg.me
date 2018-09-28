@@ -5,7 +5,7 @@ set -e
 support_py=$(python rlmeta.py --support)
 calculator_py=$(cat calculator.rlmeta | python rlmeta.py)
 
-cat <<EOD
+cat <<EOF
 import sys
 from operator import add, mul
 
@@ -18,4 +18,4 @@ if __name__ == "__main__":
     while True:
         line = raw_input("> ")
         print(calculator.run("expression", line))
-EOD
+EOF
