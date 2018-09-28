@@ -87,7 +87,7 @@
 {
 "fragments":[
 {
-"text":"When the calculator grammar is fed to the RLMeta compiler, a program is output in a target language that is an interpreter for arithmetic expressions.",
+"text":"When the calculator grammar is fed to the RLMeta compiler, a program is output that is an interpreter for arithmetic expressions.",
 "type":"text"
 }
 ],
@@ -108,7 +108,31 @@
 {
 "fragments":[
 {
-"text":"Here is a script that compiles the calculator grammar to a Python program that gives you a repl for arithmetic expressions:",
+"text":"In this case the output program is a Python class. The generated class depends on a support library and also on the host functions that we call in the grammar (",
+"type":"text"
+},
+{
+"text":"add",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"mul",
+"type":"code"
+},
+{
+"text":", and ",
+"type":"text"
+},
+{
+"text":"int",
+"type":"code"
+},
+{
+"text":"). Here is a script that compiles the calculator grammar to a Python program that gives you a repl for arithmetic expressions:",
 "type":"text"
 }
 ],
@@ -6004,7 +6028,15 @@
 {
 "fragments":[
 {
-"text":"Now we have almost all pieces in place...",
+"text":"Now we have almost all pieces in place. Here is a script that compiles to a Python file that is a compiler (accepts source on stdin and writes output on stdout). It can also print the support library on stdout if the ",
+"type":"text"
+},
+{
+"text":"--support",
+"type":"code"
+},
+{
+"text":" flag is given.",
 "type":"text"
 }
 ],
@@ -6159,7 +6191,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an abstract syntax tree (AST) and the second translates the AST to Python source code. The generated Python code depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
+"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an abstract syntax tree (AST) and the second translates the AST to Python source code (a class). The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
 "type":"text"
 }
 ],
@@ -6375,7 +6407,7 @@
 {
 "fragments":[
 {
-"text":"The RLMeta compiler translates grammars into programs in a target language that recognizes the objects specified in the grammar and performs the semantic actions when the objects are matched. Depending on the semantic actions, the output from RLMeta is either a parser, interpreter, compiler, etc.",
+"text":"The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched. Depending on the semantic actions, the output from RLMeta is either a parser, interpreter, compiler, etc.",
 "type":"text"
 }
 ],
