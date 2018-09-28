@@ -1,6 +1,6 @@
 import sys
 
-SUPPORT = 'class _RLMeta(object):\n\n    def __init__(self, logger=None):\n        self._log = (lambda message: None) if logger is None else logger\n\n    def run(self, rule_name, input_object):\n        self._input = _Input.from_object(input_object)\n        self._memo = {}\n        try:\n            result = self._match(rule_name).eval()\n            if hasattr(result, "to_rlmeta_output_stream"):\n                return result.to_rlmeta_output_stream()\n            else:\n                return result\n        except _MatchError:\n            self._dump_memo()\n            raise\n    def _dump_memo(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self._memo.items():\n            items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))\n        for item in items:\n            self._log("matched {: <20} {} -> {}\\n".format(*item))\n    def _match(self, rule_name):\n        key = (rule_name, self._input.as_key())\n        if key in self._memo:\n            result, _, self._input = self._memo[key]\n        else:\n            start_input = self._input\n            result = getattr(self, "_rule_{}".format(rule_name))()\n            self._memo[key] = (result, start_input, self._input)\n        return result\n    def _or(self, matchers):\n        saved_input = self._input\n        for matcher in matchers:\n            try:\n                return matcher()\n            except _MatchError:\n                self._input = saved_input\n        raise _MatchError()\n    def _and(self, matchers):\n        result = None\n        for matcher in matchers:\n            result = matcher()\n        return result\n    def _star(self, matcher):\n        result = []\n        while True:\n            saved_input = self._input\n            try:\n                result.append(matcher())\n            except _MatchError:\n                self._input = saved_input\n                return _SemanticAction(lambda: [x.eval() for x in result])\n    def _negative_lookahead(self, matcher):\n        saved_input = self._input\n        try:\n            matcher()\n        except _MatchError:\n            return _SemanticAction(lambda: None)\n        else:\n            raise _MatchError()\n        finally:\n            self._input = saved_input\n    def _match_range(self, a, b):\n        next_objext, self._input = self._input.next()\n        if next_objext >= a and next_objext <= b:\n            return _SemanticAction(lambda: next_objext)\n        else:\n            raise _MatchError()\n    def _match_string(self, string):\n        next_object, self._input = self._input.next()\n        if next_object == string:\n            return _SemanticAction(lambda: string)\n        else:\n            raise _MatchError()\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            next_object, self._input = self._input.next()\n            if next_object != char:\n                raise _MatchError()\n        return _SemanticAction(lambda: charseq)\n    def _any(self):\n        next_object, self._input = self._input.next()\n        return _SemanticAction(lambda: next_object)\n    def _match_list(self, matcher):\n        next_object, next_input = self._input.next()\n        if isinstance(next_object, list):\n            self._input = self._input.nested(next_object)\n            matcher()\n            if self._input.is_at_end():\n                self._input = next_input\n                return _SemanticAction(lambda: next_object)\n        raise _MatchError()\nclass _Input(object):\n\n    @classmethod\n    def from_object(cls, input_object):\n        if isinstance(input_object, basestring):\n            return _StringInput(list(input_object))\n        else:\n            return _ListInput([input_object])\n\n    def __init__(self, objects):\n        self._objects = objects\n\n    def next(self):\n        if self.is_at_end():\n            raise _MatchError()\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self._advance(next_object, self._objects[1:]),\n        )\n\n    def is_at_end(self):\n        return len(self._objects) == 0\nclass _StringInput(_Input):\n\n    def __init__(self, objects, line=1, column=1):\n        _Input.__init__(self, objects)\n        self._line = line\n        self._column = column\n\n    def as_key(self):\n        return (self._line, self._column)\n\n    def _advance(self, next_object, objects):\n        if next_object == "\\n":\n            return _StringInput(objects, self._line+1, 1)\n        else:\n            return _StringInput(objects, self._line, self._column+1)\n\n    def __str__(self):\n        return "L{:03d}:C{:03d}".format(self._line, self._column)\nclass _ListInput(_Input):\n\n    def __init__(self, objects, parent=(), pos=0):\n        _Input.__init__(self, objects)\n        self._parent = parent\n        self._pos = pos\n\n    def as_key(self):\n        return self._parent + (self._pos,)\n\n    def nested(self, input_object):\n        return _ListInput(input_object, self._parent+(self._pos,))\n\n    def _advance(self, next_object, objects):\n        return _ListInput(objects, self._parent, self._pos+1)\n\n    def __str__(self):\n        return "[{}]".format(", ".join(str(x) for x in self.as_key()))\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\nclass _MatchError(Exception):\n    pass\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\nclass _Builder(object):\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\n    def to_rlmeta_output_stream(self):\n        output = _Output()\n        self.write(output)\n        return output.value\nclass _ListBuilder(_Builder):\n\n    def __init__(self, items):\n        self.items = items\n\n    def write(self, output):\n        for item in self.items:\n            item.write(output)\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indent()\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.dedent()\nclass _Output(object):\n\n    def __init__(self):\n        self.value = ""\n        self.level = 0\n\n    def indent(self):\n        self.level += 1\n\n    def dedent(self):\n        self.level -= 1\n\n    def write(self, value):\n        for ch in value:\n            if self.value and ch != "\\n" and self.value[-1] == "\\n":\n                self.value += "    "*self.level\n            self.value += ch\n'
+SUPPORT = 'class _RLMeta(object):\n\n    def __init__(self, logger=None):\n        self._log = (lambda message: None) if logger is None else logger\n\n    def run(self, rule_name, input_object):\n        self._input = _Input.from_object(input_object)\n        self._memo = {}\n        try:\n            result = self._match(rule_name).eval()\n            if hasattr(result, "to_rlmeta_output_stream"):\n                return result.to_rlmeta_output_stream()\n            else:\n                return result\n        except _MatchError:\n            self._dump_memo()\n            raise\n\n    def _dump_memo(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self._memo.items():\n            items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))\n        for item in items:\n            self._log("matched {: <20} {} -> {}\\n".format(*item))\n\n    def _match(self, rule_name):\n        key = (rule_name, self._input.as_key())\n        if key in self._memo:\n            result, _, self._input = self._memo[key]\n        else:\n            start_input = self._input\n            result = getattr(self, "_rule_{}".format(rule_name))()\n            self._memo[key] = (result, start_input, self._input)\n        return result\n\n    def _or(self, matchers):\n        saved_input = self._input\n        for matcher in matchers:\n            try:\n                return matcher()\n            except _MatchError:\n                self._input = saved_input\n        raise _MatchError()\n\n    def _and(self, matchers):\n        result = None\n        for matcher in matchers:\n            result = matcher()\n        return result\n\n    def _star(self, matcher):\n        result = []\n        while True:\n            saved_input = self._input\n            try:\n                result.append(matcher())\n            except _MatchError:\n                self._input = saved_input\n                return _SemanticAction(lambda: [x.eval() for x in result])\n\n    def _negative_lookahead(self, matcher):\n        saved_input = self._input\n        try:\n            matcher()\n        except _MatchError:\n            return _SemanticAction(lambda: None)\n        else:\n            raise _MatchError()\n        finally:\n            self._input = saved_input\n\n    def _match_range(self, a, b):\n        next_objext, self._input = self._input.next()\n        if next_objext >= a and next_objext <= b:\n            return _SemanticAction(lambda: next_objext)\n        else:\n            raise _MatchError()\n\n    def _match_string(self, string):\n        next_object, self._input = self._input.next()\n        if next_object == string:\n            return _SemanticAction(lambda: string)\n        else:\n            raise _MatchError()\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            next_object, self._input = self._input.next()\n            if next_object != char:\n                raise _MatchError()\n        return _SemanticAction(lambda: charseq)\n\n    def _any(self):\n        next_object, self._input = self._input.next()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_list(self, matcher):\n        next_object, next_input = self._input.next()\n        if isinstance(next_object, list):\n            self._input = self._input.nested(next_object)\n            matcher()\n            if self._input.is_at_end():\n                self._input = next_input\n                return _SemanticAction(lambda: next_object)\n        raise _MatchError()\n\nclass _Input(object):\n\n    @classmethod\n    def from_object(cls, input_object):\n        if isinstance(input_object, basestring):\n            return _StringInput(list(input_object))\n        else:\n            return _ListInput([input_object])\n\n    def __init__(self, objects):\n        self._objects = objects\n\n    def next(self):\n        if self.is_at_end():\n            raise _MatchError()\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self._advance(next_object, self._objects[1:]),\n        )\n\n    def is_at_end(self):\n        return len(self._objects) == 0\n\nclass _StringInput(_Input):\n\n    def __init__(self, objects, line=1, column=1):\n        _Input.__init__(self, objects)\n        self._line = line\n        self._column = column\n\n    def as_key(self):\n        return (self._line, self._column)\n\n    def _advance(self, next_object, objects):\n        if next_object == "\\n":\n            return _StringInput(objects, self._line+1, 1)\n        else:\n            return _StringInput(objects, self._line, self._column+1)\n\n    def __str__(self):\n        return "L{:03d}:C{:03d}".format(self._line, self._column)\n\nclass _ListInput(_Input):\n\n    def __init__(self, objects, parent=(), pos=0):\n        _Input.__init__(self, objects)\n        self._parent = parent\n        self._pos = pos\n\n    def as_key(self):\n        return self._parent + (self._pos,)\n\n    def nested(self, input_object):\n        return _ListInput(input_object, self._parent+(self._pos,))\n\n    def _advance(self, next_object, objects):\n        return _ListInput(objects, self._parent, self._pos+1)\n\n    def __str__(self):\n        return "[{}]".format(", ".join(str(x) for x in self.as_key()))\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _MatchError(Exception):\n    pass\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _Builder(object):\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\n    def to_rlmeta_output_stream(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, items):\n        self.items = items\n\n    def write(self, output):\n        for item in self.items:\n            item.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indent()\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.dedent()\n\nclass _Output(object):\n\n    def __init__(self):\n        self.value = ""\n        self.level = 0\n\n    def indent(self):\n        self.level += 1\n\n    def dedent(self):\n        self.level -= 1\n\n    def write(self, value):\n        for ch in value:\n            if self.value and ch != "\\n" and self.value[-1] == "\\n":\n                self.value += "    "*self.level\n            self.value += ch\n'
 
 class _RLMeta(object):
 
@@ -19,6 +19,7 @@ class _RLMeta(object):
         except _MatchError:
             self._dump_memo()
             raise
+
     def _dump_memo(self):
         items = []
         for (rule_name, _), (_, start, end) in self._memo.items():
@@ -26,6 +27,7 @@ class _RLMeta(object):
         items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))
         for item in items:
             self._log("matched {: <20} {} -> {}\n".format(*item))
+
     def _match(self, rule_name):
         key = (rule_name, self._input.as_key())
         if key in self._memo:
@@ -35,6 +37,7 @@ class _RLMeta(object):
             result = getattr(self, "_rule_{}".format(rule_name))()
             self._memo[key] = (result, start_input, self._input)
         return result
+
     def _or(self, matchers):
         saved_input = self._input
         for matcher in matchers:
@@ -43,11 +46,13 @@ class _RLMeta(object):
             except _MatchError:
                 self._input = saved_input
         raise _MatchError()
+
     def _and(self, matchers):
         result = None
         for matcher in matchers:
             result = matcher()
         return result
+
     def _star(self, matcher):
         result = []
         while True:
@@ -57,6 +62,7 @@ class _RLMeta(object):
             except _MatchError:
                 self._input = saved_input
                 return _SemanticAction(lambda: [x.eval() for x in result])
+
     def _negative_lookahead(self, matcher):
         saved_input = self._input
         try:
@@ -67,27 +73,32 @@ class _RLMeta(object):
             raise _MatchError()
         finally:
             self._input = saved_input
+
     def _match_range(self, a, b):
         next_objext, self._input = self._input.next()
         if next_objext >= a and next_objext <= b:
             return _SemanticAction(lambda: next_objext)
         else:
             raise _MatchError()
+
     def _match_string(self, string):
         next_object, self._input = self._input.next()
         if next_object == string:
             return _SemanticAction(lambda: string)
         else:
             raise _MatchError()
+
     def _match_charseq(self, charseq):
         for char in charseq:
             next_object, self._input = self._input.next()
             if next_object != char:
                 raise _MatchError()
         return _SemanticAction(lambda: charseq)
+
     def _any(self):
         next_object, self._input = self._input.next()
         return _SemanticAction(lambda: next_object)
+
     def _match_list(self, matcher):
         next_object, next_input = self._input.next()
         if isinstance(next_object, list):
@@ -97,6 +108,7 @@ class _RLMeta(object):
                 self._input = next_input
                 return _SemanticAction(lambda: next_object)
         raise _MatchError()
+
 class _Input(object):
 
     @classmethod
@@ -120,6 +132,7 @@ class _Input(object):
 
     def is_at_end(self):
         return len(self._objects) == 0
+
 class _StringInput(_Input):
 
     def __init__(self, objects, line=1, column=1):
@@ -138,6 +151,7 @@ class _StringInput(_Input):
 
     def __str__(self):
         return "L{:03d}:C{:03d}".format(self._line, self._column)
+
 class _ListInput(_Input):
 
     def __init__(self, objects, parent=(), pos=0):
@@ -156,6 +170,7 @@ class _ListInput(_Input):
 
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.as_key()))
+
 class _SemanticAction(object):
 
     def __init__(self, fn):
@@ -163,8 +178,10 @@ class _SemanticAction(object):
 
     def eval(self):
         return self.fn()
+
 class _MatchError(Exception):
     pass
+
 class _Vars(dict):
 
     def bind(self, name, value):
@@ -173,6 +190,7 @@ class _Vars(dict):
 
     def lookup(self, name):
         return self[name]
+
 class _Builder(object):
 
     @classmethod
@@ -188,6 +206,7 @@ class _Builder(object):
         output = _Output()
         self.write(output)
         return output.value
+
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
@@ -196,6 +215,7 @@ class _ListBuilder(_Builder):
     def write(self, output):
         for item in self.items:
             item.write(output)
+
 class _AtomBuilder(_Builder):
 
     def __init__(self, atom):
@@ -203,14 +223,17 @@ class _AtomBuilder(_Builder):
 
     def write(self, output):
         output.write(str(self.atom))
+
 class _IndentBuilder(_Builder):
 
     def write(self, output):
         output.indent()
+
 class _DedentBuilder(_Builder):
 
     def write(self, output):
         output.dedent()
+
 class _Output(object):
 
     def __init__(self):
