@@ -15,6 +15,7 @@ class _RLMeta(object):
         except _MatchError:
             self._dump_memo()
             raise
+
     def _dump_memo(self):
         items = []
         for (rule_name, _), (_, start, end) in self._memo.items():
@@ -22,6 +23,7 @@ class _RLMeta(object):
         items.sort(key=lambda item: (item[2].as_key(), item[1].as_key()))
         for item in items:
             self._log("matched {: <20} {} -> {}\n".format(*item))
+
     def _match(self, rule_name):
         key = (rule_name, self._input.as_key())
         if key in self._memo:
@@ -31,6 +33,7 @@ class _RLMeta(object):
             result = getattr(self, "_rule_{}".format(rule_name))()
             self._memo[key] = (result, start_input, self._input)
         return result
+
     def _or(self, matchers):
         saved_input = self._input
         for matcher in matchers:
@@ -39,11 +42,13 @@ class _RLMeta(object):
             except _MatchError:
                 self._input = saved_input
         raise _MatchError()
+
     def _and(self, matchers):
         result = None
         for matcher in matchers:
             result = matcher()
         return result
+
     def _star(self, matcher):
         result = []
         while True:
@@ -53,6 +58,7 @@ class _RLMeta(object):
             except _MatchError:
                 self._input = saved_input
                 return _SemanticAction(lambda: [x.eval() for x in result])
+
     def _negative_lookahead(self, matcher):
         saved_input = self._input
         try:
@@ -63,27 +69,32 @@ class _RLMeta(object):
             raise _MatchError()
         finally:
             self._input = saved_input
+
     def _match_range(self, a, b):
         next_objext, self._input = self._input.next()
         if next_objext >= a and next_objext <= b:
             return _SemanticAction(lambda: next_objext)
         else:
             raise _MatchError()
+
     def _match_string(self, string):
         next_object, self._input = self._input.next()
         if next_object == string:
             return _SemanticAction(lambda: string)
         else:
             raise _MatchError()
+
     def _match_charseq(self, charseq):
         for char in charseq:
             next_object, self._input = self._input.next()
             if next_object != char:
                 raise _MatchError()
         return _SemanticAction(lambda: charseq)
+
     def _any(self):
         next_object, self._input = self._input.next()
         return _SemanticAction(lambda: next_object)
+
     def _match_list(self, matcher):
         next_object, next_input = self._input.next()
         if isinstance(next_object, list):
@@ -93,6 +104,7 @@ class _RLMeta(object):
                 self._input = next_input
                 return _SemanticAction(lambda: next_object)
         raise _MatchError()
+
 class _Input(object):
 
     @classmethod
@@ -116,6 +128,7 @@ class _Input(object):
 
     def is_at_end(self):
         return len(self._objects) == 0
+
 class _StringInput(_Input):
 
     def __init__(self, objects, line=1, column=1):
@@ -134,6 +147,7 @@ class _StringInput(_Input):
 
     def __str__(self):
         return "L{:03d}:C{:03d}".format(self._line, self._column)
+
 class _ListInput(_Input):
 
     def __init__(self, objects, parent=(), pos=0):
@@ -152,6 +166,7 @@ class _ListInput(_Input):
 
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.as_key()))
+
 class _SemanticAction(object):
 
     def __init__(self, fn):
@@ -159,8 +174,10 @@ class _SemanticAction(object):
 
     def eval(self):
         return self.fn()
+
 class _MatchError(Exception):
     pass
+
 class _Vars(dict):
 
     def bind(self, name, value):
@@ -169,6 +186,7 @@ class _Vars(dict):
 
     def lookup(self, name):
         return self[name]
+
 class _Builder(object):
 
     @classmethod
@@ -184,6 +202,7 @@ class _Builder(object):
         output = _Output()
         self.write(output)
         return output.value
+
 class _ListBuilder(_Builder):
 
     def __init__(self, items):
@@ -192,6 +211,7 @@ class _ListBuilder(_Builder):
     def write(self, output):
         for item in self.items:
             item.write(output)
+
 class _AtomBuilder(_Builder):
 
     def __init__(self, atom):
@@ -199,14 +219,17 @@ class _AtomBuilder(_Builder):
 
     def write(self, output):
         output.write(str(self.atom))
+
 class _IndentBuilder(_Builder):
 
     def write(self, output):
         output.indent()
+
 class _DedentBuilder(_Builder):
 
     def write(self, output):
         output.dedent()
+
 class _Output(object):
 
     def __init__(self):
