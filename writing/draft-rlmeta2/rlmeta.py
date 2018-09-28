@@ -1226,6 +1226,20 @@ class Parser(_RLMeta):
                         )()
                     )(_Vars())
                 ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_charseq('t')
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: '\t')
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
             ])
         )()
 
@@ -1356,7 +1370,7 @@ class Parser(_RLMeta):
                                                     (lambda:
                                                         self._and([
                                                             (lambda:
-                                                                self._match_charseq('\\t')
+                                                                self._match_charseq('\t')
                                                             ),
                                                         ])
                                                     )()
