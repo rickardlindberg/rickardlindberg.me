@@ -70,9 +70,9 @@ class _RLMeta(object):
         finally:
             self._input = saved_input
 
-    def _match_range(self, a, b):
+    def _match_range(self, start, end):
         next_objext, self._input = self._input.next()
-        if next_objext >= a and next_objext <= b:
+        if next_objext >= start and next_objext <= end:
             return _SemanticAction(lambda: next_objext)
         else:
             raise _MatchError()
