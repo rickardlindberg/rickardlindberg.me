@@ -1,6 +1,6 @@
 CodeGenerator {
   ast =
-    | ["Grammar" .:x ast*:xs]    -> { 'class ' x '(_RLMeta):\n' > xs <                    }
+    | ["Grammar" .:x ast*:ys]    -> { 'class ' x '(_RLMeta):\n' > ys <                    }
     | ["Rule" .:x ast:y]         -> { '\ndef _rule_' x '(self):\n' > 'return ' y '()\n' < }
     | ["MatchAny"]               -> { 'self._any'                                         }
     | ["String" .:x]             -> { repr(x)                                             }

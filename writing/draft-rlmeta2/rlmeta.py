@@ -1416,7 +1416,7 @@ class CodeGenerator(_RLMeta):
                                                 _vars.bind('x', self._any())
                                             ),
                                             (lambda:
-                                                _vars.bind('xs', (lambda:
+                                                _vars.bind('ys', (lambda:
                                                     self._star((lambda:
                                                         self._match('ast')
                                                     ))
@@ -1431,7 +1431,7 @@ class CodeGenerator(_RLMeta):
                                         _vars.lookup('x').eval(),
                                         '(_RLMeta):\n',
                                         _IndentBuilder(),
-                                        _vars.lookup('xs').eval(),
+                                        _vars.lookup('ys').eval(),
                                         _DedentBuilder(),
                                     ]))
                                 ),
