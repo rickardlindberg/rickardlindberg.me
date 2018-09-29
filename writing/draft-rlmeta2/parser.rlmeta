@@ -39,9 +39,9 @@ Parser {
     | space '>'                                -> ["IndentBuilder"]
     | space '<'                                -> ["DedentBuilder"]
     | hostExpr
-  string    = '"' (!'"' innerChar)*:xs '"'     -> join(xs)
+  string    = '"'  (!'"'  innerChar)*:xs '"'   -> join(xs)
   charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> join(xs)
-  char      = '\'' !'\'' innerChar:x '\''      -> join(x)
+  char      = '\''  !'\'' innerChar  :x  '\''  -> join(x)
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
