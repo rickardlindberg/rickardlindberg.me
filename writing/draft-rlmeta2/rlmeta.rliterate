@@ -268,7 +268,7 @@
 ],
 "fragments":[
 {
-"text":"TreePrinter {\n  toHtmlList =\n    | toHtmlListItem:x ",
+"text":"TreePrinter {\n  toHtmlList =\n    | toHtmlListItem*:xs ",
 "type":"code"
 },
 {
@@ -276,7 +276,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"<ul>\" x \"</ul>\" ",
+"text":"-> { \"<ul>\" xs \"</ul>\" ",
 "type":"code"
 },
 {
@@ -284,7 +284,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n    | .:x ",
+"text":"}\n  toHtmlListItem =\n    | node:x ",
 "type":"code"
 },
 {
@@ -292,7 +292,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { x ",
+"text":"-> { \"<li>\" x \"</li>\" ",
 "type":"code"
 },
 {
@@ -300,7 +300,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  toHtmlListItem =\n    | [.:x toHtmlList*:xs] ",
+"text":"}\n  node =\n    | [atom:x toHtmlList:ys] ",
 "type":"code"
 },
 {
@@ -308,7 +308,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"<li>\" x xs \"</li>\" ",
+"text":"-> { x ys ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"}\n    | atom\n  atom =\n    | .:x ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"-> { escape(str(x)) ",
 "type":"code"
 },
 {
@@ -321,6 +337,90 @@
 }
 ],
 "id":"d165ef81494a41418ee8f45c8713747e",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"TODO: Explain grammar.",
+"type":"strong"
+}
+],
+"id":"1860e1a66a5247a2b706215a08e2584a",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"compile_treeprinter.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/sh\n\nset -e\n\n",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py --support)\n",
+"type":"code"
+},
+{
+"id":"092fb427436241669092a2244dc64c33",
+"type":"variable"
+},
+{
+"text":"=$(cat treeprinter.rlmeta | python rlmeta.py)\n\ncat <<EOF\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"tree printer python file"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"EOF\n",
+"type":"code"
+}
+],
+"id":"5692e34d66f94e2dbe414b94f733367d",
+"type":"code"
+},
+{
+"chunkpath":[
+"tree printer python file"
+],
+"filepath":[
+"compile_treeprinter.sh"
+],
+"fragments":[
+{
+"text":"import sys\nimport xml.sax.saxutils\n\n$",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"\n\n$",
+"type":"code"
+},
+{
+"id":"092fb427436241669092a2244dc64c33",
+"type":"variable"
+},
+{
+"text":"\n\nescape = xml.sax.saxutils.escape\n\nif __name__ == \"__main__\":\n    calculator = TreePrinter(logger=sys.stderr.write)\n    while True:\n        object = input(\"> \")\n        print(calculator.run(\"toHtmlList\", object))\n",
+"type":"code"
+}
+],
+"id":"13c77f287eb44d35acfad89688519b81",
 "type":"code"
 },
 {
@@ -6645,6 +6745,7 @@
 "0449532c17204462b4b4681b07ac12b5":"expr1",
 "07c126c0f9094e189f37cc4ab940b0b4":"_memo",
 "08c927c12a8741f9994399078b91d0b8":"_a864d6cb43244a1ca536085dd92431af",
+"092fb427436241669092a2244dc64c33":"treeprinter_py",
 "0a8e6be4bec3466bb658d7d4ff5bc5fd":"FnCall",
 "0c1a9537d33148388015163fc90329b3":"MatchList",
 "10d9c2de82a14d12bd545133bd4e15f8":"MatchString",
@@ -6699,6 +6800,7 @@
 "5c352d6f3e54444cad73e2891e76e29a":"next_input",
 "5cb361e64daa4aea9637f5b3fd6b91f0":"action",
 "60d7dacf2a2b4336b0329665c2026cc0":"Star",
+"622901123a0747d09cd41c9850f75b72":"092fb427436241669092a2244dc64c33_py",
 "6230f0917e9f4954add45c5e39a557e0":"sequence",
 "630b364d3e7345c098bc8cff819f4d99":"Or",
 "6352455a9a4f44c984b2c210151858a2":"support_py",

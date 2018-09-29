@@ -1,7 +1,11 @@
 TreePrinter {
   toHtmlList =
-    | toHtmlListItem:x     -> { "<ul>" x "</ul>"    }
-    | .:x                  -> { x                   }
+    | toHtmlListItem*:xs     -> { "<ul>" xs "</ul>" }
   toHtmlListItem =
-    | [.:x toHtmlList*:xs] -> { "<li>" x xs "</li>" }
+    | node:x                 -> { "<li>" x "</li>"  }
+  node =
+    | [atom:x toHtmlList:ys] -> { x ys              }
+    | atom
+  atom =
+    | .:x                    -> { escape(str(x))    }
 }
