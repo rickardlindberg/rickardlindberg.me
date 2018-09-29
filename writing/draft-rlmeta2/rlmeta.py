@@ -638,7 +638,7 @@ class Parser(_RLMeta):
                                     )())
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['MatchCharRange']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
+                                    _SemanticAction(lambda: (['MatchRange']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -1986,7 +1986,7 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string('MatchCharRange')
+                                                self._match_string('MatchRange')
                                             ),
                                             (lambda:
                                                 _vars.bind('x', self._any())

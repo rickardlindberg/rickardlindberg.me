@@ -19,7 +19,7 @@ Parser {
   expr2 =
     | space '->' hostExpr:x                    -> ["SemanticAction" x]
     | name:x !(space '=')                      -> ["Apply" x]
-    | space char:x '-' char:y                  -> ["MatchCharRange" x y]
+    | space char:x '-' char:y                  -> ["MatchRange" x y]
     | space string:x                           -> ["MatchString" x]
     | space charseq:x                          -> ["MatchCharseq" x]
     | space '.'                                -> ["MatchAny"]
