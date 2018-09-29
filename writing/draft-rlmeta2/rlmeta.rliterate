@@ -2847,7 +2847,7 @@
 "type":"variable"
 },
 {
-"text":"[key]\n    else:\n        start_input = self.",
+"text":"[key]\n    else:\n        start = self.",
 "type":"code"
 },
 {
@@ -2855,7 +2855,15 @@
 "type":"variable"
 },
 {
-"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        self.",
+"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end = self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":"\n        self.",
 "type":"code"
 },
 {
@@ -2863,15 +2871,7 @@
 "type":"variable"
 },
 {
-"text":"[key] = (result, start_input, self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":")\n    return result\n",
+"text":"[key] = (result, start, end)\n    return result\n",
 "type":"code"
 }
 ],
@@ -2943,7 +2943,23 @@
 "type":"variable"
 },
 {
-"text":"()\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self.",
+"text":"()\n        ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" = self._objects[0]\n        return (\n            ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":",\n            self.",
 "type":"code"
 },
 {
@@ -2951,7 +2967,15 @@
 "type":"variable"
 },
 {
-"text":"(next_object, self._objects[1:]),\n        )\n\n    def ",
+"text":"(",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", self._objects[1:]),\n        )\n\n    def ",
 "type":"code"
 },
 {
@@ -3015,7 +3039,23 @@
 "type":"variable"
 },
 {
-"text":"(self, next_object, objects):\n        if next_object == \"\\n\":\n            return ",
+"text":"(self, ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", objects):\n        if ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" == \"\\n\":\n            return ",
 "type":"code"
 },
 {
@@ -3103,7 +3143,15 @@
 "type":"variable"
 },
 {
-"text":"(self, next_object, objects):\n        return ",
+"text":"(self, ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", objects):\n        return ",
 "type":"code"
 },
 {
@@ -3574,7 +3622,15 @@
 "type":"variable"
 },
 {
-"text":"(self, matchers):\n    saved_input = self.",
+"text":"(self, matchers):\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -3598,7 +3654,15 @@
 "type":"variable"
 },
 {
-"text":" = saved_input\n    raise ",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":"\n    raise ",
 "type":"code"
 },
 {
@@ -4030,7 +4094,15 @@
 "type":"variable"
 },
 {
-"text":"(self, matcher):\n    result = []\n    while True:\n        saved_input = self.",
+"text":"(self, matcher):\n    result = []\n    while True:\n        ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -4054,7 +4126,15 @@
 "type":"variable"
 },
 {
-"text":" = saved_input\n            return ",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":"\n            return ",
 "type":"code"
 },
 {
@@ -4207,7 +4287,15 @@
 "type":"variable"
 },
 {
-"text":"(self, matcher):\n    saved_input = self.",
+"text":"(self, matcher):\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -4247,7 +4335,15 @@
 "type":"variable"
 },
 {
-"text":" = saved_input\n",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":"\n",
 "type":"code"
 }
 ],
@@ -4569,7 +4665,15 @@
 "type":"variable"
 },
 {
-"text":"(self, string):\n    next_object, self.",
+"text":"(self, string):\n    ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", self.",
 "type":"code"
 },
 {
@@ -4593,7 +4697,15 @@
 "type":"variable"
 },
 {
-"text":"()\n    if next_object == string:\n        return ",
+"text":"()\n    if ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" == string:\n        return ",
 "type":"code"
 },
 {
@@ -4690,7 +4802,15 @@
 "type":"variable"
 },
 {
-"text":"(self, charseq):\n    for char in charseq:\n        next_object, self.",
+"text":"(self, charseq):\n    for char in charseq:\n        ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", self.",
 "type":"code"
 },
 {
@@ -4714,7 +4834,15 @@
 "type":"variable"
 },
 {
-"text":"()\n        if next_object != char:\n            raise ",
+"text":"()\n        if ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" != char:\n            raise ",
 "type":"code"
 },
 {
@@ -4811,7 +4939,15 @@
 "type":"variable"
 },
 {
-"text":"(self):\n    next_object, self.",
+"text":"(self):\n    ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", self.",
 "type":"code"
 },
 {
@@ -4843,7 +4979,15 @@
 "type":"variable"
 },
 {
-"text":"(lambda: next_object)\n",
+"text":"(lambda: ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":")\n",
 "type":"code"
 }
 ],
@@ -4932,7 +5076,23 @@
 "type":"variable"
 },
 {
-"text":"(self, matcher):\n    next_object, next_input = self.",
+"text":"(self, matcher):\n    ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"5c352d6f3e54444cad73e2891e76e29a",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -4948,7 +5108,15 @@
 "type":"variable"
 },
 {
-"text":"()\n    if isinstance(next_object, list):\n        self.",
+"text":"()\n    if isinstance(",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", list):\n        self.",
 "type":"code"
 },
 {
@@ -4972,7 +5140,15 @@
 "type":"variable"
 },
 {
-"text":"(next_object)\n        matcher()\n        if self.",
+"text":"(",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":")\n        matcher()\n        if self.",
 "type":"code"
 },
 {
@@ -4996,7 +5172,15 @@
 "type":"variable"
 },
 {
-"text":" = next_input\n            return ",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"5c352d6f3e54444cad73e2891e76e29a",
+"type":"variable"
+},
+{
+"text":"\n            return ",
 "type":"code"
 },
 {
@@ -5004,7 +5188,15 @@
 "type":"variable"
 },
 {
-"text":"(lambda: next_object)\n    raise ",
+"text":"(lambda: ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":")\n    raise ",
 "type":"code"
 },
 {
@@ -6463,6 +6655,7 @@
 "193b6786b4574a48b5e75f649420b08d":"pos",
 "195e7fa2b75a40baa69b0bbf57a53150":"parser_py",
 "19791660815a43e1b775ea6a29349648":"astListItem",
+"1f94d55a48c14180b2992433d29ace85":"next_object",
 "22163f4ee0fd4e68b2c95f94e111dee1":"dedent",
 "229c153579734cffaa700c7e26bcd7f4":"_builder",
 "2420b6bcf2374252a533688aa0b33b5f":"astList",
@@ -6503,6 +6696,7 @@
 "59d465325dd74411b347002179ecda0a":"_last_match",
 "5b90ab050b7547de847cab210d087685":"support_py",
 "5bad22de76f845a68dd802dcb830efcc":"wrapFn",
+"5c352d6f3e54444cad73e2891e76e29a":"next_input",
 "5cb361e64daa4aea9637f5b3fd6b91f0":"action",
 "60d7dacf2a2b4336b0329665c2026cc0":"Star",
 "6230f0917e9f4954add45c5e39a557e0":"sequence",
@@ -6562,13 +6756,13 @@
 "ae2f859206d741eca9f5e10495cb8095":"buildExpr",
 "ae823ab23224415f9a539b0354f311b8":"VarLookup",
 "af5dbdd6e27c451398b2b116b5ff42d3":"write",
-"b058347d19484740b7e2dec4816c0978":"_ListInput",
-"b062e0322e284160bf26034e9de32446":"as_key",
+"b058347d19484740b7e2dec4816c0978":"_ObjectStream",
+"b062e0322e284160bf26034e9de32446":"memo_key",
 "b09ffc5c602a482982cec2726c306ace":"withNewVars",
 "b2115b3eeaa143068958949787f5d104":"next",
 "b277e0c5612d4697bf8f8237494f8474":"_ListBuilder",
 "b3480703b376431588d58149f19c7a13":"_star",
-"b4b8cb5f4cdd4dc68ecc9ca100d1da5a":"_Input",
+"b4b8cb5f4cdd4dc68ecc9ca100d1da5a":"_Stream",
 "b6663a67104042fe8ee0bcb72896f366":"BuildNewline",
 "b845c4cee1734619991d56de83dce37d":"Scope",
 "bc27a67cb10b4650a32bfe7af84c5060":"Not",
@@ -6582,11 +6776,11 @@
 "cbbcd925bc2c42b9add24aaa736f4d35":"_SemanticAction",
 "cc14e6fceec9478c8fdb4ac3a58dbf7a":"digit",
 "ccb3f676f6314d788147dc603933cd28":"astItem",
-"cf4267183a3b4175801c67496a385af6":"_input",
+"cf4267183a3b4175801c67496a385af6":"_stream",
 "cf8770da147840679077788180e10778":"ListItemSplice",
 "d09ab0856aa0453385e2158fad4dde9c":"support_py_string",
 "d34e449a8ca740d0a4b84921fc05b25f":"IndentBuilder",
-"d6ed0f3ac9e84f60bae25485ddb2f97e":"_StringInput",
+"d6ed0f3ac9e84f60bae25485ddb2f97e":"_CharStream",
 "db7a0c597eb84fc1b38a59b22f01eeef":"nest",
 "dc3d22a8b70043628b058ffd00659a5d":"BuildIndent",
 "dd463f369f79475da606b1cfc2d96076":"hostExpr",
@@ -6597,6 +6791,7 @@
 "e1248cbd01c54a1680793b61e7a048e1":"innerChar",
 "e22e419d7c4845389694467bfa395529":"_f49eae10880e4186a37c021e34aea403",
 "e22fa3c5d4144197906cbb74af6cc83e":"Rule",
+"e45d3bc7fadf4cc1bd02843c87f0d034":"original_stream",
 "e521dea02b37474cb05f03e800132aa2":"_last",
 "ea57b40b324c4c03b030c78e924ed860":"lookup",
 "ec2b7e954fe24f329250bd22c70538e4":"_Vars",
