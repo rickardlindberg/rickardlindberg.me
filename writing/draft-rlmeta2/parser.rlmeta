@@ -30,7 +30,7 @@ Parser {
     | space charseq:x                          -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' buildExpr*:xs space '}'        -> ["ListBuilder" ~xs]
-    | name:x space '(' hostExpr*:xs space ')'  -> ["FnCall" x ~xs]
+    | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
     | space '~' hostExpr:x                     -> ["ListItemSplice" x]

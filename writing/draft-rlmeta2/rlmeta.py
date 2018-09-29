@@ -877,7 +877,7 @@ class Parser(_RLMeta):
                                     self._match_charseq('(')
                                 ),
                                 (lambda:
-                                    _vars.bind('xs', (lambda:
+                                    _vars.bind('ys', (lambda:
                                         self._star((lambda:
                                             self._match('hostExpr')
                                         ))
@@ -890,7 +890,7 @@ class Parser(_RLMeta):
                                     self._match_charseq(')')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['FnCall']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]))
+                                    _SemanticAction(lambda: (['FnCall']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))
                                 ),
                             ])
                         )()
