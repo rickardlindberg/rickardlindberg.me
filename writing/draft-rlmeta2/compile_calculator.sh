@@ -3,7 +3,7 @@
 set -e
 
 support_py=$(python rlmeta.py --support)
-calculator_py=$(cat calculator.rlmeta | python rlmeta.py)
+calculator_py=$(python rlmeta.py < calculator.rlmeta)
 
 cat <<EOF
 import sys
