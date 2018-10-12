@@ -3,8 +3,8 @@
 set -e
 
 support_py=$(python rlmeta.py --support)
-parser_py=$(cat expression_parser.rlmeta | python rlmeta.py)
-codegenerator_py=$(cat expression_codegenerator.rlmeta | python rlmeta.py)
+parser_py=$(python rlmeta.py < expression_parser.rlmeta)
+codegenerator_py=$(python rlmeta.py < expression_codegenerator.rlmeta)
 
 cat <<EOF
 import sys

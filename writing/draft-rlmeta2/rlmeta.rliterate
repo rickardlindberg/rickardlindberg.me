@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"Metalanguages are used to reason about languages.",
+"text":"Metalanguages are used to reason about languages. In metalanguages you can make statements about statements in a language.",
 "type":"text"
 }
 ],
@@ -18,21 +18,21 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a programming language in which you can reason about programs written in programming languages. You write grammars that specify how to match objects from an input stream. With semantic actions you specify what should happen when objects are matched. The semantic actions give meaning sentences in the input language.",
+"text":"The metalanguage I develop in this article I call RLMeta. It is inspired by a metalanguage from the sixties called META II. I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by OMeta (another META II derivative).",
 "type":"text"
 }
 ],
-"id":"76b13838f4044ae4b278190f639de8fa",
+"id":"62f5e2bf63754a13ba84482280f425dd",
 "type":"text"
 },
 {
 "fragments":[
 {
-"text":"The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched.",
+"text":"RLMeta is a programming language in whcih you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched.",
 "type":"text"
 }
 ],
-"id":"dabc7ecca02244b088ce2018fe46981d",
+"id":"76b13838f4044ae4b278190f639de8fa",
 "type":"text"
 },
 {
@@ -56,7 +56,7 @@
 {
 "fragments":[
 {
-"text":"Here is a grammar that gives meaning to arithmetic expressions of the kind presented in the introductory example:",
+"text":"How can RLMeta be used to give meaning to arithmetic expressions of the kind presented in the introductory example? Here is a grammar:",
 "type":"text"
 }
 ],
@@ -124,7 +124,7 @@
 "type":"code"
 },
 {
-"text":" are semantic actions. In this grammar they say that whenever an additive is found, call the host language function ",
+"text":" are semantic actions. In this grammar they say that whenever an additive is matched, call the host language function ",
 "type":"text"
 },
 {
@@ -132,7 +132,7 @@
 "type":"code"
 },
 {
-"text":" with the left and right side, and whenever a multitive is found, call the host language function ",
+"text":" with the left and right side, and whenever a multitive is matched, call the host language function ",
 "type":"text"
 },
 {
@@ -140,7 +140,7 @@
 "type":"code"
 },
 {
-"text":" with the left and right side, and whenever a digit is found, call the host language function ",
+"text":" with the left and right side, and whenever a digit is matched, call the host language function ",
 "type":"text"
 },
 {
@@ -172,7 +172,17 @@
 "type":"code"
 },
 {
-"text":" functions perform addition and multiplication. Presedence is encoded by the order of the rules. An additive is ",
+"text":" functions perform addition and multiplication.",
+"type":"text"
+}
+],
+"id":"f02eaf34f684451a842b6d275b1361f4",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This grammar describes how to recognize arithmetic expressions in a sequence of characters. Presedence is encoded by the order of the rules. An additive is ",
 "type":"text"
 },
 {
@@ -180,11 +190,11 @@
 "type":"code"
 },
 {
-"text":" where the xes are multitives. Therefore multiplication is performed before addition.",
+"text":" where the xes are multitives. Therefore multiplication is performed before addition. It gives meaning to the expressions by calling host language functions when expressions are matched.",
 "type":"text"
 }
 ],
-"id":"f02eaf34f684451a842b6d275b1361f4",
+"id":"fafee421e91242a49198fe91304ef148",
 "type":"text"
 },
 {
@@ -211,7 +221,7 @@
 {
 "fragments":[
 {
-"text":"More specifically, the program is a Python class. The class depends on a support library and also on the host language functions that were called in the grammar (",
+"text":"More specifically, this program is a Python class. The class depends on a support library and also on the host language functions that were called in the grammar (",
 "type":"text"
 },
 {
@@ -235,7 +245,7 @@
 "type":"code"
 },
 {
-"text":"). Here is a script that compiles the calculator grammar to a Python program that gives you a REPL for arithmetic expressions:",
+"text":"). Here is a script that compiles the calculator grammar to a Python program that implements a REPL for arithmetic expressions:",
 "type":"text"
 }
 ],
@@ -358,7 +368,7 @@
 {
 "fragments":[
 {
-"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. That is still quite some steps to go before we hit the metal. Let's try to compile expressions down to a lower level assembly language for a stack machine.",
+"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, it is necessary to understand how Python implements those functions. Let's try to compile expressions down to a a kind of assembly language that gets rid of Python.",
 "type":"text"
 }
 ],
@@ -368,7 +378,7 @@
 {
 "fragments":[
 {
-"text":"The parser matches exactly the same input strings as the calculator, but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are used: the parser and the code generator. The parser matches exactly the same input strings as the calculator grammar, but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
 "type":"text"
 }
 ],
@@ -418,8 +428,14 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The code generator takes as input the AST output from the parser and generates assembly language code for an imaginary stack machine.",
+"type":"text"
+}
+],
 "id":"7fedf9682c9c4bc78b63a9cbbffc3868",
-"type":"factory"
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -464,6 +480,34 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"This grammar has only one rule. It says that an ast is either a list that starts with the string 'add', or a list that starts with the string 'mul', or a list that starts with the string 'digit'. The add and mul cases recursively matches ast nodes as their left and right side whereas the digit matches anything (",
+"type":"text"
+},
+{
+"text":".",
+"type":"code"
+},
+{
+"text":") which is the digit. The semantic actions in this grammar generate string output denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by 'add\\n' or 'mul\\n' instructions. They instruct the stack machine to pop two numbers from the stack, add or multiply them, and push the result.",
+"type":"text"
+}
+],
+"id":"1872b7e904f047e980db91ec2920eda9",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Here is a script that compiles the expression compiler to a Python program that implements a REPL:",
+"type":"text"
+}
+],
+"id":"418e9b716a6b49b5b850d5f3cdb45499",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "compile_expression.sh"
@@ -486,7 +530,7 @@
 "type":"variable"
 },
 {
-"text":"=$(cat expression_parser.rlmeta | python rlmeta.py)\n",
+"text":"=$(python rlmeta.py < expression_parser.rlmeta)\n",
 "type":"code"
 },
 {
@@ -494,7 +538,7 @@
 "type":"variable"
 },
 {
-"text":"=$(cat expression_codegenerator.rlmeta | python rlmeta.py)\n\ncat <<EOF\n",
+"text":"=$(python rlmeta.py < expression_codegenerator.rlmeta)\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -554,6 +598,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Example usage on the command line:",
+"type":"text"
+}
+],
+"id":"7668140579554f10946c0aa94ae7b616",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -564,6 +618,16 @@
 ],
 "id":"c4b0637463164b6681f2d71a50ed9dd8",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This is assembly code for an imaginary stack machine. It is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU.",
+"type":"text"
+}
+],
+"id":"4e9215a9b94d468a82d0f88f6f92d71a",
+"type":"text"
 }
 ],
 "title":"Compiling expressions"
@@ -6689,6 +6753,16 @@
 {
 "fragments":[
 {
+"text":"So far we have just given informal descriptions of how RLMeta works. To fully understand how artithmetic expressions are evaluated and compiled, it is necessary to understand how RLMeta works. That is the topic of this section.",
+"type":"text"
+}
+],
+"id":"941e6240d48542d2b8bd9cfc55c5d551",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"I have shown you how RLMeta can be used to implement a calculator and a tree printer. Next I will show you how to use RLMeta to translate RLMeta grammars to executable Python code. That is how to implement the RLMeta compiler.",
 "type":"text"
 }
@@ -6699,7 +6773,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an abstract syntax tree (AST) and the second translates the AST to Python class. The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
+"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an abstract syntax tree (AST) and the second translates the AST to a Python class. The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
 "type":"text"
 }
 ],
@@ -6732,6 +6806,71 @@
 },
 {
 "children":[],
+"id":"5f558623cfce441fb3e61033299d1419",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"I hope that I've sparked your interest in metalanguages and convinced you that they are not terrebly complicated to implement. The part about being implemented in itself took me a long time to understand. I was helped by the following sources. Should you want to know more about metalanguages they might help you too.",
+"type":"text"
+}
+],
+"id":"91a672dc3aa0483196a9e23cb70134ae",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Metacompiler workshop",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Video about Lua implementation",
+"type":"text"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"META II",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Ometa",
+"type":"text"
+}
+]
+}
+],
+"id":"e4125a19ab474510a27a3cd76c42c2f1",
+"type":"list"
+}
+],
+"title":"Learn more"
+},
+{
+"children":[],
 "id":"8f4baa392cfc4fe18f6796ea4c096135",
 "paragraphs":[
 {
@@ -6739,7 +6878,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"* How to address the reader?\n* What do I want to say?\n    * Have I said it?\n* What one point to make?\n    * What to skip?\n    * Reductions time/place.\n* How much to cover?\n* I write this to learn about META. Clear writing is clear thinking.\n\n--\n\nThis is my report about implementing a META language. I have explored this\ntopic and I want to share my findings.\n\nHow does the computer know that \"x+y\" gives \"z\"? ... In this article I explore\nhow a meta language can answer that question.\n\nFootnotes:\n\n* The web version was made possible by writing the code generator and support\n  library in Javascript.\n\n* This is all about me trying to understand META II.\n\n--\n\nI want to exemplify how programs are executed on a computer. It is all about\nmatching and transforming. And it can be quite simple.\n\n--\n\nSimilar projects/inspiration:\n\n* Alan Kay\n* STEPS\n* META II\n    * Metacompiler workshop\n    * Video about Lua implementation\n* OMeta\n* Ohm\n",
+"text":"* How to address the reader?\n* What do I want to say?\n    * Have I said it?\n* What one point to make?\n    * What to skip?\n    * Reductions time/place.\n* How much to cover?\n* I write this to learn about META. Clear writing is clear thinking.\n\n* Anyone who thinks clearly can write clearly\n* Every next sentence should build on the previous\n    * Logical small steps forward\n\n--\n\nThis is my report about implementing a META language. I have explored this\ntopic and I want to share my findings.\n\nHow does the computer know that \"x+y\" gives \"z\"? ... In this article I explore\nhow a meta language can answer that question.\n\nFootnotes:\n\n* The web version was made possible by writing the code generator and support\n  library in Javascript.\n\n* This is all about me trying to understand META II.\n\n--\n\nI want to exemplify how programs are executed on a computer. It is all about\nmatching and transforming. And it can be quite simple.\n\n--\n\nSimilar projects/inspiration:\n\n* Alan Kay\n* STEPS\n* META II\n    * Metacompiler workshop\n    * Video about Lua implementation\n* OMeta\n* Ohm\n",
 "type":"code"
 }
 ],
@@ -6755,7 +6894,7 @@
 {
 "fragments":[
 {
-"text":"How does the computer know what to do with expressions in a programming language? How does it know how to evaluate the following expression for example?",
+"text":"How does the computer know what to do with the following?",
 "type":"text"
 }
 ],
@@ -6777,7 +6916,7 @@
 {
 "fragments":[
 {
-"text":"How does it know that ",
+"text":"How does it know how to recognize the sequence of characters as an arithmetic expression? How does it know that ",
 "type":"text"
 },
 {
@@ -6785,7 +6924,7 @@
 "type":"code"
 },
 {
-"text":" should be evaluated first? How does it translate it to instructions that execute on the CPU?",
+"text":" should be computed first? How does it translate it to instructions that execute on the CPU?",
 "type":"text"
 }
 ],
@@ -6795,7 +6934,7 @@
 {
 "fragments":[
 {
-"text":"In this article I explore how a metalanguage can be used to answer those questions and how this metalanguage, that I call RLMeta, is implemented.",
+"text":"In this article I develop a metalanguage that can help answer those questions.",
 "type":"text"
 }
 ],
