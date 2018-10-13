@@ -18,7 +18,7 @@
 {
 "fragments":[
 {
-"text":"The metalanguage I develop in this article I call RLMeta. It is inspired by a metalanguage from the sixties called META II. I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by OMeta (another META II derivative).",
+"text":"The metalanguage I've developed is called RLMeta. It is inspired by a metalanguage from the sixties called META II. I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by OMeta (another META II derivative).",
 "type":"text"
 }
 ],
@@ -28,7 +28,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a programming language in whcih you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched.",
+"text":"RLMeta is a programming language in whcih you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the corresponding actions when the objects are matched.",
 "type":"text"
 }
 ],
@@ -245,7 +245,7 @@
 "type":"code"
 },
 {
-"text":"). Here is a script that compiles the calculator grammar to a Python program that implements a REPL for arithmetic expressions:",
+"text":"). The pieces must be assembled to form an executable program. Here is a template for the final Python program that implements a read-eval-print loop (REPL) for arithmetic expressions:",
 "type":"text"
 }
 ],
@@ -253,50 +253,8 @@
 "type":"text"
 },
 {
-"chunkpath":[],
-"filepath":[
-"compile_calculator.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/sh\n\nset -e\n\n",
-"type":"code"
-},
-{
-"id":"5b90ab050b7547de847cab210d087685",
-"type":"variable"
-},
-{
-"text":"=$(python rlmeta.py --support)\n",
-"type":"code"
-},
-{
-"id":"3f3db8526d034826bb4d672abcc6029c",
-"type":"variable"
-},
-{
-"text":"=$(python rlmeta.py < calculator.rlmeta)\n\ncat <<EOF\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"calculator python file"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"text":"EOF\n",
-"type":"code"
-}
-],
-"id":"1c648bdb39f54ee7ad86680530851375",
-"type":"code"
-},
-{
 "chunkpath":[
-"calculator python file"
+"calculator python file template"
 ],
 "filepath":[
 "compile_calculator.sh"
@@ -324,6 +282,58 @@
 }
 ],
 "id":"06fd6fc7c27940cda1755a1aec2fa358",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"First the host language functions are imported. Then the support library and the compiled grammar snippets are inserted. And finally a REPL is implemented. This template is realized with a Bash script:",
+"type":"text"
+}
+],
+"id":"99d6cd9644464dd481feba65b559921c",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"compile_calculator.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\n",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py --support)\n",
+"type":"code"
+},
+{
+"id":"3f3db8526d034826bb4d672abcc6029c",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py < calculator.rlmeta)\n\ncat <<EOF\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"calculator python file template"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"EOF\n",
+"type":"code"
+}
+],
+"id":"1c648bdb39f54ee7ad86680530851375",
 "type":"code"
 },
 {
@@ -6934,7 +6944,7 @@
 {
 "fragments":[
 {
-"text":"In this article I develop a metalanguage that can help answer those questions.",
+"text":"In this article I present a metalanguage that I've developed that can help answer those questions.",
 "type":"text"
 }
 ],
