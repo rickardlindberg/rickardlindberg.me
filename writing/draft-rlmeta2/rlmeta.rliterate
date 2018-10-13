@@ -401,7 +401,8 @@
 {
 "chunkpath":[],
 "filepath":[
-"expression_parser.rlmeta"
+"expression",
+"parser.rlmeta"
 ],
 "fragments":[
 {
@@ -453,7 +454,8 @@
 {
 "chunkpath":[],
 "filepath":[
-"expression_codegenerator.rlmeta"
+"expression",
+"codegenerator.rlmeta"
 ],
 "fragments":[
 {
@@ -521,61 +523,12 @@
 "type":"text"
 },
 {
-"chunkpath":[],
-"filepath":[
-"compile_expression.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/sh\n\nset -e\n\n",
-"type":"code"
-},
-{
-"id":"5b90ab050b7547de847cab210d087685",
-"type":"variable"
-},
-{
-"text":"=$(python rlmeta.py --support)\n",
-"type":"code"
-},
-{
-"id":"bf29f97b4f354ee5a3ac3d9346be1e52",
-"type":"variable"
-},
-{
-"text":"=$(python rlmeta.py < expression_parser.rlmeta)\n",
-"type":"code"
-},
-{
-"id":"3a76a9617ce44d7eb1609bbff707013e",
-"type":"variable"
-},
-{
-"text":"=$(python rlmeta.py < expression_codegenerator.rlmeta)\n\ncat <<EOF\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"calculator python file"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"text":"EOF\n",
-"type":"code"
-}
-],
-"id":"3ef9e2fe1c5d49fb8efd3b30641f8189",
-"type":"code"
-},
-{
 "chunkpath":[
-"calculator python file"
+"python file template"
 ],
 "filepath":[
-"compile_expression.sh"
+"expression",
+"compile.sh"
 ],
 "fragments":[
 {
@@ -611,6 +564,57 @@
 "type":"code"
 },
 {
+"chunkpath":[],
+"filepath":[
+"expression",
+"compile.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\n",
+"type":"code"
+},
+{
+"id":"5b90ab050b7547de847cab210d087685",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py --support)\n",
+"type":"code"
+},
+{
+"id":"bf29f97b4f354ee5a3ac3d9346be1e52",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py < expression/parser.rlmeta)\n",
+"type":"code"
+},
+{
+"id":"3a76a9617ce44d7eb1609bbff707013e",
+"type":"variable"
+},
+{
+"text":"=$(python rlmeta.py < expression/codegenerator.rlmeta)\n\ncat <<EOF\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"python file template"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"EOF\n",
+"type":"code"
+}
+],
+"id":"3ef9e2fe1c5d49fb8efd3b30641f8189",
+"type":"code"
+},
+{
 "fragments":[
 {
 "text":"Example usage on the command line:",
@@ -625,7 +629,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ python <(./compile_expression.sh)\n> 1+2*3\npush 1\npush 2\npush 3\nmul\nadd\n",
+"text":"$ python <(./expression/compile.sh)\n> 1+2*3\npush 1\npush 2\npush 3\nmul\nadd\n",
 "type":"code"
 }
 ],

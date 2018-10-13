@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 support_py=$(python rlmeta.py --support)
-parser_py=$(python rlmeta.py < expression_parser.rlmeta)
-codegenerator_py=$(python rlmeta.py < expression_codegenerator.rlmeta)
+parser_py=$(python rlmeta.py < expression/parser.rlmeta)
+codegenerator_py=$(python rlmeta.py < expression/codegenerator.rlmeta)
 
 cat <<EOF
 import sys
