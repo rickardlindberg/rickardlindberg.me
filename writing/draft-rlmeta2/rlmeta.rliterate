@@ -381,7 +381,7 @@
 {
 "fragments":[
 {
-"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, it is necessary to understand how Python implements those functions. Let's try to compile expressions down to a a kind of assembly language that gets rid of Python.",
+"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a a kind of assembly language that gets rid of Python.",
 "type":"text"
 }
 ],
@@ -444,7 +444,7 @@
 {
 "fragments":[
 {
-"text":"The code generator takes as input the AST output from the parser and generates assembly language code for an imaginary stack machine.",
+"text":"The code generator takes as input the AST from the parser and generates assembly language code for an imaginary stack machine.",
 "type":"text"
 }
 ],
@@ -639,7 +639,7 @@
 {
 "fragments":[
 {
-"text":"This is assembly code for an imaginary stack machine. It is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU.",
+"text":"This is assembly code for an imaginary stack machine. It is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
@@ -6770,7 +6770,7 @@
 {
 "fragments":[
 {
-"text":"So far we have just given informal descriptions of how RLMeta works. To fully understand how artithmetic expressions are evaluated and compiled, it is necessary to understand how RLMeta works. That is the topic of this section.",
+"text":"So far I've just given informal descriptions of how RLMeta works. To fully understand how artithmetic expressions are evaluated and compiled, it is necessary to understand how RLMeta works. That is the topic of this section. How is the behavior of RLMeta described? Using grammars written in RLMeta. I will show how to use RLMeta to translate RLMeta grammars to executable Python code. That is how to implement the RLMeta compiler.",
 "type":"text"
 }
 ],
@@ -6780,17 +6780,7 @@
 {
 "fragments":[
 {
-"text":"I have shown you how RLMeta can be used to implement a calculator and a tree printer. Next I will show you how to use RLMeta to translate RLMeta grammars to executable Python code. That is how to implement the RLMeta compiler.",
-"type":"text"
-}
-],
-"id":"4b16be114c27455a870fa89af76211d5",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an abstract syntax tree (AST) and the second translates the AST to a Python class. The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
+"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an AST and the second translates the AST to a Python class. The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
 "type":"text"
 }
 ],
