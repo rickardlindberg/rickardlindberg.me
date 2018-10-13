@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 ./compile.sh rlmeta.py > rlmeta1.py
 
 ./compile.sh rlmeta1.py > rlmeta2.py
