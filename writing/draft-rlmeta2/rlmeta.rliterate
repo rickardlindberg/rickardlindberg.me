@@ -381,7 +381,7 @@
 {
 "fragments":[
 {
-"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a a kind of assembly language that gets rid of Python.",
+"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a kind of assembly language that gets rid of Python.",
 "type":"text"
 }
 ],
@@ -391,7 +391,7 @@
 {
 "fragments":[
 {
-"text":"For this compilation, two grammars are used: the parser and the code generator. The parser matches exactly the same input strings as the calculator grammar, but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are used: a parser and a code generator. The parser matches exactly the same input strings as the calculator grammar, but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
 "type":"text"
 }
 ],
@@ -515,7 +515,7 @@
 {
 "fragments":[
 {
-"text":"Here is a script that compiles the expression compiler to a Python program that implements a REPL:",
+"text":"Here is a template for the final Python program that implements a REPL for arithmetic expressions:",
 "type":"text"
 }
 ],
@@ -562,6 +562,16 @@
 ],
 "id":"a3e4e452d8a149f69101fc8a7ed23020",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This template is realized with a Bash script:",
+"type":"text"
+}
+],
+"id":"6cd78bcb58f44f7298daf17b1f21b985",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -639,7 +649,7 @@
 {
 "fragments":[
 {
-"text":"This is assembly code for an imaginary stack machine. It is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"This assembly code for an imaginary stack machine is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
