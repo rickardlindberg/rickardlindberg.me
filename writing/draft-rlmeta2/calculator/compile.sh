@@ -2,8 +2,10 @@
 
 set -e
 
-support_py=$(python rlmeta.py --support)
-calculator_py=$(python rlmeta.py < calculator.rlmeta)
+cd "$(dirname "$0")"
+
+support_py=$(python ../rlmeta/rlmeta.py --support)
+calculator_py=$(python ../rlmeta/rlmeta.py < calculator.rlmeta)
 
 cat <<EOF
 import sys

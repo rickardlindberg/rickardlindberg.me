@@ -304,7 +304,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\n",
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n",
 "type":"code"
 },
 {
@@ -312,7 +312,7 @@
 "type":"variable"
 },
 {
-"text":"=$(python rlmeta.py --support)\n",
+"text":"=$(python ../rlmeta/rlmeta.py --support)\n",
 "type":"code"
 },
 {
@@ -320,7 +320,7 @@
 "type":"variable"
 },
 {
-"text":"=$(python rlmeta.py < calculator.rlmeta)\n\ncat <<EOF\n",
+"text":"=$(python ../rlmeta/rlmeta.py < calculator.rlmeta)\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -581,7 +581,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\n",
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n",
 "type":"code"
 },
 {
@@ -589,7 +589,7 @@
 "type":"variable"
 },
 {
-"text":"=$(python rlmeta.py --support)\n",
+"text":"=$(python ../rlmeta/rlmeta.py --support)\n",
 "type":"code"
 },
 {
@@ -597,7 +597,7 @@
 "type":"variable"
 },
 {
-"text":"=$(python rlmeta.py < expression/parser.rlmeta)\n",
+"text":"=$(python ../rlmeta/rlmeta.py < parser.rlmeta)\n",
 "type":"code"
 },
 {
@@ -605,7 +605,7 @@
 "type":"variable"
 },
 {
-"text":"=$(python rlmeta.py < expression/codegenerator.rlmeta)\n\ncat <<EOF\n",
+"text":"=$(python ../rlmeta/rlmeta.py < codegenerator.rlmeta)\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -6725,7 +6725,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/sh\n\nset -e\n\n",
+"text":"#!/bin/sh\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n",
 "type":"code"
 },
 {

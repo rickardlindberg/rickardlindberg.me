@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$(dirname "$0")"
+
 rlmeta="$1"
 
 to_python_string() {

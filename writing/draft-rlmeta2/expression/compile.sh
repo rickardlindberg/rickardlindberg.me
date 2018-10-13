@@ -2,9 +2,11 @@
 
 set -e
 
-support_py=$(python rlmeta.py --support)
-parser_py=$(python rlmeta.py < expression/parser.rlmeta)
-codegenerator_py=$(python rlmeta.py < expression/codegenerator.rlmeta)
+cd "$(dirname "$0")"
+
+support_py=$(python ../rlmeta/rlmeta.py --support)
+parser_py=$(python ../rlmeta/rlmeta.py < parser.rlmeta)
+codegenerator_py=$(python ../rlmeta/rlmeta.py < codegenerator.rlmeta)
 
 cat <<EOF
 import sys
