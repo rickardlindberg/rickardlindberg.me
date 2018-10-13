@@ -28,7 +28,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a programming language in whcih you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the corresponding actions when the objects are matched.",
+"text":"RLMeta is a programming language in which you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the corresponding actions when the objects are matched.",
 "type":"text"
 }
 ],
@@ -125,7 +125,7 @@
 "type":"code"
 },
 {
-"text":" are semantic actions. In this grammar they say that whenever an additive is matched, call the host language function ",
+"text":" are semantic actions. They specify what should happen on a match. In this grammar they say that whenever an additive is matched, call the host language function ",
 "type":"text"
 },
 {
@@ -289,7 +289,7 @@
 {
 "fragments":[
 {
-"text":"First the host language functions are imported. Then the support library and the compiled grammar snippets are inserted. And finally a REPL is implemented. This template is realized with a Bash script:",
+"text":"First the host language functions are imported. Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. This template is realized with a Bash script:",
 "type":"text"
 }
 ],
@@ -381,7 +381,7 @@
 {
 "fragments":[
 {
-"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a kind of assembly language that gets rid of Python.",
+"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a kind of assembly language to get rid of Python.",
 "type":"text"
 }
 ],
@@ -391,7 +391,7 @@
 {
 "fragments":[
 {
-"text":"For this compilation, two grammars are used: a parser and a code generator. The parser matches exactly the same input strings as the calculator grammar, but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same input expressions as the calculator grammar but instead of evaluating expressions, it creates an abstract syntax tree (AST). Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
 "type":"text"
 }
 ],
@@ -515,7 +515,7 @@
 {
 "fragments":[
 {
-"text":"Here is a template for the final Python program that implements a REPL for arithmetic expressions:",
+"text":"Here is a template for the final Python program that implements a REPL for arithmetic expression compilation:",
 "type":"text"
 }
 ],
@@ -556,7 +556,23 @@
 "type":"variable"
 },
 {
-"text":"\n\nif __name__ == \"__main__\":\n    parser = ExpressionParser(logger=sys.stderr.write)\n    codegenerator = ExpressionCodegenerator(logger=sys.stderr.write)\n    while True:\n        line = raw_input(\"> \")\n        ast = parser.run(\"expression\", line)\n        output = codegenerator.run(\"ast\", ast)\n        sys.stdout.write(output)\n",
+"text":"\n\nif __name__ == \"__main__\":\n    parser = ",
+"type":"code"
+},
+{
+"id":"291ec286c3ed4879b024d7df5db5fdde",
+"type":"variable"
+},
+{
+"text":"(logger=sys.stderr.write)\n    codegenerator = ",
+"type":"code"
+},
+{
+"id":"f978010a00194df8a0ce393bb6ff677a",
+"type":"variable"
+},
+{
+"text":"(logger=sys.stderr.write)\n    while True:\n        line = raw_input(\"> \")\n        ast = parser.run(\"expression\", line)\n        assembly = codegenerator.run(\"ast\", ast)\n        sys.stdout.write(assembly)\n",
 "type":"code"
 }
 ],
@@ -639,7 +655,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ python <(./expression/compile.sh)\n> 1+2*3\npush 1\npush 2\npush 3\nmul\nadd\n",
+"text":"$ python <(./expression/compile.sh)\n> 1+2*3\npush 1\npush 2\npush 3\nmul\nadd\n> 1*2+3\npush 1\npush 2\nmul\npush 3\nadd\n",
 "type":"code"
 }
 ],
@@ -649,11 +665,21 @@
 {
 "fragments":[
 {
-"text":"This assembly code for an imaginary stack machine is much closer to CPU instructions than the Python interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"This assembly code for an imaginary stack machine is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
 "id":"4e9215a9b94d468a82d0f88f6f92d71a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: Include live demo that readers can play with?",
+"type":"strong"
+}
+],
+"id":"8d3186fbd8e348f9929faf8b2ba099ee",
 "type":"text"
 }
 ],
@@ -6883,7 +6909,7 @@
 {
 "fragments":[
 {
-"text":"So far I've just given informal descriptions of how RLMeta works. To fully understand how artithmetic expressions are evaluated and compiled, it is necessary to understand how RLMeta works. That is the topic of this section. How is the behavior of RLMeta described? Using grammars written in RLMeta. I will show how to use RLMeta to translate RLMeta grammars to executable Python code. That is how to implement the RLMeta compiler.",
+"text":"So far I've just given informal descriptions of how RLMeta works. To fully understand how arithmetic expressions are evaluated and compiled, it is necessary to understand how RLMeta works. I will show how to use RLMeta to translate RLMeta grammars to executable Python code. That is how to implement the RLMeta compiler.",
 "type":"text"
 }
 ],
@@ -6893,7 +6919,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an AST and the second translates the AST to a Python class. The generated Python class depends on a support library to execute. The combined Python code makes up the parser, interpreter, compiler, etc.",
+"text":"RLMeta grammars are translated in two stages: the first translates grammar syntax to an AST and the second translates the AST to a Python class. The generated Python class depends on a support library.",
 "type":"text"
 }
 ],
@@ -7014,7 +7040,7 @@
 {
 "fragments":[
 {
-"text":"How does the computer know what to do with the following?",
+"text":"How does the computer know what to do with the following expression?",
 "type":"text"
 }
 ],
@@ -7089,7 +7115,7 @@
 "26534c61b2d94990abb37ceeeb648e4f":"_ors",
 "289a3db9c53e420da4dbdbc94a32aadf":"_vars",
 "28ffce2da5724d248fa88ac555d118f8":"asListItemWithNewVars",
-"291ec286c3ed4879b024d7df5db5fdde":"ExpressionParser",
+"291ec286c3ed4879b024d7df5db5fdde":"Parser",
 "2a00f6add9e9443ab98af74a6da8b379":"run",
 "2aa377816ed3486da72cff7bd46190ad":"Grammar",
 "2c430882d5af40168a69e1b4b9eb7e0d":"_or",
@@ -7230,7 +7256,7 @@
 "f49eae10880e4186a37c021e34aea403":"_ands",
 "f8026a10c5b64e46bfde32e671e4760e":"_7ea6f6977ca24c218e28cd96b1cf8267",
 "f8b8599256e946a08d2325d52bf8e10b":"BuildVar",
-"f978010a00194df8a0ce393bb6ff677a":"ExpressionCodegenerator",
+"f978010a00194df8a0ce393bb6ff677a":"CodeGenerator",
 "fdd8dd7ed7f54cc487c14cc791d637e2":"wrapInOr",
 "fe84c1eea3fc4476bbcb1c717c92d43b":"hostExprListItem",
 "ff0229c63d8a4b4897faed8c38201de3":"astFnBody",
