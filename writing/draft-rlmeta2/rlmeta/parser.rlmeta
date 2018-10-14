@@ -45,9 +45,8 @@ Parser {
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
-            | 't'  -> "\t"
   name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
   nameStart = 'a'-'z' | 'A'-'Z'
   nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
-  space     = (' ' | '\t' | '\n')*
+  space     = (' ' | '\n')*
 }
