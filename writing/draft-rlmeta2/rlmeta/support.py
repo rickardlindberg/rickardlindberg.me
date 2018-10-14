@@ -200,14 +200,6 @@ class _ObjectStream(_Stream):
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.memo_key()))
 
-class _SemanticAction(object):
-
-    def __init__(self, fn):
-        self.fn = fn
-
-    def eval(self):
-        return self.fn()
-
 class _Vars(dict):
 
     def bind(self, name, value):
@@ -216,6 +208,14 @@ class _Vars(dict):
 
     def lookup(self, name):
         return self[name]
+
+class _SemanticAction(object):
+
+    def __init__(self, fn):
+        self.fn = fn
+
+    def eval(self):
+        return self.fn()
 
 class _Builder(object):
 
