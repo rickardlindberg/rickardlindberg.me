@@ -358,7 +358,7 @@
 "type":"code"
 },
 {
-"text":") reads grammars from stdin and outputs the Python class on stdout. If ",
+"text":") reads grammars from stdin and outputs Python classes on stdout. If ",
 "type":"text"
 },
 {
@@ -539,7 +539,7 @@
 {
 "fragments":[
 {
-"text":"When the expression grammars are fed to the RLMeta compiler and combined, a program is output that is a compiler for arithmetic expressions.",
+"text":"When the expression grammars are fed to the RLMeta compiler, programs are output that, when combined, is a compiler for arithmetic expressions.",
 "type":"text"
 }
 ],
@@ -2883,7 +2883,7 @@
 {
 "fragments":[
 {
-"text":"The remainder of this section will fill in all the rules.",
+"text":"The remainder of this section fills in all rules.",
 "type":"text"
 }
 ],
@@ -6748,7 +6748,15 @@
 {
 "fragments":[
 {
-"text":"The code generator's job is to convert an AST to Python code. Here are the templates for the grammar and support library:",
+"text":"The code generator's job is to convert an AST to a Python class. Here is the template for the ",
+"type":"text"
+},
+{
+"id":"8cf9a10b04cc48a484e1cb7c6f1f2f28",
+"type":"variable"
+},
+{
+"text":" grammar:",
 "type":"text"
 }
 ],
@@ -6787,6 +6795,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The generated Python class depends on a support library consisting of a set of classes:",
+"type":"text"
+}
+],
+"id":"60dc7d312d654278b9b6ccc2a6dd9e56",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "rlmeta",
@@ -6808,7 +6826,7 @@
 {
 "fragments":[
 {
-"text":"The remainder of this section will fill in the details of the ",
+"text":"The remainder of this section fills in the details of the ",
 "type":"text"
 },
 {
@@ -6833,19 +6851,11 @@
 {
 "fragments":[
 {
-"text":"Now almost all pieces are in place. Here is a script that compiles to a Python file that is a compiler (accepts source on stdin and writes output on stdout). It can also print the support library on stdout if the ",
-"type":"text"
-},
-{
-"text":"--support",
-"type":"code"
-},
-{
-"text":" flag is given.",
+"text":"Here is a template for the final Python file that implements the RLMeta compiler (accepts source on stdin and writes output on stdout):",
 "type":"text"
 }
 ],
-"id":"a4ae12eb01a5413a939a01c84a6d10cf",
+"id":"0df5b4de6f7a410db58a44db325c9597",
 "type":"text"
 },
 {
@@ -6914,6 +6924,32 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"First, the support library is stored in a variable. This is used only so that it can be output if the ",
+"type":"text"
+},
+{
+"text":"--support",
+"type":"code"
+},
+{
+"text":" flag is given. Then the support library, compiled parser grammar, and compiled code generator grammar snippets are inserted. Then the host language function ",
+"type":"text"
+},
+{
+"text":"join",
+"type":"code"
+},
+{
+"text":" is defined. Then a function to compile a grammar. Finnaly the main method is implemented. This template is realized with a Bash script:",
+"type":"text"
+}
+],
+"id":"a4ae12eb01a5413a939a01c84a6d10cf",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "rlmeta",
@@ -6921,7 +6957,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n",
+"text":"#!/bin/bash\n\nset -e\n\n",
 "type":"code"
 },
 {
@@ -6929,7 +6965,7 @@
 "type":"variable"
 },
 {
-"text":"=\"$1\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\n",
+"text":"=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\n",
 "type":"code"
 },
 {
@@ -6995,6 +7031,44 @@
 ],
 "id":"fc33f048fabe4ac98caf108dd96e9799",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If you run the compile script with the default ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" compiler, a new Python file is output. This file is exactly the same as the default ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" file. Here is proof:",
+"type":"text"
+}
+],
+"id":"b7c427bbcd404a4b8cdb50f1d9383b33",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ diff <(./rlmeta/compile.sh rlmeta/rlmeta.py) rlmeta/rlmeta.py && echo EQUAL\nEQUAL\n",
+"type":"code"
+}
+],
+"id":"46ec2ac30c8d4762a7e3017195451261",
+"type":"code"
 }
 ],
 "title":"Putting it together"
@@ -7006,7 +7080,15 @@
 {
 "fragments":[
 {
-"text":"If you run RLmeta on the parser grammar and the code generator grammar and combine it with the support library, you should get the functionality of the RLMeta compiler. But how can you run RLMeta before you have it? You have a bootstrapping problem.",
+"text":"In the previous section, a version of the RLMeta compiler was needed to create the RLMeta compiler. But how can you run RLMeta before you have it? How was the first version of ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" created? This is a bootstrapping problem.",
 "type":"text"
 }
 ],
@@ -7069,6 +7151,24 @@
 ],
 "id":"29fd2f33bf344dc0a09d34f914957291",
 "type":"list"
+},
+{
+"fragments":[
+{
+"text":"Once the first version of ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" had beed created, it could be forgotten.",
+"type":"text"
+}
+],
+"id":"324ce5edcc6948949f1d6c0bef519125",
+"type":"text"
 }
 ],
 "title":"Bootstrapping"
@@ -7078,14 +7178,31 @@
 "id":"1aa2172a955f4e85a2badcec568db1ae",
 "paragraphs":[
 {
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
 "fragments":[
 {
-"text":"TODO: Explain the possibilities with RLMeta implemented in itself. Not just YACC.",
-"type":"strong"
+"text":"Explain the possibilities with RLMeta implemented in itself. Not just YACC.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Python language is just an implementation detail. It could be ported to another language by changing the code generator and porting the support library.",
+"type":"text"
+}
+]
 }
 ],
-"id":"1e1d159c98904249bbe2d6f386453916",
-"type":"text"
+"id":"9c67f8bbe0654146a952fafe3abdbc27",
+"type":"list"
 }
 ],
 "title":"Summary"
@@ -7370,7 +7487,7 @@
 "7ea6f6977ca24c218e28cd96b1cf8267":"_negative_lookahead",
 "7f941dd526284ccc8143dbbc8ae8df3b":"sequence",
 "826871508bad4fecb6e575779218874d":"_match",
-"83ce9666a26449cd9936798594c99e3f":"rlmeta",
+"83ce9666a26449cd9936798594c99e3f":"rlmeta_compiler",
 "846fccf81eca4ab48a284407a1647eaa":"_vars",
 "85139f1436944deab62958b8a713d8aa":"eval",
 "85ee4a0a694641c3aa683a15e6a0ba5d":"astItems",

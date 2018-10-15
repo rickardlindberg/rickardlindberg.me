@@ -2,9 +2,9 @@
 
 set -e
 
-cd "$(dirname "$0")"
+rlmeta_compiler="$(pwd)/$1"
 
-rlmeta="$1"
+cd "$(dirname "$0")"
 
 to_python_string() {
     python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'
@@ -12,8 +12,8 @@ to_python_string() {
 
 support_py=$(cat support.py)
 support_py_string=$(cat support.py | to_python_string)
-parser_py=$(cat parser.rlmeta | python "$rlmeta")
-codegenerator_py=$(cat codegenerator.rlmeta | python "$rlmeta")
+parser_py=$(cat parser.rlmeta | python "$rlmeta_compiler")
+codegenerator_py=$(cat codegenerator.rlmeta | python "$rlmeta_compiler")
 
 cat <<EOF
 import sys
