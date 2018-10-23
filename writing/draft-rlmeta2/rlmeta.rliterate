@@ -6926,7 +6926,7 @@
 {
 "fragments":[
 {
-"text":"First, the support library is stored in a variable. This is used only so that it can be output if the ",
+"text":"First, the support library snippet is stored in a variable. This is used only so that it can be output when the ",
 "type":"text"
 },
 {
@@ -6942,7 +6942,7 @@
 "type":"code"
 },
 {
-"text":" is defined. Then a function to compile a grammar. Finnaly the main method is implemented. This template is realized with a Bash script:",
+"text":" is defined. Then a function to compile a grammar is defined. Finally the main method is implemented. This template is realized with a Bash script:",
 "type":"text"
 }
 ],
@@ -7035,7 +7035,7 @@
 {
 "fragments":[
 {
-"text":"If you run the compile script with the default ",
+"text":"If you run the compile script with the ",
 "type":"text"
 },
 {
@@ -7043,7 +7043,7 @@
 "type":"code"
 },
 {
-"text":" compiler, a new Python file is output. This file is exactly the same as the default ",
+"text":" compiler, a new Python file is output. This file is exactly the same as the original ",
 "type":"text"
 },
 {
@@ -7080,7 +7080,7 @@
 {
 "fragments":[
 {
-"text":"In the previous section, a version of the RLMeta compiler was needed to create the RLMeta compiler. But how can you run RLMeta before you have it? How was the first version of ",
+"text":"In the previous section, a version of the RLMeta compiler was needed to compile the RLMeta compiler. But how can you run RLMeta before you have it? How was the first version of ",
 "type":"text"
 },
 {
@@ -7098,7 +7098,7 @@
 {
 "fragments":[
 {
-"text":"In this case I solved it by translating the parser and the code generator manually according the the rules specified in the grammars.",
+"text":"In this case I solved it by translating the parser and the code generator manually according the the rules specified in the grammars. I did manually what the compiler would do.",
 "type":"text"
 }
 ],
@@ -7114,6 +7114,72 @@
 ],
 "id":"4686636ba5ce456da5be4ffb7f02cd59",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The parser grammar for example is parsed into a Grammar node. The Grammar",
+"type":"text"
+}
+],
+"id":"767ffa89a7ca44d98725d0fb2d692e30",
+"type":"text"
+},
+{
+"code_id":"d3c4ef9bebd64746ab898a18575fd4ac",
+"id":"b025c0f14e44447a9bd3992865a3b512",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"class Parser(_RLMeta):\n    <ast*>\n",
+"type":"code"
+}
+],
+"id":"801e511130a04556bd44e04b6fbc2b7c",
+"type":"code"
+},
+{
+"code_id":"4bbfe03c503f409f9ac3233cbbd31340",
+"id":"b6475bba1e0e41e3b987288329ab26de",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"\ndef _rule_grammar(self):\n    return <ast>()\n",
+"type":"code"
+}
+],
+"id":"1f573998730e41b295145367a614c6c7",
+"type":"code"
+},
+{
+"code_id":"f85612ab9e0d444f8104eb83d1548800",
+"id":"6350f59106b84545b99026b088f4d356",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    self._or([<astItems>])\n)\n",
+"type":"code"
+}
+],
+"id":"5bdd9105811e4adb9e539f385777ebf2",
+"type":"code"
+},
+{
+"code_id":"a00b4131f7794b6cb496a4e8249dc9d2",
+"id":"8a448384ae1340d8b3f03a18b9618620",
+"type":"expanded_code"
 },
 {
 "child_type":"unordered",
