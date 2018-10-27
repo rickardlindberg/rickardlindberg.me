@@ -149,6 +149,12 @@ rulesPageIndexPandoc isBuildTargetWebserver = do
             >>= loadAndApplyTemplate "templates/title.html" context
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
+    match "ideas/index.markdown" $ do
+        route $ setExtension "html"
+        compile $ myPandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
     where
         context = contextBase isBuildTargetWebserver
 
