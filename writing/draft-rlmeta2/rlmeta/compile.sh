@@ -11,9 +11,9 @@ to_python_string() {
 }
 
 support_py=$(cat support.py)
-support_py_string=$(cat support.py | to_python_string)
-parser_py=$(cat parser.rlmeta | python "$rlmeta_compiler")
-codegenerator_py=$(cat codegenerator.rlmeta | python "$rlmeta_compiler")
+support_py_string=$(to_python_string < support.py)
+parser_py=$(python "$rlmeta_compiler" < parser.rlmeta)
+codegenerator_py=$(python "$rlmeta_compiler" < codegenerator.rlmeta)
 
 cat <<EOF
 import sys
