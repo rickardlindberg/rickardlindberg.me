@@ -117,7 +117,7 @@
 "type":"variable"
 },
 {
-"text":". It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The expressions to the right of ",
+"text":". It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The second case is only tried if the first fails. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The expressions to the right of ",
 "type":"text"
 },
 {
@@ -358,7 +358,7 @@
 "type":"code"
 },
 {
-"text":") reads grammars from stdin and outputs Python classes on stdout. If ",
+"text":") reads grammars from stdin and outputs Python classes on stdout. If the ",
 "type":"text"
 },
 {
@@ -529,7 +529,7 @@
 "type":"code"
 },
 {
-"text":") which is the digit. The semantic actions in this grammar generate string output denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers from the stack, add or multiply them, and push the result.",
+"text":") which is the digit stored in the node. The semantic actions in this grammar generate string output denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers from the stack, add or multiply them, and push the result.",
 "type":"text"
 }
 ],
@@ -710,7 +710,7 @@
 {
 "fragments":[
 {
-"text":"This assembly language code for an imaginary stack machine is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
