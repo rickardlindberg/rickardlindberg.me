@@ -7034,7 +7034,7 @@
 {
 "fragments":[
 {
-"text":"First, the support library snippet is stored in a variable. This is only so that it can be output when the ",
+"text":"First, the support library snippet is stored in a variable. This is needed so that it can be output when the ",
 "type":"text"
 },
 {
@@ -7050,7 +7050,7 @@
 "type":"code"
 },
 {
-"text":" is defined. Then a function to compile a grammar is defined. Finally the main method (accepts source on stdin and writes result on stdout) is implemented. This template is realized with a Bash script:",
+"text":" is defined. Then a function to compile a grammar is defined. Finally the main method that accepts source on stdin and writes result on stdout is implemented. This template is realized with a Bash script:",
 "type":"text"
 }
 ],
@@ -7188,15 +7188,7 @@
 {
 "fragments":[
 {
-"text":"In the previous section, a version of the RLMeta compiler was needed to compile the RLMeta compiler. But how can the RLMeta compiler be run before it exists? How was the first version of ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":" created? This is a bootstrapping problem.",
+"text":"In the previous section, a version of the RLMeta compiler was needed to compile the RLMeta compiler:",
 "type":"text"
 }
 ],
@@ -7204,33 +7196,136 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"In this case I solved it by translating the parser and the code generator manually according the the rules specified in the grammars. I did manually what the compiler would do.",
+"id":"195e7fa2b75a40baa69b0bbf57a53150",
+"type":"variable"
+},
+{
+"text":"=$(python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\" < parser.rlmeta)\n",
+"type":"code"
+},
+{
+"id":"2ea1b512b7444d8ab077edeba233a4f3",
+"type":"variable"
+},
+{
+"text":"=$(python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\" < codegenerator.rlmeta)\n",
+"type":"code"
+}
+],
+"id":"fc6cf81d888d48feac3782e29a853bd5",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"But how can the RLMeta compiler be run before it exists? How was the first version of ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" created? This is a bootstrapping problem. In this case I solved it by translating the parser and the code generator to Python code manually according the the rules specified in the grammars. I did manually what the compiler would do.",
 "type":"text"
 }
 ],
-"id":"97b7a76bf57c4567ac55f9912ff7e4c1",
+"id":"3f474624538a407182ab7a182d314cdd",
 "type":"text"
 },
 {
 "fragments":[
 {
-"text":"TODO: show how one of the rules was manually translated.",
-"type":"strong"
-}
-],
-"id":"4686636ba5ce456da5be4ffb7f02cd59",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The parser grammar for example is parsed into a Grammar node. The Grammar",
+"text":"I started translating the parser that starts like this:",
 "type":"text"
 }
 ],
 "id":"767ffa89a7ca44d98725d0fb2d692e30",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"id":"a304a36f0ab541209c9e8aa78f4edc46",
+"type":"variable"
+},
+{
+"text":" {\n  ...\n}\n",
+"type":"code"
+}
+],
+"id":"567dcacc177a4705a64601a99244ad7b",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This is matched by the ",
+"type":"text"
+},
+{
+"id":"42f0b42533be4f7eb54c04f22a137669",
+"type":"variable"
+},
+{
+"text":" rule in the parser and turned into a ",
+"type":"text"
+},
+{
+"id":"2aa377816ed3486da72cff7bd46190ad",
+"type":"variable"
+},
+{
+"text":" AST node:",
+"type":"text"
+}
+],
+"id":"2bbc91c85ae84cfa8454e23d21c5ff60",
+"type":"text"
+},
+{
+"code_id":"41afd1b3bc8749a2bdefb2a09eb54f62",
+"id":"39f744fa7c9041eeba9676487e09758f",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"2aa377816ed3486da72cff7bd46190ad",
+"type":"variable"
+},
+{
+"text":" AST node is then turned into a Python class definition:",
+"type":"text"
+}
+],
+"id":"17d5962612dd429a9e847e3383a1596d",
 "type":"text"
 },
 {
@@ -7239,11 +7334,21 @@
 "type":"expanded_code"
 },
 {
+"fragments":[
+{
+"text":"The parser is thus turned into the following Python code:",
+"type":"text"
+}
+],
+"id":"766fcd9737c44120a3f69b30c16b2423",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"class Parser(_RLMeta):\n    <ast*>\n",
+"text":"class Parser(_RLMeta):\n    ...\n",
 "type":"code"
 }
 ],
@@ -7251,16 +7356,106 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"I then went on to translate the rules in the parser. The first rule is ",
+"type":"text"
+},
+{
+"id":"42f0b42533be4f7eb54c04f22a137669",
+"type":"variable"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"bc27feae1407409f8f711847b0f33ddb",
+"type":"text"
+},
+{
+"code_id":"41afd1b3bc8749a2bdefb2a09eb54f62",
+"id":"a92a804a3822459ab79204c3561e3355",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"It is matched by the ",
+"type":"text"
+},
+{
+"id":"c8edc6f14d27480e9f737a7697f07f07",
+"type":"variable"
+},
+{
+"text":" rule in the parser and turned into a ",
+"type":"text"
+},
+{
+"id":"e22fa3c5d4144197906cbb74af6cc83e",
+"type":"variable"
+},
+{
+"text":" AST node:",
+"type":"text"
+}
+],
+"id":"20ce48c8fe8649f784a50729b4f85eb4",
+"type":"text"
+},
+{
+"code_id":"f24d0daa1d1c4ddeb6b111c45aa31102",
+"id":"19d749fe5f8c4819aa99995b1c012986",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"e22fa3c5d4144197906cbb74af6cc83e",
+"type":"variable"
+},
+{
+"text":" AST node is then turned into a Python method definition:",
+"type":"text"
+}
+],
+"id":"20f97026782f4a309ff4581fdbb0ae1a",
+"type":"text"
+},
+{
 "code_id":"4bbfe03c503f409f9ac3233cbbd31340",
 "id":"b6475bba1e0e41e3b987288329ab26de",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"42f0b42533be4f7eb54c04f22a137669",
+"type":"variable"
+},
+{
+"text":" rule is thus turned into the following Python code:",
+"type":"text"
+}
+],
+"id":"b6e1377b7cce4adb998ab82d06b0b207",
+"type":"text"
 },
 {
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"\ndef _rule_grammar(self):\n    return <ast>()\n",
+"text":"\ndef _rule_grammar(self):\n    return ...()\n",
 "type":"code"
 }
 ],
@@ -7268,16 +7463,83 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The body of the grammar rule is matched by the ",
+"type":"text"
+},
+{
+"id":"7d667137ca2f4350969bcf2044d677de",
+"type":"variable"
+},
+{
+"text":" rule in the parser and turned into an ",
+"type":"text"
+},
+{
+"id":"efa7dd37aa9e46908ed34f8d31cd476d",
+"type":"variable"
+},
+{
+"text":" AST node:",
+"type":"text"
+}
+],
+"id":"3765db7f2936457298f5db014ae96e7c",
+"type":"text"
+},
+{
+"code_id":"5548c68fed5947a891639cab8086cba5",
+"id":"d5c1e6b2c2bc4510a8ac73c2889f4344",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"efa7dd37aa9e46908ed34f8d31cd476d",
+"type":"variable"
+},
+{
+"text":" AST node is then turned into a Python lambda expression:",
+"type":"text"
+}
+],
+"id":"43e3f8046f1c4d36828b09c84fc01660",
+"type":"text"
+},
+{
 "code_id":"f85612ab9e0d444f8104eb83d1548800",
 "id":"6350f59106b84545b99026b088f4d356",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The body of the ",
+"type":"text"
+},
+{
+"id":"42f0b42533be4f7eb54c04f22a137669",
+"type":"variable"
+},
+{
+"text":" rule is thus turned into the following Python code:",
+"type":"text"
+}
+],
+"id":"f6c8f5e58488454d940fce10cc168c42",
+"type":"text"
 },
 {
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"(lambda:\n    self._or([<astItems>])\n)\n",
+"text":"(lambda:\n    self._or([...])\n)\n",
 "type":"code"
 }
 ],
@@ -7285,51 +7547,109 @@
 "type":"code"
 },
 {
-"code_id":"a00b4131f7794b6cb496a4e8249dc9d2",
-"id":"8a448384ae1340d8b3f03a18b9618620",
-"type":"expanded_code"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
 "fragments":[
 {
-"text":"Last manual translation: 41094a184ed452141c99047d3187f096388e71d0",
+"text":"I continued this process until all dots had been expanded. Then I did the same for all remaining rules. Finally I repeated the process for the code generator. Once I had the manually translated versions of ",
 "type":"text"
-}
-]
 },
 {
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Get rid of bootstrap code: 134c3a360160a2b978cd742a935df1c3a85de546",
-"type":"text"
-}
-]
+"text":"parser.py",
+"type":"code"
 },
 {
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Created manually with Vim templates",
+"text":" and ",
 "type":"text"
-}
-]
+},
+{
+"text":"codegenerator.py",
+"type":"code"
+},
+{
+"text":", I could replace",
+"type":"text"
 }
 ],
-"id":"29fd2f33bf344dc0a09d34f914957291",
-"type":"list"
+"id":"fcff0326e4fe419e8cf46bc41395bc16",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"id":"195e7fa2b75a40baa69b0bbf57a53150",
+"type":"variable"
+},
+{
+"text":"=$(python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\" < parser.rlmeta)\n",
+"type":"code"
+},
+{
+"id":"2ea1b512b7444d8ab077edeba233a4f3",
+"type":"variable"
+},
+{
+"text":"=$(python \"$",
+"type":"code"
+},
+{
+"id":"83ce9666a26449cd9936798594c99e3f",
+"type":"variable"
+},
+{
+"text":"\" < codegenerator.rlmeta)\n",
+"type":"code"
+}
+],
+"id":"2bd9aaaf4fbf416b9dbb1154709e55c8",
+"type":"code"
 },
 {
 "fragments":[
 {
-"text":"Once the first version of ",
+"text":"with",
+"type":"text"
+}
+],
+"id":"910f69c7651342dc9192dc0d5649e6da",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"id":"195e7fa2b75a40baa69b0bbf57a53150",
+"type":"variable"
+},
+{
+"text":"=$(cat parser.py)\n",
+"type":"code"
+},
+{
+"id":"2ea1b512b7444d8ab077edeba233a4f3",
+"type":"variable"
+},
+{
+"text":"=$(cat codegenerator.py)\n",
+"type":"code"
+}
+],
+"id":"0c6a05d52dba4f678879c5099bbcbac1",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"to create the initial version of ",
 "type":"text"
 },
 {
@@ -7337,11 +7657,104 @@
 "type":"code"
 },
 {
-"text":" had beed created, it could be forgotten.",
+"text":".",
 "type":"text"
 }
 ],
 "id":"324ce5edcc6948949f1d6c0bef519125",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Then I could run the initial compile script to generate the seconf version of ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":", this time automatically. The first version was not exactly right. I fixed errors many times. Then finally it could be used to compile itself. ",
+"type":"text"
+},
+{
+"text":"this commit",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/134c3a360160a2b978cd742a935df1c3a85de546#diff-7687f8856e0607ca8e0247b6cd77cf7b"
+}
+],
+"id":"c913c7ca397044649f31559d0b3d1c97",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"To avoid making mistakes in the manual translation, I created snippets for the Vim text editor for each of the AST nodes. So when I encountered a ",
+"type":"text"
+},
+{
+"id":"e22fa3c5d4144197906cbb74af6cc83e",
+"type":"variable"
+},
+{
+"text":" AST node, I could type \"rule\" hit tab, and the following snippet would be inserted placing the cursor where the rule name should be inserted:",
+"type":"text"
+}
+],
+"id":"e094fbacd5524701aa1149f4e9a714ca",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _rule_${1:name}(self):\n    return ${2:matcher}()\n",
+"type":"code"
+}
+],
+"id":"a2cb373c0e0e43f4851d661536a43346",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"I could then type the name (\"grammar\" for example), hit tab, write the name of the next AST node, and hit tab. If the next AST node was ",
+"type":"text"
+},
+{
+"id":"efa7dd37aa9e46908ed34f8d31cd476d",
+"type":"variable"
+},
+{
+"text":" for example, the following snipped would be inserted, placing the cursor inside the list:",
+"type":"text"
+}
+],
+"id":"d55d0c96941b4378bc4848d0f5e69f25",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    self._or([\n        ${1:matchers}\n    ])\n)\n",
+"type":"code"
+}
+],
+"id":"c15732899dff4ef58acaac0aa882676e",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The Vim snippets saved me a lot of typing and made manual translation feasable.",
+"type":"text"
+}
+],
+"id":"47c303c35d604f279b9314e8227990e2",
 "type":"text"
 }
 ],
@@ -7446,7 +7859,7 @@
 "type":"text"
 }
 ],
-"title":"RLMeta in itself"
+"title":"RLMeta implementation"
 },
 {
 "children":[],
