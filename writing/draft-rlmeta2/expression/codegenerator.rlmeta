@@ -1,6 +1,6 @@
 CodeGenerator {
   ast =
-    | ["add" ast:x ast:y] -> { x y "add\n" }
-    | ["mul" ast:x ast:y] -> { x y "mul\n" }
-    | ["digit" .:x]       -> { "push " x "\n" }
+    | ["add" ast:x ast:y] -> { x y "add"     "\n" }
+    | ["mul" ast:x ast:y] -> { x y "mul"     "\n" }
+    | ["digit" .:x]       -> {     "push " x "\n" }
 }

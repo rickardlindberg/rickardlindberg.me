@@ -18,7 +18,43 @@
 {
 "fragments":[
 {
-"text":"The metalanguage I've developed is called RLMeta. It is inspired by a metalanguage from the sixties called META II. I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by OMeta (another META II derivative).",
+"text":"The metalanguage I've developed is called RLMeta. It is inspired by a metalanguage from the sixties called ",
+"type":"text"
+},
+{
+"text":"META II",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/META_II"
+},
+{
+"text":" (",
+"type":"text"
+},
+{
+"text":"paper",
+"type":"link",
+"url":"http://www.hcs64.com/files/pd1-3-schorre.pdf"
+},
+{
+"text":"). I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by ",
+"type":"text"
+},
+{
+"text":"OMeta",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/OMeta"
+},
+{
+"text":" (",
+"type":"text"
+},
+{
+"text":"thesis",
+"type":"link",
+"url":"http://www.vpri.org/pdf/tr2008003_experimenting.pdf"
+},
+{
+"text":") (another META II derivative).",
 "type":"text"
 }
 ],
@@ -117,7 +153,7 @@
 "type":"variable"
 },
 {
-"text":". It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The second case is only tried if the first fails. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The expressions to the right of ",
+"text":". It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The second case is only tried if the first does not match. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The expressions to the right of ",
 "type":"text"
 },
 {
@@ -289,7 +325,7 @@
 {
 "fragments":[
 {
-"text":"First the host language functions are imported. Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are instatiated and their ",
+"text":"First the host language functions are imported. Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are used by instatiating them and calling their ",
 "type":"text"
 },
 {
@@ -297,7 +333,7 @@
 "type":"code"
 },
 {
-"text":" method is called with the name of the rule and the input object. This template is realized with a Bash script:",
+"text":" method with the name of the rule and the input object. This template is realized with a Bash script:",
 "type":"text"
 }
 ],
@@ -487,7 +523,15 @@
 "type":"variable"
 },
 {
-"text":" {\n  ast =\n    | [\"add\" ast:x ast:y] ",
+"text":" {\n  ",
+"type":"code"
+},
+{
+"id":"48c8e22a1f1f441e8680e6bcc9810d9a",
+"type":"variable"
+},
+{
+"text":" =\n    | [\"add\" ast:x ast:y] ",
 "type":"code"
 },
 {
@@ -495,7 +539,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> { x y \"add\\n\" }\n    | [\"mul\" ast:x ast:y] ",
+"text":"-> { x y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"\"add\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"\"\\n\" }\n    | [\"mul\" ast:x ast:y] ",
 "type":"code"
 },
 {
@@ -503,7 +563,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> { x y \"mul\\n\" }\n    | [\"digit\" .:x] ",
+"text":"-> { x y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"\"mul\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"\"\\n\" }\n    | [\"digit\" .:x] ",
 "type":"code"
 },
 {
@@ -511,7 +587,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"push \" x \"\\n\" }\n}\n",
+"text":"-> { ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"\"push \" x ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"\"\\n\" }\n}\n",
 "type":"code"
 }
 ],
@@ -521,7 +613,15 @@
 {
 "fragments":[
 {
-"text":"This grammar has only one rule. It says that an ast is either a list that starts with the string 'add', or a list that starts with the string 'mul', or a list that starts with the string 'digit'. The add and mul cases recursively matches ast nodes as their left and right side whereas the digit matches anything (",
+"text":"This grammar has only one rule: ",
+"type":"text"
+},
+{
+"id":"48c8e22a1f1f441e8680e6bcc9810d9a",
+"type":"variable"
+},
+{
+"text":". It says that an AST is either a list that starts with the string 'add', or a list that starts with the string 'mul', or a list that starts with the string 'digit'. The add and mul cases recursively match AST nodes as their left and right side whereas the digit matches anything (",
 "type":"text"
 },
 {
@@ -529,7 +629,7 @@
 "type":"code"
 },
 {
-"text":") which is the digit stored in the node. The semantic actions in this grammar generate string output denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers from the stack, add or multiply them, and push the result.",
+"text":") which is the digit stored in the node. The semantic actions in this grammar generate string output which is denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers off the stack, add or multiply them, and push the result.",
 "type":"text"
 }
 ],
@@ -617,7 +717,15 @@
 "type":"variable"
 },
 {
-"text":"()\n    while True:\n        line = raw_input(\"> \")\n        ast = parser.run(\"expression\", line)\n        assembly = codegenerator.run(\"ast\", ast)\n        sys.stdout.write(assembly)\n",
+"text":"()\n    while True:\n        line = raw_input(\"> \")\n        ast = parser.run(\"expression\", line)\n        assembly = codegenerator.run(\"",
+"type":"code"
+},
+{
+"id":"48c8e22a1f1f441e8680e6bcc9810d9a",
+"type":"variable"
+},
+{
+"text":"\", ast)\n        sys.stdout.write(assembly)\n",
 "type":"code"
 }
 ],
@@ -710,7 +818,7 @@
 {
 "fragments":[
 {
-"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I leave that excersise to you. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will not do that here. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
@@ -7051,7 +7159,7 @@
 "type":"code"
 },
 {
-"text":" file. Here is proof:",
+"text":" file. It can be seen by diffing the two files:",
 "type":"text"
 }
 ],
@@ -7526,6 +7634,7 @@
 "42f0b42533be4f7eb54c04f22a137669":"grammar",
 "43cd203f934f45c4be5ce3906b60ca5d":"_label",
 "4852ced8038c4074a5a8104b8596e0e0":"Apply",
+"48c8e22a1f1f441e8680e6bcc9810d9a":"ast",
 "49ba1aa1e24e408ba2b32bff68a72840":"List",
 "49dc22ba19624755a18a13a9e76734b1":"_Builder",
 "4ad80c8d1d814fefa2656595f1d841c6":"is_at_end",
