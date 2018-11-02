@@ -7321,7 +7321,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is then turned into a Python class definition:",
+"text":" AST node is then turned into a Python class definition by the code generator:",
 "type":"text"
 }
 ],
@@ -7420,7 +7420,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is then turned into a Python method definition:",
+"text":" AST node is then turned into a Python method definition by the code generator:",
 "type":"text"
 }
 ],
@@ -7465,7 +7465,15 @@
 {
 "fragments":[
 {
-"text":"The body of the grammar rule is matched by the ",
+"text":"The body of the ",
+"type":"text"
+},
+{
+"id":"42f0b42533be4f7eb54c04f22a137669",
+"type":"variable"
+},
+{
+"text":" rule is matched by the ",
 "type":"text"
 },
 {
@@ -7504,7 +7512,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is then turned into a Python lambda expression:",
+"text":" AST node is then turned into a Python lambda expression by the code generator:",
 "type":"text"
 }
 ],
@@ -7667,7 +7675,7 @@
 {
 "fragments":[
 {
-"text":"Then I could run the initial compile script to generate the seconf version of ",
+"text":"With an initial version of ",
 "type":"text"
 },
 {
@@ -7675,13 +7683,33 @@
 "type":"code"
 },
 {
-"text":", this time automatically. The first version was not exactly right. I fixed errors many times. Then finally it could be used to compile itself. ",
+"text":" I could run the compile script to generate the second version of ",
 "type":"text"
 },
 {
-"text":"this commit",
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":". The second version did not match the first version exactly. The complete diff can be seen in the commit ",
+"type":"text"
+},
+{
+"text":"Get rid of bootstrapped compiler",
 "type":"link",
 "url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/134c3a360160a2b978cd742a935df1c3a85de546#diff-7687f8856e0607ca8e0247b6cd77cf7b"
+},
+{
+"text":". Mostly I had used a different character for strings and forgotten some commas that were not strictly necessary. Once the first version was replaced with the second, the compile script reproduced ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" exactly. At this point the manually translated versions could be discarded. The RLMeta compiler was bootstrapped. This was a tremendously rewarding experience.",
+"type":"text"
 }
 ],
 "id":"c913c7ca397044649f31559d0b3d1c97",
@@ -7690,7 +7718,17 @@
 {
 "fragments":[
 {
-"text":"To avoid making mistakes in the manual translation, I created snippets for the Vim text editor for each of the AST nodes. So when I encountered a ",
+"text":"Did the first version work on the first run? No. In the translation process I noticed incorrect behavior in the grammars that I had to fix. And some manual translations were done incorrectly. But all fixes were relatively minor.",
+"type":"text"
+}
+],
+"id":"0733ecc602d64d5d8310251fc6ab415f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"To avoid making mistakes in the manual translation process, I created snippets for the Vim text editor for each of the AST nodes. So when I encountered a ",
 "type":"text"
 },
 {
@@ -7750,7 +7788,7 @@
 {
 "fragments":[
 {
-"text":"The Vim snippets saved me a lot of typing and made manual translation feasable.",
+"text":"The Vim snippets saved me a lot of typing and made manual translation feasable. Getting all commas and parenthesis right would have been difficult otherwise.",
 "type":"text"
 }
 ],
