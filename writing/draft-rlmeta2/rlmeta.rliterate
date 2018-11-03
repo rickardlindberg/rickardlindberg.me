@@ -2945,15 +2945,7 @@
 {
 "fragments":[
 {
-"text":"The parser converts a stream of characters to an AST. Here is the template for the ",
-"type":"text"
-},
-{
-"id":"a304a36f0ab541209c9e8aa78f4edc46",
-"type":"variable"
-},
-{
-"text":" grammar:",
+"text":"The parser converts a stream of characters to an AST. Here is the template for the grammar:",
 "type":"text"
 }
 ],
@@ -3269,96 +3261,6 @@
 }
 ],
 "id":"c0bac19d60434ad2bf44cd6b70cf63ca",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes",
-"_RLMeta"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"def ",
-"type":"code"
-},
-{
-"id":"826871508bad4fecb6e575779218874d",
-"type":"variable"
-},
-{
-"text":"(self, rule_name):\n    key = (rule_name, self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":".",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"())\n    if key in self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":":\n        result, _, self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":" = self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":"[key]\n    else:\n        start = self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end = self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":"\n        self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":"[key] = (result, start, end)\n    return result\n",
-"type":"code"
-}
-],
-"id":"26f47b044a2d4e599f7363169fb6a0aa",
 "type":"code"
 },
 {
@@ -5104,6 +5006,96 @@
 }
 ],
 "id":"412bfecbb7244810ba46e206486092c8",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes",
+"_RLMeta"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
+"id":"826871508bad4fecb6e575779218874d",
+"type":"variable"
+},
+{
+"text":"(self, rule_name):\n    key = (rule_name, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":".",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"())\n    if key in self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":":\n        result, _, self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":" = self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":"[key]\n    else:\n        start = self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":"\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end = self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":"\n        self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":"[key] = (result, start, end)\n    return result\n",
+"type":"code"
+}
+],
+"id":"26f47b044a2d4e599f7363169fb6a0aa",
 "type":"code"
 }
 ],
@@ -6859,15 +6851,7 @@
 {
 "fragments":[
 {
-"text":"The code generator converts an AST to a Python class. Here is the template for the ",
-"type":"text"
-},
-{
-"id":"8cf9a10b04cc48a484e1cb7c6f1f2f28",
-"type":"variable"
-},
-{
-"text":" grammar:",
+"text":"The code generator converts an AST to a Python class. Here is the template for the grammar:",
 "type":"text"
 }
 ],
@@ -6937,15 +6921,7 @@
 {
 "fragments":[
 {
-"text":"The remainder of this section fills in the details of the ",
-"type":"text"
-},
-{
-"id":"8cf9a10b04cc48a484e1cb7c6f1f2f28",
-"type":"variable"
-},
-{
-"text":" grammar and the support library.",
+"text":"The remainder of this section fills in the details of the grammar and the support library.",
 "type":"text"
 }
 ],
@@ -7747,7 +7723,7 @@
 "type":"variable"
 },
 {
-"text":" AST node, I could type \"rule\" hit tab, and the following snippet would be inserted placing the cursor where the rule name should be inserted:",
+"text":" AST node, I could type \"rule\", hit tab, and the following snippet would be inserted placing the cursor where the rule name should be inserted:",
 "type":"text"
 }
 ],
@@ -7930,15 +7906,13 @@
 "child_type":"unordered",
 "children":[
 {
-"child_type":"unordered",
-"children":[
-{
 "child_type":null,
 "children":[],
 "fragments":[
 {
-"text":"Metacompiler workshop",
-"type":"text"
+"text":"Tutorial: Metacompilers Part 1",
+"type":"link",
+"url":"http://www.bayfronttechnologies.com/mc_tutorial.html"
 }
 ]
 },
@@ -7947,54 +7921,39 @@
 "children":[],
 "fragments":[
 {
-"text":"Video about Lua implementation",
-"type":"text"
-}
-]
-}
-],
-"fragments":[
-{
-"text":"META II",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Ometa",
-"type":"text"
+"text":"META II: A Syntax-Oriented Compiler Writing Language - Papers We Love Singapore",
+"type":"link",
+"url":"https://www.youtube.com/watch?v=L1rwVBLHGiU"
 }
 ]
 }
 ],
 "id":"e4125a19ab474510a27a3cd76c42c2f1",
 "type":"list"
+},
+{
+"fragments":[
+{
+"text":"I want to exemplify how programs are executed on a computer. It is all about matching and transforming. And it can be quite simple.",
+"type":"text"
+}
+],
+"id":"fb743a2ced404280a9ec7e47af6d5a74",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"https://tratt.net/laurie/blog/entries/how_difficult_is_it_to_write_a_compiler.html",
+"type":"link",
+"url":"https://tratt.net/laurie/blog/entries/how_difficult_is_it_to_write_a_compiler.html"
+}
+],
+"id":"91e90fb722354984a148afa67ba0c818",
+"type":"text"
 }
 ],
 "title":"Learn more"
-},
-{
-"children":[],
-"id":"8f4baa392cfc4fe18f6796ea4c096135",
-"paragraphs":[
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"* How to address the reader?\n* What do I want to say?\n    * Have I said it?\n* What one point to make?\n    * What to skip?\n    * Reductions time/place.\n* How much to cover?\n* I write this to learn about META. Clear writing is clear thinking.\n\n* Anyone who thinks clearly can write clearly\n* Every next sentence should build on the previous\n    * Logical small steps forward\n\n--\n\nThis is my report about implementing a META language. I have explored this\ntopic and I want to share my findings.\n\nHow does the computer know that \"x+y\" gives \"z\"? ... In this article I explore\nhow a meta language can answer that question.\n\nFootnotes:\n\n* The web version was made possible by writing the code generator and support\n  library in Javascript.\n\n* This is all about me trying to understand META II.\n\n--\n\nI want to exemplify how programs are executed on a computer. It is all about\nmatching and transforming. And it can be quite simple.\n\n--\n\nSimilar projects/inspiration:\n\n* Alan Kay\n* STEPS\n* META II\n    * Metacompiler workshop\n    * Video about Lua implementation\n* OMeta\n* Ohm\n\n--\n\nRelated stuff:\n\n* https://tratt.net/laurie/blog/entries/how_difficult_is_it_to_write_a_compiler.html\n",
-"type":"code"
-}
-],
-"id":"f863fbfa6b18493eb51009faa8ac685c",
-"type":"code"
-}
-],
-"title":"Notes"
 }
 ],
 "id":"9a483a4a28de4f298790297b5708b96f",

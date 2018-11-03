@@ -9,17 +9,6 @@ class _RLMeta(object):
         else:
             return result
 
-    def _match(self, rule_name):
-        key = (rule_name, self._stream.memo_key())
-        if key in self._memo:
-            result, _, self._stream = self._memo[key]
-        else:
-            start = self._stream
-            result = getattr(self, "_rule_{}".format(rule_name))()
-            end = self._stream
-            self._memo[key] = (result, start, end)
-        return result
-
     def _or(self, matchers):
         original_stream = self._stream
         for matcher in matchers:
@@ -55,6 +44,17 @@ class _RLMeta(object):
             original_stream.fail("match found")
         finally:
             self._stream = original_stream
+
+    def _match(self, rule_name):
+        key = (rule_name, self._stream.memo_key())
+        if key in self._memo:
+            result, _, self._stream = self._memo[key]
+        else:
+            start = self._stream
+            result = getattr(self, "_rule_{}".format(rule_name))()
+            end = self._stream
+            self._memo[key] = (result, start, end)
+        return result
 
     def _match_range(self, start, end):
         original_stream = self._stream
