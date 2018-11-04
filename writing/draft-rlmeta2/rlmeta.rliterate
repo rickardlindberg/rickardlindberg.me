@@ -27,16 +27,7 @@
 "url":"https://en.wikipedia.org/wiki/META_II"
 },
 {
-"text":" (",
-"type":"text"
-},
-{
-"text":"paper",
-"type":"link",
-"url":"http://www.hcs64.com/files/pd1-3-schorre.pdf"
-},
-{
-"text":"). I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by ",
+"text":". I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by ",
 "type":"text"
 },
 {
@@ -45,16 +36,7 @@
 "url":"https://en.wikipedia.org/wiki/OMeta"
 },
 {
-"text":" (",
-"type":"text"
-},
-{
-"text":"thesis",
-"type":"link",
-"url":"http://www.vpri.org/pdf/tr2008003_experimenting.pdf"
-},
-{
-"text":") (another META II derivative).",
+"text":" (another META II derivative).",
 "type":"text"
 }
 ],
@@ -2916,28 +2898,6 @@
 }
 ],
 "title":"Space"
-},
-{
-"children":[],
-"id":"a56c54f42c00473091d7c8295ff4e0f1",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"The complete parser:",
-"type":"text"
-}
-],
-"id":"cbbb7c4cccc8418f9b22de8fe6b91c48",
-"type":"text"
-},
-{
-"code_id":"c94ba005404c45f78e7511793da8d554",
-"id":"104b3c249d084df2b43eebd29698f0f9",
-"type":"expanded_code"
-}
-],
-"title":"Summary"
 }
 ],
 "id":"1e01a8bdd22d48f2a7e8533d552bc264",
@@ -6807,43 +6767,6 @@
 }
 ],
 "title":"VarLookup"
-},
-{
-"children":[],
-"id":"d9ea64bbdad3465897667ebec9d5ace1",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"The complete code generator:",
-"type":"text"
-}
-],
-"id":"245b8164d0dc473b8854c2becb228910",
-"type":"text"
-},
-{
-"code_id":"1a998747fffd406f9b8f0bed1e8740a1",
-"id":"fc830b863d064f7eabe2e1ed36640b3f",
-"type":"expanded_code"
-},
-{
-"fragments":[
-{
-"text":"The complete support library:",
-"type":"text"
-}
-],
-"id":"187f9c4f928d4489a33562120216a287",
-"type":"text"
-},
-{
-"code_id":"36fdd2e9ccf7430bbf84158437d5c067",
-"id":"1fdabe27b8fc4ef6a80aa4b9e7791560",
-"type":"expanded_code"
-}
-],
-"title":"Summary"
 }
 ],
 "id":"c3f29fa523f341a487ebc07209c471f9",
@@ -7786,60 +7709,6 @@
 }
 ],
 "title":"Bootstrapping"
-},
-{
-"children":[],
-"id":"1aa2172a955f4e85a2badcec568db1ae",
-"paragraphs":[
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Explain the possibilities with RLMeta implemented in itself. Not just YACC.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Python language is just an implementation detail. It could be ported to another language by changing the code generator and porting the support library.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"The parsing mechanism is based on PEG but extends it to match arbitrary objects, not just strings.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Recursive descent parsing with backtracking and memoization.",
-"type":"text"
-}
-]
-}
-],
-"id":"9c67f8bbe0654146a952fafe3abdbc27",
-"type":"list"
-}
-],
-"title":"Summary"
 }
 ],
 "id":"f5f122c94d3d4fa0b3a7e64a7fa0a724",
@@ -7895,7 +7764,77 @@
 {
 "fragments":[
 {
-"text":"I hope that I've sparked your interest in metalanguages and convinced you that they are not terrebly complicated to implement. The part about being implemented in itself took me a long time to understand. I was helped by the following sources. Should you want to know more about metalanguages they might help you too.",
+"text":"In just under 400 lines of code I've implemented a tool that can be used to write compilers and give meaning to any expression.",
+"type":"text"
+}
+],
+"id":"afb6a260a3284ed48790d2986be53a12",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"   52 parser.rlmeta\n   34 codegenerator.rlmeta\n  279 support.py\n  365 total\n",
+"type":"code"
+}
+],
+"id":"86c81484418d47ef9883ffb817db1906",
+"language":"",
+"type":"code"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Explain the possibilities with RLMeta implemented in itself. Not just YACC.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Python language is just an implementation detail. It could be ported to another language by changing the code generator and porting the support library.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The parsing mechanism is based on PEG but extends it to match arbitrary objects, not just strings.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Recursive descent parsing with backtracking and memoization.",
+"type":"text"
+}
+]
+}
+],
+"id":"9c67f8bbe0654146a952fafe3abdbc27",
+"type":"list"
+},
+{
+"fragments":[
+{
+"text":"I hope that I've sparked your interest in metalanguages and convinced you that they are not terrebly complicated to implement.",
 "type":"text"
 }
 ],
@@ -7903,8 +7842,59 @@
 "type":"text"
 },
 {
+"fragments":[
+{
+"text":"I want to exemplify how programs are executed on a computer. It is all about matching and transforming. And it can be quite simple.",
+"type":"text"
+}
+],
+"id":"fb743a2ced404280a9ec7e47af6d5a74",
+"type":"text"
+}
+],
+"title":"Summary"
+},
+{
+"children":[
+{
+"children":[],
+"id":"4c6af1a11ed440d2bf31a497032c9c0b",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"I was helped by the following resources when implementing RLMeta:",
+"type":"text"
+}
+],
+"id":"c70ef036e62749ab85c1157aba752b1e",
+"type":"text"
+},
+{
 "child_type":"unordered",
 "children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"META II paper",
+"type":"link",
+"url":"http://www.hcs64.com/files/pd1-3-schorre.pdf"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"OMeta thesis",
+"type":"link",
+"url":"http://www.vpri.org/pdf/tr2008003_experimenting.pdf"
+}
+]
+},
 {
 "child_type":null,
 "children":[],
@@ -7930,30 +7920,57 @@
 ],
 "id":"e4125a19ab474510a27a3cd76c42c2f1",
 "type":"list"
+}
+],
+"title":"Resources"
 },
 {
-"fragments":[
+"children":[
 {
-"text":"I want to exemplify how programs are executed on a computer. It is all about matching and transforming. And it can be quite simple.",
-"type":"text"
+"children":[],
+"id":"a56c54f42c00473091d7c8295ff4e0f1",
+"paragraphs":[
+{
+"code_id":"c94ba005404c45f78e7511793da8d554",
+"id":"104b3c249d084df2b43eebd29698f0f9",
+"type":"expanded_code"
 }
 ],
-"id":"fb743a2ced404280a9ec7e47af6d5a74",
-"type":"text"
+"title":"Parser"
 },
 {
-"fragments":[
+"children":[],
+"id":"d9ea64bbdad3465897667ebec9d5ace1",
+"paragraphs":[
 {
-"text":"https://tratt.net/laurie/blog/entries/how_difficult_is_it_to_write_a_compiler.html",
-"type":"link",
-"url":"https://tratt.net/laurie/blog/entries/how_difficult_is_it_to_write_a_compiler.html"
+"code_id":"1a998747fffd406f9b8f0bed1e8740a1",
+"id":"fc830b863d064f7eabe2e1ed36640b3f",
+"type":"expanded_code"
 }
 ],
-"id":"91e90fb722354984a148afa67ba0c818",
-"type":"text"
+"title":"Code generator"
+},
+{
+"children":[],
+"id":"983e606587034a0a9c8e8b5c714e7ef8",
+"paragraphs":[
+{
+"code_id":"36fdd2e9ccf7430bbf84158437d5c067",
+"id":"1fdabe27b8fc4ef6a80aa4b9e7791560",
+"type":"expanded_code"
 }
 ],
-"title":"Learn more"
+"title":"Support library"
+}
+],
+"id":"388bb1e8ccbd4d55b89b391c08452c33",
+"paragraphs":[],
+"title":"Code listings"
+}
+],
+"id":"6f7a509358784145b38fd210c96513c5",
+"paragraphs":[],
+"title":"Appendix"
 }
 ],
 "id":"9a483a4a28de4f298790297b5708b96f",
