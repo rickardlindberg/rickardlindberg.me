@@ -2905,7 +2905,7 @@
 {
 "fragments":[
 {
-"text":"The parser converts a stream of characters to an AST. Here is the template for the grammar:",
+"text":"This section defines the parser that translates grammar syntax to ASTs.",
 "type":"text"
 }
 ],
@@ -2942,16 +2942,6 @@
 ],
 "id":"c94ba005404c45f78e7511793da8d554",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"The remainder of this section fills in all rules.",
-"type":"text"
-}
-],
-"id":"bc1ada63d87b459fbdffcd4e0b52d602",
-"type":"text"
 }
 ],
 "title":"Parser"
@@ -6811,7 +6801,7 @@
 {
 "fragments":[
 {
-"text":"The code generator converts an AST to a Python class. Here is the template for the grammar:",
+"text":"This section defines the code generator that translates ASTs to Python classes and the support library that the generated classes depend on.",
 "type":"text"
 }
 ],
@@ -6850,16 +6840,6 @@
 "type":"code"
 },
 {
-"fragments":[
-{
-"text":"The generated Python class depends on a support library consisting of a set of classes:",
-"type":"text"
-}
-],
-"id":"60dc7d312d654278b9b6ccc2a6dd9e56",
-"type":"text"
-},
-{
 "chunkpath":[],
 "filepath":[
 "rlmeta",
@@ -6877,16 +6857,6 @@
 ],
 "id":"36fdd2e9ccf7430bbf84158437d5c067",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"The remainder of this section fills in the details of the grammar and the support library.",
-"type":"text"
-}
-],
-"id":"469dbb83e24d41d0801793895d6d9ae8",
-"type":"text"
 }
 ],
 "title":"Code generator"
@@ -6990,7 +6960,7 @@
 "type":"code"
 },
 {
-"text":" is defined. Then a function to compile a grammar is defined. Finally the main method that accepts source on stdin and writes result on stdout is implemented. This template is realized with a Bash script:",
+"text":" is defined. Then a function to compile a grammar is defined. Finally the main method that accepts grammars on stdin and writes Python classes on stdout is implemented. This template is realized with a Bash script:",
 "type":"text"
 }
 ],
@@ -7197,7 +7167,7 @@
 {
 "fragments":[
 {
-"text":"I started translating the parser that starts like this:",
+"text":"I started translating the parser that looks like this:",
 "type":"text"
 }
 ],
@@ -7763,7 +7733,7 @@
 {
 "fragments":[
 {
-"text":"The RLMeta compiler translates grammars to Python classes. This translation is implemented in RLMeta itself. Grammars are, like expression compilation, translated in two stages: the parser translates grammar syntax to an AST and the code generator translates the AST to a Python class. The generated Python class depends on a support library.",
+"text":"The RLMeta compiler translates grammars to Python classes. This translation is implemented in RLMeta itself. Grammars are, like expression compilation, translated in two steps: the parser translates grammar syntax to an AST and the code generator translates the AST to a Python class. The generated Python class depends on a support library.",
 "type":"text"
 }
 ],
@@ -7810,7 +7780,7 @@
 "url":"https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html"
 },
 {
-"text":" I remember thinking that they described what programming was all about. The following quote from ",
+"text":" I remember thinking that it described what programming was all about. The following quote from ",
 "type":"text"
 },
 {
@@ -7839,7 +7809,7 @@
 {
 "fragments":[
 {
-"text":"In this article I set out to explain how a metalanguage could be used to give meaning to arithmetic expressions. But RLMeta is more powerful than that. It can be used to implement itself and also many other programming languages because matching and transforming is at the heart of programming language implementation. Its implementation is also small, just under 400 lines of code, which makes it feasable to understand and modify:",
+"text":"In this article I set out to explain how a metalanguage could be used to give meaning to arithmetic expressions. But RLMeta is more powerful than that. It can be used to implement itself and also many other programming languages because matching and transforming is at the heart of programming language implementation. Its small implementation, just under 400 lines of code, also makes it feasable to understand and modify:",
 "type":"text"
 }
 ],
