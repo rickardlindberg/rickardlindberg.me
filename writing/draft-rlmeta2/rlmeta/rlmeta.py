@@ -820,25 +820,6 @@ class Parser(_RLMeta):
                                     self._match('space')
                                 ),
                                 (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match('charseq')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['String']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match('space')
-                                ),
-                                (lambda:
                                     self._match_charseq('[')
                                 ),
                                 (lambda:
