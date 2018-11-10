@@ -76,3 +76,8 @@ Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.
 ---
 
 Interesting blog: [Eli Bendersky's website](https://eli.thegreenplace.net/).
+
+---
+
+Blog about associativity and precedence in RLMeta. A good resource:
+[http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
