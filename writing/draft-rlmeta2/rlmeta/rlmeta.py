@@ -386,7 +386,8 @@ class Parser(_RLMeta):
                                             ])
                                         ),
                                         (lambda:
-                                            None
+                                            self._and([
+                                            ])
                                         ),
                                     ])
                                 ),
@@ -544,7 +545,7 @@ class Parser(_RLMeta):
                                     self._match_charseq('?')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+[(['MatchNothing']+[])]+[]))
+                                    _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+[(['And']+[])]+[]))
                                 ),
                             ])
                         )()
@@ -1849,28 +1850,6 @@ class CodeGenerator(_RLMeta):
                                         'self._star(',
                                         _vars.lookup('x').eval(),
                                         ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchNothing')
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'None',
                                     ]))
                                 ),
                             ])

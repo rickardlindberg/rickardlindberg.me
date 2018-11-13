@@ -13,7 +13,7 @@ Parser {
     | expr1
   expr1 =
     | expr2:x space '*'                        -> ["Star" x]
-    | expr2:x space '?'                        -> ["Or" x ["MatchNothing"]]
+    | expr2:x space '?'                        -> ["Or" x ["And"]]
     | space '!' expr2:x                        -> ["Not" x]
     | expr2
   expr2 =
