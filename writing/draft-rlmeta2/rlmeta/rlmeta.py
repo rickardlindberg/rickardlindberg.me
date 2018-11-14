@@ -1253,7 +1253,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _vars.bind('x', (lambda:
-                                        self._match('nameStart')
+                                        self._match('nameChar')
                                     )())
                                 ),
                                 (lambda:
@@ -1267,34 +1267,6 @@ class Parser(_RLMeta):
                                     _SemanticAction(lambda: join(
                                         ([_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]),
                                     ))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
-
-    def _rule_nameStart(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_range('a', 'z')
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_range('A', 'Z')
                                 ),
                             ])
                         )()
