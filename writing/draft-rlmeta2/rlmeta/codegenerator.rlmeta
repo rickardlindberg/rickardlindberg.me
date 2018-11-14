@@ -19,7 +19,7 @@ CodeGenerator {
     | ["Star" ast:x]             -> { "self._star(" x ")"                                 }
     | ["Not" ast:x]              -> { "self._negative_lookahead(" x ")"                   }
     | ["SemanticAction" ast:x]   -> { "_SemanticAction(lambda: " x ")"                    }
-    | ["MatchRule" .:x]          -> { "self._match(" repr(x) ")"                          }
+    | ["MatchRule" .:x]          -> { "self._match_rule(" repr(x) ")"                     }
     | ["MatchRange" .:x .:y]     -> { "self._match_range(" repr(x) ", " repr(y) ")"       }
     | ["MatchString" .:x]        -> { "self._match_string(" repr(x) ")"                   }
     | ["MatchCharseq" .:x]       -> { "self._match_charseq(" repr(x) ")"                  }

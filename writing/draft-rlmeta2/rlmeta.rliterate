@@ -3186,6 +3186,144 @@
 "children":[
 {
 "children":[],
+"id":"69841ad3d1044db18591fe09cdf1caee",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"To simplify the code generator, the following rules are present:",
+"type":"text"
+}
+],
+"id":"1b8ad3a855444c598a016788f32237ab",
+"type":"text"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"rlmeta",
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"ast"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"  | ",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":":x ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"-> { \"(lambda:\\n\" > x < \"\\n)\" }\n",
+"type":"code"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" =\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"astFnBody"
+],
+"prefix":"  ",
+"type":"chunk"
+}
+],
+"id":"bc8464b515df4cf9a0be11f8757cfa24",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda to create the matcher function.",
+"type":"text"
+}
+],
+"id":"8172dcdb7405433d8a4a3225c445a15f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The fact that Python is used as a target for the code generator is just an implementation detail. A different target languae could be used. But if you would like the write interpreters in RLMeta it has to be implemented in a language in which you want to do the interpretation.",
+"type":"text"
+}
+],
+"id":"e0dbbe7614984ee091cd6ca9cf9488f6",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The parsing algorithm that RLMeta implements is based on ",
+"type":"text"
+},
+{
+"text":"Parsing expression grammars",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Parsing_expression_grammar"
+},
+{
+"text":" (PEG). But it extends it to match arbitrary objects, not just characters. Another way to state it is that RLMeta implements ",
+"type":"text"
+},
+{
+"text":"recursive descent parsing",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Recursive_descent_parser"
+},
+{
+"text":" with backtracking an memoization.",
+"type":"text"
+}
+],
+"id":"cd828eb7ed7c4c58aabf26e9609051cc",
+"type":"text"
+}
+],
+"title":"Structure"
+},
+{
+"children":[],
 "id":"ed6931f4eeca4d43aaee1e9f5485a295",
 "paragraphs":[
 {
@@ -3318,610 +3456,12 @@
 {
 "fragments":[
 {
-"text":"Names of support classes start with an underscore to not collide with generated grammar names (which can not contain underscores).",
+"text":"Names of support classes start with underscores to not collide with generated grammar names (which can not contain underscores).",
 "type":"text"
 }
 ],
 "id":"9d189abc5e624388a08c34b923aa8f01",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"Grammars in Python have a single entry point: ",
-"type":"text"
-},
-{
-"id":"2a00f6add9e9443ab98af74a6da8b379",
-"type":"variable"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"955dfe1bc67f4b7ca1b109a36f56cb49",
-"type":"text"
-},
-{
-"chunkpath":[
-"classes",
-"_RLMeta"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"def ",
-"type":"code"
-},
-{
-"id":"2a00f6add9e9443ab98af74a6da8b379",
-"type":"variable"
-},
-{
-"text":"(self, rule_name, input_object):\n    self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":" = ",
-"type":"code"
-},
-{
-"id":"331ec96e6c01440198c9134d85336b9b",
-"type":"variable"
-},
-{
-"text":"()\n    self.",
-"type":"code"
-},
-{
-"id":"cf4267183a3b4175801c67496a385af6",
-"type":"variable"
-},
-{
-"text":" = ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":".",
-"type":"code"
-},
-{
-"id":"6de4b0de9db3465b89ec2278c5c557a8",
-"type":"variable"
-},
-{
-"text":"(self.",
-"type":"code"
-},
-{
-"id":"07c126c0f9094e189f37cc4ab940b0b4",
-"type":"variable"
-},
-{
-"text":", input_object)\n    result = self.",
-"type":"code"
-},
-{
-"id":"826871508bad4fecb6e575779218874d",
-"type":"variable"
-},
-{
-"text":"(rule_name).",
-"type":"code"
-},
-{
-"id":"85139f1436944deab62958b8a713d8aa",
-"type":"variable"
-},
-{
-"text":"()\n    if hasattr(result, \"",
-"type":"code"
-},
-{
-"id":"56d10f7bfcfd43bb996c3f76423b067b",
-"type":"variable"
-},
-{
-"text":"\"):\n        return result.",
-"type":"code"
-},
-{
-"id":"56d10f7bfcfd43bb996c3f76423b067b",
-"type":"variable"
-},
-{
-"text":"()\n    else:\n        return result\n",
-"type":"code"
-}
-],
-"id":"c0bac19d60434ad2bf44cd6b70cf63ca",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"331ec96e6c01440198c9134d85336b9b",
-"type":"variable"
-},
-{
-"text":"(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = None\n        self._latest_message = None\n\n    def ",
-"type":"code"
-},
-{
-"id":"596495d8d3c041d190a3330d1707203c",
-"type":"variable"
-},
-{
-"text":"(self):\n        message = []\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"(), item[1].",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"()))\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return \"\".join(message)\n\n    def ",
-"type":"code"
-},
-{
-"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
-"type":"variable"
-},
-{
-"text":"(self, stream, message):\n        if self._latest_stream is None or stream.",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"() >= self._latest_stream.",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"():\n            self._latest_stream = stream\n            self._latest_message = message\n        raise ",
-"type":"code"
-},
-{
-"id":"df25061bb4004aa693b603f0a8ec2af2",
-"type":"variable"
-},
-{
-"text":"(self)\n",
-"type":"code"
-}
-],
-"id":"6bf95d09ed70474bb70345fb1877f34e",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"df25061bb4004aa693b603f0a8ec2af2",
-"type":"variable"
-},
-{
-"text":"(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def ",
-"type":"code"
-},
-{
-"id":"e86cf4c2ab6c4d45948e33529e447036",
-"type":"variable"
-},
-{
-"text":"(self):\n        return self._memo.",
-"type":"code"
-},
-{
-"id":"596495d8d3c041d190a3330d1707203c",
-"type":"variable"
-},
-{
-"text":"()\n",
-"type":"code"
-}
-],
-"id":"00ace1a1616649898f3ca6095c7884e1",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":"(object):\n\n    @classmethod\n    def ",
-"type":"code"
-},
-{
-"id":"6de4b0de9db3465b89ec2278c5c557a8",
-"type":"variable"
-},
-{
-"text":"(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(memo, list(input_object))\n        else:\n            return ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(memo, [input_object])\n\n    def __init__(self, memo, objects):\n        self._memo = memo\n        self._objects = objects\n\n    def ",
-"type":"code"
-},
-{
-"id":"00fd348d71754fcfaadae0de1ee5f198",
-"type":"variable"
-},
-{
-"text":"(self, message):\n        self._memo.",
-"type":"code"
-},
-{
-"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
-"type":"variable"
-},
-{
-"text":"(self, message)\n\n    def ",
-"type":"code"
-},
-{
-"id":"b2115b3eeaa143068958949787f5d104",
-"type":"variable"
-},
-{
-"text":"(self):\n        if self.",
-"type":"code"
-},
-{
-"id":"4ad80c8d1d814fefa2656595f1d841c6",
-"type":"variable"
-},
-{
-"text":"():\n            self.",
-"type":"code"
-},
-{
-"id":"00fd348d71754fcfaadae0de1ee5f198",
-"type":"variable"
-},
-{
-"text":"(\"not eof\")\n        ",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":" = self._objects[0]\n        return (\n            ",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":",\n            self.",
-"type":"code"
-},
-{
-"id":"2f6729bf45e84649b3187f8016c3fec9",
-"type":"variable"
-},
-{
-"text":"(",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":", self._objects[1:]),\n        )\n\n    def ",
-"type":"code"
-},
-{
-"id":"4ad80c8d1d814fefa2656595f1d841c6",
-"type":"variable"
-},
-{
-"text":"(self):\n        return len(self._objects) == 0\n",
-"type":"code"
-}
-],
-"id":"b11d191c565f44ac8f6ec57f2decacfe",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":"):\n\n    def __init__(self, memo, objects, line=1, column=1):\n        ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":".__init__(self, memo, objects)\n        self._line = line\n        self._column = column\n\n    def ",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"(self):\n        return (self._line, self._column)\n\n    def ",
-"type":"code"
-},
-{
-"id":"2f6729bf45e84649b3187f8016c3fec9",
-"type":"variable"
-},
-{
-"text":"(self, ",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":", objects):\n        if ",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":" == \"\\n\":\n            return ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(self._memo, objects, self._line+1, 1)\n        else:\n            return ",
-"type":"code"
-},
-{
-"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
-"type":"variable"
-},
-{
-"text":"(self._memo, objects, self._line, self._column+1)\n\n    def __str__(self):\n        return \"L{:03d}:C{:03d}\".format(self._line, self._column)\n",
-"type":"code"
-}
-],
-"id":"e637234d5baa4d669a60c90ce1688693",
-"type":"code"
-},
-{
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"rlmeta",
-"support.py"
-],
-"fragments":[
-{
-"text":"class ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":"):\n\n    def __init__(self, memo, objects, parent=(), pos=0):\n        ",
-"type":"code"
-},
-{
-"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
-"type":"variable"
-},
-{
-"text":".__init__(self, memo, objects)\n        self._parent = parent\n        self._pos = pos\n\n    def ",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"(self):\n        return self._parent + (self._pos,)\n\n    def ",
-"type":"code"
-},
-{
-"id":"653fc20558a64badb437b07f3d1c8490",
-"type":"variable"
-},
-{
-"text":"(self, input_object):\n        return ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(self._memo, input_object, self._parent+(self._pos,))\n\n    def ",
-"type":"code"
-},
-{
-"id":"2f6729bf45e84649b3187f8016c3fec9",
-"type":"variable"
-},
-{
-"text":"(self, ",
-"type":"code"
-},
-{
-"id":"1f94d55a48c14180b2992433d29ace85",
-"type":"variable"
-},
-{
-"text":", objects):\n        return ",
-"type":"code"
-},
-{
-"id":"b058347d19484740b7e2dec4816c0978",
-"type":"variable"
-},
-{
-"text":"(self._memo, objects, self._parent, self._pos+1)\n\n    def __str__(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.",
-"type":"code"
-},
-{
-"id":"b062e0322e284160bf26034e9de32446",
-"type":"variable"
-},
-{
-"text":"()))\n",
-"type":"code"
-}
-],
-"id":"af185bd3045941ab9c96c68a83ec4741",
-"type":"code"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"The parsing mechanism is based on PEG but extends it to match arbitrary objects, not just strings.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Recursive descent parsing with backtracking and memoization.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Python language is just an implementation detail. It could be ported to another language by changing the code generator and porting the support library.",
-"type":"text"
-}
-]
-}
-],
-"id":"9c67f8bbe0654146a952fafe3abdbc27",
-"type":"list"
 }
 ],
 "title":"Grammar"
@@ -3941,7 +3481,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched a Python method with the same name is generated:",
+"text":" AST node is matched a Python method with that name in it is generated:",
 "type":"text"
 }
 ],
@@ -4001,95 +3541,12 @@
 {
 "fragments":[
 {
-"text":"The body of the rule is assumed to be a matcher. A matcher is a function that, when called, tries to match objecst from the input stream and return a semantic action if successful or raises an exception if it fails.",
+"text":"The body of the rule is assumed to be a matcher. A matcher is a function that, when called, tries to match objects from the input stream and return a semantic action if successful or raise an exception if it fails.",
 "type":"text"
 }
 ],
 "id":"fc46f60ad6a7467bb245c720a9d6e8e9",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"To simplify the code generator, the following rules are present. The ",
-"type":"text"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda to create the matcher function.",
-"type":"text"
-}
-],
-"id":"1b8ad3a855444c598a016788f32237ab",
-"type":"text"
-},
-{
-"chunkpath":[
-"rules"
-],
-"filepath":[
-"rlmeta",
-"codegenerator.rlmeta"
-],
-"fragments":[
-{
-"id":"8b98e38b093140fc956b35f6cbf5018e",
-"type":"variable"
-},
-{
-"text":" =\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"ast"
-],
-"prefix":"  ",
-"type":"chunk"
-},
-{
-"text":"  | ",
-"type":"code"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":":x ",
-"type":"code"
-},
-{
-"index":10,
-"type":"tabstop"
-},
-{
-"text":"-> { \"(lambda:\\n\" > x < \"\\n)\" }\n",
-"type":"code"
-},
-{
-"id":"ff0229c63d8a4b4897faed8c38201de3",
-"type":"variable"
-},
-{
-"text":" =\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"astFnBody"
-],
-"prefix":"  ",
-"type":"chunk"
-}
-],
-"id":"bc8464b515df4cf9a0be11f8757cfa24",
-"type":"code"
 }
 ],
 "title":"Rule"
@@ -4101,7 +3558,7 @@
 {
 "fragments":[
 {
-"text":"When a ",
+"text":"When an ",
 "type":"text"
 },
 {
@@ -4109,7 +3566,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched a matcher is generated that calls the built-in ",
+"text":" AST node is matched, a matcher that calls the built-in ",
 "type":"text"
 },
 {
@@ -4117,7 +3574,7 @@
 "type":"variable"
 },
 {
-"text":" method with a list of matchers:",
+"text":" method with a list of matchers is generated:",
 "type":"text"
 }
 ],
@@ -4185,7 +3642,7 @@
 {
 "fragments":[
 {
-"text":"Helpers to generate a list of items.",
+"text":"Helpers to generate a list of items:",
 "type":"text"
 }
 ],
@@ -4494,27 +3951,20 @@
 "type":"variable"
 },
 {
-"text":"(dict):\n\n    def ",
+"text":"(dict):\n\n",
 "type":"code"
 },
 {
-"id":"1659fb73179a4fd8abfc99b95d9f5560",
-"type":"variable"
-},
-{
-"text":"(self, name, value):\n        self[name] = value\n        return value\n\n    def ",
-"type":"code"
-},
-{
-"id":"ea57b40b324c4c03b030c78e924ed860",
-"type":"variable"
-},
-{
-"text":"(self, name):\n        return self[name]\n",
-"type":"code"
+"blank_lines_before":1,
+"path":[
+"_Vars"
+],
+"prefix":"    ",
+"type":"chunk"
 }
 ],
 "id":"6a0b126c11d4408794c26291e417257d",
+"language":"",
 "type":"code"
 }
 ],
@@ -4527,7 +3977,7 @@
 {
 "fragments":[
 {
-"text":"When a ",
+"text":"When an ",
 "type":"text"
 },
 {
@@ -4535,7 +3985,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is found a call to the build-in ",
+"text":" AST node is found, a matcher that calls the build-in ",
 "type":"text"
 },
 {
@@ -4723,6 +4173,33 @@
 }
 ],
 "id":"06c9e9a4f10648e090321c427cccb9b3",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes",
+"_Vars"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
+"id":"1659fb73179a4fd8abfc99b95d9f5560",
+"type":"variable"
+},
+{
+"text":"(self, name, value):\n    self[name] = value\n    return value\n",
+"type":"code"
+}
+],
+"id":"f4e7e5c8f837406ba73ce0ae003a276a",
+"language":"",
 "type":"code"
 }
 ],
@@ -5273,7 +4750,7 @@
 "type":"code"
 }
 ],
-"title":"Apply"
+"title":"MatchRule"
 },
 {
 "children":[],
@@ -6966,9 +6443,604 @@
 ],
 "id":"9839e9dfe25e47a58b35987a6f5d6154",
 "type":"list"
+},
+{
+"chunkpath":[
+"classes",
+"_Vars"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
+"id":"ea57b40b324c4c03b030c78e924ed860",
+"type":"variable"
+},
+{
+"text":"(self, name):\n    return self[name]\n",
+"type":"code"
+}
+],
+"id":"7123ba114a244e929d6519a2bd2f8d0f",
+"language":"",
+"type":"code"
 }
 ],
 "title":"VarLookup"
+},
+{
+"children":[],
+"id":"4397d20868fa4c08ac289e463725f18e",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Grammars in Python have a single entry point: ",
+"type":"text"
+},
+{
+"id":"2a00f6add9e9443ab98af74a6da8b379",
+"type":"variable"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"955dfe1bc67f4b7ca1b109a36f56cb49",
+"type":"text"
+},
+{
+"chunkpath":[
+"classes",
+"_RLMeta"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
+"id":"2a00f6add9e9443ab98af74a6da8b379",
+"type":"variable"
+},
+{
+"text":"(self, rule_name, input_object):\n    self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"331ec96e6c01440198c9134d85336b9b",
+"type":"variable"
+},
+{
+"text":"()\n    self.",
+"type":"code"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":".",
+"type":"code"
+},
+{
+"id":"6de4b0de9db3465b89ec2278c5c557a8",
+"type":"variable"
+},
+{
+"text":"(self.",
+"type":"code"
+},
+{
+"id":"07c126c0f9094e189f37cc4ab940b0b4",
+"type":"variable"
+},
+{
+"text":", input_object)\n    result = self.",
+"type":"code"
+},
+{
+"id":"826871508bad4fecb6e575779218874d",
+"type":"variable"
+},
+{
+"text":"(rule_name).",
+"type":"code"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":"()\n    if hasattr(result, \"",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"\"):\n        return result.",
+"type":"code"
+},
+{
+"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"type":"variable"
+},
+{
+"text":"()\n    else:\n        return result\n",
+"type":"code"
+}
+],
+"id":"c0bac19d60434ad2bf44cd6b70cf63ca",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"331ec96e6c01440198c9134d85336b9b",
+"type":"variable"
+},
+{
+"text":"(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = None\n        self._latest_message = None\n\n    def ",
+"type":"code"
+},
+{
+"id":"596495d8d3c041d190a3330d1707203c",
+"type":"variable"
+},
+{
+"text":"(self):\n        message = []\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"(), item[1].",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"()))\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return \"\".join(message)\n\n    def ",
+"type":"code"
+},
+{
+"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
+"type":"variable"
+},
+{
+"text":"(self, stream, message):\n        if self._latest_stream is None or stream.",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"() >= self._latest_stream.",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"():\n            self._latest_stream = stream\n            self._latest_message = message\n        raise ",
+"type":"code"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":"(self)\n",
+"type":"code"
+}
+],
+"id":"6bf95d09ed70474bb70345fb1877f34e",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":"(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def ",
+"type":"code"
+},
+{
+"id":"e86cf4c2ab6c4d45948e33529e447036",
+"type":"variable"
+},
+{
+"text":"(self):\n        return self._memo.",
+"type":"code"
+},
+{
+"id":"596495d8d3c041d190a3330d1707203c",
+"type":"variable"
+},
+{
+"text":"()\n",
+"type":"code"
+}
+],
+"id":"00ace1a1616649898f3ca6095c7884e1",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":"(object):\n\n    @classmethod\n    def ",
+"type":"code"
+},
+{
+"id":"6de4b0de9db3465b89ec2278c5c557a8",
+"type":"variable"
+},
+{
+"text":"(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(memo, list(input_object))\n        else:\n            return ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(memo, [input_object])\n\n    def __init__(self, memo, objects):\n        self._memo = memo\n        self._objects = objects\n\n    def ",
+"type":"code"
+},
+{
+"id":"00fd348d71754fcfaadae0de1ee5f198",
+"type":"variable"
+},
+{
+"text":"(self, message):\n        self._memo.",
+"type":"code"
+},
+{
+"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
+"type":"variable"
+},
+{
+"text":"(self, message)\n\n    def ",
+"type":"code"
+},
+{
+"id":"b2115b3eeaa143068958949787f5d104",
+"type":"variable"
+},
+{
+"text":"(self):\n        if self.",
+"type":"code"
+},
+{
+"id":"4ad80c8d1d814fefa2656595f1d841c6",
+"type":"variable"
+},
+{
+"text":"():\n            self.",
+"type":"code"
+},
+{
+"id":"00fd348d71754fcfaadae0de1ee5f198",
+"type":"variable"
+},
+{
+"text":"(\"not eof\")\n        ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" = self._objects[0]\n        return (\n            ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":",\n            self.",
+"type":"code"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":"(",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", self._objects[1:]),\n        )\n\n    def ",
+"type":"code"
+},
+{
+"id":"4ad80c8d1d814fefa2656595f1d841c6",
+"type":"variable"
+},
+{
+"text":"(self):\n        return len(self._objects) == 0\n",
+"type":"code"
+}
+],
+"id":"b11d191c565f44ac8f6ec57f2decacfe",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":"):\n\n    def __init__(self, memo, objects, line=1, column=1):\n        ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":".__init__(self, memo, objects)\n        self._line = line\n        self._column = column\n\n    def ",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"(self):\n        return (self._line, self._column)\n\n    def ",
+"type":"code"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":"(self, ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", objects):\n        if ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":" == \"\\n\":\n            return ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(self._memo, objects, self._line+1, 1)\n        else:\n            return ",
+"type":"code"
+},
+{
+"id":"d6ed0f3ac9e84f60bae25485ddb2f97e",
+"type":"variable"
+},
+{
+"text":"(self._memo, objects, self._line, self._column+1)\n\n    def __str__(self):\n        return \"L{:03d}:C{:03d}\".format(self._line, self._column)\n",
+"type":"code"
+}
+],
+"id":"e637234d5baa4d669a60c90ce1688693",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"rlmeta",
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":"):\n\n    def __init__(self, memo, objects, parent=(), pos=0):\n        ",
+"type":"code"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":".__init__(self, memo, objects)\n        self._parent = parent\n        self._pos = pos\n\n    def ",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"(self):\n        return self._parent + (self._pos,)\n\n    def ",
+"type":"code"
+},
+{
+"id":"653fc20558a64badb437b07f3d1c8490",
+"type":"variable"
+},
+{
+"text":"(self, input_object):\n        return ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(self._memo, input_object, self._parent+(self._pos,))\n\n    def ",
+"type":"code"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":"(self, ",
+"type":"code"
+},
+{
+"id":"1f94d55a48c14180b2992433d29ace85",
+"type":"variable"
+},
+{
+"text":", objects):\n        return ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(self._memo, objects, self._parent, self._pos+1)\n\n    def __str__(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.",
+"type":"code"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":"()))\n",
+"type":"code"
+}
+],
+"id":"af185bd3045941ab9c96c68a83ec4741",
+"type":"code"
+}
+],
+"title":"Final support methods"
 }
 ],
 "id":"c3f29fa523f341a487ebc07209c471f9",
@@ -8296,7 +8368,7 @@
 "7d8a78dfe90743759bdd25cf45506815":"_IndentBuilder",
 "7ea6f6977ca24c218e28cd96b1cf8267":"_negative_lookahead",
 "7f941dd526284ccc8143dbbc8ae8df3b":"sequence",
-"826871508bad4fecb6e575779218874d":"_match",
+"826871508bad4fecb6e575779218874d":"_match_rule",
 "83ce9666a26449cd9936798594c99e3f":"rlmeta_compiler",
 "846fccf81eca4ab48a284407a1647eaa":"_vars",
 "85139f1436944deab62958b8a713d8aa":"eval",

@@ -1,14 +1,5 @@
 class _RLMeta(object):
 
-    def run(self, rule_name, input_object):
-        self._memo = _Memo()
-        self._stream = _Stream.from_object(self._memo, input_object)
-        result = self._match(rule_name).eval()
-        if hasattr(result, "to_rlmeta_output_stream"):
-            return result.to_rlmeta_output_stream()
-        else:
-            return result
-
     def _or(self, matchers):
         original_stream = self._stream
         for matcher in matchers:
@@ -45,7 +36,7 @@ class _RLMeta(object):
         finally:
             self._stream = original_stream
 
-    def _match(self, rule_name):
+    def _match_rule(self, rule_name):
         key = (rule_name, self._stream.memo_key())
         if key in self._memo:
             result, _, self._stream = self._memo[key]
@@ -96,6 +87,93 @@ class _RLMeta(object):
                 self._stream = next_input
                 return _SemanticAction(lambda: next_object)
         original_stream.fail("expected list match")
+
+    def run(self, rule_name, input_object):
+        self._memo = _Memo()
+        self._stream = _Stream.from_object(self._memo, input_object)
+        result = self._match_rule(rule_name).eval()
+        if hasattr(result, "to_rlmeta_output_stream"):
+            return result.to_rlmeta_output_stream()
+        else:
+            return result
+
+class _Vars(dict):
+
+    def bind(self, name, value):
+        self[name] = value
+        return value
+
+    def lookup(self, name):
+        return self[name]
+
+class _SemanticAction(object):
+
+    def __init__(self, fn):
+        self.fn = fn
+
+    def eval(self):
+        return self.fn()
+
+class _Builder(object):
+
+    @classmethod
+    def create(self, item):
+        if isinstance(item, _Builder):
+            return item
+        elif isinstance(item, list):
+            return _ListBuilder([_Builder.create(x) for x in item])
+        else:
+            return _AtomBuilder(item)
+
+    def to_rlmeta_output_stream(self):
+        output = _Output()
+        self.write(output)
+        return output.value
+
+class _ListBuilder(_Builder):
+
+    def __init__(self, items):
+        self.items = items
+
+    def write(self, output):
+        for item in self.items:
+            item.write(output)
+
+class _AtomBuilder(_Builder):
+
+    def __init__(self, atom):
+        self.atom = atom
+
+    def write(self, output):
+        output.write(str(self.atom))
+
+class _IndentBuilder(_Builder):
+
+    def write(self, output):
+        output.indent()
+
+class _DedentBuilder(_Builder):
+
+    def write(self, output):
+        output.dedent()
+
+class _Output(object):
+
+    def __init__(self):
+        self.value = ""
+        self.level = 0
+
+    def indent(self):
+        self.level += 1
+
+    def dedent(self):
+        self.level -= 1
+
+    def write(self, value):
+        for ch in value:
+            if self.value and ch != "\n" and self.value[-1] == "\n":
+                self.value += "    "*self.level
+            self.value += ch
 
 class _Memo(dict):
 
@@ -199,81 +277,3 @@ class _ObjectStream(_Stream):
 
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.memo_key()))
-
-class _Vars(dict):
-
-    def bind(self, name, value):
-        self[name] = value
-        return value
-
-    def lookup(self, name):
-        return self[name]
-
-class _SemanticAction(object):
-
-    def __init__(self, fn):
-        self.fn = fn
-
-    def eval(self):
-        return self.fn()
-
-class _Builder(object):
-
-    @classmethod
-    def create(self, item):
-        if isinstance(item, _Builder):
-            return item
-        elif isinstance(item, list):
-            return _ListBuilder([_Builder.create(x) for x in item])
-        else:
-            return _AtomBuilder(item)
-
-    def to_rlmeta_output_stream(self):
-        output = _Output()
-        self.write(output)
-        return output.value
-
-class _ListBuilder(_Builder):
-
-    def __init__(self, items):
-        self.items = items
-
-    def write(self, output):
-        for item in self.items:
-            item.write(output)
-
-class _AtomBuilder(_Builder):
-
-    def __init__(self, atom):
-        self.atom = atom
-
-    def write(self, output):
-        output.write(str(self.atom))
-
-class _IndentBuilder(_Builder):
-
-    def write(self, output):
-        output.indent()
-
-class _DedentBuilder(_Builder):
-
-    def write(self, output):
-        output.dedent()
-
-class _Output(object):
-
-    def __init__(self):
-        self.value = ""
-        self.level = 0
-
-    def indent(self):
-        self.level += 1
-
-    def dedent(self):
-        self.level -= 1
-
-    def write(self, value):
-        for ch in value:
-            if self.value and ch != "\n" and self.value[-1] == "\n":
-                self.value += "    "*self.level
-            self.value += ch
