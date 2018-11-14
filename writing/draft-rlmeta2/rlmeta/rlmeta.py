@@ -642,7 +642,7 @@ class Parser(_RLMeta):
                                     ))
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['Apply']+[_vars.lookup('x').eval()]+[]))
+                                    _SemanticAction(lambda: (['MatchRule']+[_vars.lookup('x').eval()]+[]))
                                 ),
                             ])
                         )()
@@ -1922,7 +1922,7 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string('Apply')
+                                                self._match_string('MatchRule')
                                             ),
                                             (lambda:
                                                 _vars.bind('x', self._any())

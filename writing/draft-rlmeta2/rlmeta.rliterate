@@ -1237,6 +1237,24 @@
 ],
 "id":"69a20341034947ab9dafb7ab7d31094f",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The result of ",
+"type":"text"
+},
+{
+"text":"xs",
+"type":"code"
+},
+{
+"text":" is a list of sequences since the expression inside parenthesis returns the last match.",
+"type":"text"
+}
+],
+"id":"f768c4c9a91a4646ba1792b1e37af71f",
+"type":"text"
 }
 ],
 "title":"Choices"
@@ -1493,7 +1511,7 @@
 {
 "fragments":[
 {
-"text":"An expression of level 1 is one of the following choices:",
+"text":"Expressions of level 1 are one of the following choices:",
 "type":"text"
 }
 ],
@@ -1681,11 +1699,11 @@
 "type":"variable"
 },
 {
-"text":" AST node is created containing the expression AST node and a ",
+"text":" AST node is created containing the expression AST node and an empty ",
 "type":"text"
 },
 {
-"id":"736cd2768dcd4843b43aca56bea200d3",
+"id":"8d17eff4871e411793cf0daf3a2ab204",
 "type":"variable"
 },
 {
@@ -1697,7 +1715,7 @@
 "type":"code"
 },
 {
-"text":" operator, but it is equivalent to matching the expression or nothing.",
+"text":" operator, but it is equivalent to matching the expression or zero expressions and'ed.",
 "type":"text"
 }
 ],
@@ -1760,7 +1778,7 @@
 {
 "fragments":[
 {
-"text":"An expression of level 2 is one of the following choices:",
+"text":"Expressions of level 2 are one of the following choices:",
 "type":"text"
 }
 ],
@@ -2100,7 +2118,7 @@
 "type":"reference"
 },
 {
-"text":" that is not followed by an equal sign (otherwise it would also match the start of a rule). When this sequence is matched, an ",
+"text":" that is not followed by an equal sign (otherwise it would also match the start of a rule). When this sequence is matched, a ",
 "type":"text"
 },
 {
@@ -2236,12 +2254,12 @@
 {
 "fragments":[
 {
-"text":"The eighth choice is an open bracket followed by an ",
+"text":"The eighth choice is an open bracket followed by ",
 "type":"text"
 },
 {
 "page_id":"5fca8ddb3f88457bbe5217fa1ebf4383",
-"text":"expression",
+"text":"expressions",
 "type":"reference"
 },
 {
@@ -2278,7 +2296,7 @@
 {
 "fragments":[
 {
-"text":"A host expression is one of the following choices:",
+"text":"Host expressions are one of the following choices:",
 "type":"text"
 }
 ],
@@ -2539,8 +2557,24 @@
 {
 "fragments":[
 {
-"text":"A list item AST node is either ...",
-"type":"strong"
+"text":"List items are either host expressions preceded by the ",
+"type":"text"
+},
+{
+"text":"~",
+"type":"code"
+},
+{
+"text":" operator in which case a ",
+"type":"text"
+},
+{
+"id":"cf8770da147840679077788180e10778",
+"type":"variable"
+},
+{
+"text":" AST node is created containing the expression, or a host expression:",
+"type":"text"
 }
 ],
 "id":"26942fd45f1e425c8a6d493bbd2ce4da",
@@ -2628,8 +2662,24 @@
 {
 "fragments":[
 {
-"text":"A build expressions is either ...",
-"type":"strong"
+"text":"Build expressions are either a greater than character in which case an ",
+"type":"text"
+},
+{
+"id":"d34e449a8ca740d0a4b84921fc05b25f",
+"type":"variable"
+},
+{
+"text":" AST node is created, or a less than character in which case a ",
+"type":"text"
+},
+{
+"id":"7b75cb86cab34645b43d69d790e6e206",
+"type":"variable"
+},
+{
+"text":" AST node is created, or a host expression.",
+"type":"text"
 }
 ],
 "id":"866a8d0983c8488aa99e2282e0adda99",
@@ -2773,6 +2823,16 @@
 "children":[],
 "id":"2057abb618bf4209950acd87fa49da5d",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Character related rules capture strings, character sequences, and single characters. Inside all of them a few escape codes are possible. When such sequences are matched, the characters inside the delimiters are joined together to create the string.",
+"type":"text"
+}
+],
+"id":"9c9d6cf8dd2c43eea7df12f94f215792",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2939,6 +2999,16 @@
 "id":"19acecc9fbc44023a69cea9eadbe734d",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Names start with a alphabetic character follwoed by any number of alphanumeric characters. When such a sequences are matched, the individual characters are joined togheter to create the string.",
+"type":"text"
+}
+],
+"id":"2a86dcada0f7474483ffaf5998525698",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules"
 ],
@@ -3038,6 +3108,16 @@
 "children":[],
 "id":"d729731e037a4a5aafa6da77d2b8bdb1",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Spaces are any number of space characters or newlines:",
+"type":"text"
+}
+],
+"id":"d12f42d73f384cd5b9ee16993c8e5b8a",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -8183,7 +8263,7 @@
 "41435c2c862f40c1858cd2acd0b4f0bd":"Anonymous",
 "42f0b42533be4f7eb54c04f22a137669":"grammar",
 "43cd203f934f45c4be5ce3906b60ca5d":"_label",
-"4852ced8038c4074a5a8104b8596e0e0":"Apply",
+"4852ced8038c4074a5a8104b8596e0e0":"MatchRule",
 "48c8e22a1f1f441e8680e6bcc9810d9a":"ast",
 "49ba1aa1e24e408ba2b32bff68a72840":"List",
 "49dc22ba19624755a18a13a9e76734b1":"_Builder",
