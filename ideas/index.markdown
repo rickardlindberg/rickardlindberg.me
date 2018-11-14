@@ -75,7 +75,8 @@ Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.
 
 ---
 
-Interesting blog: [Eli Bendersky's website](https://eli.thegreenplace.net/).
+Interesting blog: [Eli Bendersky's website](https://eli.thegreenplace.net/)
+([The Expression Problem in Go](https://eli.thegreenplace.net/2018/the-expression-problem-in-go/)).
 
 ---
 
