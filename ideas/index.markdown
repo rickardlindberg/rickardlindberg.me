@@ -82,3 +82,11 @@ Interesting blog: [Eli Bendersky's website](https://eli.thegreenplace.net/)
 
 Blog about associativity and precedence in RLMeta. A good resource:
 [http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
+
+---
+
+Convert rlselect to an RLiterate document and publish it on this blog.
+
+---
+
+Convert my dotfiles to an RLiterate document and publish it on this blog.
