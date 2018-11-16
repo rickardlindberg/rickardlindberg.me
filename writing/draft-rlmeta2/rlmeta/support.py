@@ -7,7 +7,7 @@ class _RLMeta(object):
                 return matcher()
             except _MatchError:
                 self._stream = original_stream
-        original_stream.fail("no alternative matched")
+        original_stream.fail("no choice matched")
 
     def _and(self, matchers):
         result = None
@@ -73,7 +73,7 @@ class _RLMeta(object):
                 )
         return _SemanticAction(lambda: charseq)
 
-    def _any(self):
+    def _match_any(self):
         next_object, self._stream = self._stream.next()
         return _SemanticAction(lambda: next_object)
 
@@ -92,8 +92,8 @@ class _RLMeta(object):
         self._memo = _Memo()
         self._stream = _Stream.from_object(self._memo, input_object)
         result = self._match_rule(rule_name).eval()
-        if hasattr(result, "to_rlmeta_output_stream"):
-            return result.to_rlmeta_output_stream()
+        if isinstance(result, _Builder):
+            return result.build_string()
         else:
             return result
 
@@ -125,7 +125,7 @@ class _Builder(object):
         else:
             return _AtomBuilder(item)
 
-    def to_rlmeta_output_stream(self):
+    def build_string(self):
         output = _Output()
         self.write(output)
         return output.value

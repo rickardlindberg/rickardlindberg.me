@@ -3186,7 +3186,59 @@
 "children":[
 {
 "children":[],
+"id":"b225bd1638614a808495e33a63797beb",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta on the web. In that case Javascript must be used as a target language. RLMeta could be ported to Javascript by modifying the code generator and the support library.",
+"type":"text"
+}
+],
+"id":"e0dbbe7614984ee091cd6ca9cf9488f6",
+"type":"text"
+}
+],
+"title":"Note on target language"
+},
+{
+"children":[],
 "id":"69841ad3d1044db18591fe09cdf1caee",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The parsing algorithm that RLMeta implements is based on ",
+"type":"text"
+},
+{
+"text":"parsing expression grammars",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Parsing_expression_grammar"
+},
+{
+"text":" (PEG), but is extended to match arbitrary objects, not just characters. Another way to describe the parsing algorithm is that it is a ",
+"type":"text"
+},
+{
+"text":"recursive descent parser",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Recursive_descent_parser"
+},
+{
+"text":" with backtracking an memoization. Details of the algorithm is shown in the remainder of this section.",
+"type":"text"
+}
+],
+"id":"cd828eb7ed7c4c58aabf26e9609051cc",
+"type":"text"
+}
+],
+"title":"Parsing algorithm"
+},
+{
+"children":[],
+"id":"0d8a472a5c844a729b866f2c2c64794b",
 "paragraphs":[
 {
 "fragments":[
@@ -3266,7 +3318,7 @@
 {
 "fragments":[
 {
-"text":"The ",
+"text":"Sometimes generated code for an AST node should be wrapped in a lambda. The ",
 "type":"text"
 },
 {
@@ -3274,53 +3326,15 @@
 "type":"variable"
 },
 {
-"text":" rule is not strictly needed, but without it, many rules would have to wrap its body in a lambda to create the matcher function.",
+"text":" rule is not strictly needed, but without it, many rules would have to wrap its output in a lambda.",
 "type":"text"
 }
 ],
 "id":"8172dcdb7405433d8a4a3225c445a15f",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"The fact that Python is used as a target for the code generator is just an implementation detail. A different target languae could be used. But if you would like the write interpreters in RLMeta it has to be implemented in a language in which you want to do the interpretation.",
-"type":"text"
 }
 ],
-"id":"e0dbbe7614984ee091cd6ca9cf9488f6",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The parsing algorithm that RLMeta implements is based on ",
-"type":"text"
-},
-{
-"text":"Parsing expression grammars",
-"type":"link",
-"url":"https://en.wikipedia.org/wiki/Parsing_expression_grammar"
-},
-{
-"text":" (PEG). But it extends it to match arbitrary objects, not just characters. Another way to state it is that RLMeta implements ",
-"type":"text"
-},
-{
-"text":"recursive descent parsing",
-"type":"link",
-"url":"https://en.wikipedia.org/wiki/Recursive_descent_parser"
-},
-{
-"text":" with backtracking an memoization.",
-"type":"text"
-}
-],
-"id":"cd828eb7ed7c4c58aabf26e9609051cc",
-"type":"text"
-}
-],
-"title":"Structure"
+"title":"Structure of code generator"
 },
 {
 "children":[],
@@ -3337,7 +3351,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched a Python class with the same name is generated that inherits from ",
+"text":" AST node is matched, a Python class with the same name is generated that inherits from ",
 "type":"text"
 },
 {
@@ -3481,7 +3495,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched a Python method with that name in it is generated:",
+"text":" AST node is matched, a Python method with that name in it is generated:",
 "type":"text"
 }
 ],
@@ -3541,7 +3555,7 @@
 {
 "fragments":[
 {
-"text":"The body of the rule is assumed to be a matcher. A matcher is a function that, when called, tries to match objects from the input stream and return a semantic action if successful or raise an exception if it fails.",
+"text":"The body of the rule is assumed to generate a matcher. A matcher is a function that, when called, tries to match objects from the input stream and return a semantic action if successful or raise an exception if it fails. That function is called from the rule method and its result is returned.",
 "type":"text"
 }
 ],
@@ -3574,7 +3588,7 @@
 "type":"variable"
 },
 {
-"text":" method with a list of matchers is generated:",
+"text":" method is generated:",
 "type":"text"
 }
 ],
@@ -3753,7 +3767,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It tries the matchers in sequence and returns the result of the first matching one.",
+"text":" method expects a list of matchers. It tries them in sequence and returns the result of the first matching one:",
 "type":"text"
 }
 ],
@@ -3835,12 +3849,47 @@
 "type":"variable"
 },
 {
-"text":"(\"no alternative matched\")\n",
+"text":"(\"no choice matched\")\n",
 "type":"code"
 }
 ],
 "id":"d208a58f49fb42199d2483713b67641e",
+"language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Streams are immutable, so resetting the stream upon failure is just a matter of saving and restoring the ",
+"type":"text"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":". ",
+"type":"text"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":" is the name of the exception raised when a match fails. Streams have a ",
+"type":"text"
+},
+{
+"id":"00fd348d71754fcfaadae0de1ee5f198",
+"type":"variable"
+},
+{
+"text":" method that generates such error and adds some context to it.",
+"type":"text"
+}
+],
+"id":"24227da21c4c4360bca7cbf0bfe31d59",
+"type":"text"
 }
 ],
 "title":"Or"
@@ -3860,7 +3909,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is found a function is generated that creates a new scope:",
+"text":" AST node is matched, a matcher that creates a new scope is generated:",
 "type":"text"
 }
 ],
@@ -3934,6 +3983,24 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"ec2b7e954fe24f329250bd22c70538e4",
+"type":"variable"
+},
+{
+"text":" class is a subclass of a Python dictionary:",
+"type":"text"
+}
+],
+"id":"04439956a908437fbae68fc7b50fe76c",
+"type":"text"
+},
+{
 "chunkpath":[
 "classes"
 ],
@@ -3966,6 +4033,24 @@
 "id":"6a0b126c11d4408794c26291e417257d",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"A scope is a set of variables that do not conflict with variables in different scopes. The name ",
+"type":"text"
+},
+{
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
+"type":"variable"
+},
+{
+"text":" is used to refer to variables in the current scope.",
+"type":"text"
+}
+],
+"id":"ea686d13c87142a7bfed82720ab16afd",
+"type":"text"
 }
 ],
 "title":"Scope"
@@ -3985,7 +4070,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is found, a matcher that calls the build-in ",
+"text":" AST node is matched, a matcher that calls the built-in ",
 "type":"text"
 },
 {
@@ -4069,7 +4154,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It applies them in sequence and returns the result of the last one.",
+"text":" method expects a list of matchers, tries them in sequence, and returns the result of the last one:",
 "type":"text"
 }
 ],
@@ -4109,6 +4194,24 @@
 "children":[],
 "id":"4309ca572367401bb6c4561f273b8c85",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"6a519019bfac49598dc36620b5b58811",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that stores the result of the child matcher as a side effect is generated:",
+"type":"text"
+}
+],
+"id":"4bb917b40e054274bf6726599c459b66",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -4176,6 +4279,24 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"1659fb73179a4fd8abfc99b95d9f5560",
+"type":"variable"
+},
+{
+"text":" method stores and returns the result:",
+"type":"text"
+}
+],
+"id":"05ddb43ae5e74922bb661788f2743409",
+"type":"text"
+},
+{
 "chunkpath":[
 "classes",
 "_Vars"
@@ -4209,6 +4330,32 @@
 "children":[],
 "id":"244f0754be514ae88e0f581f3ab58c59",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"60d7dacf2a2b4336b0329665c2026cc0",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"70c457e3514948bcb6c00b67e5a180a2",
+"type":"variable"
+},
+{
+"text":" method is generated:",
+"type":"text"
+}
+],
+"id":"72e28909cac9471f835472ae2517bf83",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -4266,6 +4413,24 @@
 ],
 "id":"36a128587cdd48539a5aef85b434be5b",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"70c457e3514948bcb6c00b67e5a180a2",
+"type":"variable"
+},
+{
+"text":" method expects a matcher, tries it for as long as it succeeds, and returns a semantic action that generates a list of all results:",
+"type":"text"
+}
+],
+"id":"e312e15dbf9d4f2bbd6f80efecedb705",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -4348,6 +4513,40 @@
 ],
 "id":"6d7dbee1acd04445a3fa837210e6a42d",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The result of matchers are semantic actions. They have an ",
+"type":"text"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":" method that returns the actual result. The ",
+"type":"text"
+},
+{
+"id":"70c457e3514948bcb6c00b67e5a180a2",
+"type":"variable"
+},
+{
+"text":" method is also a matcher, so it also returns a semantic action. The result of it is a list with all the actual results of the child matches. Therefore it has to call ",
+"type":"text"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":" on all children.",
+"type":"text"
+}
+],
+"id":"0eb26166081a40feaa784cbc773c1e04",
+"type":"text"
 }
 ],
 "title":"Star"
@@ -4356,6 +4555,32 @@
 "children":[],
 "id":"44d3b166c62d43e38d2a781fb9f06b6d",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"bc27a67cb10b4650a32bfe7af84c5060",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"7ea6f6977ca24c218e28cd96b1cf8267",
+"type":"variable"
+},
+{
+"text":" method is generated:",
+"type":"text"
+}
+],
+"id":"e018ec0c06a24eaa9b9370fd1554c1c3",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -4413,6 +4638,24 @@
 ],
 "id":"e895e3759e684d7c9022da5bcfd693bb",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"7ea6f6977ca24c218e28cd96b1cf8267",
+"type":"variable"
+},
+{
+"text":" method expects a matcher. It never consumes any input. The original stream is always reset. It succeeds if the matcher fails.",
+"type":"text"
+}
+],
+"id":"8e269a4aae13471aad8cdf7b69fc3796",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -4512,6 +4755,32 @@
 "id":"07530ffd21784561bd8594c98fcd050a",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"373f023f0f5f4744a7b309cf9a76d138",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that creates a ",
+"type":"text"
+},
+{
+"id":"cbbcd925bc2c42b9add24aaa736f4d35",
+"type":"variable"
+},
+{
+"text":" instance is generated:",
+"type":"text"
+}
+],
+"id":"4dbcefd9b2a34e9ebfbdf7c0d7c40208",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "astFnBody"
@@ -4570,6 +4839,24 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"A ",
+"type":"text"
+},
+{
+"id":"cbbcd925bc2c42b9add24aaa736f4d35",
+"type":"variable"
+},
+{
+"text":" is just a wrapper for a function:",
+"type":"text"
+}
+],
+"id":"e7dc3c5bf9b548f59724a6164a851bfd",
+"type":"text"
+},
+{
 "chunkpath":[
 "classes"
 ],
@@ -4609,6 +4896,32 @@
 "children":[],
 "id":"c10aabed8057404e97ef8cd6ac1b113d",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"4852ced8038c4074a5a8104b8596e0e0",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"826871508bad4fecb6e575779218874d",
+"type":"variable"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"8bb74c95d91e41bc9129926d653639d8",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -4658,6 +4971,24 @@
 ],
 "id":"412bfecbb7244810ba46e206486092c8",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"826871508bad4fecb6e575779218874d",
+"type":"variable"
+},
+{
+"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the stream is set. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrival.",
+"type":"text"
+}
+],
+"id":"39c0b14efbff4e43a3423dd51ca79a90",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -4757,6 +5088,32 @@
 "id":"3ba5893bb7094ece96e853f869df9456",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"6860db9e40994ebfbe04834b4f12f721",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"53acf505e0ee41de85c674e211ecd39c",
+"type":"variable"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"096a751ad60046b0b57ea126f76f3ba6",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "astFnBody"
@@ -4805,6 +5162,24 @@
 ],
 "id":"7ce8d15eb0a349e9a26f7c4b65cf23d8",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"53acf505e0ee41de85c674e211ecd39c",
+"type":"variable"
+},
+{
+"text":" method expects two objects. If the next object from the input stream is in that range, it succeeds, otherwise it fails:",
+"type":"text"
+}
+],
+"id":"fc2595cabe394e818b94e60e51486150",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -4888,6 +5263,32 @@
 "id":"82022cc15d944579825b52559b1ee469",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"10d9c2de82a14d12bd545133bd4e15f8",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"ab9490a5e7ba4561b96b04f481a9e57e",
+"type":"variable"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"e09d0bb37d214fa095efc58f98224225",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "astFnBody"
@@ -4936,6 +5337,24 @@
 ],
 "id":"2d406fc305b34136a1280841c2098a7a",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"ab9490a5e7ba4561b96b04f481a9e57e",
+"type":"variable"
+},
+{
+"text":" method expects the string to match. If the next object from the input stream is that string, it succeeds, otherwise it fails:",
+"type":"text"
+}
+],
+"id":"f25c9986a98b4dfe916e542d04877443",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -5043,6 +5462,32 @@
 "id":"3eff70b8911e4b4e9bd520a7d25624e7",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"8ff0b4980efa4e349ec5ef14815be6ec",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"5440b88cecfb4dafad63f0f7887b82ce",
+"type":"variable"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"d8be7f86258f42f5b65adc6e01c2cd2d",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "astFnBody"
@@ -5091,6 +5536,24 @@
 ],
 "id":"b04618e300a746c6930f0c3c5ac338dc",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"5440b88cecfb4dafad63f0f7887b82ce",
+"type":"variable"
+},
+{
+"text":" method expects a string with characters to match. If the next objects from the input stream are those characters, it succeeds, otherwise it fails:",
+"type":"text"
+}
+],
+"id":"33483216c3834bfd89ffeb9152b3424e",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -5198,6 +5661,32 @@
 "id":"5edd25f746a94b8392834343dce57370",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"25ec6fc64b8b4a39a9df41daa690386f",
+"type":"variable"
+},
+{
+"text":" AST node is matched, the built-in ",
+"type":"text"
+},
+{
+"id":"c76075de5ae9496f9ef5b3c800111ead",
+"type":"variable"
+},
+{
+"text":" is returned:",
+"type":"text"
+}
+],
+"id":"ef57a95155f9434391765c826b20301f",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "ast"
@@ -5246,6 +5735,24 @@
 ],
 "id":"982a4ec2696d466ab86d17115f366f87",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"c76075de5ae9496f9ef5b3c800111ead",
+"type":"variable"
+},
+{
+"text":" method expects no arguments and always returns the next object from the input stream. It only fails if there are no more objects.",
+"type":"text"
+}
+],
+"id":"488803d6daff4f329ad509831bda12db",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -5322,12 +5829,38 @@
 "type":"code"
 }
 ],
-"title":"Any"
+"title":"MatchAny"
 },
 {
 "children":[],
 "id":"c3b58d2d7b024fa4a0e5ff0bcf06d154",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"0c1a9537d33148388015163fc90329b3",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a matcher that calls the built-in ",
+"type":"text"
+},
+{
+"id":"9b21a7a4087848ba8f2ada071a294d73",
+"type":"variable"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"936dd889744c4cb5afbec089ee203d99",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -5556,6 +6089,24 @@
 "id":"74804e4e0ee643ac95210d7aa17ae7c6",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"301f08856bf54373bc5975f75a315105",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a Python string is generated:",
+"type":"text"
+}
+],
+"id":"50c2ea77dfc74d30b8b00e79e83ff849",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "ast"
@@ -5604,6 +6155,24 @@
 "children":[],
 "id":"03d7a70d44fe4470967acd15d51ad56a",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"49ba1aa1e24e408ba2b32bff68a72840",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a Python list is generated:",
+"type":"text"
+}
+],
+"id":"6affca4fbfbc4860afd2a092891658fe",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -5763,14 +6332,50 @@
 "id":"eae26130c7a047daa3ae8fd86ea4a9b6",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The list is generated by concatenating the parts. If an item should be spliced, it is assumed to be a list already and is not wrapped in a sublist.",
+"type":"text"
 }
 ],
-"title":"List/ListItemSplice"
+"id":"96c84bbf136547cc8296f336faab3d17",
+"type":"text"
+}
+],
+"title":"List"
 },
 {
 "children":[],
 "id":"166dffacb2ca4911908584d77f30b21f",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"c9ecfed5791644a3b7ea2122d4ed87c9",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a ",
+"type":"text"
+},
+{
+"id":"49dc22ba19624755a18a13a9e76734b1",
+"type":"variable"
+},
+{
+"text":" is created with a list:",
+"type":"text"
+}
+],
+"id":"e6f8e372a9034bca823062bdfec934e7",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules",
@@ -5838,6 +6443,32 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"d34e449a8ca740d0a4b84921fc05b25f",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a ",
+"type":"text"
+},
+{
+"id":"7d8a78dfe90743759bdd25cf45506815",
+"type":"variable"
+},
+{
+"text":" is created:",
+"type":"text"
+}
+],
+"id":"f39bf47fd10e4ad494693f3573c3a215",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules",
 "ast"
@@ -5886,6 +6517,32 @@
 ],
 "id":"1f9c2f35e18d4eac90c9b8e8a7db8b32",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"id":"7b75cb86cab34645b43d69d790e6e206",
+"type":"variable"
+},
+{
+"text":" AST node is matched, a ",
+"type":"text"
+},
+{
+"id":"bfaedafcea7445e7b7ed19c9abb47736",
+"type":"variable"
+},
+{
+"text":" is created:",
+"type":"text"
+}
+],
+"id":"a3a3334fd6d542f3b885308b7b096cd2",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -6298,7 +6955,7 @@
 "type":"code"
 }
 ],
-"title":"\"Builder\""
+"title":"Builder"
 },
 {
 "children":[],
@@ -6579,15 +7236,15 @@
 "type":"variable"
 },
 {
-"text":"()\n    if hasattr(result, \"",
+"text":"()\n    if isinstance(result, ",
 "type":"code"
 },
 {
-"id":"56d10f7bfcfd43bb996c3f76423b067b",
+"id":"49dc22ba19624755a18a13a9e76734b1",
 "type":"variable"
 },
 {
-"text":"\"):\n        return result.",
+"text":"):\n        return result.",
 "type":"code"
 },
 {
@@ -6600,6 +7257,7 @@
 }
 ],
 "id":"c0bac19d60434ad2bf44cd6b70cf63ca",
+"language":"",
 "type":"code"
 },
 {
@@ -8334,7 +8992,7 @@
 "53acf505e0ee41de85c674e211ecd39c":"_match_range",
 "5440b88cecfb4dafad63f0f7887b82ce":"_match_charseq",
 "56c85a8b77424f849f2a1b604066439e":"_or",
-"56d10f7bfcfd43bb996c3f76423b067b":"to_rlmeta_output_stream",
+"56d10f7bfcfd43bb996c3f76423b067b":"build_string",
 "596495d8d3c041d190a3330d1707203c":"describe",
 "59d465325dd74411b347002179ecda0a":"_last_match",
 "5b5e4143fac64a7ba4fc1e5211b1d5f1":"fail",
@@ -8417,7 +9075,7 @@
 "bf29f97b4f354ee5a3ac3d9346be1e52":"parser_py",
 "bfaedafcea7445e7b7ed19c9abb47736":"_DedentBuilder",
 "c590c92167d34fe4bfdbb084c03834c1":"_and",
-"c76075de5ae9496f9ef5b3c800111ead":"_any",
+"c76075de5ae9496f9ef5b3c800111ead":"_match_any",
 "c8edc6f14d27480e9f737a7697f07f07":"rule",
 "c9ecfed5791644a3b7ea2122d4ed87c9":"ListBuilder",
 "cbbcd925bc2c42b9add24aaa736f4d35":"_SemanticAction",
