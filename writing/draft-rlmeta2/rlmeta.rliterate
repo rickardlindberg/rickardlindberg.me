@@ -832,7 +832,7 @@
 {
 "fragments":[
 {
-"text":"The top level syntactic elements are grammars. Grammars have a ",
+"text":"The top level syntactic element is a grammar. A grammar has a ",
 "type":"text"
 },
 {
@@ -850,7 +850,7 @@
 "type":"reference"
 },
 {
-"text":" enclosed in curly braces. When this sequence is matched, a ",
+"text":" enclosed in curly braces. When this is matched, a ",
 "type":"text"
 },
 {
@@ -972,15 +972,7 @@
 "type":"variable"
 },
 {
-"text":" means match ",
-"type":"text"
-},
-{
-"id":"c8edc6f14d27480e9f737a7697f07f07",
-"type":"variable"
-},
-{
-"text":" zero ore more times. The result is a list.",
+"text":" means match the preceding expression zero ore more times. The result is a list.",
 "type":"text"
 }
 ],
@@ -1014,7 +1006,7 @@
 "type":"text"
 }
 ],
-"title":"Grammars"
+"title":"Grammar"
 },
 {
 "children":[],
@@ -1023,7 +1015,7 @@
 {
 "fragments":[
 {
-"text":"Rules have a ",
+"text":"A rule has a ",
 "type":"text"
 },
 {
@@ -1032,16 +1024,16 @@
 "type":"reference"
 },
 {
-"text":" followed by an equal sign followed by ",
+"text":" followed by an equal sign followed by a ",
 "type":"text"
 },
 {
 "page_id":"c2a43ebb9a7d477f8dd7126f94bd33de",
-"text":"choices",
+"text":"choice",
 "type":"reference"
 },
 {
-"text":". When this sequence is matched, a ",
+"text":". When this is matched, a ",
 "type":"text"
 },
 {
@@ -1049,7 +1041,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is created containing the name of the rule and the choices AST node:",
+"text":" AST node is created containing the name and the choice AST node:",
 "type":"text"
 }
 ],
@@ -1118,7 +1110,7 @@
 "type":"code"
 }
 ],
-"title":"Rules"
+"title":"Rule"
 },
 {
 "children":[],
@@ -1127,7 +1119,7 @@
 {
 "fragments":[
 {
-"text":"Choices have ",
+"text":"A choice has ",
 "type":"text"
 },
 {
@@ -1136,7 +1128,7 @@
 "type":"reference"
 },
 {
-"text":" separated by vertical bars. Optionally the first choice can start with a vertical bar to allow all choice lines to look the same. When this sequence is matched, an ",
+"text":" separated by vertical bars. Optionally the first sequence can start with a vertical bar to allow all sequence lines to look the same. When this is matched, an ",
 "type":"text"
 },
 {
@@ -1249,7 +1241,7 @@
 "type":"code"
 },
 {
-"text":" is a list of sequences since the expression inside parenthesis returns the last match.",
+"text":" is a list of sequences since the expression inside parenthesis returns the last match (which is a sequence).",
 "type":"text"
 }
 ],
@@ -1257,7 +1249,7 @@
 "type":"text"
 }
 ],
-"title":"Choices"
+"title":"Choice"
 },
 {
 "children":[],
@@ -1266,7 +1258,7 @@
 {
 "fragments":[
 {
-"text":"Sequences have one or more ",
+"text":"A sequence has one or more ",
 "type":"text"
 },
 {
@@ -1275,7 +1267,7 @@
 "type":"reference"
 },
 {
-"text":". When this sequence is matched, a ",
+"text":". When this is matched, a ",
 "type":"text"
 },
 {
@@ -1360,7 +1352,7 @@
 "type":"code"
 }
 ],
-"title":"Sequences"
+"title":"Sequence"
 },
 {
 "children":[],
@@ -1369,7 +1361,7 @@
 {
 "fragments":[
 {
-"text":"Expressions are one of the following choices:",
+"text":"An expression is one of the following sequences:",
 "type":"text"
 }
 ],
@@ -1449,7 +1441,7 @@
 {
 "fragments":[
 {
-"text":"The first choice is an ",
+"text":"The first sequence is an ",
 "type":"text"
 },
 {
@@ -1467,7 +1459,7 @@
 "type":"reference"
 },
 {
-"text":". When this sequence is matched, a ",
+"text":". When this is matched, a ",
 "type":"text"
 },
 {
@@ -1485,7 +1477,7 @@
 {
 "fragments":[
 {
-"text":"The second choice is an ",
+"text":"The second sequence is an ",
 "type":"text"
 },
 {
@@ -1502,7 +1494,7 @@
 "type":"text"
 }
 ],
-"title":"Expressions"
+"title":"Expression"
 },
 {
 "children":[],
@@ -1511,7 +1503,7 @@
 {
 "fragments":[
 {
-"text":"Expressions of level 1 are one of the following choices:",
+"text":"An expression of level 1 is one of the following sequences:",
 "type":"text"
 }
 ],
@@ -1655,7 +1647,7 @@
 {
 "fragments":[
 {
-"text":"The first choice is an ",
+"text":"The first sequence is an ",
 "type":"text"
 },
 {
@@ -1664,7 +1656,7 @@
 "type":"reference"
 },
 {
-"text":" followed by an asterisk. When this sequence is matched, a ",
+"text":" followed by an asterisk. When this is matched, a ",
 "type":"text"
 },
 {
@@ -1682,7 +1674,7 @@
 {
 "fragments":[
 {
-"text":"The second choice is an ",
+"text":"The second sequence is an ",
 "type":"text"
 },
 {
@@ -1691,7 +1683,7 @@
 "type":"reference"
 },
 {
-"text":" followed by a question mark. When this sequence is matched, an ",
+"text":" followed by a question mark. When this is matched, an ",
 "type":"text"
 },
 {
@@ -1725,7 +1717,7 @@
 {
 "fragments":[
 {
-"text":"The third choice is an exclamation mark followed by an ",
+"text":"The third sequence is an exclamation mark followed by an ",
 "type":"text"
 },
 {
@@ -1734,7 +1726,7 @@
 "type":"reference"
 },
 {
-"text":". When this sequence is matched, a ",
+"text":". When this is matched, a ",
 "type":"text"
 },
 {
@@ -1752,7 +1744,7 @@
 {
 "fragments":[
 {
-"text":"The fourth choice is an ",
+"text":"The fourth sequence is an ",
 "type":"text"
 },
 {
@@ -1769,7 +1761,7 @@
 "type":"text"
 }
 ],
-"title":"Expressions of level 1"
+"title":"Expression of level 1"
 },
 {
 "children":[],
@@ -1778,7 +1770,7 @@
 {
 "fragments":[
 {
-"text":"Expressions of level 2 are one of the following choices:",
+"text":"An expression of level 2 is one of the following sequences:",
 "type":"text"
 }
 ],
@@ -2082,7 +2074,7 @@
 {
 "fragments":[
 {
-"text":"The first choice is the characters '->' followed by a ",
+"text":"The first sequence is the characters '->' followed by a ",
 "type":"text"
 },
 {
@@ -2091,7 +2083,7 @@
 "type":"reference"
 },
 {
-"text":". When this sequence is matched, a ",
+"text":". When this is matched, a ",
 "type":"text"
 },
 {
@@ -2109,7 +2101,7 @@
 {
 "fragments":[
 {
-"text":"The second choice is a ",
+"text":"The second sequence is a ",
 "type":"text"
 },
 {
@@ -2118,7 +2110,7 @@
 "type":"reference"
 },
 {
-"text":" that is not followed by an equal sign (otherwise it would also match the start of a rule). When this sequence is matched, a ",
+"text":" that is not followed by an equal sign (otherwise it would also match the start of a rule). When this is matched, a ",
 "type":"text"
 },
 {
@@ -2136,7 +2128,7 @@
 {
 "fragments":[
 {
-"text":"The third choice is a ",
+"text":"The third sequence is a ",
 "type":"text"
 },
 {
@@ -2145,7 +2137,7 @@
 "type":"reference"
 },
 {
-"text":" followed by a dash followed by another character. When this sequence is matched, a ",
+"text":" followed by a dash followed by another character. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2163,7 +2155,7 @@
 {
 "fragments":[
 {
-"text":"The fourth choice is a ",
+"text":"The fourth sequence is a ",
 "type":"text"
 },
 {
@@ -2190,7 +2182,7 @@
 {
 "fragments":[
 {
-"text":"The fifth choice is a ",
+"text":"The fifth sequence is a ",
 "type":"text"
 },
 {
@@ -2217,7 +2209,7 @@
 {
 "fragments":[
 {
-"text":"The sixth choice is a dot. When this is matched, a ",
+"text":"The sixth sequence is a dot. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2235,16 +2227,16 @@
 {
 "fragments":[
 {
-"text":"The seventh choice is an open parenthesis followed by ",
+"text":"The seventh sequence is an open parenthesis followed by a ",
 "type":"text"
 },
 {
 "page_id":"c2a43ebb9a7d477f8dd7126f94bd33de",
-"text":"choices",
+"text":"choice",
 "type":"reference"
 },
 {
-"text":" followed by a closing parenthesis. When this sequence is matched, the choices AST node is returned.",
+"text":" followed by a closing parenthesis. When this is matched, the choice AST node is returned.",
 "type":"text"
 }
 ],
@@ -2254,7 +2246,7 @@
 {
 "fragments":[
 {
-"text":"The eighth choice is an open bracket followed by ",
+"text":"The eighth sequence is an open bracket followed by ",
 "type":"text"
 },
 {
@@ -2263,7 +2255,7 @@
 "type":"reference"
 },
 {
-"text":" followed by a closing bracket. When this sequence is matched a ",
+"text":" followed by a closing bracket. When this is matched a ",
 "type":"text"
 },
 {
@@ -2287,7 +2279,7 @@
 "type":"text"
 }
 ],
-"title":"Expressions of level 2"
+"title":"Expression of level 2"
 },
 {
 "children":[],
@@ -2296,7 +2288,7 @@
 {
 "fragments":[
 {
-"text":"Host expressions are one of the following choices:",
+"text":"A host expression is one of the following sequences:",
 "type":"text"
 }
 ],
@@ -2512,7 +2504,7 @@
 {
 "fragments":[
 {
-"text":"The first choice is a ",
+"text":"The first sequence is a ",
 "type":"text"
 },
 {
@@ -2539,7 +2531,7 @@
 {
 "fragments":[
 {
-"text":"The second choice is an open bracket followed by host expression list items followed by a closing bracket. When this sequence is matched a ",
+"text":"The second sequence is an open bracket followed by host expression list items followed by a closing bracket. When this is matched a ",
 "type":"text"
 },
 {
@@ -2557,7 +2549,7 @@
 {
 "fragments":[
 {
-"text":"List items are either host expressions preceded by the ",
+"text":"A list item is either a host expression preceded by the ",
 "type":"text"
 },
 {
@@ -2565,7 +2557,7 @@
 "type":"code"
 },
 {
-"text":" operator in which case a ",
+"text":" operator, in which case a ",
 "type":"text"
 },
 {
@@ -2644,7 +2636,7 @@
 {
 "fragments":[
 {
-"text":"The third choice is an open brace followed by build expressions followed by a closing brace. When this sequence is matched, a ",
+"text":"The third sequence is an open brace followed by build expressions followed by a closing brace. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2662,7 +2654,7 @@
 {
 "fragments":[
 {
-"text":"Build expressions are either a greater than character in which case an ",
+"text":"A build expression is either a greater than character, in which case an ",
 "type":"text"
 },
 {
@@ -2670,7 +2662,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is created, or a less than character in which case a ",
+"text":" AST node is created, or a less than character, in which case a ",
 "type":"text"
 },
 {
@@ -2765,7 +2757,7 @@
 {
 "fragments":[
 {
-"text":"The fourth choice is a ",
+"text":"The fourth sequence is a ",
 "type":"text"
 },
 {
@@ -2774,7 +2766,7 @@
 "type":"reference"
 },
 {
-"text":" followed by an open parenthesis followed by host expressions followed by a closing parenthesis. When this sequence is matched, a ",
+"text":" followed by an open parenthesis followed by host expressions followed by a closing parenthesis. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2782,7 +2774,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is created with the name and expression AST nodes.",
+"text":" AST node is created containing the name and expression AST nodes.",
 "type":"text"
 }
 ],
@@ -2792,7 +2784,7 @@
 {
 "fragments":[
 {
-"text":"The fifth choice is a ",
+"text":"The fifth sequence is a ",
 "type":"text"
 },
 {
@@ -2809,7 +2801,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is created with the name.",
+"text":" AST node is created containing the name.",
 "type":"text"
 }
 ],
@@ -2817,7 +2809,7 @@
 "type":"text"
 }
 ],
-"title":"Host expressions"
+"title":"Host expression"
 },
 {
 "children":[],
@@ -2826,7 +2818,7 @@
 {
 "fragments":[
 {
-"text":"Character related rules capture strings, character sequences, and single characters. Inside all of them a few escape codes are possible. When such sequences are matched, the characters inside the delimiters are joined together to create the string:",
+"text":"Character related rules capture strings, character sequences, and single characters. Inside all of them a few escape codes are possible. When this is matched, the characters inside the delimiters are joined together to create the string:",
 "type":"text"
 }
 ],
@@ -3001,7 +2993,7 @@
 {
 "fragments":[
 {
-"text":"Names have at least one alphanumeric character. When such sequences are matched, the individual characters are joined togheter to create the string:",
+"text":"A name has at least one alphabetic character followed by any number of alphanumeric characters. When this is matched, the individual characters are joined togheter to create the string:",
 "type":"text"
 }
 ],
@@ -3042,7 +3034,7 @@
 "type":"code"
 },
 {
-"id":"6b1fe389a7254359b3fbe4cb26ea084e",
+"id":"172d3a0762114a328cbf1339fd2dd484",
 "type":"variable"
 },
 {
@@ -3063,6 +3055,22 @@
 },
 {
 "text":"-> join([x ~xs])\n",
+"type":"code"
+},
+{
+"id":"172d3a0762114a328cbf1339fd2dd484",
+"type":"variable"
+},
+{
+"text":" ",
+"type":"code"
+},
+{
+"index":5,
+"type":"tabstop"
+},
+{
+"text":"= 'a'-'z' | 'A'-'Z'\n",
 "type":"code"
 },
 {
@@ -3087,7 +3095,7 @@
 "type":"code"
 }
 ],
-"title":"Names"
+"title":"Name"
 },
 {
 "children":[],
@@ -3096,7 +3104,7 @@
 {
 "fragments":[
 {
-"text":"Spaces are any number of space characters or newlines:",
+"text":"A space is any number of space characters or newlines:",
 "type":"text"
 }
 ],
@@ -3133,7 +3141,7 @@
 "type":"code"
 }
 ],
-"title":"Spaces"
+"title":"Space"
 }
 ],
 "id":"1e01a8bdd22d48f2a7e8533d552bc264",
@@ -8945,6 +8953,7 @@
 "10d9c2de82a14d12bd545133bd4e15f8":"MatchString",
 "1104a6a7ec934b48a4f1db64dcd27000":"_label",
 "1659fb73179a4fd8abfc99b95d9f5560":"bind",
+"172d3a0762114a328cbf1339fd2dd484":"nameStart",
 "1868228966e84ad698de9ff7fe063861":"space",
 "18d86dcee79847818139f3dd7dc38d8a":"astSeq",
 "193b6786b4574a48b5e75f649420b08d":"pos",
@@ -9021,7 +9030,7 @@
 "793e09d183c5498fa2587841cd94c126":"char",
 "7b75cb86cab34645b43d69d790e6e206":"DedentBuilder",
 "7befab3d0c5747d687b20830147a70fa":"nameStart",
-"7d667137ca2f4350969bcf2044d677de":"choices",
+"7d667137ca2f4350969bcf2044d677de":"choice",
 "7d82aaa0f3d34c059532d7a090654ab7":"string",
 "7d8a78dfe90743759bdd25cf45506815":"_IndentBuilder",
 "7ea6f6977ca24c218e28cd96b1cf8267":"_negative_lookahead",
@@ -9077,7 +9086,7 @@
 "c590c92167d34fe4bfdbb084c03834c1":"_and",
 "c76075de5ae9496f9ef5b3c800111ead":"_match_any",
 "c8edc6f14d27480e9f737a7697f07f07":"rule",
-"c9ecfed5791644a3b7ea2122d4ed87c9":"ListBuilder",
+"c9ecfed5791644a3b7ea2122d4ed87c9":"Builder",
 "cbbcd925bc2c42b9add24aaa736f4d35":"_SemanticAction",
 "cc14e6fceec9478c8fdb4ac3a58dbf7a":"digit",
 "ccb3f676f6314d788147dc603933cd28":"astItem",

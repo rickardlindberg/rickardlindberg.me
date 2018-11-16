@@ -2,8 +2,8 @@ Parser {
   grammar =
     | name:x space '{' rule*:ys space '}'      -> ["Grammar" x ~ys]
   rule =
-    | name:x space '=' choices:y               -> ["Rule" x y]
-  choices =
+    | name:x space '=' choice:y                -> ["Rule" x y]
+  choice =
     | (space '|')?
       sequence:x (space '|' sequence)*:xs      -> ["Or" x ~xs]
   sequence =
@@ -23,12 +23,12 @@ Parser {
     | space string:x                           -> ["MatchString" x]
     | space charseq:x                          -> ["MatchCharseq" x]
     | space '.'                                -> ["MatchAny"]
-    | space '(' choices:x space ')'            -> x
+    | space '(' choice:x space ')'             -> x
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
   hostExpr =
     | space string:x                           -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
-    | space '{' buildExpr*:xs space '}'        -> ["ListBuilder" ~xs]
+    | space '{' buildExpr*:xs space '}'        -> ["Builder" ~xs]
     | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
@@ -44,7 +44,8 @@ Parser {
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
-  name      = space nameChar:x nameChar*:xs    -> join([x ~xs])
+  name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
+  nameStart = 'a'-'z' | 'A'-'Z'
   nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
   space     = (' ' | '\n')*
 }

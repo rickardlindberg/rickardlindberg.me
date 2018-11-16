@@ -345,7 +345,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _vars.bind('y', (lambda:
-                                        self._match_rule('choices')
+                                        self._match_rule('choice')
                                     )())
                                 ),
                                 (lambda:
@@ -358,7 +358,7 @@ class Parser(_RLMeta):
             ])
         )()
 
-    def _rule_choices(self):
+    def _rule_choice(self):
         return (lambda:
             self._or([
                 (lambda:
@@ -742,7 +742,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _vars.bind('x', (lambda:
-                                        self._match_rule('choices')
+                                        self._match_rule('choice')
                                     )())
                                 ),
                                 (lambda:
@@ -867,7 +867,7 @@ class Parser(_RLMeta):
                                     self._match_charseq('}')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['ListBuilder']+_vars.lookup('xs').eval()+[]))
+                                    _SemanticAction(lambda: (['Builder']+_vars.lookup('xs').eval()+[]))
                                 ),
                             ])
                         )()
@@ -1253,7 +1253,7 @@ class Parser(_RLMeta):
                                 ),
                                 (lambda:
                                     _vars.bind('x', (lambda:
-                                        self._match_rule('nameChar')
+                                        self._match_rule('nameStart')
                                     )())
                                 ),
                                 (lambda:
@@ -1267,6 +1267,34 @@ class Parser(_RLMeta):
                                     _SemanticAction(lambda: join(
                                         ([_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]),
                                     ))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_nameStart(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_range('a', 'z')
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_range('A', 'Z')
                                 ),
                             ])
                         )()
@@ -1519,7 +1547,7 @@ class CodeGenerator(_RLMeta):
                                     self._match_list((lambda:
                                         self._and([
                                             (lambda:
-                                                self._match_string('ListBuilder')
+                                                self._match_string('Builder')
                                             ),
                                             (lambda:
                                                 _vars.bind('x', (lambda:
