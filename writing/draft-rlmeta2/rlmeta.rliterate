@@ -3376,7 +3376,7 @@
 {
 "fragments":[
 {
-"text":"The greater than and less than characters in the output expression cause an indent and a dedent in the output string like this:",
+"text":"The greater than and less than characters in the string output expression cause an indent and a dedent like this:",
 "type":"text"
 }
 ],
@@ -3414,15 +3414,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a Python class with the same name is generated that inherits from ",
-"type":"text"
-},
-{
-"id":"6544a37a96ce4294ab4553709d89f398",
-"type":"variable"
-},
-{
-"text":":",
+"text":" AST node is matched, a Python class with the same name is generated:",
 "type":"text"
 }
 ],
@@ -3490,7 +3482,15 @@
 {
 "fragments":[
 {
-"text":"The base class, whose details is presented in the remainder of this section, is defined in the support library:",
+"text":"The class inherits ",
+"type":"text"
+},
+{
+"id":"6544a37a96ce4294ab4553709d89f398",
+"type":"variable"
+},
+{
+"text":" which is defined in the support library:",
 "type":"text"
 }
 ],
@@ -3822,7 +3822,7 @@
 {
 "fragments":[
 {
-"text":"The code is wrapped in a lambda becasue it is added to the ",
+"text":"The generated string is wrapped in a lambda becasue the case is added to the ",
 "type":"text"
 },
 {
@@ -3830,7 +3830,7 @@
 "type":"variable"
 },
 {
-"text":" rule. The output string will thus look something like this:",
+"text":" rule and will thus look something like this:",
 "type":"text"
 }
 ],
@@ -3962,7 +3962,15 @@
 {
 "fragments":[
 {
-"text":"Streams are immutable, so resetting the stream upon failure is just a matter of saving and restoring the ",
+"text":"The input stream is stored in ",
+"type":"text"
+},
+{
+"id":"cf4267183a3b4175801c67496a385af6",
+"type":"variable"
+},
+{
+"text":". Streams are immutable, so resetting the stream upon failure is just a matter of saving and restoring ",
 "type":"text"
 },
 {
@@ -3986,7 +3994,7 @@
 "type":"variable"
 },
 {
-"text":" method that generates that error and adds context to it useful for error reporting.",
+"text":" method that generates that error and adds context to it that is useful for error reporting.",
 "type":"text"
 }
 ],
@@ -4087,6 +4095,37 @@
 {
 "fragments":[
 {
+"text":"A scope is a set of variables that do not conflict with variables in other scopes. The name ",
+"type":"text"
+},
+{
+"id":"289a3db9c53e420da4dbdbc94a32aadf",
+"type":"variable"
+},
+{
+"text":" is used to refer to variables in the current scope. The body is assumed to generate a matcher which is then called. The generated string will thus look like this:",
+"type":"text"
+}
+],
+"id":"ea686d13c87142a7bfed82720ab16afd",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    (lambda _vars:\n        matcher()\n    )(_Vars())\n)\n",
+"type":"code"
+}
+],
+"id":"6d796a030d8346acb21d218808258a08",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
 "text":"The ",
 "type":"text"
 },
@@ -4134,37 +4173,6 @@
 ],
 "id":"6a0b126c11d4408794c26291e417257d",
 "language":"",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"A scope is a set of variables that do not conflict with variables in other scopes. The name ",
-"type":"text"
-},
-{
-"id":"289a3db9c53e420da4dbdbc94a32aadf",
-"type":"variable"
-},
-{
-"text":" is used to refer to variables in the current scope. The body is assumed to generate a matcher which is then called. The output string will thus look like this:",
-"type":"text"
-}
-],
-"id":"ea686d13c87142a7bfed82720ab16afd",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"(lambda:\n    (lambda _vars:\n        matcher()\n    )(_Vars())\n)\n",
-"type":"code"
-}
-],
-"id":"6d796a030d8346acb21d218808258a08",
-"language":"python",
 "type":"code"
 }
 ],
