@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"Metalanguages are used to reason about languages. In metalanguages you can make statements about statements in a language.",
+"text":"Metalanguages are used to reason about languages. In metalanguages you can make statements about statements in a different language.",
 "type":"text"
 }
 ],
@@ -143,7 +143,7 @@
 "type":"code"
 },
 {
-"text":" followed by a name binds the result of the match to a variable. The expressions to the right of ",
+"text":" followed by a name binds the result of a match to a variable. The expressions to the right of ",
 "type":"text"
 },
 {
@@ -316,7 +316,15 @@
 {
 "fragments":[
 {
-"text":"First the host language functions are imported. Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are used by instatiating them and calling their ",
+"text":"First the host language functions are imported (",
+"type":"text"
+},
+{
+"text":"int",
+"type":"code"
+},
+{
+"text":" is always available). Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are used by instatiating them and calling their ",
 "type":"text"
 },
 {
@@ -443,7 +451,7 @@
 {
 "fragments":[
 {
-"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same input expressions as the calculator grammar but instead of evaluating expressions, it creates an abstract syntax tree (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same input expressions as the calculator grammar but instead of evaluating expressions, it creates abstract syntax trees (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
 "type":"text"
 }
 ],
@@ -811,7 +819,7 @@
 {
 "fragments":[
 {
-"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of real CPU. But I will not do that here. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of a real CPU. But I will not do that here. The point is that that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
@@ -2993,7 +3001,7 @@
 {
 "fragments":[
 {
-"text":"A name has at least one alphabetic character followed by any number of alphanumeric characters. When this is matched, the individual characters are joined togheter to create the string:",
+"text":"A name has at least one alphabetic character followed by any number of alphanumeric characters. When this is matched, the individual characters are joined togheter to create a string:",
 "type":"text"
 }
 ],
@@ -3251,7 +3259,23 @@
 {
 "fragments":[
 {
-"text":"To simplify the code generator, the following rules are present:",
+"text":"The code generator has two main rules: ",
+"type":"text"
+},
+{
+"id":"8b98e38b093140fc956b35f6cbf5018e",
+"type":"variable"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":":",
 "type":"text"
 }
 ],
@@ -3326,7 +3350,15 @@
 {
 "fragments":[
 {
-"text":"Sometimes generated code for an AST node should be wrapped in a lambda. The ",
+"text":"Sometimes generated code for an AST node should be wrapped in a lambda. Those AST nodes are added to the ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" rule. The ",
 "type":"text"
 },
 {
@@ -3340,6 +3372,29 @@
 ],
 "id":"8172dcdb7405433d8a4a3225c445a15f",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The greater than and less than characters in the output expression cause an indent and a dedent in the output string like this:",
+"type":"text"
+}
+],
+"id":"94c40f01f4d34d7ab40617e1f1ef3632",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    x\n)\n",
+"type":"code"
+}
+],
+"id":"f011c0159f7e415fa1bcea0fb52fb524",
+"language":"python",
+"type":"code"
 }
 ],
 "title":"Structure of code generator"
@@ -3435,7 +3490,7 @@
 {
 "fragments":[
 {
-"text":"The base class, whose details will be presented in the remainder of this section, is defined in the support library:",
+"text":"The base class, whose details is presented in the remainder of this section, is defined in the support library:",
 "type":"text"
 }
 ],
@@ -3767,6 +3822,45 @@
 {
 "fragments":[
 {
+"text":"The code is wrapped in a lambda becasue it is added to the ",
+"type":"text"
+},
+{
+"id":"ff0229c63d8a4b4897faed8c38201de3",
+"type":"variable"
+},
+{
+"text":" rule. The output string will thus look something like this:",
+"type":"text"
+}
+],
+"id":"9544848ac4f54f9ba2efa131392df509",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    self.",
+"type":"code"
+},
+{
+"id":"2c430882d5af40168a69e1b4b9eb7e0d",
+"type":"variable"
+},
+{
+"text":"([\n        matcher1,\n        matcher2,\n        ...\n    ])\n)\n",
+"type":"code"
+}
+],
+"id":"7d15c1645ff4452a97f9c34939d62fc1",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
 "text":"The ",
 "type":"text"
 },
@@ -3892,7 +3986,7 @@
 "type":"variable"
 },
 {
-"text":" method that generates that error and adds context to it.",
+"text":" method that generates that error and adds context to it useful for error reporting.",
 "type":"text"
 }
 ],
@@ -4053,12 +4147,25 @@
 "type":"variable"
 },
 {
-"text":" is used to refer to variables in the current scope. The body is assumed to generate a matcher which is then called.",
+"text":" is used to refer to variables in the current scope. The body is assumed to generate a matcher which is then called. The output string will thus look like this:",
 "type":"text"
 }
 ],
 "id":"ea686d13c87142a7bfed82720ab16afd",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    (lambda _vars:\n        matcher()\n    )(_Vars())\n)\n",
+"type":"code"
+}
+],
+"id":"6d796a030d8346acb21d218808258a08",
+"language":"python",
+"type":"code"
 }
 ],
 "title":"Scope"
@@ -4162,7 +4269,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers, tries them in sequence, and returns the result of the last one:",
+"text":" method expects a list of matchers. It tries them in sequence and returns the result of the last one:",
 "type":"text"
 }
 ],
@@ -4433,7 +4540,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a matcher, tries it for as long as it succeeds, and returns a semantic action that generates a list of all results:",
+"text":" method expects a matcher. It tries it for as long as it succeeds, and returns a semantic action that generates a list of all results:",
 "type":"text"
 }
 ],
@@ -4849,15 +4956,17 @@
 {
 "fragments":[
 {
-"text":"A ",
+"text":"The body is assumed to generate a Python expression that will be returned when the semantic action is evaluated.",
+"type":"text"
+}
+],
+"id":"eb94c5af9061497c8834e0b26d88888e",
 "type":"text"
 },
 {
-"id":"cbbcd925bc2c42b9add24aaa736f4d35",
-"type":"variable"
-},
+"fragments":[
 {
-"text":" is just a wrapper for a function:",
+"text":"A semantic action is a wrapper for a function:",
 "type":"text"
 }
 ],
@@ -4896,6 +5005,23 @@
 ],
 "id":"a2fa6b36dba04bcfad978306c9223c55",
 "type":"code"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"How many times can/should a semantic action be evaluated?",
+"type":"text"
+}
+]
+}
+],
+"id":"9839e9dfe25e47a58b35987a6f5d6154",
+"type":"list"
 }
 ],
 "title":"SemanticAction"
@@ -4991,7 +5117,7 @@
 "type":"variable"
 },
 {
-"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the stream is set. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrival.",
+"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the input stream is changed. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrival.",
 "type":"text"
 }
 ],
@@ -6344,7 +6470,7 @@
 {
 "fragments":[
 {
-"text":"The list is generated by concatenating the parts. If an item should be spliced, it is assumed to be a list already and is not wrapped in a sublist.",
+"text":"The list is generated by concatenating the parts. If an item should be spliced, it is assumed to be a list already and is not wrapped in brackets.",
 "type":"text"
 }
 ],
@@ -7091,23 +7217,6 @@
 ],
 "id":"544bade2ad6a463db74a4b66c7cba6f7",
 "type":"code"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"How many times can/should a semantic action be evaluated?",
-"type":"text"
-}
-]
-}
-],
-"id":"9839e9dfe25e47a58b35987a6f5d6154",
-"type":"list"
 },
 {
 "chunkpath":[
