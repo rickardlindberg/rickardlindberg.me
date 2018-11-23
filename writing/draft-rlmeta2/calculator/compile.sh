@@ -18,5 +18,6 @@ if __name__ == "__main__":
     calculator = Calculator()
     while True:
         line = raw_input("> ")
-        print(calculator.run("expression", line))
+        result = calculator.run("expression", line)
+        print(result)
 EOF
