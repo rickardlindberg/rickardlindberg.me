@@ -37,7 +37,7 @@ class _Grammar(object):
             self._stream = original_stream
 
     def _match_rule(self, rule_name):
-        key = (rule_name, self._stream.memo_key())
+        key = (rule_name, self._stream.position())
         if key in self._memo:
             result, _, self._stream = self._memo[key]
         else:
@@ -79,12 +79,12 @@ class _Grammar(object):
 
     def _match_list(self, matcher):
         original_stream = self._stream
-        next_object, next_input = self._stream.next()
+        next_object, next_stream = self._stream.next()
         if isinstance(next_object, list):
             self._stream = self._stream.nested(next_object)
             matcher()
             if self._stream.is_at_end():
-                self._stream = next_input
+                self._stream = next_stream
                 return _SemanticAction(lambda: next_object)
         original_stream.fail("expected list match")
 
@@ -187,7 +187,7 @@ class _Memo(dict):
         items = []
         for (rule_name, _), (_, start, end) in self.items():
             items.append((rule_name, start, end))
-        items.sort(key=lambda item: (item[2].memo_key(), item[1].memo_key()))
+        items.sort(key=lambda item: (item[2].position(), item[1].position()))
         for item in items:
             message.append("matched {: <20} {} -> {}\n".format(*item))
         message.append("\n")
@@ -198,7 +198,7 @@ class _Memo(dict):
         return "".join(message)
 
     def fail(self, stream, message):
-        if self._latest_stream is None or stream.memo_key() >= self._latest_stream.memo_key():
+        if self._latest_stream is None or stream.position() >= self._latest_stream.position():
             self._latest_stream = stream
             self._latest_message = message
         raise _MatchError(self)
@@ -247,7 +247,7 @@ class _CharStream(_Stream):
         self._line = line
         self._column = column
 
-    def memo_key(self):
+    def position(self):
         return (self._line, self._column)
 
     def _advance(self, next_object, objects):
@@ -261,19 +261,19 @@ class _CharStream(_Stream):
 
 class _ObjectStream(_Stream):
 
-    def __init__(self, memo, objects, parent=(), pos=0):
+    def __init__(self, memo, objects, parent=(), position=0):
         _Stream.__init__(self, memo, objects)
         self._parent = parent
-        self._pos = pos
+        self._position = position
 
-    def memo_key(self):
-        return self._parent + (self._pos,)
+    def position(self):
+        return self._parent + (self._position,)
 
     def nested(self, input_object):
-        return _ObjectStream(self._memo, input_object, self._parent+(self._pos,))
+        return _ObjectStream(self._memo, input_object, self._parent+(self._position,))
 
     def _advance(self, next_object, objects):
-        return _ObjectStream(self._memo, objects, self._parent, self._pos+1)
+        return _ObjectStream(self._memo, objects, self._parent, self._position+1)
 
     def __str__(self):
-        return "[{}]".format(", ".join(str(x) for x in self.memo_key()))
+        return "[{}]".format(", ".join(str(x) for x in self.position()))
