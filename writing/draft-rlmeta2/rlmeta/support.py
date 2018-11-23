@@ -1,4 +1,4 @@
-class _RLMeta(object):
+class _Grammar(object):
 
     def _or(self, matchers):
         original_stream = self._stream
