@@ -1139,9 +1139,7 @@ class Parser(_Grammar):
                                     self._match_charseq("'")
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: join(
-                                        _vars.lookup('x').eval(),
-                                    ))
+                                    _SemanticAction(lambda: _vars.lookup('x').eval())
                                 ),
                             ])
                         )()

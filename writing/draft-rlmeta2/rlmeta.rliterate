@@ -451,7 +451,7 @@
 {
 "fragments":[
 {
-"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same input expressions as the calculator grammar but instead of evaluating expressions, it creates abstract syntax trees (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same arithemtic expressions as the calculator grammar but instead of evaluating expressions, it creates abstract syntax trees (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
 "type":"text"
 }
 ],
@@ -504,7 +504,7 @@
 {
 "fragments":[
 {
-"text":"The code generator takes as input the AST from the parser and generates assembly language code for an imaginary stack machine.",
+"text":"The code generator takes as input ASTs from the parser and generates assembly language code for an imaginary stack machine.",
 "type":"text"
 }
 ],
@@ -639,7 +639,7 @@
 {
 "fragments":[
 {
-"text":"When the expression grammars are fed to the RLMeta compiler, programs are output that, when combined, is a compiler for arithmetic expressions.",
+"text":"When the expression grammars are fed to the RLMeta compiler, programs are output whose combination is a compiler for arithmetic expressions.",
 "type":"text"
 }
 ],
@@ -2263,7 +2263,7 @@
 "type":"reference"
 },
 {
-"text":" followed by a closing bracket. When this is matched a ",
+"text":" followed by a closing bracket. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2539,7 +2539,7 @@
 {
 "fragments":[
 {
-"text":"The second sequence is an open bracket followed by host expression list items followed by a closing bracket. When this is matched a ",
+"text":"The second sequence is an open bracket followed by host expression list items followed by a closing bracket. When this is matched, a ",
 "type":"text"
 },
 {
@@ -2935,7 +2935,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> join(x)\n",
+"text":"-> x\n",
 "type":"code"
 },
 {
@@ -3157,7 +3157,7 @@
 {
 "fragments":[
 {
-"text":"This section defines the parser that translates grammar syntax to ASTs.",
+"text":"This section defines the parser:",
 "type":"text"
 }
 ],
@@ -3207,7 +3207,7 @@
 {
 "fragments":[
 {
-"text":"The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case Javascript must be used as a target language. RLMeta could be ported to Javascript by modifying the code generator and the support library.",
+"text":"The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case JavaScript must be used as a target language. RLMeta could be ported to JavaScript by modifying the code generator and the support library.",
 "type":"text"
 }
 ],
@@ -7970,7 +7970,7 @@
 {
 "fragments":[
 {
-"text":"This section defines the code generator that translates ASTs to Python classes and the support library that the generated classes depend on.",
+"text":"This section defines the code generator and the support library:",
 "type":"text"
 }
 ],
