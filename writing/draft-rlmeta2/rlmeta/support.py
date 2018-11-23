@@ -25,7 +25,7 @@ class _RLMeta(object):
                 self._stream = original_stream
                 return _SemanticAction(lambda: [x.eval() for x in result])
 
-    def _negative_lookahead(self, matcher):
+    def _not(self, matcher):
         original_stream = self._stream
         try:
             matcher()
