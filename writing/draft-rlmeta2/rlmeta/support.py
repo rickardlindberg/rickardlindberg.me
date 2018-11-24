@@ -53,7 +53,9 @@ class _Grammar(object):
         if next_objext >= start and next_objext <= end:
             return _SemanticAction(lambda: next_objext)
         else:
-            original_stream.fail("expected range {}-{} but found {!r}".format(start, end, next_objext))
+            original_stream.fail(
+                "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
+            )
 
     def _match_string(self, string):
         original_stream = self._stream
@@ -61,7 +63,9 @@ class _Grammar(object):
         if next_object == string:
             return _SemanticAction(lambda: string)
         else:
-            original_stream.fail("expected {!r} but found {!r}".format(string, next_object))
+            original_stream.fail(
+                "expected {!r} but found {!r}".format(string, next_object)
+            )
 
     def _match_charseq(self, charseq):
         for char in charseq:
@@ -69,7 +73,7 @@ class _Grammar(object):
             next_object, self._stream = self._stream.next()
             if next_object != char:
                 original_stream.fail(
-                    "expected {} but found {}".format(char, next_object)
+                    "expected {!r} but found {!r}".format(char, next_object)
                 )
         return _SemanticAction(lambda: charseq)
 
@@ -116,6 +120,11 @@ class _SemanticAction(object):
 
 class _Builder(object):
 
+    def build_string(self):
+        output = _Output()
+        self.write(output)
+        return output.value
+
     @classmethod
     def create(self, item):
         if isinstance(item, _Builder):
@@ -125,10 +134,17 @@ class _Builder(object):
         else:
             return _AtomBuilder(item)
 
-    def build_string(self):
-        output = _Output()
-        self.write(output)
-        return output.value
+class _Output(object):
+
+    def __init__(self):
+        self.value = ""
+        self.indentation = 0
+
+    def write(self, value):
+        for ch in value:
+            if self.value and ch != "\n" and self.value[-1] == "\n":
+                self.value += "    "*self.indentation
+            self.value += ch
 
 class _ListBuilder(_Builder):
 
@@ -150,30 +166,12 @@ class _AtomBuilder(_Builder):
 class _IndentBuilder(_Builder):
 
     def write(self, output):
-        output.indent()
+        output.indentation += 1
 
 class _DedentBuilder(_Builder):
 
     def write(self, output):
-        output.dedent()
-
-class _Output(object):
-
-    def __init__(self):
-        self.value = ""
-        self.level = 0
-
-    def indent(self):
-        self.level += 1
-
-    def dedent(self):
-        self.level -= 1
-
-    def write(self, value):
-        for ch in value:
-            if self.value and ch != "\n" and self.value[-1] == "\n":
-                self.value += "    "*self.level
-            self.value += ch
+        output.indentation -= 1
 
 class _Memo(dict):
 
