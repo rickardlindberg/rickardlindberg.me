@@ -3542,7 +3542,7 @@
 {
 "fragments":[
 {
-"text":"Names of support classes start with underscores to not collide with generated grammar names (which can not contain underscores).",
+"text":"Names of support classes start with underscore to not collide with generated grammar names (which can not contain underscores).",
 "type":"text"
 }
 ],
@@ -3888,7 +3888,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It tries them in sequence and returns the result of the first matching:",
+"text":" method expects a list of matchers. It tries them in sequence and returns the result of the first that matches:",
 "type":"text"
 }
 ],
@@ -4577,7 +4577,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a matcher. It tries it for as long as it succeeds, and returns a semantic action that generates a list of all results:",
+"text":" method expects a matcher. It tries it for as long as it succeeds and returns a semantic action that generates a list of all results:",
 "type":"text"
 }
 ],
@@ -5137,7 +5137,7 @@
 "type":"variable"
 },
 {
-"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the input stream is changed. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrival.",
+"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the input stream is updated. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrival.",
 "type":"text"
 }
 ],
@@ -5354,7 +5354,15 @@
 "type":"variable"
 },
 {
-"text":"(self, start, end):\n    original_stream = self.",
+"text":"(self, start, end):\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -5394,7 +5402,15 @@
 "type":"variable"
 },
 {
-"text":"(lambda: next_objext)\n    else:\n        original_stream.",
+"text":"(lambda: next_objext)\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":".",
 "type":"code"
 },
 {
@@ -5407,6 +5423,7 @@
 }
 ],
 "id":"fdb81b14b5c54348b151b5b2f379ae78",
+"language":"",
 "type":"code"
 }
 ],
@@ -5529,7 +5546,15 @@
 "type":"variable"
 },
 {
-"text":"(self, string):\n    original_stream = self.",
+"text":"(self, string):\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -5585,7 +5610,15 @@
 "type":"variable"
 },
 {
-"text":"(lambda: string)\n    else:\n        original_stream.",
+"text":"(lambda: string)\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":".",
 "type":"code"
 },
 {
@@ -5606,6 +5639,7 @@
 }
 ],
 "id":"971fcb5050aa45348f80f3fe228af352",
+"language":"",
 "type":"code"
 }
 ],
@@ -5728,7 +5762,15 @@
 "type":"variable"
 },
 {
-"text":"(self, charseq):\n    for char in charseq:\n        original_stream = self.",
+"text":"(self, charseq):\n    for char in charseq:\n        ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -5776,7 +5818,15 @@
 "type":"variable"
 },
 {
-"text":" != char:\n            original_stream.",
+"text":" != char:\n            ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":".",
 "type":"code"
 },
 {
@@ -5834,7 +5884,7 @@
 "type":"variable"
 },
 {
-"text":" is returned:",
+"text":" is generated:",
 "type":"text"
 }
 ],
@@ -6111,7 +6161,15 @@
 "type":"variable"
 },
 {
-"text":"(self, matcher):\n    original_stream = self.",
+"text":"(self, matcher):\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":" = self.",
 "type":"code"
 },
 {
@@ -6239,7 +6297,15 @@
 "type":"variable"
 },
 {
-"text":")\n    original_stream.",
+"text":")\n    ",
+"type":"code"
+},
+{
+"id":"e45d3bc7fadf4cc1bd02843c87f0d034",
+"type":"variable"
+},
+{
+"text":".",
 "type":"code"
 },
 {
@@ -6247,11 +6313,12 @@
 "type":"variable"
 },
 {
-"text":"(\"expected list match\")\n",
+"text":"(\"list match failed\")\n",
 "type":"code"
 }
 ],
 "id":"05a21fd5bf134f7c9208572470e212e1",
+"language":"",
 "type":"code"
 },
 {
@@ -6552,7 +6619,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a creation of a ",
+"text":" AST node is matched, a ",
 "type":"text"
 },
 {
@@ -6654,7 +6721,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a creation of an ",
+"text":" AST node is matched, an ",
 "type":"text"
 },
 {
@@ -6730,7 +6797,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a creation of a ",
+"text":" AST node is matched, a ",
 "type":"text"
 },
 {
@@ -7525,7 +7592,7 @@
 {
 "fragments":[
 {
-"text":"The value stored is assumed to be a semantic action, and its ",
+"text":"The value stored is always a semantic action, and its ",
 "type":"text"
 },
 {
@@ -7588,7 +7655,7 @@
 {
 "fragments":[
 {
-"text":"Every time a variable is references, its ",
+"text":"Every time a variable is referenced, its ",
 "type":"text"
 },
 {
@@ -7608,7 +7675,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"AGrammar {\n  foo = bar:x -> { x x }\n  bar =\n}\n",
+"text":"AGrammar {\n  foo = bar:x -> { x x }\n  bar = .     -> a_side_effect()\n}\n",
 "type":"code"
 }
 ],
@@ -7795,23 +7862,7 @@
 {
 "fragments":[
 {
-"text":"The memoization table it a subclass of a Python dictionary. Its ",
-"type":"text"
-},
-{
-"id":"596495d8d3c041d190a3330d1707203c",
-"type":"variable"
-},
-{
-"text":" method returns a string that describes what has been matched so far and what the latest error message was. It is used for error reporting. It keeps track of match failures via the ",
-"type":"text"
-},
-{
-"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
-"type":"variable"
-},
-{
-"text":" method which all failures call.",
+"text":"The memoization table is a subclass of a Python dictionary:",
 "type":"text"
 }
 ],
@@ -7911,6 +7962,40 @@
 {
 "fragments":[
 {
+"text":"Its ",
+"type":"text"
+},
+{
+"id":"596495d8d3c041d190a3330d1707203c",
+"type":"variable"
+},
+{
+"text":" method returns a string that describes what has been matched so far and what the latest error message was. It is used for error reporting. It keeps track of match failures via the ",
+"type":"text"
+},
+{
+"id":"5b5e4143fac64a7ba4fc1e5211b1d5f1",
+"type":"variable"
+},
+{
+"text":" method which is always called to raise a ",
+"type":"text"
+},
+{
+"id":"df25061bb4004aa693b603f0a8ec2af2",
+"type":"variable"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"98f5c2bd15984a67a75e7c2ebacdbdd4",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"A ",
 "type":"text"
 },
@@ -7919,7 +8004,7 @@
 "type":"variable"
 },
 {
-"text":" is a regular Python exception that also has a reference to a memoization table so that the ",
+"text":" is a Python exception that also has a reference to a memoization table so that the ",
 "type":"text"
 },
 {
@@ -8123,6 +8208,58 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"b2115b3eeaa143068958949787f5d104",
+"type":"variable"
+},
+{
+"text":" method returns a tuple with the next object and the next stream. There are two kinds of streams: character streams and object streams. They are subclasses of ",
+"type":"text"
+},
+{
+"id":"b4b8cb5f4cdd4dc68ecc9ca100d1da5a",
+"type":"variable"
+},
+{
+"text":" and implement the ",
+"type":"text"
+},
+{
+"id":"b062e0322e284160bf26034e9de32446",
+"type":"variable"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"id":"2f6729bf45e84649b3187f8016c3fec9",
+"type":"variable"
+},
+{
+"text":" methods.",
+"type":"text"
+}
+],
+"id":"c2f0fa8370cb4006b3a95effa12a4287",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"A character steam stores the position as a line + column:",
+"type":"text"
+}
+],
+"id":"bb66c6f3160844ee9dbc079a47ecba27",
+"type":"text"
+},
+{
 "chunkpath":[
 "classes"
 ],
@@ -8210,6 +8347,16 @@
 ],
 "id":"e637234d5baa4d669a60c90ce1688693",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"An object stream stores the position as a tuple of indicies:",
+"type":"text"
+}
+],
+"id":"9891ba6ef56f4d09abd3339c012b8b6b",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -8307,6 +8454,24 @@
 ],
 "id":"af185bd3045941ab9c96c68a83ec4741",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"id":"653fc20558a64badb437b07f3d1c8490",
+"type":"variable"
+},
+{
+"text":" method will only be called on object streams since character streams do not nest.",
+"type":"text"
+}
+],
+"id":"b51375058400475ab88893b2347bbb2d",
+"type":"text"
 }
 ],
 "title":"Final support methods"

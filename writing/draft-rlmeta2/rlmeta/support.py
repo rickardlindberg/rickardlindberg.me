@@ -90,7 +90,7 @@ class _Grammar(object):
             if self._stream.is_at_end():
                 self._stream = next_stream
                 return _SemanticAction(lambda: next_object)
-        original_stream.fail("expected list match")
+        original_stream.fail("list match failed")
 
     def run(self, rule_name, input_object):
         self._memo = _Memo()
