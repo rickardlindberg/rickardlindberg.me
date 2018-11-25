@@ -7844,7 +7844,7 @@
 "type":"variable"
 },
 {
-"text":"(self):\n        message = []\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].",
+"text":"(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].",
 "type":"code"
 },
 {
@@ -7860,7 +7860,7 @@
 "type":"variable"
 },
 {
-"text":"()))\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return \"\".join(message)\n\n    def ",
+"text":"()))\n        message = []\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return \"\".join(message)\n\n    def ",
 "type":"code"
 },
 {
@@ -7868,7 +7868,7 @@
 "type":"variable"
 },
 {
-"text":"(self, stream, message):\n        if self._latest_stream is None or stream.",
+"text":"(self, stream, message):\n        if self._latest_stream is None:\n            self._latest_stream = stream\n        if stream.",
 "type":"code"
 },
 {

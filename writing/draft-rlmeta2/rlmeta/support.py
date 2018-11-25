@@ -181,11 +181,12 @@ class _Memo(dict):
         self._latest_message = None
 
     def describe(self):
-        message = []
         items = []
         for (rule_name, _), (_, start, end) in self.items():
-            items.append((rule_name, start, end))
+            if end > start:
+                items.append((rule_name, start, end))
         items.sort(key=lambda item: (item[2].position(), item[1].position()))
+        message = []
         for item in items:
             message.append("matched {: <20} {} -> {}\n".format(*item))
         message.append("\n")
@@ -196,7 +197,9 @@ class _Memo(dict):
         return "".join(message)
 
     def fail(self, stream, message):
-        if self._latest_stream is None or stream.position() >= self._latest_stream.position():
+        if self._latest_stream is None:
+            self._latest_stream = stream
+        if stream.position() >= self._latest_stream.position():
             self._latest_stream = stream
             self._latest_message = message
         raise _MatchError(self)
