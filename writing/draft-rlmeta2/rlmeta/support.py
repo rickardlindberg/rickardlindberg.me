@@ -177,8 +177,8 @@ class _Memo(dict):
 
     def __init__(self):
         dict.__init__(self)
-        self._latest_stream = None
-        self._latest_message = None
+        self._latest_stream = _ObjectStream(self, [], position=-1)
+        self._latest_message = ""
 
     def describe(self):
         items = []
@@ -197,8 +197,6 @@ class _Memo(dict):
         return "".join(message)
 
     def fail(self, stream, message):
-        if self._latest_stream is None:
-            self._latest_stream = stream
         if stream.position() >= self._latest_stream.position():
             self._latest_stream = stream
             self._latest_message = message

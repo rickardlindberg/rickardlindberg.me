@@ -7803,7 +7803,7 @@
 "type":"variable"
 },
 {
-"text":" method returns a string that describes what has been matched so far. It is used for error reporting. It keeps track of match failures via the ",
+"text":" method returns a string that describes what has been matched so far and what the latest error message was. It is used for error reporting. It keeps track of match failures via the ",
 "type":"text"
 },
 {
@@ -7836,7 +7836,15 @@
 "type":"variable"
 },
 {
-"text":"(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = None\n        self._latest_message = None\n\n    def ",
+"text":"(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = ",
+"type":"code"
+},
+{
+"id":"b058347d19484740b7e2dec4816c0978",
+"type":"variable"
+},
+{
+"text":"(self, [], position=-1)\n        self._latest_message = \"\"\n\n    def ",
 "type":"code"
 },
 {
@@ -7868,7 +7876,7 @@
 "type":"variable"
 },
 {
-"text":"(self, stream, message):\n        if self._latest_stream is None:\n            self._latest_stream = stream\n        if stream.",
+"text":"(self, stream, message):\n        if stream.",
 "type":"code"
 },
 {
