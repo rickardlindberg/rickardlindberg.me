@@ -175,7 +175,7 @@
 "type":"code"
 },
 {
-"text":". The host language function ",
+"text":" with the digit character. The host language function ",
 "type":"text"
 },
 {
@@ -248,7 +248,7 @@
 {
 "fragments":[
 {
-"text":"More specifically, this program is a Python class that implements interpretation of arithmetic expression. The class depends on a support library and also on the host language functions that were called in the grammar (",
+"text":"More specifically, this program is a Python class that implements interpretation of arithmetic expression. The class depends on a support library and also on the host language functions that were called from the grammar (",
 "type":"text"
 },
 {
@@ -504,7 +504,7 @@
 {
 "fragments":[
 {
-"text":"The code generator takes as input ASTs from the parser and generates assembly language code for an imaginary stack machine.",
+"text":"The code generator takes as input ASTs from the parser and generates assembly language code for an imaginary stack machine:",
 "type":"text"
 }
 ],
@@ -629,7 +629,7 @@
 "type":"code"
 },
 {
-"text":") which is the digit stored in the node. The semantic actions in this grammar generate string output which is denoted by the curly braces. When a digit node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers off the stack, add or multiply them, and push the result.",
+"text":") which is the digit stored in the AST node. The semantic actions in this grammar generate string output which is denoted by the curly braces. When a digit AST node is matched, the string 'push [digit]\\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\\n' or 'mul\\n' instruction. They instruct the stack machine to pop two numbers off the stack, add or multiply them, and push the result.",
 "type":"text"
 }
 ],
@@ -3849,7 +3849,7 @@
 "type":"variable"
 },
 {
-"text":" rule and will thus look something like this:",
+"text":" rule and will thus look like this:",
 "type":"text"
 }
 ],
@@ -4347,7 +4347,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a matcher that stores the result of the expression as a side effect is generated:",
+"text":" AST node is matched, a matcher that stores the result as a side effect is generated:",
 "type":"text"
 }
 ],
@@ -4441,7 +4441,7 @@
 "type":"variable"
 },
 {
-"text":" method stores and returns the value:",
+"text":" method stores and returns the value with the given name:",
 "type":"text"
 }
 ],
@@ -4968,7 +4968,7 @@
 "type":"variable"
 },
 {
-"text":" instance is generated:",
+"text":" is generated:",
 "type":"text"
 }
 ],
@@ -8941,7 +8941,15 @@
 "filepath":[],
 "fragments":[
 {
-"text":"class Parser(_RLMeta):\n    ...\n",
+"text":"class Parser(",
+"type":"code"
+},
+{
+"id":"6544a37a96ce4294ab4553709d89f398",
+"type":"variable"
+},
+{
+"text":"):\n    ...\n",
 "type":"code"
 }
 ],
@@ -9326,7 +9334,7 @@
 {
 "fragments":[
 {
-"text":"To avoid making mistakes in the manual translation process, I created snippets for the Vim text editor for each of the AST nodes. So when I encountered a ",
+"text":"To avoid making mistakes in the manual translation process, I created snippets for the Vim text editor for each AST node. So when I encountered a ",
 "type":"text"
 },
 {
