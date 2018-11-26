@@ -46,7 +46,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a programming language in which you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched.",
+"text":"RLMeta is a programming language in which you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and evaluates the semantic actions when the objects are matched.",
 "type":"text"
 }
 ],
@@ -3888,7 +3888,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It tries them in sequence and returns the result of the first that matches:",
+"text":" method expects a list of matchers. It calls them in sequence and returns the result of the first that succeeds:",
 "type":"text"
 }
 ],
@@ -4296,7 +4296,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It runs them in sequence and returns the result of the last one:",
+"text":" method expects a list of matchers. It calls them in sequence and returns the result of the last one:",
 "type":"text"
 }
 ],
@@ -4347,7 +4347,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a matcher that stores the result as a side effect is generated:",
+"text":" AST node is matched, a matcher that binds the name to a value in the current scope is generated:",
 "type":"text"
 }
 ],
@@ -4423,7 +4423,7 @@
 {
 "fragments":[
 {
-"text":"The child AST node is assumed to generate a matcher. It is called to store the semantic action in the current scope.",
+"text":"The child AST node is assumed to generate a matcher which is called to make the value a semantic action.",
 "type":"text"
 }
 ],
@@ -4441,7 +4441,7 @@
 "type":"variable"
 },
 {
-"text":" method stores and returns the value with the given name:",
+"text":" method stores and returns a value with the given name:",
 "type":"text"
 }
 ],
@@ -4577,7 +4577,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a matcher. It tries it for as long as it succeeds and returns a semantic action that generates a list of all results:",
+"text":" method expects a matcher. It calls it for as long as it succeeds and returns a semantic action that returns a list of evaluated results when evaluated:",
 "type":"text"
 }
 ],
@@ -4669,40 +4669,6 @@
 {
 "fragments":[
 {
-"text":"The result of matchers are semantic actions. They have an ",
-"type":"text"
-},
-{
-"id":"85139f1436944deab62958b8a713d8aa",
-"type":"variable"
-},
-{
-"text":" method that returns the actual result. The ",
-"type":"text"
-},
-{
-"id":"70c457e3514948bcb6c00b67e5a180a2",
-"type":"variable"
-},
-{
-"text":" method is also a matcher, so it also returns a semantic action. The actual result of it is a list with all the actual results of the child matches. Therefore it has to call ",
-"type":"text"
-},
-{
-"id":"85139f1436944deab62958b8a713d8aa",
-"type":"variable"
-},
-{
-"text":" on all children.",
-"type":"text"
-}
-],
-"id":"0eb26166081a40feaa784cbc773c1e04",
-"type":"text"
-},
-{
-"fragments":[
-{
 "text":"A semantic action is a wrapper for a function:",
 "type":"text"
 }
@@ -4742,6 +4708,24 @@
 ],
 "id":"a2fa6b36dba04bcfad978306c9223c55",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Its ",
+"type":"text"
+},
+{
+"id":"85139f1436944deab62958b8a713d8aa",
+"type":"variable"
+},
+{
+"text":" method calls the function. The reason for wrapping semantic actions in functions is to prevent them from being evaluated before a parse is complete. If a parse fails, no semantic actions are evaluated.",
+"type":"text"
+}
+],
+"id":"0eb26166081a40feaa784cbc773c1e04",
+"type":"text"
 }
 ],
 "title":"Star"
@@ -6332,7 +6316,7 @@
 "type":"variable"
 },
 {
-"text":" call that contains all child objects. The matcher is then run on that stream. The matcher must match all child objects, or the match fails.",
+"text":" call that contains all child objects. It is set to be the input stream, and the matcher is then called. The matcher must match all child objects, or the match fails.",
 "type":"text"
 }
 ],
@@ -7516,7 +7500,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a Python expression that looks up the value of the variable is generated:",
+"text":" AST node is matched, a Python expression that looks up a variable and evaluates it is generated:",
 "type":"text"
 }
 ],
@@ -7592,24 +7576,6 @@
 {
 "fragments":[
 {
-"text":"The value stored is always a semantic action, and its ",
-"type":"text"
-},
-{
-"id":"85139f1436944deab62958b8a713d8aa",
-"type":"variable"
-},
-{
-"text":" method is called to get the actual value.",
-"type":"text"
-}
-],
-"id":"efb9e676fb2e46b2ad0d4bf8e18a0fe4",
-"type":"text"
-},
-{
-"fragments":[
-{
 "text":"The ",
 "type":"text"
 },
@@ -7655,7 +7621,7 @@
 {
 "fragments":[
 {
-"text":"Every time a variable is referenced, its ",
+"text":"Every time a variable is referenced, the ",
 "type":"text"
 },
 {
@@ -7710,7 +7676,7 @@
 "type":"variable"
 },
 {
-"text":" could be modified so it is only executed once if needed.",
+"text":" could be modified so that the function is only called once if needed.",
 "type":"text"
 }
 ],
