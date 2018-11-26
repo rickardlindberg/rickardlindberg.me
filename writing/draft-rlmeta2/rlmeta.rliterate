@@ -3423,7 +3423,15 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a Python class with the same name is generated:",
+"text":" AST node is matched, a Python class inheriting ",
+"type":"text"
+},
+{
+"id":"6544a37a96ce4294ab4553709d89f398",
+"type":"variable"
+},
+{
+"text":" is generated:",
 "type":"text"
 }
 ],
@@ -3491,7 +3499,17 @@
 {
 "fragments":[
 {
-"text":"The class inherits ",
+"text":"The name of the class is the same as the name of the grammar and the child AST nodes are assumed to generate methods in the class.",
+"type":"text"
+}
+],
+"id":"1de3d6c6d9d349e98b94194cd9525c2c",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The ",
 "type":"text"
 },
 {
@@ -3499,7 +3517,7 @@
 "type":"variable"
 },
 {
-"text":" which is defined in the support library:",
+"text":" class is defined in the support library:",
 "type":"text"
 }
 ],
@@ -3548,16 +3566,6 @@
 ],
 "id":"9d189abc5e624388a08c34b923aa8f01",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"The child AST nodes are assumed to generate methods in the class.",
-"type":"text"
-}
-],
-"id":"1de3d6c6d9d349e98b94194cd9525c2c",
-"type":"text"
 }
 ],
 "title":"Grammar"
@@ -3577,7 +3585,15 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a Python method with that name in it is generated:",
+"text":" AST node is matched, a Python method with a name prefixed with ",
+"type":"text"
+},
+{
+"text":"_rule_",
+"type":"code"
+},
+{
+"text":" is generated:",
 "type":"text"
 }
 ],
@@ -3637,7 +3653,7 @@
 {
 "fragments":[
 {
-"text":"The child AST node is assumed to generate a matcher. A matcher is a function that, when called, tries to match objects from the input stream and return a semantic action if successful or raise an exception if it fails. That function is called from the generated method and its result is returned.",
+"text":"The method name ends with the same name as the rule. The child AST node is assumed to generate a matcher. A matcher is a function that tries to match objects from the input stream and return a semantic action if it succeeds or raise an exception if it fails. That function is called from the generated method and the semantic action is returned.",
 "type":"text"
 }
 ],
@@ -3738,7 +3754,7 @@
 {
 "fragments":[
 {
-"text":"Helpers to generate a list of items:",
+"text":"Rules to generate a list of items:",
 "type":"text"
 }
 ],
