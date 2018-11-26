@@ -3904,7 +3904,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It calls them in sequence and returns the result of the first that succeeds:",
+"text":" method expects a list of matchers which are tried in sequence:",
 "type":"text"
 }
 ],
@@ -3997,7 +3997,7 @@
 {
 "fragments":[
 {
-"text":"The input stream is stored in ",
+"text":"The result of the first succeeding matcher is returned. The input stream is stored in ",
 "type":"text"
 },
 {
@@ -4312,7 +4312,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a list of matchers. It calls them in sequence and returns the result of the last one:",
+"text":" method expects a list of matchers which are called in sequence:",
 "type":"text"
 }
 ],
@@ -4344,6 +4344,16 @@
 ],
 "id":"4f4a619375d4416ba28f522d8b4cbf06",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The result of the last matcher is returned.",
+"type":"text"
+}
+],
+"id":"1a5a4d8ee57d4c0eae9d877449f58e80",
+"type":"text"
 }
 ],
 "title":"And"
@@ -4593,7 +4603,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a matcher. It calls it for as long as it succeeds and returns a semantic action that returns a list of evaluated results when evaluated:",
+"text":" method expects a matcher and calls it for as long as it succeeds:",
 "type":"text"
 }
 ],
@@ -4681,6 +4691,16 @@
 ],
 "id":"6d7dbee1acd04445a3fa837210e6a42d",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"A semantic action is returned. When evalueted, it returns a list of evaluated results.",
+"type":"text"
+}
+],
+"id":"cf8b38535cec45718ccf39010fc6b133",
+"type":"text"
 },
 {
 "fragments":[
@@ -4845,7 +4865,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a matcher. It never consumes any input. The original stream is always reset. It succeeds if the matcher fails.",
+"text":" method expects a matcher and succeeds if that matcher fails:",
 "type":"text"
 }
 ],
@@ -4941,6 +4961,16 @@
 ],
 "id":"77eb5bfff95948a08d1d3856984cfc9f",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It never consumes any input. The original stream is always reset.",
+"type":"text"
+}
+],
+"id":"7141158b2b0745cba96463a4457397c8",
+"type":"text"
 }
 ],
 "title":"Not"
@@ -5137,7 +5167,7 @@
 "type":"variable"
 },
 {
-"text":" method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the input stream is updated. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.",
+"text":" method expects the name of the rule to call:",
 "type":"text"
 }
 ],
@@ -5233,6 +5263,16 @@
 ],
 "id":"26f47b044a2d4e599f7363169fb6a0aa",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the given rule has been matched at the current position before, the memoized result is returned and the input stream is updated. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.",
+"type":"text"
+}
+],
+"id":"e965ceea36314664ab2c205ba9934152",
+"type":"text"
 }
 ],
 "title":"MatchRule"
@@ -5328,7 +5368,7 @@
 "type":"variable"
 },
 {
-"text":" method expects two objects. If the next object from the input stream is in that range, it succeeds, otherwise it fails:",
+"text":" method expects two objects defining a range to match:",
 "type":"text"
 }
 ],
@@ -5425,6 +5465,16 @@
 "id":"fdb81b14b5c54348b151b5b2f379ae78",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the next object from the input stream is in that range, it succeeds, otherwise it fails.",
+"type":"text"
+}
+],
+"id":"4dc6c2e8562c401f8e4eb77a7f16a6f1",
+"type":"text"
 }
 ],
 "title":"MatchRange"
@@ -5520,7 +5570,7 @@
 "type":"variable"
 },
 {
-"text":" method expects the string to match. If the next object from the input stream is that string, it succeeds, otherwise it fails:",
+"text":" method expects the string to match:",
 "type":"text"
 }
 ],
@@ -5641,6 +5691,16 @@
 "id":"971fcb5050aa45348f80f3fe228af352",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the next object from the input stream is that string, it succeeds, otherwise it fails.",
+"type":"text"
+}
+],
+"id":"cd4f524e43fe419e85a94100cf394238",
+"type":"text"
 }
 ],
 "title":"MatchString"
@@ -5736,7 +5796,7 @@
 "type":"variable"
 },
 {
-"text":" method expects a string with characters to match. If the next objects from the input stream are those characters, it succeeds, otherwise it fails:",
+"text":" method expects a string with characters to match:",
 "type":"text"
 }
 ],
@@ -5857,6 +5917,16 @@
 "id":"0af5a39ebe764c1097b3a0478104a6fe",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the next objects from the input stream are those characters, it succeeds, otherwise it fails.",
+"type":"text"
+}
+],
+"id":"3a5d096546794761a1ac40ee575a960a",
+"type":"text"
 }
 ],
 "title":"MatchCharseq"
@@ -5952,7 +6022,7 @@
 "type":"variable"
 },
 {
-"text":" method expects no arguments and always returns the next object from the input stream. It only fails if there are no more objects.",
+"text":" method expects no arguments and always returns the next object from the input stream:",
 "type":"text"
 }
 ],
@@ -6032,6 +6102,16 @@
 ],
 "id":"af17e8b2e71143e890440310861281ca",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It only fails if there are no more objects.",
+"type":"text"
+}
+],
+"id":"7fe3be6003b247538ca14998f9389f57",
+"type":"text"
 }
 ],
 "title":"MatchAny"
@@ -6703,7 +6783,7 @@
 {
 "fragments":[
 {
-"text":"Child AST nodes are assumed to generate Python expressions.",
+"text":"The child AST nodes are assumed to generate Python expressions.",
 "type":"text"
 }
 ],
@@ -8192,7 +8272,7 @@
 {
 "fragments":[
 {
-"text":"The ",
+"text":"Its ",
 "type":"text"
 },
 {
