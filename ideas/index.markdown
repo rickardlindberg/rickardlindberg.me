@@ -90,3 +90,20 @@ Convert rlselect to an RLiterate document and publish it on this blog.
 ---
 
 Convert my dotfiles to an RLiterate document and publish it on this blog.
+
+---
+
+Blog about optimizing RLMeta.
+
+---
+
+Blog about connecting "Learn how to implement languages" and RLMeta: 6 years
+later I did what I suggested.
+
+---
+
+Blog about porting RLMeta to JavaScript.
+
+---
+
+Implement automatic syntax highlighting for RLMeta grammars.
