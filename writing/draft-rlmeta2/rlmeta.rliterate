@@ -324,7 +324,7 @@
 "type":"code"
 },
 {
-"text":" is always available). Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are used by instantiating them and calling their ",
+"text":" is always available). Then the support library and the compiled calculator grammar snippets are inserted. Finally the main method which is the REPL is implemented. Compiled grammars are used by instantiating them and calling their ",
 "type":"text"
 },
 {
@@ -736,7 +736,15 @@
 {
 "fragments":[
 {
-"text":"This template is rendered with a Bash script:",
+"text":"First the ",
+"type":"text"
+},
+{
+"text":"sys",
+"type":"code"
+},
+{
+"text":" module is imported because the main method needs it. Then the support library, compiled parser grammar, and compiled code generator grammar snippets are inserted. Finally the main method which is the REPL is implemented. The output of the parser is fed to the code generator and its output is finally written to stdout. This template is rendered with a Bash script:",
 "type":"text"
 }
 ],
@@ -8687,7 +8695,15 @@
 {
 "fragments":[
 {
-"text":"First, the support library snippet is stored in a variable. This is needed so that it can be output when the ",
+"text":"First the ",
+"type":"text"
+},
+{
+"text":"sys",
+"type":"code"
+},
+{
+"text":" module is imported because the main method needs it. Then the support library snippet is stored in a variable so that it can be output when the ",
 "type":"text"
 },
 {
@@ -8703,7 +8719,7 @@
 "type":"code"
 },
 {
-"text":" is defined. Then a function to compile a grammar is defined. Finally the main method that accepts grammars on stdin and writes Python classes on stdout is implemented. If an error occurs, it is written to stderr using the ",
+"text":" is defined. Then a function to compile a grammar is defined. Finally the main method that accepts grammars on stdin and writes Python classes on stdout is implemented. If an error occurs, it is written to stderr using the exception's ",
 "type":"text"
 },
 {
@@ -8711,7 +8727,7 @@
 "type":"variable"
 },
 {
-"text":" call. This template is rendered with a Bash script:",
+"text":" method. This template is rendered with a Bash script:",
 "type":"text"
 }
 ],
