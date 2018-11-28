@@ -209,7 +209,7 @@
 {
 "fragments":[
 {
-"text":"This grammar describes how to recognize arithmetic expressions in sequences of characters. Precedence is encoded by the order of the rules. An additive is ",
+"text":"This grammar describes how to recognize an arithmetic expression in a sequence of characters. Precedence is encoded by the order of the rules. An additive is ",
 "type":"text"
 },
 {
@@ -217,7 +217,7 @@
 "type":"code"
 },
 {
-"text":" where the xes are multitives. Therefore multiplication is performed before addition. It gives meaning to the expressions by calling host language functions when expressions are matched.",
+"text":" where the xes are multitives. Therefore multiplication is performed before addition. It gives meaning to the expression by calling host language functions when parts are matched.",
 "type":"text"
 }
 ],
@@ -248,7 +248,7 @@
 {
 "fragments":[
 {
-"text":"More specifically, this program is a Python class that implements interpretation of arithmetic expression. The class depends on a support library and also on the host language functions that were called from the grammar (",
+"text":"More specifically, this program is a Python class that implements interpretation of arithmetic expressions. The class depends on a support library and also on the host language functions that were called from the grammar (",
 "type":"text"
 },
 {
@@ -441,7 +441,7 @@
 {
 "fragments":[
 {
-"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a kind of assembly language that eliminates the need for Python.",
+"text":"The previous example relied on host language functions to perform addition and multiplication. The meaning of an expression was defined in terms of the meaning of Python functions. To understand what an expression means, you need to understand how Python implements those functions. The next example compiles an expression down to a kind of assembly language that eliminates the need for Python.",
 "type":"text"
 }
 ],
@@ -451,7 +451,7 @@
 {
 "fragments":[
 {
-"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same arithmetic expressions as the calculator grammar but instead of evaluating expressions, it creates abstract syntax trees (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.",
+"text":"For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same arithmetic expression as the calculator grammar but instead of evaluating an expression, it creates an abstract syntax tree (AST) describing the expression:",
 "type":"text"
 }
 ],
@@ -504,7 +504,17 @@
 {
 "fragments":[
 {
-"text":"The code generator takes as input ASTs from the parser and generates assembly language code for an imaginary stack machine:",
+"text":"Nodes in the AST are represented as lists where the first item is a string denoting the type of node. The bracket notaion in the semantic actions create lists.",
+"type":"text"
+}
+],
+"id":"f5aa9632986e405bb513c9136938960f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The code generator takes as input an AST from the parser and generates assembly language code for an imaginary stack machine:",
 "type":"text"
 }
 ],
@@ -9516,7 +9526,7 @@
 {
 "fragments":[
 {
-"text":"The RLMeta compiler translates grammars to Python classes. This translation is implemented in RLMeta itself. Grammars are, like expression compilation, translated in two steps: the parser translates grammar syntax to ASTs and the code generator translates ASTs to Python classes. The generated Python classes depend on a support library.",
+"text":"The RLMeta compiler translates a grammar to a Python classe. This translation is implemented in RLMeta itself. Grammars are, like expression compilation, translated in two steps: the parser translates grammar syntax to an AST and the code generator translates the AST to a Python classe. The generated Python classe depends on a support library.",
 "type":"text"
 }
 ],
