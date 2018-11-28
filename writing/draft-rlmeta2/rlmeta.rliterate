@@ -3215,7 +3215,7 @@
 {
 "fragments":[
 {
-"text":"The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case JavaScript must be used as a target language. RLMeta could be ported to JavaScript by modifying the code generator and the support library.",
+"text":"The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case JavaScript must be used as the target language. RLMeta could be ported to JavaScript by modifying the code generator and the support library.",
 "type":"text"
 }
 ],
@@ -4138,7 +4138,7 @@
 {
 "fragments":[
 {
-"text":"A scope is a set of variables that do not conflict with variables in other scopes. The name ",
+"text":"A scope is a set of variables that do not interfere with variables in other scopes. The name ",
 "type":"text"
 },
 {
@@ -4146,7 +4146,7 @@
 "type":"variable"
 },
 {
-"text":" is used to refer to variables in the current scope. The child AST node is assumed to generate a matcher which is then called. The generated string will thus look like this:",
+"text":" is used to refer to variables in the current scope. The child AST node is assumed to generate a matcher which is called to return a semantic action. The generated string will thus look like this:",
 "type":"text"
 }
 ],
@@ -5275,7 +5275,7 @@
 {
 "fragments":[
 {
-"text":"If the given rule has been matched at the current position before, the memoized result is returned and the input stream is updated. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.",
+"text":"If the given rule has been matched at the current position before, the memoized result is returned and the input stream is changed to where the previous match ended. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.",
 "type":"text"
 }
 ],
@@ -7157,7 +7157,7 @@
 "type":"variable"
 },
 {
-"text":" method of a builder creates an instance of a builder:",
+"text":" method of a builder creates an instance of a builder depending on the type of object passed in:",
 "type":"text"
 }
 ],
@@ -7275,7 +7275,7 @@
 "type":"variable"
 },
 {
-"text":"):\n\n    def __init__(self, items):\n        self.items = items\n\n    def ",
+"text":"):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def ",
 "type":"code"
 },
 {
@@ -7283,7 +7283,7 @@
 "type":"variable"
 },
 {
-"text":"(self, output):\n        for item in self.items:\n            item.",
+"text":"(self, output):\n        for builder in self.builders:\n            builder.",
 "type":"code"
 },
 {
@@ -7376,7 +7376,7 @@
 "type":"variable"
 },
 {
-"text":" changes the indentation on the output:",
+"text":" changes the indentation of the output:",
 "type":"text"
 }
 ],
@@ -7444,7 +7444,7 @@
 "type":"variable"
 },
 {
-"text":" changes the indentation on the output:",
+"text":" changes the indentation of the output:",
 "type":"text"
 }
 ],
@@ -7604,7 +7604,7 @@
 "type":"variable"
 },
 {
-"text":" AST node is matched, a Python expression that looks up a variable and evaluates it is generated:",
+"text":" AST node is matched, a Python expression that looks up the variable and evaluates it is generated:",
 "type":"text"
 }
 ],
@@ -7922,7 +7922,7 @@
 {
 "fragments":[
 {
-"text":"It initializes the memoization table and the input stream, matches the rule, and returns the result. If the result is a builder, the string that the builder builds is returned.",
+"text":"It initializes the memoization table and the input stream, matches the rule, and returns the evaluated result. If the result is a builder, the string that the builder builds is returned.",
 "type":"text"
 }
 ],
@@ -8312,7 +8312,15 @@
 "type":"variable"
 },
 {
-"text":" methods.",
+"text":" methods. The appropriate stream is chosen in the ",
+"type":"text"
+},
+{
+"id":"6de4b0de9db3465b89ec2278c5c557a8",
+"type":"variable"
+},
+{
+"text":" mehod.",
 "type":"text"
 }
 ],

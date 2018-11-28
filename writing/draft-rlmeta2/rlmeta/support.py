@@ -148,12 +148,12 @@ class _Output(object):
 
 class _ListBuilder(_Builder):
 
-    def __init__(self, items):
-        self.items = items
+    def __init__(self, builders):
+        self.builders = builders
 
     def write(self, output):
-        for item in self.items:
-            item.write(output)
+        for builder in self.builders:
+            builder.write(output)
 
 class _AtomBuilder(_Builder):
 
