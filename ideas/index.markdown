@@ -80,11 +80,6 @@ Interesting blog: [Eli Bendersky's website](https://eli.thegreenplace.net/)
 
 ---
 
-Blog about associativity and precedence in RLMeta. A good resource:
-[http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
-
----
-
 Convert rlselect to an RLiterate document and publish it on this blog.
 
 ---
@@ -93,17 +88,18 @@ Convert my dotfiles to an RLiterate document and publish it on this blog.
 
 ---
 
-Blog about optimizing RLMeta.
+Write RLMeta blog series:
 
----
+* Optimizing RLMeta.
 
-Blog about connecting "Learn how to implement languages" and RLMeta: 6 years
-later I did what I suggested.
+* Associativity and precedence. A good resource:
+  [http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
 
----
+* Connecting "Learn how to implement languages" and RLMeta: 6 years
+  later I did what I suggested.
 
-Blog about porting RLMeta to JavaScript.
+* Porting RLMeta to JavaScript.
 
----
+* Automatic syntax highlighting for RLMeta grammars.
 
-Implement automatic syntax highlighting for RLMeta grammars.
+* Bootstrapping with [Ohm](https://ohmlang.github.io/).
