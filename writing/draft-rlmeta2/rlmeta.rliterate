@@ -434,7 +434,30 @@
 {
 "fragments":[
 {
-"text":"When the calculator matches the expression, it will call host language functions equivalent to this:",
+"text":"In this example, the input stream becomes a list of characters:",
+"type":"text"
+}
+],
+"id":"9912ad903c8b491b8b219ed8fa87bd49",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"['1', '+', '2', '*', '3']\n",
+"type":"code"
+}
+],
+"id":"9e34601e23784c6890acdc9e43105b82",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"When the calculator matches the expression, the following host language functions will be called:",
 "type":"text"
 }
 ],
@@ -672,6 +695,16 @@
 {
 "fragments":[
 {
+"text":"This grammar describes how to recognize and AST in a sequence of objects. It gives meaning to the AST by generating assemly language code when AST nodes are matched.",
+"type":"text"
+}
+],
+"id":"ec41948516f7411d8af2da8bd8093ace",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"When the expression grammars are fed to the RLMeta compiler, programs are output whose combination is a compiler for arithmetic expressions.",
 "type":"text"
 }
@@ -860,7 +893,53 @@
 {
 "fragments":[
 {
-"text":"This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of a real CPU. But I will not do that here. The point is that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
+"text":"In the first example, the input stream to the parser becomes a list of characters (same as for the calculator):",
+"type":"text"
+}
+],
+"id":"f3253a77f82c4e729b1a212bc4873bf0",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"['1', '+', '2', '*', '3']\n",
+"type":"code"
+}
+],
+"id":"c598be42c7524662b04fa75a3ec0d647",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The input stream to the code generator becomes a list with a single object which is a list (the root AST node):",
+"type":"text"
+}
+],
+"id":"527997e7e675459cbe27e093c24a1c8a",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"[\n    [\n        'add',\n        ['digit', '1'],\n        [\n            'mul',\n            ['digit', '2'],\n            ['digit', '3']\n        ]\n    ]\n]\n",
+"type":"code"
+}
+],
+"id":"f848315da2fa4eeb982b966cfd5da7dc",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The generated assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of a real CPU. But I will not do that here. The point is that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.",
 "type":"text"
 }
 ],
