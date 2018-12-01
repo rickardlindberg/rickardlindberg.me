@@ -103,3 +103,6 @@ Write RLMeta blog series:
 * Automatic syntax highlighting for RLMeta grammars.
 
 * Bootstrapping with [Ohm](https://ohmlang.github.io/).
+
+* Demonstrate how a feature is added to RLMeta and the need for compiling
+  itself in steps. Link to than post from within the RLMeta post.
