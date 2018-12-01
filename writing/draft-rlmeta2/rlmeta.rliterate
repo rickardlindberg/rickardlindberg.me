@@ -385,7 +385,15 @@
 {
 "fragments":[
 {
-"text":"The RLMeta compiler (",
+"text":"First the ",
+"type":"text"
+},
+{
+"text":"set -e",
+"type":"code"
+},
+{
+"text":" directive ensures that the script exits as soon as there is an error. Then the directory is changed to the one where the compile script lives. Then the output of two calls to the RLMeta compiler (",
 "type":"text"
 },
 {
@@ -393,7 +401,7 @@
 "type":"code"
 },
 {
-"text":") reads a grammar from stdin and writes a Python class to stdout. If the ",
+"text":") are captured in two variables. The RLMeta compiler reads a grammar from stdin and writes a Python class to stdout. If the ",
 "type":"text"
 },
 {
@@ -401,7 +409,24 @@
 "type":"code"
 },
 {
-"text":" flag is given, it outputs the support library to stdout instead.",
+"text":" flag is given, it writes the support library to stdout instead. The ",
+"type":"text"
+},
+{
+"text":"command < file",
+"type":"code"
+},
+{
+"text":" syntax redirects the contents of the file to the command's stdin. Finally the Python file template is rendered and written to stdout using a ",
+"type":"text"
+},
+{
+"text":"here document",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Here_document#Unix_shells"
+},
+{
+"text":" which has access to the previously captured variables.",
 "type":"text"
 }
 ],
@@ -434,7 +459,34 @@
 {
 "fragments":[
 {
-"text":"In this example, the input stream becomes a list of characters:",
+"text":"The compile script writes a Python file to stdout. The ",
+"type":"text"
+},
+{
+"text":"<(command)",
+"type":"code"
+},
+{
+"text":" syntax is ",
+"type":"text"
+},
+{
+"text":"process substitution",
+"type":"link",
+"url":"https://en.wikipedia.org/wiki/Process_substitution"
+},
+{
+"text":" and turns the output of the command into a temporary file which can then be run with Python.",
+"type":"text"
+}
+],
+"id":"549488e5a2c445159aa86cbee483787e",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"In this example, the input stream to the calculator becomes a list of characters:",
 "type":"text"
 }
 ],
@@ -871,6 +923,24 @@
 {
 "fragments":[
 {
+"text":"First the ",
+"type":"text"
+},
+{
+"text":"set -e",
+"type":"code"
+},
+{
+"text":" directive ensures that the script exits as soon as there is an error. Then the directory is changed to the one where the compile script lives. Then the output of three calls to the RLMeta compiler are captured in three variables. Finally the Python file template is rendered and written to stdout.",
+"type":"text"
+}
+],
+"id":"016538139f104eea90ccfbbe1c53d7d4",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Example usage on the command line:",
 "type":"text"
 }
@@ -888,6 +958,7 @@
 }
 ],
 "id":"c4b0637463164b6681f2d71a50ed9dd8",
+"language":"",
 "type":"code"
 },
 {
@@ -8940,19 +9011,45 @@
 {
 "fragments":[
 {
-"text":"If the compile script is run with the ",
+"text":"First the ",
 "type":"text"
 },
 {
-"text":"rlmeta.py",
+"text":"set -e",
 "type":"code"
 },
 {
-"text":" compiler, a new Python file is output. This file is exactly the same as the original ",
+"text":" directive ensures that the script exits as soon as there is an error. Then a variable containing the path to the RLMeta compiler is defined. The path must be given to the compile script as the first argument. Then the directory is changed to the one where the compile script lives. Then a function is defined that turns its stdin into a Python string with correct quoting. Then the support library is captured in a variable. Then the output of passing the support library to ",
 "type":"text"
 },
 {
-"text":"rlmeta.py",
+"text":"to_python_string",
+"type":"code"
+},
+{
+"text":" is captured in a variable. Then the output of two calls to the RLMeta compiler are captured in two variables. Finally the Python file template is rendered and written to stdout.",
+"type":"text"
+}
+],
+"id":"c7de1c99ce3047d6923b8ac902be2bf1",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"If the compile script is run with the current RLMeta compiler (",
+"type":"text"
+},
+{
+"text":"rlmeta/rlmeta.py",
+"type":"code"
+},
+{
+"text":"), a new Python file is output that is exactly the same as the ",
+"type":"text"
+},
+{
+"text":"rlmeta/rlmeta.py",
 "type":"code"
 },
 {
@@ -8973,6 +9070,7 @@
 }
 ],
 "id":"46ec2ac30c8d4762a7e3017195451261",
+"language":"",
 "type":"code"
 },
 {
@@ -8986,7 +9084,15 @@
 "type":"code"
 },
 {
-"text":" file never needs to be changed manually. The next version can always be produced with the previous version. If you want to see what it looks like, it is ",
+"text":" file never needs to be changed manually. The next version can always be produced using the previous version. Sometimes the next version must be produced in steps and intermediate compilers must be created. That is why the path to the compiler must be given to the compile script. If you want to see what the ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" file looks like, it is ",
 "type":"text"
 },
 {
