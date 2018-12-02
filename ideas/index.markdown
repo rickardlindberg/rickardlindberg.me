@@ -11,7 +11,7 @@ Learn about [Earley parsing](https://en.wikipedia.org/wiki/Earley_parser).
 ---
 
 Develop a prototype of the code collaboration platform that I discussed in [A
-new home for Timeline](../writing/new-home-for-timeline/index.html).
+new home for Timeline](/writing/new-home-for-timeline/index.html).
 
 ---
 
@@ -64,14 +64,12 @@ Ideas](https://www.amazon.com/Mindstorms-Children-Computers-Powerful-Ideas/dp/04
 
 ---
 
-Read the blog post [Computer
-Revolution](http://blog.rtens.org/computer-revolution.html).
-
----
-
 The STEPS project.
 
 Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html).
+
+Read the blog post [Computer
+Revolution](http://blog.rtens.org/computer-revolution.html).
 
 ---
 
@@ -88,7 +86,7 @@ Convert my dotfiles to an RLiterate document and publish it on this blog.
 
 ---
 
-Write RLMeta blog series:
+Write more articles in the [RLMeta](/tags/rlmeta/index.html) series:
 
 * Optimizing RLMeta.
 
@@ -106,3 +104,5 @@ Write RLMeta blog series:
 
 * Demonstrate how a feature is added to RLMeta and the need for compiling
   itself in steps. Link to than post from within the RLMeta post.
+
+* Implement a template language that can be used to replace compile scripts.
