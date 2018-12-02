@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: RLMeta | Rickard's personal homepage
+      A meta approach to implementing programming languages | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,9 +53,9 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: RLMeta</h1>
+      <h1>A meta approach to implementing programming languages</h1>
 
-<p><em>Published on 2018-11-25.</em></p>
+<p><em>Published on 2018-12-02.</em></p>
 
 <p>How does the computer know what to do with the following expression?</p>
 
@@ -176,31 +176,31 @@
 
 </li>
 
-<li><a href="#07530ffd21784561bd8594c98fcd050a">SemanticAction</a>
+<li><a href="#07530ffd21784561bd8594c98fcd050a">Semantic action</a>
 
 </li>
 
-<li><a href="#c10aabed8057404e97ef8cd6ac1b113d">MatchRule</a>
+<li><a href="#c10aabed8057404e97ef8cd6ac1b113d">Match rule</a>
 
 </li>
 
-<li><a href="#3ba5893bb7094ece96e853f869df9456">MatchRange</a>
+<li><a href="#3ba5893bb7094ece96e853f869df9456">Match range</a>
 
 </li>
 
-<li><a href="#82022cc15d944579825b52559b1ee469">MatchString</a>
+<li><a href="#82022cc15d944579825b52559b1ee469">Match string</a>
 
 </li>
 
-<li><a href="#3eff70b8911e4b4e9bd520a7d25624e7">MatchCharseq</a>
+<li><a href="#3eff70b8911e4b4e9bd520a7d25624e7">Match character sequence</a>
 
 </li>
 
-<li><a href="#5edd25f746a94b8392834343dce57370">MatchAny</a>
+<li><a href="#5edd25f746a94b8392834343dce57370">Match any</a>
 
 </li>
 
-<li><a href="#c3b58d2d7b024fa4a0e5ff0bcf06d154">MatchList</a>
+<li><a href="#c3b58d2d7b024fa4a0e5ff0bcf06d154">Match list</a>
 
 </li>
 
@@ -216,11 +216,11 @@
 
 </li>
 
-<li><a href="#f5372dab8e084ca386297eb9575052e8">FnCall</a>
+<li><a href="#f5372dab8e084ca386297eb9575052e8">Function call</a>
 
 </li>
 
-<li><a href="#d9f73bdeb5c447dbaf5b8fe0bf3b67ba">VarLookup</a>
+<li><a href="#d9f73bdeb5c447dbaf5b8fe0bf3b67ba">Variable lookup</a>
 
 </li>
 
@@ -240,17 +240,15 @@
 
 </ul></li>
 
-<li><a href="#5f558623cfce441fb3e61033299d1419">Implementing languages</a>
+<li><a href="#5f558623cfce441fb3e61033299d1419">Implementing programming languages</a>
 
 </li>
 
-<li><a href="#6f7a509358784145b38fd210c96513c5">Appendix</a>
-
-<ul><li><a href="#4c6af1a11ed440d2bf31a497032c9c0b">Resources</a>
+<li><a href="#4c6af1a11ed440d2bf31a497032c9c0b">Resources</a>
 
 </li>
 
-<li><a href="#388bb1e8ccbd4d55b89b391c08452c33">Code listings</a>
+<li><a href="#388bb1e8ccbd4d55b89b391c08452c33">Code listings for RLMeta</a>
 
 <ul><li><a href="#a56c54f42c00473091d7c8295ff4e0f1">parser.rlmeta</a>
 
@@ -270,15 +268,13 @@
 
 </ul></li>
 
-</ul></li>
-
 </ul><h2><a name="3f00cf52d91a411d941312539a15cc32"></a>Metalanguages</h2>
 
 <p>Metalanguages are used to reason about languages. In metalanguages you can make statements about statements in a different language.</p>
 
 <p>The metalanguage I've developed is called RLMeta. It is inspired by a metalanguage from the sixties called <a href="https://en.wikipedia.org/wiki/META_II">META II</a>. I wanted to develop my own version of META II to understand it deeply. RLMeta is also inspired by <a href="https://en.wikipedia.org/wiki/OMeta">OMeta</a> (another META II derivative).</p>
 
-<p>RLMeta is a programming language in which you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and performs the semantic actions when the objects are matched.</p>
+<p>RLMeta is a programming language in which you write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched. The RLMeta compiler translates grammars into programs that recognize the objects specified in the grammar and evaluates the semantic actions when the objects are matched.</p>
 
 <div class="rliterate-image"><img src="data:image/png;base64,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" />
 
@@ -312,9 +308,9 @@
 
 </div>
 
-<p>This grammar is called <code>Calculator</code>. It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The second case is only tried if the first does not match. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The <code>:</code> followed by a name binds the result of a match to a variable. The expressions to the right of <code>-&gt;</code> are semantic actions. They specify what should happen on a match. They can refer to variables. In this grammar they say that whenever an additive is matched, call the host language function <code>add</code> with the left and right side, and whenever a multitive is matched, call the host language function <code>mul</code> with the left and right side, and whenever a digit is matched, call the host language function <code>int</code>. The host language function <code>int</code> converts a digit character to an integer and the <code>add</code> and <code>mul</code> functions perform addition and multiplication.</p>
+<p>This grammar is called <code>Calculator</code>. It has four rules. The first rule says that an expression is an additive. The second rule says that an additive is either a multitive followed by the character '+' followed by another additive or just a multitive. The second case is only tried if the first does not match. The third rule says that a multitive is either a digit followed by the character '*' followed by another multitive or just a digit. The fourth rule says that a digit is a character in the range 0-9. The <code>:</code> followed by a name binds the result of a match to a variable. The expressions to the right of <code>-&gt;</code> are semantic actions. They specify what should happen on a match. They can refer to variables. In this grammar they say that whenever an additive is matched, call the host language function <code>add</code> with the left and right side, and whenever a multitive is matched, call the host language function <code>mul</code> with the left and right side, and whenever a digit is matched, call the host language function <code>int</code> with the digit character. The host language function <code>int</code> converts a digit character to an integer and the <code>add</code> and <code>mul</code> functions perform addition and multiplication.</p>
 
-<p>This grammar describes how to recognize arithmetic expressions in a sequence of characters. Precedence is encoded by the order of the rules. An additive is <code>x1 + x2 + x3 + ..</code> where the xes are multitives. Therefore multiplication is performed before addition. It gives meaning to the expressions by calling host language functions when expressions are matched.</p>
+<p>This grammar describes how to recognize an arithmetic expression in a sequence of characters. Precedence is encoded by the order of the rules. An additive is <code>x1 + x2 + x3 + ..</code> where the xes are multitives. Therefore multiplication is performed before addition. It gives meaning to the expression by calling host language functions when parts are matched.</p>
 
 <p>When the calculator grammar is fed to the RLMeta compiler, a program is output that is an interpreter for arithmetic expressions.</p>
 
@@ -326,7 +322,7 @@
 
 </div>
 
-<p>More specifically, this program is a Python class that implements interpretation of arithmetic expression. The class depends on a support library and also on the host language functions that were called in the grammar (<code>add</code>, <code>mul</code>, and <code>int</code>). The pieces must be assembled to form an executable program. Here is a template for the final Python file that implements a read-eval-print loop (REPL) for arithmetic expressions:</p>
+<p>More specifically, this program is a Python class that implements interpretation of arithmetic expressions. The class depends on a support library and also on the host language functions that were called from the grammar (<code>add</code>, <code>mul</code>, and <code>int</code>). Host language refers to the language that grammars are compiled to. In this case Python. The pieces must be assembled to form an executable program. Here is a template for the final Python file that implements a read-eval-print loop (REPL) for arithmetic expressions:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>calculator</li><li>compile.sh</li><li><span class="cp">python file template</span>
 
@@ -350,7 +346,7 @@
 
 </div>
 
-<p>First the host language functions are imported (<code>int</code> is always available). Then the support library and the compiled calculator grammar snippets are inserted. And finally a REPL is implemented. Compiled grammars are used by instantiating them and calling their <code>run</code> method with the name of the rule and the input object. This template is rendered with a Bash script:</p>
+<p>First the host language functions are imported (<code>int</code> is always available). Then the support library and the compiled calculator grammar snippets are inserted. Finally the main method which is the REPL is implemented. Compiled grammars are used by instantiating them and calling their <code>run</code> method with the name of the rule and the input object. This template is rendered with a Bash script:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>calculator</li><li>compile.sh</li></ol>
 
@@ -372,7 +368,7 @@
 
 </div>
 
-<p>The RLMeta compiler (<code>rlmeta.py</code>) reads grammars from stdin and outputs Python classes on stdout. If the <code>--support</code> flag is given, it outputs the support library on stdout instead.</p>
+<p>First the <code>set -e</code> directive ensures that the script exits as soon as there is an error. Then the directory is changed to the one where the compile script lives. Then the output of two calls to the RLMeta compiler (<code>rlmeta.py</code>) are captured in two variables. The RLMeta compiler reads a grammar from stdin and writes a Python class to stdout. If the <code>--support</code> flag is given, it writes the support library to stdout instead. The <code>command &lt; file</code> syntax redirects the contents of the file to the command's stdin. Finally the Python file template is rendered and written to stdout using a <a href="https://en.wikipedia.org/wiki/Here_document#Unix_shells">here document</a> which has access to the previously captured variables.</p>
 
 <p>Example usage on the command line:</p>
 
@@ -383,11 +379,27 @@
 
 </div>
 
+<p>The compile script writes a Python file to stdout. The <code>&lt;(command)</code> syntax is <a href="https://en.wikipedia.org/wiki/Process_substitution">process substitution</a> and turns the output of the command into a temporary file which can then be run with Python.</p>
+
+<p>In this example, the input stream to the calculator becomes a list of characters:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">[</span><span class="s1">'</span><span class="s1">1</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">+</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">2</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">*</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">3</span><span class="s1">'</span><span class="p">]</span><span class>
+</span></pre></div>
+
+</div>
+
+<p>When the calculator matches the expression, the following host language functions will be called:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="n">a</span><span class="n">d</span><span class="n">d</span><span class="p">(</span><span class="nb">i</span><span class="nb">n</span><span class="nb">t</span><span class="p">(</span><span class="s1">'</span><span class="s1">1</span><span class="s1">'</span><span class="p">)</span><span class="p">,</span><span class> </span><span class="n">m</span><span class="n">u</span><span class="n">l</span><span class="p">(</span><span class="nb">i</span><span class="nb">n</span><span class="nb">t</span><span class="p">(</span><span class="s1">'</span><span class="s1">2</span><span class="s1">'</span><span class="p">)</span><span class="p">,</span><span class> </span><span class="nb">i</span><span class="nb">n</span><span class="nb">t</span><span class="p">(</span><span class="s1">'</span><span class="s1">3</span><span class="s1">'</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class>
+</span></pre></div>
+
+</div>
+
 <h2><a name="61e10d1de6624255a4406572fef4b413"></a>Compiling expressions</h2>
 
-<p>The previous example relied on host language functions to perform addition and multiplication. The meaning of expressions were defined in terms of the meaning of Python functions. To understand what expressions mean, you need to understand how Python implements those functions. The next example compiles expressions down to a kind of assembly language that eliminates the need for Python.</p>
+<p>The previous example relied on host language functions to perform addition and multiplication. The meaning of an expression was defined in terms of the meaning of Python functions. To understand what an expression means, you need to understand how Python implements those functions. The next example compiles an expression down to a kind of assembly language that eliminates the need for Python.</p>
 
-<p>For this compilation, two grammars are written: a parser and a code generator. The parser matches exactly the same arithmetic expressions as the calculator grammar but instead of evaluating expressions, it creates abstract syntax trees (AST) describing expressions. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.</p>
+<p>For this compilation, two grammars are written: a parser and a code generator. The parser looks similar to the calculator grammar but instead of evaluating the expression, it creates an abstract syntax tree (AST) describing the expression:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>expression</li><li>parser.rlmeta</li></ol>
 
@@ -409,7 +421,9 @@
 
 </div>
 
-<p>The code generator takes as input ASTs from the parser and generates assembly language code for an imaginary stack machine.</p>
+<p>The bracket notation in the semantic actions creates lists. Nodes in the AST are represented as lists where the first item is a string denoting the type of node.</p>
+
+<p>The code generator takes as input an AST from the parser and generates assembly language code for an imaginary stack machine:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>expression</li><li>codegenerator.rlmeta</li></ol>
 
@@ -425,7 +439,9 @@
 
 </div>
 
-<p>This grammar has only one rule: <code>ast</code>. It says that an AST is either a list that starts with the string 'add', or a list that starts with the string 'mul', or a list that starts with the string 'digit'. The add and mul cases recursively match AST nodes as their left and right side whereas the digit matches anything (<code>.</code>) which is the digit stored in the node. The semantic actions in this grammar generate string output which is denoted by the curly braces. When a digit node is matched, the string 'push [digit]\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\n' or 'mul\n' instruction. They instruct the stack machine to pop two numbers off the stack, add or multiply them, and push the result.</p>
+<p>This grammar has only one rule: <code>ast</code>. It says that an AST is either a list that starts with the string 'add', or a list that starts with the string 'mul', or a list that starts with the string 'digit'. The add and mul cases recursively match AST nodes as their left and right side whereas the digit matches anything (<code>.</code>) which is the digit stored in the AST node. The semantic actions in this grammar generate string output which is denoted by the curly braces. When a digit AST node is matched, the string 'push [digit]\n' is generated. It instructs the stack machine to push the given digit to the stack. For add and mul, instructions for the operands are first output followed by an 'add\n' or 'mul\n' instruction. They instruct the stack machine to pop two numbers off the stack, add or multiply them, and push the result.</p>
+
+<p>This grammar describes how to recognize and AST in a sequence of objects. It gives meaning to the AST by generating assembly language code when AST nodes are matched.</p>
 
 <p>When the expression grammars are fed to the RLMeta compiler, programs are output whose combination is a compiler for arithmetic expressions.</p>
 
@@ -465,7 +481,7 @@
 
 </div>
 
-<p>This template is rendered with a Bash script:</p>
+<p>First the <code>sys</code> module is imported because the main method needs it. Then the support library, compiled parser grammar, and compiled code generator grammar snippets are inserted. Finally the main method which is the REPL is implemented. The output of the parser is fed to the code generator and its output is finally written to stdout. This template is rendered with a Bash script:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>expression</li><li>compile.sh</li></ol>
 
@@ -488,6 +504,8 @@
 
 </div>
 
+<p>First the <code>set -e</code> directive ensures that the script exits as soon as there is an error. Then the directory is changed to the one where the compile script lives. Then the output of three calls to the RLMeta compiler are captured in three variables. Finally the Python file template is rendered and written to stdout.</p>
+
 <p>Example usage on the command line:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>p</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class> </span><span class>&lt;</span><span class>(</span><span class>.</span><span class>/</span><span class>e</span><span class>x</span><span class>p</span><span class>r</span><span class>e</span><span class>s</span><span class>s</span><span class>i</span><span class>o</span><span class>n</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class>)</span><span class>
@@ -507,13 +525,37 @@
 
 </div>
 
-<p>This assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of a real CPU. But I will not do that here. The point is that that the meaning of expressions can be described by a series of transformations that eventually output machine instructions.</p>
+<p>In the first example, the input stream to the parser becomes a list of characters (same as for the calculator):</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">[</span><span class="s1">'</span><span class="s1">1</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">+</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">2</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">*</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">3</span><span class="s1">'</span><span class="p">]</span><span class>
+</span></pre></div>
+
+</div>
+
+<p>The input stream to the code generator becomes a list with a single object which is a list (the root AST node):</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">[</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">[</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="s1">'</span><span class="s1">a</span><span class="s1">d</span><span class="s1">d</span><span class="s1">'</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">[</span><span class="s1">'</span><span class="s1">d</span><span class="s1">i</span><span class="s1">g</span><span class="s1">i</span><span class="s1">t</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">1</span><span class="s1">'</span><span class="p">]</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">[</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="s1">'</span><span class="s1">m</span><span class="s1">u</span><span class="s1">l</span><span class="s1">'</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">[</span><span class="s1">'</span><span class="s1">d</span><span class="s1">i</span><span class="s1">g</span><span class="s1">i</span><span class="s1">t</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">2</span><span class="s1">'</span><span class="p">]</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">[</span><span class="s1">'</span><span class="s1">d</span><span class="s1">i</span><span class="s1">g</span><span class="s1">i</span><span class="s1">t</span><span class="s1">'</span><span class="p">,</span><span class> </span><span class="s1">'</span><span class="s1">3</span><span class="s1">'</span><span class="p">]</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">]</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">]</span><span class>
+</span><span class="p">]</span><span class>
+</span></pre></div>
+
+</div>
+
+<p>The generated assembly language code is much closer to CPU instructions than the Python-based interpreter. A grammar could be written to convert these assembly instructions to assembly instructions of a real CPU. But I will not do that here. The point is that the meaning of an expression can be described by a series of transformations that eventually output machine instructions.</p>
 
 <h2><a name="f5f122c94d3d4fa0b3a7e64a7fa0a724"></a>RLMeta implementation</h2>
 
 <p>So far I've just given informal descriptions of how RLMeta works. To fully understand how arithmetic expressions are evaluated and compiled, you need to understand how RLMeta is implemented.</p>
 
-<p>The RLMeta compiler translates grammars to Python classes. This translation is implemented in RLMeta itself. Grammars are, like expression compilation, translated in two steps: the parser translates grammar syntax to ASTs and the code generator translates ASTs to Python classes. The generated Python classes depend on a support library.</p>
+<p>The RLMeta compiler translates a grammar to a Python class. This translation is implemented in RLMeta itself. A grammar is, like an expression, translated in two steps: the parser translates grammar syntax to an AST and the code generator translates the AST to a Python class. The generated Python class depends on a support library.</p>
 
 <div class="rliterate-image"><img src="data:image/png;base64,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RUVFPB4PAJCWliYWi9vnI6xatWrq1Kn+/v65ubkXL17cv3///fv3d+7cWVxc3NaNZvPy8vz9/aOioi5fvvz69euDBw8ePXo0Nze3Z8+eIpGoTQ/dMkeOHEH7p0JfApgXv1BWVlYAAIFAAADQarXbt2/38fHp0aOHu7u7hYXF+fPn0WJPnz5dtmxZp06dbt68+ccff7BYLLSaKzk5uXfv3i4uLt27d2cwGOvXr0fLCwSCb775xsrKKigoyMTEJCIiAs2j0dHRc+bMcXNzS01NXbFihZGR0cCBA/XzyVvJoUOH4uPjHR0dp0+fXlZWplu/a9euxMTEkJCQ0tLSTZs29ezZc+TIkT/88IOxsTGNRps1a9bgwYNfvnzJZrN1mzx8+HDGjBlsNjskJGTr1q1btmxph/ijo6M3bNjg7e195swZFoulWx8YGNgOR580aVJJScmhQ4eGDRumW4nD4dBLig5o586dUqlU31FA7eTTfr4ItVh6ejoAwMXFBQAQGRn53Xff7dq1a/HixUqlslevXuHh4YMHD6bRaJWVlRUVFUlJSZGRkUqlcsqUKdevXwcAjBo1isPh5OTkYLHYVatWoSN5KpXKQYMGqVSqlJQUU1PTK1euhIWFWVtbL1++nMvl5uXlpaenL1myhEKhjBo1qqioSK9fwMdavnz58uXL31+/atWqVatW1V5z8eJFAIBKpcLhcPXWNPbr169fv35tFGdDNm3aBAD4/vvviURi7fU+Pj5xcXG6cQnQO8iMjAwsFhscHPz999+jV1So4uLi7du337t3TygUcjicOneZKpVq3759Z8+eLSkpcXBwWLFiRWhoKADg3r17T5488fLyGjVqVJ2oIiIihEKhbhEdM+HYsWO5ublsNnvBggXjx48HAJSWll67di02NnbLli0XLlw4d+6cUCgcNWrUmjVrdN+wQCCIjIyMiooSCoU+Pj5r165Fh0pISUm5evVqfn7+7t2716xZc/ny5bVr144fP768vHzXrl337t2rqKiwtraeNm3ajBkzAAA5OTnffPPN69evBQIBOgLRL7/84u7uroutqKjI0NAwLCxs6dKlFAoFAFBZWXn9+vU7d+6sX7/+xYsX69ev79279++//94af7fPyqlTpy5fvlxaWrpw4UIXFxf0nOwQGAyG+JM1fPjw69evo69LS0vZbDbS9iZOnHj9+vVmbXLy5MlvvvmmjeJpijVr1gAADh06hC4mJyfT6XRra2s+n48gyMWLF+fMmXP79m30XbSK782bN+jivn37AABLlizR7Q1tMzJs2DB08fnz5+fPn0cQ5MCBAwCA6OhoXUlra2snJyf09YoVKwAAu3fvbtNP2hSOjo4VFRX6jqJdLV68WPfXRxBEIBDgcDgAAJfLbWSrv//+G4vF/vDDD0qlsqSkpHPnzhYWFpmZmei7r1+/NjY2DgwMfPz4sUQiSUlJwWAwwcHB6LsajWbYsGEuLi6PHj0qLi6eM2cODod79OgR8v8TrPYZ1ZDZs2dbWlpGR0eXlZWhVxvomTZt2jQOhwMACAgIWLRo0Y8//mhrawsAOH78OLohj8fz8PDo27dvSkpKdnZ23759DQ0Ny8rK8vLyxo4da2BgYGVlNWnSJA8PDyaT+euvv1ZVVVlZWXl5eVVXVwuFQrQf6p07dxAEKS8vRweFHzx4cExMTExMTHV1NYIg4eHhBALh3LlzCII8f/6cxWIFBgbKZDIEQb755hv0inPZsmVWVlYODg5BQUG6D1VeXq77p2iBpKSk2nv7pJWWltrb2wMA6HS67m/XEcC82Gyfbl4MCQlZvnz5mDFjiERit27d0tLS6hQrLi4+fvx4UFAQACAuLg5dieZF9PcIpdFo0H/7CRMmZGVl6daPGDECADB58uQ5/8disXA4nEqlQv6fFxMSEtr+434AzItJSUkAABqN1sgmhYWFJBLJ399ftyYlJQUAEBoaiiCIVqv18vIyMzMTiUS6Aug9JfoavUhCUwuCICKRCIvFotdSaMuabdu2NR4zOmzQ0aNH0UW1Wm1iYuLn54cuTp48GQBQUlKCLj558gQAMHv2bHRxwYIFBAKhrKwMXXz06BEAYNWqVeiiu7s7gUA4deoUgiAlJSU5OTkpKSkuLi4jR45EC8TFxQEA1qxZgy6igzDPmjVLF9ulS5fqpPa///4bAPDrr7+ii2hdwuzZs9VqtUKhePHiha4kzIu1RURE4HA43WnTQcB61C+Ig4ODi4tL7969f/31V3d3d916rVZ7+vTpPXv24PH4cePGeXl5ob8yDcFisXfu3FmwYMHp06fPnz8/c+bMyMhIGo1WVFSEwWAWLVqkq4WbM2cOAAC9NYE6DrSysfHOGOfOnVMoFF999ZVujbu7u5ub23///VdZWVlQUJCUlLR06VJ0GpD3HT9+HACQnJycmZmJriGTyWg+Rs+H2o2VAAALFizIyMjQLV66dAndQ35+/l9//YWuJJFIKSkpWq32/epoV1dXAADaakyr1Z46dYrFYl25cgV9t6qqCgCAHh1lbm6OpmdLS0t0DfpkAQAgEonQtsTihhtAHTt2DABQ+8sJCwubPXv2yZMna3ehXrhwIQ6Hw+FwXbp0aWhXX7iNGzdeuXKlo1Uyw7z4BQkKCkIriOqYO3fuP//8c/LkSfThDXpz2Tg2m3358uW4uLiIiIj9+/erVKp//vkHvf8wNzeHM391cDY2NlgsViKRCAQCQ0PDesug+Qyd9EqHw+GkpaVlZWWh7zbS1zAjI4PBYEgkEolEgq5Zs2YNmUwGAKCnR0FBQe3ya9euvX///tixY318fC5evEij0dA0icPhqqur0TKLFi0CANSbF2vneC6Xy+PxXF1ddRtisdjNmzejda0NkUqlhw4dOnfuHB6PR2fEbMT7X46JiQmVSkWrT5rb+7Mjy8rKOnXqFIFAaLsPNWnSpBs3buiGLWt1arW6W7duISEhTd8E5sUvHZrS3Nzc0KTYFElJSZcuXVq9enWXLl1u3brl7Oz87NkzAEDPnj0fPHhw+vTp77//vi1Dhj4WnU7v16/frVu37t69GxYWVvstjUaTn59vb29PIpEAADKZrPa76CKZTJbL5eD/7ZnrhcfjFQrFt99++34OGzZs2IYNG9Dn2bpfWzMzMy8vLwCAubk5Ok4CWusQHh5ubm7erE+HbshgMGp3hmlcWlragAEDzMzMjh075uHhkZaW1vggIe9/ORqNRqlUkkikzykpAgAOHDiwcePGZvVM7YB27tzp4eFRu8lY4z7tTws1EdpZsE7NFYpAIBgbG+fn5xcWFgIAUlNTb9261fjeKioq0JYIAAAMBoPBYLp16wYAWLRokbGx8caNG6Ojo9F3U1JSJkyYgDZwR+A8Eh3JihUrMBjM1q1b65wVaOcTtVqNVv3VrntUq9WpqakMBsPT0xN9wHz37t2G9u/t7a1UKmNiYt5/KzAwsGfPnmlpaRcuXGgkQm9vbwBAVFRUMz8ZYLFY1tbWr1+/LikpaeImW7duLSoq2rNnj4eHR0NlavfTRb+c2sNipKamqtXq9unl0m5EIhGbzf7UkyIAoF+/fvHx8U0v/8l/YOiDRo4cuXv3bgDADz/8gI6ZV8fmzZsVCoWnp6eHh8fOnTtHjhwJAJg9e/b58+c3bty4efNmAMCPP/44bdo0tDyFQsnNzQ0ICJg/f35gYKCDgwPa5c7S0jImJsbW1nbQoEEWFhZsNnvw4MGBgYEUCmXRokVoKp0xYwa8m+wIQkNDIyIinjx5Mnfu3NojMOjmNB09erSdnd3p06fR0QkAAPvcoTkAACAASURBVGfOnOFyuREREUQisVevXo6Ojrdv39Y9/MvOzq596bN48WIMBvPTTz/pKjMlEslvv/2Gvj5y5Ii5ufns2bMbuQibP38+gUBYv349OkIQAECpVP7+++/orWrjFi9erFarly1bphuGoqysDG0aUy/0kWdFRQW6mJiYWPtddCTh2o8/Fy5cSCKR/vzzT12y3LNnDwaD+e677z4Y2ydEo9F8Ho0DcDhcs4ZwgvWon7/Dhw/Xe6eoEx4ePmDAgIyMDHQSeZVKNWvWLAAAhUJRq9Xz5s1Di+kqiIKCgqqqqt68eaNSqZYvX177IZOfn19iYmJ+fn5OTo6ZmZmnpye61fr163/99Ve0zOfxn1aHRqNJjX8uKsnFKqQIogUkKtnMxsM/qE7vwA4lMjKSw+H88ssv0dHRYWFhbDa7qqrqyJEj6MMkMpl87dq1ESNGDBgwYNmyZWVlZevWrZsxYwbaXwKHw+3bty8sLOybb75Zv369mZkZ2vIlJSXlt99+i4iIGDBgQGRk5MqVK52cnPr3769Wqx8+fDh69Gj00A4ODi9evJg2bdqAAQP69u3bo0cPCoWCtgJFuwACALy9vQ8dOjRnzhx3d/f+/fsTicT79+/37Nlz/vz5u3btQpuGbdq0afny5Xg8Hq32fPHixb59++bOnbt8+fKMjIwDBw48ffq0Z8+eXC735cuXq1ev5vP5e/fuLSwsVKlU69at69u3LzqSwPTp048cOTJjxozhw4cXFhb27dsXAHD79u0DBw7MmjXL0tLSwsLi8ePHY8aMYbPZQ4YMCQ0NPX78eHh4+OjRo8eNG/f48eNDhw7t3LkTHa3i4MGDaL7ftWtXnz59pk6d2u5/W+ijwLz4+WuoYUVtNjY2ukYEBALByMjog/tsaGgSDAZjZ2dXp+lNU2L4dOVnpBY8j7GVFZhgaga3U1e8epERZ+zT2823qx5ja9ySJUtmzZoVFRWVnp5eXFxsbGy8d+/e4OBg9BGdl5dXSkrKtWvXUlJS6HT6o0ePajdICQkJSU5OvnjxolwuHzhwoL+/f3h4OIIgutbIERERo0aNio2NzcvLs7Gx+fPPPy0sLHSb29jY3LlzJyEhAS2gUCj69++/cuXKrl1rvq7Jkyf379//7t27mZmZ5ubmW7ZsQc8rHx+f/fv3o2UYDAYWix0yZMiQIUMAAGjTHiwW+/fffy9atOjp06dlZWUjRow4e/asgYGBVCrt2rUr2ssC1GqM2qNHj7i4uKioKFNT01GjRrFYrJ49e6rVaiqVCgDA4/GxsbEXLlwgEAiBgYE9evQAAIwZM6ZPnz5XrlzJysry8vLKzMzU/Qe5urpu374dfW1gYNC6fzKoHcC8CEEfJfNNvOT5VWeED95tb4HHII6qIl7c5QSp2Kd7Xz1F92E0Gg0dxqVeZDJ57NixDb1ra2sbERGhW+zfv//7BRq/W/Lx8fHx8WmkgIWFxcSJE+usfP9xQL2tDb29vdGHlDpUKrWhdol1Ctc5hIuLyw8//FBnE1NTU7RmpQ40cUKfrrrPF3k83uXLl48fP157yMcOQiwWb9u27dtvv9V3IBD0VlVlRXXcvxZIg4Ots4AUk3ovPyujoQIQBHU07+TFjIyMbt26PX/+vKCgYObMmfqKqSEHDx5MT09fuHChvgOBoLfSHt/iaD4wk6IZIix4Fds+8UAQ9PHeqUf99ddfIyIi5s+fDwDQNVErKCjIyclhMBh379719/fv27dvbm7u7du3JRJJ165du3fvDgC4evUqmUzm8/kuLi5Pnz4NDw/Py8srLCxMS0sbOnTojRs3goODPTw8qquro6Oji4uLnZ2dhw0bhjb/LS0tTUpKMjc3j4mJ8fLyQkcWrldJSUm3bt0a75wLQe1GqVTieAUfLgcAg59fxa00NjFt65AgCPp479wv3rlzB312Df7fcRUA8ObNm2XLlu3cudPAwABtA3bx4kW1Wm1tbb1+/fojR44AALZt2xYfH79ly5b9+/c/fPjw/Pnzjx8/3rx5c0FBQWhoKIlEQgequH//fl5enr29fUxMjO62LyMj49tvv920aRODwWh8+DG1Wv0Z9KSBPhtlJUVGig/cLKLMsNKirLS2jgeCoFZRc78olUqFQqGJiQkA4Oeff9ZqtUuWLDE2NgYAaDSaI0eO6HLS8uXLy8rKSktLR44cefPmTbRbGzqEdJ8+fWQyWV5enpWVVWBg4NChQ1++fBkeHr5161YAwFdffRUcHJyfn29paVn7WbpUKj169CjaSaheSqUyOzv78ePHaNc6COoIpEI+BdukwQqwAFHJ4ex9EPRpqMmLVCqVRqMJhUI6ne7r67t8+fJp06ahedHLy6v2jdp3332XmJjYtWvX4uJi3eCHhoaGBgYGhoaGBAIhNzcXAGBgYMBkMplMJgaDQZtunzp16vfffw8ODsbhcLUn+USHt28kyoqKirVr16KRtOanh6CPQGUwZVoMqQmpUQsAjkhph5AgCPp471RLdunS5fHjxwCAsLAwGo2mW187aclksjNnzkRFRa1bt65Oi+cPDgz4559/Hjx4cNOmTeHh4bXXN54UAQDW1tZnz551d3dvu7FlIai5LNjW1UTjppTkIjRrJ7e2jgeCoFbxTrubVatWzZgxQyKR0On06urqetMVmUym0WinTp1iMpl//vkni8Vq+sHs7OxOnDgREhLSyIBMjTAxMdHdnkKQ3hGJRA2LA7gffsQoYNh4m5m1Q0gQBH28d/JiUFDQhQsXbty4UVBQcPXqVXRGbHd399odezEYzNWrV48dO4YOjYGOGTh37lwymTx06FA7OzuVSmVmZmZkZCSRSExNTadMmQIAQDv/7t69+++//378+PHq1at1A+za29ujZT6IRCLVHsgRgvTOJbBfflSuNcJrpAwPQ2f71j82EARBHVDd8W48PT09PT1rr3FwcECnfdFxcnL65Zdf0NedOnUCAKBzZ6ODCgIA0LH2UegsNuioEEwmU9cr383tbbUSh8NBE/AHBQcHR0RE5OXlbdu2rSnlIaitmVpYVfoO4L6+YYKI6i0gBGSZY08PN89634UgqAP6lMaB69ev3+PHj5s+dwwEtQMP/8AsMjn75R07ZREO1LTB0QJQgLeguffw7wZvFiHoU/Ip5UUAAI1Gc3Z21ncUEPQOJ09fCtP0VtRVFzMqkEkAogUkqpZuklshmAKTIgR9aj6xvAhBHdODBw9GjJ1QZx6SrCNHJBJJ7abdEAR1fHD4mC+RRKpKy+YlZ1ZJZSp9x/I5UKlUMpns/cm5QkJC7ty5o5eQOrgqvjw5syojt1qtaWxmUAjSC3i/2MqmTp26YcMG3UxsHdC/sbm3HhVotAgAgELGz5nQyd66/SZH1CLgRmKVUKZxt6T62dLb7bht6smTJ926dXt/PZvNvnHjhlqt1k1J2NaSkpJOnDjx448/MhiM9jlic6nU2mOXUhLTueiimTF14de+BvT2m71ZotBcfV2FxWACHRm2xuR2O65evH79+vz5899//z2d/pn8r7UPeL/Yyk6ePOni4vLjjz/WHtCn48jK50c/yLd1Mg8Z7jtgmB+eSLh2O6c9A/jlSv7k/WnzjmYGb0n49Wp+ex667SQnJ7u7u9f7Vo8ePR49etRukSgUim3btnE4nIMHD2q1HfFWLPZZ0ZsMrk9X+9CvOvcZ6MXjy+89K2zPAMbuSZl7JHPO4Qz/n19dfV3VnodufwqFYvPmzRwO5+jRowjSpDELIQDzYluQy+W7du2ysbE5cuRIRzsXyyolAIDOgY5mFkxTS0MHV4ucIoFE2lhtqraZH0Gm1G69Udhj4+vJ+9OqJep33lJp/44tDfExO72sax9Pkz9ulXSwr6cl8vLyHBwcGhrsycPDIy0trT1PAzqdzufzlyxZ4u7u/uDBg3Y7bhOVVkoYBlRPX1tjMwO2rYm5tVFSxgeSU3PPwBK+8tuzOV1/efX9uVy0XkTnVb74UZZwwWCHI4v8rY0p+++WNvsDfGrQQVoWLFjg7u7+8OFDfYfzafgi6lGrqqqSk5Nba28VFRVJSUkN1VOhv4BSqVQqlS5cuHDLli3//PNPax26tWjUWkACAAAmiw4QUFkto1HrGduIWy07fCGlqExkYUob3s/B07lJY55N2p96L43f1ckoJqV68l9pUUu9dCkjuVgiUWh6uLCMGUQjGgGP++DQgW1CrVY/efKEyWS2yt4ePnwYEBBw//79hgrg8fgTJ040sZPuR0pPT1er1QAAsVickZExaNCgwMDADnUGYjAAqXUja2hESy/kaREEW9+pkJ5TffJ6mkikdLRljhzoaGX24cpAkVzTf1titUTtbWuw924JiYD9JaxmZrpnOUIAQC93Y2MGkUjAEvD6OP8AUKlUjZwwjcvNzRUKhU3cPCUlRaPRgFrnQ3Bw8J49e9p5tj4EQfJLRHQKwYT1aYwS3MK8KJFI0tPTfXx8cDicbmVaWhqTybSwsGil2FrN/fv3R40a1Yo7vH37dlOKicXitLS0Hj16hIaGdpBpI81NaAAAPk9CoZEAAFQaCQBQLZDbsQ3qlOQLFbuOxKs1oFNnu+J87oEzb8YPdQ30s2x8/0KZ5k4qf1Iv6xn9bG/Gl0dezTr7onJ8wNt5BxMKJAAAJysaACAxX9DFTj/PPCQSyVdffdUquyIQCB4eHj/99FMjZTAYjL+/f1xcXKscsVmkUun9+/ddXV179+7t5+fX/gG8z9yE+vJNuUqpJhDxAAAajazRIkKRkmlAqlMyM6/6rzNvDJhUTz+L7LTSXYfjF0zx4VjVPVHreJYjLKlWrJ/k0c3Z6LdrWXtuF08KNHO1ePtz/LpAwqITjRlEsVydVSoZ4W3dFp/xgwQCQZ8+fT5mDy3YHEEQiUQSHR3t6ur6999/f/311x8TQLMcvpymJRD5VeIJgxzZ5k36r1dpEALu7VVLTqV84YlsV0vKb+MdGt+qtbQwLyYmJg4YMKCgoKD2+KhTp04dPXr0ypUrWym2VsPhcNAReVrFo0eP7Ozs2Gx2ve+ePHlSV2mGwWBIJNK4ceO6d+8eHx/fWgF8DLY5DQBQzRNb2rAAAFQ6CQDAF9YdXQ8B4OS1NLlCExrmb8CkevpxYv9LuhST1dXHAodt7BKbQcY5mlHisvnTgjkDfc2vx5WtuZQX4sE0phMAAFdfV1kyyeaG5GqxKqdcOq27XRt9zMYRCIQxY8boZhj9GBqNBofDfXCaF61W6+Li0g53xzwe79atWyrV24pxAoFAIBB++OGHsrKytj50E7HN6QgA1TyxmQUT/P8MrBbK6+RFqVx97Eoaw4ASMsyXQMQ7ubNjrr66didnwRTfxvffyZpGwGGeZfK6ORvN6G97P4W74kz2lcVeWAyQKbUxydU+dkwAQEKeQKNF+rm3Tp1Bc5FIpBb/IgkEgqdPnzYyf3ttXC73zp07dc6Hn376ady4cS07estU8eW9h7gX5XNTs6t1eZEvVMQ8LnTiGPp51J2v+0m28LuzeRaGhDPz3LEYcPxpxVeB7AuPi5VqhNgut/gtzItOTk579+6t0zFrzZo1dnZ2rRBUa/P39z9+/Hhr7W3SpEmTJ08eOnRove+ePn0arbig0+lubm4HDhzw8fE5depUax39g7RahC9SMBkkbH0JjEohGDJIguq3w6+TSAQ6nZxXJKxT7MGL4ozc6oCeLgZMKgAAi8WaWTJLC3lyubreGlcdDAasGs6Z8U/62cfFE3paLx3mtPRQ4rDfkmb1sXyZJ7qXxp8/yAGDASXVcgCAF5tae9uoRN6VV1wzA+L3Q2zoZFwDR2gFVCr1zz//NDWt+9/YAn///ffs2bM/WEyhUJw8eXLGjBkff8TGvXz58vHjxwKBAIPBkMnkkJCQPXv22NjYLFmypK0PraNUaaQy9fv3fyj0Z1HAk6J5kWVMBwDkFQnrNIo+/2+GWKwcGOaF3lZSqERDFp0v/PC0AeYGxFm9LfffK+njYeJjZzg31GH7lcyJ+1JDvYwuvOTypeqvAiwBAKXVCgCAZ60zUKHWnnhSEZsu6ObAmNvXqtHLv4/FYDBa/IuUnJw8e/bsJm7+7Nmzp0+f6s6HoUOH7t69u/2r9MhEnEqpptHJ3LxqdI1KrT1wPtnN3+FxchmRiPV0eucZTWKhZEBnc7FMvetW8dIQdmya4JfO1mfUhe2TFEGL86Kpqen7t+HDhg376Hg+BxQKhU6n7927d/To0e186LQc3omraSKxksUkD+plF+BTzz8AjUpQKTW6RQsbVmpWuUCkMGS8/SHLKRRcu51tZc1ydLdC1ygV6szkYidbZuNJETXK3+TyK+6x2MJ+nUydLGnrJrr/djV72elsMh47vjs7LMASAGDCIAIAcirkwAMAAEoFyiUnsqKTqk0NiHyJKq1Uen6Bx8d+F20vKSmpoWaodZBIJDqdXllZ2SrJuHEKhYJGozk4OBw8eLBLly5tfbg6Yp8XXbudo9ZobdkGI/o7OHLq3pBRKQQAgEr1tkEWhUYyYtHj3pT37srG4d42A7z/ovhVcoW3vx3L5O1TfB5XXFpQ1a97k7o/rf3K9r/k6p3Xs/+Z7xfqa6ZUaQ/czrv5hsekElZ85expwwAAGDMIAICcCjnaWeh1gXjukczUUqklk3z5FVcs13w3pON2tWoW9HxwcnI6ePBg586d2+GIxeXi28+KfV2Mvd1M0DWmLIpYJDc0or5+LNJotDgc9vzNLFtXtpkFs6pMoFBo6uxhanfzgTuS1k3y3B+d02/7m17uJgAA9EolNl2w9WYRlYA9Mcet7dLkF9Hupj3RaLQVK1Z8++23ZHJ7d40qr5IePJdMM6B087PPySw7eS0tM6963FBXAv6dVsdyhZpBq1nj0cmmILvi96OvQ3vaWphS84qFUffyqAxyUF939KRDEOTJ3VS5TDWif1Mnhd481uHGm7h/48unBXP87JmHF/tzhQomnUD8/w+fOZPkxTFYfSmvgKdQabTHH1eotMj8QfZfBVhdelayLzo3uVjiye7ow8Q8efJk+vTpTSw8cODAGzduTJw4sS0jAgAAJpMZGRk5ceLE9m/UFJ9Scem/LGtbE3O2UUZS0Z5jCcP6OfQNsqkdh0yuBgDoUiAAoJO/3YOYpD3HE/sGWjPoxMTUyrvPCm3sTDz93j6SVypUj24nMxjEfoFNylUUInbdKLtJ+1LjcvgBTkbDu1oM7mzOEytNGERdJYq/oxGTShi/LzW8p0VmuezyK64RnbBhskeAk9G6c+m/3ypePsi68UcGnwojI6MdO3aMHz++fc4HtUZ74nqGXw/XhylF6Xn8sBAHLAYUlYnZXmQsFuvizYk8/BogwNLOxNHJvLJUIOYKfAfWbZJGIWJH+LBe5wkiRtSM+tnNzTh4a6KNMXXhUOe9N3MyK2SeVlTQNmBebGXp6en6ann034N8DBbTd7A3mUJ0cLNMfpUX9yqvtFI6bZSH6f+bgb1ILOPx5S7eNY2A6IaU4MHez+6nnbyWhq4xt2QG9XUnkd/eGia+zCsurBozyJlj1dSu4lZMItuIVMZ/+9gSiwFmhnVr1X6d4L7rRvbeuyUEHDbQhTUt2IZtTEEQwJeoAABKdUfvwFFdXc1kMj84pbaOoaGhUqkUiURt2uPe2dk5OzubSm2r34vGXb+ba2xq0CvEE4PFOLpYPL2fdvV2dmGpaOwQFyoZDwBAAIh+kIcBwMK6ZmwgazuTwGD3+GdZ/5xLAgBgMMDexbJrD2f0dxxBkEe3U6USxaKpvui9ZlME2DMAAGV8ObqIx2HqnIEGFPzWaV6/R2VvvlFgSCGMDLSa1MuaTsYrVFq5SqPSIFoEtGFVfntxc3PLzs6mUNqvFahWiyAIoNHJXXq45mWV7zyWAABw9LAmEvEAALatCdv27U0kgiBJcdkLJ3XSNUXOrpDNOZKFx2FczClviiU/jjGvveevAqy+CrCqECh+u5o5zMfIw7INT/J38uLly5dPnTo1fvz41m29+UXRY3Pc0kqJsakBmUIEAGAA8OpsxzJlPLmbumnfiyA/Cyszem6R4GVSubkl0875nSBNzAyGjgmorhLLpAoag2zIrLlR41YIU+LzA/0se3apv52RFgEHYksTCsVmBsQ+roaBjgZkAva/pOp8rnyAb2NfBYOCXzXaVatFdJfwKYWivdE5acXiqd3NO+BQOAiC8Hg8kUhEpVKNjIxu374dHBzcrD0MGDDg7t27w4cP5/F4IlE1lWrAYrFadygcA4MPNNdsOyq1tqpa1snfAoPFAADwBFyP/p4s04LXL3LT86p7+bPpVEJCWmVWPt/d26b2OQYAsHc2t3U041WKlEqVEYuONpZGZSQXlxbzJgxzfb/JNEok1+yILqoSq+xMyH3dmD4cOhYD/o4tBQDYmzZW5WBvRv1tRifdGYgg4G5S5YFb+ZVCxc6JjrrGkJ80Q8P2G8oKRSTgRvS1u3Izwburo52TuZ2TeUMlpRKFKYtS+9HMvTSBn6NRWDerkmr5mF4kCqmeK5MDMbm/TbBvuztF1Dv/k2FhYV27du3WrdvIkSP107MM+gjOtswHL4rzssp156KVjfGwsQGv43KfJZSr1SUEAt69E6dTF7t6m+QYGdONjOtmo/in2QYGpFEDnRo66P57Jd+fy7VgkrhC5Y7oIgIOw6TiK0UqJwvaiC4fvkTQRXI8tvBYbIGZAXHfNOcJAR1ranu5XP7q1SuZTEahUEgkUnl5eXJyslQqRRtYNZ2RkRG3Mi/27n4qRUAmarhlmLRkBgZr7u7Ry8S0w/Vuai4CHsuxMshMLrK2ZRkZMwAAGAA8vDlWNsavn2XHPMzXIgiNTg7o6eL0/+fWtWGxGBPzuplPpVS/eZXn4WQc6NtgB6HFJ7Kuva5i0YkVQsUvV/IpBCyZiK2WqEO8zTrZfvgqAT0DFWrtlksZD1KqvG1oR2e5BDnq7fLiM+DuyLKxZPx9LhnX1en9nxQdKp1cWS3PKRQwaMSKKilfpOjnZJDDrVpzMtmKRZk32BEt9iwh5fyNuxu//YaAxwMAKERcWonU3oREJbbh/Xzda1U2m00gEKRSKZwE4JMzrJ9DSYXk8d3U8lK+f6ATnoADAJAoxG69XLv0cFbK1WQKoVmXOzKpsrJcMKK/I5HQ4CkYlcDzsGHsCveWKzUJ+cLUIpFQpnI0o4X4mJEITR1N6Uk678i9gsmBZtsnOLTp6d4CxcXFaWlpVlZWxsY1TeaYTKaVlVVmZmZZWZmv7wd6DqAKCrKzM//r00Nc6y+AsIyEAAgz0ouLSwJ8fLq3fvTtK3yM564j8f9diffuYu/WyRo92ZhGtOBB3mq1RqXUUKjNGwe1vISvVKhDejQ2JEJUIm94V8t5ofbVYtWrHH52uUStQTrZGvR0a9IwFKjjsYWPUqs2jrGf18YtUb8QdCpheLDd/eTKRvIiBoBufT1uxxeqlGq6AZVCJz+8kfFruB8Oi9kUVRiXXR3kwgIAWJoa+3m64P/fUX7OQIdrL0r23y93MCHtm9rg9fpHqqcOB4fDNfdCGOoICHjs3Imd/o3Nu/OksLy4uns/DxOzt5e9OCy2uT9JAACNSgMAoDfaBlWlQZRqLVekNGEQuzkbdXOuO6dEU/z7qtzehLx7ilNHa+nA5XIzMjKsrevv/W1mZiYSiRITE729vRvfT3l5SUHuv7bWdfvDoCxMpQLho6QkvJdXwMdGrFdMA9Lymf5no9Ljn2UX5XN79vPQ1Yji8Tg8vtlXPKomnIEaDSKUqSVyjRGd0N/btD9oSYvfm6/KR3cxXdCvnhtZqGWSs3kMw3duri78e6+kkjt15CBDxttkSaWRfLrV5Lai7HKFQs1XIHfTBbMGvr2s4ViZTxoxAH2tUGv/Syg3oBKmBHP+/i8XQUAbVWvWkxe7du36xx9/jB07Fs4A/MnB4bDD+jl4uZgcu5J6JyqhV4gn2n+/ZWgGZDKF+Cqlot7+HqiZvSzmHs2cuOOFmSHJyYIW5Mrq521KxNVzp/jg+etHr9706NypV0DdGywsFoPBYjpaUgQAJCQkNJQUUQwGo7S0VCgUNvJgD0GQ5KQYuwaSIsrQQFVc8lwi8aDROtyD1WahUwnhY71evCk//29mzLX4foN96IYtb/RhbMbAAPAquWJQb7uGyszuY7n3bsmdxAprE4qLFaOPh3GgSz3nPIIg527cyS0qHTmwj4t93Xat2A55+n1yqvjy/x4VlHGlKg1iZmXk7lHzQKS8knf+5l0AgC3bYkT/msm6xSJ5VlKhkC9BtEgnF9bzfOkvVwtmDrCnk/Ho1Xbt/f8Tk9vLkUYn4d7k8xb3t2q7Z3315MXAwMDo6GgnJyeYFz9RdtYGETM67zuZ8OhuyrBx3cjkprbiqwODwXj6cl4+yboQndk30IZMwktlqpJycXG5pJIn1WoRSzPayCBOdyeDy/FVrwvEcXmiyKu8f+PLN0zyoJPfObWkMvm+01e0Gu2bjJzOnVxp7zaQC3Jjbb9ctfhE1vx+Vq4W1A7yaDsvL68pzRYsLCySkpK6d2+wFjQ7K9XEqOSD+7GyFCa9edgtcFDzouyQunYytzKj7TmR8PBOyqCR/i3ej4Eh1dbRLOZhPo1C8PMwxeKwfKG8uFxSWi7mCeQYDMbNwWjzWPsJ3Uyjk6oTCyVPc6pvJVQM8jNfNtypzlmUlJF76b/7AICqasHW7xfUOVCQG+v8i3J3S8q4ADMrZvtNevWZOfNvpoO3nX1n+vstGExYhr7uzqXcKj/3mrSi0WhfxKaMH+TEsWKgrVKXnckZ2sXyzpsKnkCu1iIhvhbd3YyFMnWVSGlvRhXK1H3dmA6m5PFt/EHqyYv79u2LjY01M+tYbR+gZqFTCVO+ct+8/0VBToWLR/1NSZvCxctaIpY/fFH04EWxbiUGizE0oGBw2IS0yqIy8cyxXgv7v62AikrkTf0r7cLTkmnBE0XqlgAAIABJREFU7zwTIhIJdApFKJbQKRTie30bBnqbVVQrjj8oPPKonEHG+XLoo/1NpnQ312+bwNLS0trDHDYEg8EoFHUH0qutsjLL3PjD3U4wGKCQd5TR2j4e25w+oq/D6ah0HlfMMmn5TXDXni4KhfpCdOaF6EzdSjwOyzCkajTa+JQKsUzVP4jjy6EDADRaZMuNwi03Cnt5GAc4vVOlzzSgY7FYrVbLYtZzZz93gJ1Iql57OX/t5XwLQ6K/LX1aT4tQr5Y8FPiSEQk4jVrL54kF1RK1SsO2NaH+vyIdh8OtnDulTnkhX2LPNqjd0njlYOsNUYWTuhiHeDAzymTrooo5ptRd1zJdzSkYAmFcd+ufLuad+satrT9IPXlRLpfDRjefAXNTGhaLkUmUH7MTDACdA52c3K3KiqsRLUIg4g2NaEwWDe2XnRyfnxCXW8WXGzPfDmIw1JvVyZqWUiSqsx88Dvfr0lnxqRl+7i6E93omYDDg62CboV3Mn2VWZ5aKUwpFS09lp5fJNo+1/5jgP1LTn7IjCIIgSENtmrSaps7EqdV2xDk7W8zKnA4AkEkVALQ8LxKI+L6DvSvLBVUVIhwOQyQRmMY0AwMq2hsk9r83954V9QvioF89DotZMchm27+FqUWiOnnRxtJs7eLwvOLSHp3reRhMJuJWj3Ut4HLisqqzyiQv8wVRf6Ycmuk6yt+kxZF/gUaGOMQ8KcTjMLZmNCwOf/9ein8fdxq9wRFOGAbUhGKhUKzUTUxtbkD8feLblqjpZVIrY8rDFO6PQ21CvYym/pMulKlK+CqBTG1Iadue93X3rtFoFApF+4/VArW6sgqJVovQGI39KauFopyCEiszE0uzxhrvGRhSDQzr6TBkwTZKiMst50p0eZErVuVWybs61XObZW7KGmQa2MhRWHTiYD/zwX7mAIA1p1LvpvEbKdzRNJIXEdDkMQoQbSP7+eQUlYkAAI2fgcUV3PJKniPHStcWo16m5oam5vXUaVtYGRXnV8lkKl2X/1f5Ii0CjOn11IW62Nu8/2SxNo4JhWNCAQBotcjE317cTeXDvNgsxkzyhME11aQEHCalgOvs0eATejwB5xPkvPd00qBeHB/Xul91CV+p0CCJufz1I6wAALsnOc49mjW2i3FbJ0VQJy/euHFjy5Yto0aNqj17FPQpkshU5/7NwBNwNnYN/mPHJabtPnpeqVJhMZhxQ/t/NaBXc48iFskBAKT/96x4mClYeDxLptRO6tWM6XsySsTHYguzy8QMCsHdhtHFnsk2oeRVSL3Yep6qDYttaj8TDAbTSGEstqlXmVgc9bNJimVcyc0H+SwTBtOowcqnc//evRQdiyAImUhcMmOcr0ezGzSIhXIsFoPHYwEAWgScelbx3ZkcNos8wLcZj4HuJXOvvSgt4cnNDEmdbA397A1JBKxAqrZmtcKMK1+yvGIRtb5ZTjUabWp8npgvtbQztXUy7zXI515sKoNCcOC8c+kzOdDsr/tl/UKs0L5bhhR8O9Sgot7Ji/369Rs8ePBn85/5RakWyMsqpXyRgi9UFJWJMvP4ag3So1/NcG7v++fcNaVKBQDQIsjZG3d6d/Uxqu/RS21CgbSaK5ZJFRKRgl8trigVWJnT7awNq8SqiFPZV+KrLJikrV97WRs3NaWVVsu/O5pkSMUP8jKqECpjkyqj4soAAEQ8ZnFIW3VOaiImk6lQKJoyHVXjY9YwDNhKVSqxCY2f8IRP+O6ktFJSVS2rFij4IkVOoSC/WEgiEXqGNvhDVlFVjSZFAIBcqTx47vrvayMaPwSCIDyuWFgtkUoVUomiqlzIqxIH+lkSCbjkYsnC41mv8sWdOAY/jnEl4ZvRd3bjhXRPNm1IJ6OcSvnFp8VnHhUBAEwNCFN7NDhWC/RBaTnV+RWy7t6OUonizfNshUJl62Rh62QOAIh/nBHowXKzt7n5oODZPZ5/DxdDEwZfVPchPZ2MWzaw5W0jPsY7/8+w+vRTVFIhPnM9I7+kphuAIZNq62zh4mlVZ7St2hRKlUBUM2uPVqutrBY0khdz0kuTXuWLxW8HnCQRcaYs6qDetr26Wis1SOiONwVViul9OWO6s0l4rEKlTSsRyRQab1tDan2DOelcelaqRZDb33qjjQDVWuR1gbiIp+hkTXM00/P9opub2927dxvvpwEA4PF4jo6OjRRwd+/88H4Ch13Z+H7KK0lOzl2bHWUHkJjOvXorm1stQxexWCzLhO7py3HxYJMoDbbt5PL4uplKAQBVAiE6mWW9hbVa5E1cblZaiULxdiIOOpVgaUbvH+AS5GeZXiYL3fGGhMetHOnSv5MpBgP4UlV2qQSLBd62ho13wDj5oNDdknr3Ox90cgaJQvMyT8yXqXs4GaCThkItoFJrr9zJ7THQW63WPL+bMnmYs7kJ9dDFVAaTyjJhSESyzh5mAIBRAx0T0rl3bidZmFB83BsbvaGdwXHDP20IAIfOp0iVGv8gJ5YJg0onUakkTBN6YpGIBFd7TlpOPrrINKBz2A1eHacnFb18kuXAMRzWx9bW2oDJIFFqdcN4mCHILJOtHuva28MEQcD1uLKj9wqqJSoAgBGNsHqsWyPDccmVGmM6QdcyHo/FdLFjdLFrw5G1mw6Lxdrb21dUVBgZNdguUalUajQaK6vG+oPj8Xhrm6BqXrQRs8FmqwoFBoP3MjNvcLSzDksgUhy9lMJk0QKD3QyZNCqNRKYSm1LjZGdtyaBRRZK3TY08newbeXzz5F5qQXaFn6eZt5sp25xuyCDWHoMpKqFKJNP8tayzCYOoUGuP3C24+qJUodICABwtaOsmups2MBkkAECu0vpzqLoZi2gkXG/X9h5T9POjVGlweCwOj339JDMkkI1OutnDzyIul8cyYWAxGLVGi8dhAQA+ribvP1nUu6bWNkAdk1CkqORJPXxsXb2sTS0MaXRyU5IiauG00b4eziQS0cmWvWL2JDKx/kt7tUqTGJfbycVk0de+gX6WlqY0yrt9Ex3NKQQc5n5qVWap+Pvjybuisr2tqZcXed5Y1smUjl9/Pk2jfXtboNIgTzN4N16V55S9vVV1sqIV8RSPsxrr865HDg4OdDq9qqqq3nelUimXy+3Ro8cH9+Pk7IUjBuYX1v+7LxRhi8ocu3Ub+L/27jsuqittHPi5d3qHKTAMvcPQpVhAFFSsYAhGLIluNprExMTEJLvGXV+T7Jqfcf28rnnXqJtk82LW8iaxYwGDQFQgCAZFpNeBoQ0Dw1SYcn9/XBaRLgiDcL5/OXDPnefqOOeee855nnHFaiY19Z0Ggykk3NPFXcgTsGij6xQBAHQa9aOtG5ztRVQqJdjXc9vG+KGOlDV31la2rIxy2RQvDvQWCLi0fokJvUV0AEBaYWtuRftbxwt+ym5IDBXc/ENA0hbPFoXuyytVvUeqdIaMh7KUgpbWzp57FFdrRurDdrna8PSXDg2JQSMtmm2bc+OBq5A2y6dnrpdrQdUquwAALAt6a5vWrAGOAI4Xn294bUWDYSx5+3gWnD++0X9H0UCtzQq93jg/1HaoiWcbDvn/rXH+6IeqzIcyFpVwaL3rqxFC/Nj/Wu348j9Lqps1bjYMTZfx/e8Kq5rVAAAUAS/Ns9uy2HFpgPWZW/Xvnqy4tTuQNup8qpPJ19e3vr6+vLycTCbzeDz8L6Gzs7Ozs1MgEERFRY3yPI+Ka11cwuukNVRyo4Cnx/9+OhQEhZLHZLlXVhUvnrhrmEgkEgoAMI7pE+jubP/5h2+MeFhjvRxFkPmhQ041LfXlrp9t9c2NGgCAA4968V2fBZ4WAIBgJ+a9WtXxjCa8aEZNq+bD/y1UaAwAABqF8P4q1yhfwbr5dplFsg//r/Jfv/ccwyVAQwnyFgR5P5GTT2BJa5erpBK5ol3T7956qpnSwUEjotNIQgGjqrTJSsghkAiKdnWHTNUuV3fpuhEE4QnYXv52w+wfGg0DnqOSMdxcy9YFNr52DElb1zI/Lpv2+F6+7waF46nV9W3a71/3mu3C+uKq5Ntf6u0FtKUBVh/Eue86WXTgqmTvaseBZ54K7Ozs7OzsOjo6qqur9Xo9iqJCoTAkJGT0K9Ty8vJEItGcOREARLS3y6urHuXn35s1K9DaxjEo1AFBEBbb+vLly3FxcRN6IRPBUcQmoGjJw3oSmWAyYR1ydbtMpehQ67sNBALB2tbS28+OOHTe+dHQ641EIkoeOqE8ioCvNrmvCuSiCLLEx7JvOggMAxjo2fry+U+lLCrhwjs+lnTi9pMVBy9WOPLpLkLGxkj7pIy6l0IFy/3GnjQRGhGBgL4S61FUIU9c6mIx9JPtqWAq3qFDTyVhqZtWrUu5eO/qT3fvpD0qKZSg+i4Bm8RnEStLpdfP53fIVeM5vyWPiQCQ/7Bl+MPmurLXhgn6dooAgLtVSjIRteNTDUYss0i2frYgLpBnzSYfTHSd48L+JrVGpTMEu1pE+wq++aVpitcitrCwCAoKCgsLCwkJsbe3H32n2NzcXFBQ0Fus0dKSOys4gkzhBIdE2tk74ufx8vLCMKykpGSCgp84DDopdpFLfXXr1bN518/n52SW1JQ3UhGjNYfMJGEP71WnXrrX3TWup5RcPrNbb3xYJhvmGBQBqwJ4K/y5/XIk/VqldBLQEQRUNqmrWzS7VtjPcmQ6C6jfb/ViUglHrlcBANZF2NnzaF/dHDlXHzROttbMmHAHB9FUL+MFx4vPPXcnyz3bZ9dJlUajiWdJE/LphP+k7W7r0P3Pid+y00uWJYSMefMNk01z9hDezKpj0EnRc4bbFj1QWnGHtx2LSiJUN6vVXcb5Hj0rGlAE/C3RZeEX97++UfP2ChejCdPpjUYTBsB02yOk1+t/+umnLVu2jHhkXFzc8ePHbW1tWawpsexo9BbOtvNx5za2alAECPkMniW196ahrLr92OnC33IrZ88f+1NKBxdByQPJvy8Uv7rGx8vlKYZ0Sp0xv0b5UrgtAKC0QQkA6F1Tw2UQ/yvW4b3TlSkFLbPdLYkERKWDRYSgHnC8OB2wGGQfdx6+VI/Qp5YFz4K6cqFzu1wlbx3Xwpaw+R4OrlaXfq785oeHnaqnSCxX1qTxsWcBAEqlKgBAgP3jnCb+9oz3Ymyv3mt+8YtfM4tku1Y40MjT8NN45syZ1atXj2YTJIIg69evP3XqVN/dC88LAZfu78n39eDzubS+I2kPZ8u5QcLaimaTyTTmk6MounC5P5NN++fpwktplXrDaE9V0aw1mDCxXc8nkEMnOnAfzylsCrde4Gnx35fKN/z9rrRdt3vVFNonAJkXHC9Oc3ZCFgBAo+rijaUsXQ8URedFefMErAd51fv/eXdjrJeP+8hFXzEMcOjEnLJ2oSU1Oa/JgUd1s35iS+KeWEdnPrWsSbvMnxvuNtUfrYxBdna2o6PjiDsge3E4nPnz51+9enXlypUTGthkshOy7uRLdVp9bwrpMaDSyItWBd37tfJmtqSoXP5qglgoGDmHM4dORBBwJb9ZoTXcKWlbLLbo+/CbgCKn3/T6+pcmpdawfo6Vm7n3y0JTxzS8Q4f6qpIoAABM9lP8n8cAaGnsKCmUVJU1aTU9o0MEQbz87JfFh1Dp1G9/fDj8ZM9/moB/bvbQdun/+1KFRKbZl+DUbwsJgoBX5ln/5UWnadkpNjY2VlRUREZGPlUrsVjc1dVVWlo6QVFNviqJgkwmUofe4D+QyWSS1MiKH0gk1a29a62JJEJYhMfCZf6dGv3//Pt+S9vIOdZdBNR9Cc6FtYqDF8ppJPSPK/qPCBkUwntLbPfEOcJOcVDTKffZU10LHC9OZxqd4fqtGoGQY8EbbUEDjbrrTtqj1mYF/pJIJIgD7MWBDnj+T7YFfXFsYNqV+z9eL/f1GHk37iKxxaN9odL2Lgs6kUmdQUl39Xr9uXPnRjOtOFB8fPyxY8dEItFzN9E4kKRRmV/Y7OlnN7Ag31BamxVZ6cVqZU9mJTqDEhjm4uTWk3RCZM9dEjcr9UL+tcyazS+KRzzb29GirZE20o4ukQWld/M+NEpsNru5udncUTwDBQUFwcFPUQcU9ovTFoZh/75QrFbrw5f4934f6HT6yhKpol1DoZBEDlwbuydWMZhMpoxrD3TarvWrPP29BAplV+rt2t/yaxob2iMW+dDoZAAAkUgQWHPKixpGuUgGRcAMzL988uTJF154YTTTigMhCLJhw4ZTp069/vrrz/UNu0ar/+7cIyqd7Bv0eAdOZ4emqrRJrdYxWFQnVysL7hN3bCqlLvN6IZtJfmWDv7MdR9KoTL5ZlZVe3CztCIlwJ6AoAIDJojI5tNHPc5OJiBMfZrgcCwRBFixY8Mknn1Cp1In7KFZWVjo6Og6fZHg8DAaDtbW1l9dT5ByH/eK0dS2z5lFFW0i4e29VWLlMmXH9gU6n53FoUnV3aVG9vZMgfJG4916+obato129Za0vPhakUYmb4sV+nvzTl0tTLuTPjfK2trFQKjRVpY0+7tzn+At7gt25c8fNzc3WduwpjzkcTkREREpKyrJly55hYJPJhGEnzhcrOrsWrQokkXu+Z6rLm3NvlaIIYLMokmpZ8f06/2Bnnz69ZllRA2YybX85AN/f5uZoseN3Qdcya27cru2Qq8OjvZlsWn2NTNbcOW/RcDlpoWclOjo6Ojp6Qt/C09MzIyPDxmYKJUGE/eL0VFWnuHG71sXTxkPc8+2s7NRmXHtApxHf2xwo5DOMRlPm3YbLP1c+Kqj1neWEH9PepkJRRPzkmpogsZWQz/jmp4dpyQU8K7ZSoSGT0BeWmLnYxZQlkUhqamo2btw4zvP4+Pg8evSovLzc3f2pqy9NBRk59SVV8tnzPflWPZPHUklbzi8l7o4Wm+PFDDpJqzOcSym/m1fNE7CFdj0ZaDvkKlshs++mbwRBVix0trdhnbxUkvzTXZ6AJWvpdBCxI8PMU2kBmgngupvpKfV2LY1BCQ3v+UrFMCwnowTBsLc2+Av5DAAAgYBGz7EXu/MqShp7W6EogpmwgQNBGyvGH7eGvLDEjU1FAjz57/8uiGsBH0wNoqur6/z582vXrn0mZ0tISPj5559VqnGlZTALvcGUll1n68Bz9eoZBHRpu3MySmytGFvW+jLoJAAAjUpct8qTzaJUlDzeUI8iyKC7VPw8+bu3hS0ItWWSQVSY3Vsb/YkE+N0FTRQ4XpyeGppVQltu717G4geS1mbFxtXefMsn1t35uPOKytuUCi2LQwMAUKhkDIB2RdfAbo9MIiycbbdw9lMUHJ6BTp8+nZiYSCI9m/pEKIquXbv2zJkzY1u/Y0ZKVbdao/dxePzgIfdWmV5vfHm1d9+U3wQC6uVieb/0cVp2Ko0saxz8PoDNJK9eDJ+dQpMB9ovTk6eLZcGjFlsHnr2zoLFe/iC/JsBLEOrXv5KUyIoJAFB2avB+0ZLPBADUN6vgcHAY+D4KlUqFoqjJZGIymZ6enhQKJS0tTSwWW1sPV8xWp9OVlpZqNBoCgZCVlcVisTw9PclDVDIBAPB4vJCQkNTU1JiYGK1WW1paqtVqMQxDEAR/32HampElh8Ln0ooKanlWbEses+h+naRWFrfYdeCmQ5EVI/d+U3eXnkwhAQAs+cyq8qZOVTebORWvC5ohYL84PcUvcWtp09z6uYjFpqmUOjshM3HVIIm48Ikcjaqn5o4Fl4EgQNqs8p96FdGmAgzD7t69q1arBQIBj9czGOru7s7KyjIYDG1tbYsWLRqmbV5enkqlEggEXC6Xy+UCAPR6/Z07d9hs9qxZs4Za7xcYGHjmzJnr169TKBQrKysajdb7vrdv37a0tAwKCnrWFzpeCIK8muBz7PSDlPP5DDZNqdCE+gujBnvYYMGmAgA06i68X8SXp0qbVWwmTOENmQ0RANC7cM5oNJpMpolbL/vMmUymt99+29xRTEUMOmnH72b9WtBYUdvBt7SKnmtPpQzyz8pmkVEUUf+nXyQSCXQGpaNzyPK5MxmGYenp6Xw+n8N5om4tmUwWiURarRZBEHwkN7CtyWRKT08XCARs9hMZDEgkkkgk0ul0mZmZCxYsGLSt0Wjk8XhCobDf0JBMJtva2mq12szMzMjIyKm2o8PWmvnxm2G37tY3tWpc59qGB4sGjRC/M1OruvAeEX9uAT+BkHkROzsfZ85MSkrKyck5ePCgGQOCnhUCisybJZo3a7hS8iiCiKyYrU0d+EujyWTQG4lEuKJhENnZ2QKBYKjnljQazdraOicnZ+7cuQN/m5WVZW1tPdS8I5VK5XK5ubm5s2fPHrStSCQa6m6VRqOhKJqXlxcaGjrqS5kkdCpx6Xyn4Y8R8ukkItrS2GHrwAMAdOn0AAD4CYTM67kZGkITJMTP+sKNiqz0YgqV1FTf3tVtCPAaRyrVaUomk5lMpuEn88hkMv40tfcRK665uRlF0eEX41AoFIVCoVAo+g1GGxsbiUTi8I9wKBRKe3u7Uql8HvPjUClEXw9+4SOp0WjCMKy+RkajEj1dLM0dFzSjwfuymS4yzDZqjn1rY7ukoonLIm5d6+fuZGHuoKacsrIygWDk2wUrK6uysrJ+P6yoqOjXUw5KIBAMrL9YVVWFz0QOz9ra+tGjRyMeNjWtWebu486tLW9urGl1s2O/symQxYCLbiBz6n8fqtfrlUqlWUIZp+c0bLNDEWT1Yle4An54BsNoK+vq9fqxtUUQpLu7f26z0bcd+L7PCwad9GqCj7mjgKDHnugXmUxmSkpKSkqKuaIZp/Fk3oKgYYy+fODAI43G0Ra8HXjkeNpCEDQ2T/SLCQkJCQkJ5goFgqaBgasu8VIkY2s7+lWmo38XCIKGB/8vQdDIRr95iUDoX05r9G0HHjme94UgaGxgvwhBI+NyuTqdbsTDdDrdwCU2HA6nq2vkDXkajYbP759Ogc1mj2biUKVSWVlZjXgYBEGjAftFCBqZt7d3S0vLiIe1trYOLPPm4+MzmrZtbW0eHh79fujn59fU1DRi2/b2djc3WOEEgp4N2C9C0MgQBAkMDJRKpcMcI5VKAwICBp1f9PX1Hb57a2hoCA4OHrStWCwevmZ6Q0NDSEjIsOFD0FR06NAhKyurqqqqoKCgmJgYc4fzGOwXIWhUBAKBt7d3XV3dwAeber2+rq5OLBYPtcdRKBS6u7vX1dUN3Heh1+tra2v9/PwsLQffzC4SiVxdXSUSycAVp93d3bW1tQEBARYWcMsp9PzZsWOHo6OjwWAgkUhff/21ucN5DOa7gaDREgqFfD7//v37MpkMwzC8ngaCICwWKzo6eviVLyKRyMrKqqCgQKVSGY1GIpFoMBgIBAKHw1m0aNHwbW1tbXvbYhhGIBCMRiOBQGCz2YsXL4YrUaHnFIqif/3rXxMTE1988UVHR0dzh/MY7Bch6CkQicTg4GAAAIZhXV1dFApl9FspiEQi/sBzDG1JJBKeAXUMbSFoylq6dGliYuL+/fvNHcgTYL84GfAbfHNHAfXAB1vjPAmCIFTqGKtUTn5bfGg7tneEnq1n8vGbTo4fP27uEPqDT2Amg4ODQ2lpqbmjgAAAoLOzU6PRDDWZN13BT+DUUVpa6uTkZO4ooOHAfnEyhIaGarXaixcvmjsQCOzevfvVV1+daQ8h161bd/r06aqqKnMHMtPp9fpdu3Zt27bN3IFAw4HPUScDgUBISkpatWrV3bt34+PjZ9pgZSrAMKyuru7IkSNtbW3Xrl0zdziTzcbG5vDhw1FRUR9//HFERASdTjd3RDOOXq8vKyv79NNPIyMjV69ebe5wzKmgoIDH49nb20/EyXU63a1btxYvXjyee1/YL04SsVh87969v/3tbx999FHfWtDQpLGxsYmLi3vttddm5gLO+Ph4Pz+/gwcPnjx5UqvVmjucGYdIJDo6Ou7bt2/p0qXmjsXM1qxZM3fu3O+//34iTn7hwoX169cXFxcPzLAxerBfnDwWFhb79u0zdxTQzOXm5nbs2DFzRwHNODKZbPv27WfOnMFfXr16lc1mP8Pz7927NyYmJjw8HACQkJCQlZU1nk4RwH4RgiBoprl161Zubi6ZTI6Li8M3DmZnZ+fk5Njb28fHxxMIBJVKlZmZGRkZmZyc3NLSsnnzZgzDzp49i6LoK6+8QiKRAAAtLS3JyckymczPz2/58uUAAJ1Ol5mZGRYWdvv27bKystjYWA8PD7lc/sEHHxQXF//444/Ozs5OTk45OTk+Pj5CoRAAYDKZkpOTS0tLXV1dX3jhhX7Pcqqrq69du6bVaufNmzd37lz8hwqF4uLFiy0tLREREXPmzElLSzty5AiKolKpdPny5UVFRXl5eb0HV1dXp6amIggSExODL3dSKpWZmZlRUVGXL19ubGxct26djY0NAEAqlZ4/f16j0QQHB8/EB0oQBEEz1okTJ95///0lS5Y0NDScO3cOAPCnP/3p6NGjERER586d27x5s1qt3rZt26pVqz788MOSkpLDhw9HRkbu3bu3trb2o48++uyzzwAAUqnU29ubxWItXLjw9ddfP3nyJADggw8+WLZs2bZt2/Ly8i5durRw4UK80L1are5995s3b3788cdZWVkAAL1eHx0d/euvvyYmJm7btu3w4cN948zJyfH29p4zZ46/v/+iRYvy8/MBAJWVlcHBwVQqNTQ0NDw8vKCgQK/Xy+VyvElTU9OxY8f27NmDv7xy5UpMTIyXl5eLi0tUVNSNGzc6OzvfeOON2NjYnTt3FhcXnzhxIjY2FgDQ2toaGBjo7OwcGhq6e/dugEFPaf369cnJyeaOAoKgmejhw4dz584dzxl+//vfL168uLu7WyKRPHjwoLi4mEKh4KmU7t27hyCIXC5/8OABAEAul2MY9u2339rY2OBt//CHPyxduhTDMKlUun///tbWVgzDEhMTd+zYgWFYW1sbAKCwsBDDMHzxc2VlJYZhe/bsWbJkSW9156N1AAAFKElEQVQAQUFBX375JYZhR44ccXFxMZlMGIb95S9/yc7O7htnYWHh/v378d8GBAQcO3YMw7CEhIQtW7ZgGCaXy997772WlhYMwxAEycjIwFslJydzOBwMw4xGo62tLf5GGIZ9/vnnHh4e+DUCADo7OzEMu3nzJoqi3d3d6enpZDK5vLwcw7CrV6/C56gQBEEzyPbt21evXu3j47N3796NGzcmJSVRKJSdO3fiv926dWu/kmoMBqP3z0wmE09RYmNjs27duqNHj8rl8qKiooGZgZlMJgBg+CppOTk5fn5++MLRP//5z/1+6+vri2HY7t27u7u7W1pa8NzC2dnZu3btAgBYWloeOnRomJPX1tY2NDQEBATgL4OCgnbv3i2TyfoFaTKZjEbjvHnzli1bFhAQ8Oabb+7Zswf2ixAEQTNIUFBQaWnp0aNHt27d2tHRgVcMPXLkSN8i2P36j4FSU1M3bdp06dKlsLCwl19+eWyRkMlkfIg5qKNHjx4+fPjKlSuurq4ZGRn4DykUyjBN+sI3I/WWPtXpdCiKDrVDiUwmX7x4MT09/d13383KyoLzixAEQTPIpk2b8AHipk2bKioqwsPD9Xr9iRMn8N/KZLKOjo4RT3L16lU3N7ewsDAAwIjbfhAEGfScK1asyMrKys3NxV/2O8/FixcjIiJcXV0xDOvt3pYvX56UlNQ7oYg3QRBEoVD0O7m1tXVoaGhKSgr+MjU1dcmSJUP1iz/88MPly5ejoqKOHj1aUVFB+OSTT4a/JKifs2fP+vv7DywhC0EQNNFaW1svX7782muvjfkMX331VW5ubllZWWpq6v79+52dnd3c3Hbu3Jmenp6cnHz27NmoqKhDhw7l5+fT6XSxWLx///7CwkInJycKhfL3v/+9oqLCzc0tMDDw4MGDRUVFt27damxsLCkp8fHx+de//nXnzh0Mw1auXPnFF1/88ssvJpNp+fLlbW1tX375pUQikclkJSUlZ86cUSqVAQEBCxcuVCqV77zzTk5OzqlTp9RqNZ4cH9fd3X3gwIHKysrs7Oyampr6+vqQkJDY2Ni0tLRPP/00Jyfn22+/FYvFdnZ2586dS01Nra2tZTAYX3/99f3799ls9pw5cyIjIw8cOFBdXX39+vW8vLykpCQEQT7//PN79+6xWKzZs2d/9tlnv/32G4vFolKphw4d0mq133333ZtvvolgGPYs/rFmkA0bNmzcuHHlypXmDgSCoBmnqKho69at+HrOsTEYDCUlJSiKenh49D471el05eXlfD7fxsbGZDLhwy8URZlMJp6HhEgkUigUfGUpmUxmMBjNzc3t7e1eXl46nU6r1VKp1N6JSUtLy46ODrxzwdN7VVRUmEwmd3d3lUqFzxTS6XQKhQIAUCgU1dXVbm5u+JRkX7W1tRiGOTk5qdXq7u5uBoNBJpMBAA0NDXK53NvbG49frVaXlZW5uLgwGAylUolHzuFw8JNUVVWRSCQ8vU7fS2Oz2fgoFj9YIpG0tbU5OTlZWFjAfvGpwX4RgiBzGX+/CI0Izi9CEARB0GOwX4QgCIKgx2C/CEEQ9DyZaVXSJh/sF5+aQCCQSqXmjgKCoJmooaHBysrK3FFMc7BffGpr1qz5xz/+0bufBoIgaHJgGHbw4MGXXnrJ3IFMc7BffGrz58+PiopauXJlSUmJuWOBIGimkEgk69evZzKZGzZsMHcs0xzcpzFGSUlJBw4ckEql8Fk/BEETDcMwHo/31ltv7dixg0AgmDucae7/A5gEcV/XNoY2AAAAAElFTkSuQmCC" />
 
@@ -741,7 +783,7 @@
 
 </div>
 
-<p>The third sequence is an open brace followed by build expressions followed by a closing brace. When this is matched, a <code>Builder</code> AST node is created containing the expression AST nodes.</p>
+<p>The third sequence is an open curly brace followed by build expressions followed by a closing curly brace. When this is matched, a <code>Builder</code> AST node is created containing the expression AST nodes.</p>
 
 <p>A build expression is either a greater than character, in which case an <code>IndentBuilder</code> AST node is created, or a less than character, in which case a <code>DedentBuilder</code> AST node is created, or a host expression.</p>
 
@@ -841,7 +883,7 @@
 
 <h4><a name="b225bd1638614a808495e33a63797beb"></a>Note on target language</h4>
 
-<p>The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case JavaScript must be used as a target language. RLMeta could be ported to JavaScript by modifying the code generator and the support library.</p>
+<p>The choice of Python as the target language for code generation is an implementation detail. A different target language could easily be used. Say for example that you would like to use RLMeta in a web browser. In that case JavaScript must be used as the target language. RLMeta could be ported to JavaScript by modifying the code generator and the support library.</p>
 
 <h4><a name="69841ad3d1044db18591fe09cdf1caee"></a>Parsing algorithm</h4>
 
@@ -879,7 +921,7 @@
 
 <h4><a name="ed6931f4eeca4d43aaee1e9f5485a295"></a>Grammar</h4>
 
-<p>When a <code>Grammar</code> AST node is matched, a Python class with the same name is generated:</p>
+<p>When a <code>Grammar</code> AST node is matched, a Python class inheriting <code>_Grammar</code> is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -894,7 +936,9 @@
 
 </div>
 
-<p>The class inherits <code>_Grammar</code> which is defined in the support library:</p>
+<p>The name of the class is the same as the name of the grammar and the child AST nodes are assumed to generate methods in the class.</p>
+
+<p>The <code>_Grammar</code> class is defined in the support library:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -911,11 +955,9 @@
 
 <p>Names of support classes start with underscore to not collide with generated grammar names (which can not contain underscores).</p>
 
-<p>The child AST nodes are assumed to generate methods in the class.</p>
-
 <h4><a name="3c542ba5b0104273805b227aeab84c04"></a>Rule</h4>
 
-<p>When a <code>Rule</code> AST node is matched, a Python method with that name in it is generated:</p>
+<p>When a <code>Rule</code> AST node is matched, a Python method with a name prefixed with <code>_rule_</code> is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -930,7 +972,7 @@
 
 </div>
 
-<p>The child AST node is assumed to generate a matcher. A matcher is a function that, when called, tries to match objects from the input stream and return a semantic action if successful or raise an exception if it fails. That function is called from the generated method and its result is returned.</p>
+<p>The method name ends with the same name as the rule. The child AST node is assumed to generate a matcher. A matcher is a function that tries to match objects from the input stream and return a semantic action if it succeeds or raise an exception if it fails. That function is called from the generated method and the semantic action is returned.</p>
 
 <h4><a name="696631bc029c47949b2ad97ce78ea32c"></a>Or</h4>
 
@@ -949,7 +991,7 @@
 
 </div>
 
-<p>Helpers to generate a list of items:</p>
+<p>Rules to generate a list of items:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -963,7 +1005,7 @@
 
 </div>
 
-<p>The generated string is wrapped in a lambda because the code is added to the <code>astFnBody</code> rule and will thus look something like this:</p>
+<p>The generated string is wrapped in a lambda because the code is added to the <code>astFnBody</code> rule and will thus look like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">(</span><span class="k">l</span><span class="k">a</span><span class="k">m</span><span class="k">b</span><span class="k">d</span><span class="k">a</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">o</span><span class="n">r</span><span class="p">(</span><span class="p">[</span><span class>
@@ -976,7 +1018,7 @@
 
 </div>
 
-<p>The <code>_or</code> method expects a list of matchers. It tries them in sequence and returns the result of the first that matches:</p>
+<p>The <code>_or</code> method expects a list of matchers which are tried in sequence:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -998,7 +1040,7 @@
 
 </div>
 
-<p>The input stream is stored in <code>_stream</code>. Streams are immutable, so resetting the stream upon failure is just a matter of saving and restoring <code>_stream</code>. <code>_MatchError</code> is the name of the exception raised when a match fails. Streams have a <code>fail</code> method that generates that error and adds context to it that is useful for error reporting.</p>
+<p>The result of the first succeeding matcher is returned. The input stream is stored in <code>_stream</code>. Streams are immutable, so resetting the stream upon failure is just a matter of saving and restoring <code>_stream</code>. <code>_MatchError</code> is the name of the exception that is raised when a match fails. Streams have a <code>fail</code> method that generates that exception and adds context to it that is useful for error reporting.</p>
 
 <h4><a name="86438bda56d342bc9d1f2c62e632a72d"></a>Scope</h4>
 
@@ -1017,7 +1059,7 @@
 
 </div>
 
-<p>A scope is a set of variables that do not conflict with variables in other scopes. The name <code>_vars</code> is used to refer to variables in the current scope. The child AST node is assumed to generate a matcher which is then called. The generated string will thus look like this:</p>
+<p>A scope is a set of variables that do not interfere with variables in other scopes. The name <code>_vars</code> is used to refer to variables in the current scope. The child AST node is assumed to generate a matcher which is called to return a semantic action. The generated string will thus look like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">(</span><span class="k">l</span><span class="k">a</span><span class="k">m</span><span class="k">b</span><span class="k">d</span><span class="k">a</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">(</span><span class="k">l</span><span class="k">a</span><span class="k">m</span><span class="k">b</span><span class="k">d</span><span class="k">a</span><span class> </span><span class="n">_</span><span class="n">v</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="p">:</span><span class>
@@ -1060,7 +1102,7 @@
 
 </div>
 
-<p>The <code>_and</code> method expects a list of matchers. It runs them in sequence and returns the result of the last one:</p>
+<p>The <code>_and</code> method expects a list of matchers which are called in sequence:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1079,9 +1121,11 @@
 
 </div>
 
+<p>The result of the last matcher is returned.</p>
+
 <h4><a name="4309ca572367401bb6c4561f273b8c85"></a>Bind</h4>
 
-<p>When a <code>Bind</code> AST node is matched, a matcher that stores the result of the expression as a side effect is generated:</p>
+<p>When a <code>Bind</code> AST node is matched, a matcher that binds the name to a value in the current scope is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -1096,9 +1140,9 @@
 
 </div>
 
-<p>The child AST node is assumed to generate a matcher. It is called to store the semantic action in the current scope.</p>
+<p>The child AST node is assumed to generate a matcher which is called to make the value a semantic action.</p>
 
-<p>The <code>bind</code> method stores and returns the value:</p>
+<p>The <code>bind</code> method stores and returns a value with the given name:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1132,7 +1176,7 @@
 
 </div>
 
-<p>The <code>_star</code> method expects a matcher. It tries it for as long as it succeeds and returns a semantic action that generates a list of all results:</p>
+<p>The <code>_star</code> method expects a matcher and calls it for as long as it succeeds:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1155,7 +1199,7 @@
 
 </div>
 
-<p>The result of matchers are semantic actions. They have an <code>eval</code> method that returns the actual result. The <code>_star</code> method is also a matcher, so it also returns a semantic action. The actual result of it is a list with all the actual results of the child matches. Therefore it has to call <code>eval</code> on all children.</p>
+<p>The return value is a semantic action. When evaluated, it returns a list of all match results evaluated.</p>
 
 <p>A semantic action is a wrapper for a function:</p>
 
@@ -1176,6 +1220,8 @@
 
 </div>
 
+<p>Its <code>eval</code> method calls the function. The reason for wrapping semantic actions in functions is to prevent them from being evaluated before a parse is complete. If a parse fails, no semantic actions are evaluated.</p>
+
 <h4><a name="44d3b166c62d43e38d2a781fb9f06b6d"></a>Not</h4>
 
 <p>When a <code>Not</code> AST node is matched, a matcher that calls the built-in <code>_not</code> method is generated:</p>
@@ -1193,7 +1239,7 @@
 
 </div>
 
-<p>The <code>_not</code> method expects a matcher. It never consumes any input. The original stream is always reset. It succeeds if the matcher fails.</p>
+<p>The <code>_not</code> method expects a matcher and succeeds if that matcher fails:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1217,9 +1263,11 @@
 
 </div>
 
-<h4><a name="07530ffd21784561bd8594c98fcd050a"></a>SemanticAction</h4>
+<p>It never consumes any input. The original stream is always reset.</p>
 
-<p>When a <code>SemanticAction</code> AST node is matched, a matcher that creates a <code>_SemanticAction</code> instance is generated:</p>
+<h4><a name="07530ffd21784561bd8594c98fcd050a"></a>Semantic action</h4>
+
+<p>When a <code>SemanticAction</code> AST node is matched, a matcher that creates a <code>_SemanticAction</code> is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -1236,7 +1284,7 @@
 
 <p>The child AST node is assumed to generate a Python expression that will be returned when the semantic action is evaluated.</p>
 
-<h4><a name="c10aabed8057404e97ef8cd6ac1b113d"></a>MatchRule</h4>
+<h4><a name="c10aabed8057404e97ef8cd6ac1b113d"></a>Match rule</h4>
 
 <p>When a <code>MatchRule</code> AST node is matched, a matcher that calls the built-in <code>_match_rule</code> is generated:</p>
 
@@ -1253,7 +1301,7 @@
 
 </div>
 
-<p>The <code>_match_rule</code> method expects the name of the rule to match. If the given rule has been matched at the current position before, the memoized result is returned and the input stream is updated. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.</p>
+<p>The <code>_match_rule</code> method expects the name of the rule to call:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1277,7 +1325,9 @@
 
 </div>
 
-<h4><a name="3ba5893bb7094ece96e853f869df9456"></a>MatchRange</h4>
+<p>If the given rule has been matched at the current position before, the memoized result is returned and the input stream is changed to where the previous match ended. If there has been no previous match, the rule is matched by calling the method. The result of the match is stored in the memoization table for later retrieval.</p>
+
+<h4><a name="3ba5893bb7094ece96e853f869df9456"></a>Match range</h4>
 
 <p>When a <code>MatchRange</code> AST node is matched, a matcher that calls the built-in <code>_match_range</code> is generated:</p>
 
@@ -1294,7 +1344,7 @@
 
 </div>
 
-<p>The <code>_match_range</code> method expects two objects. If the next object from the input stream is in that range, it succeeds, otherwise it fails:</p>
+<p>The <code>_match_range</code> method expects two objects defining a range to match:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1317,7 +1367,9 @@
 
 </div>
 
-<h4><a name="82022cc15d944579825b52559b1ee469"></a>MatchString</h4>
+<p>If the next object from the input stream is in that range, it succeeds, otherwise it fails.</p>
+
+<h4><a name="82022cc15d944579825b52559b1ee469"></a>Match string</h4>
 
 <p>When a <code>MatchString</code> AST node is matched, a matcher that calls the built-in <code>_match_string</code> is generated:</p>
 
@@ -1334,7 +1386,7 @@
 
 </div>
 
-<p>The <code>_match_string</code> method expects the string to match. If the next object from the input stream is that string, it succeeds, otherwise it fails:</p>
+<p>The <code>_match_string</code> method expects the string to match:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1357,7 +1409,9 @@
 
 </div>
 
-<h4><a name="3eff70b8911e4b4e9bd520a7d25624e7"></a>MatchCharseq</h4>
+<p>If the next object from the input stream is that string, it succeeds, otherwise it fails.</p>
+
+<h4><a name="3eff70b8911e4b4e9bd520a7d25624e7"></a>Match character sequence</h4>
 
 <p>When a <code>MatchCharseq</code> AST node is matched, a matcher that calls the built-in <code>_match_charseq</code> is generated:</p>
 
@@ -1374,7 +1428,7 @@
 
 </div>
 
-<p>The <code>_match_charseq</code> method expects a string with characters to match. If the next objects from the input stream are those characters, it succeeds, otherwise it fails:</p>
+<p>The <code>_match_charseq</code> method expects a string with characters to match:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1397,7 +1451,9 @@
 
 </div>
 
-<h4><a name="5edd25f746a94b8392834343dce57370"></a>MatchAny</h4>
+<p>If the next objects from the input stream are those characters, it succeeds, otherwise it fails.</p>
+
+<h4><a name="5edd25f746a94b8392834343dce57370"></a>Match any</h4>
 
 <p>When a <code>MatchAny</code> AST node is matched, the built-in <code>_match_any</code> is generated:</p>
 
@@ -1414,7 +1470,7 @@
 
 </div>
 
-<p>The <code>_match_any</code> method expects no arguments and always returns the next object from the input stream. It only fails if there are no more objects.</p>
+<p>The <code>_match_any</code> method expects no arguments and always matches the next object from the input stream:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1431,7 +1487,9 @@
 
 </div>
 
-<h4><a name="c3b58d2d7b024fa4a0e5ff0bcf06d154"></a>MatchList</h4>
+<p>It only fails if there are no more objects.</p>
+
+<h4><a name="c3b58d2d7b024fa4a0e5ff0bcf06d154"></a>Match list</h4>
 
 <p>When a <code>MatchList</code> AST node is matched, a matcher that calls the built-in <code>_match_list</code> is generated:</p>
 
@@ -1472,7 +1530,7 @@
 
 </div>
 
-<p>If the next object is a list, a new stream is created with the <code>nested</code> call that contains all child objects. The matcher is then run on that stream. The matcher must match all child objects, or the match fails.</p>
+<p>If the next object is a list, a new stream is created with the <code>nested</code> call that contains all child objects. It is set to be the input stream, and the matcher is then called. The matcher must match all child objects, or the match fails.</p>
 
 <h4><a name="74804e4e0ee643ac95210d7aa17ae7c6"></a>String</h4>
 
@@ -1541,7 +1599,7 @@
 
 </div>
 
-<p>Child AST nodes are assumed to generate Python expressions.</p>
+<p>The child AST nodes are assumed to generate Python expressions.</p>
 
 <p>When an <code>IndentBuilder</code> AST node is matched, an <code>_IndentBuilder</code> is generated:</p>
 
@@ -1629,7 +1687,7 @@
 
 </div>
 
-<p>The <code>create</code> method of a builder creates an instance of a builder:</p>
+<p>The <code>create</code> method of a builder creates an instance of a builder depending on the type of object passed in:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1661,12 +1719,12 @@
 
 <div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">_</span><span class="nc">L</span><span class="nc">i</span><span class="nc">s</span><span class="nc">t</span><span class="nc">B</span><span class="nc">u</span><span class="nc">i</span><span class="nc">l</span><span class="nc">d</span><span class="nc">e</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">B</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="fm">_</span><span class="fm">_</span><span class="fm">i</span><span class="fm">n</span><span class="fm">i</span><span class="fm">t</span><span class="fm">_</span><span class="fm">_</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class> </span><span class="o">=</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="fm">_</span><span class="fm">_</span><span class="fm">i</span><span class="fm">n</span><span class="fm">i</span><span class="fm">t</span><span class="fm">_</span><span class="fm">_</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class> </span><span class="o">=</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class>
 </span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">w</span><span class="nf">r</span><span class="nf">i</span><span class="nf">t</span><span class="nf">e</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class> </span><span class="ow">i</span><span class="ow">n</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="o">.</span><span class="n">w</span><span class="n">r</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="p">(</span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class> </span><span class="ow">i</span><span class="ow">n</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">:</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="o">.</span><span class="n">w</span><span class="n">r</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="p">(</span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class>
 </span></pre></div>
 
 </div>
@@ -1690,7 +1748,7 @@
 
 </div>
 
-<p>An <code>_IndentBuilder</code> changes the indentation on the output:</p>
+<p>An <code>_IndentBuilder</code> changes the indentation of the output:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1706,7 +1764,7 @@
 
 </div>
 
-<p>A <code>_DedentBuilder</code> changes the indentation on the output:</p>
+<p>A <code>_DedentBuilder</code> changes the indentation of the output:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1722,7 +1780,7 @@
 
 </div>
 
-<h4><a name="f5372dab8e084ca386297eb9575052e8"></a>FnCall</h4>
+<h4><a name="f5372dab8e084ca386297eb9575052e8"></a>Function call</h4>
 
 <p>When a <code>FnCall</code> AST node is matched, a Python function call is generated:</p>
 
@@ -1741,9 +1799,9 @@
 
 <p>The child AST nodes are assumed to generate Python expressions.</p>
 
-<h4><a name="d9f73bdeb5c447dbaf5b8fe0bf3b67ba"></a>VarLookup</h4>
+<h4><a name="d9f73bdeb5c447dbaf5b8fe0bf3b67ba"></a>Variable lookup</h4>
 
-<p>When a <code>VarLookup</code> AST node is matched, a Python expression that looks up the value of the variable is generated:</p>
+<p>When a <code>VarLookup</code> AST node is matched, a Python expression that looks up the variable and evaluates it is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -1757,8 +1815,6 @@
 </span></pre></div>
 
 </div>
-
-<p>The value stored is always a semantic action, and its <code>eval</code> method is called to get the actual value.</p>
 
 <p>The <code>lookup</code> method returns the stored value:</p>
 
@@ -1776,7 +1832,7 @@
 
 </div>
 
-<p>Every time a variable is referenced, its <code>eval</code> method is called. Consider this grammar:</p>
+<p>Every time a variable is referenced, the <code>eval</code> method is called. Consider this grammar:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>A</span><span class>G</span><span class>r</span><span class>a</span><span class>m</span><span class>m</span><span class>a</span><span class>r</span><span class> </span><span class>{</span><span class>
 </span><span class> </span><span class> </span><span class>f</span><span class>o</span><span class>o</span><span class> </span><span class="nb">=</span><span class> </span><span class>b</span><span class>a</span><span class>r</span><span class="nb">:</span><span class>x</span><span class> </span><span class="nb">-</span><span class="nb">&gt;</span><span class> </span><span class>{</span><span class> </span><span class>x</span><span class> </span><span class>x</span><span class> </span><span class>}</span><span class>
@@ -1786,7 +1842,7 @@
 
 </div>
 
-<p>If evaluating <code>x</code> has a side effect, it will be executed twice. The <code>eval</code> method of <code>_SemanticAction</code> could be modified so it is only executed once if needed.</p>
+<p>If evaluating <code>x</code> has a side effect, it will be executed twice. The <code>eval</code> method of <code>_SemanticAction</code> could be modified so that the function is only called once if needed.</p>
 
 <h4><a name="4397d20868fa4c08ac289e463725f18e"></a>Final support methods</h4>
 
@@ -1812,7 +1868,7 @@
 
 </div>
 
-<p>It initializes the memoization table and the input stream, matches the rule, and returns the result. If the result is a builder, the string that the builder builds is returned.</p>
+<p>It initializes the memoization table and the input stream, matches the rule, and returns the evaluated result. If the result is a builder, the string that the builder builds is returned.</p>
 
 <p>The memoization table is a subclass of a Python dictionary:</p>
 
@@ -1915,7 +1971,7 @@
 
 </div>
 
-<p>The <code>next</code> method returns a tuple with the next object and the next stream. There are two kinds of streams: character streams and object streams. They are subclasses of <code>_Stream</code> and implement the <code>position</code> and <code>_advance</code> methods.</p>
+<p>Its <code>next</code> method returns a tuple with the next object and the next stream. There are two kinds of streams: character streams and object streams. They are subclasses of <code>_Stream</code> and implement the <code>position</code> and <code>_advance</code> methods. The appropriate stream is chosen in the <code>from_object</code> method.</p>
 
 <p>A character steam stores the position as a line + column:</p>
 
@@ -2019,7 +2075,7 @@
 
 </div>
 
-<p>First, the support library snippet is stored in a variable. This is needed so that it can be output when the <code>--support</code> flag is given. Then the support library, compiled parser grammar, and compiled code generator grammar snippets are inserted. Then the host language function <code>join</code> is defined. Then a function to compile a grammar is defined. Finally the main method that accepts grammars on stdin and writes Python classes on stdout is implemented. This template is rendered with a Bash script:</p>
+<p>First the <code>sys</code> module is imported because the main method needs it. Then the support library snippet is stored in a variable so that it can be output when the <code>--support</code> flag is given. Then the support library, compiled parser grammar, and compiled code generator grammar snippets are inserted. Then the host language function <code>join</code> is defined. Then a function to compile a grammar is defined. Finally the main method that reads a grammar from stdin and writes a Python class to stdout is implemented. If an error occurs, it is written to stderr using the exception's <code>describe</code> method. This template is rendered with a Bash script:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rlmeta</li><li>compile.sh</li></ol>
 
@@ -2049,13 +2105,17 @@
 
 </div>
 
-<p>If the compile script is run with the <code>rlmeta.py</code> compiler, a new Python file is output. This file is exactly the same as the original <code>rlmeta.py</code> file. It can be seen by diffing the two files:</p>
+<p>First the <code>set -e</code> directive ensures that the script exits as soon as there is an error. Then a variable containing the path to the RLMeta compiler is defined. The path must be given to the compile script as the first argument. Then the directory is changed to the one where the compile script lives. Then a function is defined that turns its stdin into a Python string with correct quoting. Then the support library is captured in a variable. Then the output of passing the support library to <code>to_python_string</code> is captured in a variable. Then the output of two calls to the RLMeta compiler are captured in two variables. Finally the Python file template is rendered and written to stdout.</p>
+
+<p>If the compile script is run with the current RLMeta compiler (<code>rlmeta/rlmeta.py</code>), a new Python file is output that is exactly the same as the <code>rlmeta/rlmeta.py</code> file. It can be seen by diffing the two files:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>d</span><span class>i</span><span class>f</span><span class>f</span><span class> </span><span class>&lt;</span><span class>(</span><span class>.</span><span class>/</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>/</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class>)</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>/</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&amp;</span><span class>&amp;</span><span class> </span><span class>e</span><span class>c</span><span class>h</span><span class>o</span><span class> </span><span class>E</span><span class>Q</span><span class>U</span><span class>A</span><span class>L</span><span class>
 </span><span class>E</span><span class>Q</span><span class>U</span><span class>A</span><span class>L</span><span class>
 </span></pre></div>
 
 </div>
+
+<p>The <code>rlmeta.py</code> file never needs to be changed manually. The next version can always be produced using the previous version. Sometimes the next version must be produced in steps and intermediate compilers must be created. That is why the path to the compiler must be given to the compile script. If you want to see what the <code>rlmeta.py</code> file looks like, it is <a href="https://github.com/rickardlindberg/rickardlindberg.me/blob/master/writing/rlmeta/rlmeta/rlmeta.py">here</a>.</p>
 
 <h3><a name="313b147a2f574ea09d76d9c7371bdf18"></a>Bootstrapping</h3>
 
@@ -2095,7 +2155,7 @@
 
 <p>The parser is thus turned into the following Python code:</p>
 
-<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">P</span><span class="nc">a</span><span class="nc">r</span><span class="nc">s</span><span class="nc">e</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">R</span><span class="n">L</span><span class="n">M</span><span class="n">e</span><span class="n">t</span><span class="n">a</span><span class="p">)</span><span class="p">:</span><span class>
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">P</span><span class="nc">a</span><span class="nc">r</span><span class="nc">s</span><span class="nc">e</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">G</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">m</span><span class="n">a</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="o">.</span><span class="o">.</span><span class="o">.</span><span class>
 </span></pre></div>
 
@@ -2178,9 +2238,9 @@
 
 <p>With the initial version of <code>rlmeta.py</code> I could run the compile script to generate the second version of <code>rlmeta.py</code>. The second version did not match the first version exactly. The complete diff can be seen in the commit <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/134c3a360160a2b978cd742a935df1c3a85de546#diff-7687f8856e0607ca8e0247b6cd77cf7b">Get rid of bootstrapped compiler</a>. Mostly I had used a different character for strings and forgotten some commas that were not strictly necessary. Once the second version replaced the first, the compile script reproduced <code>rlmeta.py</code> exactly. At this point the manually translated versions could be discarded. The RLMeta compiler was bootstrapped. This was a tremendously rewarding experience.</p>
 
-<p>Did the first version work on the first run? No. In the translation process I noticed incorrect behavior in the grammars that I had to fix. And some manual translations were done incorrectly. But all fixes were relatively minor.</p>
+<p>Did the first version work on the first run? No. In the translation process I noticed incorrect behavior in the grammars that I had to fix. And some manual translations were done incorrectly. But all fixes were relatively minor. Before the translation I had also carefully debugged the grammars in my head to decrease the risk of them having bugs.</p>
 
-<p>To avoid making mistakes in the manual translation process, I created snippets for the Vim text editor for each of the AST nodes. So when I encountered a <code>Rule</code> AST node, I could type "rule", hit tab, and the following snippet would be inserted placing the cursor where the rule name should be inserted:</p>
+<p>To avoid making mistakes in the manual translation process, I created snippets for the Vim text editor for each AST node. So when I encountered a <code>Rule</code> AST node, I could type "rule", hit tab, and the following snippet would be inserted placing the cursor where the rule name should be inserted:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">_</span><span class="nf">r</span><span class="nf">u</span><span class="nf">l</span><span class="nf">e</span><span class="nf">_</span><span class="err">$</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">}</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">r</span><span class="k">e</span><span class="k">t</span><span class="k">u</span><span class="k">r</span><span class="k">n</span><span class> </span><span class="err">$</span><span class="p">{</span><span class="mi">2</span><span class="p">:</span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="n">c</span><span class="n">h</span><span class="n">e</span><span class="n">r</span><span class="p">}</span><span class="p">(</span><span class="p">)</span><span class>
@@ -2201,27 +2261,26 @@
 
 <p>The Vim snippets saved me a lot of typing and made manual translation feasible. Getting all commas and parenthesis right would have been difficult otherwise.</p>
 
-<h2><a name="5f558623cfce441fb3e61033299d1419"></a>Implementing languages</h2>
+<h2><a name="5f558623cfce441fb3e61033299d1419"></a>Implementing programming languages</h2>
 
 <p>When I read <a href="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html">Structure and Interpretation of Computer Programs</a> I remember thinking that it described what programming was all about. The following quote from <a href="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-25.html#%_chap_4">chapter 4</a> I think summarizes it:</p>
 
 <blockquote>However, as we confront increasingly complex problems, we will find that Lisp, or indeed any fixed programming language, is not sufficient for our needs. We must constantly turn to new languages in order to express our ideas more effectively. Establishing new languages is a powerful strategy for controlling complexity in engineering design; we can often enhance our ability to deal with a complex problem by adopting a new language that enables us to describe (and hence to think about) the problem in a different way, using primitives, means of combination, and means of abstraction that are particularly well suited to the problem at hand.</blockquote>
 
-<p>In this article I set out to explain how a metalanguage could be used to give meaning to arithmetic expressions. But RLMeta is more powerful than that. It can be used to implement itself and also many other programming languages because matching and transforming is at the heart of programming language implementation. Its small implementation, under 400 lines of code, also makes it feasible to understand and modify:</p>
+<p>In this article I set out to explain how a metalanguage could be used to give meaning to arithmetic expressions. But RLMeta is more powerful than that. It can be used to implement itself and also many other programming languages because matching and transforming is at the heart of programming language implementation. Its small implementation, just over 400 lines of code, also makes it feasible to understand and modify:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class> </span><span class> </span><span class> </span><span class>5</span><span class>1</span><span class> </span><span class>p</span><span class>a</span><span class>r</span><span class>s</span><span class>e</span><span class>r</span><span class>.</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class>3</span><span class>3</span><span class> </span><span class>c</span><span class>o</span><span class>d</span><span class>e</span><span class>g</span><span class>e</span><span class>n</span><span class>e</span><span class>r</span><span class>a</span><span class>t</span><span class>o</span><span class>r</span><span class>.</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>
 </span><span class> </span><span class> </span><span class>2</span><span class>7</span><span class>8</span><span class> </span><span class>s</span><span class>u</span><span class>p</span><span class>p</span><span class>o</span><span class>r</span><span class>t</span><span class>.</span><span class>p</span><span class>y</span><span class>
-</span><span class> </span><span class> </span><span class>3</span><span class>6</span><span class>2</span><span class> </span><span class>t</span><span class>o</span><span class>t</span><span class>a</span><span class>l</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class>4</span><span class>5</span><span class> </span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class>
+</span><span class> </span><span class> </span><span class>4</span><span class>0</span><span class>7</span><span class> </span><span class>t</span><span class>o</span><span class>t</span><span class>a</span><span class>l</span><span class>
 </span></pre></div>
 
 </div>
 
-<p>I hope this article inspires you to experiment with implementing programming languages so that you can solve more complex problems elegantly.</p>
+<p>I hope this article inspires you to experiment with implementing programming languages so that you can solve complex problems elegantly.</p>
 
-<h2><a name="6f7a509358784145b38fd210c96513c5"></a>Appendix</h2>
-
-<h3><a name="4c6af1a11ed440d2bf31a497032c9c0b"></a>Resources</h3>
+<h2><a name="4c6af1a11ed440d2bf31a497032c9c0b"></a>Resources</h2>
 
 <p>I was helped by the following resources when implementing RLMeta:</p>
 
@@ -2235,9 +2294,9 @@
 
 </ul>
 
-<h3><a name="388bb1e8ccbd4d55b89b391c08452c33"></a>Code listings</h3>
+<h2><a name="388bb1e8ccbd4d55b89b391c08452c33"></a>Code listings for RLMeta</h2>
 
-<h4><a name="a56c54f42c00473091d7c8295ff4e0f1"></a>parser.rlmeta</h4>
+<h3><a name="a56c54f42c00473091d7c8295ff4e0f1"></a>parser.rlmeta</h3>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>P</span><span class>a</span><span class>r</span><span class>s</span><span class>e</span><span class>r</span><span class> </span><span class>{</span><span class>
 </span><span class> </span><span class> </span><span class>g</span><span class>r</span><span class>a</span><span class>m</span><span class>m</span><span class>a</span><span class>r</span><span class> </span><span class="nb">=</span><span class>
@@ -2294,7 +2353,7 @@
 
 </div>
 
-<h4><a name="d9ea64bbdad3465897667ebec9d5ace1"></a>codegenerator.rlmeta</h4>
+<h3><a name="d9ea64bbdad3465897667ebec9d5ace1"></a>codegenerator.rlmeta</h3>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>C</span><span class>o</span><span class>d</span><span class>e</span><span class>G</span><span class>e</span><span class>n</span><span class>e</span><span class>r</span><span class>a</span><span class>t</span><span class>o</span><span class>r</span><span class> </span><span class>{</span><span class>
 </span><span class> </span><span class> </span><span class>a</span><span class>s</span><span class>t</span><span class> </span><span class="nb">=</span><span class>
@@ -2333,7 +2392,7 @@
 
 </div>
 
-<h4><a name="983e606587034a0a9c8e8b5c714e7ef8"></a>support.py</h4>
+<h3><a name="983e606587034a0a9c8e8b5c714e7ef8"></a>support.py</h3>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">_</span><span class="nc">G</span><span class="nc">r</span><span class="nc">a</span><span class="nc">m</span><span class="nc">m</span><span class="nc">a</span><span class="nc">r</span><span class="p">(</span><span class="nb">o</span><span class="nb">b</span><span class="nb">j</span><span class="nb">e</span><span class="nb">c</span><span class="nb">t</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class>
@@ -2485,12 +2544,12 @@
 </span><span class>
 </span><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">_</span><span class="nc">L</span><span class="nc">i</span><span class="nc">s</span><span class="nc">t</span><span class="nc">B</span><span class="nc">u</span><span class="nc">i</span><span class="nc">l</span><span class="nc">d</span><span class="nc">e</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">B</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="fm">_</span><span class="fm">_</span><span class="fm">i</span><span class="fm">n</span><span class="fm">i</span><span class="fm">t</span><span class="fm">_</span><span class="fm">_</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class> </span><span class="o">=</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="fm">_</span><span class="fm">_</span><span class="fm">i</span><span class="fm">n</span><span class="fm">i</span><span class="fm">t</span><span class="fm">_</span><span class="fm">_</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class> </span><span class="o">=</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class>
 </span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">w</span><span class="nf">r</span><span class="nf">i</span><span class="nf">t</span><span class="nf">e</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class> </span><span class="ow">i</span><span class="ow">n</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">:</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="o">.</span><span class="n">w</span><span class="n">r</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="p">(</span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class> </span><span class="ow">i</span><span class="ow">n</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">:</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">b</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="o">.</span><span class="n">w</span><span class="n">r</span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="p">(</span><span class="n">o</span><span class="n">u</span><span class="n">t</span><span class="n">p</span><span class="n">u</span><span class="n">t</span><span class="p">)</span><span class>
 </span><span class>
 </span><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class> </span><span class="nc">_</span><span class="nc">A</span><span class="nc">t</span><span class="nc">o</span><span class="nc">m</span><span class="nc">B</span><span class="nc">u</span><span class="nc">i</span><span class="nc">l</span><span class="nc">d</span><span class="nc">e</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">B</span><span class="n">u</span><span class="n">i</span><span class="n">l</span><span class="n">d</span><span class="n">e</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class>
@@ -2617,7 +2676,7 @@
 
 </div>
 
-<h4><a name="193d8f0ff47f4edcb201139df8cd9520"></a>compile.sh</h4>
+<h3><a name="193d8f0ff47f4edcb201139df8cd9520"></a>compile.sh</h3>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="ch">#</span><span class="ch">!</span><span class="ch">/</span><span class="ch">b</span><span class="ch">i</span><span class="ch">n</span><span class="ch">/</span><span class="ch">b</span><span class="ch">a</span><span class="ch">s</span><span class="ch">h</span><span class="ch">
 </span><span class>
