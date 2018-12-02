@@ -2,10 +2,11 @@
 
 gen() {
     echo "---"
-    echo "title: 'DRAFT: RLMeta'"
-    echo "date: $(date +%Y-%m-%d)"
+    echo "title: 'A meta approach to implementing programming languages'"
+    echo "date: 2018-12-02"
+    echo "tags: rlmeta"
     echo "---"
-    python ~/rliterate/rliterate.py rlmeta.rliterate --html | tail -n+2
+    rliterate rlmeta.rliterate --html | tail -n+2
 }
 
 gen > index.html
