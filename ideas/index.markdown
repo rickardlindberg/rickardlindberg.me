@@ -106,3 +106,33 @@ Write more articles in the [RLMeta](/tags/rlmeta/index.html) series:
   itself in steps. Link to than post from within the RLMeta post.
 
 * Implement a template language that can be used to replace compile scripts.
+  Draft:
+
+```
+import sys
+
+#: python -c 'import sys; sys.stdout.write("SUPPORT = "+repr(sys.stdin.read()))' < support.py
+
+#: cat support.py
+
+#: python "$rlmeta_compiler" < parser.rlmeta
+
+#: python "$rlmeta_compiler" < codegenerator.rlmeta
+
+join = "".join
+
+def compile_grammar(grammar):
+    parser = Parser()
+    code_generator = CodeGenerator()
+    return code_generator.run("ast", parser.run("grammar", grammar))
+
+if __name__ == "__main__":
+    if "--support" in sys.argv:
+        sys.stdout.write(SUPPORT)
+    else:
+        try:
+            sys.stdout.write(compile_grammar(sys.stdin.read()))
+        except _MatchError as e:
+            sys.stderr.write(e.describe())
+            sys.exit(1)
+```
