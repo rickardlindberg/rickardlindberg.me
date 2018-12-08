@@ -64,12 +64,25 @@ Ideas](https://www.amazon.com/Mindstorms-Children-Computers-Powerful-Ideas/dp/04
 
 ---
 
-The STEPS project.
+The STEPS project:
 
-Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html).
+* [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) (First Year Progress Report, December 2007.)
 
-Read the blog post [Computer
-Revolution](http://blog.rtens.org/computer-revolution.html).
+* [STEPS Toward The Reinvention of Programming, 2008 Progress Report Submitted to the National Science Foundation (NSF), October 2008](http://www.vpri.org/pdf/tr2008004_steps08.pdf)
+
+* [STEPS Toward The Reinvention of Programming, 2009 Progress Report Submitted to the National Science Foundation (NSF) October 2009](http://www.vpri.org/pdf/tr2009016_steps09.pdf)
+
+* [STEPS Toward Expressive Programming Systems, 2010 Progress Report Submitted to the National Science Foundation (NSF) October 2010](http://www.vpri.org/pdf/tr2010004_steps10.pdf)
+
+* [Steps Toward Expressive Programming Systems](http://www.vpri.org/pdf/tr2011004_steps11.pdf) (Annual report to the NSF)
+
+* [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf)
+
+Related:
+
+* Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html).
+
+* Read the blog post [Computer Revolution](http://blog.rtens.org/computer-revolution.html).
 
 ---
 
