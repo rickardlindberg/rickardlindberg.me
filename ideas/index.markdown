@@ -149,3 +149,16 @@ if __name__ == "__main__":
             sys.stderr.write(e.describe())
             sys.exit(1)
 ```
+
+---
+
+Direct manipulation.
+[WYSIWYG](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
+
+> In programming, you don’t want to go through a edit in an editor, submit to a
+> compiler, which submits to a loader, which requires your system to
+> intiialize, and so forth. You just want to be able to deal directly and
+> safely with what you are trying to achieve.
+
+PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
+and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
