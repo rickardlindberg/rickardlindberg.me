@@ -162,3 +162,10 @@ Direct manipulation.
 
 PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
 and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
+
+---
+
+How to design new languages?
+
+Implement the solution to a problem manually in "assembly language", then
+figure out a higher level syntax that can translate down to it.
