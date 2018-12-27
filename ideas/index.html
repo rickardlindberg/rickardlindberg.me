@@ -78,10 +78,20 @@
 <hr />
 <p>Read the book <a href="https://www.amazon.com/Mindstorms-Children-Computers-Powerful-Ideas/dp/0465046746?keywords=mindstorm+papert&amp;qid=1538158112&amp;sr=8-1-spell&amp;ref=mp_s_a_1_1">Mindstorms: Children, Computers, And Powerful Ideas</a>.</p>
 <hr />
-<p>Read the blog post <a href="http://blog.rtens.org/computer-revolution.html">Computer Revolution</a>.</p>
-<hr />
-<p>The STEPS project.</p>
-<p>Nice summary blog post: <a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html">Towards Moore’s Law Software: Part 3 of 3</a>.</p>
+<p>The STEPS project:</p>
+<ul>
+<li><p><a href="http://www.vpri.org/pdf/tr2007008_steps.pdf">STEPS Toward The Reinvention of Programming</a> (First Year Progress Report, December 2007.)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2008004_steps08.pdf">STEPS Toward The Reinvention of Programming, 2008 Progress Report Submitted to the National Science Foundation (NSF), October 2008</a></p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2009016_steps09.pdf">STEPS Toward The Reinvention of Programming, 2009 Progress Report Submitted to the National Science Foundation (NSF) October 2009</a></p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2010004_steps10.pdf">STEPS Toward Expressive Programming Systems, 2010 Progress Report Submitted to the National Science Foundation (NSF) October 2010</a></p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2011004_steps11.pdf">Steps Toward Expressive Programming Systems</a> (Annual report to the NSF)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2012001_steps.pdf">STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012</a></p></li>
+</ul>
+<p>Related:</p>
+<ul>
+<li><p>Nice summary blog post: <a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html">Towards Moore’s Law Software: Part 3 of 3</a>.</p></li>
+<li><p>Read the blog post <a href="http://blog.rtens.org/computer-revolution.html">Computer Revolution</a>.</p></li>
+</ul>
 <hr />
 <p>Interesting blog: <a href="https://eli.thegreenplace.net/">Eli Bendersky’s website</a> (<a href="https://eli.thegreenplace.net/2018/the-expression-problem-in-go/">The Expression Problem in Go</a>).</p>
 <hr />
@@ -89,7 +99,7 @@
 <hr />
 <p>Convert my dotfiles to an RLiterate document and publish it on this blog.</p>
 <hr />
-<p>Write RLMeta blog series:</p>
+<p>Write more articles in the <a href="../tags/rlmeta/">RLMeta</a> series:</p>
 <ul>
 <li><p>Optimizing RLMeta.</p></li>
 <li><p>Associativity and precedence. A good resource: <a href="http://beastie.cs.ua.edu/proglan/readings/precedence.pdf" class="uri">http://beastie.cs.ua.edu/proglan/readings/precedence.pdf</a>.</p></li>
@@ -98,7 +108,60 @@
 <li><p>Automatic syntax highlighting for RLMeta grammars.</p></li>
 <li><p>Bootstrapping with <a href="https://ohmlang.github.io/">Ohm</a>.</p></li>
 <li><p>Demonstrate how a feature is added to RLMeta and the need for compiling itself in steps. Link to than post from within the RLMeta post.</p></li>
+<li><p>Implement a template language that can be used to replace compile scripts. Draft:</p></li>
 </ul>
+<pre><code>import sys
+
+#: python -c 'import sys; sys.stdout.write(&quot;SUPPORT = &quot;+repr(sys.stdin.read()))' &lt; support.py
+
+#: cat support.py
+
+#: python &quot;$rlmeta_compiler&quot; &lt; parser.rlmeta
+
+#: python &quot;$rlmeta_compiler&quot; &lt; codegenerator.rlmeta
+
+join = &quot;&quot;.join
+
+def compile_grammar(grammar):
+    parser = Parser()
+    code_generator = CodeGenerator()
+    return code_generator.run(&quot;ast&quot;, parser.run(&quot;grammar&quot;, grammar))
+
+if __name__ == &quot;__main__&quot;:
+    if &quot;--support&quot; in sys.argv:
+        sys.stdout.write(SUPPORT)
+    else:
+        try:
+            sys.stdout.write(compile_grammar(sys.stdin.read()))
+        except _MatchError as e:
+            sys.stderr.write(e.describe())
+            sys.exit(1)</code></pre>
+<hr />
+<p>Direct manipulation. <a href="https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11">WYSIWYG</a>:</p>
+<blockquote>
+<p>In programming, you don’t want to go through a edit in an editor, submit to a compiler, which submits to a loader, which requires your system to intiialize, and so forth. You just want to be able to deal directly and safely with what you are trying to achieve.</p>
+</blockquote>
+<p>PDF by Lary Tesler about modes: <a href="http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf">A Personal History of Modeless Text Editing and Cut/Copy-Paste</a>.</p>
+<hr />
+<p>How to design new languages?</p>
+<p>Implement the solution to a problem manually in “assembly language”, then figure out a higher level syntax that can translate down to it.</p>
+<hr />
+<p>All in one’ness: https://www.youtube.com/watch?v=Uv1UfLPK7_Q</p>
+<p>Document and program is in the same file.</p>
+<p>If someone sends you a document, you can just “run” it. No need to know what program it was written in.</p>
+<p>What programs work like this?</p>
+<ul>
+<li>Smalltalk images</li>
+<li>TiddlyWiki</li>
+</ul>
+<p>“Supercomputers” are everywhere nowadays.</p>
+<p>There is no technical reason why I can’t “run” and all in one’ness document on my smartphone.</p>
+<p>But everything is (vendor)locked in.</p>
+<p>What is the smallest virtual machine that must be ported to different devices to allow all in one’ness documents everywhere?</p>
+<hr />
+<p>Is linear text a bad way to organize information?</p>
+<p>Is a wiki a better tool for organizing information?</p>
+<p>An article (linear text) presents one story. It conveys certain information. But that information can probably be conveyed in a different linear way. Is there a non-linear representation that is useful? Or must information always be presented to other humans in forms of a linear story?</p>
 
       <hr>
       <center>
