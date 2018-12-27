@@ -169,3 +169,27 @@ How to design new languages?
 
 Implement the solution to a problem manually in "assembly language", then
 figure out a higher level syntax that can translate down to it.
+
+---
+
+All in one'ness: https://www.youtube.com/watch?v=Uv1UfLPK7_Q
+
+Document and program is in the same file.
+
+If someone sends you a document, you can just "run" it. No need to know what
+program it was written in.
+
+What programs work like this?
+
+* Smalltalk images
+* TiddlyWiki
+
+"Supercomputers" are everywhere nowadays.
+
+There is no technical reason why I can't "run" and all in one'ness document on
+my smartphone.
+
+But everything is (vendor)locked in.
+
+What is the smallest virtual machine that must be ported to different devices
+to allow all in one'ness documents everywhere?
