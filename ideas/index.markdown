@@ -193,3 +193,14 @@ But everything is (vendor)locked in.
 
 What is the smallest virtual machine that must be ported to different devices
 to allow all in one'ness documents everywhere?
+
+---
+
+Is linear text a bad way to organize information?
+
+Is a wiki a better tool for organizing information?
+
+An article (linear text) presents one story. It conveys certain information.
+But that information can probably be conveyed in a different linear way. Is
+there a non-linear representation that is useful? Or must information always be
+presented to other humans in forms of a linear story?
