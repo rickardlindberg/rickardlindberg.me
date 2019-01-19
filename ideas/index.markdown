@@ -150,6 +150,9 @@ if __name__ == "__main__":
             sys.exit(1)
 ```
 
+* Implement call rule in the matching string to improve performance of
+  ast-traverse.
+
 ---
 
 Direct manipulation.
