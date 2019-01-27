@@ -153,6 +153,17 @@ if __name__ == "__main__":
 * Implement call rule in the matching string to improve performance of
   ast-traverse.
 
+* How to implement off-side rule? (Python INDENT/DEDENT.)
+
+```
+def foo():
+    for i in range(
+5):
+        print(str(i))
+
+foo()
+```
+
 ---
 
 Direct manipulation.
