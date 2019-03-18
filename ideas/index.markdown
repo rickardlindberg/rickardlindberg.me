@@ -218,3 +218,18 @@ An article (linear text) presents one story. It conveys certain information.
 But that information can probably be conveyed in a different linear way. Is
 there a non-linear representation that is useful? Or must information always be
 presented to other humans in forms of a linear story?
+
+---
+
+Read the literate program: [A Retargetable C Compiler: Design and Implementation](https://www.amazon.com/-/dp/0805316701/).
+
+---
+
+Implement a regular expression engine as described in [Regular Expression Matching: the Virtual Machine Approach](https://swtch.com/~rsc/regexp/regexp2.html).
+
+---
+
+Interesting posts by Alan Kay:
+
+* [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
+* [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
