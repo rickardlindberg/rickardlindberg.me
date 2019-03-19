@@ -265,3 +265,7 @@ Quotes:
 > give the system strategies—for example, using a hashed lookup for slots in an
 > instance instead of direct indexing. These are then efficiently compiled and
 > extend the base implementation of the system.
+
+---
+
+Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
