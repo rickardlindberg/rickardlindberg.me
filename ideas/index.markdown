@@ -233,3 +233,35 @@ Interesting posts by Alan Kay:
 
 * [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
 * [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
+
+---
+
+[The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/)
+
+Quotes:
+
+> Somewhere in all of this, I realized that the bridge to an object-based
+> system could be in terms of each object as a syntax directed interpreter of
+> messages sent to it. In one fell swoop this would unify object-oriented
+> semantics with the ideal of a completely extensible language. The mental
+> image was one of separate computers sending requests to other computers that
+> had to be accepted and understood by the receivers before anything could
+> happen. In today's terms every object would be a server offering services
+> whose deployment and discretion depended entirely on the server's notion of
+> relationship with the servee.
+
+> Again, the whole point of OOP is not to have to worry about what is inside an
+> object. Objects made on different machines and with different languages
+> should be able to talk to each other—and will have to in the future.
+> Late-binding here involves trapping incompatibilities into recompatibility
+> methods—a good discussion of some of the issues is found in [Popek 1984].
+
+> Staying with the metaphor of late-binding, what further late-binding schemes
+> might we expect to see? One of the nicest late-binding schemes that is being
+> experimented with is the metaobject protocol work at Xerox PARC [Kiczales
+> 1991]. The notion is that the language designer's choice for the internal
+> representation of instances, variables, etc., may not cover what the
+> implementer needs, so within a fixed semantics they allow the implementer to
+> give the system strategies—for example, using a hashed lookup for slots in an
+> instance instead of direct indexing. These are then efficiently compiled and
+> extend the base implementation of the system.
