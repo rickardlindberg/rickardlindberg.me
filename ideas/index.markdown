@@ -269,3 +269,45 @@ Quotes:
 ---
 
 Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
+
+---
+
+QuickCheck method:
+
+1. think about unit test cases
+2. write one single property
+3. label the distribution according to unit test cases
+4. enforce distribution percentages
+
+Bonus:
+
+1. Model a thing with a simpler thing (dictionary with a list for example)
+
+---
+
+Erlang / FP / OOP:
+
+Concurrent system must use multiple computers. Multiple computers must
+communicate with message passing.
+
+Why not program "local" system with that model as well?
+
+Like many small computers (or objects) communicating with eachother by message
+passing.
+
+How are messages represented in Erlang? Does a message send work exactly the
+same no matter if the receiver is on the same computer or not?
+
+---
+
+(prototypes vs classes was: Re: Sun's HotSpot)[http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html]:
+
+> Just a gentle reminder that I took some pains at the last OOPSLA to try to
+> remind everyone that Smalltalk is not only NOT its syntax or the class
+> library, it is not even about classes. I'm sorry that I long ago coined the
+> term "objects" for this topic because it gets many people to focus on the
+> lesser idea.
+>
+> The big idea is "messaging" -- that is what the kernal of Smalltalk/Squeak
+> is all about (and it's something that was never quite completed in our
+> Xerox PARC phase).
