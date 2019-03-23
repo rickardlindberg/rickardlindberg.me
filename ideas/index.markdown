@@ -300,7 +300,7 @@ same no matter if the receiver is on the same computer or not?
 
 ---
 
-(prototypes vs classes was: Re: Sun's HotSpot)[http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html]:
+[prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html):
 
 > Just a gentle reminder that I took some pains at the last OOPSLA to try to
 > remind everyone that Smalltalk is not only NOT its syntax or the class
@@ -311,3 +311,76 @@ same no matter if the receiver is on the same computer or not?
 > The big idea is "messaging" -- that is what the kernal of Smalltalk/Squeak
 > is all about (and it's something that was never quite completed in our
 > Xerox PARC phase).
+
+---
+
+Interesting quotes from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+
+> I thought of objects being like biological cells and/or individual computers
+> on a network, only able to communicate with messages (so messaging came at
+> the very beginning -- it took a while to see how to do messaging in a
+> programming language efficiently enough to be useful).
+
+> I wanted to get rid of data. The B5000 almost did this via its almost
+> unbelievable HW architecture. I realized that the cell/whole-computer
+> metaphor would get rid of data, and that "<-" would be just another message
+> token (it took me quite a while to think this out because I really thought of
+> all these symbols as names for functions and procedures.
+
+> The original Smalltalk at Xerox PARC came out of the above. The subsequent
+> Smalltalk's are complained about in the end of the History chapter: they
+> backslid towards Simula and did not replace the extension mechanisms with
+> safer ones that were anywhere near as useful.
+
+> OOP to me means only messaging, local retention and protection and
+> hiding of state-process, and extreme late-binding of all things. It
+> can be done in Smalltalk and in LISP. There are possibly other
+> systems in which this is possible, but I'm not aware of them.
+
+Interesting quotes from [Hacker News thread](https://news.ycombinator.com/item?id=19415983):
+
+> Containers are a validation of Kay's idea that sharing encapsulated objects
+> is easier than sharing data.
+
+> Because a lot of people (including me) have a Simula based view of "object
+> oriented", we tend to think of objects as data structures with functions
+> attached to them. Alan Kay had a different view, as far as I can tell. He
+> viewed objects as being a collection of abilities. You could invoke these
+> abilities by sending the object a "message". How you send that message is
+> irrelevant. The important thing is that the object is not a collection of
+> data, but rather the object contains the program state necessary to provide
+> the ability (and nothing more). One of the things he talks about (I can't
+> remember if he does in this specific email exchange, though) is the idea that
+> once the data is inside the object, you can't actually access it any more. It
+> becomes a detail that the programmer doesn't have to worry about.
+
+> Smalltalk had to cut corners with messaging due to the limited processing of
+> the time, nevertheless it has fully reified messages; one can express the
+> sending of messages between objects.
+>
+> Smalltalk inspired Erlang, which is the fully-asynchronous
+> messaging/independent threads of execution part of OO only.
+>
+> Self did OO without inheritance (composition by prototypes).
+
+---
+
+SICP modeling data with functions:
+
+```scheme
+(define (pair x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1"))))
+  dispatch)
+
+(define (frst p) (p 0))
+
+(define (snd p) (p 1))
+```
+
+`pair` is an object that responds to messages ('0' and '1').
+
+In this setup it is impossible to get the individual coordinates without
+sending a message. True encapsulation of state.
