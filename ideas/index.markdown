@@ -164,6 +164,8 @@ def foo():
 foo()
 ```
 
+* Implement PEG with VM as described in [A Text Pattern-Matching Tool based on Parsing Expression Grammars](http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf).
+
 ---
 
 Direct manipulation.
@@ -384,3 +386,50 @@ SICP modeling data with functions:
 
 In this setup it is impossible to get the individual coordinates without
 sending a message. True encapsulation of state.
+
+---
+
+Implement "a" LISP.
+
+Target a byte code machine? Target x86?
+
+---
+
+Interesting website: [Future of Coding](https://futureofcoding.org/).
+
+---
+
+Interesting website: [Conal Elliott](http://conal.net/). (FRP author?)
+
+---
+
+Let the computer do what it is good at. Simulation? When I program, I want help
+with that. Visualize and simulate my program to see if it matches my
+understanding. And my brain can do what it is good at. Problem solving.
+
+---
+
+Build tool to archive files. Files are imported into one big pile. A search
+facility can query the pile. Metadata is associated with each file. One field
+might be original path where it was imported from. Another its name and
+modification times.
+
+---
+
+We write software as we produce plastic: we don't think about how to recycle
+it.
+
+---
+
+Interesting project: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
+
+---
+
+One rendering tree. In the browser, you can not put a graph anywhere in the
+DOM. You need a canvas, and then that is another rendering tree. Having one
+rendering tree is more powerful.
+
+---
+
+If you need do draw on the whiteboard to explain your system, you are lacking a
+visualisation.
