@@ -92,7 +92,12 @@ class _Grammar(object):
                 return _SemanticAction(lambda: next_object)
         original_stream.fail("list match failed")
 
+    def _new_label(self):
+        self._label_counter += 1
+        return self._label_counter
+
     def run(self, rule_name, input_object):
+        self._label_counter = 0
         self._memo = _Memo()
         self._stream = _Stream.from_object(self._memo, input_object)
         result = self._match_rule(rule_name).eval()
@@ -117,6 +122,17 @@ class _SemanticAction(object):
 
     def eval(self):
         return self.fn()
+
+class _Label(object):
+
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.number = None
+
+    def eval(self):
+        if self.number is None:
+            self.number = self.grammar._new_label()
+        return self.number
 
 class _Builder(object):
 

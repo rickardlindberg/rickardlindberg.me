@@ -15,6 +15,7 @@ Parser {
     | expr2:x space '*'                        -> ["Star" x]
     | expr2:x space '?'                        -> ["Or" x ["And"]]
     | space '!' expr2:x                        -> ["Not" x]
+    | space '#'                                -> ["Label"]
     | expr2
   expr2 =
     | space '->' hostExpr:x                    -> ["SemanticAction" x]
