@@ -2,11 +2,13 @@ class _Grammar(object):
 
     def _or(self, matchers):
         original_stream = self._stream
+        var_len = len(self._vars)
         for matcher in matchers:
             try:
                 return matcher()
             except _MatchError:
                 self._stream = original_stream
+                self._vars = self._vars[:var_len]
         original_stream.fail("no choice matched")
 
     def _and(self, matchers):
@@ -19,22 +21,26 @@ class _Grammar(object):
         result = []
         while True:
             original_stream = self._stream
+            var_len = len(self._vars)
             try:
                 result.append(matcher())
             except _MatchError:
                 self._stream = original_stream
-                return _SemanticAction(lambda: [x.eval() for x in result])
+                self._vars = self._vars[:var_len]
+                return _SemanticAction(lambda _vars: [x.eval() for x in result], self._vars[-1])
 
     def _not(self, matcher):
         original_stream = self._stream
+        var_len = len(self._vars)
         try:
             matcher()
         except _MatchError:
-            return _SemanticAction(lambda: None)
+            return _SemanticAction(lambda _vars: None, self._vars[-1])
         else:
             original_stream.fail("match found")
         finally:
             self._stream = original_stream
+            self._vars = self._vars[:var_len]
 
     def _match_rule(self, rule_name):
         key = (rule_name, self._stream.position())
@@ -51,7 +57,7 @@ class _Grammar(object):
         original_stream = self._stream
         next_objext, self._stream = self._stream.next()
         if next_objext >= start and next_objext <= end:
-            return _SemanticAction(lambda: next_objext)
+            return _SemanticAction(lambda _vars: next_objext, self._vars[-1])
         else:
             original_stream.fail(
                 "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
@@ -61,7 +67,7 @@ class _Grammar(object):
         original_stream = self._stream
         next_object, self._stream = self._stream.next()
         if next_object == string:
-            return _SemanticAction(lambda: string)
+            return _SemanticAction(lambda _vars: string, self._vars[-1])
         else:
             original_stream.fail(
                 "expected {!r} but found {!r}".format(string, next_object)
@@ -75,11 +81,11 @@ class _Grammar(object):
                 original_stream.fail(
                     "expected {!r} but found {!r}".format(char, next_object)
                 )
-        return _SemanticAction(lambda: charseq)
+        return _SemanticAction(lambda _vars: charseq, self._vars[-1])
 
     def _match_any(self):
         next_object, self._stream = self._stream.next()
-        return _SemanticAction(lambda: next_object)
+        return _SemanticAction(lambda _vars: next_object, self._vars[-1])
 
     def _match_list(self, matcher):
         original_stream = self._stream
@@ -89,7 +95,7 @@ class _Grammar(object):
             matcher()
             if self._stream.is_at_end():
                 self._stream = next_stream
-                return _SemanticAction(lambda: next_object)
+                return _SemanticAction(lambda _vars: next_object, self._vars[-1])
         original_stream.fail("list match failed")
 
     def _new_label(self):
@@ -98,6 +104,7 @@ class _Grammar(object):
 
     def run(self, rule_name, input_object):
         self._label_counter = 0
+        self._vars = [_Vars()]
         self._memo = _Memo()
         self._stream = _Stream.from_object(self._memo, input_object)
         result = self._match_rule(rule_name).eval()
@@ -117,11 +124,12 @@ class _Vars(dict):
 
 class _SemanticAction(object):
 
-    def __init__(self, fn):
+    def __init__(self, fn, vars_):
         self.fn = fn
+        self.vars = vars_
 
     def eval(self):
-        return self.fn()
+        return self.fn(self.vars)
 
 class _Label(object):
 
