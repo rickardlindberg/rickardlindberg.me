@@ -29,7 +29,7 @@ Parser {
   hostExpr =
     | space string:x                           -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
-    | space '{' buildExpr*:xs space '}'        -> ["Builder" ~xs]
+    | at:x space '{' buildExpr*:ys space '}'   -> ["Builder" x ~ys]
     | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
@@ -38,7 +38,9 @@ Parser {
   buildExpr =
     | space '>'                                -> ["IndentBuilder"]
     | space '<'                                -> ["DedentBuilder"]
+    | space '#' name:x                         -> ["Fork" x]
     | hostExpr
+  at        = space '@' name | -> ""
   string    = '"'  (!'"'  innerChar)*:xs '"'   -> join(xs)
   charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> join(xs)
   char      = '\''  !'\'' innerChar  :x  '\''  -> x

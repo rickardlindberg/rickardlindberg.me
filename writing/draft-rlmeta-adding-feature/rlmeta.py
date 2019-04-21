@@ -1,6 +1,6 @@
 import sys
 
-SUPPORT = 'class _Grammar(object):\n\n    def _or(self, matchers):\n        original_stream = self._stream\n        for matcher in matchers:\n            try:\n                return matcher()\n            except _MatchError:\n                self._stream = original_stream\n        original_stream.fail("no choice matched")\n\n    def _and(self, matchers):\n        result = None\n        for matcher in matchers:\n            result = matcher()\n        return result\n\n    def _star(self, matcher):\n        result = []\n        while True:\n            original_stream = self._stream\n            try:\n                result.append(matcher())\n            except _MatchError:\n                self._stream = original_stream\n                return _SemanticAction(lambda: [x.eval() for x in result])\n\n    def _not(self, matcher):\n        original_stream = self._stream\n        try:\n            matcher()\n        except _MatchError:\n            return _SemanticAction(lambda: None)\n        else:\n            original_stream.fail("match found")\n        finally:\n            self._stream = original_stream\n\n    def _match_rule(self, rule_name):\n        key = (rule_name, self._stream.position())\n        if key in self._memo:\n            result, _, self._stream = self._memo[key]\n        else:\n            start = self._stream\n            result = getattr(self, "_rule_{}".format(rule_name))()\n            end = self._stream\n            self._memo[key] = (result, start, end)\n        return result\n\n    def _match_range(self, start, end):\n        original_stream = self._stream\n        next_objext, self._stream = self._stream.next()\n        if next_objext >= start and next_objext <= end:\n            return _SemanticAction(lambda: next_objext)\n        else:\n            original_stream.fail(\n                "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)\n            )\n\n    def _match_string(self, string):\n        original_stream = self._stream\n        next_object, self._stream = self._stream.next()\n        if next_object == string:\n            return _SemanticAction(lambda: string)\n        else:\n            original_stream.fail(\n                "expected {!r} but found {!r}".format(string, next_object)\n            )\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            original_stream = self._stream\n            next_object, self._stream = self._stream.next()\n            if next_object != char:\n                original_stream.fail(\n                    "expected {!r} but found {!r}".format(char, next_object)\n                )\n        return _SemanticAction(lambda: charseq)\n\n    def _match_any(self):\n        next_object, self._stream = self._stream.next()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_list(self, matcher):\n        original_stream = self._stream\n        next_object, next_stream = self._stream.next()\n        if isinstance(next_object, list):\n            self._stream = self._stream.nested(next_object)\n            matcher()\n            if self._stream.is_at_end():\n                self._stream = next_stream\n                return _SemanticAction(lambda: next_object)\n        original_stream.fail("list match failed")\n\n    def _new_label(self):\n        self._label_counter += 1\n        return self._label_counter\n\n    def run(self, rule_name, input_object):\n        self._label_counter = 0\n        self._memo = _Memo()\n        self._stream = _Stream.from_object(self._memo, input_object)\n        result = self._match_rule(rule_name).eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _Label(object):\n\n    def __init__(self, grammar):\n        self.grammar = grammar\n        self.number = None\n\n    def eval(self):\n        if self.number is None:\n            self.number = self.grammar._new_label()\n        return self.number\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.value = ""\n        self.indentation = 0\n\n    def write(self, value):\n        for ch in value:\n            if self.value and ch != "\\n" and self.value[-1] == "\\n":\n                self.value += "    "*self.indentation\n            self.value += ch\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n\nclass _Memo(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = _ObjectStream(self, [], position=-1)\n        self._latest_message = ""\n\n    def describe(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].position(), item[1].position()))\n        message = []\n        for item in items:\n            message.append("matched {: <20} {} -> {}\\n".format(*item))\n        message.append("\\n")\n        message.append("ERROR: {}: {}\\n".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return "".join(message)\n\n    def fail(self, stream, message):\n        if stream.position() >= self._latest_stream.position():\n            self._latest_stream = stream\n            self._latest_message = message\n        raise _MatchError(self)\n\nclass _MatchError(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def describe(self):\n        return self._memo.describe()\n\nclass _Stream(object):\n\n    @classmethod\n    def from_object(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return _CharStream(memo, list(input_object))\n        else:\n            return _ObjectStream(memo, [input_object])\n\n    def __init__(self, memo, objects):\n        self._memo = memo\n        self._objects = objects\n\n    def fail(self, message):\n        self._memo.fail(self, message)\n\n    def next(self):\n        if self.is_at_end():\n            self.fail("not eof")\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self._advance(next_object, self._objects[1:]),\n        )\n\n    def is_at_end(self):\n        return len(self._objects) == 0\n\nclass _CharStream(_Stream):\n\n    def __init__(self, memo, objects, line=1, column=1):\n        _Stream.__init__(self, memo, objects)\n        self._line = line\n        self._column = column\n\n    def position(self):\n        return (self._line, self._column)\n\n    def _advance(self, next_object, objects):\n        if next_object == "\\n":\n            return _CharStream(self._memo, objects, self._line+1, 1)\n        else:\n            return _CharStream(self._memo, objects, self._line, self._column+1)\n\n    def __str__(self):\n        return "L{:03d}:C{:03d}".format(self._line, self._column)\n\nclass _ObjectStream(_Stream):\n\n    def __init__(self, memo, objects, parent=(), position=0):\n        _Stream.__init__(self, memo, objects)\n        self._parent = parent\n        self._position = position\n\n    def position(self):\n        return self._parent + (self._position,)\n\n    def nested(self, input_object):\n        return _ObjectStream(self._memo, input_object, self._parent+(self._position,))\n\n    def _advance(self, next_object, objects):\n        return _ObjectStream(self._memo, objects, self._parent, self._position+1)\n\n    def __str__(self):\n        return "[{}]".format(", ".join(str(x) for x in self.position()))\n'
+SUPPORT = 'class _Grammar(object):\n\n    def _or(self, matchers):\n        original_stream = self._stream\n        for matcher in matchers:\n            try:\n                return matcher()\n            except _MatchError:\n                self._stream = original_stream\n        original_stream.fail("no choice matched")\n\n    def _and(self, matchers):\n        result = None\n        for matcher in matchers:\n            result = matcher()\n        return result\n\n    def _star(self, matcher):\n        result = []\n        while True:\n            original_stream = self._stream\n            try:\n                result.append(matcher())\n            except _MatchError:\n                self._stream = original_stream\n                return _SemanticAction(lambda: [x.eval() for x in result])\n\n    def _not(self, matcher):\n        original_stream = self._stream\n        try:\n            matcher()\n        except _MatchError:\n            return _SemanticAction(lambda: None)\n        else:\n            original_stream.fail("match found")\n        finally:\n            self._stream = original_stream\n\n    def _match_rule(self, rule_name):\n        key = (rule_name, self._stream.position())\n        if key in self._memo:\n            result, _, self._stream = self._memo[key]\n        else:\n            start = self._stream\n            result = getattr(self, "_rule_{}".format(rule_name))()\n            end = self._stream\n            self._memo[key] = (result, start, end)\n        return result\n\n    def _match_range(self, start, end):\n        original_stream = self._stream\n        next_objext, self._stream = self._stream.next()\n        if next_objext >= start and next_objext <= end:\n            return _SemanticAction(lambda: next_objext)\n        else:\n            original_stream.fail(\n                "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)\n            )\n\n    def _match_string(self, string):\n        original_stream = self._stream\n        next_object, self._stream = self._stream.next()\n        if next_object == string:\n            return _SemanticAction(lambda: string)\n        else:\n            original_stream.fail(\n                "expected {!r} but found {!r}".format(string, next_object)\n            )\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            original_stream = self._stream\n            next_object, self._stream = self._stream.next()\n            if next_object != char:\n                original_stream.fail(\n                    "expected {!r} but found {!r}".format(char, next_object)\n                )\n        return _SemanticAction(lambda: charseq)\n\n    def _match_any(self):\n        next_object, self._stream = self._stream.next()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_list(self, matcher):\n        original_stream = self._stream\n        next_object, next_stream = self._stream.next()\n        if isinstance(next_object, list):\n            self._stream = self._stream.nested(next_object)\n            matcher()\n            if self._stream.is_at_end():\n                self._stream = next_stream\n                return _SemanticAction(lambda: next_object)\n        original_stream.fail("list match failed")\n\n    def _new_label(self):\n        self._label_counter += 1\n        return self._label_counter\n\n    def run(self, rule_name, input_object):\n        self._label_counter = 0\n        self._memo = _Memo()\n        self._stream = _Stream.from_object(self._memo, input_object)\n        result = self._match_rule(rule_name).eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _Label(object):\n\n    def __init__(self, grammar):\n        self.grammar = grammar\n        self.number = None\n\n    def eval(self):\n        if self.number is None:\n            self.number = self.grammar._new_label()\n        return self.number\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.flatten()\n\n    @classmethod\n    def create(self, item, at=None):\n        if at:\n            return _AtBuilder(at, _Builder.create(item))\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self, parent=None):\n        self.parent = parent\n        self.parts = []\n        self.forks = {}\n\n    def indent(self):\n        self.write(1)\n\n    def dedent(self):\n        self.write(-1)\n\n    def write(self, value):\n        self.parts.append(value)\n\n    def fork(self, name):\n        fork = _Output(self)\n        self.write(fork)\n        self.forks[name] = fork\n\n    def get(self, fork):\n        if fork in self.forks:\n            return self.forks[fork]\n        elif self.parent is not None:\n            self.parent.get(fork)\n        else:\n            raise Exception("fork {} not found".format(fork))\n\n    def flatten(self):\n        parts = []\n        self._flatten(parts, 0)\n        return "".join(parts)\n\n    def _flatten(self, parts, indentation):\n        for part in self.parts:\n            if part == -1:\n                indentation -= 1\n            elif part == 1:\n                indentation += 1\n            elif isinstance(part, _Output):\n                part._flatten(parts, indentation)\n            else:\n                for ch in part:\n                    if not parts or (ch != "\\n" and parts[-1] == "\\n"):\n                        parts.append("    "*indentation)\n                    parts.append(ch)\n\nclass _AtBuilder(_Builder):\n\n    def __init__(self, fork, builder):\n        self.fork = fork\n        self.builder = builder\n\n    def write(self, output):\n        self.builder.write(output.get(self.fork))\n\nclass _ForkBuilder(_Builder):\n\n    def __init__(self, name):\n        self.name = name\n\n    def write(self, output):\n        output.fork(self.name)\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indent()\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.dedent()\n\nclass _Memo(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = _ObjectStream(self, [], position=-1)\n        self._latest_message = ""\n\n    def describe(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].position(), item[1].position()))\n        message = []\n        for item in items:\n            message.append("matched {: <20} {} -> {}\\n".format(*item))\n        message.append("\\n")\n        message.append("ERROR: {}: {}\\n".format(\n            self._latest_stream,\n            self._latest_message\n        ))\n        return "".join(message)\n\n    def fail(self, stream, message):\n        if stream.position() >= self._latest_stream.position():\n            self._latest_stream = stream\n            self._latest_message = message\n        raise _MatchError(self)\n\nclass _MatchError(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def describe(self):\n        return self._memo.describe()\n\nclass _Stream(object):\n\n    @classmethod\n    def from_object(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return _CharStream(memo, list(input_object))\n        else:\n            return _ObjectStream(memo, [input_object])\n\n    def __init__(self, memo, objects):\n        self._memo = memo\n        self._objects = objects\n\n    def fail(self, message):\n        self._memo.fail(self, message)\n\n    def next(self):\n        if self.is_at_end():\n            self.fail("not eof")\n        next_object = self._objects[0]\n        return (\n            next_object,\n            self._advance(next_object, self._objects[1:]),\n        )\n\n    def is_at_end(self):\n        return len(self._objects) == 0\n\nclass _CharStream(_Stream):\n\n    def __init__(self, memo, objects, line=1, column=1):\n        _Stream.__init__(self, memo, objects)\n        self._line = line\n        self._column = column\n\n    def position(self):\n        return (self._line, self._column)\n\n    def _advance(self, next_object, objects):\n        if next_object == "\\n":\n            return _CharStream(self._memo, objects, self._line+1, 1)\n        else:\n            return _CharStream(self._memo, objects, self._line, self._column+1)\n\n    def __str__(self):\n        return "L{:03d}:C{:03d}".format(self._line, self._column)\n\nclass _ObjectStream(_Stream):\n\n    def __init__(self, memo, objects, parent=(), position=0):\n        _Stream.__init__(self, memo, objects)\n        self._parent = parent\n        self._position = position\n\n    def position(self):\n        return self._parent + (self._position,)\n\n    def nested(self, input_object):\n        return _ObjectStream(self._memo, input_object, self._parent+(self._position,))\n\n    def _advance(self, next_object, objects):\n        return _ObjectStream(self._memo, objects, self._parent, self._position+1)\n\n    def __str__(self):\n        return "[{}]".format(", ".join(str(x) for x in self.position()))\n'
 
 class _Grammar(object):
 
@@ -143,10 +143,12 @@ class _Builder(object):
     def build_string(self):
         output = _Output()
         self.write(output)
-        return output.value
+        return output.flatten()
 
     @classmethod
-    def create(self, item):
+    def create(self, item, at=None):
+        if at:
+            return _AtBuilder(at, _Builder.create(item))
         if isinstance(item, _Builder):
             return item
         elif isinstance(item, list):
@@ -156,15 +158,68 @@ class _Builder(object):
 
 class _Output(object):
 
-    def __init__(self):
-        self.value = ""
-        self.indentation = 0
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.parts = []
+        self.forks = {}
+
+    def indent(self):
+        self.write(1)
+
+    def dedent(self):
+        self.write(-1)
 
     def write(self, value):
-        for ch in value:
-            if self.value and ch != "\n" and self.value[-1] == "\n":
-                self.value += "    "*self.indentation
-            self.value += ch
+        self.parts.append(value)
+
+    def fork(self, name):
+        fork = _Output(self)
+        self.write(fork)
+        self.forks[name] = fork
+
+    def get(self, fork):
+        if fork in self.forks:
+            return self.forks[fork]
+        elif self.parent is not None:
+            self.parent.get(fork)
+        else:
+            raise Exception("fork {} not found".format(fork))
+
+    def flatten(self):
+        parts = []
+        self._flatten(parts, 0)
+        return "".join(parts)
+
+    def _flatten(self, parts, indentation):
+        for part in self.parts:
+            if part == -1:
+                indentation -= 1
+            elif part == 1:
+                indentation += 1
+            elif isinstance(part, _Output):
+                part._flatten(parts, indentation)
+            else:
+                for ch in part:
+                    if not parts or (ch != "\n" and parts[-1] == "\n"):
+                        parts.append("    "*indentation)
+                    parts.append(ch)
+
+class _AtBuilder(_Builder):
+
+    def __init__(self, fork, builder):
+        self.fork = fork
+        self.builder = builder
+
+    def write(self, output):
+        self.builder.write(output.get(self.fork))
+
+class _ForkBuilder(_Builder):
+
+    def __init__(self, name):
+        self.name = name
+
+    def write(self, output):
+        output.fork(self.name)
 
 class _ListBuilder(_Builder):
 
@@ -186,12 +241,12 @@ class _AtomBuilder(_Builder):
 class _IndentBuilder(_Builder):
 
     def write(self, output):
-        output.indentation += 1
+        output.indent()
 
 class _DedentBuilder(_Builder):
 
     def write(self, output):
-        output.indentation -= 1
+        output.dedent()
 
 class _Memo(dict):
 
@@ -880,13 +935,18 @@ class Parser(_Grammar):
                         (lambda:
                             self._and([
                                 (lambda:
+                                    _vars.bind('x', (lambda:
+                                        self._match_rule('at')
+                                    )())
+                                ),
+                                (lambda:
                                     self._match_rule('space')
                                 ),
                                 (lambda:
                                     self._match_charseq('{')
                                 ),
                                 (lambda:
-                                    _vars.bind('xs', (lambda:
+                                    _vars.bind('ys', (lambda:
                                         self._star((lambda:
                                             self._match_rule('buildExpr')
                                         ))
@@ -899,7 +959,7 @@ class Parser(_Grammar):
                                     self._match_charseq('}')
                                 ),
                                 (lambda:
-                                    _SemanticAction(lambda: (['Builder']+_vars.lookup('xs').eval()+[]))
+                                    _SemanticAction(lambda: (['Builder']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))
                                 ),
                             ])
                         )()
@@ -1040,7 +1100,63 @@ class Parser(_Grammar):
                         (lambda:
                             self._and([
                                 (lambda:
+                                    self._match_rule('space')
+                                ),
+                                (lambda:
+                                    self._match_charseq('#')
+                                ),
+                                (lambda:
+                                    _vars.bind('x', (lambda:
+                                        self._match_rule('name')
+                                    )())
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: (['Fork']+[_vars.lookup('x').eval()]+[]))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
                                     self._match_rule('hostExpr')
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+            ])
+        )()
+
+    def _rule_at(self):
+        return (lambda:
+            self._or([
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_rule('space')
+                                ),
+                                (lambda:
+                                    self._match_charseq('@')
+                                ),
+                                (lambda:
+                                    self._match_rule('name')
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    _SemanticAction(lambda: '')
                                 ),
                             ])
                         )()
@@ -1450,7 +1566,7 @@ class CodeGenerator(_Grammar):
                                         _IndentBuilder(),
                                         _vars.lookup('ys').eval(),
                                         _DedentBuilder(),
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1487,7 +1603,7 @@ class CodeGenerator(_Grammar):
                                         _vars.lookup('y').eval(),
                                         '()\n',
                                         _DedentBuilder(),
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1509,7 +1625,7 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         'self._match_any',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1536,7 +1652,7 @@ class CodeGenerator(_Grammar):
                                         repr(
                                             _vars.lookup('x').eval(),
                                         ),
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1563,7 +1679,7 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         _vars.lookup('x').eval(),
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1580,7 +1696,10 @@ class CodeGenerator(_Grammar):
                                                 self._match_string('Builder')
                                             ),
                                             (lambda:
-                                                _vars.bind('x', (lambda:
+                                                _vars.bind('x', self._match_any())
+                                            ),
+                                            (lambda:
+                                                _vars.bind('y', (lambda:
                                                     self._match_rule('astItems')
                                                 )())
                                             ),
@@ -1590,9 +1709,42 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         '_Builder.create([',
-                                        _vars.lookup('x').eval(),
-                                        '])',
-                                    ]))
+                                        _vars.lookup('y').eval(),
+                                        '], ',
+                                        repr(
+                                            _vars.lookup('x').eval(),
+                                        ),
+                                        ')',
+                                    ], ''))
+                                ),
+                            ])
+                        )()
+                    )(_Vars())
+                ),
+                (lambda:
+                    (lambda _vars:
+                        (lambda:
+                            self._and([
+                                (lambda:
+                                    self._match_list((lambda:
+                                        self._and([
+                                            (lambda:
+                                                self._match_string('Fork')
+                                            ),
+                                            (lambda:
+                                                _vars.bind('x', self._match_any())
+                                            ),
+                                        ])
+                                    ))
+                                ),
+                                (lambda:
+                                    _SemanticAction(lambda: _Builder.create([
+                                        '_ForkBuilder(',
+                                        repr(
+                                            _vars.lookup('x').eval(),
+                                        ),
+                                        ')',
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1614,7 +1766,7 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         '_IndentBuilder()',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1636,7 +1788,7 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         '_DedentBuilder()',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1669,7 +1821,7 @@ class CodeGenerator(_Grammar):
                                         '(',
                                         _vars.lookup('y').eval(),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1698,7 +1850,7 @@ class CodeGenerator(_Grammar):
                                             _vars.lookup('x').eval(),
                                         ),
                                         ').eval()',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1720,7 +1872,7 @@ class CodeGenerator(_Grammar):
                                         _vars.lookup('x').eval(),
                                         _DedentBuilder(),
                                         '\n)',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1755,7 +1907,7 @@ class CodeGenerator(_Grammar):
                                         'self._or([',
                                         _vars.lookup('x').eval(),
                                         '])',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1786,7 +1938,7 @@ class CodeGenerator(_Grammar):
                                         _vars.lookup('x').eval(),
                                         _DedentBuilder(),
                                         '()\n)(_Vars())',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1815,7 +1967,7 @@ class CodeGenerator(_Grammar):
                                         'self._and([',
                                         _vars.lookup('x').eval(),
                                         '])',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1851,7 +2003,7 @@ class CodeGenerator(_Grammar):
                                         ', ',
                                         _vars.lookup('y').eval(),
                                         '())',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1880,7 +2032,7 @@ class CodeGenerator(_Grammar):
                                         'self._star(',
                                         _vars.lookup('x').eval(),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1909,7 +2061,7 @@ class CodeGenerator(_Grammar):
                                         'self._not(',
                                         _vars.lookup('x').eval(),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1938,7 +2090,7 @@ class CodeGenerator(_Grammar):
                                         '_SemanticAction(lambda: ',
                                         _vars.lookup('x').eval(),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1960,7 +2112,7 @@ class CodeGenerator(_Grammar):
                                 (lambda:
                                     _SemanticAction(lambda: _Builder.create([
                                         '_Label(self)',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -1989,7 +2141,7 @@ class CodeGenerator(_Grammar):
                                             _vars.lookup('x').eval(),
                                         ),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2025,7 +2177,7 @@ class CodeGenerator(_Grammar):
                                             _vars.lookup('y').eval(),
                                         ),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2054,7 +2206,7 @@ class CodeGenerator(_Grammar):
                                             _vars.lookup('x').eval(),
                                         ),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2083,7 +2235,7 @@ class CodeGenerator(_Grammar):
                                             _vars.lookup('x').eval(),
                                         ),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2112,7 +2264,7 @@ class CodeGenerator(_Grammar):
                                         'self._match_list(',
                                         _vars.lookup('x').eval(),
                                         ')',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2141,7 +2293,7 @@ class CodeGenerator(_Grammar):
                                         _IndentBuilder(),
                                         _vars.lookup('xs').eval(),
                                         _DedentBuilder(),
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2166,7 +2318,7 @@ class CodeGenerator(_Grammar):
                                     _SemanticAction(lambda: _Builder.create([
                                         _vars.lookup('x').eval(),
                                         ',\n',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2194,7 +2346,7 @@ class CodeGenerator(_Grammar):
                                         '(',
                                         _vars.lookup('xs').eval(),
                                         '[])',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2228,7 +2380,7 @@ class CodeGenerator(_Grammar):
                                     _SemanticAction(lambda: _Builder.create([
                                         _vars.lookup('x').eval(),
                                         '+',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()
@@ -2248,7 +2400,7 @@ class CodeGenerator(_Grammar):
                                         '[',
                                         _vars.lookup('x').eval(),
                                         ']+',
-                                    ]))
+                                    ], ''))
                                 ),
                             ])
                         )()

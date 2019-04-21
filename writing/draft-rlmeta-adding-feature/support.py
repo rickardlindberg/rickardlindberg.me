@@ -139,10 +139,12 @@ class _Builder(object):
     def build_string(self):
         output = _Output()
         self.write(output)
-        return output.value
+        return output.flatten()
 
     @classmethod
-    def create(self, item):
+    def create(self, item, at=None):
+        if at:
+            return _AtBuilder(at, _Builder.create(item))
         if isinstance(item, _Builder):
             return item
         elif isinstance(item, list):
@@ -152,15 +154,68 @@ class _Builder(object):
 
 class _Output(object):
 
-    def __init__(self):
-        self.value = ""
-        self.indentation = 0
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.parts = []
+        self.forks = {}
+
+    def indent(self):
+        self.write(1)
+
+    def dedent(self):
+        self.write(-1)
 
     def write(self, value):
-        for ch in value:
-            if self.value and ch != "\n" and self.value[-1] == "\n":
-                self.value += "    "*self.indentation
-            self.value += ch
+        self.parts.append(value)
+
+    def fork(self, name):
+        fork = _Output(self)
+        self.write(fork)
+        self.forks[name] = fork
+
+    def get(self, fork):
+        if fork in self.forks:
+            return self.forks[fork]
+        elif self.parent is not None:
+            self.parent.get(fork)
+        else:
+            raise Exception("fork {} not found".format(fork))
+
+    def flatten(self):
+        parts = []
+        self._flatten(parts, 0)
+        return "".join(parts)
+
+    def _flatten(self, parts, indentation):
+        for part in self.parts:
+            if part == -1:
+                indentation -= 1
+            elif part == 1:
+                indentation += 1
+            elif isinstance(part, _Output):
+                part._flatten(parts, indentation)
+            else:
+                for ch in part:
+                    if not parts or (ch != "\n" and parts[-1] == "\n"):
+                        parts.append("    "*indentation)
+                    parts.append(ch)
+
+class _AtBuilder(_Builder):
+
+    def __init__(self, fork, builder):
+        self.fork = fork
+        self.builder = builder
+
+    def write(self, output):
+        self.builder.write(output.get(self.fork))
+
+class _ForkBuilder(_Builder):
+
+    def __init__(self, name):
+        self.name = name
+
+    def write(self, output):
+        output.fork(self.name)
 
 class _ListBuilder(_Builder):
 
@@ -182,12 +237,12 @@ class _AtomBuilder(_Builder):
 class _IndentBuilder(_Builder):
 
     def write(self, output):
-        output.indentation += 1
+        output.indent()
 
 class _DedentBuilder(_Builder):
 
     def write(self, output):
-        output.indentation -= 1
+        output.dedent()
 
 class _Memo(dict):
 
