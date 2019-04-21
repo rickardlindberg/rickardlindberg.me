@@ -9,16 +9,20 @@
 2. what takes time?
 
     $ time python rlmeta.py < parser.rlmeta > /dev/null
+    parser:   0.183804035187s
+    codegen:  0.145648956299s
 
-    real	0m0.372s
-    user	0m0.356s
-    sys	0m0.015s
+    real	0m0.380s
+    user	0m0.363s
+    sys		0m0.015s
 
     $ time python rlmeta.py < codegenerator.rlmeta > /dev/null
+    parser:   0.191545009613s
+    codegen:  0.10808300972s
 
-    real	0m0.348s
-    user	0m0.333s
-    sys	0m0.014s
+    real	0m0.351s
+    user	0m0.331s
+    sys		0m0.019s
 
 3. more specifically?
 
@@ -54,3 +58,7 @@
         1    0.012    0.012    0.012    0.012 {method 'write' of 'file' objects}
 
     ...
+
+4. next slices arrays a lot
+
+5. remove unnecessary or's

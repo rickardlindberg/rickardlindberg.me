@@ -17,6 +17,7 @@ codegenerator_py=$(python "$rlmeta_compiler" < codegenerator.rlmeta)
 
 cat <<EOF
 import sys
+import time
 
 SUPPORT = $support_py_string
 
@@ -31,7 +32,15 @@ join = "".join
 def compile_grammar(grammar):
     parser = Parser()
     code_generator = CodeGenerator()
-    return code_generator.run("ast", parser.run("grammar", grammar))
+    t1 = time.time()
+    ast = parser.run("grammar", grammar)
+    t2 = time.time()
+    sys.stderr.write("parser:   {}s\\n".format(t2-t1))
+    t1 = time.time()
+    code = code_generator.run("ast", ast)
+    t2 = time.time()
+    sys.stderr.write("codegen:  {}s\\n".format(t2-t1))
+    return code
 
 if __name__ == "__main__":
     if "--support" in sys.argv:
