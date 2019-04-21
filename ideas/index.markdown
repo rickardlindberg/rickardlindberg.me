@@ -116,7 +116,7 @@ Write more articles in the [RLMeta](/tags/rlmeta/index.html) series:
 * Bootstrapping with [Ohm](https://ohmlang.github.io/).
 
 * Demonstrate how a feature is added to RLMeta and the need for compiling
-  itself in steps. Link to than post from within the RLMeta post.
+  itself in steps. Link to that post from within the RLMeta post.
 
 * Implement a template language that can be used to replace compile scripts.
   Draft:
