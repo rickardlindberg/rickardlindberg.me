@@ -193,7 +193,7 @@ class _Memo(dict):
 
     def __init__(self):
         dict.__init__(self)
-        self._latest_stream = _ObjectStream(self, [], 0, position=-1)
+        self._latest_stream = _ObjectStream(self, [], -1)
         self._latest_message = ""
 
     def describe(self):
@@ -260,7 +260,7 @@ class _CharStream(_Stream):
         self._column = column
 
     def position(self):
-        return (self._line, self._column)
+        return self._index
 
     def _advance(self):
         if self._objects[self._index] == "\n":
@@ -276,19 +276,19 @@ class _CharStream(_Stream):
 
 class _ObjectStream(_Stream):
 
-    def __init__(self, memo, objects, index, parent=(), position=0):
+    def __init__(self, memo, objects, index, parent=()):
         _Stream.__init__(self, memo, objects, index)
-        self._parent = parent
-        self._position = position
+        self._parent_position = parent
+        self._position = self._parent_position + (self._index,)
 
     def position(self):
-        return self._parent + (self._position,)
+        return self._position
 
     def nested(self, input_object):
-        return _ObjectStream(self._memo, input_object, 0, self._parent+(self._position,))
+        return _ObjectStream(self._memo, input_object, 0, self._position)
 
     def _advance(self):
-        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent, self._position+1)
+        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)
 
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.position()))

@@ -229,3 +229,35 @@
         26070    0.005    0.000    0.005    0.000 rlmeta.py:266(position)
          8460    0.005    0.000    0.005    0.000 rlmeta.py:227(__init__)
         10908    0.005    0.000    0.005    0.000 rlmeta.py:243(__init__)
+
+11. don't memoize code generator
+
+    not really significant
+
+12. optimize position
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.392s
+    user	0m0.364s
+    sys		0m0.026s
+
+    slightly better
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             274963 function calls (238101 primitive calls) in 0.220 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     4177/252    0.020    0.000    0.206    0.001 rlmeta.py:12(_or)
+      11129/2    0.020    0.000    0.212    0.106 rlmeta.py:48(_match_rule)
+         8460    0.014    0.000    0.022    0.000 rlmeta.py:219(fail)
+         7021    0.012    0.000    0.057    0.000 rlmeta.py:79(_match_charseq)
+       9010/2    0.010    0.000    0.212    0.106 rlmeta.py:21(_and)
+         9099    0.009    0.000    0.021    0.000 rlmeta.py:269(_advance)
+        10540    0.009    0.000    0.039    0.000 rlmeta.py:251(next)
+         9100    0.008    0.000    0.011    0.000 rlmeta.py:261(__init__)
+        12801    0.006    0.000    0.006    0.000 {method 'format' of 'str' objects}
+         1443    0.006    0.000    0.009    0.000 rlmeta.py:161(write)
