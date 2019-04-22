@@ -198,3 +198,34 @@
         12847    0.010    0.000    0.024    0.000 rlmeta.py:290(_advance)
         27805    0.010    0.000    0.010    0.000 rlmeta.py:239(__init__)
         17623    0.010    0.000    0.010    0.000 {method 'format' of 'str' objects}
+
+10. implement match call rule to get rid of ors in codegenerator
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.406s
+    user	0m0.373s
+    sys		0m0.032s
+
+    real performance gain!
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             274963 function calls (238101 primitive calls) in 0.220 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      11129/2    0.021    0.000    0.215    0.107 rlmeta.py:48(_match_rule)
+     4177/252    0.020    0.000    0.209    0.001 rlmeta.py:12(_or)
+         8460    0.013    0.000    0.022    0.000 rlmeta.py:219(fail)
+         7021    0.011    0.000    0.056    0.000 rlmeta.py:79(_match_charseq)
+       9010/2    0.010    0.000    0.215    0.107 rlmeta.py:21(_and)
+         9099    0.009    0.000    0.020    0.000 rlmeta.py:269(_advance)
+        10540    0.009    0.000    0.039    0.000 rlmeta.py:251(next)
+         9100    0.008    0.000    0.011    0.000 rlmeta.py:261(__init__)
+        12801    0.006    0.000    0.006    0.000 {method 'format' of 'str' objects}
+         1443    0.006    0.000    0.008    0.000 rlmeta.py:161(write)
+        26070    0.005    0.000    0.005    0.000 rlmeta.py:266(position)
+         8460    0.005    0.000    0.005    0.000 rlmeta.py:227(__init__)
+        10908    0.005    0.000    0.005    0.000 rlmeta.py:243(__init__)
