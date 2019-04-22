@@ -20,6 +20,8 @@ codegenerator_py=$(python "$rlmeta_compiler" < codegenerator.rlmeta)
 cat <<EOF
 import sys
 import time
+import cProfile
+import pstats
 
 SUPPORT = $support_py_string
 
@@ -50,7 +52,14 @@ if __name__ == "__main__":
         sys.stdout.write(SUPPORT)
     else:
         try:
+            p = cProfile.Profile()
+            p.enable()
             sys.stdout.write(compile_grammar(sys.stdin.read()))
+            p.disable()
+            s = StringIO()
+            ps = pstats.Stats(p, stream=s).sort_stats("tottime")
+            ps.print_stats(0.01)
+            sys.stderr.write("\n" + s.getvalue() + "\n")
         except _MatchError as e:
             sys.stderr.write(e.describe())
             sys.exit(1)
