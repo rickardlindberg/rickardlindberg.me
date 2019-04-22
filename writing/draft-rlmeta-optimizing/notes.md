@@ -140,3 +140,32 @@
          2177    0.006    0.000    0.009    0.000 rlmeta.py:157(write)
 
     but much less time spent in write
+
+8. try and/or again
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.592s
+    user	0m0.560s
+    sys		0m0.031s
+
+    a little faster, but not abvoius
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             508708 function calls (437696 primitive calls) in 0.380 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     4898/230    0.039    0.000    0.351    0.002 rlmeta.py:12(_or)
+        15852    0.025    0.000    0.041    0.000 rlmeta.py:215(fail)
+      10620/2    0.019    0.000    0.354    0.177 rlmeta.py:48(_match_rule)
+      21301/2    0.018    0.000    0.354    0.177 rlmeta.py:21(_and)
+        23516    0.018    0.000    0.078    0.000 rlmeta.py:247(next)
+        19154    0.013    0.000    0.020    0.000 rlmeta.py:279(__init__)
+       8323/1    0.012    0.000    0.184    0.184 rlmeta.py:93(_match_list)
+        12847    0.010    0.000    0.024    0.000 rlmeta.py:290(_advance)
+         6613    0.010    0.000    0.052    0.000 rlmeta.py:79(_match_charseq)
+
+    less time spend in or and and

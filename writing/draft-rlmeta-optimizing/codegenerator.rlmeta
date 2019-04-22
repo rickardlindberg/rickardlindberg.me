@@ -10,6 +10,8 @@ CodeGenerator {
     | ["DedentBuilder"]         -> { "_DedentBuilder()"                                  }
     | ["FnCall" .:x astItems:y] -> { x "(" y ")"                                         }
     | ["VarLookup" .:x]         -> { "_vars.lookup(" repr(x) ").eval()"                  }
+    | ["And" ast:x]             -> x
+    | ["Or" ast:x]              -> x
     | astFnBody:x               -> { "(lambda:\n" > x < "\n)" }
   astFnBody =
     | ["Or" astItems:x]         -> { "self._or([" x "])"                                 }
