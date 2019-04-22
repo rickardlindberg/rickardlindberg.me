@@ -4,21 +4,17 @@
 
     real	0m0.756s
     user	0m0.701s
-    sys	0m0.054s
+    sys		0m0.054s
 
 2. what takes time?
 
     $ time python rlmeta.py < parser.rlmeta > /dev/null
-    parser:   0.183804035187s
-    codegen:  0.145648956299s
 
     real	0m0.380s
     user	0m0.363s
     sys		0m0.015s
 
     $ time python rlmeta.py < codegenerator.rlmeta > /dev/null
-    parser:   0.191545009613s
-    codegen:  0.10808300972s
 
     real	0m0.351s
     user	0m0.331s
@@ -59,6 +55,13 @@
 
     ...
 
-4. next slices arrays a lot
+4. conclusions
 
-5. remove unnecessary or's
+    * The two different grammars have similar performance characteristics
+    * Areas where performance can be improved
+        * _or: reduce number of ors
+        * next: avoid slicing
+        * fail: not sure what to do except avoid fails (with less _ors)
+        * _and: not sure what to do except avoid _ands
+        * _match_rule: use better lookup of function name
+        * write: faster string concatenation
