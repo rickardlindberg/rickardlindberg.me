@@ -261,3 +261,38 @@
          9100    0.008    0.000    0.011    0.000 rlmeta.py:261(__init__)
         12801    0.006    0.000    0.006    0.000 {method 'format' of 'str' objects}
          1443    0.006    0.000    0.009    0.000 rlmeta.py:161(write)
+
+13. make fail messages lazy
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.370s
+    user	0m0.336s
+    sys		0m0.034s
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             268387 function calls (231525 primitive calls) in 0.204 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     4177/252    0.020    0.000    0.194    0.001 rlmeta.py:12(_or)
+      11129/2    0.019    0.000    0.199    0.100 rlmeta.py:48(_match_rule)
+         8460    0.013    0.000    0.021    0.000 rlmeta.py:219(fail)
+         7021    0.010    0.000    0.050    0.000 rlmeta.py:79(_match_charseq)
+         9099    0.010    0.000    0.021    0.000 rlmeta.py:269(_advance)
+       9010/2    0.009    0.000    0.199    0.100 rlmeta.py:21(_and)
+        10540    0.008    0.000    0.038    0.000 rlmeta.py:251(next)
+         9100    0.007    0.000    0.011    0.000 rlmeta.py:261(__init__)
+         8460    0.006    0.000    0.006    0.000 rlmeta.py:227(__init__)
+         1443    0.005    0.000    0.008    0.000 rlmeta.py:161(write)
+        10908    0.004    0.000    0.004    0.000 rlmeta.py:243(__init__)
+         8460    0.004    0.000    0.025    0.000 rlmeta.py:248(fail)
+        10993    0.004    0.000    0.005    0.000 rlmeta.py:256(is_at_end)
+        885/5    0.004    0.000    0.199    0.040 rlmeta.py:27(_star)
+     3274/747    0.004    0.000    0.005    0.000 rlmeta.py:141(create)
+        12616    0.003    0.000    0.003    0.000 {method 'write' of 'cStringIO.StringO' objects}
+        17881    0.002    0.000    0.002    0.000 rlmeta.py:266(position)
+         1802    0.002    0.000    0.014    0.000 rlmeta.py:59(_match_range)
+         6225    0.002    0.000    0.002    0.000 {method 'format' of 'str' objects}

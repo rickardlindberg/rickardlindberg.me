@@ -12,7 +12,7 @@ class _Grammar(object):
                 return matcher()
             except _MatchError:
                 self._stream = original_stream
-        original_stream.fail("no choice matched")
+        original_stream.fail(lambda: "no choice matched")
 
     def _and(self, matchers):
         result = None
@@ -37,7 +37,7 @@ class _Grammar(object):
         except _MatchError:
             return _SemanticAction(lambda: None)
         else:
-            original_stream.fail("match found")
+            original_stream.fail(lambda: "match found")
         finally:
             self._stream = original_stream
 
@@ -59,7 +59,7 @@ class _Grammar(object):
             return _SemanticAction(lambda: next_objext)
         else:
             original_stream.fail(
-                "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
+                lambda: "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
             )
 
     def _match_string(self, string):
@@ -69,7 +69,7 @@ class _Grammar(object):
             return _SemanticAction(lambda: string)
         else:
             original_stream.fail(
-                "expected {!r} but found {!r}".format(string, next_object)
+                lambda: "expected {!r} but found {!r}".format(string, next_object)
             )
 
     def _match_charseq(self, charseq):
@@ -78,7 +78,7 @@ class _Grammar(object):
             next_object, self._stream = self._stream.next()
             if next_object != char:
                 original_stream.fail(
-                    "expected {!r} but found {!r}".format(char, next_object)
+                    lambda: "expected {!r} but found {!r}".format(char, next_object)
                 )
         return _SemanticAction(lambda: charseq)
 
@@ -99,7 +99,7 @@ class _Grammar(object):
             if self._stream.is_at_end():
                 self._stream = next_stream
                 return _SemanticAction(lambda: next_object)
-        original_stream.fail("list match failed")
+        original_stream.fail(lambda: "list match failed")
 
     def run(self, rule_name, input_object):
         self._memo = _Memo()
@@ -194,7 +194,7 @@ class _Memo(dict):
     def __init__(self):
         dict.__init__(self)
         self._latest_stream = _ObjectStream(self, [], -1)
-        self._latest_message = ""
+        self._latest_lazy_message = lambda: ""
 
     def describe(self):
         items = []
@@ -208,14 +208,14 @@ class _Memo(dict):
         message.append("\n")
         message.append("ERROR: {}: {}\n".format(
             self._latest_stream,
-            self._latest_message
+            self._latest_lazy_message()
         ))
         return "".join(message)
 
-    def fail(self, stream, message):
+    def fail(self, stream, lazy_message):
         if stream.position() >= self._latest_stream.position():
             self._latest_stream = stream
-            self._latest_message = message
+            self._latest_lazy_message = lazy_message
         raise _MatchError(self)
 
 class _MatchError(Exception):
@@ -241,8 +241,8 @@ class _Stream(object):
         self._objects = objects
         self._index = index
 
-    def fail(self, message):
-        self._memo.fail(self, message)
+    def fail(self, lazy_message):
+        self._memo.fail(self, lazy_message)
 
     def next(self):
         if self.is_at_end():
