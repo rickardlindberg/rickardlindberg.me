@@ -12,7 +12,9 @@ to_python_string() {
 
 support_py=$(cat support.py)
 support_py_string=$(to_python_string < support.py)
+echo "PARSER" 1>&2
 parser_py=$(python "$rlmeta_compiler" < parser.rlmeta)
+echo "CODEGENERATOR" 1>&2
 codegenerator_py=$(python "$rlmeta_compiler" < codegenerator.rlmeta)
 
 cat <<EOF
@@ -29,17 +31,18 @@ $codegenerator_py
 
 join = "".join
 
+def profile(name, fn, *args):
+    t1 = time.time()
+    result = fn(*args)
+    t2 = time.time()
+    sys.stderr.write("{} {}s\\n".format(name, t2-t1))
+    return result
+
 def compile_grammar(grammar):
     parser = Parser()
     code_generator = CodeGenerator()
-    t1 = time.time()
-    ast = parser.run("grammar", grammar)
-    t2 = time.time()
-    sys.stderr.write("parser:   {}s\\n".format(t2-t1))
-    t1 = time.time()
-    code = code_generator.run("ast", ast)
-    t2 = time.time()
-    sys.stderr.write("codegen:  {}s\\n".format(t2-t1))
+    ast = profile("parser:       ", parser.run, "grammar", grammar)
+    code = profile("codegenerator:", code_generator.run, "ast", ast)
     return code
 
 if __name__ == "__main__":
