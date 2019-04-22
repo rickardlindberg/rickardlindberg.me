@@ -296,1841 +296,789 @@ class _ObjectStream(_Stream):
 class Parser(_Grammar):
 
     def _rule_grammar(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('name')
-                            )())
-                        ),
-                        (lambda:
-                            self._match_rule('space')
-                        ),
-                        (lambda:
-                            self._match_charseq('{')
-                        ),
-                        (lambda:
-                            _vars.bind('ys', (lambda:
-                                self._star((lambda:
-                                    self._match_rule('rule')
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            self._match_rule('space')
-                        ),
-                        (lambda:
-                            self._match_charseq('}')
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),
+                (lambda: self._match_rule('space')),
+                (lambda: self._match_charseq('{')),
+                (lambda: _vars.bind('ys', (lambda: self._star((lambda: self._match_rule('rule'))))())),
+                (lambda: self._match_rule('space')),
+                (lambda: self._match_charseq('}')),
+                (lambda: _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_rule(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('name')
-                            )())
-                        ),
-                        (lambda:
-                            self._match_rule('space')
-                        ),
-                        (lambda:
-                            self._match_charseq('=')
-                        ),
-                        (lambda:
-                            _vars.bind('y', (lambda:
-                                self._match_rule('choice')
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: (['Rule']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),
+                (lambda: self._match_rule('space')),
+                (lambda: self._match_charseq('=')),
+                (lambda: _vars.bind('y', (lambda: self._match_rule('choice'))())),
+                (lambda: _SemanticAction(lambda: (['Rule']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_choice(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            self._or([
-                                (lambda:
-                                    (lambda _vars:
-                                        (lambda:
-                                            self._and([
-                                                (lambda:
-                                                    self._match_rule('space')
-                                                ),
-                                                (lambda:
-                                                    self._match_charseq('|')
-                                                ),
-                                            ])
-                                        )()
-                                    )(_Vars())
-                                ),
-                                (lambda:
-                                    self._and([
-                                    ])
-                                ),
-                            ])
-                        ),
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('sequence')
-                            )())
-                        ),
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    (lambda _vars:
-                                        (lambda:
-                                            self._and([
-                                                (lambda:
-                                                    self._match_rule('space')
-                                                ),
-                                                (lambda:
-                                                    self._match_charseq('|')
-                                                ),
-                                                (lambda:
-                                                    self._match_rule('sequence')
-                                                ),
-                                            ])
-                                        )()
-                                    )(_Vars())
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: self._or([
+                    (lambda: (lambda _vars:
+                        (lambda: self._and([
+                            (lambda: self._match_rule('space')),
+                            (lambda: self._match_charseq('|')),
+                        ]))()
+                    )(_Vars())),
+                    (lambda: self._and([
+                    ])),
+                ])),
+                (lambda: _vars.bind('x', (lambda: self._match_rule('sequence'))())),
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: (lambda _vars:
+                    (lambda: self._and([
+                        (lambda: self._match_rule('space')),
+                        (lambda: self._match_charseq('|')),
+                        (lambda: self._match_rule('sequence')),
+                    ]))()
+                )(_Vars()))))())),
+                (lambda: _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_sequence(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('expr')
-                            )())
-                        ),
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    self._match_rule('expr')
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: (['Scope']+[(['And']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[])]+[]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('x', (lambda: self._match_rule('expr'))())),
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('expr'))))())),
+                (lambda: _SemanticAction(lambda: (['Scope']+[(['And']+[_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[])]+[]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_expr(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('expr1')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq(':')
-                                ),
-                                (lambda:
-                                    _vars.bind('y', (lambda:
-                                        self._match_rule('name')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['Bind']+[_vars.lookup('y').eval()]+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_rule('expr1')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('expr1'))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq(':')),
+                    (lambda: _vars.bind('y', (lambda: self._match_rule('name'))())),
+                    (lambda: _SemanticAction(lambda: (['Bind']+[_vars.lookup('y').eval()]+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_rule('expr1'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_expr1(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('expr2')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('*')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['Star']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('expr2')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('?')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+[(['And']+[])]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('!')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('expr2')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['Not']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_rule('expr2')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('expr2'))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('*')),
+                    (lambda: _SemanticAction(lambda: (['Star']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('expr2'))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('?')),
+                    (lambda: _SemanticAction(lambda: (['Or']+[_vars.lookup('x').eval()]+[(['And']+[])]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('!')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('expr2'))())),
+                    (lambda: _SemanticAction(lambda: (['Not']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_rule('expr2'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_expr2(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('->')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('hostExpr')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['SemanticAction']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('name')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._not((lambda:
-                                        (lambda _vars:
-                                            (lambda:
-                                                self._and([
-                                                    (lambda:
-                                                        self._match_rule('space')
-                                                    ),
-                                                    (lambda:
-                                                        self._match_charseq('=')
-                                                    ),
-                                                ])
-                                            )()
-                                        )(_Vars())
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchRule']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('char')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_charseq('-')
-                                ),
-                                (lambda:
-                                    _vars.bind('y', (lambda:
-                                        self._match_rule('char')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchRange']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('string')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchString']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('charseq')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchCharseq']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('.')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchAny']+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('(')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('choice')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq(')')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _vars.lookup('x').eval())
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('[')
-                                ),
-                                (lambda:
-                                    _vars.bind('xs', (lambda:
-                                        self._star((lambda:
-                                            self._match_rule('expr')
-                                        ))
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq(']')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['MatchList']+[(['And']+_vars.lookup('xs').eval()+[])]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('->')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('hostExpr'))())),
+                    (lambda: _SemanticAction(lambda: (['SemanticAction']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),
+                    (lambda: self._not((lambda: (lambda _vars:
+                        (lambda: self._and([
+                            (lambda: self._match_rule('space')),
+                            (lambda: self._match_charseq('=')),
+                        ]))()
+                    )(_Vars())))),
+                    (lambda: _SemanticAction(lambda: (['MatchRule']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('char'))())),
+                    (lambda: self._match_charseq('-')),
+                    (lambda: _vars.bind('y', (lambda: self._match_rule('char'))())),
+                    (lambda: _SemanticAction(lambda: (['MatchRange']+[_vars.lookup('x').eval()]+[_vars.lookup('y').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('string'))())),
+                    (lambda: _SemanticAction(lambda: (['MatchString']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('charseq'))())),
+                    (lambda: _SemanticAction(lambda: (['MatchCharseq']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('.')),
+                    (lambda: _SemanticAction(lambda: (['MatchAny']+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('(')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('choice'))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq(')')),
+                    (lambda: _SemanticAction(lambda: _vars.lookup('x').eval())),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('[')),
+                    (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('expr'))))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq(']')),
+                    (lambda: _SemanticAction(lambda: (['MatchList']+[(['And']+_vars.lookup('xs').eval()+[])]+[]))),
+                ]))()
+            )(_Vars())),
+        ]))()
 
     def _rule_hostExpr(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('string')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['String']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('[')
-                                ),
-                                (lambda:
-                                    _vars.bind('xs', (lambda:
-                                        self._star((lambda:
-                                            self._match_rule('hostExprListItem')
-                                        ))
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq(']')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['List']+_vars.lookup('xs').eval()+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('{')
-                                ),
-                                (lambda:
-                                    _vars.bind('xs', (lambda:
-                                        self._star((lambda:
-                                            self._match_rule('buildExpr')
-                                        ))
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('}')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['Builder']+_vars.lookup('xs').eval()+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('name')
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('(')
-                                ),
-                                (lambda:
-                                    _vars.bind('ys', (lambda:
-                                        self._star((lambda:
-                                            self._match_rule('hostExpr')
-                                        ))
-                                    )())
-                                ),
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq(')')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['FnCall']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('name')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['VarLookup']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('string'))())),
+                    (lambda: _SemanticAction(lambda: (['String']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('[')),
+                    (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('hostExprListItem'))))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq(']')),
+                    (lambda: _SemanticAction(lambda: (['List']+_vars.lookup('xs').eval()+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('{')),
+                    (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('buildExpr'))))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('}')),
+                    (lambda: _SemanticAction(lambda: (['Builder']+_vars.lookup('xs').eval()+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('(')),
+                    (lambda: _vars.bind('ys', (lambda: self._star((lambda: self._match_rule('hostExpr'))))())),
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq(')')),
+                    (lambda: _SemanticAction(lambda: (['FnCall']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),
+                    (lambda: _SemanticAction(lambda: (['VarLookup']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+        ]))()
 
     def _rule_hostExprListItem(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('~')
-                                ),
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('hostExpr')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['ListItemSplice']+[_vars.lookup('x').eval()]+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_rule('hostExpr')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('~')),
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('hostExpr'))())),
+                    (lambda: _SemanticAction(lambda: (['ListItemSplice']+[_vars.lookup('x').eval()]+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_rule('hostExpr'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_buildExpr(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('>')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['IndentBuilder']+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_rule('space')
-                                ),
-                                (lambda:
-                                    self._match_charseq('<')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: (['DedentBuilder']+[]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_rule('hostExpr')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('>')),
+                    (lambda: _SemanticAction(lambda: (['IndentBuilder']+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_rule('space')),
+                    (lambda: self._match_charseq('<')),
+                    (lambda: _SemanticAction(lambda: (['DedentBuilder']+[]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_rule('hostExpr'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_string(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            self._match_charseq('"')
-                        ),
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    (lambda _vars:
-                                        (lambda:
-                                            self._and([
-                                                (lambda:
-                                                    self._not((lambda:
-                                                        self._match_charseq('"')
-                                                    ))
-                                                ),
-                                                (lambda:
-                                                    self._match_rule('innerChar')
-                                                ),
-                                            ])
-                                        )()
-                                    )(_Vars())
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            self._match_charseq('"')
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: join(
-                                _vars.lookup('xs').eval(),
-                            ))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: self._match_charseq('"')),
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: (lambda _vars:
+                    (lambda: self._and([
+                        (lambda: self._not((lambda: self._match_charseq('"')))),
+                        (lambda: self._match_rule('innerChar')),
+                    ]))()
+                )(_Vars()))))())),
+                (lambda: self._match_charseq('"')),
+                (lambda: _SemanticAction(lambda: join(
+                    _vars.lookup('xs').eval(),
+                ))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_charseq(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            self._match_charseq("'")
-                        ),
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    (lambda _vars:
-                                        (lambda:
-                                            self._and([
-                                                (lambda:
-                                                    self._not((lambda:
-                                                        self._match_charseq("'")
-                                                    ))
-                                                ),
-                                                (lambda:
-                                                    self._match_rule('innerChar')
-                                                ),
-                                            ])
-                                        )()
-                                    )(_Vars())
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            self._match_charseq("'")
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: join(
-                                _vars.lookup('xs').eval(),
-                            ))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: self._match_charseq("'")),
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: (lambda _vars:
+                    (lambda: self._and([
+                        (lambda: self._not((lambda: self._match_charseq("'")))),
+                        (lambda: self._match_rule('innerChar')),
+                    ]))()
+                )(_Vars()))))())),
+                (lambda: self._match_charseq("'")),
+                (lambda: _SemanticAction(lambda: join(
+                    _vars.lookup('xs').eval(),
+                ))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_char(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            self._match_charseq("'")
-                        ),
-                        (lambda:
-                            self._not((lambda:
-                                self._match_charseq("'")
-                            ))
-                        ),
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('innerChar')
-                            )())
-                        ),
-                        (lambda:
-                            self._match_charseq("'")
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: _vars.lookup('x').eval())
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: self._match_charseq("'")),
+                (lambda: self._not((lambda: self._match_charseq("'")))),
+                (lambda: _vars.bind('x', (lambda: self._match_rule('innerChar'))())),
+                (lambda: self._match_charseq("'")),
+                (lambda: _SemanticAction(lambda: _vars.lookup('x').eval())),
+            ]))()
+        )(_Vars()))()
 
     def _rule_innerChar(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_charseq('\\')
-                                ),
-                                (lambda:
-                                    self._match_rule('escape')
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        self._match_any()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_charseq('\\')),
+                    (lambda: self._match_rule('escape')),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                self._match_any()
+            )(_Vars())),
+        ]))()
 
     def _rule_escape(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_charseq('\\')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: '\\')
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_charseq("'")
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: "'")
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_charseq('"')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: '"')
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_charseq('n')
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: '\n')
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_charseq('\\')),
+                    (lambda: _SemanticAction(lambda: '\\')),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_charseq("'")),
+                    (lambda: _SemanticAction(lambda: "'")),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_charseq('"')),
+                    (lambda: _SemanticAction(lambda: '"')),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_charseq('n')),
+                    (lambda: _SemanticAction(lambda: '\n')),
+                ]))()
+            )(_Vars())),
+        ]))()
 
     def _rule_name(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            self._match_rule('space')
-                        ),
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('nameStart')
-                            )())
-                        ),
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    self._match_rule('nameChar')
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: join(
-                                ([_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]),
-                            ))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: self._match_rule('space')),
+                (lambda: _vars.bind('x', (lambda: self._match_rule('nameStart'))())),
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('nameChar'))))())),
+                (lambda: _SemanticAction(lambda: join(
+                    ([_vars.lookup('x').eval()]+_vars.lookup('xs').eval()+[]),
+                ))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_nameStart(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_range('a', 'z')
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_range('A', 'Z')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._match_range('a', 'z'))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_range('A', 'Z'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_nameChar(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_range('a', 'z')
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_range('A', 'Z')
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._match_range('0', '9')
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._match_range('a', 'z'))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_range('A', 'Z'))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._match_range('0', '9'))()
+            )(_Vars())),
+        ]))()
 
     def _rule_space(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._star((lambda:
-                        self._or([
-                            (lambda:
-                                (lambda _vars:
-                                    (lambda:
-                                        self._match_charseq(' ')
-                                    )()
-                                )(_Vars())
-                            ),
-                            (lambda:
-                                (lambda _vars:
-                                    (lambda:
-                                        self._match_charseq('\n')
-                                    )()
-                                )(_Vars())
-                            ),
-                        ])
-                    ))
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._star((lambda: self._or([
+                (lambda: (lambda _vars:
+                    (lambda: self._match_charseq(' '))()
+                )(_Vars())),
+                (lambda: (lambda _vars:
+                    (lambda: self._match_charseq('\n'))()
+                )(_Vars())),
+            ]))))()
+        )(_Vars()))()
 
 class CodeGenerator(_Grammar):
 
     def _rule_ast(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Grammar')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind('ys', (lambda:
-                                                    self._star((lambda:
-                                                        self._match_rule('ast')
-                                                    ))
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'class ',
-                                        _vars.lookup('x').eval(),
-                                        '(_Grammar):\n',
-                                        _IndentBuilder(),
-                                        _vars.lookup('ys').eval(),
-                                        _DedentBuilder(),
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Rule')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind('y', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '\ndef _rule_',
-                                        _vars.lookup('x').eval(),
-                                        '(self):\n',
-                                        _IndentBuilder(),
-                                        'return ',
-                                        _vars.lookup('y').eval(),
-                                        '()\n',
-                                        _DedentBuilder(),
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._match_string('MatchAny')
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_any',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('String')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('List')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('astList')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup('x').eval(),
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Builder')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('astItems')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_Builder.create([',
-                                        _vars.lookup('x').eval(),
-                                        '])',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._match_string('IndentBuilder')
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_IndentBuilder()',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._match_string('DedentBuilder')
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_DedentBuilder()',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('FnCall')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind('y', (lambda:
-                                                    self._match_rule('astItems')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup('x').eval(),
-                                        '(',
-                                        _vars.lookup('y').eval(),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('VarLookup')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_vars.lookup(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ').eval()',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('And')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _vars.lookup('x').eval())
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Or')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _vars.lookup('x').eval())
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('astFnBody')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '(lambda:\n',
-                                        _IndentBuilder(),
-                                        _vars.lookup('x').eval(),
-                                        _DedentBuilder(),
-                                        '\n)',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
-
-    def _rule_astFnBody(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Or')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('astItems')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._or([',
-                                        _vars.lookup('x').eval(),
-                                        '])',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Scope')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '(lambda _vars:\n',
-                                        _IndentBuilder(),
-                                        _vars.lookup('x').eval(),
-                                        _DedentBuilder(),
-                                        '()\n)(_Vars())',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('And')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('astItems')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._and([',
-                                        _vars.lookup('x').eval(),
-                                        '])',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Bind')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind('y', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_vars.bind(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ', ',
-                                        _vars.lookup('y').eval(),
-                                        '())',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Star')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._star(',
-                                        _vars.lookup('x').eval(),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('Not')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._not(',
-                                        _vars.lookup('x').eval(),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('SemanticAction')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '_SemanticAction(lambda: ',
-                                        _vars.lookup('x').eval(),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchRule')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_rule(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchRange')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                            (lambda:
-                                                _vars.bind('y', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_range(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ', ',
-                                        repr(
-                                            _vars.lookup('y').eval(),
-                                        ),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchString')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_string(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchCharseq')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', self._match_any())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_charseq(',
-                                        repr(
-                                            _vars.lookup('x').eval(),
-                                        ),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('MatchList')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        'self._match_list(',
-                                        _vars.lookup('x').eval(),
-                                        ')',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Grammar')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                        (lambda: _vars.bind('ys', (lambda: self._star((lambda: self._match_rule('ast'))))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        'class ',
+                        _vars.lookup('x').eval(),
+                        '(_Grammar):\n',
+                        _IndentBuilder(),
+                        _vars.lookup('ys').eval(),
+                        _DedentBuilder(),
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Rule')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                        (lambda: _vars.bind('y', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '\ndef _rule_',
+                        _vars.lookup('x').eval(),
+                        '(self):\n',
+                        _IndentBuilder(),
+                        'return ',
+                        _vars.lookup('y').eval(),
+                        '()\n',
+                        _DedentBuilder(),
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._match_string('MatchAny')))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        'self._match_any',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('String')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('List')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('astList'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        _vars.lookup('x').eval(),
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Builder')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('astItems'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '_Builder.create([',
+                        _vars.lookup('x').eval(),
+                        '])',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._match_string('IndentBuilder')))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '_IndentBuilder()',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._match_string('DedentBuilder')))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '_DedentBuilder()',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('FnCall')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                        (lambda: _vars.bind('y', (lambda: self._match_rule('astItems'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        _vars.lookup('x').eval(),
+                        '(',
+                        _vars.lookup('y').eval(),
+                        ')',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('VarLookup')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '_vars.lookup(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        ').eval()',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('And')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _vars.lookup('x').eval())),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Or')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _vars.lookup('x').eval())),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Or')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('astItems'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._or([',
+                        _vars.lookup('x').eval(),
+                        ']))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Scope')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: (lambda _vars:\n',
+                        _IndentBuilder(),
+                        _vars.lookup('x').eval(),
+                        _DedentBuilder(),
+                        '()\n)(_Vars()))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('And')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('astItems'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._and([',
+                        _vars.lookup('x').eval(),
+                        ']))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Bind')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                        (lambda: _vars.bind('y', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: _vars.bind(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        ', ',
+                        _vars.lookup('y').eval(),
+                        '()))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Star')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._star(',
+                        _vars.lookup('x').eval(),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('Not')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._not(',
+                        _vars.lookup('x').eval(),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('SemanticAction')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: _SemanticAction(lambda: ',
+                        _vars.lookup('x').eval(),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('MatchRule')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._match_rule(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('MatchRange')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                        (lambda: _vars.bind('y', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._match_range(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        ', ',
+                        repr(
+                            _vars.lookup('y').eval(),
+                        ),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('MatchString')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._match_string(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('MatchCharseq')),
+                        (lambda: _vars.bind('x', self._match_any())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._match_charseq(',
+                        repr(
+                            _vars.lookup('x').eval(),
+                        ),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('MatchList')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '(lambda: self._match_list(',
+                        _vars.lookup('x').eval(),
+                        '))',
+                    ]))),
+                ]))()
+            )(_Vars())),
+        ]))()
 
     def _rule_astItems(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    self._match_rule('astItem')
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: _Builder.create([
-                                '\n',
-                                _IndentBuilder(),
-                                _vars.lookup('xs').eval(),
-                                _DedentBuilder(),
-                            ]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('astItem'))))())),
+                (lambda: _SemanticAction(lambda: _Builder.create([
+                    '\n',
+                    _IndentBuilder(),
+                    _vars.lookup('xs').eval(),
+                    _DedentBuilder(),
+                ]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_astItem(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('x', (lambda:
-                                self._match_rule('ast')
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: _Builder.create([
-                                _vars.lookup('x').eval(),
-                                ',\n',
-                            ]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                (lambda: _SemanticAction(lambda: _Builder.create([
+                    _vars.lookup('x').eval(),
+                    ',\n',
+                ]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_astList(self):
-        return (lambda:
-            (lambda _vars:
-                (lambda:
-                    self._and([
-                        (lambda:
-                            _vars.bind('xs', (lambda:
-                                self._star((lambda:
-                                    self._match_rule('astListItem')
-                                ))
-                            )())
-                        ),
-                        (lambda:
-                            _SemanticAction(lambda: _Builder.create([
-                                '(',
-                                _vars.lookup('xs').eval(),
-                                '[])',
-                            ]))
-                        ),
-                    ])
-                )()
-            )(_Vars())
-        )()
+        return (lambda: (lambda _vars:
+            (lambda: self._and([
+                (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('astListItem'))))())),
+                (lambda: _SemanticAction(lambda: _Builder.create([
+                    '(',
+                    _vars.lookup('xs').eval(),
+                    '[])',
+                ]))),
+            ]))()
+        )(_Vars()))()
 
     def _rule_astListItem(self):
-        return (lambda:
-            self._or([
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    self._match_list((lambda:
-                                        self._and([
-                                            (lambda:
-                                                self._match_string('ListItemSplice')
-                                            ),
-                                            (lambda:
-                                                _vars.bind('x', (lambda:
-                                                    self._match_rule('ast')
-                                                )())
-                                            ),
-                                        ])
-                                    ))
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        _vars.lookup('x').eval(),
-                                        '+',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-                (lambda:
-                    (lambda _vars:
-                        (lambda:
-                            self._and([
-                                (lambda:
-                                    _vars.bind('x', (lambda:
-                                        self._match_rule('ast')
-                                    )())
-                                ),
-                                (lambda:
-                                    _SemanticAction(lambda: _Builder.create([
-                                        '[',
-                                        _vars.lookup('x').eval(),
-                                        ']+',
-                                    ]))
-                                ),
-                            ])
-                        )()
-                    )(_Vars())
-                ),
-            ])
-        )()
+        return (lambda: self._or([
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: self._match_list((lambda: self._and([
+                        (lambda: self._match_string('ListItemSplice')),
+                        (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    ])))),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        _vars.lookup('x').eval(),
+                        '+',
+                    ]))),
+                ]))()
+            )(_Vars())),
+            (lambda: (lambda _vars:
+                (lambda: self._and([
+                    (lambda: _vars.bind('x', (lambda: self._match_rule('ast'))())),
+                    (lambda: _SemanticAction(lambda: _Builder.create([
+                        '[',
+                        _vars.lookup('x').eval(),
+                        ']+',
+                    ]))),
+                ]))()
+            )(_Vars())),
+        ]))()
 
 join = "".join
 

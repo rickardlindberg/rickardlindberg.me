@@ -169,3 +169,32 @@
          6613    0.010    0.000    0.052    0.000 rlmeta.py:79(_match_charseq)
 
     less time spend in or and and
+
+9. collapse and remove newlines/indents
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.565s
+    user	0m0.530s
+    sys		0m0.034s
+
+    a little overall faster (a little less readable generated code)
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             457174 function calls (396876 primitive calls) in 0.343 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     4518/230    0.039    0.000    0.343    0.001 rlmeta.py:12(_or)
+        15769    0.024    0.000    0.040    0.000 rlmeta.py:215(fail)
+      10240/2    0.019    0.000    0.347    0.174 rlmeta.py:48(_match_rule)
+        23516    0.017    0.000    0.078    0.000 rlmeta.py:247(next)
+      20921/2    0.017    0.000    0.347    0.174 rlmeta.py:21(_and)
+        19154    0.014    0.000    0.020    0.000 rlmeta.py:279(__init__)
+       8323/1    0.012    0.000    0.176    0.176 rlmeta.py:93(_match_list)
+         6613    0.010    0.000    0.052    0.000 rlmeta.py:79(_match_charseq)
+        12847    0.010    0.000    0.024    0.000 rlmeta.py:290(_advance)
+        27805    0.010    0.000    0.010    0.000 rlmeta.py:239(__init__)
+        17623    0.010    0.000    0.010    0.000 {method 'format' of 'str' objects}
