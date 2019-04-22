@@ -3,6 +3,7 @@ CodeGenerator {
     | ["Grammar" .:x ast*:ys]   -> { "class " x "(_Grammar):\n" > ys <                   }
     | ["Rule" .:x ast:y]        -> { "\ndef _rule_" x "(self):\n" > "return " y "()\n" < }
     | ["MatchAny"]              -> { "self._match_any"                                   }
+    | ["MatchCallRule"]         -> { "self._match_call_rule"                             }
     | ["String" .:x]            -> { repr(x)                                             }
     | ["List" astList:x]        -> { x                                                   }
     | ["Builder" astItems:x]    -> { "_Builder.create([" x "])"                          }

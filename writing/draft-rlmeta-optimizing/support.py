@@ -86,6 +86,10 @@ class _Grammar(object):
         next_object, self._stream = self._stream.next()
         return _SemanticAction(lambda: next_object)
 
+    def _match_call_rule(self):
+        next_object, self._stream = self._stream.next()
+        return self._match_rule(str(next_object))
+
     def _match_list(self, matcher):
         original_stream = self._stream
         next_object, next_stream = self._stream.next()
