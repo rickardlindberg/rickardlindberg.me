@@ -53,51 +53,53 @@ class _Grammar(object):
         return result
 
     def _match_range(self, start, end):
-        original_stream = self._stream
-        next_objext, self._stream = self._stream.next()
+        next_objext = self._stream.peek()
         if next_objext >= start and next_objext <= end:
+            self._stream = self._stream.advance()
             return _SemanticAction(lambda: next_objext)
         else:
-            original_stream.fail(
+            self._stream.fail(
                 lambda: "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
             )
 
     def _match_string(self, string):
-        original_stream = self._stream
-        next_object, self._stream = self._stream.next()
+        next_object = self._stream.peek()
         if next_object == string:
+            self._stream = self._stream.advance()
             return _SemanticAction(lambda: string)
         else:
-            original_stream.fail(
+            self._stream.fail(
                 lambda: "expected {!r} but found {!r}".format(string, next_object)
             )
 
     def _match_charseq(self, charseq):
         for char in charseq:
-            original_stream = self._stream
-            next_object, self._stream = self._stream.next()
+            next_object = self._stream.peek()
             if next_object != char:
-                original_stream.fail(
+                self._stream.fail(
                     lambda: "expected {!r} but found {!r}".format(char, next_object)
                 )
+            self._stream = self._stream.advance()
         return _SemanticAction(lambda: charseq)
 
     def _match_any(self):
-        next_object, self._stream = self._stream.next()
+        next_object = self._stream.peek()
+        self._stream = self._stream.advance()
         return _SemanticAction(lambda: next_object)
 
     def _match_call_rule(self):
-        next_object, self._stream = self._stream.next()
+        next_object = self._stream.peek()
+        self._stream = self._stream.advance()
         return self._match_rule(str(next_object))
 
     def _match_list(self, matcher):
         original_stream = self._stream
-        next_object, next_stream = self._stream.next()
+        next_object = self._stream.peek()
         if isinstance(next_object, list):
             self._stream = self._stream.nested(next_object)
             matcher()
             if self._stream.is_at_end():
-                self._stream = next_stream
+                self._stream = original_stream.advance()
                 return _SemanticAction(lambda: next_object)
         original_stream.fail(lambda: "list match failed")
 
@@ -244,10 +246,10 @@ class _Stream(object):
     def fail(self, lazy_message):
         self._memo.fail(self, lazy_message)
 
-    def next(self):
+    def peek(self):
         if self.is_at_end():
             self.fail("not eof")
-        return (self._objects[self._index], self._advance())
+        return self._objects[self._index]
 
     def is_at_end(self):
         return self._index >= len(self._objects)
@@ -262,7 +264,7 @@ class _CharStream(_Stream):
     def position(self):
         return self._index
 
-    def _advance(self):
+    def advance(self):
         if self._objects[self._index] == "\n":
             line = self._line + 1
             column = 1
@@ -287,7 +289,7 @@ class _ObjectStream(_Stream):
     def nested(self, input_object):
         return _ObjectStream(self._memo, input_object, 0, self._position)
 
-    def _advance(self):
+    def advance(self):
         return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)
 
     def __str__(self):

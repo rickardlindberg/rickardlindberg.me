@@ -296,3 +296,37 @@
         17881    0.002    0.000    0.002    0.000 rlmeta.py:266(position)
          1802    0.002    0.000    0.014    0.000 rlmeta.py:59(_match_range)
          6225    0.002    0.000    0.002    0.000 {method 'format' of 'str' objects}
+
+14. peek to make things a little faster
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.351s
+    user	0m0.319s
+    sys		0m0.031s
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             248506 function calls (211644 primitive calls) in 0.187 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      11129/2    0.019    0.000    0.182    0.091 rlmeta.py:48(_match_rule)
+     4177/252    0.018    0.000    0.177    0.001 rlmeta.py:12(_or)
+         8460    0.013    0.000    0.022    0.000 rlmeta.py:221(fail)
+         7021    0.010    0.000    0.037    0.000 rlmeta.py:79(_match_charseq)
+       9010/2    0.009    0.000    0.182    0.091 rlmeta.py:21(_and)
+         8460    0.006    0.000    0.006    0.000 rlmeta.py:229(__init__)
+        10540    0.005    0.000    0.011    0.000 rlmeta.py:253(peek)
+         1443    0.005    0.000    0.008    0.000 rlmeta.py:163(write)
+        10993    0.004    0.000    0.005    0.000 rlmeta.py:258(is_at_end)
+        885/5    0.004    0.000    0.182    0.036 rlmeta.py:27(_star)
+         8460    0.004    0.000    0.025    0.000 rlmeta.py:250(fail)
+     3274/747    0.003    0.000    0.005    0.000 rlmeta.py:143(create)
+         1802    0.003    0.000    0.011    0.000 rlmeta.py:59(_match_range)
+         2574    0.003    0.000    0.006    0.000 rlmeta.py:271(advance)
+        17881    0.002    0.000    0.002    0.000 rlmeta.py:268(position)
+        12616    0.002    0.000    0.002    0.000 {method 'write' of 'cStringIO.StringO' objects}
+         2575    0.002    0.000    0.004    0.000 rlmeta.py:263(__init__)
+         6225    0.002    0.000    0.002    0.000 {method 'format' of 'str' objects}
