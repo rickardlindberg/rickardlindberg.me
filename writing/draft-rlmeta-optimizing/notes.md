@@ -86,3 +86,30 @@
     Did not seem to have any effect.
 
     Why? Codegenerator becomes bigger which makes it slower.
+
+6. try avoid slicing input
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.608s
+    user	0m0.585s
+    sys		0m0.022s
+
+    from ~750 -> ~600
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+    ...
+             513780 function calls (430760 primitive calls) in 0.415 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       8182/2    0.042    0.000    0.366    0.183 rlmeta.py:7(_or)
+        17411    0.026    0.000    0.044    0.000 rlmeta.py:203(fail)
+      26658/2    0.021    0.000    0.366    0.183 rlmeta.py:16(_and)
+      10730/2    0.019    0.000    0.366    0.183 rlmeta.py:43(_match_rule)
+         2177    0.019    0.000    0.019    0.000 rlmeta.py:147(write)
+        22758    0.017    0.000    0.077    0.000 rlmeta.py:235(next)
+            1    0.014    0.014    0.014    0.014 {method 'write' of 'file' objects}
+
+    next has moved down the list ~0.40 -> ~0.17

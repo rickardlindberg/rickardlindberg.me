@@ -177,7 +177,7 @@ class _Memo(dict):
 
     def __init__(self):
         dict.__init__(self)
-        self._latest_stream = _ObjectStream(self, [], position=-1)
+        self._latest_stream = _ObjectStream(self, [], 0, position=-1)
         self._latest_message = ""
 
     def describe(self):
@@ -216,13 +216,14 @@ class _Stream(object):
     @classmethod
     def from_object(cls, memo, input_object):
         if isinstance(input_object, basestring):
-            return _CharStream(memo, list(input_object))
+            return _CharStream(memo, input_object, 0)
         else:
-            return _ObjectStream(memo, [input_object])
+            return _ObjectStream(memo, [input_object], 0)
 
-    def __init__(self, memo, objects):
+    def __init__(self, memo, objects, index):
         self._memo = memo
         self._objects = objects
+        self._index = index
 
     def fail(self, message):
         self._memo.fail(self, message)
@@ -230,38 +231,37 @@ class _Stream(object):
     def next(self):
         if self.is_at_end():
             self.fail("not eof")
-        next_object = self._objects[0]
-        return (
-            next_object,
-            self._advance(next_object, self._objects[1:]),
-        )
+        return (self._objects[self._index], self._advance())
 
     def is_at_end(self):
-        return len(self._objects) == 0
+        return self._index >= len(self._objects)
 
 class _CharStream(_Stream):
 
-    def __init__(self, memo, objects, line=1, column=1):
-        _Stream.__init__(self, memo, objects)
+    def __init__(self, memo, objects, index, line=1, column=1):
+        _Stream.__init__(self, memo, objects, index)
         self._line = line
         self._column = column
 
     def position(self):
         return (self._line, self._column)
 
-    def _advance(self, next_object, objects):
-        if next_object == "\n":
-            return _CharStream(self._memo, objects, self._line+1, 1)
+    def _advance(self):
+        if self._objects[self._index] == "\n":
+            line = self._line + 1
+            column = 1
         else:
-            return _CharStream(self._memo, objects, self._line, self._column+1)
+            line = self._line
+            column = self._column + 1
+        return _CharStream(self._memo, self._objects, self._index+1, line, column)
 
     def __str__(self):
         return "L{:03d}:C{:03d}".format(self._line, self._column)
 
 class _ObjectStream(_Stream):
 
-    def __init__(self, memo, objects, parent=(), position=0):
-        _Stream.__init__(self, memo, objects)
+    def __init__(self, memo, objects, index, parent=(), position=0):
+        _Stream.__init__(self, memo, objects, index)
         self._parent = parent
         self._position = position
 
@@ -269,10 +269,10 @@ class _ObjectStream(_Stream):
         return self._parent + (self._position,)
 
     def nested(self, input_object):
-        return _ObjectStream(self._memo, input_object, self._parent+(self._position,))
+        return _ObjectStream(self._memo, input_object, 0, self._parent+(self._position,))
 
-    def _advance(self, next_object, objects):
-        return _ObjectStream(self._memo, objects, self._parent, self._position+1)
+    def _advance(self):
+        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent, self._position+1)
 
     def __str__(self):
         return "[{}]".format(", ".join(str(x) for x in self.position()))
