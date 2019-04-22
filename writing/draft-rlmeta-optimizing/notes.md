@@ -65,3 +65,24 @@
         * _and: not sure what to do except avoid _ands
         * _match_rule: use better lookup of function name
         * write: faster string concatenation
+
+5. try reducing ands and ors
+
+    $ git diff codegenerator.rlmeta
+    diff --git a/writing/draft-rlmeta-optimizing/codegenerator.rlmeta b/writing/draft-rlmeta-optimizing/codegenerator.rlmeta
+    index 293e013..2177693 100644
+    --- a/writing/draft-rlmeta-optimizing/codegenerator.rlmeta
+    +++ b/writing/draft-rlmeta-optimizing/codegenerator.rlmeta
+    @@ -10,6 +10,8 @@ CodeGenerator {
+         | ["DedentBuilder"]         -> { "_DedentBuilder()"                                  }
+         | ["FnCall" .:x astItems:y] -> { x "(" y ")"                                         }
+         | ["VarLookup" .:x]         -> { "_vars.lookup(" repr(x) ").eval()"                  }
+    +    | ["Or" ast:x]              -> x
+    +    | ["And" ast:x]             -> x
+         | astFnBody:x               -> { "(lambda:\n" > x < "\n)" }
+       astFnBody =
+         | ["Or" astItems:x]         -> { "self._or([" x "])"                                 }
+
+    Did not seem to have any effect.
+
+    Why? Codegenerator becomes bigger which makes it slower.
