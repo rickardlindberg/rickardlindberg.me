@@ -1,3 +1,8 @@
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
+
 class _Grammar(object):
 
     def _or(self, matchers):
@@ -137,14 +142,21 @@ class _Builder(object):
 class _Output(object):
 
     def __init__(self):
-        self.value = ""
+        self.buffer = StringIO()
         self.indentation = 0
+        self.on_newline = True
+
+    @property
+    def value(self):
+        return self.buffer.getvalue()
 
     def write(self, value):
         for ch in value:
-            if self.value and ch != "\n" and self.value[-1] == "\n":
-                self.value += "    "*self.indentation
-            self.value += ch
+            is_linebreak = ch == "\n"
+            if self.indentation and self.on_newline and not is_linebreak:
+                self.buffer.write("    "*self.indentation)
+            self.buffer.write(ch)
+            self.on_newline = is_linebreak
 
 class _ListBuilder(_Builder):
 

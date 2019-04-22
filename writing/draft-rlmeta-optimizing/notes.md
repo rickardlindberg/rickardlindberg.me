@@ -113,3 +113,30 @@
             1    0.014    0.014    0.014    0.014 {method 'write' of 'file' objects}
 
     next has moved down the list ~0.40 -> ~0.17
+
+7. faster string concatenation
+
+    $ time ./compile.sh rlmeta.py > /dev/null
+
+    real	0m0.603s
+    user	0m0.564s
+    sys		0m0.038s
+
+    roughly the same time
+
+    $ python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+             527910 function calls (444890 primitive calls) in 0.397 seconds
+
+       Ordered by: internal time
+
+       ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       8182/2    0.042    0.000    0.370    0.185 rlmeta.py:12(_or)
+        17411    0.026    0.000    0.045    0.000 rlmeta.py:215(fail)
+      26658/2    0.021    0.000    0.370    0.185 rlmeta.py:21(_and)
+      10730/2    0.019    0.000    0.370    0.185 rlmeta.py:48(_match_rule)
+        22758    0.017    0.000    0.078    0.000 rlmeta.py:247(next)
+        17408    0.012    0.000    0.018    0.000 rlmeta.py:279(__init__)
+        ...
+         2177    0.006    0.000    0.009    0.000 rlmeta.py:157(write)
+
+    but much less time spent in write
