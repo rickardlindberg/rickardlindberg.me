@@ -433,3 +433,7 @@ rendering tree is more powerful.
 
 If you need do draw on the whiteboard to explain your system, you are lacking a
 visualisation.
+
+---
+
+Interesting article: [Baby's First Garbage Collector](http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/).
