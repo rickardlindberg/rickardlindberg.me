@@ -129,7 +129,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py=$(cat support.py)\nsupport_py_string=$(to_python_string < support.py)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\n",
+"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\n",
 "type":"code"
 },
 {
@@ -180,7 +180,7 @@
 ],
 "id":"7b987f7cd685486da72bf77dcd0b3f29",
 "paragraphs":[],
-"title":"Modifying the RLMeta metacompiler"
+"title":"Modifying RLMeta"
 },
 "variables":{}
 }
