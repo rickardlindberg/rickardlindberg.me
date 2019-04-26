@@ -34,14 +34,28 @@
 },
 {
 "chunkpath":[],
-"filepath":[],
+"filepath":[
+"is_metacompiler.sh"
+],
 "fragments":[
 {
-"text":"$ diff <(./compile.sh rlmeta.py) rlmeta.py && echo EQUAL\nEQUAL\n",
+"text":"if diff $1 <(./compile.sh $1); then\n    echo \"$1 is a metacompiler!\"\nelse\n    echo \"$1 is not a metacompiler. See diff above.\"\nfi\n",
 "type":"code"
 }
 ],
 "id":"51c75af0347d416181ffec8cab1f0c51",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta.py\nrlmeta.py is a metacompiler!\n",
+"type":"code"
+}
+],
+"id":"8e96b580ce5c4ed2bc67997925bc1117",
 "type":"code"
 }
 ],
@@ -50,8 +64,208 @@
 {
 "children":[],
 "id":"93d9030e0e4849c5a8d8ca0fffdf7592",
-"paragraphs":[],
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Yes, WHYY?",
+"type":"text"
+}
+],
+"id":"fc4349d271d2479885e24591439782a2",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"In order to modify rlmeta.py we need the source code and a compiler. If there is no way we can reproduce it, we can't modify it.",
+"type":"text"
+}
+],
+"id":"c7f676bd1b8e4759bb676cb020172a36",
+"type":"text"
+}
+],
 "title":"Why is this a useful property?"
+},
+{
+"children":[],
+"id":"5f6a1c91143146dbb3b865ac42562135",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"    | astFnBody:x               -> { \"(lambda:\\n\" > x < \"\\n)\" }\n",
+"type":"code"
+}
+],
+"id":"75962a34bc124422840c608c5ce11574",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"    | astFnBody:x               -> { \"(lambda: \" x \")\" }\n",
+"type":"code"
+}
+],
+"id":"00aa8eafb77042e58c86e630149b9d27",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ git diff codegenerator.rlmeta\ndiff --git a/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta b/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\nindex 293e013..657f59a 100644\n--- a/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\n+++ b/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\n@@ -10,7 +10,7 @@ CodeGenerator {\n     | [\"DedentBuilder\"]         -> { \"_DedentBuilder()\"                                  }\n     | [\"FnCall\" .:x astItems:y] -> { x \"(\" y \")\"                                         }\n     | [\"VarLookup\" .:x]         -> { \"_vars.lookup(\" repr(x) \").eval()\"                  }\n-    | astFnBody:x               -> { \"(lambda:\\n\" > x < \"\\n)\" }\n+    | astFnBody:x               -> { \"(lambda: \" x \")\" }\n   astFnBody =\n     | [\"Or\" astItems:x]         -> { \"self._or([\" x \"])\"                                 }\n     | [\"Scope\" ast:x]           -> { \"(lambda _vars:\\n\" > x < \"()\\n)(_Vars())\"           }\n",
+"type":"code"
+}
+],
+"id":"0bc5ae207dbd4ea3b41a00651d0d1873",
+"language":"diff",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Is rlmeta.py a metacompiler? Le'ts check:",
+"type":"text"
+}
+],
+"id":"c16df5bc53fc422796deaf081c25ae8b",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ diff rlmeta.py <(./compile.sh rlmeta.py)\n1685,1686c1685\n<                                         '(lambda:\\n',\n<                                         _IndentBuilder(),\n---\n>                                         '(lambda: ',\n1688,1689c1687\n<                                         _DedentBuilder(),\n<                                         '\\n)',\n---\n> \n",
+"type":"code"
+}
+],
+"id":"90cf5d9eca604cd8becd3e9feca345dc",
+"language":"diff",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"7a6b856affa54cc4bdb62fd5a0b4f137",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Is rlmeta1.py a metacompiler? Le'ts check:",
+"type":"text"
+}
+],
+"id":"4818c579d5da41caa796d973b28d6752",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta1.py\n287,325c287,299\n<         return (lambda:\n<             self._or([\n<                 (lambda:\n<                     (lambda _vars:\n<                         (lambda:\n<                             self._and([\n<                                 (lambda:\n<                                     _vars.bind('x', (lambda:\n<                                         self._match_rule('name')\n<                                     )())\n<                                 ),\n<                                 (lambda:\n<                                     self._match_rule('space')\n<                                 ),\n<                                 (lambda:\n<                                     self._match_charseq('{')\n<                                 ),\n<                                 (lambda:\n<                                     _vars.bind('ys', (lambda:\n<                                         self._star((lambda:\n<                                             self._match_rule('rule')\n<                                         ))\n<                                     )())\n<                                 ),\n<                                 (lambda:\n<                                     self._match_rule('space')\n<                                 ),\n<                                 (lambda:\n<                                     self._match_charseq('}')\n<                                 ),\n<                                 (lambda:\n<                                     _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))\n<                                 ),\n<                             ])\n<                         )()\n<                     )(_Vars())\n<                 ),\n<             ])\n<         )()\n---\n>         return (lambda: self._or([\n>             (lambda: (lambda _vars:\n>                 (lambda: self._and([\n>                     (lambda: _vars.bind('x', (lambda: self._match_rule('name'))())),\n>                     (lambda: self._match_rule('space')),\n>                     (lambda: self._match_charseq('{')),\n>                     (lambda: _vars.bind('ys', (lambda: self._star((lambda: self._match_rule('rule'))))())),\n>                     (lambda: self._match_rule('space')),\n>                     (lambda: self._match_charseq('}')),\n>                     (lambda: _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))),\n>                 ]))()\n>             )(_Vars())),\n>         ]))()\n...\nrlmeta1.py is not a metacompiler. See diff above.\n",
+"type":"code"
+}
+],
+"id":"27880ff33fae4aafa40bd977cc4cd0c4",
+"language":"diff",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\n",
+"type":"code"
+}
+],
+"id":"220782c1b04d44718525cae19adfc70b",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta2.py\nrlmeta2.py is a metacompiler!\n",
+"type":"code"
+}
+],
+"id":"02c659d8ee7e4f9797fb9ca93a1fa1a4",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This means that rlmeta2.py is a metacompiler. The compiler that rlmeta2.py produces is exactly the same as itself.",
+"type":"text"
+}
+],
+"id":"6b890adad1964ae9b928a7531d2c1793",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"meta_compile.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
+"type":"code"
+}
+],
+"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
+"type":"code"
+}
+],
+"title":"Making a change"
+},
+{
+"children":[],
+"id":"0130b76cb3d24f458bb47debb6fc2780",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Explain how bug was fixed.",
+"type":"text"
+}
+],
+"id":"a7b2bbcc13a9431da6c2fbb3c4c9ec41",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Generate support.py from compiler instead of from source.",
+"type":"text"
+}
+],
+"id":"0b7839572c9940dabc0e4afe5343ab9b",
+"type":"text"
+}
+],
+"title":"Changing support"
 },
 {
 "children":[
@@ -156,18 +370,9 @@
 "id":"d910746e68c1406c97a054c4f6e56573",
 "paragraphs":[
 {
-"chunkpath":[],
-"filepath":[
-"meta_compile.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
-"type":"code"
-}
-],
-"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
-"type":"code"
+"code_id":"bd7e31bf3ea7456f975830d5bf2ef05c",
+"id":"289eb60da587474aaa127a14f68a6a95",
+"type":"expanded_code"
 }
 ],
 "title":"meta_compile.sh"
