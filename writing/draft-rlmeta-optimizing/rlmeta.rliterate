@@ -675,6 +675,47 @@
 },
 {
 "children":[],
+"id":"84d9e890742c41d48fc1afc2009815c7",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ time ./compile.sh rlmeta.py > /dev/null\n\nreal\t0m0.344s\nuser\t0m0.312s\nsys\t0m0.030s\n",
+"type":"code"
+}
+],
+"id":"75570d667bf9476dba654f518e07b538",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ python -m cProfile -s tottime rlmeta.py < parser.rlmeta\n...\n         240951 function calls (204089 primitive calls) in 0.185 seconds\n\n   Ordered by: internal time\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n  11129/2    0.019    0.000    0.180    0.090 rlmeta.py:48(_match_rule)\n 4177/252    0.017    0.000    0.175    0.001 rlmeta.py:12(_or)\n     6949    0.011    0.000    0.017    0.000 rlmeta.py:221(fail)\n     7021    0.010    0.000    0.038    0.000 rlmeta.py:79(_match_charseq)\n   9010/2    0.010    0.000    0.180    0.090 rlmeta.py:21(_and)\n    10540    0.005    0.000    0.011    0.000 rlmeta.py:253(peek)\n     1443    0.005    0.000    0.008    0.000 rlmeta.py:163(write)\n     6949    0.004    0.000    0.004    0.000 rlmeta.py:229(__init__)\n    10993    0.004    0.000    0.005    0.000 rlmeta.py:258(is_at_end)\n    885/5    0.004    0.000    0.180    0.036 rlmeta.py:27(_star)\n...\n",
+"type":"code"
+}
+],
+"id":"8e730042aefa46a29692dd8e8f2afbed",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Can't really tell if better or worse. But should reduce one exception catch/trow. And I like this code better.",
+"type":"text"
+}
+],
+"id":"806aff9cb25247c5a37cea9113ca48ca",
+"type":"text"
+}
+],
+"title":"No exception last or"
+},
+{
+"children":[],
 "id":"3616eda03f5c40458ac9439def097739",
 "paragraphs":[
 {
