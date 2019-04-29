@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"I was unable to find a clear definition, so the following are my best attempts.",
+"text":"I was unable to find a clear definition, so the following is my best attempt.",
 "type":"emphasis"
 }
 ],
@@ -107,7 +107,7 @@
 "type":"code"
 },
 {
-"text":" scripts compiles the RLMeta compiler. It runs the source files (",
+"text":" scripts that compiles the RLMeta compiler runs the source files (",
 "type":"text"
 },
 {
@@ -265,11 +265,11 @@
 {
 "fragments":[
 {
-"text":"When making a change in the source code for RLMeta, it must be ensured that the metacompiler property still holds. This is a key difference when modifying a metacompiler.",
+"text":"In general, to modify a program, its source code and a compiler is needed. When the source code is compiled, the executable program is output.",
 "type":"text"
 }
 ],
-"id":"c363ade479ef4a0cb62a455a36b802c5",
+"id":"e0a64299fcfa4b19ab466704dee628e3",
 "type":"text"
 },
 {
@@ -277,7 +277,51 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> rlmeta.py -> rlmeta.py\n\nmodified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"source -> compiler -> executable\n",
+"type":"code"
+}
+],
+"id":"70809fbb4dbe4f6f8cdff0d0d498525c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"For the RLMeta metacompiler, the compiler and the executable program is the same.",
+"type":"text"
+}
+],
+"id":"5e43207a89814de58fe844c511df67f9",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"source -> rlmeta.py -> rlmeta.py\n",
+"type":"code"
+}
+],
+"id":"97d5e02aa4cc445188c5b5ab1a065def",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the source code is changed, the executable program might not be the metacompiler itself.",
+"type":"text"
+}
+],
+"id":"2a11bfd7a0d34c7fb2e0d311ad7f45c3",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
 "type":"code"
 }
 ],
@@ -287,15 +331,7 @@
 {
 "fragments":[
 {
-"text":"In order to maintain ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":" both the modified source and the original ",
+"text":"At this point the metacompiler can't be modified anymore because the source code for ",
 "type":"text"
 },
 {
@@ -303,7 +339,15 @@
 "type":"code"
 },
 {
-"text":" is needed. This is no good place to be. At this point the source for rlmeta.py is lost. So we can't really modify it.",
+"text":" is \"lost\". We only have the source code for ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
@@ -313,11 +357,21 @@
 {
 "fragments":[
 {
-"text":"In order to modify rlmeta.py we need the source code and a compiler. If there is no way we can reproduce it, we can't modify it.",
+"text":"When making a change in the source code for RLMeta, it must be ensured that the metacompiler property still holds. This is a key difference when modifying a metacompiler. At the end we should only have the source code and the metacompiler.",
 "type":"text"
 }
 ],
-"id":"c7f676bd1b8e4759bb676cb020172a36",
+"id":"c363ade479ef4a0cb62a455a36b802c5",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The following sections explain how changes can be made to RLMeta that preserve the metacompiler property.",
+"type":"text"
+}
+],
+"id":"d21afc4f5e604e78b978a9ff65b73c3f",
 "type":"text"
 }
 ],
@@ -328,11 +382,65 @@
 "id":"5f6a1c91143146dbb3b865ac42562135",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The code generator for RLMeta generates lambda expressions with newlines and indentation.",
+"type":"text"
+}
+],
+"id":"c5cf0946f71647f687176d66e5e4fb2f",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"    | astFnBody:x               -> { \"(lambda:\\n\" > x < \"\\n)\" }\n",
+"text":"(lambda:\n    ...\n)\n",
+"type":"code"
+}
+],
+"id":"cc11caffc9884033bff44020b3fa3632",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The additional punctuation might not make the generated code more readable and it takes longer to generate. So we might decide to generate the equivalent.",
+"type":"text"
+}
+],
+"id":"72a9d99eed5349d587fd9d5d49145541",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda: ...)\n",
+"type":"code"
+}
+],
+"id":"b7c19d3dc91340c5aa0de1cb3ccd3c86",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This is achieved with the following change to the code generator.",
+"type":"text"
+}
+],
+"id":"c73514c15f9749a29e5d070423aee716",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"| astFnBody:x -> { \"(lambda:\\n\" > x < \"\\n)\" }\n",
 "type":"code"
 }
 ],
@@ -341,29 +449,26 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"    | astFnBody:x               -> { \"(lambda: \" x \")\" }\n",
-"type":"code"
+"text":"To:",
+"type":"text"
 }
 ],
-"id":"00aa8eafb77042e58c86e630149b9d27",
-"language":"rlmeta",
-"type":"code"
+"id":"971eabd00f6143428fe06553074e4cb8",
+"type":"text"
 },
 {
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"$ git diff codegenerator.rlmeta\ndiff --git a/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta b/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\nindex 293e013..657f59a 100644\n--- a/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\n+++ b/writing/draft-rlmeta-modifying-metacompiler/codegenerator.rlmeta\n@@ -10,7 +10,7 @@ CodeGenerator {\n     | [\"DedentBuilder\"]         -> { \"_DedentBuilder()\"                                  }\n     | [\"FnCall\" .:x astItems:y] -> { x \"(\" y \")\"                                         }\n     | [\"VarLookup\" .:x]         -> { \"_vars.lookup(\" repr(x) \").eval()\"                  }\n-    | astFnBody:x               -> { \"(lambda:\\n\" > x < \"\\n)\" }\n+    | astFnBody:x               -> { \"(lambda: \" x \")\" }\n   astFnBody =\n     | [\"Or\" astItems:x]         -> { \"self._or([\" x \"])\"                                 }\n     | [\"Scope\" ast:x]           -> { \"(lambda _vars:\\n\" > x < \"()\\n)(_Vars())\"           }\n",
+"text":"| astFnBody:x -> { \"(lambda: \" x \")\" }\n",
 "type":"code"
 }
 ],
-"id":"0bc5ae207dbd4ea3b41a00651d0d1873",
-"language":"diff",
+"id":"00aa8eafb77042e58c86e630149b9d27",
+"language":"rlmeta",
 "type":"code"
 },
 {
@@ -381,13 +486,39 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ diff rlmeta.py <(./compile.sh rlmeta.py)\n1685,1686c1685\n<                                         '(lambda:\\n',\n<                                         _IndentBuilder(),\n---\n>                                         '(lambda: ',\n1688,1689c1687\n<                                         _DedentBuilder(),\n<                                         '\\n)',\n---\n> \n",
+"text":"$ ./is_metacompiler.sh rlmeta.py\n1685,1686c1685\n<                                         '(lambda:\\n',\n<                                         _IndentBuilder(),\n---\n>                                         '(lambda:',\n1688,1689c1687\n<                                         _DedentBuilder(),\n<                                         '\\n)',\n---\n>                                         ')',\nrlmeta.py is not a metacompiler. See diff above.\n",
 "type":"code"
 }
 ],
 "id":"90cf5d9eca604cd8becd3e9feca345dc",
 "language":"diff",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This changes breaks the metacompiler property. The difference between ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" and the new compiler (",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":") is that the code for generating lambda expressions are different. The new compiler should recognize the same source language. So we can try and see if that is a metacompiler.",
+"type":"text"
+}
+],
+"id":"fde362e72d364e7a8698cca2495fadfe",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -400,16 +531,6 @@
 ],
 "id":"7a6b856affa54cc4bdb62fd5a0b4f137",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"Is rlmeta1.py a metacompiler? Le'ts check:",
-"type":"text"
-}
-],
-"id":"4818c579d5da41caa796d973b28d6752",
-"type":"text"
 },
 {
 "chunkpath":[],
@@ -451,15 +572,89 @@
 {
 "fragments":[
 {
-"text":"This means that rlmeta2.py is a metacompiler. The compiler that rlmeta2.py produces is exactly the same as itself.",
+"text":"This means that ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" is a metacompiler. The compiler that rlmeta2.py produces is exactly the same as itself. ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" can be discarded and ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" becomes the new ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
 "id":"6b890adad1964ae9b928a7531d2c1793",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta2.py -> rlmeta2.py\n",
+"type":"code"
 }
 ],
-"title":"Making a change"
+"id":"342281e2e7b1449d98a0453c8ccd2076",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"source -> rlmeta.py -> rlmeta.py\n",
+"type":"code"
+}
+],
+"id":"7cd108453c5942c19d0f8ead7cb4d251",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"We now have a new metacompiler that generates code slightly different, but the metacompiler property still holds.",
+"type":"text"
+}
+],
+"id":"13f5b9ccbb0844468d99fbb40212672d",
+"type":"text"
+}
+],
+"title":"Changing code generator"
 },
 {
 "children":[],
@@ -542,7 +737,7 @@
 {
 "fragments":[
 {
-"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying a metacompiler is different from modifying non metacompiler (or program).",
+"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying a metacompiler is different from modifying a non metacompiler (or program).",
 "type":"text"
 }
 ],
