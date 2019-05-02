@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"I was unable to find a clear definition, so the following is my best attempt.",
+"text":"I was unable to find a clear definition, so the following is my best attempt at one.",
 "type":"emphasis"
 }
 ],
@@ -18,7 +18,7 @@
 {
 "fragments":[
 {
-"text":"A metacompiler is a compiler that can reproduce itself from a description written in a metalanguage. A metalanguage is domain specific language for reasoning about statements in another language.",
+"text":"A metacompiler is a compiler that can reproduce itself from a description written in a metalanguage. A metalanguage is a domain specific language for describing the syntax and semantics of languages.",
 "type":"text"
 }
 ],
@@ -28,7 +28,7 @@
 {
 "fragments":[
 {
-"text":"A generic compiler takes source code as input and outputs executable code:",
+"text":"A regular compiler transforms source code into an executable:",
 "type":"text"
 }
 ],
@@ -50,7 +50,7 @@
 {
 "fragments":[
 {
-"text":"A metacompiler takes source code as input and outputs itself (given that the source is the source for the metacompiler):",
+"text":"A metacompiler transforms source code to itself (given that the source code is the source code for the metacompiler):",
 "type":"text"
 }
 ],
@@ -72,7 +72,7 @@
 {
 "fragments":[
 {
-"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language. Such compiler is merely a self-hosting compiler.",
+"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language not designed specifically to describe other languages. Such compiler is merely a self-hosting compiler.",
 "type":"text"
 }
 ],
@@ -89,7 +89,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a metacompiler because its source is written in a metalanguage and it is able to reproduce itself.",
+"text":"RLMeta is a metacompiler because its source code is written in a metalanguage and it is able to reproduce itself.",
 "type":"text"
 }
 ],
@@ -265,7 +265,7 @@
 {
 "fragments":[
 {
-"text":"In general, to modify a program, its source code and a compiler is needed. When the source code is compiled, the executable program is output.",
+"text":"In general, to modify a program written in a compiled language, its source code and a compiler is needed. The compiler transforms the source code into an executable. Modifying the executable is a matter of modifying the source code and compiling it.",
 "type":"text"
 }
 ],
@@ -285,9 +285,21 @@
 "type":"code"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"For the RLMeta metacompiler, the compiler and the executable program is the same.",
+"text":"modified source -> compiler -> modified executable\n",
+"type":"code"
+}
+],
+"id":"71dcb5f5a51742f5b5e3e05c2d14919c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"For a metacompiler, the compiler and the executable is the same. However, if the source code is changed, the executable might no longer be the metacompiler itself.",
 "type":"text"
 }
 ],
@@ -299,7 +311,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> rlmeta.py -> rlmeta.py\n",
+"text":"source -> metacompiler -> metacompiler\n",
 "type":"code"
 }
 ],
@@ -307,21 +319,11 @@
 "type":"code"
 },
 {
-"fragments":[
-{
-"text":"If the source code is changed, the executable program might not be the metacompiler itself.",
-"type":"text"
-}
-],
-"id":"2a11bfd7a0d34c7fb2e0d311ad7f45c3",
-"type":"text"
-},
-{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"modified source -> metacompiler -> ???\n",
 "type":"code"
 }
 ],
@@ -331,23 +333,7 @@
 {
 "fragments":[
 {
-"text":"At this point the metacompiler can't be modified anymore because the source code for ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":" is \"lost\". We only have the source code for ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":".",
+"text":"At this point, the source code for the metacompiler is \"lost\" because there is no way to reproduce the metacompiler from modified source code. It can therefore not be modified either.",
 "type":"text"
 }
 ],
@@ -355,9 +341,21 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"When making a change in the source code for RLMeta, it must be ensured that the metacompiler property still holds. This is a key difference when modifying a metacompiler. At the end we should only have the source code and the metacompiler.",
+"text":"modified source -> ??? -> metacompiler\n",
+"type":"code"
+}
+],
+"id":"eab099f879994d5b95b8a19b8fb103c6",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"When making changes to a metacompiler, care has to be taken to ensure that, in the end, the executable is still a metacompiler. This is a key difference from modifying a regular program. (When modifying a self-hosting compiler similar care has to be taken.)",
 "type":"text"
 }
 ],
@@ -367,7 +365,7 @@
 {
 "fragments":[
 {
-"text":"The following sections explain how changes can be made to RLMeta that preserve the metacompiler property.",
+"text":"The following sections explain how to make changes to RLMeta that ensure that the modified version is still a metacompiler.",
 "type":"text"
 }
 ],
@@ -375,7 +373,7 @@
 "type":"text"
 }
 ],
-"title":"Maintaining metacompiler property"
+"title":"Modifying a metacompiler"
 },
 {
 "children":[],
@@ -384,7 +382,7 @@
 {
 "fragments":[
 {
-"text":"The code generator for RLMeta generates lambda expressions with newlines and indentation.",
+"text":"The code generator of RLMeta generates lambda expressions with newlines and indentation:",
 "type":"text"
 }
 ],
@@ -406,7 +404,7 @@
 {
 "fragments":[
 {
-"text":"The additional punctuation might not make the generated code more readable and it takes longer to generate. So we might decide to generate the equivalent.",
+"text":"The additional punctuation might not make the generated code more readable and it takes longer to generate. It might therefore be desirable to generate equivalents lambda expressions without the additional punctuation:",
 "type":"text"
 }
 ],
@@ -428,7 +426,7 @@
 {
 "fragments":[
 {
-"text":"This is achieved with the following change to the code generator.",
+"text":"This is achieved by changing the following line in the code generator",
 "type":"text"
 }
 ],
@@ -451,7 +449,7 @@
 {
 "fragments":[
 {
-"text":"To:",
+"text":"to",
 "type":"text"
 }
 ],
@@ -474,12 +472,32 @@
 {
 "fragments":[
 {
-"text":"Is rlmeta.py a metacompiler? Le'ts check:",
+"text":"With this change, ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" is no longer a metacompiler.",
 "type":"text"
 }
 ],
 "id":"c16df5bc53fc422796deaf081c25ae8b",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"9fd7d26ae6d54fcaa6d64a5739f6cf36",
+"type":"code"
 },
 {
 "chunkpath":[],
@@ -497,7 +515,7 @@
 {
 "fragments":[
 {
-"text":"This changes breaks the metacompiler property. The difference between ",
+"text":"The difference between ",
 "type":"text"
 },
 {
@@ -505,7 +523,7 @@
 "type":"code"
 },
 {
-"text":" and the new compiler (",
+"text":" and the generated compiler (",
 "type":"text"
 },
 {
@@ -513,7 +531,7 @@
 "type":"code"
 },
 {
-"text":") is that the code for generating lambda expressions are different. The new compiler should recognize the same source language. So we can try and see if that is a metacompiler.",
+"text":") is that the code for generating lambda expressions is different. The generated compiler should recognize the same source language so it can be checked it it is a metacompiler.",
 "type":"text"
 }
 ],
@@ -544,6 +562,16 @@
 "id":"27880ff33fae4aafa40bd977cc4cd0c4",
 "language":"diff",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Enter text here...",
+"type":"text"
+}
+],
+"id":"8719ed6b7ab14ef59c9f71e6dc80059a",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -624,23 +652,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta2.py -> rlmeta2.py\n",
+"text":"modified source -> rlmeta2.py -> rlmeta2.py\n                 |\n                 V\n   source -> rlmeta.py -> rlmeta.py\n\n",
 "type":"code"
 }
 ],
 "id":"342281e2e7b1449d98a0453c8ccd2076",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"source -> rlmeta.py -> rlmeta.py\n",
-"type":"code"
-}
-],
-"id":"7cd108453c5942c19d0f8ead7cb4d251",
 "type":"code"
 },
 {
@@ -681,7 +697,7 @@
 "type":"text"
 }
 ],
-"title":"Changing support"
+"title":"Changing support library"
 },
 {
 "children":[],
@@ -698,7 +714,7 @@
 "type":"text"
 }
 ],
-"title":"Grammar syntax change"
+"title":"Changing grammar syntax"
 },
 {
 "children":[],
@@ -737,7 +753,7 @@
 {
 "fragments":[
 {
-"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying a metacompiler is different from modifying a non metacompiler (or program).",
+"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying a metacompiler is different from modifying a regular program.",
 "type":"text"
 }
 ],
