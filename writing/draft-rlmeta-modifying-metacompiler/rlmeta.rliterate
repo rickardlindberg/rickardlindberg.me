@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"A regular compiler transforms source code into an executable:",
+"text":"A general compiler transforms source code into an executable:",
 "type":"text"
 }
 ],
@@ -30,7 +30,29 @@
 {
 "fragments":[
 {
-"text":"A metacompiler is a compiler that reads source code written in a metalanguage. A metalanguage is a domain specific language for describing the syntax and semantics of languages. That is describing how to transform statements in a language into executable code. That is describing a compiler.",
+"text":"A C compiler transforms source code written in C code into an executable:",
+"type":"text"
+}
+],
+"id":"247442defad9486dbbc00a80a7ba5853",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"C source -> C compiler -> executable\n",
+"type":"code"
+}
+],
+"id":"9637925d22dd4794906e11a82c0979e0",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"A metacompiler transforms source code written in a metalanguage into an executable:",
 "type":"text"
 }
 ],
@@ -38,9 +60,31 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"If the source code describes the metalanguage itself, the metacompiler transforms source code into itself:",
+"text":"metalanguage source -> metacompiler -> executable\n",
+"type":"code"
+}
+],
+"id":"37c8ccef5d884282b288faeed4eb687b",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"A metalanguage is a domain specific language for describing other languages. It can describe what they look like (their syntax) and how to transform them into executable code (their semantics). In essence, it can describe compilers.",
+"type":"text"
+}
+],
+"id":"2ae1792b33f04c3cb643d28db004a5f9",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Because a metalanguage can describe any compiler, it can also describe the metacompiler itself. If the source code describes the metacompiler itself, the metacompiler transforms it into itself:",
 "type":"text"
 }
 ],
@@ -67,6 +111,16 @@
 }
 ],
 "id":"68a70728549c41478d8110b0248c678c",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"A metacompiler does not necessarily have to be implemented in the metalanguage itself, but I suspect that it is common that they are. RLMeta is. From now on, I will assume that it is. A self-hosting metacompiler.",
+"type":"text"
+}
+],
+"id":"bc611e48de17497caa0a20eaa7664dba",
 "type":"text"
 }
 ],
@@ -113,7 +167,7 @@
 {
 "fragments":[
 {
-"text":"In the case of a metacompiler, the compiler and the executable is exactly the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
+"text":"In the case of a self-hosting metacompiler, the compiler and the executable is exactly the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
 "type":"text"
 }
 ],
@@ -169,7 +223,17 @@
 {
 "fragments":[
 {
-"text":"When making changes to a metacompiler, care has to be taken to ensure that, in the end, the executable is still a metacompiler. This is a key difference from modifying a regular program. (When modifying a self-hosting compiler similar care has to be taken.)",
+"text":"Because there is no source code, the metacompiler can not be modified either.",
+"type":"text"
+}
+],
+"id":"52e85832ecd94b3cac6f44a322e61e51",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"When making changes to a self-hosting metacompiler, care has to be taken to ensure that, in the end, the executable is still a self-hosting metacompiler. This is a key difference from modifying a regular program. (When modifying a self-hosting compiler similar care has to be taken.)",
 "type":"text"
 }
 ],
@@ -179,19 +243,15 @@
 {
 "fragments":[
 {
-"text":"Why is it important to maintain this property?",
+"text":"Why is it important?",
 "type":"strong"
-},
-{
-"text":" Otherwise there is no longer a metacompiler. Why is this a problem?",
+}
+],
+"id":"2296c07132c3481391d3914f01a2f59e",
 "type":"text"
 }
 ],
-"id":"c682bd33b0f044088ed7bf4b70ce1b38",
-"type":"text"
-}
-],
-"title":"Modifying a metacompiler"
+"title":"Modifying a self-hosting metacompiler"
 },
 {
 "children":[],
@@ -876,7 +936,7 @@
 {
 "fragments":[
 {
-"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying a metacompiler is different from modifying a regular program.",
+"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying it is different from modifying a regular program.",
 "type":"text"
 }
 ],
