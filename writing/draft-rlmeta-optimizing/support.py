@@ -7,12 +7,12 @@ class _Grammar(object):
 
     def _or(self, matchers):
         original_stream = self._stream
-        for matcher in matchers:
+        for matcher in matchers[:-1]:
             try:
                 return matcher()
             except _MatchError:
                 self._stream = original_stream
-        original_stream.fail(lambda: "no choice matched")
+        return matchers[-1]()
 
     def _and(self, matchers):
         result = None
