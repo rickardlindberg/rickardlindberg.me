@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"A general compiler transforms source code into an executable:",
+"text":"A general compiler translates source code into an executable:",
 "type":"text"
 }
 ],
@@ -30,7 +30,7 @@
 {
 "fragments":[
 {
-"text":"A C compiler transforms source code written in C code into an executable:",
+"text":"A C compiler translates source code written in C code into an executable:",
 "type":"text"
 }
 ],
@@ -52,7 +52,7 @@
 {
 "fragments":[
 {
-"text":"A metacompiler transforms source code written in a metalanguage into an executable:",
+"text":"A metacompiler translates source code written in a metalanguage into an executable:",
 "type":"text"
 }
 ],
@@ -74,7 +74,7 @@
 {
 "fragments":[
 {
-"text":"A metalanguage is a domain specific language for describing other languages. It can describe what they look like (their syntax) and how to transform them into executable code (their semantics). In essence, it can describe compilers.",
+"text":"A metalanguage is a domain specific language for describing other languages. It can be used to describe what languages look like (their syntax) and how to translate them into executables (their semantics). In essence, it can be used to describe compilers.",
 "type":"text"
 }
 ],
@@ -84,7 +84,7 @@
 {
 "fragments":[
 {
-"text":"Because a metalanguage can describe any compiler, it can also describe the metacompiler itself. If the source code describes the metacompiler itself, the metacompiler transforms it into itself:",
+"text":"Because a metalanguage can be used to describe any compiler, it can also be used describe the metacompiler itself. The metacompiler translates such a description into itself:",
 "type":"text"
 }
 ],
@@ -116,7 +116,7 @@
 {
 "fragments":[
 {
-"text":"A metacompiler does not necessarily have to be implemented in the metalanguage itself, but I suspect that it is common that they are. RLMeta is. From now on, I will assume that it is. A self-hosting metacompiler.",
+"text":"A metacompiler does not necessarily have to be implemented in the metalanguage itself, but I suspect that it is common that they are. RLMeta is. META II is. For the rest of this article, I will assume that a metacompiler is also self-hosting.",
 "type":"text"
 }
 ],
@@ -133,7 +133,7 @@
 {
 "fragments":[
 {
-"text":"In general, to modify a program written in a compiled language, its source code and a compiler is needed. Modifying the executable is a matter of modifying the source code and compiling it.",
+"text":"In general, to modify a program written in a compiled language, its source code and a compiler is needed. Modifying the program is a matter of modifying the source code and compiling it.",
 "type":"text"
 }
 ],
@@ -167,7 +167,7 @@
 {
 "fragments":[
 {
-"text":"In the case of a self-hosting metacompiler, the compiler and the executable is exactly the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
+"text":"In the case of a metacompiler, the compiler and the executable is exactly the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
 "type":"text"
 }
 ],
@@ -201,7 +201,7 @@
 {
 "fragments":[
 {
-"text":"At this point, the source code for the metacompiler is \"lost\" because there is no way to reproduce the metacompiler from the modified source code.",
+"text":"At this point, the metacompiler is needed to keep maintaining the new executable. Also, the source code for the metacompiler is \"lost\" because the metacompiler can not be reproduced from the modified source code.",
 "type":"text"
 }
 ],
@@ -223,7 +223,7 @@
 {
 "fragments":[
 {
-"text":"Because there is no source code, the metacompiler can not be modified either.",
+"text":"Because there is no source code, the original metacompiler can not be modified either. A binary must be kept around.",
 "type":"text"
 }
 ],
@@ -233,25 +233,15 @@
 {
 "fragments":[
 {
-"text":"When making changes to a self-hosting metacompiler, care has to be taken to ensure that, in the end, the executable is still a self-hosting metacompiler. This is a key difference from modifying a regular program. (When modifying a self-hosting compiler similar care has to be taken.)",
+"text":"When making changes to a metacompiler, care has to be taken to ensure that, in the end, the executable is still a metacompiler. This is a key difference from modifying a regular program. (Similar care has to be taken when modifying a self-hosting compiler.)",
 "type":"text"
 }
 ],
 "id":"c363ade479ef4a0cb62a455a36b802c5",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"Why is it important?",
-"type":"strong"
 }
 ],
-"id":"2296c07132c3481391d3914f01a2f59e",
-"type":"text"
-}
-],
-"title":"Modifying a self-hosting metacompiler"
+"title":"Modifying a metacompiler"
 },
 {
 "children":[],
@@ -319,7 +309,7 @@
 "type":"code"
 },
 {
-"text":" are produced by the RLMeta compiler. ",
+"text":" are produced by the RLMeta compiler. The variable ",
 "type":"text"
 },
 {
@@ -327,7 +317,7 @@
 "type":"code"
 },
 {
-"text":" is produced by converting the support library to a Python string. Here is the full ",
+"text":" is produced by converting the support library to a Python string. Here is the rest of the ",
 "type":"text"
 },
 {
@@ -379,7 +369,7 @@
 "type":"code"
 },
 {
-"text":" script checks if a given file is an RLMeta metacompiler. It does it by comparing the file to the file generated by the ",
+"text":" script checks if a given file is a metacompiler. It does so by comparing the file to the file generated by the ",
 "type":"text"
 },
 {
@@ -387,7 +377,7 @@
 "type":"code"
 },
 {
-"text":" script. If they are equal the file is an RLMeta metacompiler because it reproduced itself exactly. Otherwise the two files differ.",
+"text":" script. If they are equal the file is a metacompiler because it reproduced itself exactly. Otherwise the two files differ.",
 "type":"text"
 }
 ],
@@ -472,7 +462,7 @@
 {
 "fragments":[
 {
-"text":"The additional punctuation might not make the generated code more readable and it takes longer to generate. It might therefore be desirable to generate equivalents lambda expressions without the additional punctuation:",
+"text":"It might be desirable to instead generate equivalent lambda expressions without the additional punctuation because it is faster and does not make the code less readable:",
 "type":"text"
 }
 ],
@@ -694,7 +684,7 @@
 {
 "fragments":[
 {
-"text":"This time the difference is only formatting of the final file. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. Compile once again:",
+"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. Compile once again:",
 "type":"text"
 }
 ],
