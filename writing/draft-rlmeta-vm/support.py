@@ -103,9 +103,15 @@ class _Grammar(object):
                 return _SemanticAction(lambda: next_object)
         original_stream.fail(lambda: "list match failed")
 
+    def _create_label(self):
+        current = self._label_counter
+        self._label_counter += 1
+        return _SemanticAction(lambda: current)
+
     def run(self, rule_name, input_object):
         self._memo = _Memo()
         self._stream = _Stream.from_object(self._memo, input_object)
+        self._label_counter = 0
         result = self._match_rule(rule_name).eval()
         if isinstance(result, _Builder):
             return result.build_string()

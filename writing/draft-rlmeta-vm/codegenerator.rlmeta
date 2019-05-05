@@ -21,6 +21,7 @@ CodeGenerator {
   Star           = ast:x           -> { "(lambda: self._star(" x "))"                           }
   Not            = ast:x           -> { "(lambda: self._not(" x "))"                            }
   SemanticAction = ast:x           -> { "(lambda: _SemanticAction(lambda: " x "))"              }
+  Label          =                 -> { "(lambda: self._create_label())"                        }
   MatchRule      = .:x             -> { "(lambda: self._match_rule(" repr(x) "))"               }
   MatchRange     = .:x .:y         -> { "(lambda: self._match_range(" repr(x) ", " repr(y) "))" }
   MatchString    = .:x             -> { "(lambda: self._match_string(" repr(x) "))"             }
