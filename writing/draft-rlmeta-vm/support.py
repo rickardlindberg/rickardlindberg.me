@@ -3,6 +3,133 @@ try:
 except:
     from StringIO import StringIO
 
+def concat(lists):
+    result = []
+    for x in lists:
+        result.extend(x)
+    return result
+
+class _Program(object):
+
+    def __init__(self):
+        self._instructions = []
+        self._labels = {}
+        self._load()
+
+    def _label(self, name):
+        self._labels[name] = len(self._instructions)
+
+    def _instruction(self, name, arg1=None, arg2=None):
+        self._instructions.append((name, arg1, arg2))
+
+    def run(self, rule_name, input_object):
+        self._vars = []
+        self._stack = []
+        self._action = None
+        self._pc = self._labels[rule_name]
+        if isinstance(input_object, basestring):
+            self._input = input_object
+        else:
+            self._input = [input_object]
+        self._pos = 0
+        self._input_stack = []
+        import pprint; import sys; sys.stderr.write("program:\n{}\n".format(pprint.pformat(self._input)))
+        while True:
+            name, arg1, arg2 = self._instructions[self._pc]
+            #import sys; sys.stderr.write("{: <4} {: <15} {!r: <10} {!r}\n".format(self._pc, name, arg1, arg2))
+            next_pc = self._pc + 1
+            fail = False
+            if name == '':
+                pass
+            elif name == 'CALL':
+                self._stack.append(self._pc+1)
+                next_pc = self._labels[arg1]
+            elif name == 'RETURN':
+                if len(self._stack) == 0:
+                    import sys; sys.stderr.write("program {} ran to completion\n".format(self))
+                    return self._action
+                next_pc = self._stack.pop()
+            elif name == 'JUMP':
+                next_pc = self._labels[arg1]
+            elif name == 'BACKTRACK':
+                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._vars)))
+            elif name == 'COMMIT':
+                while not isinstance(self._stack[-1], tuple):
+                    self._stack.pop()
+                self._stack.pop()
+                next_pc = self._labels[arg1]
+            elif name == 'MATCH_CHARSEQ':
+                for char in arg1:
+                    if self._pos >= len(self._input) or self._input[self._pos] != char:
+                        fail = True
+                        break
+                    self._pos += 1
+                else:
+                    self._action = arg1
+            elif name == 'MATCH_RANGE':
+                if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):
+                    fail = True
+                else:
+                    self._action = self._input[self._pos]
+                    self._pos += 1
+            elif name == 'MATCH_ANY':
+                if self._pos >= len(self._input):
+                    fail = True
+                else:
+                    self._action = self._input[self._pos]
+                    self._pos += 1
+            elif name == 'BIND':
+                self._vars[-1][arg1] = self._action
+            elif name == 'ACTION':
+                self._action = (arg1, self._vars[-1])
+            elif name == 'FN':
+                args = []
+                for _ in range(arg2):
+                    args.insert(0, self._stack.pop())
+                self._stack.append(arg1(*args))
+            elif name == 'PUSH_SCOPE':
+                self._vars.append({})
+            elif name == 'POP_SCOPE':
+                self._vars.pop()
+            elif name == 'PUSH_INPUT':
+                if self._pos >= len(self._input) or not isinstance(self._input[self._pos], list):
+                    fail = True
+                else:
+                    self._input_stack.push((self._input, self._pos+1))
+                    self._input = self._input[self._pos]
+                    self._pos = 0
+            elif name == 'MATCH_CALL_RULE':
+                if self._pos >= len(self._input):
+                    fail = True
+                else:
+                    self._stack.append(self._pc+1)
+                    next_pc = self._labels[self._input[self._pos]]
+            elif name == 'POP_INPUT':
+                if self._pos != len(self._input):
+                    fail = True
+                else:
+                    self._input, self._pos = self._input_stack.pop()
+            elif name == 'LOAD':
+                pass
+            elif name == 'LIST_START':
+                self._vars[-1]["_list"] = []
+            elif name == 'LIST_APPEND':
+                self._vars[-1]["_list"].append(self._action)
+            elif name == 'LIST_END':
+                self._action = self._vars[-1]["_list"]
+            elif name == 'FAIL':
+                pass
+            else:
+                raise Exception("unknown command {}".format(name))
+            if name == 'FAIL' or fail:
+                while self._stack and not isinstance(self._stack[-1], tuple):
+                    self._stack.pop()
+                if not self._stack:
+                    raise Exception("totally failed")
+                (_, next_pc, self._pos, vars_len) = self._stack.pop()
+                self._vars = self._vars[:vars_len]
+            self._pc = next_pc
+
 class _Grammar(object):
 
     def _or(self, matchers):
