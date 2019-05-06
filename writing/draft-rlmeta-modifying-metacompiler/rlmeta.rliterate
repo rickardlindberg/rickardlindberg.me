@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"A general compiler translates source code into an executable:",
+"text":"A compiler translates source code into an executable:",
 "type":"text"
 }
 ],
@@ -30,7 +30,7 @@
 {
 "fragments":[
 {
-"text":"A C compiler translates source code written in C code into an executable:",
+"text":"A C compiler translates source code written in C into an executable:",
 "type":"text"
 }
 ],
@@ -106,21 +106,21 @@
 {
 "fragments":[
 {
-"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language not designed specifically to describe other languages. Such compiler is merely a self-hosting compiler.",
+"text":"A metacompiler does not necessarily have to be implemented in the metalanguage itself, but I suspect that it is common that it is. RLMeta is indeed implemented in its own language. This is also known as self-hosting. For the rest of this article, I will assume that a metacompiler is also self-hosting.",
 "type":"text"
 }
 ],
-"id":"68a70728549c41478d8110b0248c678c",
+"id":"bc611e48de17497caa0a20eaa7664dba",
 "type":"text"
 },
 {
 "fragments":[
 {
-"text":"A metacompiler does not necessarily have to be implemented in the metalanguage itself, but I suspect that it is common that they are. RLMeta is. META II is. For the rest of this article, I will assume that a metacompiler is also self-hosting.",
+"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language not designed specifically to describe other languages. Such compiler is merely a self-hosting compiler.",
 "type":"text"
 }
 ],
-"id":"bc611e48de17497caa0a20eaa7664dba",
+"id":"68a70728549c41478d8110b0248c678c",
 "type":"text"
 }
 ],
@@ -233,7 +233,7 @@
 {
 "fragments":[
 {
-"text":"When making changes to a metacompiler, care has to be taken to ensure that, in the end, the executable is still a metacompiler. This is a key difference from modifying a regular program. (Similar care has to be taken when modifying a self-hosting compiler.)",
+"text":"When making changes to a metacompiler, care has to be taken to ensure that, in the end, the executable is still a metacompiler. Otherwise the metacompiler can not be modified further. This is a key difference from modifying a regular program. (Similar care has to be taken when modifying a self-hosting compiler.)",
 "type":"text"
 }
 ],
@@ -258,7 +258,7 @@
 "type":"code"
 },
 {
-"text":" script. It takes one argument which is the path to the RLMeta compiler. The script uses that compiler to compile the source files and then assemble the output to a Python file which looks like this:",
+"text":" script. It takes one argument which is the path to the RLMeta compiler. The script uses that compiler to compile the source files and then assemble the output to a Python file that looks like this:",
 "type":"text"
 }
 ],
@@ -462,7 +462,7 @@
 {
 "fragments":[
 {
-"text":"It might be desirable to instead generate equivalent lambda expressions without the additional punctuation because it is faster and does not make the code less readable:",
+"text":"It might be desirable to instead generate equivalent lambda expressions without the additional punctuation because it is faster and does not make the generated code less readable:",
 "type":"text"
 }
 ],
@@ -530,7 +530,7 @@
 {
 "fragments":[
 {
-"text":"Compile the modified source:",
+"text":"Compiling the modified source gives a new executable:",
 "type":"text"
 }
 ],
@@ -615,11 +615,11 @@
 "type":"text"
 },
 {
-"text":"rlemta1.py",
+"text":"rlmeta1.py",
 "type":"code"
 },
 {
-"text":" should still be a compiler that recognizes the same source language so it can be used to compile once more:",
+"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source once more:",
 "type":"text"
 }
 ],
@@ -684,7 +684,7 @@
 {
 "fragments":[
 {
-"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. Compile once again:",
+"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. It can be used to compiler the modified source once more:",
 "type":"text"
 }
 ],
@@ -808,7 +808,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta2.py -> rlmeta2.py\n                 |\n                 V\n   source -> rlmeta.py -> rlmeta.py\n\n",
+"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta2.py -> rlmeta2.py\n",
 "type":"code"
 }
 ],
