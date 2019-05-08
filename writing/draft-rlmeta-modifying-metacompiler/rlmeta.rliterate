@@ -133,7 +133,7 @@
 {
 "fragments":[
 {
-"text":"In general, to modify a program written in a compiled language, its source code and a compiler is needed. Modifying the program is a matter of modifying the source code and compiling it.",
+"text":"In general, to modify a program written in a compiled language, its source code and a compiler is needed. Modifying the program is a matter of modifying the source code and compiling it:",
 "type":"text"
 }
 ],
@@ -167,7 +167,7 @@
 {
 "fragments":[
 {
-"text":"In the case of a metacompiler, the compiler and the executable is exactly the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
+"text":"In the case of a metacompiler, the compiler and the executable is the same. However, if the source code is changed, the executable might not be the metacompiler itself.",
 "type":"text"
 }
 ],
@@ -201,7 +201,7 @@
 {
 "fragments":[
 {
-"text":"At this point, the metacompiler is needed to keep maintaining the new executable. Also, the source code for the metacompiler is \"lost\" because the metacompiler can not be reproduced from the modified source code.",
+"text":"At this point, the metacompiler is needed to keep maintaining the new executable. But the source code for the metacompiler itself is \"lost\" because the metacompiler can not be reproduced from the modified source code.",
 "type":"text"
 }
 ],
@@ -223,7 +223,7 @@
 {
 "fragments":[
 {
-"text":"Because there is no source code, the original metacompiler can not be modified either. A binary must be kept around.",
+"text":"Because there is no source code, the original metacompiler can not be modified either.",
 "type":"text"
 }
 ],
@@ -462,7 +462,7 @@
 {
 "fragments":[
 {
-"text":"It might be desirable to instead generate equivalent lambda expressions without the additional punctuation because it is faster and does not make the generated code less readable:",
+"text":"It might be desirable to instead generate lambda expressions without the additional punctuation because it is faster and does not make the generated code less readable:",
 "type":"text"
 }
 ],
@@ -530,6 +530,16 @@
 {
 "fragments":[
 {
+"text":"The modified source code describes a compiler whose code generator generates lambda expressions without additional punctuation.",
+"type":"text"
+}
+],
+"id":"aef5814858194975a5121743ad87519b",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Compiling the modified source gives a new executable:",
 "type":"text"
 }
@@ -564,7 +574,7 @@
 {
 "fragments":[
 {
-"text":"With this change, ",
+"text":"With this modification, ",
 "type":"text"
 },
 {
@@ -572,7 +582,7 @@
 "type":"code"
 },
 {
-"text":" is no longer a metacompiler because the modified executable ",
+"text":" is no longer a metacompiler because ",
 "type":"text"
 },
 {
@@ -588,7 +598,7 @@
 "type":"code"
 },
 {
-"text":".",
+"text":":",
 "type":"text"
 }
 ],
@@ -619,7 +629,7 @@
 "type":"code"
 },
 {
-"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source once more:",
+"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source again giving yet another executable:",
 "type":"text"
 }
 ],
@@ -653,7 +663,19 @@
 {
 "fragments":[
 {
-"text":"With this compilation, ",
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" is not a metacompiler either because ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" differs from ",
 "type":"text"
 },
 {
@@ -661,11 +683,11 @@
 "type":"code"
 },
 {
-"text":" is not either a metacomiler:",
+"text":".",
 "type":"text"
 }
 ],
-"id":"0a7938f4e6424d3d89bcc7191eb9986e",
+"id":"b65b2d835c0448d7a63e36fef48de55a",
 "type":"text"
 },
 {
@@ -684,7 +706,15 @@
 {
 "fragments":[
 {
-"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. It can be used to compiler the modified source once more:",
+"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" can be used to compile the modified source again giving yet another executable:",
 "type":"text"
 }
 ],
@@ -718,7 +748,19 @@
 {
 "fragments":[
 {
-"text":"Now, ",
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" is now a metacompiler because ",
+"type":"text"
+},
+{
+"text":"rlmeta3.py",
+"type":"code"
+},
+{
+"text":" is the same as ",
 "type":"text"
 },
 {
@@ -726,7 +768,7 @@
 "type":"code"
 },
 {
-"text":" is a metacompiler:",
+"text":":",
 "type":"text"
 }
 ],
@@ -748,55 +790,11 @@
 {
 "fragments":[
 {
-"text":"The compiler that rlmeta2.py produces (",
-"type":"text"
-},
-{
-"text":"rlmeta3.py",
-"type":"code"
-},
-{
-"text":") is exactly the same as itself. ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":", and ",
-"type":"text"
-},
-{
-"text":"rlmeta3.py",
-"type":"code"
-},
-{
-"text":" can be discarded and ",
-"type":"text"
-},
-{
 "text":"rlmeta2.py",
 "type":"code"
 },
 {
-"text":" becomes the new ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":".",
+"text":" together with the modified source becomes the next version of the metacompiler. All other intermediate versions can be discarded.",
 "type":"text"
 }
 ],
@@ -818,7 +816,7 @@
 {
 "fragments":[
 {
-"text":"A new version of RLMeta was created that generates code slightly different and is still a metacompiler.",
+"text":"A new version of RLMeta has been created that generates code slightly different. Intermediate compilers had to be created to produce the new metacompiler.",
 "type":"text"
 }
 ],
