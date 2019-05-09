@@ -123,7 +123,7 @@ class _Program(object):
                     self._stack.pop()
                 if not self._stack:
                     raise Exception("totally failed")
-                x = (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()
+                (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()
                 self._vars = self._vars[:vars_len]
                 if len(self._input_stack) > input_len:
                     self._input = self._input_stack[input_len][0]
