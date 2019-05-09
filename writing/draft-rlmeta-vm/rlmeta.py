@@ -1,6 +1,6 @@
 import sys
 
-SUPPORT = 'try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\nclass _Program(object):\n\n    def __init__(self):\n        self._instructions = []\n        self._labels = {}\n        self._load()\n\n    def _label(self, name):\n        self._labels[name] = len(self._instructions)\n\n    def _instruction(self, name, arg1=None, arg2=None):\n        self._instructions.append((name, arg1, arg2))\n\n    def run(self, rule_name, input_object):\n        self._label_counter = 0\n        self._vars = []\n        self._stack = []\n        self._action = _NewSemanticAction(lambda env: None, None)\n        self._pc = self._labels[rule_name]\n        if isinstance(input_object, basestring):\n            self._input = input_object\n        else:\n            self._input = [input_object]\n        self._pos = 0\n        self._input_stack = []\n        while True:\n            name, arg1, arg2 = self._instructions[self._pc]\n            next_pc = self._pc + 1\n            fail = ""\n            if name == \'\':\n                pass\n            elif name == \'CALL\':\n                self._stack.append(self._pc+1)\n                next_pc = self._labels[arg1]\n            elif name == \'RETURN\':\n                if len(self._stack) == 0:\n                    result = self._action.eval()\n                    if isinstance(result, _Builder):\n                        return result.build_string()\n                    else:\n                        return result\n                next_pc = self._stack.pop()\n            elif name == \'BACKTRACK\':\n                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))\n            elif name == \'LABEL\':\n                self._action = _NewSemanticAction(lambda env: env, self._label_counter)\n                self._label_counter += 1\n            elif name == \'COMMIT\':\n                while not isinstance(self._stack[-1], tuple):\n                    self._stack.pop()\n                self._stack.pop()\n                next_pc = self._labels[arg1]\n            elif name == \'MATCH_CHARSEQ\':\n                for char in arg1:\n                    if self._pos >= len(self._input) or self._input[self._pos] != char:\n                        fail = "match charseq"\n                        break\n                    self._pos += 1\n                else:\n                    self._action = _NewSemanticAction(lambda env: env, arg1)\n            elif name == \'MATCH_RANGE\':\n                if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):\n                    fail = "match range"\n                else:\n                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])\n                    self._pos += 1\n            elif name == \'MATCH_ANY\':\n                if self._pos >= len(self._input):\n                    fail = "match any"\n                else:\n                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])\n                    self._pos += 1\n            elif name == \'MATCH_STRING\':\n                if self._pos >= len(self._input) or self._input[self._pos] != arg1:\n                    fail = "match string {}".format(arg1)\n                else:\n                    self._action = _NewSemanticAction(lambda env: env, arg1)\n                    self._pos += 1\n            elif name == \'BIND\':\n                self._vars[-1][arg1] = self._action\n            elif name == \'ACTION\':\n                self._action = _NewSemanticAction(arg1, self._vars[-1])\n            elif name == \'PUSH_SCOPE\':\n                self._vars.append({})\n            elif name == \'POP_SCOPE\':\n                self._vars.pop()\n            elif name == \'PUSH_INPUT\':\n                if self._pos >= len(self._input) or not isinstance(self._input[self._pos], list):\n                    fail = "push input"\n                else:\n                    self._input_stack.append((self._input, self._pos+1))\n                    self._input = self._input[self._pos]\n                    self._pos = 0\n            elif name == \'MATCH_CALL_RULE\':\n                if self._pos >= len(self._input):\n                    fail = "match call rule"\n                else:\n                    self._stack.append(self._pc+1)\n                    next_pc = self._labels[self._input[self._pos]]\n                    self._pos += 1\n            elif name == \'POP_INPUT\':\n                if self._pos != len(self._input):\n                    fail = "pop input"\n                else:\n                    self._input, self._pos = self._input_stack.pop()\n            elif name == \'LIST_START\':\n                self._vars.append([])\n            elif name == \'LIST_APPEND\':\n                self._vars[-1].append(self._action)\n            elif name == \'LIST_END\':\n                self._action = _NewSemanticAction(lambda env: [x.eval() for x in env], self._vars.pop())\n            elif name == \'FAIL\':\n                pass\n            else:\n                raise Exception("unknown command {}".format(name))\n            if name == \'FAIL\' or fail:\n                while self._stack and not isinstance(self._stack[-1], tuple):\n                    self._stack.pop()\n                if not self._stack:\n                    raise Exception("totally failed")\n                x = (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()\n                self._vars = self._vars[:vars_len]\n                if len(self._input_stack) > input_len:\n                    self._input = self._input_stack[input_len][0]\n                    self._input_stack = self._input_stack[:input_len]\n            self._pc = next_pc\n\nclass _Grammar(object):\n\n    def _or(self, matchers):\n        original_stream = self._stream\n        for matcher in matchers[:-1]:\n            try:\n                return matcher()\n            except _MatchError:\n                self._stream = original_stream\n        return matchers[-1]()\n\n    def _and(self, matchers):\n        result = None\n        for matcher in matchers:\n            result = matcher()\n        return result\n\n    def _star(self, matcher):\n        result = []\n        while True:\n            original_stream = self._stream\n            try:\n                result.append(matcher())\n            except _MatchError:\n                self._stream = original_stream\n                return _SemanticAction(lambda: [x.eval() for x in result])\n\n    def _not(self, matcher):\n        original_stream = self._stream\n        try:\n            matcher()\n        except _MatchError:\n            return _SemanticAction(lambda: None)\n        else:\n            original_stream.fail(lambda: "match found")\n        finally:\n            self._stream = original_stream\n\n    def _match_rule(self, rule_name):\n        key = (rule_name, self._stream.position())\n        if key in self._memo:\n            result, _, self._stream = self._memo[key]\n        else:\n            start = self._stream\n            result = getattr(self, "_rule_{}".format(rule_name))()\n            end = self._stream\n            self._memo[key] = (result, start, end)\n        return result\n\n    def _match_range(self, start, end):\n        next_objext = self._stream.peek()\n        if next_objext >= start and next_objext <= end:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: next_objext)\n        else:\n            self._stream.fail(\n                lambda: "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)\n            )\n\n    def _match_string(self, string):\n        next_object = self._stream.peek()\n        if next_object == string:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: string)\n        else:\n            self._stream.fail(\n                lambda: "expected {!r} but found {!r}".format(string, next_object)\n            )\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            next_object = self._stream.peek()\n            if next_object != char:\n                self._stream.fail(\n                    lambda: "expected {!r} but found {!r}".format(char, next_object)\n                )\n            self._stream = self._stream.advance()\n        return _SemanticAction(lambda: charseq)\n\n    def _match_any(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_call_rule(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return self._match_rule(str(next_object))\n\n    def _match_list(self, matcher):\n        original_stream = self._stream\n        next_object = self._stream.peek()\n        if isinstance(next_object, list):\n            self._stream = self._stream.nested(next_object)\n            matcher()\n            if self._stream.is_at_end():\n                self._stream = original_stream.advance()\n                return _SemanticAction(lambda: next_object)\n        original_stream.fail(lambda: "list match failed")\n\n    def _create_label(self):\n        current = self._label_counter\n        self._label_counter += 1\n        return _SemanticAction(lambda: current)\n\n    def run(self, rule_name, input_object):\n        self._memo = _Memo()\n        self._stream = _Stream.from_object(self._memo, input_object)\n        self._label_counter = 0\n        result = self._match_rule(rule_name).eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _NewSemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == "\\n"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write("    "*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n\nclass _Memo(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = _ObjectStream(self, [], -1)\n        self._latest_lazy_message = lambda: ""\n\n    def describe(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].position(), item[1].position()))\n        message = []\n        for item in items:\n            message.append("matched {: <20} {} -> {}\\n".format(*item))\n        message.append("\\n")\n        message.append("ERROR: {}: {}\\n".format(\n            self._latest_stream,\n            self._latest_lazy_message()\n        ))\n        return "".join(message)\n\n    def fail(self, stream, lazy_message):\n        if stream.position() >= self._latest_stream.position():\n            self._latest_stream = stream\n            self._latest_lazy_message = lazy_message\n        raise _MatchError(self)\n\nclass _MatchError(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def describe(self):\n        return self._memo.describe()\n\nclass _Stream(object):\n\n    @classmethod\n    def from_object(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return _CharStream(memo, input_object, 0)\n        else:\n            return _ObjectStream(memo, [input_object], 0)\n\n    def __init__(self, memo, objects, index):\n        self._memo = memo\n        self._objects = objects\n        self._index = index\n\n    def fail(self, lazy_message):\n        self._memo.fail(self, lazy_message)\n\n    def peek(self):\n        if self.is_at_end():\n            self.fail("not eof")\n        return self._objects[self._index]\n\n    def is_at_end(self):\n        return self._index >= len(self._objects)\n\nclass _CharStream(_Stream):\n\n    def __init__(self, memo, objects, index, line=1, column=1):\n        _Stream.__init__(self, memo, objects, index)\n        self._line = line\n        self._column = column\n\n    def position(self):\n        return self._index\n\n    def advance(self):\n        if self._objects[self._index] == "\\n":\n            line = self._line + 1\n            column = 1\n        else:\n            line = self._line\n            column = self._column + 1\n        return _CharStream(self._memo, self._objects, self._index+1, line, column)\n\n    def __str__(self):\n        return "L{:03d}:C{:03d}".format(self._line, self._column)\n\nclass _ObjectStream(_Stream):\n\n    def __init__(self, memo, objects, index, parent=()):\n        _Stream.__init__(self, memo, objects, index)\n        self._parent_position = parent\n        self._position = self._parent_position + (self._index,)\n\n    def position(self):\n        return self._position\n\n    def nested(self, input_object):\n        return _ObjectStream(self._memo, input_object, 0, self._position)\n\n    def advance(self):\n        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)\n\n    def __str__(self):\n        return "[{}]".format(", ".join(str(x) for x in self.position()))\n'
+SUPPORT = 'try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\nclass _Program(object):\n\n    def __init__(self):\n        self._instructions = []\n        self._labels = {}\n        self._load()\n\n    def _label(self, name):\n        self._labels[name] = len(self._instructions)\n\n    def _instruction(self, name, arg1=None, arg2=None):\n        self._instructions.append((name, arg1, arg2))\n\n    def run(self, rule_name, input_object):\n        self._label_counter = 0\n        self._vars = []\n        self._stack = []\n        self._action = _ConstantSemanticAction(None)\n        self._pc = self._labels[rule_name]\n        if isinstance(input_object, basestring):\n            self._input = input_object\n        else:\n            self._input = [input_object]\n        self._pos = 0\n        self._input_stack = []\n        while True:\n            name, arg1, arg2 = self._instructions[self._pc]\n            next_pc = self._pc + 1\n            fail = ""\n            if name == \'\':\n                pass\n            elif name == \'CALL\':\n                self._stack.append(self._pc+1)\n                next_pc = self._labels[arg1]\n            elif name == \'RETURN\':\n                if len(self._stack) == 0:\n                    result = self._action.eval()\n                    if isinstance(result, _Builder):\n                        return result.build_string()\n                    else:\n                        return result\n                next_pc = self._stack.pop()\n            elif name == \'BACKTRACK\':\n                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))\n            elif name == \'LABEL\':\n                self._action = _ConstantSemanticAction(self._label_counter)\n                self._label_counter += 1\n            elif name == \'COMMIT\':\n                while not isinstance(self._stack[-1], tuple):\n                    self._stack.pop()\n                self._stack.pop()\n                next_pc = self._labels[arg1]\n            elif name == \'MATCH_CHARSEQ\':\n                for char in arg1:\n                    if self._pos >= len(self._input) or self._input[self._pos] != char:\n                        fail = "match charseq"\n                        break\n                    self._pos += 1\n                else:\n                    self._action = _ConstantSemanticAction(arg1)\n            elif name == \'MATCH_RANGE\':\n                if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):\n                    fail = "match range"\n                else:\n                    self._action = _ConstantSemanticAction(self._input[self._pos])\n                    self._pos += 1\n            elif name == \'MATCH_ANY\':\n                if self._pos >= len(self._input):\n                    fail = "match any"\n                else:\n                    self._action = _ConstantSemanticAction(self._input[self._pos])\n                    self._pos += 1\n            elif name == \'MATCH_STRING\':\n                if self._pos >= len(self._input) or self._input[self._pos] != arg1:\n                    fail = "match string {}".format(arg1)\n                else:\n                    self._action = _ConstantSemanticAction(arg1)\n                    self._pos += 1\n            elif name == \'BIND\':\n                self._vars[-1][arg1] = self._action\n            elif name == \'ACTION\':\n                self._action = _SemanticAction(arg1, self._vars[-1])\n            elif name == \'PUSH_SCOPE\':\n                self._vars.append({})\n            elif name == \'POP_SCOPE\':\n                self._vars.pop()\n            elif name == \'PUSH_INPUT\':\n                if self._pos >= len(self._input) or not isinstance(self._input[self._pos], list):\n                    fail = "push input"\n                else:\n                    self._input_stack.append((self._input, self._pos+1))\n                    self._input = self._input[self._pos]\n                    self._pos = 0\n            elif name == \'MATCH_CALL_RULE\':\n                if self._pos >= len(self._input):\n                    fail = "match call rule"\n                else:\n                    self._stack.append(self._pc+1)\n                    next_pc = self._labels[self._input[self._pos]]\n                    self._pos += 1\n            elif name == \'POP_INPUT\':\n                if self._pos != len(self._input):\n                    fail = "pop input"\n                else:\n                    self._input, self._pos = self._input_stack.pop()\n            elif name == \'LIST_START\':\n                self._vars.append([])\n            elif name == \'LIST_APPEND\':\n                self._vars[-1].append(self._action)\n            elif name == \'LIST_END\':\n                self._action = _SemanticAction(lambda xs: [x.eval() for x in xs], self._vars.pop())\n            elif name == \'FAIL\':\n                pass\n            else:\n                raise Exception("unknown command {}".format(name))\n            if name == \'FAIL\' or fail:\n                while self._stack and not isinstance(self._stack[-1], tuple):\n                    self._stack.pop()\n                if not self._stack:\n                    raise Exception("totally failed")\n                x = (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()\n                self._vars = self._vars[:vars_len]\n                if len(self._input_stack) > input_len:\n                    self._input = self._input_stack[input_len][0]\n                    self._input_stack = self._input_stack[:input_len]\n            self._pc = next_pc\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == "\\n"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write("    "*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n'
 
 try:
     from cStringIO import StringIO
@@ -24,7 +24,7 @@ class _Program(object):
         self._label_counter = 0
         self._vars = []
         self._stack = []
-        self._action = _NewSemanticAction(lambda env: None, None)
+        self._action = _ConstantSemanticAction(None)
         self._pc = self._labels[rule_name]
         if isinstance(input_object, basestring):
             self._input = input_object
@@ -52,7 +52,7 @@ class _Program(object):
             elif name == 'BACKTRACK':
                 self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))
             elif name == 'LABEL':
-                self._action = _NewSemanticAction(lambda env: env, self._label_counter)
+                self._action = _ConstantSemanticAction(self._label_counter)
                 self._label_counter += 1
             elif name == 'COMMIT':
                 while not isinstance(self._stack[-1], tuple):
@@ -66,29 +66,29 @@ class _Program(object):
                         break
                     self._pos += 1
                 else:
-                    self._action = _NewSemanticAction(lambda env: env, arg1)
+                    self._action = _ConstantSemanticAction(arg1)
             elif name == 'MATCH_RANGE':
                 if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):
                     fail = "match range"
                 else:
-                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])
+                    self._action = _ConstantSemanticAction(self._input[self._pos])
                     self._pos += 1
             elif name == 'MATCH_ANY':
                 if self._pos >= len(self._input):
                     fail = "match any"
                 else:
-                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])
+                    self._action = _ConstantSemanticAction(self._input[self._pos])
                     self._pos += 1
             elif name == 'MATCH_STRING':
                 if self._pos >= len(self._input) or self._input[self._pos] != arg1:
                     fail = "match string {}".format(arg1)
                 else:
-                    self._action = _NewSemanticAction(lambda env: env, arg1)
+                    self._action = _ConstantSemanticAction(arg1)
                     self._pos += 1
             elif name == 'BIND':
                 self._vars[-1][arg1] = self._action
             elif name == 'ACTION':
-                self._action = _NewSemanticAction(arg1, self._vars[-1])
+                self._action = _SemanticAction(arg1, self._vars[-1])
             elif name == 'PUSH_SCOPE':
                 self._vars.append({})
             elif name == 'POP_SCOPE':
@@ -117,7 +117,7 @@ class _Program(object):
             elif name == 'LIST_APPEND':
                 self._vars[-1].append(self._action)
             elif name == 'LIST_END':
-                self._action = _NewSemanticAction(lambda env: [x.eval() for x in env], self._vars.pop())
+                self._action = _SemanticAction(lambda xs: [x.eval() for x in xs], self._vars.pop())
             elif name == 'FAIL':
                 pass
             else:
@@ -134,139 +134,7 @@ class _Program(object):
                     self._input_stack = self._input_stack[:input_len]
             self._pc = next_pc
 
-class _Grammar(object):
-
-    def _or(self, matchers):
-        original_stream = self._stream
-        for matcher in matchers[:-1]:
-            try:
-                return matcher()
-            except _MatchError:
-                self._stream = original_stream
-        return matchers[-1]()
-
-    def _and(self, matchers):
-        result = None
-        for matcher in matchers:
-            result = matcher()
-        return result
-
-    def _star(self, matcher):
-        result = []
-        while True:
-            original_stream = self._stream
-            try:
-                result.append(matcher())
-            except _MatchError:
-                self._stream = original_stream
-                return _SemanticAction(lambda: [x.eval() for x in result])
-
-    def _not(self, matcher):
-        original_stream = self._stream
-        try:
-            matcher()
-        except _MatchError:
-            return _SemanticAction(lambda: None)
-        else:
-            original_stream.fail(lambda: "match found")
-        finally:
-            self._stream = original_stream
-
-    def _match_rule(self, rule_name):
-        key = (rule_name, self._stream.position())
-        if key in self._memo:
-            result, _, self._stream = self._memo[key]
-        else:
-            start = self._stream
-            result = getattr(self, "_rule_{}".format(rule_name))()
-            end = self._stream
-            self._memo[key] = (result, start, end)
-        return result
-
-    def _match_range(self, start, end):
-        next_objext = self._stream.peek()
-        if next_objext >= start and next_objext <= end:
-            self._stream = self._stream.advance()
-            return _SemanticAction(lambda: next_objext)
-        else:
-            self._stream.fail(
-                lambda: "expected range {!r}-{!r} but found {!r}".format(start, end, next_objext)
-            )
-
-    def _match_string(self, string):
-        next_object = self._stream.peek()
-        if next_object == string:
-            self._stream = self._stream.advance()
-            return _SemanticAction(lambda: string)
-        else:
-            self._stream.fail(
-                lambda: "expected {!r} but found {!r}".format(string, next_object)
-            )
-
-    def _match_charseq(self, charseq):
-        for char in charseq:
-            next_object = self._stream.peek()
-            if next_object != char:
-                self._stream.fail(
-                    lambda: "expected {!r} but found {!r}".format(char, next_object)
-                )
-            self._stream = self._stream.advance()
-        return _SemanticAction(lambda: charseq)
-
-    def _match_any(self):
-        next_object = self._stream.peek()
-        self._stream = self._stream.advance()
-        return _SemanticAction(lambda: next_object)
-
-    def _match_call_rule(self):
-        next_object = self._stream.peek()
-        self._stream = self._stream.advance()
-        return self._match_rule(str(next_object))
-
-    def _match_list(self, matcher):
-        original_stream = self._stream
-        next_object = self._stream.peek()
-        if isinstance(next_object, list):
-            self._stream = self._stream.nested(next_object)
-            matcher()
-            if self._stream.is_at_end():
-                self._stream = original_stream.advance()
-                return _SemanticAction(lambda: next_object)
-        original_stream.fail(lambda: "list match failed")
-
-    def _create_label(self):
-        current = self._label_counter
-        self._label_counter += 1
-        return _SemanticAction(lambda: current)
-
-    def run(self, rule_name, input_object):
-        self._memo = _Memo()
-        self._stream = _Stream.from_object(self._memo, input_object)
-        self._label_counter = 0
-        result = self._match_rule(rule_name).eval()
-        if isinstance(result, _Builder):
-            return result.build_string()
-        else:
-            return result
-
-class _Vars(dict):
-
-    def bind(self, name, value):
-        self[name] = value
-        return value
-
-    def lookup(self, name):
-        return self[name]
-
 class _SemanticAction(object):
-
-    def __init__(self, fn):
-        self.fn = fn
-
-    def eval(self):
-        return self.fn()
-
-class _NewSemanticAction(object):
 
     def __init__(self, fn, env):
         self.fn = fn
@@ -274,6 +142,14 @@ class _NewSemanticAction(object):
 
     def eval(self):
         return self.fn(self.env)
+
+class _ConstantSemanticAction(object):
+
+    def __init__(self, value):
+        self.value = value
+
+    def eval(self):
+        return self.value
 
 class _Builder(object):
 
@@ -336,110 +212,6 @@ class _DedentBuilder(_Builder):
 
     def write(self, output):
         output.indentation -= 1
-
-class _Memo(dict):
-
-    def __init__(self):
-        dict.__init__(self)
-        self._latest_stream = _ObjectStream(self, [], -1)
-        self._latest_lazy_message = lambda: ""
-
-    def describe(self):
-        items = []
-        for (rule_name, _), (_, start, end) in self.items():
-            if end > start:
-                items.append((rule_name, start, end))
-        items.sort(key=lambda item: (item[2].position(), item[1].position()))
-        message = []
-        for item in items:
-            message.append("matched {: <20} {} -> {}\n".format(*item))
-        message.append("\n")
-        message.append("ERROR: {}: {}\n".format(
-            self._latest_stream,
-            self._latest_lazy_message()
-        ))
-        return "".join(message)
-
-    def fail(self, stream, lazy_message):
-        if stream.position() >= self._latest_stream.position():
-            self._latest_stream = stream
-            self._latest_lazy_message = lazy_message
-        raise _MatchError(self)
-
-class _MatchError(Exception):
-
-    def __init__(self, memo):
-        Exception.__init__(self)
-        self._memo = memo
-
-    def describe(self):
-        return self._memo.describe()
-
-class _Stream(object):
-
-    @classmethod
-    def from_object(cls, memo, input_object):
-        if isinstance(input_object, basestring):
-            return _CharStream(memo, input_object, 0)
-        else:
-            return _ObjectStream(memo, [input_object], 0)
-
-    def __init__(self, memo, objects, index):
-        self._memo = memo
-        self._objects = objects
-        self._index = index
-
-    def fail(self, lazy_message):
-        self._memo.fail(self, lazy_message)
-
-    def peek(self):
-        if self.is_at_end():
-            self.fail("not eof")
-        return self._objects[self._index]
-
-    def is_at_end(self):
-        return self._index >= len(self._objects)
-
-class _CharStream(_Stream):
-
-    def __init__(self, memo, objects, index, line=1, column=1):
-        _Stream.__init__(self, memo, objects, index)
-        self._line = line
-        self._column = column
-
-    def position(self):
-        return self._index
-
-    def advance(self):
-        if self._objects[self._index] == "\n":
-            line = self._line + 1
-            column = 1
-        else:
-            line = self._line
-            column = self._column + 1
-        return _CharStream(self._memo, self._objects, self._index+1, line, column)
-
-    def __str__(self):
-        return "L{:03d}:C{:03d}".format(self._line, self._column)
-
-class _ObjectStream(_Stream):
-
-    def __init__(self, memo, objects, index, parent=()):
-        _Stream.__init__(self, memo, objects, index)
-        self._parent_position = parent
-        self._position = self._parent_position + (self._index,)
-
-    def position(self):
-        return self._position
-
-    def nested(self, input_object):
-        return _ObjectStream(self._memo, input_object, 0, self._position)
-
-    def advance(self):
-        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)
-
-    def __str__(self):
-        return "[{}]".format(", ".join(str(x) for x in self.position()))
 
 class Parser(_Program):
     def _load(self):
