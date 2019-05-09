@@ -6,13 +6,13 @@ CodeGenerator {
                                       }
   MatchAny       =                 -> {    "self._instruction('MATCH_ANY')\n"                         }
   MatchCallRule  =                 -> {    "self._instruction('MATCH_CALL_RULE')\n"                   }
-  String         = .:x             -> {    "self._instruction('LOAD', " repr(x) ")\n"                 }
-  List           = astListItem*:xs -> { xs "self._instruction('FN', concat, " len(xs) ")\n"                       }
-  Builder        = ast*:xs         -> { xs "self._instruction('FN', _Builder.create, " len(xs) ")\n"     }
-  IndentBuilder  =                 -> {    "self._instruction('LOAD', _IndentBuilder())\n"            }
-  DedentBuilder  =                 -> {    "self._instruction('LOAD', _DedentBuilder())\n"            }
-  FnCall         = .:x ast*:ys     -> { ys "self._instruction('FN', " repr(x) ", " len(ys) ")\n"          }
-  VarLookup      = .:x             -> {    "self._instruction('LOOKUP', " repr(x) ")\n"               }
+  String         = .:x             -> {    repr(x)                 }
+  List           = astList:x       -> {    x                       }
+  Builder        = astItems:x      -> {    "_Builder.create([" x "])"     }
+  IndentBuilder  =                 -> {    "_IndentBuilder()"            }
+  DedentBuilder  =                 -> {    "_DedentBuilder()"            }
+  FnCall         = .:x astItems:y  -> {    x "(" y ")"          }
+  VarLookup      = .:x             -> {    "env[" repr(x) "].eval()"               }
   Or             =
     | ast:x !.                     -> x
     | ast:x Or:y #:a #:b           -> {    "self._instruction('BACKTRACK', " a ")\n"
@@ -48,12 +48,7 @@ CodeGenerator {
                                            "self._instruction('FAIL')\n"
                                            "self._label(" b ")\n"
                                       }
-  SemanticAction = ast:x #:a #:b   -> {    "self._instruction('ACTION', " a ")\n"
-                                           "self._instruction('JUMP', " b ")\n"
-                                           "self._label(" a ")\n"
-                                           x
-                                           "self._label(" b ")\n"
-                                      }
+  SemanticAction = ast:x           -> {    "self._instruction('ACTION', lambda env: " x ")\n" }
   Label          =                 -> {    "self._instruction('LABEL')\n"                        }
   MatchRule      = .:x             -> {    "self._instruction('CALL', " repr(x) ")\n"               }
   MatchRange     = .:x .:y         -> {    "self._instruction('MATCH_RANGE', " repr(x) ", " repr(y) ")\n" }
@@ -63,8 +58,16 @@ CodeGenerator {
                                            x
                                            "self._instruction('POP_INPUT')\n"
                                       }
-  ast            = [%:x]           -> x
+  ast            = [%:x]           -> { x }
+  astItems       =
+    | !.                           -> { "" }
+    | ast:x !.                     -> { x }
+    | ast:x astItems:y             -> { x ", " y }
+  astList        =
+    | !.                           -> { "[]" }
+    | astListItem:x !.             -> { x }
+    | astListItem:x astList:y      -> { x "+" y }
   astListItem    =
-    | ["ListItemSplice" ast:x]     -> { x                                               }
-    | ast:x                        -> { x "self._instruction('FN', list, 1)\n"      }
+    | ["ListItemSplice" ast:x]     -> { x              }
+    | ast:x                        -> { "[" x "]"      }
 }

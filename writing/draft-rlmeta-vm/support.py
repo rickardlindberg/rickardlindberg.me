@@ -3,12 +3,6 @@ try:
 except:
     from StringIO import StringIO
 
-def concat(lists):
-    result = []
-    for x in lists:
-        result.extend(x)
-    return result
-
 class _Program(object):
 
     def __init__(self):
@@ -23,9 +17,10 @@ class _Program(object):
         self._instructions.append((name, arg1, arg2))
 
     def run(self, rule_name, input_object):
+        self._label_counter = 0
         self._vars = []
         self._stack = []
-        self._action = None
+        self._action = _NewSemanticAction(lambda env: None, None)
         self._pc = self._labels[rule_name]
         if isinstance(input_object, basestring):
             self._input = input_object
@@ -33,12 +28,10 @@ class _Program(object):
             self._input = [input_object]
         self._pos = 0
         self._input_stack = []
-        import pprint; import sys; sys.stderr.write("program:\n{}\n".format(pprint.pformat(self._input)))
         while True:
             name, arg1, arg2 = self._instructions[self._pc]
-            #import sys; sys.stderr.write("{: <4} {: <15} {!r: <10} {!r}\n".format(self._pc, name, arg1, arg2))
             next_pc = self._pc + 1
-            fail = False
+            fail = ""
             if name == '':
                 pass
             elif name == 'CALL':
@@ -46,13 +39,17 @@ class _Program(object):
                 next_pc = self._labels[arg1]
             elif name == 'RETURN':
                 if len(self._stack) == 0:
-                    import sys; sys.stderr.write("program {} ran to completion\n".format(self))
-                    return self._action
+                    result = self._action.eval()
+                    if isinstance(result, _Builder):
+                        return result.build_string()
+                    else:
+                        return result
                 next_pc = self._stack.pop()
-            elif name == 'JUMP':
-                next_pc = self._labels[arg1]
             elif name == 'BACKTRACK':
-                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._vars)))
+                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))
+            elif name == 'LABEL':
+                self._action = _NewSemanticAction(lambda env: env, self._label_counter)
+                self._label_counter += 1
             elif name == 'COMMIT':
                 while not isinstance(self._stack[-1], tuple):
                     self._stack.pop()
@@ -61,62 +58,62 @@ class _Program(object):
             elif name == 'MATCH_CHARSEQ':
                 for char in arg1:
                     if self._pos >= len(self._input) or self._input[self._pos] != char:
-                        fail = True
+                        fail = "match charseq"
                         break
                     self._pos += 1
                 else:
-                    self._action = arg1
+                    self._action = _NewSemanticAction(lambda env: env, arg1)
             elif name == 'MATCH_RANGE':
                 if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):
-                    fail = True
+                    fail = "match range"
                 else:
-                    self._action = self._input[self._pos]
+                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])
                     self._pos += 1
             elif name == 'MATCH_ANY':
                 if self._pos >= len(self._input):
-                    fail = True
+                    fail = "match any"
                 else:
-                    self._action = self._input[self._pos]
+                    self._action = _NewSemanticAction(lambda env: env, self._input[self._pos])
+                    self._pos += 1
+            elif name == 'MATCH_STRING':
+                if self._pos >= len(self._input) or self._input[self._pos] != arg1:
+                    fail = "match string {}".format(arg1)
+                else:
+                    self._action = _NewSemanticAction(lambda env: env, arg1)
                     self._pos += 1
             elif name == 'BIND':
                 self._vars[-1][arg1] = self._action
             elif name == 'ACTION':
-                self._action = (arg1, self._vars[-1])
-            elif name == 'FN':
-                args = []
-                for _ in range(arg2):
-                    args.insert(0, self._stack.pop())
-                self._stack.append(arg1(*args))
+                self._action = _NewSemanticAction(arg1, self._vars[-1])
             elif name == 'PUSH_SCOPE':
                 self._vars.append({})
             elif name == 'POP_SCOPE':
                 self._vars.pop()
             elif name == 'PUSH_INPUT':
                 if self._pos >= len(self._input) or not isinstance(self._input[self._pos], list):
-                    fail = True
+                    fail = "push input"
                 else:
-                    self._input_stack.push((self._input, self._pos+1))
+                    self._input_stack.append((self._input, self._pos+1))
                     self._input = self._input[self._pos]
                     self._pos = 0
             elif name == 'MATCH_CALL_RULE':
                 if self._pos >= len(self._input):
-                    fail = True
+                    fail = "match call rule"
                 else:
                     self._stack.append(self._pc+1)
                     next_pc = self._labels[self._input[self._pos]]
+                    self._pos += 1
             elif name == 'POP_INPUT':
                 if self._pos != len(self._input):
-                    fail = True
+                    fail = "pop input"
                 else:
                     self._input, self._pos = self._input_stack.pop()
-            elif name == 'LOAD':
-                pass
             elif name == 'LIST_START':
-                self._vars[-1]["_list"] = []
+                self._vars.append([])
             elif name == 'LIST_APPEND':
-                self._vars[-1]["_list"].append(self._action)
+                self._vars[-1].append(self._action)
             elif name == 'LIST_END':
-                self._action = self._vars[-1]["_list"]
+                self._action = _NewSemanticAction(lambda env: [x.eval() for x in env], self._vars.pop())
             elif name == 'FAIL':
                 pass
             else:
@@ -126,8 +123,11 @@ class _Program(object):
                     self._stack.pop()
                 if not self._stack:
                     raise Exception("totally failed")
-                (_, next_pc, self._pos, vars_len) = self._stack.pop()
+                x = (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()
                 self._vars = self._vars[:vars_len]
+                if len(self._input_stack) > input_len:
+                    self._input = self._input_stack[input_len][0]
+                    self._input_stack = self._input_stack[:input_len]
             self._pc = next_pc
 
 class _Grammar(object):
@@ -261,6 +261,15 @@ class _SemanticAction(object):
 
     def eval(self):
         return self.fn()
+
+class _NewSemanticAction(object):
+
+    def __init__(self, fn, env):
+        self.fn = fn
+        self.env = env
+
+    def eval(self):
+        return self.fn(self.env)
 
 class _Builder(object):
 
