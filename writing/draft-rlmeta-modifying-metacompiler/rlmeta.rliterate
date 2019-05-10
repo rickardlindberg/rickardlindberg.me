@@ -377,7 +377,7 @@
 "type":"code"
 },
 {
-"text":" script. If they are equal the file is a metacompiler because it reproduced itself exactly. Otherwise the two files differ.",
+"text":" script. If they are equal, the file is a metacompiler because it reproduced itself exactly. Otherwise the two files differ.",
 "type":"text"
 }
 ],
@@ -423,7 +423,7 @@
 {
 "fragments":[
 {
-"text":"The following sections explain how to make changes to RLMeta that ensure that the modified version is still a metacompiler.",
+"text":"The following sections show examples of how to make changes to RLMeta that ensure that the modified version is still a metacompiler.",
 "type":"text"
 }
 ],
@@ -806,7 +806,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta2.py -> rlmeta2.py\n",
+"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta.py  -> rlmeta1.py\nmodified source -> rlmeta1.py -> rlmeta2.py\nmodified source -> rlmeta2.py -> rlmeta2.py\n",
 "type":"code"
 }
 ],
@@ -833,6 +833,32 @@
 {
 "fragments":[
 {
+"text":"Say an API change is required in the support library. Say ",
+"type":"text"
+},
+{
+"text":"_vars.bind",
+"type":"code"
+},
+{
+"text":" is to swap arguments. The code generator is changed. However the ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" still generates code that depends on \"old\" support library. The code generator goes with a specific version of support library. Taking the latest does not work in all situations.",
+"type":"text"
+}
+],
+"id":"81e2b3bcfa5d48ceb09498acbdb94e5d",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Explain how bug was fixed.",
 "type":"text"
 }
@@ -849,6 +875,58 @@
 ],
 "id":"0b7839572c9940dabc0e4afe5343ab9b",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The version of RLMeta in this article has a slightly different compile script. Specifically for producing the variable ",
+"type":"text"
+},
+{
+"text":"$support_py",
+"type":"code"
+},
+{
+"text":". The old:",
+"type":"text"
+}
+],
+"id":"7dae87609400493c87a72721cf297424",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"support_py=$(cat support.py)\n",
+"type":"code"
+}
+],
+"id":"f8b7a99762b94e3d9eb6514380294f79",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The new:",
+"type":"text"
+}
+],
+"id":"fc12edcf75974eb1bb5e0b7431e0b4b8",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"support_py=$(python \"$rlmeta_compiler\" --support)\n",
+"type":"code"
+}
+],
+"id":"e0f589f3b4534c1db7e683e1ce3f895e",
+"type":"code"
 }
 ],
 "title":"Modifying support library"
@@ -866,6 +944,148 @@
 ],
 "id":"73adf0902f014946b6a0b1812588ef8c",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Change ",
+"type":"text"
+},
+{
+"text":"->",
+"type":"code"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"=>",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"0e6aee95f12d497a9b442328f1625d1a",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"3dd5db4ace854e82931dfd6171c212be",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"6e5380ea659241caa4ed3887cc42f673",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Compile again:",
+"type":"text"
+}
+],
+"id":"19fe90ba72334446940c87e686283e51",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta1.py > crash\n",
+"type":"code"
+}
+],
+"id":"faad43f0a420409f945c54adeef57ff9",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta1.py -> crash\n",
+"type":"code"
+}
+],
+"id":"fe1af25f326b4996a0cc48c63a086c25",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"What happened? ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" expects the syntax to be ",
+"type":"text"
+},
+{
+"text":"=>",
+"type":"code"
+},
+{
+"text":", but the modified source is still using ",
+"type":"text"
+},
+{
+"text":"->",
+"type":"code"
+},
+{
+"text":". Modify again.",
+"type":"text"
+}
+],
+"id":"f769c4e316fa441d8880b645f239757d",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta1.py > crash\n",
+"type":"code"
+}
+],
+"id":"9f7f9aacfac645f2a67084c7ff963612",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source 2 -> rlmeta1.py -> rlmeta2.py\n",
+"type":"code"
+}
+],
+"id":"0e3a7c1754644293a95ad0deaca3b680",
+"type":"code"
 }
 ],
 "title":"Modifying grammar syntax"
@@ -917,6 +1137,23 @@
 }
 ],
 "title":"Code listings for RLMeta"
+},
+{
+"children":[],
+"id":"f3973a25c45346459fec7a58180c2dab",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"How many times is compilation needed? Max 2? But VM required 4?",
+"type":"text"
+}
+],
+"id":"af0923fee8f34769a93128bbda5645e6",
+"type":"text"
+}
+],
+"title":"TODO"
 }
 ],
 "id":"7b987f7cd685486da72bf77dcd0b3f29",
