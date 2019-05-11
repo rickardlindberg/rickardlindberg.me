@@ -191,7 +191,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> metacompiler -> ???\n",
+"text":"modified source -> metacompiler -> modified executable\n",
 "type":"code"
 }
 ],
@@ -201,7 +201,7 @@
 {
 "fragments":[
 {
-"text":"At this point, the metacompiler is needed to keep maintaining the new executable. But the source code for the metacompiler itself is \"lost\" because the metacompiler can not be reproduced from the modified source code.",
+"text":"At this point, the metacompiler is needed to keep maintaining the modified executable. But the source code for the metacompiler itself is \"lost\" because the metacompiler can not be reproduced from the modified source code.",
 "type":"text"
 }
 ],
@@ -683,7 +683,7 @@
 "type":"code"
 },
 {
-"text":".",
+"text":":",
 "type":"text"
 }
 ],
@@ -706,7 +706,7 @@
 {
 "fragments":[
 {
-"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen. ",
+"text":"This time the difference is only in formatting. The original change set out to remove additional punctuation in lambda expressions, and this change can now be seen in the generated code. ",
 "type":"text"
 },
 {
@@ -806,7 +806,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta.py  -> rlmeta1.py\nmodified source -> rlmeta1.py -> rlmeta2.py\nmodified source -> rlmeta2.py -> rlmeta2.py\n",
+"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta.py  -> rlmeta1.py\nmodified source -> rlmeta1.py -> rlmeta2.py\nmodified source -> rlmeta2.py ---|\n                       ^         |\n                       |---------|\n",
 "type":"code"
 }
 ],
@@ -825,6 +825,209 @@
 }
 ],
 "title":"Modifying code generator"
+},
+{
+"children":[],
+"id":"6bfdc073cd4041238b169caa671c9652",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"What happens if the source code is modified so that it no longer correctly describes a metacompiler?",
+"type":"text"
+}
+],
+"id":"2d9fa3e9ffe34f7cbaa940362be99669",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"| [\"Rule\" .:x ast:y] -> { \"\\ndef _rule_\" x \"(self):\\n\" > \"return \" y \"()\\n\" < }\n",
+"type":"code"
+}
+],
+"id":"7f71cf97492c4e44a86fdf80802f2ccd",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"| [\"Rule\" .:x ast:y] -> { \"\\ndef _rule_\" x \"(self):\\n\" > \"pass\\n\" < }\n",
+"type":"code"
+}
+],
+"id":"55cec80cf6cc4328b9d09901ae162c3c",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"f3665d39883144618b9fd91d2e8d885b",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"bb50c144771b4a49b331353daddd315d",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Not possible to create a metacompiler from a breaking change.",
+"type":"text"
+}
+],
+"id":"cd4b606dcb364ea6bc1d6055e7853ef6",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta.py\n1453,1455c1453\n<                                         'return ',\n<                                         _vars.lookup('y').eval(),\n<                                         '()\\n',\n---\n>                                         'pass\\n',\nrlmeta.py is not a metacompiler. See diff above.\n",
+"type":"code"
+}
+],
+"id":"5ec997969feb4b21835e3eb784f0cce4",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\n",
+"type":"code"
+}
+],
+"id":"8119eed6eccb4c9a8ec2b4d0feb12bb9",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta1.py -> rlmeta2.py\n",
+"type":"code"
+}
+],
+"id":"11fb37043b5e49418b2a49b9bc9a0e83",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta1.py\n287,325c287\n<         return (lambda:\n<             self._or([\n<                 (lambda:\n...\n<                 ),\n<             ])\n<         )()\n---\n>         pass\n...\nrlmeta1.py is not a metacompiler. See diff above.\n",
+"type":"code"
+}
+],
+"id":"c1a8e52615f94520bf9cf6451a1a42e0",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\n",
+"type":"code"
+}
+],
+"id":"2b5b939f818f49cc8ff3ad311756314c",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
+"type":"code"
+}
+],
+"id":"5b034cc6ecae4d8d904fad5997e03a0c",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\nTraceback (most recent call last):\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 375, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 368, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\nAttributeError: 'NoneType' object has no attribute 'eval'\n",
+"type":"code"
+}
+],
+"id":"c27fa5bb8f6e417eb59cf2a5fa135971",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"All rules now return ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":", which does not have an ",
+"type":"text"
+},
+{
+"text":"eval",
+"type":"code"
+},
+{
+"text":" attribute. Because the modified source does not correctly describe how code for rules should be generated, it does not describe a metacompiler, and it can never be used to create a metacompiler. The ",
+"type":"text"
+},
+{
+"text":"rlmeta3.py",
+"type":"code"
+},
+{
+"text":" is an empty file because ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" could not generate anything.",
+"type":"text"
+}
+],
+"id":"3b77b267e9da41cc840b80df19085462",
+"type":"text"
+}
+],
+"title":"Making a breaking change"
 },
 {
 "children":[],
@@ -1089,23 +1292,6 @@
 }
 ],
 "title":"Modifying grammar syntax"
-},
-{
-"children":[],
-"id":"6bfdc073cd4041238b169caa671c9652",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"Not possible to create a metacompiler from a breaking change.",
-"type":"text"
-}
-],
-"id":"cd4b606dcb364ea6bc1d6055e7853ef6",
-"type":"text"
-}
-],
-"title":"Making a breaking change"
 },
 {
 "children":[],
