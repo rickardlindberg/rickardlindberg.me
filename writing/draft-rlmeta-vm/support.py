@@ -22,6 +22,7 @@ class _Program(object):
         self._stack = []
         self._action = _ConstantSemanticAction(None)
         self._pc = self._labels[rule_name]
+        self._memo = {}
         if isinstance(input_object, basestring):
             self._input = input_object
         else:
@@ -35,8 +36,27 @@ class _Program(object):
             if name == '':
                 pass
             elif name == 'CALL':
-                self._stack.append(self._pc+1)
-                next_pc = self._labels[arg1]
+                key = (arg1, tuple([x[1] for x in self._input_stack]+[self._pos]))
+                if key in self._memo:
+                    self._action, self._input_stack = self._memo[key]
+                    self._input_stack = self._input_stack[:]
+                    self._input, self._pos = self._input_stack.pop()
+                else:
+                    self._stack.append((self._pc+1, key))
+                    next_pc = self._labels[arg1]
+            elif name == 'MATCH_CALL_RULE':
+                if self._pos >= len(self._input):
+                    fail = "match call rule"
+                else:
+                    key = (arg1, tuple([x[1] for x in self._input_stack]+[self._pos]))
+                    if key in self._memo:
+                        self._action, self._input_stack = self._memo[key]
+                        self._input_stack = self._input_stack[:]
+                        self._input, self._pos = self._input_stack.pop()
+                    else:
+                        self._stack.append((self._pc+1, key))
+                        next_pc = self._labels[self._input[self._pos]]
+                        self._pos += 1
             elif name == 'RETURN':
                 if len(self._stack) == 0:
                     result = self._action.eval()
@@ -44,14 +64,15 @@ class _Program(object):
                         return result.build_string()
                     else:
                         return result
-                next_pc = self._stack.pop()
+                next_pc, key = self._stack.pop()
+                self._memo[key] = (self._action, self._input_stack[:]+[(self._input, self._pos)])
             elif name == 'BACKTRACK':
                 self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))
             elif name == 'LABEL':
                 self._action = _ConstantSemanticAction(self._label_counter)
                 self._label_counter += 1
             elif name == 'COMMIT':
-                while not isinstance(self._stack[-1], tuple):
+                while len(self._stack[-1]) == 2:
                     self._stack.pop()
                 self._stack.pop()
                 next_pc = self._labels[arg1]
@@ -96,13 +117,6 @@ class _Program(object):
                     self._input_stack.append((self._input, self._pos+1))
                     self._input = self._input[self._pos]
                     self._pos = 0
-            elif name == 'MATCH_CALL_RULE':
-                if self._pos >= len(self._input):
-                    fail = "match call rule"
-                else:
-                    self._stack.append(self._pc+1)
-                    next_pc = self._labels[self._input[self._pos]]
-                    self._pos += 1
             elif name == 'POP_INPUT':
                 if self._pos != len(self._input):
                     fail = "pop input"
@@ -119,7 +133,7 @@ class _Program(object):
             else:
                 raise Exception("unknown command {}".format(name))
             if name == 'FAIL' or fail:
-                while self._stack and not isinstance(self._stack[-1], tuple):
+                while self._stack and len(self._stack[-1]) == 2:
                     self._stack.pop()
                 if not self._stack:
                     raise Exception("totally failed")
