@@ -33,9 +33,7 @@ class _Program(object):
             name, arg1, arg2 = self._instructions[self._pc]
             next_pc = self._pc + 1
             fail = ""
-            if name == '':
-                pass
-            elif name == 'CALL':
+            if name == 'CALL':
                 key = (arg1, tuple([x[1] for x in self._input_stack]+[self._pos]))
                 if key in self._memo:
                     self._action, self._input_stack = self._memo[key]
@@ -128,9 +126,7 @@ class _Program(object):
                 self._vars[-1].append(self._action)
             elif name == 'LIST_END':
                 self._action = _SemanticAction(lambda xs: [x.eval() for x in xs], self._vars.pop())
-            elif name == 'FAIL':
-                pass
-            else:
+            elif name != 'FAIL':
                 raise Exception("unknown command {}".format(name))
             if name == 'FAIL' or fail:
                 while self._stack and len(self._stack[-1]) == 2:
