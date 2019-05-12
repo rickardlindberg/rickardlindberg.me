@@ -48,14 +48,15 @@ class _Program(object):
                 if pos >= len(stream):
                     fail = "match call rule"
                 else:
-                    key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
+                    fn_name = stream[pos]
+                    key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))
                     if key in memo:
                         last_action, stream_stack = memo[key]
                         stream_stack = stream_stack[:]
                         stream, pos = stream_stack.pop()
                     else:
                         stack.append((pc, key))
-                        pc = labels[stream[pos]]
+                        pc = labels[fn_name]
                         pos += 1
             elif name == 'RETURN':
                 if len(stack) == 0:
