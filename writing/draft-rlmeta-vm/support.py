@@ -33,7 +33,7 @@ class _Program(object):
         stream_stack = []
         while True:
             name, arg1, arg2 = instructions[pc]
-            next_pc = pc + 1
+            pc += 1
             fail = ""
             if name == 'CALL':
                 key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
@@ -42,8 +42,8 @@ class _Program(object):
                     stream_stack = stream_stack[:]
                     stream, pos = stream_stack.pop()
                 else:
-                    stack.append((pc+1, key))
-                    next_pc = labels[arg1]
+                    stack.append((pc, key))
+                    pc = labels[arg1]
             elif name == 'MATCH_CALL_RULE':
                 if pos >= len(stream):
                     fail = "match call rule"
@@ -54,8 +54,8 @@ class _Program(object):
                         stream_stack = stream_stack[:]
                         stream, pos = stream_stack.pop()
                     else:
-                        stack.append((pc+1, key))
-                        next_pc = labels[stream[pos]]
+                        stack.append((pc, key))
+                        pc = labels[stream[pos]]
                         pos += 1
             elif name == 'RETURN':
                 if len(stack) == 0:
@@ -64,7 +64,7 @@ class _Program(object):
                         return result.build_string()
                     else:
                         return result
-                next_pc, key = stack.pop()
+                pc, key = stack.pop()
                 memo[key] = (last_action, stream_stack[:]+[(stream, pos)])
             elif name == 'BACKTRACK':
                 stack.append((labels[arg1], pos, len(stream_stack), len(envs)))
@@ -75,7 +75,7 @@ class _Program(object):
                 while len(stack[-1]) == 2:
                     stack.pop()
                 stack.pop()
-                next_pc = labels[arg1]
+                pc = labels[arg1]
             elif name == 'MATCH_CHARSEQ':
                 for char in arg1:
                     if pos >= len(stream) or stream[pos] != char:
@@ -135,12 +135,11 @@ class _Program(object):
                     stack.pop()
                 if not stack:
                     raise Exception("totally failed")
-                (next_pc, pos, input_len, vars_len) = stack.pop()
+                (pc, pos, input_len, vars_len) = stack.pop()
                 envs = envs[:vars_len]
                 if len(stream_stack) > input_len:
                     stream = stream_stack[input_len][0]
                     stream_stack = stream_stack[:input_len]
-            pc = next_pc
 
 class _SemanticAction(object):
 
