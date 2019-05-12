@@ -119,7 +119,7 @@ class _Program(object):
                     stream = stream[pos]
                     pos = 0
             elif name == 'POP_INPUT':
-                if pos != len(stream):
+                if pos < len(stream):
                     fail = "pop input"
                 else:
                     stream, pos = stream_stack.pop()
@@ -136,11 +136,11 @@ class _Program(object):
                     stack.pop()
                 if not stack:
                     raise Exception("totally failed")
-                (pc, pos, input_len, vars_len) = stack.pop()
-                envs = envs[:vars_len]
-                if len(stream_stack) > input_len:
-                    stream = stream_stack[input_len][0]
-                    stream_stack = stream_stack[:input_len]
+                (pc, pos, stream_stack_len, envs_len) = stack.pop()
+                if len(stream_stack) > stream_stack_len:
+                    stream = stream_stack[stream_stack_len][0]
+                stream_stack = stream_stack[:stream_stack_len]
+                envs = envs[:envs_len]
 
 class _SemanticAction(object):
 
