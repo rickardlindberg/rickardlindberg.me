@@ -56,9 +56,9 @@ CodeGenerator {
                                       }
   ast            = [%:x]           -> { x }
   astItems       =
-    | ast:x !.                     -> { x }
-    | ast:x astItems:y             -> { x ", " y }
-    |                              -> { "" }
+    | ast:x astItem*:xs            -> { x xs }
+    |                              -> {}
+  astItem        = ast:x           -> { ", " x }
   astList        = astListItem*:xs -> { "(" xs "[])"                                            }
   astListItem    =
     | ["ListItemSplice" ast:x]     -> {     x  "+"                                              }
