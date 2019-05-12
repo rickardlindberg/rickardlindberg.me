@@ -17,128 +17,130 @@ class _Program(object):
         self._instructions.append((name, arg1, arg2))
 
     def run(self, rule_name, input_object):
-        self._label_counter = 0
-        self._vars = []
-        self._stack = []
-        self._action = _ConstantSemanticAction(None)
-        self._pc = self._labels[rule_name]
-        self._memo = {}
+        instructions = self._instructions
+        labels = self._labels
+        label_counter = 0
+        envs = []
+        stack = []
+        last_action = _ConstantSemanticAction(None)
+        pc = labels[rule_name]
+        memo = {}
         if isinstance(input_object, basestring):
-            self._input = input_object
+            stream = input_object
         else:
-            self._input = [input_object]
-        self._pos = 0
-        self._input_stack = []
+            stream = [input_object]
+        pos = 0
+        stream_stack = []
         while True:
-            name, arg1, arg2 = self._instructions[self._pc]
-            next_pc = self._pc + 1
+            name, arg1, arg2 = instructions[pc]
+            next_pc = pc + 1
             fail = ""
             if name == 'CALL':
-                key = (arg1, tuple([x[1] for x in self._input_stack]+[self._pos]))
-                if key in self._memo:
-                    self._action, self._input_stack = self._memo[key]
-                    self._input_stack = self._input_stack[:]
-                    self._input, self._pos = self._input_stack.pop()
+                key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
+                if key in memo:
+                    last_action, stream_stack = memo[key]
+                    stream_stack = stream_stack[:]
+                    stream, pos = stream_stack.pop()
                 else:
-                    self._stack.append((self._pc+1, key))
-                    next_pc = self._labels[arg1]
+                    stack.append((pc+1, key))
+                    next_pc = labels[arg1]
             elif name == 'MATCH_CALL_RULE':
-                if self._pos >= len(self._input):
+                if pos >= len(stream):
                     fail = "match call rule"
                 else:
-                    key = (arg1, tuple([x[1] for x in self._input_stack]+[self._pos]))
-                    if key in self._memo:
-                        self._action, self._input_stack = self._memo[key]
-                        self._input_stack = self._input_stack[:]
-                        self._input, self._pos = self._input_stack.pop()
+                    key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
+                    if key in memo:
+                        last_action, stream_stack = memo[key]
+                        stream_stack = stream_stack[:]
+                        stream, pos = stream_stack.pop()
                     else:
-                        self._stack.append((self._pc+1, key))
-                        next_pc = self._labels[self._input[self._pos]]
-                        self._pos += 1
+                        stack.append((pc+1, key))
+                        next_pc = labels[stream[pos]]
+                        pos += 1
             elif name == 'RETURN':
-                if len(self._stack) == 0:
-                    result = self._action.eval()
+                if len(stack) == 0:
+                    result = last_action.eval()
                     if isinstance(result, _Builder):
                         return result.build_string()
                     else:
                         return result
-                next_pc, key = self._stack.pop()
-                self._memo[key] = (self._action, self._input_stack[:]+[(self._input, self._pos)])
+                next_pc, key = stack.pop()
+                memo[key] = (last_action, stream_stack[:]+[(stream, pos)])
             elif name == 'BACKTRACK':
-                self._stack.append(("backtrack", self._labels[arg1], self._pos, len(self._input_stack), len(self._vars)))
+                stack.append((labels[arg1], pos, len(stream_stack), len(envs)))
             elif name == 'LABEL':
-                self._action = _ConstantSemanticAction(self._label_counter)
-                self._label_counter += 1
+                last_action = _ConstantSemanticAction(label_counter)
+                label_counter += 1
             elif name == 'COMMIT':
-                while len(self._stack[-1]) == 2:
-                    self._stack.pop()
-                self._stack.pop()
-                next_pc = self._labels[arg1]
+                while len(stack[-1]) == 2:
+                    stack.pop()
+                stack.pop()
+                next_pc = labels[arg1]
             elif name == 'MATCH_CHARSEQ':
                 for char in arg1:
-                    if self._pos >= len(self._input) or self._input[self._pos] != char:
+                    if pos >= len(stream) or stream[pos] != char:
                         fail = "match charseq"
                         break
-                    self._pos += 1
+                    pos += 1
                 else:
-                    self._action = _ConstantSemanticAction(arg1)
+                    last_action = _ConstantSemanticAction(arg1)
             elif name == 'MATCH_RANGE':
-                if self._pos >= len(self._input) or not (arg1 <= self._input[self._pos] <= arg2):
+                if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
                     fail = "match range"
                 else:
-                    self._action = _ConstantSemanticAction(self._input[self._pos])
-                    self._pos += 1
+                    last_action = _ConstantSemanticAction(stream[pos])
+                    pos += 1
             elif name == 'MATCH_ANY':
-                if self._pos >= len(self._input):
+                if pos >= len(stream):
                     fail = "match any"
                 else:
-                    self._action = _ConstantSemanticAction(self._input[self._pos])
-                    self._pos += 1
+                    last_action = _ConstantSemanticAction(stream[pos])
+                    pos += 1
             elif name == 'MATCH_STRING':
-                if self._pos >= len(self._input) or self._input[self._pos] != arg1:
+                if pos >= len(stream) or stream[pos] != arg1:
                     fail = "match string {}".format(arg1)
                 else:
-                    self._action = _ConstantSemanticAction(arg1)
-                    self._pos += 1
+                    last_action = _ConstantSemanticAction(arg1)
+                    pos += 1
             elif name == 'BIND':
-                self._vars[-1][arg1] = self._action
+                envs[-1][arg1] = last_action
             elif name == 'ACTION':
-                self._action = _SemanticAction(arg1, self._vars[-1])
+                last_action = _SemanticAction(arg1, envs[-1])
             elif name == 'PUSH_SCOPE':
-                self._vars.append({})
+                envs.append({})
             elif name == 'POP_SCOPE':
-                self._vars.pop()
+                envs.pop()
             elif name == 'PUSH_INPUT':
-                if self._pos >= len(self._input) or not isinstance(self._input[self._pos], list):
+                if pos >= len(stream) or not isinstance(stream[pos], list):
                     fail = "push input"
                 else:
-                    self._input_stack.append((self._input, self._pos+1))
-                    self._input = self._input[self._pos]
-                    self._pos = 0
+                    stream_stack.append((stream, pos+1))
+                    stream = stream[pos]
+                    pos = 0
             elif name == 'POP_INPUT':
-                if self._pos != len(self._input):
+                if pos != len(stream):
                     fail = "pop input"
                 else:
-                    self._input, self._pos = self._input_stack.pop()
+                    stream, pos = stream_stack.pop()
             elif name == 'LIST_START':
-                self._vars.append([])
+                envs.append([])
             elif name == 'LIST_APPEND':
-                self._vars[-1].append(self._action)
+                envs[-1].append(last_action)
             elif name == 'LIST_END':
-                self._action = _SemanticAction(lambda xs: [x.eval() for x in xs], self._vars.pop())
+                last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())
             elif name != 'FAIL':
                 raise Exception("unknown command {}".format(name))
             if name == 'FAIL' or fail:
-                while self._stack and len(self._stack[-1]) == 2:
-                    self._stack.pop()
-                if not self._stack:
+                while stack and len(stack[-1]) == 2:
+                    stack.pop()
+                if not stack:
                     raise Exception("totally failed")
-                (_, next_pc, self._pos, input_len, vars_len) = self._stack.pop()
-                self._vars = self._vars[:vars_len]
-                if len(self._input_stack) > input_len:
-                    self._input = self._input_stack[input_len][0]
-                    self._input_stack = self._input_stack[:input_len]
-            self._pc = next_pc
+                (next_pc, pos, input_len, vars_len) = stack.pop()
+                envs = envs[:vars_len]
+                if len(stream_stack) > input_len:
+                    stream = stream_stack[input_len][0]
+                    stream_stack = stream_stack[:input_len]
+            pc = next_pc
 
 class _SemanticAction(object):
 
