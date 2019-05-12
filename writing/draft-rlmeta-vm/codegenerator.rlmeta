@@ -27,10 +27,7 @@ CodeGenerator {
                                            x
                                            "self._instruction('POP_SCOPE')\n"
                                       }
-  And            =
-    | ast:x !.                     -> x
-    | ast:x And:y                  -> { x y }
-    |                              -> { }
+  And            = ast*
   Bind           = .:x ast:y       -> { y  "self._instruction('BIND', " repr(x) ")\n"           }
   Star           = ast:x #:a #:b   -> {    "self._instruction('LIST_START')\n"
                                            "self._label(" a ")\n"
