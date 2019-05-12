@@ -530,7 +530,7 @@
 {
 "fragments":[
 {
-"text":"The modified source code describes a compiler whose code generator generates lambda expressions without additional punctuation.",
+"text":"The modified source describes a compiler whose code generator generates lambda expressions without additional punctuation.",
 "type":"text"
 }
 ],
@@ -629,7 +629,7 @@
 "type":"code"
 },
 {
-"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source again giving yet another executable:",
+"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source again, giving yet another executable:",
 "type":"text"
 }
 ],
@@ -714,7 +714,7 @@
 "type":"code"
 },
 {
-"text":" can be used to compile the modified source again giving yet another executable:",
+"text":" can be used to compile the modified source again, giving yet another executable:",
 "type":"text"
 }
 ],
@@ -824,7 +824,7 @@
 "type":"text"
 }
 ],
-"title":"Modifying code generator"
+"title":"Modifying formatting of gnerated code"
 },
 {
 "children":[],
@@ -833,11 +833,21 @@
 {
 "fragments":[
 {
-"text":"What happens if the source code is modified so that it no longer correctly describes a metacompiler?",
+"text":"What happens if the source is modified so that it no longer correctly describes a metacompiler?",
 "type":"text"
 }
 ],
 "id":"2d9fa3e9ffe34f7cbaa940362be99669",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Changing the generated code for rules from",
+"type":"text"
+}
+],
+"id":"24958db22ee14ffdb45c2ec86165dd6e",
 "type":"text"
 },
 {
@@ -854,6 +864,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"to",
+"type":"text"
+}
+],
+"id":"09c0ad337870423ab7a8cbabcef78427",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -865,6 +885,26 @@
 "id":"55cec80cf6cc4328b9d09901ae162c3c",
 "language":"rlmeta",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"is a dummy change that should break things.",
+"type":"text"
+}
+],
+"id":"a515f10cf88d4a61904a5480f52b3063",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Compiling the modified source gives a new executable:",
+"type":"text"
+}
+],
+"id":"9260da643b3a4d5799dc6bb3bcf003c6",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -893,11 +933,35 @@
 {
 "fragments":[
 {
-"text":"Not possible to create a metacompiler from a breaking change.",
+"text":"With this modification, ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" is no longer a metacompiler because ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" differs from ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":":",
 "type":"text"
 }
 ],
-"id":"cd4b606dcb364ea6bc1d6055e7853ef6",
+"id":"2f540e07b4c749229f627b63238d1ba0",
 "type":"text"
 },
 {
@@ -911,6 +975,24 @@
 ],
 "id":"5ec997969feb4b21835e3eb784f0cce4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The difference is that the code for generating rules is different. ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source again, giving yet another executable:",
+"type":"text"
+}
+],
+"id":"a75dd09d6bf845d1afaaf499352b66ef",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -937,6 +1019,36 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" is not a metacompiler either because ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" differs from ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"ad5aa41a2c9f482bb0a239d6baa89d7b",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -949,40 +1061,22 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\n",
-"type":"code"
-}
-],
-"id":"2b5b939f818f49cc8ff3ad311756314c",
+"text":"This time the difference is that code for generating rules is different. Instead of actually generating code, a ",
+"type":"text"
+},
+{
+"text":"pass",
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
-"type":"code"
+"text":" is generated, that effectively does nothing.",
+"type":"text"
 }
 ],
-"id":"5b034cc6ecae4d8d904fad5997e03a0c",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\nTraceback (most recent call last):\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 375, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 368, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"/home/rick/rickardlindberg.me/writing/draft-rlmeta-modifying-metacompiler/rlmeta2.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\nAttributeError: 'NoneType' object has no attribute 'eval'\n",
-"type":"code"
-}
-],
-"id":"c27fa5bb8f6e417eb59cf2a5fa135971",
-"type":"code"
+"id":"35209b9fa844490297f33170b19ab023",
+"type":"text"
 },
 {
 "fragments":[
@@ -1024,6 +1118,78 @@
 }
 ],
 "id":"3b77b267e9da41cc840b80df19085462",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Not possible to create a metacompiler from a breaking change.",
+"type":"text"
+}
+],
+"id":"cd4b606dcb364ea6bc1d6055e7853ef6",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\n",
+"type":"code"
+}
+],
+"id":"2b5b939f818f49cc8ff3ad311756314c",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
+"type":"code"
+}
+],
+"id":"5b034cc6ecae4d8d904fad5997e03a0c",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\nTraceback (most recent call last):\n  File \"rlmeta2.py\", line 375, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta2.py\", line 368, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta2.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\nAttributeError: 'NoneType' object has no attribute 'eval'\n",
+"type":"code"
+}
+],
+"id":"c27fa5bb8f6e417eb59cf2a5fa135971",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Because the modified source does not correctly describe how code for rules should be generated, it does not describe a metacompiler, and it can never be used to create a metacompiler. The ",
+"type":"text"
+},
+{
+"text":"rlmeta3.py",
+"type":"code"
+},
+{
+"text":" is an empty file because ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" could not generate anything.",
+"type":"text"
+}
+],
+"id":"df2c1bcf67b44373894a46e7f61a2a6b",
 "type":"text"
 }
 ],
@@ -1132,7 +1298,7 @@
 "type":"code"
 }
 ],
-"title":"Modifying support library"
+"title":"Modifying API of support library"
 },
 {
 "children":[],
