@@ -5,17 +5,6 @@ except:
 
 class _Program(object):
 
-    def __init__(self):
-        self._instructions = []
-        self._labels = {}
-        self._load()
-
-    def _label(self, name):
-        self._labels[name] = len(self._instructions)
-
-    def _instruction(self, name, arg1=None, arg2=None):
-        self._instructions.append((name, arg1, arg2))
-
     def run(self, rule_name, input_object):
         instructions = self._instructions
         labels = self._labels

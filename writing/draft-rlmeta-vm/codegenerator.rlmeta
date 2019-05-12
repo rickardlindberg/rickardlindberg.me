@@ -1,66 +1,75 @@
 CodeGenerator {
-  Grammar        = .:x ast*:ys     -> {    "class " x "(_Program):\n" > "def _load(self):\n" > ys < < }
-  Rule           = .:x ast:y       -> {    "self._label(" repr(x) ")\n"
-                                           y
-                                           "self._instruction('RETURN')\n"
-                                      }
-  MatchAny       =                 -> {    "self._instruction('MATCH_ANY')\n"                         }
-  MatchCallRule  =                 -> {    "self._instruction('MATCH_CALL_RULE')\n"                   }
-  String         = .:x             -> {    repr(x)                 }
-  List           = astList:x       -> {    x                       }
-  Builder        = astItems:x      -> {    "_Builder.create([" x "])"     }
-  IndentBuilder  =                 -> {    "_IndentBuilder()"            }
-  DedentBuilder  =                 -> {    "_DedentBuilder()"            }
-  FnCall         = .:x astItems:y  -> {    x "(" y ")"          }
-  VarLookup      = .:x             -> {    "env[" repr(x) "].eval()"               }
+  Grammar        = .:x ast*:ys     -> { "class " x "(_Program):\n" >
+                                          "def __init__(self):\n" >
+                                            "instructions = []\n"
+                                            "labels = {}\n"
+                                            "def I(name, x=None, y=None):\n" >
+                                              "instructions.append((name, x, y))\n"
+                                            <
+                                            "def LABEL(name):\n" >
+                                              "labels[name] = len(instructions)\n"
+                                            <
+                                            ys
+                                            "self._instructions = instructions\n"
+                                            "self._labels = labels\n"
+                                          <
+                                        <                                              }
+  Rule           = .:x ast:y       -> { "LABEL(" repr(x) ")\n"
+                                        y
+                                        "I('RETURN')\n"                                }
+  MatchAny       =                 -> { "I('MATCH_ANY')\n"                             }
+  MatchCallRule  =                 -> { "I('MATCH_CALL_RULE')\n"                       }
+  String         = .:x             -> { repr(x)                                        }
+  List           = astList:x       -> { x                                              }
+  Builder        = astItems:x      -> { "_Builder.create([" x "])"                     }
+  IndentBuilder  =                 -> { "_IndentBuilder()"                             }
+  DedentBuilder  =                 -> { "_DedentBuilder()"                             }
+  FnCall         = .:x astItems:y  -> { x "(" y ")"                                    }
+  VarLookup      = .:x             -> { "env[" repr(x) "].eval()"                      }
   Or             =
     | ast:x !.                     -> x
-    | ast:x Or:y #:a #:b           -> {    "self._instruction('BACKTRACK', " a ")\n"
-                                           x
-                                           "self._instruction('COMMIT', " b ")\n"
-                                           "self._label(" a ")\n"
-                                           y
-                                           "self._label(" b ")\n"
-                                      }
-  Scope          = ast:x           -> {    "self._instruction('PUSH_SCOPE')\n"
-                                           x
-                                           "self._instruction('POP_SCOPE')\n"
-                                      }
+    | ast:x Or:y #:a #:b           -> { "I('BACKTRACK', " a ")\n"
+                                        x
+                                        "I('COMMIT', " b ")\n"
+                                        "LABEL(" a ")\n"
+                                        y
+                                        "LABEL(" b ")\n"                               }
+  Scope          = ast:x           -> { "I('PUSH_SCOPE')\n"
+                                        x
+                                        "I('POP_SCOPE')\n"                             }
   And            = ast*
-  Bind           = .:x ast:y       -> { y  "self._instruction('BIND', " repr(x) ")\n"           }
-  Star           = ast:x #:a #:b   -> {    "self._instruction('LIST_START')\n"
-                                           "self._label(" a ")\n"
-                                           "self._instruction('BACKTRACK', " b ")\n"
-                                           x
-                                           "self._instruction('LIST_APPEND')\n"
-                                           "self._instruction('COMMIT', " a ")\n"
-                                           "self._label(" b ")\n"
-                                           "self._instruction('LIST_END')\n"
-                                      }
-  Not            = ast:x #:a #:b   -> {    "self._instruction('BACKTRACK', " b ")\n"
-                                           x
-                                           "self._instruction('COMMIT', " a ")\n"
-                                           "self._label(" a ")\n"
-                                           "self._instruction('FAIL')\n"
-                                           "self._label(" b ")\n"
-                                      }
-  SemanticAction = ast:x           -> {    "self._instruction('ACTION', lambda env: " x ")\n" }
-  Label          =                 -> {    "self._instruction('LABEL')\n"                        }
-  MatchRule      = .:x             -> {    "self._instruction('CALL', " repr(x) ")\n"               }
-  MatchRange     = .:x .:y         -> {    "self._instruction('MATCH_RANGE', " repr(x) ", " repr(y) ")\n" }
-  MatchString    = .:x             -> {    "self._instruction('MATCH_STRING', " repr(x) ")\n"             }
-  MatchCharseq   = .:x             -> {    "self._instruction('MATCH_CHARSEQ', " repr(x) ")\n"            }
-  MatchList      = ast:x           -> {    "self._instruction('PUSH_INPUT')\n"
-                                           x
-                                           "self._instruction('POP_INPUT')\n"
-                                      }
-  ast            = [%:x]           -> { x }
+  Bind           = .:x ast:y       -> { y
+                                        "I('BIND', " repr(x) ")\n"                     }
+  Star           = ast:x #:a #:b   -> { "I('LIST_START')\n"
+                                        "LABEL(" a ")\n"
+                                        "I('BACKTRACK', " b ")\n"
+                                        x
+                                        "I('LIST_APPEND')\n"
+                                        "I('COMMIT', " a ")\n"
+                                        "LABEL(" b ")\n"
+                                        "I('LIST_END')\n"                              }
+  Not            = ast:x #:a #:b   -> { "I('BACKTRACK', " b ")\n"
+                                        x
+                                        "I('COMMIT', " a ")\n"
+                                        "LABEL(" a ")\n"
+                                        "I('FAIL')\n"
+                                        "LABEL(" b ")\n"                               }
+  SemanticAction = ast:x           -> { "I('ACTION', lambda env: " x ")\n"             }
+  Label          =                 -> { "I('LABEL')\n"                                 }
+  MatchRule      = .:x             -> { "I('CALL', " repr(x) ")\n"                     }
+  MatchRange     = .:x .:y         -> { "I('MATCH_RANGE', " repr(x) ", " repr(y) ")\n" }
+  MatchString    = .:x             -> { "I('MATCH_STRING', " repr(x) ")\n"             }
+  MatchCharseq   = .:x             -> { "I('MATCH_CHARSEQ', " repr(x) ")\n"            }
+  MatchList      = ast:x           -> { "I('PUSH_INPUT')\n"
+                                        x
+                                        "I('POP_INPUT')\n"                             }
+  ast            = [%:x]           -> { x                                              }
   astItems       =
-    | ast:x astItem*:xs            -> { x xs }
-    |                              -> {}
-  astItem        = ast:x           -> { ", " x }
-  astList        = astListItem*:xs -> { "(" xs "[])"                                            }
+    | ast:x astItem*:xs            -> { x xs                                           }
+    |                              -> {                                                }
+  astItem        = ast:x           -> { ", " x                                         }
+  astList        = astListItem*:xs -> { "(" xs "[])"                                   }
   astListItem    =
-    | ["ListItemSplice" ast:x]     -> {     x  "+"                                              }
-    | ast:x                        -> { "[" x "]+"                                              }
+    | ["ListItemSplice" ast:x]     -> {     x  "+"                                     }
+    | ast:x                        -> { "[" x "]+"                                     }
 }
