@@ -62,8 +62,6 @@ class _Program(object):
                 last_action = _ConstantSemanticAction(label_counter)
                 label_counter += 1
             elif name == 'COMMIT':
-                while len(stack[-1]) == 2:
-                    stack.pop()
                 stack.pop()
                 pc = labels[arg1]
             elif name == 'MATCH_CHARSEQ':
