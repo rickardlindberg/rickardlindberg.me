@@ -20,7 +20,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> compiler -> executable\n",
+"text":"source code -> compiler -> executable\n",
 "type":"code"
 }
 ],
@@ -42,7 +42,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"C source -> C compiler -> executable\n",
+"text":"C source code -> C compiler -> executable\n",
 "type":"code"
 }
 ],
@@ -64,7 +64,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"metalanguage source -> metacompiler -> executable\n",
+"text":"metalanguage source code -> metacompiler -> executable\n",
 "type":"code"
 }
 ],
@@ -96,7 +96,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> metacompiler -----\n               ^           |\n               |           |\n               -------------\n",
+"text":"source code -> metacompiler -----\n                    ^           |\n                    |           |\n                    -------------\n",
 "type":"code"
 }
 ],
@@ -145,7 +145,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> compiler -> executable\n",
+"text":"source code -> compiler -> executable\n",
 "type":"code"
 }
 ],
@@ -157,7 +157,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> compiler -> modified executable\n",
+"text":"modified source code -> compiler -> modified executable\n",
 "type":"code"
 }
 ],
@@ -179,7 +179,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"source -> metacompiler -----\n               ^           |\n               |           |\n               -------------\n",
+"text":"source code -> metacompiler -----\n                    ^           |\n                    |           |\n                    -------------\n",
 "type":"code"
 }
 ],
@@ -191,7 +191,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> metacompiler -> modified executable\n",
+"text":"modified source code -> metacompiler -> modified executable\n",
 "type":"code"
 }
 ],
@@ -530,7 +530,7 @@
 {
 "fragments":[
 {
-"text":"The modified source code describes a compiler whose code generator generates lambda expressions without additional punctuation.",
+"text":"The modified source code describes a metacompiler whose code generator generates lambda expressions without additional punctuation.",
 "type":"text"
 }
 ],
@@ -564,7 +564,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
 "type":"code"
 }
 ],
@@ -645,7 +645,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta1.py -> rlmeta2.py\n",
+"text":"modified source code -> rlmeta1.py -> rlmeta2.py\n",
 "type":"code"
 }
 ],
@@ -722,7 +722,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
+"text":"modified source code -> rlmeta2.py -> rlmeta3.py\n",
 "type":"code"
 }
 ],
@@ -782,7 +782,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"   source -> rlmeta.py -> rlmeta.py\n                 |\n                 V\nmodified source -> rlmeta.py  -> rlmeta1.py\nmodified source -> rlmeta1.py -> rlmeta2.py\nmodified source -> rlmeta2.py ---|\n                       ^         |\n                       |---------|\n",
+"text":"   source code -> rlmeta.py -> rlmeta.py\n                     |\n                     V\nmodified source code -> rlmeta.py  -> rlmeta1.py\nmodified source code -> rlmeta1.py -> rlmeta2.py\nmodified source code -> rlmeta2.py ---|\n                            ^         |\n                            |---------|\n",
 "type":"code"
 }
 ],
@@ -899,7 +899,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
 "type":"code"
 }
 ],
@@ -979,7 +979,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta1.py -> rlmeta2.py\n",
+"text":"modified source code -> rlmeta1.py -> rlmeta2.py\n",
 "type":"code"
 }
 ],
@@ -1063,7 +1063,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
+"text":"modified source code -> rlmeta2.py -> rlmeta3.py\n",
 "type":"code"
 }
 ],
@@ -1166,6 +1166,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Compiling the modified source code gives a new executable:",
+"type":"text"
+}
+],
+"id":"f02b96b6acbc4c339c2621e69750a592",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1182,7 +1192,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
 "type":"code"
 }
 ],
@@ -1254,7 +1264,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta1.py -> rlmeta2.py\n",
+"text":"modified source code -> rlmeta1.py -> rlmeta2.py\n",
 "type":"code"
 }
 ],
@@ -1344,7 +1354,7 @@
 {
 "fragments":[
 {
-"text":"These compilation steps was not possible in the first version of RLMeta because it generated the support library incorrectly.",
+"text":"These compilation steps were not possible in the first version of RLMeta because it generated the support library incorrectly.",
 "type":"text"
 }
 ],
@@ -1428,8 +1438,24 @@
 },
 {
 "children":[],
+"id":"1a090bb868154140a167968d8b4b15dc",
+"paragraphs":[],
+"title":"Adding a new escape character"
+},
+{
+"children":[],
 "id":"d54bbeda3d9846bca027f2c2995775a5",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The example modifications I've shown so far can be compiled with the following script:",
+"type":"text"
+}
+],
+"id":"4e9ba6518d91445b8c170031e52bbe42",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -1443,16 +1469,6 @@
 ],
 "id":"bd7e31bf3ea7456f975830d5bf2ef05c",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"Only changes from original RLMeta is the compile.sh script. Full sources on github.",
-"type":"text"
-}
-],
-"id":"969153820b334d91838f46bfd52388ad",
-"type":"text"
 },
 {
 "fragments":[
@@ -1635,6 +1651,23 @@
 }
 ],
 "title":"Modifying grammar syntax"
+},
+{
+"children":[],
+"id":"60cb5d0ff4ca4d94920bfe635ffd2142",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Only changes from original RLMeta is the compile.sh script. Full sources on github.",
+"type":"text"
+}
+],
+"id":"969153820b334d91838f46bfd52388ad",
+"type":"text"
+}
+],
+"title":"Code listing"
 }
 ],
 "id":"7b987f7cd685486da72bf77dcd0b3f29",
