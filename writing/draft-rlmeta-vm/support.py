@@ -107,6 +107,8 @@ class _Program(object):
                         stack.append((pc, key))
                         pc = labels[fn_name]
                         pos += 1
+            elif name == 'FAIL':
+                fail = "fail"
             elif name == 'LABEL':
                 last_action = _ConstantSemanticAction(label_counter)
                 label_counter += 1
@@ -116,9 +118,9 @@ class _Program(object):
                 else:
                     last_action = _ConstantSemanticAction(arg1)
                     pos += 1
-            elif name != 'FAIL':
+            else:
                 raise Exception("unknown command {}".format(name))
-            if name == 'FAIL' or fail:
+            if fail:
                 while stack and len(stack[-1]) == 2:
                     stack.pop()
                 if not stack:
