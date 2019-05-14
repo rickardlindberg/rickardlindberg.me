@@ -17,15 +17,6 @@ CodeGenerator {
   Rule           = py:x ast:y      -> { "LABEL(" x ")\n"
                                         y
                                         "I('RETURN')\n"                    }
-  MatchAny       =                 -> { "I('MATCH_ANY')\n"                 }
-  MatchCallRule  =                 -> { "I('MATCH_CALL_RULE')\n"           }
-  String         = py
-  List           = astList:x       -> { x                                  }
-  Builder        = astItems:x      -> { "_Builder.create([" x "])"         }
-  IndentBuilder  =                 -> { "_IndentBuilder()"                 }
-  DedentBuilder  =                 -> { "_DedentBuilder()"                 }
-  FnCall         = .:x astItems:y  -> { x "(" y ")"                        }
-  VarLookup      = py:x            -> { "env[" x "].eval()"                }
   Or             =
     | ast:x !.                     -> x
     | ast:x Or:y #:a #:b           -> { "I('BACKTRACK', " a ")\n"
@@ -54,15 +45,24 @@ CodeGenerator {
                                         "LABEL(" a ")\n"
                                         "I('FAIL')\n"
                                         "LABEL(" b ")\n"                   }
-  SemanticAction = ast:x           -> { "I('ACTION', lambda env: " x ")\n" }
+  MatchCallRule  =                 -> { "I('MATCH_CALL_RULE')\n"           }
   Label          =                 -> { "I('LABEL')\n"                     }
+  SemanticAction = ast:x           -> { "I('ACTION', lambda env: " x ")\n" }
   MatchRule      = py:x            -> { "I('CALL', " x ")\n"               }
   MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n" }
   MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"       }
   MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"      }
+  MatchAny       =                 -> { "I('MATCH_ANY')\n"                 }
   MatchList      = ast:x           -> { "I('PUSH_INPUT')\n"
                                         x
                                         "I('POP_INPUT')\n"                 }
+  String         = py
+  List           = astList:x       -> { x                                  }
+  Builder        = astItems:x      -> { "_Builder.create([" x "])"         }
+  IndentBuilder  =                 -> { "_IndentBuilder()"                 }
+  DedentBuilder  =                 -> { "_DedentBuilder()"                 }
+  FnCall         = .:x astItems:y  -> { x "(" y ")"                        }
+  VarLookup      = py:x            -> { "env[" x "].eval()"                }
   ast            = [%:x]           -> { x                                  }
   astItems       =
     | ast:x astItem*:xs            -> { x xs                               }
