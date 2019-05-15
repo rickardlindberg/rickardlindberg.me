@@ -819,7 +819,7 @@
 {
 "fragments":[
 {
-"text":"Changing the generated code for rules from",
+"text":"Changing the source code that generates code for rules from",
 "type":"text"
 }
 ],
@@ -947,7 +947,7 @@
 {
 "fragments":[
 {
-"text":"The difference is that the code for generating code for rules is different. ",
+"text":"The difference is that the code for generating code for rules is different. (Instead of generating any code, nothing is done.) ",
 "type":"text"
 },
 {
@@ -1031,7 +1031,7 @@
 "type":"code"
 },
 {
-"text":", instead of actually doing something. What happens if the modified source code is compiled with ",
+"text":", instead of actually doing matching and returning results. What happens if the modified source code is compiled with ",
 "type":"text"
 },
 {
@@ -1122,19 +1122,11 @@
 "type":"text"
 },
 {
-"text":"_vars.bind",
+"text":"bind",
 "type":"code"
 },
 {
-"text":" is to swap arguments. The code generator is changed. However the ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":" still generates code that depends on \"old\" support library. The code generator goes with a specific version of support library. Taking the latest does not work in all situations.",
+"text":" needs to swap arguments. This is achieved by changing the code generator and the support library:",
 "type":"text"
 }
 ],
@@ -1240,7 +1232,23 @@
 {
 "fragments":[
 {
-"text":"The difference is ...",
+"text":"The difference is that the support library string (used to generate the support library) is different, and code for generating ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" calls is different. ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" can be used to compile the modified source code again, giving yet another executable:",
 "type":"text"
 }
 ],
@@ -1286,7 +1294,31 @@
 {
 "fragments":[
 {
-"text":"The difference is ...",
+"text":"This time the difference is that the generated support library has swapped arguments for ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" and the generated code for ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" calls also has swapped arguments. ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" can be used to compile the modified source code again, giving yet another executable:",
 "type":"text"
 }
 ],
@@ -1354,7 +1386,23 @@
 {
 "fragments":[
 {
-"text":"These compilation steps were not possible in the first version of RLMeta because it generated the support library incorrectly.",
+"text":"These compilation steps were not possible in the first version of RLMeta because the ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script generated the support library incorrectly. All RLMeta compilers have two versions of the support library: the one that it generates (stored in the ",
+"type":"text"
+},
+{
+"text":"SUPPORT",
+"type":"code"
+},
+{
+"text":" variable), and the one it uses itself. If the compiler is a metacompiler, the two versions are the same, but in intermediate compilers they might differ.",
 "type":"text"
 }
 ],
@@ -1364,39 +1412,11 @@
 {
 "fragments":[
 {
-"text":"Explain how bug was fixed.",
+"text":"The first version of RLMeta generated the support library like this:",
 "type":"text"
 }
 ],
-"id":"a7b2bbcc13a9431da6c2fbb3c4c9ec41",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Generate support.py from compiler instead of from source.",
-"type":"text"
-}
-],
-"id":"0b7839572c9940dabc0e4afe5343ab9b",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The version of RLMeta in this article has a slightly different compile script. Specifically for producing the variable ",
-"type":"text"
-},
-{
-"text":"$support_py",
-"type":"code"
-},
-{
-"text":". The old:",
-"type":"text"
-}
-],
-"id":"7dae87609400493c87a72721cf297424",
+"id":"fc12edcf75974eb1bb5e0b7431e0b4b8",
 "type":"text"
 },
 {
@@ -1414,11 +1434,97 @@
 {
 "fragments":[
 {
-"text":"The new:",
+"text":"It meant that the intermediate compilers always had the latest support library, and the two versions of the support library was always the same.",
 "type":"text"
 }
 ],
-"id":"fc12edcf75974eb1bb5e0b7431e0b4b8",
+"id":"4bd2d41f68e34d9ead322984c6f73b85",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This would lead to ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" having swapped arguments in the support library, but the generated code would still expect not swapped arguments:",
+"type":"text"
+}
+],
+"id":"44b91f05b5dd439e97b33a542f968957",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n1814a1815,1816\n>                                         _vars.lookup('y').eval(),\n>                                         '(), ',\n1818,1820c1820\n<                                         ', ',\n<                                         _vars.lookup('y').eval(),\n<                                         '())',\n---\n>                                         ')',\nrlmeta.py is not a metacompiler. See diff above.\n",
+"type":"code"
+}
+],
+"id":"59957f0f204246cda36163580870ef35",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This in turn would lead to ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" not functioning because it ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" calls have not stored the name as key, but the value:",
+"type":"text"
+}
+],
+"id":"bb42b23bb0c040f19816c8c95a375d61",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\nTraceback (most recent call last):\n  File \"rlmeta1.py\", line 2217, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta1.py\", line 2210, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta1.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\n  File \"rlmeta1.py\", line 123, in eval\n    return self.fn()\n  File \"rlmeta1.py\", line 318, in <lambda>\n    _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))\n  File \"rlmeta1.py\", line 115, in lookup\n    return self[name]\nKeyError: 'x'\n",
+"type":"code"
+}
+],
+"id":"36da070b1d2040db93af5dbd91577b3b",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The version of RLMeta in this article fixes the generation of the ",
+"type":"text"
+},
+{
+"text":"$support_py",
+"type":"code"
+},
+{
+"text":" variable like this:",
+"type":"text"
+}
+],
+"id":"7dae87609400493c87a72721cf297424",
 "type":"text"
 },
 {
@@ -1432,6 +1538,16 @@
 ],
 "id":"e0f589f3b4534c1db7e683e1ce3f895e",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This ensures that the code that the code generator generates is always in sync with the support library.",
+"type":"text"
+}
+],
+"id":"a87cb57a477a4bda9aa234c18f099c01",
+"type":"text"
 }
 ],
 "title":"Modifying API of support library"
@@ -1439,7 +1555,214 @@
 {
 "children":[],
 "id":"1a090bb868154140a167968d8b4b15dc",
-"paragraphs":[],
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The escape codes possible in strings are the following:",
+"type":"text"
+}
+],
+"id":"3752ee44334c4b9ca7c1e832a365f0cd",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"escape = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n       | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n",
+"type":"code"
+}
+],
+"id":"0eace03d4c884263974ce5f845ba40b0",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Say it's desirable to add ",
+"type":"text"
+},
+{
+"text":"\\t",
+"type":"code"
+},
+{
+"text":" as well? How can it be done?",
+"type":"text"
+}
+],
+"id":"a83410c86d4e46fe921a76839ca1a893",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"First attempt might look like this:",
+"type":"text"
+}
+],
+"id":"ed6d78514ecc475aa4832a05757e2bda",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"escape = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n       | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n       | 't'  -> \"\\t\"\n",
+"type":"code"
+}
+],
+"id":"2be56ecfeac141b9a7b384a93c14da43",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This will not work. A python string containing tab character",
+"type":"text"
+}
+],
+"id":"37b617ec3777458191709d45ecea7d4f",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    (lambda _vars:\n        (lambda:\n            self._and([\n                (lambda:\n                    self._match_charseq('t')\n                ),\n                (lambda:\n                    _SemanticAction(lambda: '\\\\t')\n                ),\n            ])\n        )()\n    )(_Vars())\n),\n",
+"type":"code"
+}
+],
+"id":"f7ebd9cde05041dd83e33bacd3bf2d0e",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The semantic action does not return a tab character but rather two characters ",
+"type":"text"
+},
+{
+"text":"\\",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"t",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"82a056abf1f845d598e345933ec326bc",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"How can semantic action be made to return a tab character?",
+"type":"text"
+}
+],
+"id":"dcee60e01ed44ef09ae428ddc4cf4bab",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"escape = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n       | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n       | 't'  -> tab()\n",
+"type":"code"
+}
+],
+"id":"0b15794e6edb40e2ab156155efcfb688",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"tab = lambda: \"\\t\"\n",
+"type":"code"
+}
+],
+"id":"1a43c1ff6fb84e989507f0368235a00d",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    (lambda _vars:\n        (lambda:\n            self._and([\n                (lambda:\n                    self._match_charseq('t')\n                ),\n                (lambda:\n                    _SemanticAction(lambda: tab(\n                    ))\n                ),\n            ])\n        )()\n    )(_Vars())\n),\n",
+"type":"code"
+}
+],
+"id":"883aa54c39e94bbaad439939e0f5b926",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Semantic action now generates tab characters correctly. Now the new escape can be used and the ",
+"type":"text"
+},
+{
+"text":"tab",
+"type":"code"
+},
+{
+"text":" function discarded.",
+"type":"text"
+}
+],
+"id":"82b9d4a3e9304a40ae632a7de85d6554",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"escape = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n       | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n       | 't'  -> \"\\t\"\n",
+"type":"code"
+}
+],
+"id":"920ef986ed9541cc8ac8fa3f42df4199",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(lambda:\n    (lambda _vars:\n        (lambda:\n            self._and([\n                (lambda:\n                    self._match_charseq('t')\n                ),\n                (lambda:\n                    _SemanticAction(lambda: '\\t')\n                ),\n            ])\n        )()\n    )(_Vars())\n),\n",
+"type":"code"
+}
+],
+"id":"1d5d027c53e04af8953e529629cdaf8e",
+"language":"python",
+"type":"code"
+}
+],
 "title":"Adding a new escape character"
 },
 {
