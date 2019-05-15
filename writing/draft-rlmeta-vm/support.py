@@ -23,12 +23,13 @@ class _Program(object):
         fail_message = ""
         while True:
             name, arg1, arg2 = instructions[pc]
-            pc += 1
             if name == 'PUSH_SCOPE':
                 envs.append({})
+                pc += 1
                 continue
             elif name == 'BACKTRACK':
                 stack.append((labels[arg1], pos, len(stream_stack), len(envs)))
+                pc += 1
                 continue
             elif name == 'CALL':
                 key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
@@ -36,8 +37,9 @@ class _Program(object):
                     last_action, stream_stack = memo[key]
                     stream_stack = stream_stack[:]
                     stream, pos = stream_stack.pop()
+                    pc += 1
                 else:
-                    stack.append((pc, key))
+                    stack.append((pc+1, key))
                     pc = labels[arg1]
                 continue
             elif name == 'MATCH_CHARSEQ':
@@ -48,6 +50,7 @@ class _Program(object):
                     pos += 1
                 else:
                     last_action = _ConstantSemanticAction(arg1)
+                    pc += 1
                     continue
             elif name == 'COMMIT':
                 stack.pop()
@@ -55,6 +58,7 @@ class _Program(object):
                 continue
             elif name == 'POP_SCOPE':
                 envs.pop()
+                pc += 1
                 continue
             elif name == 'RETURN':
                 if len(stack) == 0:
@@ -68,12 +72,15 @@ class _Program(object):
                 continue
             elif name == 'LIST_APPEND':
                 envs[-1].append(last_action)
+                pc += 1
                 continue
             elif name == 'BIND':
                 envs[-1][arg1] = last_action
+                pc += 1
                 continue
             elif name == 'ACTION':
                 last_action = _SemanticAction(arg1, envs[-1])
+                pc += 1
                 continue
             elif name == 'MATCH_RANGE':
                 if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
@@ -81,12 +88,15 @@ class _Program(object):
                 else:
                     last_action = _ConstantSemanticAction(stream[pos])
                     pos += 1
+                    pc += 1
                     continue
             elif name == 'LIST_START':
                 envs.append([])
+                pc += 1
                 continue
             elif name == 'LIST_END':
                 last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())
+                pc += 1
                 continue
             elif name == 'MATCH_ANY':
                 if pos >= len(stream):
@@ -94,6 +104,7 @@ class _Program(object):
                 else:
                     last_action = _ConstantSemanticAction(stream[pos])
                     pos += 1
+                    pc += 1
                     continue
             elif name == 'PUSH_INPUT':
                 if pos >= len(stream) or not isinstance(stream[pos], list):
@@ -102,12 +113,14 @@ class _Program(object):
                     stream_stack.append((stream, pos+1))
                     stream = stream[pos]
                     pos = 0
+                    pc += 1
                     continue
             elif name == 'POP_INPUT':
                 if pos < len(stream):
                     fail_message = "pop input"
                 else:
                     stream, pos = stream_stack.pop()
+                    pc += 1
                     continue
             elif name == 'MATCH_CALL_RULE':
                 if pos >= len(stream):
@@ -119,8 +132,9 @@ class _Program(object):
                         last_action, stream_stack = memo[key]
                         stream_stack = stream_stack[:]
                         stream, pos = stream_stack.pop()
+                        pc += 1
                     else:
-                        stack.append((pc, key))
+                        stack.append((pc+1, key))
                         pc = labels[fn_name]
                         pos += 1
                     continue
@@ -129,6 +143,7 @@ class _Program(object):
             elif name == 'LABEL':
                 last_action = _ConstantSemanticAction(label_counter)
                 label_counter += 1
+                pc += 1
                 continue
             elif name == 'MATCH_STRING':
                 if pos >= len(stream) or stream[pos] != arg1:
@@ -136,6 +151,7 @@ class _Program(object):
                 else:
                     last_action = _ConstantSemanticAction(arg1)
                     pos += 1
+                    pc += 1
                     continue
             else:
                 raise Exception("unknown command {}".format(name))
