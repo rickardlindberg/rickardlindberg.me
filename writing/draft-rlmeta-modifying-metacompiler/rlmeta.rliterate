@@ -947,7 +947,15 @@
 {
 "fragments":[
 {
-"text":"The difference is that the code for generating code for rules is different. (Instead of generating any code, nothing is done.) ",
+"text":"The difference is that the code for generating code for rules is different. Instead of generating actual code, only a ",
+"type":"text"
+},
+{
+"text":"pass",
+"type":"code"
+},
+{
+"text":" is generated. ",
 "type":"text"
 },
 {
@@ -1031,7 +1039,7 @@
 "type":"code"
 },
 {
-"text":", instead of actually doing matching and returning results. What happens if the modified source code is compiled with ",
+"text":" instead of actually doing matching and returning results. What happens if the modified source code is compiled with ",
 "type":"text"
 },
 {
@@ -1310,7 +1318,7 @@
 "type":"code"
 },
 {
-"text":" calls also has swapped arguments. ",
+"text":" calls also have swapped arguments. ",
 "type":"text"
 },
 {
@@ -1429,6 +1437,7 @@
 }
 ],
 "id":"f8b7a99762b94e3d9eb6514380294f79",
+"language":"bash",
 "type":"code"
 },
 {
@@ -1444,7 +1453,7 @@
 {
 "fragments":[
 {
-"text":"This would lead to ",
+"text":"In this example, it would lead to ",
 "type":"text"
 },
 {
@@ -1537,6 +1546,7 @@
 }
 ],
 "id":"e0f589f3b4534c1db7e683e1ce3f895e",
+"language":"bash",
 "type":"code"
 },
 {
@@ -1551,6 +1561,67 @@
 }
 ],
 "title":"Modifying API of support library"
+},
+{
+"children":[],
+"id":"d54bbeda3d9846bca027f2c2995775a5",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The example modifications I've shown so far can be compiled with the following script:",
+"type":"text"
+}
+],
+"id":"4e9ba6518d91445b8c170031e52bbe42",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"meta_compile.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
+"type":"code"
+}
+],
+"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"How many times is compilation needed? Max 2? But VM required 4?",
+"type":"text"
+}
+],
+"id":"af0923fee8f34769a93128bbda5645e6",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Prints 'OK' if a new metacompiler was successfully created.",
+"type":"text"
+}
+],
+"id":"3ad9f3cc37c3413ea55ac3e6758faa59",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Also checks that the two support libraries are same.",
+"type":"text"
+}
+],
+"id":"691212683b6f406d87d57bb29cb52de1",
+"type":"text"
+}
+],
+"title":"Meta compile script"
 },
 {
 "children":[],
@@ -1635,7 +1706,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\nOK\n",
 "type":"code"
 }
 ],
@@ -1643,21 +1714,9 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
-"type":"code"
-}
-],
-"id":"0a3105c73f094cee93cec274770cd5cb",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"The code generated for the tab case:",
+"text":"The code generated for the tab case looks like this:",
 "type":"text"
 }
 ],
@@ -1701,6 +1760,16 @@
 }
 ],
 "id":"82a056abf1f845d598e345933ec326bc",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Why is it still a metacompiler? Because tab is not used.",
+"type":"text"
+}
+],
+"id":"357049865f34435c8cd6a0f77ff600f4",
 "type":"text"
 },
 {
@@ -1762,23 +1831,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\nOK\n",
 "type":"code"
 }
 ],
-"id":"47ff3aa2bb4f45e9851624b3f70e666b",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code 2 -> rlmeta.py -> rlmeta1.py\n",
-"type":"code"
-}
-],
-"id":"2d7108a96b5a42429b9d1f494ef6deef",
+"id":"a074bca6bd3441aeb22b187f2c1939dd",
 "type":"code"
 },
 {
@@ -1870,23 +1927,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\nOK\n",
 "type":"code"
 }
 ],
-"id":"a56aebbe82284483bc58e6c914d90cd6",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code 3 -> rlmeta.py -> rlmeta1.py\n",
-"type":"code"
-}
-],
-"id":"3135a8b7037c48698a9a5424e145a2be",
+"id":"565991516f3244979d33aa4e1103053d",
 "type":"code"
 },
 {
@@ -1913,18 +1958,6 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta1.py\nrlmeta1.py is a metacompiler!\n",
-"type":"code"
-}
-],
-"id":"31e863571865415b9b1490fb876c0c5d",
-"type":"code"
-},
-{
 "fragments":[
 {
 "text":"Adding the tab escaped required two passes: one to recognize it and one to actually use it.",
@@ -1936,47 +1969,6 @@
 }
 ],
 "title":"Adding a new escape character"
-},
-{
-"children":[],
-"id":"d54bbeda3d9846bca027f2c2995775a5",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"The example modifications I've shown so far can be compiled with the following script:",
-"type":"text"
-}
-],
-"id":"4e9ba6518d91445b8c170031e52bbe42",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"meta_compile.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
-"type":"code"
-}
-],
-"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"How many times is compilation needed? Max 2? But VM required 4?",
-"type":"text"
-}
-],
-"id":"af0923fee8f34769a93128bbda5645e6",
-"type":"text"
-}
-],
-"title":"Meta compile script"
 },
 {
 "children":[],
