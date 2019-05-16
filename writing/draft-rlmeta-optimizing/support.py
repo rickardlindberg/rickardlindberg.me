@@ -248,7 +248,7 @@ class _Stream(object):
 
     def peek(self):
         if self.is_at_end():
-            self.fail("not eof")
+            self.fail(lambda: "not eof")
         return self._objects[self._index]
 
     def is_at_end(self):
