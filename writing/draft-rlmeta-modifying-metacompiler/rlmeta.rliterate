@@ -401,7 +401,7 @@
 {
 "fragments":[
 {
-"text":"RLMeta is a metacompiler because its source code is written in a metalanguage and it is able to reproduce itself.",
+"text":"RLMeta is a metacompiler because its source code is written in a metalanguage and it is able to reproduce itself:",
 "type":"text"
 }
 ],
@@ -1138,7 +1138,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"-    | [\"Bind\" .:x ast:y]        -> { \"_vars.bind(\" repr(x) \", \" y \"())\"                  }\n+    | [\"Bind\" .:x ast:y]        -> { \"_vars.bind(\" y \"(), \" repr(x) \")\"                  }\n\n",
+"text":"-    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" repr(x) \", \" y \"())\" }\n+    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" y \"(), \" repr(x) \")\" }\n\n",
 "type":"code"
 }
 ],
@@ -1434,7 +1434,7 @@
 {
 "fragments":[
 {
-"text":"It meant that the intermediate compilers always had the latest support library, and the two versions of the support library was always the same.",
+"text":"It meant that the intermediate compilers always had the latest support library, and the two versions of the support library were always the same.",
 "type":"text"
 }
 ],
@@ -1482,7 +1482,7 @@
 "type":"code"
 },
 {
-"text":" not functioning because it ",
+"text":" not functioning because its ",
 "type":"text"
 },
 {
@@ -1623,11 +1623,45 @@
 {
 "fragments":[
 {
-"text":"This will not work. A python string containing tab character",
+"text":"This will not work as intended.",
 "type":"text"
 }
 ],
 "id":"37b617ec3777458191709d45ecea7d4f",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"a6c7487784b14357b6e364747d148d77",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"0a3105c73f094cee93cec274770cd5cb",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The code generated for the tab case:",
+"type":"text"
+}
+],
+"id":"bda6c32d41814781b1d752a48f9e9c9c",
 "type":"text"
 },
 {
@@ -1646,7 +1680,7 @@
 {
 "fragments":[
 {
-"text":"The semantic action does not return a tab character but rather two characters ",
+"text":"The semantic action does not return a tab character but rather two characters: '",
 "type":"text"
 },
 {
@@ -1654,7 +1688,7 @@
 "type":"code"
 },
 {
-"text":" and ",
+"text":"' and '",
 "type":"text"
 },
 {
@@ -1662,7 +1696,7 @@
 "type":"code"
 },
 {
-"text":".",
+"text":"'.",
 "type":"text"
 }
 ],
@@ -1693,6 +1727,24 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Add following to Python template to give generated code access to ",
+"type":"text"
+},
+{
+"text":"tab",
+"type":"code"
+},
+{
+"text":" function:",
+"type":"text"
+}
+],
+"id":"cd062d599a9a4ccba2a125313deeeb7d",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1710,6 +1762,40 @@
 "filepath":[],
 "fragments":[
 {
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"47ff3aa2bb4f45e9851624b3f70e666b",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source code 2 -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"2d7108a96b5a42429b9d1f494ef6deef",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The code generated for the tab case:",
+"type":"text"
+}
+],
+"id":"e7ca3979a4a740f09f614d1846d9537b",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
 "text":"(lambda:\n    (lambda _vars:\n        (lambda:\n            self._and([\n                (lambda:\n                    self._match_charseq('t')\n                ),\n                (lambda:\n                    _SemanticAction(lambda: tab(\n                    ))\n                ),\n            ])\n        )()\n    )(_Vars())\n),\n",
 "type":"code"
 }
@@ -1721,7 +1807,37 @@
 {
 "fragments":[
 {
-"text":"Semantic action now generates tab characters correctly. Now the new escape can be used and the ",
+"text":"Semantic action now generates tab characters correctly. And ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" becomes the next version of the metacompiler:",
+"type":"text"
+}
+],
+"id":"82b9d4a3e9304a40ae632a7de85d6554",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta1.py\nrlmeta1.py is a metacompiler!\n",
+"type":"code"
+}
+],
+"id":"90c40374b1cc46109c8ce8886ca331db",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Now the new escape can be used and the ",
 "type":"text"
 },
 {
@@ -1733,7 +1849,7 @@
 "type":"text"
 }
 ],
-"id":"82b9d4a3e9304a40ae632a7de85d6554",
+"id":"288a7dca0e0a441c86e15445126d3870",
 "type":"text"
 },
 {
@@ -1754,6 +1870,40 @@
 "filepath":[],
 "fragments":[
 {
+"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"a56aebbe82284483bc58e6c914d90cd6",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"modified source code 3 -> rlmeta.py -> rlmeta1.py\n",
+"type":"code"
+}
+],
+"id":"3135a8b7037c48698a9a5424e145a2be",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The code generated for the tab case:",
+"type":"text"
+}
+],
+"id":"a2895180d45846458539aeaaf37837fe",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
 "text":"(lambda:\n    (lambda _vars:\n        (lambda:\n            self._and([\n                (lambda:\n                    self._match_charseq('t')\n                ),\n                (lambda:\n                    _SemanticAction(lambda: '\\t')\n                ),\n            ])\n        )()\n    )(_Vars())\n),\n",
 "type":"code"
 }
@@ -1761,6 +1911,28 @@
 "id":"1d5d027c53e04af8953e529629cdaf8e",
 "language":"python",
 "type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./is_metacompiler.sh rlmeta1.py\nrlmeta1.py is a metacompiler!\n",
+"type":"code"
+}
+],
+"id":"31e863571865415b9b1490fb876c0c5d",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Adding the tab escaped required two passes: one to recognize it and one to actually use it.",
+"type":"text"
+}
+],
+"id":"3eebfda49d064c088d05b8fe29d1a17b",
+"type":"text"
 }
 ],
 "title":"Adding a new escape character"
