@@ -10,8 +10,8 @@ to_python_string() {
     python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'
 }
 
+support_py=$(cat support.py)
 support_py_string=$(to_python_string < support.py)
-support_py=$(python "$rlmeta_compiler" --support)
 parser_py=$(python "$rlmeta_compiler" < parser.rlmeta)
 codegenerator_py=$(python "$rlmeta_compiler" < codegenerator.rlmeta)
 
