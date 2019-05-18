@@ -391,7 +391,7 @@
 ],
 "fragments":[
 {
-"text":"if diff $1 <(./compile.sh $1); then\n    echo \"$1 is a metacompiler!\"\nelse\n    echo \"$1 is not a metacompiler. See diff above.\"\nfi\n",
+"text":"if diff \"$1\" <(./compile.sh \"$1\"); then\n    echo \"$1 is a metacompiler!\"\nelse\n    echo \"$1 is not a metacompiler. See diff above.\"\nfi\n",
 "type":"code"
 }
 ],
@@ -1630,7 +1630,39 @@
 {
 "fragments":[
 {
-"text":"The escape codes possible in strings are the following:",
+"text":"The escape codes possible in strings are '",
+"type":"text"
+},
+{
+"text":"\\\\",
+"type":"code"
+},
+{
+"text":"', '",
+"type":"text"
+},
+{
+"text":"\\'",
+"type":"code"
+},
+{
+"text":"', '",
+"type":"text"
+},
+{
+"text":"\\\"",
+"type":"code"
+},
+{
+"text":"', and '",
+"type":"text"
+},
+{
+"text":"\\n",
+"type":"code"
+},
+{
+"text":"':",
 "type":"text"
 }
 ],
@@ -1653,7 +1685,7 @@
 {
 "fragments":[
 {
-"text":"Say it's desirable to add ",
+"text":"Say '",
 "type":"text"
 },
 {
@@ -1661,7 +1693,7 @@
 "type":"code"
 },
 {
-"text":" as well? How can it be done?",
+"text":"' is required as well. How can it be implemented?",
 "type":"text"
 }
 ],
@@ -1671,7 +1703,7 @@
 {
 "fragments":[
 {
-"text":"First attempt might look like this:",
+"text":"A first attempt might look like this:",
 "type":"text"
 }
 ],
@@ -1694,7 +1726,7 @@
 {
 "fragments":[
 {
-"text":"This will not work as intended.",
+"text":"Compiling the modified source code gives a new metacompiler:",
 "type":"text"
 }
 ],
@@ -1755,7 +1787,7 @@
 "type":"code"
 },
 {
-"text":"'.",
+"text":"'. The reason for this is that the modified source code tries to use the new escape code before the parser understands it. Since the parser does not recognize the new escape code, it will treat it as two separate characters.",
 "type":"text"
 }
 ],
@@ -1765,17 +1797,7 @@
 {
 "fragments":[
 {
-"text":"Why is it still a metacompiler? Because tab is not used.",
-"type":"text"
-}
-],
-"id":"357049865f34435c8cd6a0f77ff600f4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"How can semantic action be made to return a tab character?",
+"text":"How can the semantic action be made to return a tab character? The escape code code not be used until it is implemented, so the only solution is to call a function that returns a tab character:",
 "type":"text"
 }
 ],
@@ -1798,7 +1820,7 @@
 {
 "fragments":[
 {
-"text":"Add following to Python template to give generated code access to ",
+"text":"The ",
 "type":"text"
 },
 {
@@ -1806,7 +1828,7 @@
 "type":"code"
 },
 {
-"text":" function:",
+"text":" function is added to the Python template to give generated code access to it:",
 "type":"text"
 }
 ],
@@ -1827,6 +1849,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Compiling the modified source code gives a new metacompiler:",
+"type":"text"
+}
+],
+"id":"b6952241f5dd43e48e586ded2dc1c3d9",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1841,7 +1873,7 @@
 {
 "fragments":[
 {
-"text":"The code generated for the tab case:",
+"text":"The code generated for the tab case now looks like this:",
 "type":"text"
 }
 ],
@@ -1864,37 +1896,7 @@
 {
 "fragments":[
 {
-"text":"Semantic action now generates tab characters correctly. And ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":" becomes the next version of the metacompiler:",
-"type":"text"
-}
-],
-"id":"82b9d4a3e9304a40ae632a7de85d6554",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta1.py\nrlmeta1.py is a metacompiler!\n",
-"type":"code"
-}
-],
-"id":"90c40374b1cc46109c8ce8886ca331db",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"Now the new escape can be used and the ",
+"text":"The semantic action now generates tab characters correctly by calling the ",
 "type":"text"
 },
 {
@@ -1902,7 +1904,25 @@
 "type":"code"
 },
 {
-"text":" function discarded.",
+"text":" function.",
+"type":"text"
+}
+],
+"id":"82b9d4a3e9304a40ae632a7de85d6554",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Now the new escape code can be used inside strings and the ",
+"type":"text"
+},
+{
+"text":"tab",
+"type":"code"
+},
+{
+"text":" function discarded:",
 "type":"text"
 }
 ],
@@ -1923,6 +1943,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Compiling the modified source code gives a new metacompiler:",
+"type":"text"
+}
+],
+"id":"e528b9f26a6e479f828525d6a614dc2b",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1937,11 +1967,11 @@
 {
 "fragments":[
 {
-"text":"The code generated for the tab case:",
+"text":"The code generated for the tab case now looks like this:",
 "type":"text"
 }
 ],
-"id":"a2895180d45846458539aeaaf37837fe",
+"id":"0b7bba4d90284d53a7f5772f4275f21e",
 "type":"text"
 },
 {
@@ -1960,7 +1990,7 @@
 {
 "fragments":[
 {
-"text":"Adding the tab escaped required two passes: one to recognize it and one to actually use it.",
+"text":"Adding the tab escape code required two passes: one to recognize it and one to actually use it.",
 "type":"text"
 }
 ],
@@ -1968,7 +1998,7 @@
 "type":"text"
 }
 ],
-"title":"Adding a new escape character"
+"title":"Adding a new escape code"
 },
 {
 "children":[],
@@ -2214,7 +2244,16 @@
 {
 "fragments":[
 {
-"text":"In this article I explain how to modify the RLMeta metacompiler and how modifying it is different from modifying a regular program.",
+"text":"In this article I explain how to modify the ",
+"type":"text"
+},
+{
+"text":"RLMeta",
+"type":"link",
+"url":"/../rlmeta"
+},
+{
+"text":" metacompiler and how modifying it is different from modifying a regular program.",
 "type":"text"
 }
 ],
