@@ -303,7 +303,14 @@
 ],
 "id":"ef234944361c48eeb16387d8014a4c9b",
 "type":"code"
+}
+],
+"title":"Compiling RLMeta"
 },
+{
+"children":[],
+"id":"75ad82923a2142789d01ca5be1d11942",
+"paragraphs":[
 {
 "fragments":[
 {
@@ -377,7 +384,7 @@
 "type":"text"
 }
 ],
-"title":"Compiling RLMeta"
+"title":"Verifying metacompiler"
 },
 {
 "children":[],
@@ -728,6 +735,65 @@
 },
 {
 "children":[],
+"id":"d54bbeda3d9846bca027f2c2995775a5",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The steps to produce the next version of the metacompiler can be described with the following script:",
+"type":"text"
+}
+],
+"id":"4e9ba6518d91445b8c170031e52bbe42",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"meta_compile.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
+"type":"code"
+}
+],
+"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"set -e",
+"type":"code"
+},
+{
+"text":" directive ensures that the script stops as soon as one of the commands fail. After that the script compiles the intermediate compilers. If all compile commands succeed, the two last compilers are compared. If the differ, it was not possible to create a metacompiler. The diff command will then fail and the script then fails. If the two last compilers are the same, a sanity check that the support libraries are the same is done. Then intermediate compilers are removed. At the end, an 'OK' is printed, signifying that a new version of the metacompiler was successfully created. On failure, the intermediate compilers are left on disk for inspection.",
+"type":"text"
+}
+],
+"id":"ff35e9f8a7b846ed856d0b2a75e52d55",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"How many times is compilation needed? Max 2? But VM required 4?",
+"type":"text"
+}
+],
+"id":"af0923fee8f34769a93128bbda5645e6",
+"type":"text"
+}
+],
+"title":"Meta compile script"
+},
+{
+"children":[],
 "id":"6bfdc073cd4041238b169caa671c9652",
 "paragraphs":[
 {
@@ -799,7 +865,7 @@
 {
 "fragments":[
 {
-"text":"Compiling the modified source code gives a new executable:",
+"text":"Running the metacompile script on the modified source code gives an error:",
 "type":"text"
 }
 ],
@@ -811,37 +877,58 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\nTraceback (most recent call last):\n  File \"rlmeta2.py\", line 375, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta2.py\", line 368, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta2.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\nAttributeError: 'NoneType' object has no attribute 'eval'\n",
 "type":"code"
 }
 ],
-"id":"f3665d39883144618b9fd91d2e8d885b",
+"id":"d069bf8775194225a483fffef3be8526",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This means that a new metacompiler could not be created. Why?",
+"type":"text"
+}
+],
+"id":"c617edf3bda7486d842c123e90e2e971",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The error happens in ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":", that is when the following compilation step is run:",
+"type":"text"
+}
+],
+"id":"1ad2ad00ce734a3a8d6776781256721e",
+"type":"text"
 },
 {
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
+"text":"./compile.sh rlmeta2.py > rlmeta3.py\n",
 "type":"code"
 }
 ],
-"id":"bb50c144771b4a49b331353daddd315d",
+"id":"05076600aefb4489904a00c344fd8233",
+"language":"bash",
 "type":"code"
 },
 {
 "fragments":[
 {
-"text":"With this modification, ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":" is no longer a metacompiler because it differs from ",
+"text":"It means that both ",
 "type":"text"
 },
 {
@@ -849,11 +936,19 @@
 "type":"code"
 },
 {
-"text":":",
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" were successfully created. What are the differences?",
 "type":"text"
 }
 ],
-"id":"2f540e07b4c749229f627b63238d1ba0",
+"id":"1eb2cd9057594a9fb1aaf22acf576831",
 "type":"text"
 },
 {
@@ -861,11 +956,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./is_metacompiler.sh rlmeta.py\n1453,1455c1453\n<                                         'return ',\n<                                         _vars.lookup('y').eval(),\n<                                         '()\\n',\n---\n>                                         'pass\\n',\nrlmeta.py is not a metacompiler. See diff above.\n",
+"text":"$ diff rlmeta.py rlmeta1.py\n1453,1455c1453\n<                                         'return ',\n<                                         _vars.lookup('y').eval(),\n<                                         '()\\n',\n---\n>                                         'pass\\n',\n",
 "type":"code"
 }
 ],
-"id":"5ec997969feb4b21835e3eb784f0cce4",
+"id":"6d174aabc6874462aea28601c49c6e1d",
 "type":"code"
 },
 {
@@ -887,7 +982,15 @@
 "type":"code"
 },
 {
-"text":" should still be a compiler that recognizes the same source language so it can be used to compile the modified source code again, giving yet another executable:",
+"text":" is still a compiler that recognizes the same source language so it can be used to produce ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
@@ -899,57 +1002,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\n",
+"text":"$ diff rlmeta1.py rlmeta2.py \n287,325c287\n<         return (lambda:\n<             self._or([\n...\n<             ])\n<         )()\n---\n>         pass\n...\n",
 "type":"code"
 }
 ],
-"id":"8119eed6eccb4c9a8ec2b4d0feb12bb9",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code -> rlmeta1.py -> rlmeta2.py\n",
-"type":"code"
-}
-],
-"id":"11fb37043b5e49418b2a49b9bc9a0e83",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":" is not a metacompiler either because it differs from ",
-"type":"text"
-},
-{
-"text":"rlmeta2.py",
-"type":"code"
-},
-{
-"text":":",
-"type":"text"
-}
-],
-"id":"ad5aa41a2c9f482bb0a239d6baa89d7b",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta1.py\n287,325c287\n<         return (lambda:\n<             self._or([\n<                 (lambda:\n...\n<                 ),\n<             ])\n<         )()\n---\n>         pass\n...\nrlmeta1.py is not a metacompiler. See diff above.\n",
-"type":"code"
-}
-],
-"id":"c1a8e52615f94520bf9cf6451a1a42e0",
+"id":"3e131a12b0994e3ba2b2de66589bd859",
 "type":"code"
 },
 {
@@ -983,35 +1040,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\n",
+"text":"AttributeError: 'NoneType' object has no attribute 'eval'\n",
 "type":"code"
 }
 ],
-"id":"2b5b939f818f49cc8ff3ad311756314c",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code -> rlmeta2.py -> rlmeta3.py\n",
-"type":"code"
-}
-],
-"id":"5b034cc6ecae4d8d904fad5997e03a0c",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\nTraceback (most recent call last):\n  File \"rlmeta2.py\", line 375, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta2.py\", line 368, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta2.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\nAttributeError: 'NoneType' object has no attribute 'eval'\n",
-"type":"code"
-}
-],
-"id":"c27fa5bb8f6e417eb59cf2a5fa135971",
+"id":"b3ac2d74c6504ee6b7c7f3c49b853392",
 "type":"code"
 },
 {
@@ -1070,7 +1103,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"-    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" repr(x) \", \" y \"())\" }\n+    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" y \"(), \" repr(x) \")\" }\n\n",
+"text":"-    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" repr(x) \", \" y \"())\" }\n+    | [\"Bind\" .:x ast:y] -> { \"_vars.bind(\" y \"(), \" repr(x) \")\" }\n",
 "type":"code"
 }
 ],
@@ -1092,11 +1125,11 @@
 {
 "fragments":[
 {
-"text":"Compiling the modified source code gives a new executable:",
+"text":"Running the metacompile script on the modified source code gives a new metacompiler:",
 "type":"text"
 }
 ],
-"id":"f02b96b6acbc4c339c2621e69750a592",
+"id":"dd10a3cd9b58422aa7436b0b9e9b45bd",
 "type":"text"
 },
 {
@@ -1104,67 +1137,17 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\nOK\n",
 "type":"code"
 }
 ],
-"id":"ba676362bfc8421889fda9d7aec948a3",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code -> rlmeta.py -> rlmeta1.py\n",
-"type":"code"
-}
-],
-"id":"8b652c95263e462794910ec79a0251d6",
+"id":"c7607d5b0a6e459b814c988493667c97",
 "type":"code"
 },
 {
 "fragments":[
 {
-"text":"With this modification, ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":" is no longer a metacompiler because it differs from ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":":",
-"type":"text"
-}
-],
-"id":"a21e9297b77648b9b22780a9d468999d",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n1814a1815,1816\n>                                         _vars.lookup('y').eval(),\n>                                         '(), ',\n1818,1820c1820\n<                                         ', ',\n<                                         _vars.lookup('y').eval(),\n<                                         '())',\n---\n>                                         ')',\nrlmeta.py is not a metacompiler. See diff above.\n",
-"type":"code"
-}
-],
-"id":"d2e1489ce3de4c368f53e00150fa9863",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"The difference is that the support library string (used to generate the support library) is different, and code for generating ",
+"text":"The difference is that the two version of the support library is changed, and all ",
 "type":"text"
 },
 {
@@ -1172,19 +1155,11 @@
 "type":"code"
 },
 {
-"text":" calls is different. ",
-"type":"text"
-},
-{
-"text":"rlmeta1.py",
-"type":"code"
-},
-{
-"text":" can be used to compile the modified source code again, giving yet another executable:",
+"text":" calls have swapped arguments:",
 "type":"text"
 }
 ],
-"id":"cf2206774f7243689e21019522776104",
+"id":"e5567479169a44efb49161c3d5a22a0e",
 "type":"text"
 },
 {
@@ -1192,127 +1167,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\n",
+"text":"$ diff rlmeta.py.orig rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n294c294\n<                                     _vars.bind('x', (lambda:\n---\n>                                     _vars.bind((lambda:\n296c296\n<                                     )())\n---\n>                                     )(), 'x')\n...\n",
 "type":"code"
 }
 ],
-"id":"1ddf4353d5684b0da67ad4f48a2fd286",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source code -> rlmeta1.py -> rlmeta2.py\n",
-"type":"code"
-}
-],
-"id":"dd5343b5babd4f4c9d23e2b565d61b31",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta1.py\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n294c294\n<                                     _vars.bind('x', (lambda:\n---\n>                                     _vars.bind((lambda:\n...\nrlmeta1.py is not a metacompiler. See diff above.\n",
-"type":"code"
-}
-],
-"id":"a7108e40b0b7482fab25719f3117fb12",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"This time the difference is that the generated support library has swapped arguments for ",
-"type":"text"
-},
-{
-"text":"bind",
-"type":"code"
-},
-{
-"text":" and the generated code for ",
-"type":"text"
-},
-{
-"text":"bind",
-"type":"code"
-},
-{
-"text":" calls also have swapped arguments. ",
-"type":"text"
-},
-{
-"text":"rlmeta2.py",
-"type":"code"
-},
-{
-"text":" can be used to compile the modified source code again, giving yet another executable:",
-"type":"text"
-}
-],
-"id":"f48b6c98b95d4ab1a0df8eeef49a3e5b",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta2.py > rlmeta3.py\n",
-"type":"code"
-}
-],
-"id":"37f1142df88d4f919cbaa235799cc98c",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source -> rlmeta2.py -> rlmeta3.py\n",
-"type":"code"
-}
-],
-"id":"70f1fc9501b64ea5bf246d1b42429915",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"rlmeta2.py",
-"type":"code"
-},
-{
-"text":" is now a metacompiler because it is the same as ",
-"type":"text"
-},
-{
-"text":"rlmeta3.py",
-"type":"code"
-},
-{
-"text":":",
-"type":"text"
-}
-],
-"id":"b058648ee05c4e6196484f247227c1dc",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./is_metacompiler.sh rlmeta2.py\nrlmeta2.py is a metacompiler!\n",
-"type":"code"
-}
-],
-"id":"110f536658634b6798e0b192b0288bd6",
+"id":"a926657a73694781b76551fbb3d83b7d",
 "type":"code"
 },
 {
@@ -1377,6 +1236,36 @@
 {
 "fragments":[
 {
+"text":"Running the metacompile script on the modified source code with the old version of ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" gives an error:",
+"type":"text"
+}
+],
+"id":"8019705c315f42ffabb6582b662944ca",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ ./meta_compile.sh\nTraceback (most recent call last):\n  File \"rlmeta1.py\", line 2217, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta1.py\", line 2210, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta1.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\n  File \"rlmeta1.py\", line 123, in eval\n    return self.fn()\n  File \"rlmeta1.py\", line 318, in <lambda>\n    _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))\n  File \"rlmeta1.py\", line 115, in lookup\n    return self[name]\nKeyError: 'x'\n",
+"type":"code"
+}
+],
+"id":"6f0bbe403e654b269ab14c20249907ec",
+"type":"code"
+},
+{
+"fragments":[
+{
 "text":"In this example, it would lead to ",
 "type":"text"
 },
@@ -1397,7 +1286,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./is_metacompiler.sh rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n1814a1815,1816\n>                                         _vars.lookup('y').eval(),\n>                                         '(), ',\n1818,1820c1820\n<                                         ', ',\n<                                         _vars.lookup('y').eval(),\n<                                         '())',\n---\n>                                         ')',\nrlmeta.py is not a metacompiler. See diff above.\n",
+"text":"$ diff rlmeta.py rlmeta1.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n1814a1815,1816\n>                                         _vars.lookup('y').eval(),\n>                                         '(), ',\n1818,1820c1820\n<                                         ', ',\n<                                         _vars.lookup('y').eval(),\n<                                         '())',\n---\n>                                         ')',\n",
 "type":"code"
 }
 ],
@@ -1423,24 +1312,12 @@
 "type":"code"
 },
 {
-"text":" calls have not stored the name as key, but the value:",
+"text":" calls have not stored the name as key, but the value. Hence the key error.",
 "type":"text"
 }
 ],
 "id":"bb42b23bb0c040f19816c8c95a375d61",
 "type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta1.py > rlmeta2.py\nTraceback (most recent call last):\n  File \"rlmeta1.py\", line 2217, in <module>\n    sys.stdout.write(compile_grammar(sys.stdin.read()))\n  File \"rlmeta1.py\", line 2210, in compile_grammar\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n  File \"rlmeta1.py\", line 102, in run\n    result = self._match_rule(rule_name).eval()\n  File \"rlmeta1.py\", line 123, in eval\n    return self.fn()\n  File \"rlmeta1.py\", line 318, in <lambda>\n    _SemanticAction(lambda: (['Grammar']+[_vars.lookup('x').eval()]+_vars.lookup('ys').eval()+[]))\n  File \"rlmeta1.py\", line 115, in lookup\n    return self[name]\nKeyError: 'x'\n",
-"type":"code"
-}
-],
-"id":"36da070b1d2040db93af5dbd91577b3b",
-"type":"code"
 },
 {
 "fragments":[
@@ -1485,67 +1362,6 @@
 }
 ],
 "title":"Modifying API of support library"
-},
-{
-"children":[],
-"id":"d54bbeda3d9846bca027f2c2995775a5",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"The example modifications I've shown so far can be compiled with the following script:",
-"type":"text"
-}
-],
-"id":"4e9ba6518d91445b8c170031e52bbe42",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"meta_compile.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
-"type":"code"
-}
-],
-"id":"bd7e31bf3ea7456f975830d5bf2ef05c",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"How many times is compilation needed? Max 2? But VM required 4?",
-"type":"text"
-}
-],
-"id":"af0923fee8f34769a93128bbda5645e6",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Prints 'OK' if a new metacompiler was successfully created.",
-"type":"text"
-}
-],
-"id":"3ad9f3cc37c3413ea55ac3e6758faa59",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Also checks that the two support libraries are same.",
-"type":"text"
-}
-],
-"id":"691212683b6f406d87d57bb29cb52de1",
-"type":"text"
-}
-],
-"title":"Meta compile script"
 },
 {
 "children":[],
@@ -1650,11 +1466,11 @@
 {
 "fragments":[
 {
-"text":"Compiling the modified source code gives a new metacompiler:",
+"text":"Running the metacompile script on the modified source code gives a new metacompiler:",
 "type":"text"
 }
 ],
-"id":"37b617ec3777458191709d45ecea7d4f",
+"id":"b081578826cd4251988dfbd124a693ab",
 "type":"text"
 },
 {
@@ -2147,16 +1963,6 @@
 }
 ],
 "id":"7750e99bcb064e368a2164c551800494",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Introduce meta compile script earlier?",
-"type":"text"
-}
-],
-"id":"f6d1de44e7a74d7aa99182e6af72c883",
 "type":"text"
 }
 ],
