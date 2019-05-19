@@ -1785,11 +1785,12 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ ./compile.sh rlmeta.py > rlmeta1.py\n",
+"text":"-    | space '->' hostExpr:x -> [\"SemanticAction\" x]\n+    | space '=>' hostExpr:x -> [\"SemanticAction\" x]\n",
 "type":"code"
 }
 ],
-"id":"3dd5db4ace854e82931dfd6171c212be",
+"id":"319fe18be3be4c3f9e94281f5d4d819d",
+"language":"diff",
 "type":"code"
 },
 {
@@ -1797,33 +1798,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta.py -> rlmeta1.py\n",
+"text":"$ ./meta_compile.sh\n...\nERROR: L003:C048: expected '}' but found '-'\n",
 "type":"code"
 }
 ],
-"id":"6e5380ea659241caa4ed3887cc42f673",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"Compile again:",
-"type":"text"
-}
-],
-"id":"19fe90ba72334446940c87e686283e51",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta1.py > crash\n",
-"type":"code"
-}
-],
-"id":"faad43f0a420409f945c54adeef57ff9",
+"id":"db17992a334f4a18a2ae2023ba783d60",
 "type":"code"
 },
 {
@@ -1831,11 +1810,12 @@
 "filepath":[],
 "fragments":[
 {
-"text":"modified source -> rlmeta1.py -> crash\n",
+"text":"Parser {\n  grammar =\n    | name:x space '{' rule*:ys space '}'      -> [\"Grammar\" x ~ys]\n",
 "type":"code"
 }
 ],
-"id":"fe1af25f326b4996a0cc48c63a086c25",
+"id":"46d1811e86074552a7d00826311ccb07",
+"language":"rlmeta",
 "type":"code"
 },
 {
@@ -1873,30 +1853,6 @@
 "type":"text"
 },
 {
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"$ ./compile.sh rlmeta1.py > crash\n",
-"type":"code"
-}
-],
-"id":"9f7f9aacfac645f2a67084c7ff963612",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"modified source 2 -> rlmeta1.py -> rlmeta2.py\n",
-"type":"code"
-}
-],
-"id":"0e3a7c1754644293a95ad0deaca3b680",
-"type":"code"
-},
-{
 "fragments":[
 {
 "text":"Metacompile script will not work here :(",
@@ -1908,6 +1864,23 @@
 }
 ],
 "title":"Modifying grammar syntax"
+},
+{
+"children":[],
+"id":"47e7245c2c0b4ab6a7a7233d4e69f013",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"I have shown some examples that I hope helps understanding how RLMeta can be modified. Happy hacking!",
+"type":"text"
+}
+],
+"id":"4c4bbcb7b0c243179c2a4092c03ed707",
+"type":"text"
+}
+],
+"title":"Conclusions"
 },
 {
 "children":[
@@ -1941,7 +1914,32 @@
 {
 "fragments":[
 {
-"text":"Only changes from original RLMeta is the compile.sh script and the additional meta compile script. Full sources on github.",
+"text":"The only changes from the original ",
+"type":"text"
+},
+{
+"text":"RLMeta",
+"type":"link",
+"url":"../rlmeta/index.html#388bb1e8ccbd4d55b89b391c08452c33"
+},
+{
+"text":" are the ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script and the additional ",
+"type":"text"
+},
+{
+"text":"meta_compile.sh",
+"type":"code"
+},
+{
+"text":" script.",
 "type":"text"
 }
 ],
