@@ -437,3 +437,15 @@ visualisation.
 ---
 
 Interesting article: [Baby's First Garbage Collector](http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/).
+
+---
+
+On writing well:
+
+* Choose a mode/tense/etc.. and stick with it.
+* How (in what capacity) to address the reader?
+* What do I want to say? Have I said it?
+* One point: reductions time/place. What to skip?
+* Think clearly => write clearly. Every sentence should build on the previous.
+  Logical steps forward.
+* Don't end with summary.
