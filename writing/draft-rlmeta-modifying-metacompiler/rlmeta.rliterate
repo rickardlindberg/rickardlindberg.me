@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"What makes a metacompiler special? Differ from a regular program ...",
+"text":"What is a metacompiler and how does it differ from a regular compiler?",
 "type":"text"
 }
 ],
@@ -102,7 +102,7 @@
 {
 "fragments":[
 {
-"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language not designed specifically to describe other languages. Such compiler is merely a self-hosting compiler.",
+"text":"A C compiler written in C is not a metacompiler because C is not a metalanguage. It is a general purpose programming language not designed specifically to describe other languages. Such a compiler is merely a self-hosting compiler.",
 "type":"text"
 }
 ],
@@ -110,7 +110,7 @@
 "type":"text"
 }
 ],
-"title":"What is a metacompiler?"
+"title":"Meta what?"
 },
 {
 "children":[],
@@ -119,7 +119,7 @@
 {
 "fragments":[
 {
-"text":"How is modifying a metacompiler special? ...",
+"text":"How is modifying a metacompiler different from modifying a regular program?",
 "type":"text"
 }
 ],
@@ -760,7 +760,7 @@
 {
 "fragments":[
 {
-"text":"The steps to produce the next version of the metacompiler can be described with the following script:",
+"text":"The steps to produce the next version of RLMeta can be scripted like this:",
 "type":"text"
 }
 ],
@@ -784,7 +784,7 @@
 {
 "fragments":[
 {
-"text":"The ",
+"text":"It starts with a ",
 "type":"text"
 },
 {
@@ -792,7 +792,31 @@
 "type":"code"
 },
 {
-"text":" directive ensures that the script stops as soon as one of the commands fail. After that the script compiles the intermediate compilers. If all compile commands succeed, the two last compilers are compared. If the differ, it was not possible to create a metacompiler. The diff command will then fail and the script then fails. If the two last compilers are the same, a sanity check that the support libraries are the same is done. Then intermediate compilers are removed. At the end, an 'OK' is printed, signifying that a new version of the metacompiler was successfully created. On failure, the intermediate compilers are left on disk for inspection.",
+"text":" directive that makes the script stop immediately if any command fails. Then it changes directory to the same directory as the script itself is in. That directory is assumed to also contain the ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script. It then uses the ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script to create the intermediate compilers. If all compile commands succeed, the two last compilers are compared. If they differ, it was not possible to create a metacompiler. The ",
+"type":"text"
+},
+{
+"text":"diff",
+"type":"code"
+},
+{
+"text":" command then fails and the script fails. The intermediate compilers are left on disk for inspection. If the two last compilers are the same, a sanity check that the support libraries are the same is done. Then intermediate compilers are removed. At the end, an 'OK' is printed, signifying that a new version of the metacompiler was successfully created.",
 "type":"text"
 }
 ],
@@ -865,7 +889,7 @@
 {
 "fragments":[
 {
-"text":"is a dummy change that should break things.",
+"text":"is a dummy change that should break things. Instead of actually generating code that does matching and return results, nothing is done.",
 "type":"text"
 }
 ],
@@ -915,7 +939,7 @@
 "type":"code"
 },
 {
-"text":", that is when the following compilation step is run:",
+"text":" when the following compilation step is run:",
 "type":"text"
 }
 ],
@@ -954,7 +978,39 @@
 "type":"code"
 },
 {
-"text":" were successfully created. What are the differences?",
+"text":" were successfully created, but it failed to generate ",
+"type":"text"
+},
+{
+"text":"rlmeta3.py",
+"type":"code"
+},
+{
+"text":". The difference between ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" is that the code for generating code for rules is different. Instead of generating actual code, a ",
+"type":"text"
+},
+{
+"text":"pass",
+"type":"code"
+},
+{
+"text":" statement is generated:",
 "type":"text"
 }
 ],
@@ -976,23 +1032,11 @@
 {
 "fragments":[
 {
-"text":"The difference is that the code for generating code for rules is different. Instead of generating actual code, only a ",
-"type":"text"
-},
-{
-"text":"pass",
-"type":"code"
-},
-{
-"text":" is generated. ",
-"type":"text"
-},
-{
 "text":"rlmeta1.py",
 "type":"code"
 },
 {
-"text":" is still a compiler that recognizes the same source language so it can be used to produce ",
+"text":" is still a compiler that recognizes the same source language so it successfully produced ",
 "type":"text"
 },
 {
@@ -1000,7 +1044,31 @@
 "type":"code"
 },
 {
-"text":".",
+"text":". The difference between ",
+"type":"text"
+},
+{
+"text":"rlmeta1.py",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" is that the code for rules just have a ",
+"type":"text"
+},
+{
+"text":"pass",
+"type":"code"
+},
+{
+"text":" statement instead of code for doing matching and returning results:",
 "type":"text"
 }
 ],
@@ -1022,7 +1090,15 @@
 {
 "fragments":[
 {
-"text":"This time the difference is that all rules return ",
+"text":"So ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" will not work because all rules just return ",
 "type":"text"
 },
 {
@@ -1030,15 +1106,39 @@
 "type":"code"
 },
 {
-"text":" instead of actually doing matching and returning results. What happens if the modified source code is compiled with ",
+"text":". When ",
 "type":"text"
 },
 {
-"text":"rlmeta2.py",
+"text":"_match_rule",
 "type":"code"
 },
 {
-"text":"?",
+"text":" is called it will get ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":" back but expected a semantic action. When ",
+"type":"text"
+},
+{
+"text":"eval",
+"type":"code"
+},
+{
+"text":" is run it will fail because the result is not a semantic action, but instead ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
@@ -1046,37 +1146,9 @@
 "type":"text"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"AttributeError: 'NoneType' object has no attribute 'eval'\n",
-"type":"code"
-}
-],
-"id":"b3ac2d74c6504ee6b7c7f3c49b853392",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"Because the modified source code does not correctly describe how code for rules should be generated, it does not describe a metacompiler, and it can never be used to create a metacompiler. The ",
-"type":"text"
-},
-{
-"text":"rlmeta3.py",
-"type":"code"
-},
-{
-"text":" is an empty file because ",
-"type":"text"
-},
-{
-"text":"rlmeta2.py",
-"type":"code"
-},
-{
-"text":" could not generate anything.",
+"text":"Because the modified source code does not correctly describe how code for rules should be generated, it does not describe a metacompiler, and it can never be used to create a metacompiler.",
 "type":"text"
 }
 ],
@@ -1205,7 +1277,7 @@
 {
 "fragments":[
 {
-"text":"The difference between the two metacompilers is that the two version of the support library is changed, and all ",
+"text":"The difference between the two metacompilers is that the two versions of the support library are changed, and all ",
 "type":"text"
 },
 {
@@ -1225,7 +1297,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"$ diff rlmeta.py.orig rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n294c294\n<                                     _vars.bind('x', (lambda:\n---\n>                                     _vars.bind((lambda:\n296c296\n<                                     )())\n---\n>                                     )(), 'x')\n...\n",
+"text":"$ diff rlmeta.py.orig rlmeta.py\n3c3\n< SUPPORT = ...\n---\n> SUPPORT = ...\n110c110\n<     def bind(self, name, value):\n---\n>     def bind(self, value, name):\n294c294\n<                                     _vars.bind('x', (lambda:\n---\n>                                     _vars.bind((lambda:\n296c296\n<                                     )())\n---\n>                                     )(), 'x')\n1814a1815,1816\n>                                         _vars.lookup('y').eval(),\n>                                         '(), ',\n1818,1820c1820\n<                                         ', ',\n<                                         _vars.lookup('y').eval(),\n<                                         '())',\n---\n>                                         ')',\n...\n",
 "type":"code"
 }
 ],
@@ -1341,7 +1413,7 @@
 "type":"code"
 },
 {
-"text":") would still expect not swapped arguments:",
+"text":") still expect not swapped arguments:",
 "type":"text"
 }
 ],
@@ -1363,7 +1435,7 @@
 {
 "fragments":[
 {
-"text":"This in turn would lead to ",
+"text":"This in turn leads to ",
 "type":"text"
 },
 {
@@ -2010,7 +2082,7 @@
 {
 "fragments":[
 {
-"text":"I have shown some examples that I hope help understanding how RLMeta can be modified. Happy hacking!",
+"text":"I have shown some examples that I hope help understanding how RLMeta can be modified. Happy hacking! This was the last example. I hope them make it easier for you to understand how to modify RLMeta.",
 "type":"text"
 }
 ],
@@ -2045,6 +2117,18 @@
 }
 ],
 "title":"meta_compile.sh"
+},
+{
+"children":[],
+"id":"596acbaab3614dc787158be918bd9d32",
+"paragraphs":[
+{
+"code_id":"51c75af0347d416181ffec8cab1f0c51",
+"id":"ed0f143e1fab4bdb89513699489e362a",
+"type":"expanded_code"
+}
+],
+"title":"is_metacompiler.sh"
 }
 ],
 "id":"60cb5d0ff4ca4d94920bfe635ffd2142",
@@ -2077,7 +2161,15 @@
 "type":"code"
 },
 {
-"text":" script. They are shown fully here. For the rest of the source code, see the original article.",
+"text":" and ",
+"type":"text"
+},
+{
+"text":"is_metacompiler.sh",
+"type":"code"
+},
+{
+"text":" scripts. They are shown fully here. For the rest of the source code, see the original article.",
 "type":"text"
 }
 ],
@@ -2093,17 +2185,7 @@
 {
 "fragments":[
 {
-"text":"In the first article about RLMeta I said that its small size lended it to modification. But modifying a metacompiler is different from modifying a regular program. In this article I want to show some examples how RLMeta can be modified...",
-"type":"text"
-}
-],
-"id":"fe7ce544d50147ea9a005a0a85999835",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"In this article I explain how to modify the ",
+"text":"In the first article about ",
 "type":"text"
 },
 {
@@ -2112,7 +2194,7 @@
 "url":"/writing/rlmeta/index.html"
 },
 {
-"text":" metacompiler and how modifying it is different from modifying a regular program.",
+"text":" I wrote that its small implementation makes it feasible to understand and modify. But modifying the RLMeta metacompiler is different from modifying a regular program. In this article I explain how it differs and show examples of how different parts of RLMeta can be modified.",
 "type":"text"
 }
 ],
