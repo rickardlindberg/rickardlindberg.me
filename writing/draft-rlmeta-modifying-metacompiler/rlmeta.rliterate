@@ -456,11 +456,11 @@
 {
 "fragments":[
 {
-"text":"How can it be modified to generate lambda expressions without the additional punctuation like?",
+"text":"This example shows how to modify RLMeta to generate equivalent lambda expressions without the additional punctuation like this:",
 "type":"text"
 }
 ],
-"id":"72a9d99eed5349d587fd9d5d49145541",
+"id":"504e071b965142959a63827bcac79645",
 "type":"text"
 },
 {
@@ -479,7 +479,7 @@
 {
 "fragments":[
 {
-"text":"This is done by changing the following line in the code generator",
+"text":"First, the following line in the code generator is changed from",
 "type":"text"
 }
 ],
@@ -525,7 +525,7 @@
 {
 "fragments":[
 {
-"text":"The modified source code describes a metacompiler whose code generator generates lambda expressions without additional punctuation. How is a new metacompiler created?",
+"text":"The modified source code describes a metacompiler whose code generator generates lambda expressions without the additional punctuation.",
 "type":"text"
 }
 ],
@@ -673,7 +673,7 @@
 {
 "fragments":[
 {
-"text":"This time the difference is only in formatting. The two programs should be semantically equivalent. The original modification set out to remove additional punctuation in lambda expressions, and this can now be seen in the generated code. ",
+"text":"This time the difference is only in formatting. The two programs should be semantically equivalent. The original modification set out to remove additional punctuation in lambda expressions and this can now be seen in the generated code. ",
 "type":"text"
 },
 {
@@ -747,7 +747,7 @@
 "type":"code"
 },
 {
-"text":" together with the modified source becomes the next version of the metacompiler. All other intermediate versions can be discarded.",
+"text":" together with the modified source becomes the next version of the metacompiler. All other intermediate compilers can be discarded.",
 "type":"text"
 }
 ],
@@ -780,7 +780,7 @@
 {
 "fragments":[
 {
-"text":"The steps to produce the next version of RLMeta can be scripted like this:",
+"text":"The steps to create the next version of RLMeta can be scripted like this:",
 "type":"text"
 }
 ],
@@ -846,7 +846,7 @@
 {
 "fragments":[
 {
-"text":"I will use this script in the following examples.",
+"text":"This script will be used in the following examples.",
 "type":"text"
 }
 ],
@@ -863,7 +863,7 @@
 {
 "fragments":[
 {
-"text":"What happens if the source code is modified so that it no longer correctly describes a metacompiler?",
+"text":"This example shows what happens if the source code is modified so that it no longer correctly describes a metacompiler.",
 "type":"text"
 }
 ],
@@ -1195,15 +1195,7 @@
 {
 "fragments":[
 {
-"text":"Some modifications of the support library require changes both in ",
-"type":"text"
-},
-{
-"text":"support.py",
-"type":"code"
-},
-{
-"text":" and the code generator. The following modification swaps the arguments to the ",
+"text":"This example shows how to make a modification that requires modifying both the support library and the code generator. It shows how the arguments to the ",
 "type":"text"
 },
 {
@@ -1211,12 +1203,58 @@
 "type":"code"
 },
 {
-"text":" function.",
+"text":" function are swapped.",
 "type":"text"
 }
 ],
-"id":"81e2b3bcfa5d48ceb09498acbdb94e5d",
+"id":"096ed4f9a0a34453ad30c7c1623451c2",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The support library is changed from",
+"type":"text"
+}
+],
+"id":"a6436a9788b349d9b44645a0965e743e",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def bind(self, name, value):\n",
+"type":"code"
+}
+],
+"id":"bafc978d667e49dd95683e06e4d46d47",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"to",
+"type":"text"
+}
+],
+"id":"154ccbc55dc34a3fa794da5a839cf28e",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def bind(self, value, name):\n",
+"type":"code"
+}
+],
+"id":"080bdff00dd74ac1a3dd24692e843573",
+"language":"python",
+"type":"code"
 },
 {
 "fragments":[
@@ -1275,52 +1313,6 @@
 {
 "fragments":[
 {
-"text":"And the support library is changed from",
-"type":"text"
-}
-],
-"id":"a6436a9788b349d9b44645a0965e743e",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"def bind(self, name, value):\n",
-"type":"code"
-}
-],
-"id":"bafc978d667e49dd95683e06e4d46d47",
-"language":"python",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"to",
-"type":"text"
-}
-],
-"id":"154ccbc55dc34a3fa794da5a839cf28e",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"def bind(self, value, name):\n",
-"type":"code"
-}
-],
-"id":"080bdff00dd74ac1a3dd24692e843573",
-"language":"python",
-"type":"code"
-},
-{
-"fragments":[
-{
 "text":"Running the meta compile script on the modified source code gives a new metacompiler:",
 "type":"text"
 }
@@ -1370,6 +1362,16 @@
 "id":"a926657a73694781b76551fbb3d83b7d",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This creates a new version that ...",
+"type":"text"
+}
+],
+"id":"09c111a53e1045608448c32940c8f7ac",
+"type":"text"
 },
 {
 "fragments":[
@@ -1630,7 +1632,7 @@
 {
 "fragments":[
 {
-"text":"How can a new escape code, '",
+"text":"This example shows how a new escape code, '",
 "type":"text"
 },
 {
@@ -1638,7 +1640,7 @@
 "type":"code"
 },
 {
-"text":"', be added?",
+"text":"', can be added.",
 "type":"text"
 }
 ],
@@ -1960,7 +1962,7 @@
 "type":"code"
 },
 {
-"text":". How can it be changed to ",
+"text":". This example shows how it can be changed to ",
 "type":"text"
 },
 {
