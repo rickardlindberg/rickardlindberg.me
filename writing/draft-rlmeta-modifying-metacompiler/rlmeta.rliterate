@@ -479,7 +479,7 @@
 {
 "fragments":[
 {
-"text":"First, the following line in the code generator is changed from",
+"text":"The following line in the code generator is changed from",
 "type":"text"
 }
 ],
@@ -747,7 +747,7 @@
 "type":"code"
 },
 {
-"text":" together with the modified source becomes the next version of the metacompiler. All other intermediate compilers can be discarded.",
+"text":" together with the modified source become the next version of the metacompiler. All other intermediate compilers can be discarded.",
 "type":"text"
 }
 ],
@@ -919,7 +919,23 @@
 {
 "fragments":[
 {
-"text":"Instead of actually generating code that does matching and return results, nothing is done.",
+"text":"Instead of generating code, the ",
+"type":"text"
+},
+{
+"text":"y",
+"type":"code"
+},
+{
+"text":" ast node is ignored and a ",
+"type":"text"
+},
+{
+"text":"pass",
+"type":"code"
+},
+{
+"text":" statement is generated.",
 "type":"text"
 }
 ],
@@ -1008,7 +1024,7 @@
 "type":"code"
 },
 {
-"text":" were successfully created, but it failed to generate ",
+"text":" were successfully created, but it failed to create ",
 "type":"text"
 },
 {
@@ -1032,15 +1048,7 @@
 "type":"code"
 },
 {
-"text":" is that the code for generating code for rules is different. Instead of generating actual code, a ",
-"type":"text"
-},
-{
-"text":"pass",
-"type":"code"
-},
-{
-"text":" statement is generated:",
+"text":" is that the code for generating code for rules is different:",
 "type":"text"
 }
 ],
@@ -1066,7 +1074,7 @@
 "type":"code"
 },
 {
-"text":" is still a compiler that recognizes the same source language so it successfully produced ",
+"text":" is still a compiler that recognizes the same source language so it was successfully used to create ",
 "type":"text"
 },
 {
@@ -1203,7 +1211,7 @@
 "type":"code"
 },
 {
-"text":" function are swapped.",
+"text":" function can be swapped.",
 "type":"text"
 }
 ],
@@ -1213,7 +1221,15 @@
 {
 "fragments":[
 {
-"text":"The support library is changed from",
+"text":"In the support library, the following line that defines the ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" functions is changed from",
 "type":"text"
 }
 ],
@@ -1259,7 +1275,7 @@
 {
 "fragments":[
 {
-"text":"The source code for generating calls to ",
+"text":"In the code generator, the following line that generates calls to ",
 "type":"text"
 },
 {
@@ -1335,7 +1351,7 @@
 {
 "fragments":[
 {
-"text":"The difference between the two metacompilers is that the two versions of the support library are modified, and all ",
+"text":"The difference between the two metacompilers is that the two versions of the support library are modified, all ",
 "type":"text"
 },
 {
@@ -1343,7 +1359,15 @@
 "type":"code"
 },
 {
-"text":" calls have swapped arguments:",
+"text":" calls have swapped arguments, and code that generates calls to ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" have swapped arguments:",
 "type":"text"
 }
 ],
@@ -1366,7 +1390,15 @@
 {
 "fragments":[
 {
-"text":"This creates a new version that ...",
+"text":"This creates a new version that works exactly the same as the previous version, but internally, the ",
+"type":"text"
+},
+{
+"text":"bind",
+"type":"code"
+},
+{
+"text":" function has a different signature.",
 "type":"text"
 }
 ],
@@ -1577,7 +1609,7 @@
 {
 "fragments":[
 {
-"text":"The escape codes possible in strings are '",
+"text":"The escape codes possible in strings in RLMeta are '",
 "type":"text"
 },
 {
@@ -1650,7 +1682,15 @@
 {
 "fragments":[
 {
-"text":"A first attempt might look like this:",
+"text":"A first attempt might be to extend the ",
+"type":"text"
+},
+{
+"text":"escape",
+"type":"code"
+},
+{
+"text":" rule in the parser like this:",
 "type":"text"
 }
 ],
@@ -1744,7 +1784,7 @@
 {
 "fragments":[
 {
-"text":"How can the semantic action be made to return a tab character? The escape code code not be used until it is implemented, so the only solution is to call a function that returns a tab character:",
+"text":"How can the semantic action be made to return a tab character? The escape code can not be used until it is implemented, so the only solution is to call a function that returns a tab character:",
 "type":"text"
 }
 ],
@@ -2062,7 +2102,7 @@
 "type":"code"
 },
 {
-"text":" syntax. The source code can not be changed to the new syntax before the compiler recognizes it, so the meta compile script does not work for this change.",
+"text":" syntax. The source code can not be changed to the new syntax before the parser recognizes it, so the meta compile script does not work for this change.",
 "type":"text"
 }
 ],
@@ -2103,7 +2143,15 @@
 "type":"code"
 },
 {
-"text":", and then the alternative in the parser can be removed.",
+"text":", and then the choice in the parser can be removed to only allow ",
+"type":"text"
+},
+{
+"text":"=>",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
