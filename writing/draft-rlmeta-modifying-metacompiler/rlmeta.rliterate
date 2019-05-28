@@ -335,7 +335,7 @@
 "type":"code"
 }
 ],
-"title":"Compiling RLMeta"
+"title":"*Compiling RLMeta"
 },
 {
 "children":[],
@@ -424,7 +424,7 @@
 "type":"text"
 }
 ],
-"title":"Verifying metacompiler"
+"title":"*Verifying metacompiler"
 },
 {
 "children":[],
@@ -456,7 +456,7 @@
 {
 "fragments":[
 {
-"text":"This example shows how to modify RLMeta to generate equivalent lambda expressions without the additional punctuation like this:",
+"text":"This example shows how to modify it to generate equivalent lambda expressions without the additional punctuation like this:",
 "type":"text"
 }
 ],
@@ -479,7 +479,7 @@
 {
 "fragments":[
 {
-"text":"The following line in the code generator is changed from",
+"text":"First, the following line in the code generator is changed from",
 "type":"text"
 }
 ],
@@ -525,7 +525,7 @@
 {
 "fragments":[
 {
-"text":"The modified source code describes a metacompiler whose code generator generates lambda expressions without the additional punctuation.",
+"text":"The modified source code describes a metacompiler whose code generator generates lambda expressions without the additional punctuation. How is a new metacompiler created from this modified source code?",
 "type":"text"
 }
 ],
@@ -747,7 +747,7 @@
 "type":"code"
 },
 {
-"text":" together with the modified source become the next version of the metacompiler. All other intermediate compilers can be discarded.",
+"text":" together with the modified source becomes the next version of the metacompiler. All other intermediate compilers can be discarded.",
 "type":"text"
 }
 ],
@@ -763,7 +763,7 @@
 {
 "fragments":[
 {
-"text":"A new version of RLMeta has been created that generates code slightly different. Intermediate compilers had to be created to produce the new metacompiler.",
+"text":"A new version of RLMeta has been created that generates code slightly different. Intermediate compilers had to be created to create the new metacompiler.",
 "type":"text"
 }
 ],
@@ -771,7 +771,7 @@
 "type":"text"
 }
 ],
-"title":"Format of generated code"
+"title":"Modifying format of generated code"
 },
 {
 "children":[],
@@ -812,7 +812,7 @@
 "type":"code"
 },
 {
-"text":" directive that makes the script stop immediately if any command fails. Then it changes directory to the same directory as the script itself is in. That directory is assumed to also contain the ",
+"text":" directive that makes the script stop immediately when a command fails. Then it changes directory to the same directory as the script itself is in. That directory is assumed to also contain the ",
 "type":"text"
 },
 {
@@ -873,7 +873,7 @@
 {
 "fragments":[
 {
-"text":"A dummy modification that should break things is changing the following line that generates code for rules",
+"text":"A dummy modification that should break things is changing the following line that generates code for rules from",
 "type":"text"
 }
 ],
@@ -919,7 +919,7 @@
 {
 "fragments":[
 {
-"text":"Instead of generating code, the ",
+"text":"Instead of generating a function body, the ",
 "type":"text"
 },
 {
@@ -935,7 +935,7 @@
 "type":"code"
 },
 {
-"text":" statement is generated.",
+"text":" statement is generated instead.",
 "type":"text"
 }
 ],
@@ -1136,7 +1136,7 @@
 "type":"code"
 },
 {
-"text":" will not work because all rules just return ",
+"text":" will not work because all rules return ",
 "type":"text"
 },
 {
@@ -1390,7 +1390,7 @@
 {
 "fragments":[
 {
-"text":"This creates a new version that works exactly the same as the previous version, but internally, the ",
+"text":"This modification creates a new version of RLMeta that works exactly the same as the previous version, but internally, the ",
 "type":"text"
 },
 {
@@ -1513,7 +1513,7 @@
 "type":"code"
 },
 {
-"text":") still expect not swapped arguments:",
+"text":") still expects not swapped arguments:",
 "type":"text"
 }
 ],
@@ -1758,7 +1758,7 @@
 {
 "fragments":[
 {
-"text":"The semantic action does not return a tab character but rather two characters: '",
+"text":"It doesn't look quite right. The semantic action does not return a tab character but rather two characters: '",
 "type":"text"
 },
 {
@@ -1784,7 +1784,7 @@
 {
 "fragments":[
 {
-"text":"How can the semantic action be made to return a tab character? The escape code can not be used until it is implemented, so the only solution is to call a function that returns a tab character:",
+"text":"How can the semantic action be modified to return an single tab character? The escape code can not be used until it is implemented, so the only solution is to call a function that returns a tab character:",
 "type":"text"
 }
 ],
@@ -1909,7 +1909,7 @@
 "type":"code"
 },
 {
-"text":" function discarded:",
+"text":" function can be discarded:",
 "type":"text"
 }
 ],
@@ -1985,7 +1985,7 @@
 "type":"text"
 }
 ],
-"title":"Adding a new escape code"
+"title":"Extending parser escape codes"
 },
 {
 "children":[],
@@ -2010,7 +2010,7 @@
 "type":"code"
 },
 {
-"text":"? A first attempt might be to change the following line in the parser",
+"text":". A first attempt might be to change the following line in the parser",
 "type":"text"
 }
 ],
@@ -2112,7 +2112,7 @@
 {
 "fragments":[
 {
-"text":"This can be solved in two ways. Either the parser can be changed to allow both syntaxes:",
+"text":"This can be solved in two ways. Either the parser can be changed to allow both syntaxes like this:",
 "type":"text"
 }
 ],
@@ -2143,7 +2143,7 @@
 "type":"code"
 },
 {
-"text":", and then the choice in the parser can be removed to only allow ",
+"text":", and then the choice in the parser can be removed to allow only ",
 "type":"text"
 },
 {
@@ -2161,7 +2161,15 @@
 {
 "fragments":[
 {
-"text":"Or the source code must be changed in between:",
+"text":"Or the source code must be changed again before creating ",
+"type":"text"
+},
+{
+"text":"rlmeta2.py",
+"type":"code"
+},
+{
+"text":" like this:",
 "type":"text"
 }
 ],
@@ -2189,17 +2197,7 @@
 {
 "fragments":[
 {
-"text":"The meta compile script does not support changing the source code in between compilations.",
-"type":"text"
-}
-],
-"id":"1490aa1f0585459fa6dbc0a1fc9de0ff",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"I have shown some examples that I hope help understanding how RLMeta can be modified. Happy hacking! This was the last example. I hope them make it easier for you to understand how to modify RLMeta.",
+"text":"I have shown some examples that I hope help understanding how RLMeta can be modified. Happy hacking!",
 "type":"text"
 }
 ],
@@ -2207,7 +2205,7 @@
 "type":"text"
 }
 ],
-"title":"Modifying grammar syntax"
+"title":"Modifying parser"
 },
 {
 "children":[
@@ -2311,7 +2309,7 @@
 "url":"/writing/rlmeta/index.html"
 },
 {
-"text":" I wrote that its small implementation makes it feasible to understand and modify. But modifying the RLMeta metacompiler is different from modifying a regular program. In this article I explain how it differs and show examples of how different parts of RLMeta can be modified.",
+"text":" I wrote that its small implementation makes it feasible to understand and modify. But modifying the RLMeta metacompiler differs from modifying a regular program. In this article I explain how it differs and show examples of how different parts of RLMeta can be modified.",
 "type":"text"
 }
 ],
@@ -2319,7 +2317,7 @@
 "type":"text"
 }
 ],
-"title":"Modifying RLMeta"
+"title":"Modifying the RLMeta metacompiler"
 },
 "variables":{}
 }
