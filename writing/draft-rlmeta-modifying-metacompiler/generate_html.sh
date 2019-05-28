@@ -1,12 +1,13 @@
 #!/bin/sh
 
 gen() {
+    html=$(rliterate rlmeta.rliterate --html)
     echo "---"
-    echo "title: 'Modifying the RLMeta metacompiler'"
+    echo "title: '$(echo "$html" | head -n1 | cut -c52- | cut -d'<' -f1)'"
     echo "date: 2019-05-18"
     echo "tags: rlmeta"
     echo "---"
-    rliterate rlmeta.rliterate --html | tail -n+2
+    echo "$html" | tail -n+2
 }
 
 gen > index.html
