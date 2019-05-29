@@ -3,8 +3,18 @@
 "children":[
 {
 "children":[],
-"id":"8e04b7445714473192bd0ae2c07cb020",
+"id":"31e3c712b4ce4f16bb8e5d352e76fb0e",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Before optimizing something for speed it is important to measure how long something takes. In this article I'm interested in optimizing the time it takes for RLMeta to compile itself.",
+"type":"text"
+}
+],
+"id":"521b7a601c67426c8f6bd298c13bd93e",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -43,7 +53,17 @@
 "children":[],
 "fragments":[
 {
-"text":"Put it together with the support library",
+"text":"Generate support library",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Assemble the pieces into a final file",
 "type":"text"
 }
 ]
@@ -53,25 +73,94 @@
 "type":"list"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py=$(cat support.py)\nsupport_py_string=$(to_python_string < support.py)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(compile_grammar(sys.stdin.read()))\n        except _MatchError as e:\n            sys.stderr.write(e.describe())\n            sys.exit(1)\nEOF\n",
-"type":"code"
-}
-],
-"id":"276aa20f5f8040a885bee19ce9b74495",
-"language":"bash",
-"type":"code"
-}
-],
-"title":"Compilation"
+"text":"The ",
+"type":"text"
 },
 {
-"children":[],
-"id":"31e3c712b4ce4f16bb8e5d352e76fb0e",
-"paragraphs":[
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script performs the steps:",
+"type":"text"
+}
+],
+"id":"f7f26c78660b4f3689dd2b45e5576d62",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"compile.sh"
+],
+"fragments":[
+{
+"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"rlmeta template"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"EOF\n",
+"type":"code"
+}
+],
+"id":"6299de61907642ed92cffaa3764f2c61",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The final file template:",
+"type":"text"
+}
+],
+"id":"5a1ea51cecd24d2c908b25e932c22782",
+"type":"text"
+},
+{
+"chunkpath":[
+"rlmeta template"
+],
+"filepath":[
+"compile.sh"
+],
+"fragments":[
+{
+"text":"import sys\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(compile_grammar(sys.stdin.read()))\n        except _MatchError as e:\n            sys.stderr.write(e.describe())\n            sys.exit(1)\n",
+"type":"code"
+}
+],
+"id":"2b5a39bd729f4463b703b7647220596e",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"So the thing I'm interested in optimizing is the time it takes for the ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script to run. The base measurement is this:",
+"type":"text"
+}
+],
+"id":"0e17cb244d5c44559c5a9e8043c77652",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -87,7 +176,33 @@
 {
 "fragments":[
 {
-"text":"What takes time?",
+"text":"The goal of these optimizations should be to decrease this time: ",
+"type":"text"
+},
+{
+"text":"0.756s",
+"type":"strong"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"572fc8860696403f951de597e21532ea",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"compile.sh",
+"type":"code"
+},
+{
+"text":" script first compiles the parser and then the code generator. Do they take different times to compile?",
 "type":"text"
 }
 ],
@@ -121,7 +236,31 @@
 {
 "fragments":[
 {
-"text":"Both grammars take roughly the same time to compile (0.380s and 0.351s). The compilation of the grammars take up most of the time. The rest (outputting the support library and assembling the pieces) takes only about 0.025s (0.756-0.380-0.351).",
+"text":"No. Both grammars take roughly the same time to compile (",
+"type":"text"
+},
+{
+"text":"0.380s",
+"type":"strong"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"0.351s",
+"type":"strong"
+},
+{
+"text":"). The compilation of the grammars take up most of the time. The rest (outputting the support library and assembling the pieces) takes only about ",
+"type":"text"
+},
+{
+"text":"0.025s",
+"type":"strong"
+},
+{
+"text":" (0.756-0.380-0.351).",
 "type":"text"
 }
 ],
@@ -131,7 +270,15 @@
 {
 "fragments":[
 {
-"text":"More specifically, what functions in rlmeta.py takes time?",
+"text":"More specifically, what functions in ",
+"type":"text"
+},
+{
+"text":"rlmeta.py",
+"type":"code"
+},
+{
+"text":" takes time? I used the Python profiler to figure that out for both the parser and the code generator:",
 "type":"text"
 }
 ],
@@ -165,7 +312,79 @@
 {
 "fragments":[
 {
-"text":"Again, both grammars take roughly the same time to compile (0.476s and 0.433s). Not sure why this number is higher. Perhaps because profiling. Moreover, roughly the same functions take up the most time (_or, _next, fail, _and, _match_rule, write). Both grammars have similar performance characteristics.",
+"text":"Again, both grammars take roughly the same time to compile (",
+"type":"text"
+},
+{
+"text":"0.476s",
+"type":"strong"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"0.433s",
+"type":"strong"
+},
+{
+"text":"). I'm not sure why these numbers are higher than the ",
+"type":"text"
+},
+{
+"text":"time",
+"type":"code"
+},
+{
+"text":" measurements. Perhaps because profiling is turned on. Moreover, roughly the same functions take up the most time (",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"_next",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"fail",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"_match_rule",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":"). Both grammars have similar performance characteristics.",
 "type":"text"
 }
 ],
@@ -173,31 +392,37 @@
 "type":"text"
 },
 {
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
 "fragments":[
 {
-"text":"The two different grammars have similar performance characteristics",
+"text":"The overall compilation time to beat is ",
+"type":"text"
+},
+{
+"text":"0.756s",
+"type":"strong"
+},
+{
+"text":" and compilation of a single grammar is ",
+"type":"text"
+},
+{
+"text":"0.476s",
+"type":"strong"
+},
+{
+"text":". I will use the parser only in the following measurements.",
 "type":"text"
 }
-]
+],
+"id":"b76d1f7a4547425fac266eea40215d45",
+"type":"text"
 },
 {
 "child_type":"unordered",
 "children":[
 {
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"_or: reduce number of ors",
-"type":"text"
-}
-]
-},
+"child_type":"unordered",
+"children":[
 {
 "child_type":null,
 "children":[],
@@ -259,45 +484,160 @@
 ],
 "id":"0de2da97ab584af68ac4fe82b792d4e0",
 "type":"list"
-},
-{
-"fragments":[
-{
-"text":"Overall compilation time to beat is 0.756s and compilation of a single grammar is 0.476 (I will use the parser only in the following measurements).",
-"type":"text"
 }
 ],
-"id":"b76d1f7a4547425fac266eea40215d45",
-"type":"text"
-}
-],
-"title":"Base measurements"
+"title":"What to measure?"
 },
 {
 "children":[],
 "id":"2ac127d411b749919b45ae11c1e47975",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Most time is spend in the ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" function that looks like this:",
+"type":"text"
+}
+],
+"id":"b7784aca13ae469090a01f2e848e1072",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"diff --git a/writing/draft-rlmeta-optimizing/codegenerator.rlmeta b/writing/draft-rlmeta-optimizing/codegenerator.rlmeta\nindex 293e013..2177693 100644\n--- a/writing/draft-rlmeta-optimizing/codegenerator.rlmeta\n+++ b/writing/draft-rlmeta-optimizing/codegenerator.rlmeta\n@@ -10,6 +10,8 @@ CodeGenerator {\n     | [\"DedentBuilder\"]         -> { \"_DedentBuilder()\"                                  }\n     | [\"FnCall\" .:x astItems:y] -> { x \"(\" y \")\"                                         }\n     | [\"VarLookup\" .:x]         -> { \"_vars.lookup(\" repr(x) \").eval()\"                  }\n+    | [\"Or\" ast:x]              -> x\n+    | [\"And\" ast:x]             -> x\n     | astFnBody:x               -> { \"(lambda:\\n\" > x < \"\\n)\" }\n   astFnBody =\n     | [\"Or\" astItems:x]         -> { \"self._or([\" x \"])\"                                 }\n",
+"text":"def _or(self, matchers):\n    original_stream = self._stream\n    for matcher in matchers:\n        try:\n            return matcher()\n        except _MatchError:\n            self._stream = original_stream\n    original_stream.fail(\"no choice matched\")\n",
 "type":"code"
 }
 ],
-"id":"273e39ffd9ef4e7999674677fed06fdc",
-"language":"diff",
+"id":"fbb934f6ca3a48c2a34ff06e790937f6",
+"language":"python",
 "type":"code"
 },
 {
 "fragments":[
 {
-"text":"Did not seem to have any effect. Why? Codegenerator becomes bigger which makes it slower.",
+"text":"I didn't see any obvious way to optimize it so I instead thought about reducing the number of calls to it. The code generator always generates a call to ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" even if there is only one choice. In such cases ",
+"type":"text"
+},
+{
+"text":"self._or([matcher])",
+"type":"code"
+},
+{
+"text":" would be equivalent to just ",
+"type":"text"
+},
+{
+"text":"matcher()",
+"type":"code"
+},
+{
+"text":". The same reasoning goes for the ",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":" method where much time also is spent. So I tried to add the following cases to the code generator:",
+"type":"text"
+}
+],
+"id":"bd82c8729bf44697a4b5df1236c536e3",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"| [\"Or\" ast:x]  -> x\n| [\"And\" ast:x] -> x\n",
+"type":"code"
+}
+],
+"id":"273e39ffd9ef4e7999674677fed06fdc",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the code generator sees an ",
+"type":"text"
+},
+{
+"text":"Or",
+"type":"code"
+},
+{
+"text":" or ",
+"type":"text"
+},
+{
+"text":"And",
+"type":"code"
+},
+{
+"text":" node with only one child, it will skip the calls to ",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" and just generate the child matcher.",
+"type":"text"
+}
+],
+"id":"14dc897e3f4e43b8b97b12bcd8f073b6",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This did not seem to have any effect on the speed which surprised me. Why? Perhaps because the code generator becomes bigger which makes it slower.",
 "type":"text"
 }
 ],
 "id":"df0b7ed6167e4139a369016bb38d789e",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"I discarded this change for now and moved on.",
+"type":"text"
+}
+],
+"id":"c62d17cbff144e5f83f3e1aec924c3da",
 "type":"text"
 }
 ],
@@ -308,8 +648,85 @@
 "id":"f4741ec692124b31af139231151e3a29",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Next I turned to the ",
+"type":"text"
+},
+{
+"text":"next",
+"type":"code"
+},
+{
+"text":" function which also takes much time. It looked like this:",
+"type":"text"
+}
+],
+"id":"c776771e7e24443182189d40f5bcda8f",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def next(self):\n    if self.is_at_end():\n        self.fail(\"not eof\")\n    next_object = self._objects[0]\n    return (\n        next_object,\n        self._advance(next_object, self._objects[1:]),\n    )\n",
+"type":"code"
+}
+],
 "id":"431199a71a704d759438687a0d02dbc8",
-"type":"factory"
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"On thing I saw that I thought would take up much time was the slicing of the input array: ",
+"type":"text"
+},
+{
+"text":"self._objects[1:]",
+"type":"code"
+},
+{
+"text":". It will create a new list will all objects but the first, and it will do that for the whole input.",
+"type":"text"
+}
+],
+"id":"80e0c6d0e6d1490eb4e7eb29bab162df",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Describe change...",
+"type":"text"
+}
+],
+"id":"5ba7aafaf41a430ba5b58eaeafc1ab4f",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"Enter code here...",
+"type":"code"
+}
+],
+"id":"0fc87189a13b4d9cb5b574f1cb0c95ea",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Measurements:",
+"type":"text"
+}
+],
+"id":"4000afeb3a0348cb871af30f5d6d738a",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -343,7 +760,23 @@
 "children":[],
 "fragments":[
 {
-"text":"Overall compilation time went from 0.7.. to 0.608s.",
+"text":"Overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.756s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.608s",
+"type":"strong"
+},
+{
+"text":".",
 "type":"text"
 }
 ]
@@ -353,7 +786,23 @@
 "children":[],
 "fragments":[
 {
-"text":"Single grammar went from x to y",
+"text":"Single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.476s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.415s",
+"type":"strong"
+},
+{
+"text":".",
 "type":"text"
 }
 ]
@@ -367,7 +816,23 @@
 "type":"code"
 },
 {
-"text":" has moved down the list ~0.40 -> ~0.17.",
+"text":" has moved down the list from ",
+"type":"text"
+},
+{
+"text":"0.040s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.017s",
+"type":"strong"
+},
+{
+"text":".",
 "type":"text"
 }
 ]
@@ -814,18 +1279,9 @@
 "id":"1ee923adb0ed4f3b8a5cc72700aad2dd",
 "paragraphs":[
 {
-"chunkpath":[],
-"filepath":[
-"compile.sh"
-],
-"fragments":[
-{
-"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(compile_grammar(sys.stdin.read()))\n        except _MatchError as e:\n            sys.stderr.write(e.describe())\n            sys.exit(1)\nEOF\n",
-"type":"code"
-}
-],
-"id":"6299de61907642ed92cffaa3764f2c61",
-"type":"code"
+"code_id":"6299de61907642ed92cffaa3764f2c61",
+"id":"b639c030e2a243cebc7ae78c556db96d",
+"type":"expanded_code"
 }
 ],
 "title":"compile.sh"
@@ -862,7 +1318,7 @@
 {
 "fragments":[
 {
-"text":"In this article I describe how I optimized the first version of RLMeta.",
+"text":"In this article I describe how I optimized the first version of RLMeta to run faster. The first version did not take performance into account, so it should be possible to improve. In the end, compiling itself is roughly 2? times faster.",
 "type":"text"
 }
 ],
