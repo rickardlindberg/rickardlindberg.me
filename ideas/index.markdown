@@ -446,6 +446,7 @@ On writing well:
 * Think clearly => write clearly. Every sentence should build on the previous.
   Logical steps forward.
 * Don't end with summary.
+
 ---
 
 Interesting blogs:
