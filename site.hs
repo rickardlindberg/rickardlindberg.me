@@ -79,6 +79,7 @@ rulesTags isBuildTargetWebserver tags = do
             route $ customRoute $ \identifier ->
                 replaceFileName (toFilePath identifier) (name ++ ".xml")
             compile $ loadAllSnapshots pattern "postContentOnly"
+                >>= filterM isNotDraft
                 >>= fmap (take 15) . recentFirst
                 >>= render
                     (feedConfiguration $ "latest posts tagged " ++ tag)
@@ -99,9 +100,10 @@ rulesFeeds isBuildTargetWebserver = do
             >>= filterM isNotDraft
             >>= recentFirst
             >>= return . (take 15)
-        isNotDraft item = do
-            tags <- getTags (itemIdentifier item)
-            return $ not ("draft" `elem` tags)
+
+isNotDraft item = do
+    tags <- getTags (itemIdentifier item)
+    return $ not ("draft" `elem` tags)
 
 rulesPageIndexHtmlTemplate :: Bool -> Rules ()
 rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
