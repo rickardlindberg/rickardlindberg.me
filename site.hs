@@ -65,7 +65,7 @@ rulesTags isBuildTargetWebserver tags = do
                       `mappend`
                       constField "title" ("Posts tagged " ++ tag)
                       `mappend`
-                      listField "posts" (contextPost isBuildTargetWebserver) (recentFirst =<< loadAll pattern)
+                      listField "posts" (contextPost isBuildTargetWebserver) (filterM (isNotDraftOrDraftPage tag) =<< recentFirst =<< loadAll pattern)
         route idRoute
         compile $ makeItem ""
             >>= loadAndApplyTemplate "templates/tag.html" context
@@ -79,7 +79,7 @@ rulesTags isBuildTargetWebserver tags = do
             route $ customRoute $ \identifier ->
                 replaceFileName (toFilePath identifier) (name ++ ".xml")
             compile $ loadAllSnapshots pattern "postContentOnly"
-                >>= filterM (isNotDraft2 tag)
+                >>= filterM (isNotDraftOrDraftPage tag)
                 >>= fmap (take 15) . recentFirst
                 >>= render
                     (feedConfiguration $ "latest posts tagged " ++ tag)
@@ -101,7 +101,7 @@ rulesFeeds isBuildTargetWebserver = do
             >>= recentFirst
             >>= return . (take 15)
 
-isNotDraft2 tag item = do
+isNotDraftOrDraftPage tag item = do
     if tag == "draft"
         then return True
         else isNotDraft item
