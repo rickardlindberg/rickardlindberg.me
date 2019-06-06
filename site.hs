@@ -96,8 +96,12 @@ rulesFeeds isBuildTargetWebserver = do
             compile $ feedPosts >>= render (feedConfiguration "latest posts") (contextFeed isBuildTargetWebserver)
         feedPosts =
             loadAllSnapshots patternAllPosts "postContentOnly"
+            >>= filterM isNotDraft
             >>= recentFirst
             >>= return . (take 15)
+        isNotDraft item = do
+            tags <- getTags (itemIdentifier item)
+            return $ not ("draft" `elem` tags)
 
 rulesPageIndexHtmlTemplate :: Bool -> Rules ()
 rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
