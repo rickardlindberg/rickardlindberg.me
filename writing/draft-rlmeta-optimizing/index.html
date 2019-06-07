@@ -55,11 +55,11 @@
     <div class="container">
       <h1>DRAFT: Optimizing RLMeta</h1>
 
-<p><em>Published on 2019-06-06.</em></p>
+<p><em>Published on 2019-06-07.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>In this article I describe how I optimized the first version of RLMeta to run twice as fast. The first version did (deliberately) not take performance into account, so I was interested in seeing how I could improve it.</p>
+<p>In this article we will make changes to RLMeta to improve performance. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
 
 <ul><li><a href="#31e3c712b4ce4f16bb8e5d352e76fb0e">What to measure?</a>
 
@@ -139,7 +139,7 @@
 
 </ul><h2><a name="31e3c712b4ce4f16bb8e5d352e76fb0e"></a>What to measure?</h2>
 
-<p>Before optimizing something for speed it is important to measure how long something takes. I was interested in optimizing the time it takes for RLMeta to compile itself.</p>
+<p>Before optimizing something for speed it is important to measure how long something takes. We are interested in optimizing the time it takes for RLMeta to compile itself.</p>
 
 <p>RLMeta compiles itself in the following steps:</p>
 
@@ -221,7 +221,7 @@
 
 </div>
 
-<p>So the thing I'm interested in optimizing is the time it takes for the <code>compile.sh</code> script to run. The base measurement is this:</p>
+<p>So the thing we are interested in optimizing is the time it takes for the <code>compile.sh</code> script to run. The base measurement is this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -232,7 +232,7 @@
 
 </div>
 
-<p>The goal of these optimizations should be to decrease this time: <strong>0.756s</strong>.</p>
+<p>The goal of the optimizations is to decrease this time: <strong>0.756s</strong>.</p>
 
 <p>The <code>compile.sh</code> script first compiles the parser and then the code generator. Do they take different times to compile?</p>
 
@@ -256,7 +256,7 @@
 
 <p>No. Both grammars take roughly the same time to compile (<strong>0.380s</strong> and <strong>0.351s</strong>). The compilation of the grammars take up most of the time. The rest (outputting the support library and assembling the pieces) takes only about <strong>0.025s</strong> (0.756-0.380-0.351).</p>
 
-<p>More specifically, what functions in <code>rlmeta.py</code> takes time? I used the Python profiler to figure that out for both the parser and the code generator:</p>
+<p>More specifically, what functions in <code>rlmeta.py</code> takes time? We use the Python profiler to figure that out for both the parser and the code generator:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>p</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class> </span><span class>-</span><span class>m</span><span class> </span><span class>c</span><span class>P</span><span class>r</span><span class>o</span><span class>f</span><span class>i</span><span class>l</span><span class>e</span><span class> </span><span class>-</span><span class>s</span><span class> </span><span class>t</span><span class>o</span><span class>t</span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&lt;</span><span class> </span><span class>p</span><span class>a</span><span class>r</span><span class>s</span><span class>e</span><span class>r</span><span class>.</span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>
 </span><span class>.</span><span class>.</span><span class>.</span><span class>
@@ -298,7 +298,7 @@
 
 <p>Again, both grammars take roughly the same time to compile (<strong>0.476s</strong> and <strong>0.433s</strong>). I'm not sure why these numbers are higher than the <code>time</code> measurements. Perhaps because profiling is turned on. Moreover, roughly the same functions take up the most time (<code>_or</code>, <code>_next</code>, <code>fail</code>, <code>_and</code>, <code>_match_rule</code>, <code>write</code>). Both grammars have similar performance characteristics.</p>
 
-<p>The overall compilation time to beat is <strong>0.756s</strong> and compilation of a single grammar is <strong>0.476s</strong>. I will use the parser only in the following measurements.</p>
+<p>The overall compilation time to beat is <strong>0.756s</strong> and compilation of a single grammar is <strong>0.476s</strong>. We will use the parser only in the following measurements.</p>
 
 <ul><li>Areas where performance can be improved<ul><li>next: avoid slicing</li>
 
@@ -332,7 +332,7 @@
 
 </div>
 
-<p>I didn't see any obvious way to optimize it so I instead thought about reducing the number of calls to it. The code generator always generates a call to <code>_or</code> even if there is only one choice. In such cases <code>self._or([matcher])</code> would be equivalent to just <code>matcher()</code>. The same reasoning goes for the <code>_and</code> method where much time also is spent. So I tried to add the following cases to the code generator:</p>
+<p>I don't see any obvious way to optimize it so I instead think about reducing the number of calls to it. The code generator always generates a call to <code>_or</code> even if there is only one choice. In such cases <code>self._or([matcher])</code> would be equivalent to just <code>matcher()</code>. The same reasoning goes for the <code>_and</code> method where much time also is spent. So I tried to add the following cases to the code generator:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="nb">|</span><span class> </span><span class>[</span><span class="s">"</span><span class="s">O</span><span class="s">r</span><span class="s">"</span><span class> </span><span class>a</span><span class>s</span><span class>t</span><span class="nb">:</span><span class>x</span><span class>]</span><span class> </span><span class> </span><span class="nb">-</span><span class="nb">&gt;</span><span class> </span><span class>x</span><span class>
 </span><span class="nb">|</span><span class> </span><span class>[</span><span class="s">"</span><span class="s">A</span><span class="s">n</span><span class="s">d</span><span class="s">"</span><span class> </span><span class>a</span><span class>s</span><span class>t</span><span class="nb">:</span><span class>x</span><span class>]</span><span class> </span><span class="nb">-</span><span class="nb">&gt;</span><span class> </span><span class>x</span><span class>
