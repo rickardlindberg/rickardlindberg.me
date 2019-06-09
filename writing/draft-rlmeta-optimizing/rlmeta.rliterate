@@ -33,6 +33,16 @@
 "children":[],
 "fragments":[
 {
+"text":"Generate support libraries",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
 "text":"Compile parser",
 "type":"text"
 }
@@ -53,17 +63,7 @@
 "children":[],
 "fragments":[
 {
-"text":"Generate support library",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Assemble the pieces into a final file",
+"text":"Assemble the pieces into a Python file",
 "type":"text"
 }
 ]
@@ -83,7 +83,7 @@
 "type":"code"
 },
 {
-"text":" script performs the steps:",
+"text":" script performs those steps like this:",
 "type":"text"
 }
 ],
@@ -103,7 +103,7 @@
 {
 "blank_lines_before":0,
 "path":[
-"rlmeta template"
+"python file template"
 ],
 "prefix":"",
 "type":"chunk"
@@ -119,7 +119,7 @@
 {
 "fragments":[
 {
-"text":"The final file template:",
+"text":"The final Python template looks like this:",
 "type":"text"
 }
 ],
@@ -128,7 +128,7 @@
 },
 {
 "chunkpath":[
-"rlmeta template"
+"python file template"
 ],
 "filepath":[
 "compile.sh"
@@ -146,7 +146,7 @@
 {
 "fragments":[
 {
-"text":"So the thing we are interested in optimizing is the time it takes for the ",
+"text":"We are interested in optimizing the time it takes for the ",
 "type":"text"
 },
 {
@@ -154,7 +154,7 @@
 "type":"code"
 },
 {
-"text":" script to run. We measure how long it takes:",
+"text":" script to run. First, we measure how long it currently takes:",
 "type":"text"
 }
 ],
@@ -176,15 +176,11 @@
 {
 "fragments":[
 {
-"text":"The goal of the optimizations are to decrease this time: ",
-"type":"text"
-},
-{
 "text":"0.756s",
 "type":"strong"
 },
 {
-"text":".",
+"text":". The goal of the optimizations are to decrease this time.",
 "type":"text"
 }
 ],
@@ -416,74 +412,6 @@
 ],
 "id":"b76d1f7a4547425fac266eea40215d45",
 "type":"text"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"next: avoid slicing",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"fail: not sure what to do except avoid fails (with less _ors)",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"_and: not sure what to do except avoid _ands",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"_match_rule: use better lookup of function name",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"write: faster string concatenation",
-"type":"text"
-}
-]
-}
-],
-"fragments":[
-{
-"text":"Areas where performance can be improved",
-"type":"text"
-}
-]
-}
-],
-"id":"0de2da97ab584af68ac4fe82b792d4e0",
-"type":"list"
 }
 ],
 "title":"What to measure?"
@@ -526,7 +454,7 @@
 {
 "fragments":[
 {
-"text":"I don't see any obvious way to optimize this so instead we see if we can reduce the number of calls to it. The code generator always generates a call to ",
+"text":"There is no obvious way to optimize this so instead we see if we can reduce the number of calls to it. The code generator always generates a call to ",
 "type":"text"
 },
 {
@@ -601,7 +529,7 @@
 "type":"text"
 },
 {
-"text":"_and",
+"text":"_or",
 "type":"code"
 },
 {
@@ -609,7 +537,7 @@
 "type":"text"
 },
 {
-"text":"_or",
+"text":"_and",
 "type":"code"
 },
 {
@@ -623,7 +551,7 @@
 {
 "fragments":[
 {
-"text":"This does not seem to have any effect on the speed which surprises me. Why? Perhaps because the code generator becomes bigger which makes it slower.",
+"text":"This does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it slower.",
 "type":"text"
 }
 ],
@@ -650,7 +578,7 @@
 {
 "fragments":[
 {
-"text":"Next we turn to the ",
+"text":"We turn to the ",
 "type":"text"
 },
 {
@@ -658,7 +586,7 @@
 "type":"code"
 },
 {
-"text":" function which also takes much time. It looks like this:",
+"text":" function which was the second most time consuming function in the initial measurements. It looks like this:",
 "type":"text"
 }
 ],
@@ -681,7 +609,7 @@
 {
 "fragments":[
 {
-"text":"On thing I saw that I thought would take up much time was the slicing of the input array: ",
+"text":"Every time the next function is called, the input stream is sliced: ",
 "type":"text"
 },
 {
@@ -689,7 +617,7 @@
 "type":"code"
 },
 {
-"text":". It will create a new list will all objects but the first, and it will do that for the whole input.",
+"text":". It will create a new list will all objects but the first. This is wasteful.",
 "type":"text"
 }
 ],
@@ -699,7 +627,15 @@
 {
 "fragments":[
 {
-"text":"Describe change...",
+"text":"The input stream maintains a list of objects and new streams are created with the rest of the object list. We rewrite input streams to instead just have an index, and never modify the list. The ",
+"type":"text"
+},
+{
+"text":"next",
+"type":"code"
+},
+{
+"text":" method then looks like this:",
 "type":"text"
 }
 ],
@@ -711,11 +647,24 @@
 "filepath":[],
 "fragments":[
 {
-"text":"Enter code here...",
+"text":"def next(self):\n    if self.is_at_end():\n        self.fail(\"not eof\")\n    return (self._objects[self._index], self._advance())\n",
 "type":"code"
 }
 ],
 "id":"0fc87189a13b4d9cb5b574f1cb0c95ea",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"git show a358b1921a5f9afae769512ca27db795af947648 support.py\n\nhttps://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1\n",
+"type":"code"
+}
+],
+"id":"ed7b257c011a46eb941b469ccc764963",
 "type":"code"
 },
 {
@@ -1318,7 +1267,7 @@
 {
 "fragments":[
 {
-"text":"In this article we modify RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
+"text":"In this article we optimize RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
 "type":"text"
 }
 ],
