@@ -1,11 +1,11 @@
 ---
 title: 'DRAFT: Optimizing RLMeta'
-date: 2019-06-07
+date: 2019-06-09
 tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>In this article we will make changes to RLMeta to improve performance. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
+<p>In this article we modify RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
 
 <ul><li><a href="#31e3c712b4ce4f16bb8e5d352e76fb0e">What to measure?</a>
 
@@ -167,7 +167,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>So the thing we are interested in optimizing is the time it takes for the <code>compile.sh</code> script to run. The base measurement is this:</p>
+<p>So the thing we are interested in optimizing is the time it takes for the <code>compile.sh</code> script to run. We measure how long it takes:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -178,7 +178,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>The goal of the optimizations is to decrease this time: <strong>0.756s</strong>.</p>
+<p>The goal of the optimizations are to decrease this time: <strong>0.756s</strong>.</p>
 
 <p>The <code>compile.sh</code> script first compiles the parser and then the code generator. Do they take different times to compile?</p>
 
@@ -202,7 +202,7 @@ tags: rlmeta,draft
 
 <p>No. Both grammars take roughly the same time to compile (<strong>0.380s</strong> and <strong>0.351s</strong>). The compilation of the grammars take up most of the time. The rest (outputting the support library and assembling the pieces) takes only about <strong>0.025s</strong> (0.756-0.380-0.351).</p>
 
-<p>More specifically, what functions in <code>rlmeta.py</code> takes time? We use the Python profiler to figure that out for both the parser and the code generator:</p>
+<p>More specifically, what functions in <code>rlmeta.py</code> take time? We use the Python profiler to figure that out for both the parser and the code generator:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">p</span><span class="">y</span><span class="">t</span><span class="">h</span><span class="">o</span><span class="">n</span><span class=""> </span><span class="">-</span><span class="">m</span><span class=""> </span><span class="">c</span><span class="">P</span><span class="">r</span><span class="">o</span><span class="">f</span><span class="">i</span><span class="">l</span><span class="">e</span><span class=""> </span><span class="">-</span><span class="">s</span><span class=""> </span><span class="">t</span><span class="">o</span><span class="">t</span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&lt;</span><span class=""> </span><span class="">p</span><span class="">a</span><span class="">r</span><span class="">s</span><span class="">e</span><span class="">r</span><span class="">.</span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">
 </span><span class="">.</span><span class="">.</span><span class="">.</span><span class="">
@@ -278,7 +278,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>I don't see any obvious way to optimize it so I instead think about reducing the number of calls to it. The code generator always generates a call to <code>_or</code> even if there is only one choice. In such cases <code>self._or([matcher])</code> would be equivalent to just <code>matcher()</code>. The same reasoning goes for the <code>_and</code> method where much time also is spent. So I tried to add the following cases to the code generator:</p>
+<p>I don't see any obvious way to optimize this so instead we see if we can reduce the number of calls to it. The code generator always generates a call to <code>_or</code> even if there is only one choice. In such cases <code>self._or([matcher])</code> would be equivalent to just <code>matcher()</code>. The same reasoning goes for the <code>_and</code> method where much time also is spent. So we add the following cases to the code generator:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">O</span><span class="s">r</span><span class="s">"</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">x</span><span class="">
 </span><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">A</span><span class="s">n</span><span class="s">d</span><span class="s">"</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">x</span><span class="">
@@ -288,13 +288,13 @@ tags: rlmeta,draft
 
 <p>If the code generator sees an <code>Or</code> or <code>And</code> node with only one child, it will skip the calls to <code>_and</code> and <code>_or</code> and just generate the child matcher.</p>
 
-<p>This did not seem to have any effect on the speed which surprised me. Why? Perhaps because the code generator becomes bigger which makes it slower.</p>
+<p>This does not seem to have any effect on the speed which surprises me. Why? Perhaps because the code generator becomes bigger which makes it slower.</p>
 
-<p>I discarded this change for now and moved on.</p>
+<p>We discard this change for now and move on.</p>
 
 <h2><a name="f4741ec692124b31af139231151e3a29"></a>Avoid slicing input</h2>
 
-<p>Next I turned to the <code>next</code> function which also takes much time. It looked like this:</p>
+<p>Next we turn to the <code>next</code> function which also takes much time. It looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">n</span><span class="nf">e</span><span class="nf">x</span><span class="nf">t</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">i</span><span class="k">f</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">s</span><span class="n">_</span><span class="n">a</span><span class="n">t</span><span class="n">_</span><span class="n">e</span><span class="n">n</span><span class="n">d</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="">

@@ -154,7 +154,7 @@
 "type":"code"
 },
 {
-"text":" script to run. The base measurement is this:",
+"text":" script to run. We measure how long it takes:",
 "type":"text"
 }
 ],
@@ -176,7 +176,7 @@
 {
 "fragments":[
 {
-"text":"The goal of the optimizations is to decrease this time: ",
+"text":"The goal of the optimizations are to decrease this time: ",
 "type":"text"
 },
 {
@@ -278,7 +278,7 @@
 "type":"code"
 },
 {
-"text":" takes time? We use the Python profiler to figure that out for both the parser and the code generator:",
+"text":" take time? We use the Python profiler to figure that out for both the parser and the code generator:",
 "type":"text"
 }
 ],
@@ -526,7 +526,7 @@
 {
 "fragments":[
 {
-"text":"I don't see any obvious way to optimize it so I instead think about reducing the number of calls to it. The code generator always generates a call to ",
+"text":"I don't see any obvious way to optimize this so instead we see if we can reduce the number of calls to it. The code generator always generates a call to ",
 "type":"text"
 },
 {
@@ -558,7 +558,7 @@
 "type":"code"
 },
 {
-"text":" method where much time also is spent. So I tried to add the following cases to the code generator:",
+"text":" method where much time also is spent. So we add the following cases to the code generator:",
 "type":"text"
 }
 ],
@@ -623,7 +623,7 @@
 {
 "fragments":[
 {
-"text":"This did not seem to have any effect on the speed which surprised me. Why? Perhaps because the code generator becomes bigger which makes it slower.",
+"text":"This does not seem to have any effect on the speed which surprises me. Why? Perhaps because the code generator becomes bigger which makes it slower.",
 "type":"text"
 }
 ],
@@ -633,7 +633,7 @@
 {
 "fragments":[
 {
-"text":"I discarded this change for now and moved on.",
+"text":"We discard this change for now and move on.",
 "type":"text"
 }
 ],
@@ -650,7 +650,7 @@
 {
 "fragments":[
 {
-"text":"Next I turned to the ",
+"text":"Next we turn to the ",
 "type":"text"
 },
 {
@@ -658,7 +658,7 @@
 "type":"code"
 },
 {
-"text":" function which also takes much time. It looked like this:",
+"text":" function which also takes much time. It looks like this:",
 "type":"text"
 }
 ],
@@ -1318,7 +1318,7 @@
 {
 "fragments":[
 {
-"text":"In this article we will make changes to RLMeta to improve performance. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
+"text":"In this article we modify RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
 "type":"text"
 }
 ],
