@@ -103,7 +103,7 @@
 {
 "blank_lines_before":0,
 "path":[
-"python file template"
+"python template"
 ],
 "prefix":"",
 "type":"chunk"
@@ -119,7 +119,7 @@
 {
 "fragments":[
 {
-"text":"The final Python template looks like this:",
+"text":"The Python template looks like this:",
 "type":"text"
 }
 ],
@@ -128,7 +128,7 @@
 },
 {
 "chunkpath":[
-"python file template"
+"python template"
 ],
 "filepath":[
 "compile.sh"
@@ -154,7 +154,7 @@
 "type":"code"
 },
 {
-"text":" script to run. First, we measure how long it currently takes:",
+"text":" script to run. First, we measure how long it takes:",
 "type":"text"
 }
 ],
@@ -176,11 +176,15 @@
 {
 "fragments":[
 {
+"text":"A total of ",
+"type":"text"
+},
+{
 "text":"0.756s",
 "type":"strong"
 },
 {
-"text":". The goal of the optimizations are to decrease this time.",
+"text":". The goal of our optimizations are to decrease this time.",
 "type":"text"
 }
 ],
@@ -406,7 +410,7 @@
 "type":"strong"
 },
 {
-"text":". We will use the parser only in the following measurements.",
+"text":". Since the performance characteristics of the parser and the code generator is the same, we will use the parser only in the following measurements.",
 "type":"text"
 }
 ],
@@ -470,7 +474,7 @@
 "type":"code"
 },
 {
-"text":" would be equivalent to just ",
+"text":" is equivalent to ",
 "type":"text"
 },
 {
@@ -551,7 +555,7 @@
 {
 "fragments":[
 {
-"text":"This does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it slower.",
+"text":"This does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and therefore slower to run.",
 "type":"text"
 }
 ],
@@ -609,7 +613,7 @@
 {
 "fragments":[
 {
-"text":"Every time the next function is called, the input stream is sliced: ",
+"text":"Every time it is called, the input stream is sliced: ",
 "type":"text"
 },
 {
@@ -670,7 +674,7 @@
 {
 "fragments":[
 {
-"text":"Measurements:",
+"text":"Then we measure:",
 "type":"text"
 }
 ],
@@ -702,11 +706,6 @@
 "type":"code"
 },
 {
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
 "fragments":[
 {
 "text":"Overall compilation time went from ",
@@ -725,17 +724,15 @@
 "type":"strong"
 },
 {
-"text":".",
+"text":" (",
 "type":"text"
-}
-]
 },
 {
-"child_type":null,
-"children":[],
-"fragments":[
+"text":"~20%",
+"type":"strong"
+},
 {
-"text":"Single grammar went from ",
+"text":" faster). Single grammar went from ",
 "type":"text"
 },
 {
@@ -751,21 +748,23 @@
 "type":"strong"
 },
 {
-"text":".",
+"text":" (",
 "type":"text"
-}
-]
 },
 {
-"child_type":null,
-"children":[],
-"fragments":[
+"text":"~12%",
+"type":"strong"
+},
+{
+"text":" faster). The ",
+"type":"text"
+},
 {
 "text":"next",
 "type":"code"
 },
 {
-"text":" has moved down the list from ",
+"text":" method has moved down the list from ",
 "type":"text"
 },
 {
@@ -784,11 +783,9 @@
 "text":".",
 "type":"text"
 }
-]
-}
 ],
-"id":"2c26f455497447b8b1f1b356347cc1b2",
-"type":"list"
+"id":"b63692cca6ac4450b7d52a79c5ef3746",
+"type":"text"
 }
 ],
 "title":"Avoid slicing input"
@@ -797,6 +794,31 @@
 "children":[],
 "id":"8deb8e7f493a474d8555eb7db34a89dc",
 "paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def write(self, value):\n    for ch in value:\n        if self.value and ch != \"\\n\" and self.value[-1] == \"\\n\":\n            self.value += \"    \"*self.indentation\n        self.value += ch\n",
+"type":"code"
+}
+],
+"id":"351831073afe4f19976c736abcb9739a",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"git show d5327b86d3de97a621f9ca0a8d11e445484d0fcb support.py\n\nhttps://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1\n",
+"type":"code"
+}
+],
+"id":"31fd0aa630d74d2c84894f27667173f6",
+"type":"code"
+},
 {
 "chunkpath":[],
 "filepath":[],
