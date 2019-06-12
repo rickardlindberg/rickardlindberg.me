@@ -660,16 +660,31 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
 "fragments":[
 {
-"text":"git show a358b1921a5f9afae769512ca27db795af947648 support.py\n\nhttps://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1\n",
+"text":"The complete diff can be shown with ",
+"type":"text"
+},
+{
+"text":"git show a358b1921a5f9afae769512ca27db795af947648 support.py",
 "type":"code"
+},
+{
+"text":" or ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
 }
 ],
-"id":"ed7b257c011a46eb941b469ccc764963",
-"type":"code"
+"id":"408869ecec3c4077905af0f17f93c868",
+"type":"text"
 },
 {
 "fragments":[
@@ -795,11 +810,37 @@
 "id":"8deb8e7f493a474d8555eb7db34a89dc",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Next we examine the ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":" method of the ",
+"type":"text"
+},
+{
+"text":"_Output",
+"type":"code"
+},
+{
+"text":" class:",
+"type":"text"
+}
+],
+"id":"7f8a065809ef4734bee1424e5afca6a6",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"def write(self, value):\n    for ch in value:\n        if self.value and ch != \"\\n\" and self.value[-1] == \"\\n\":\n            self.value += \"    \"*self.indentation\n        self.value += ch\n",
+"text":"class _Output(object):\n\n    def __init__(self):\n        self.value = \"\"\n        self.indentation = 0\n\n    def write(self, value):\n        for ch in value:\n            if self.value and ch != \"\\n\" and self.value[-1] == \"\\n\":\n                self.value += \"    \"*self.indentation\n            self.value += ch\n",
 "type":"code"
 }
 ],
@@ -808,16 +849,106 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"It builds up the value by concatenating strings to the current value: ",
+"type":"text"
+},
+{
+"text":"self.value += ..",
+"type":"code"
+},
+{
+"text":". This concatenation is done once per generated character. Concatenating string in Python this way is not the fastest way to do it.",
+"type":"text"
+}
+],
+"id":"84c5b2ac6942424e9ad8cf0b6122170e",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"A better way is to use the ",
+"type":"text"
+},
+{
+"text":"StringIO",
+"type":"code"
+},
+{
+"text":" class. Its ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":" method is used to build up the value, and its ",
+"type":"text"
+},
+{
+"text":"getvalue",
+"type":"code"
+},
+{
+"text":" method is used to return it:",
+"type":"text"
+}
+],
+"id":"c69d698ef693433e9a72a88ddf466668",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"git show d5327b86d3de97a621f9ca0a8d11e445484d0fcb support.py\n\nhttps://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1\n",
+"text":"class _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n",
 "type":"code"
 }
 ],
-"id":"31fd0aa630d74d2c84894f27667173f6",
+"id":"d0de1fa5579d488e8a27cc36443fcc64",
+"language":"python",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The complete diff can be shown with ",
+"type":"text"
+},
+{
+"text":"git show d5327b86d3de97a621f9ca0a8d11e445484d0fcb support.py",
+"type":"code"
+},
+{
+"text":" or ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"33c01c5feb944e2080fe3e440c249405",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Then we measure:",
+"type":"text"
+}
+],
+"id":"da9f1b29fab24411a0c58fa35a8944d4",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -846,11 +977,85 @@
 {
 "fragments":[
 {
-"text":"roughly the same time but much less time spent in write",
+"text":"Overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.608s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.603s",
+"type":"strong"
+},
+{
+"text":". Single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.415s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.397s",
+"type":"strong"
+},
+{
+"text":". This is really not significant. But much less time is spent in the ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":" method (",
+"type":"text"
+},
+{
+"text":"0.006s",
+"type":"strong"
+},
+{
+"text":" compared to ",
+"type":"text"
+},
+{
+"text":"0.019s",
+"type":"strong"
+},
+{
+"text":") so we keep this change.",
 "type":"text"
 }
 ],
 "id":"d07638f612804b77bd8f62fc3fe6db72",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"It might be that some more time is spend doing the ",
+"type":"text"
+},
+{
+"text":"getvalue",
+"type":"code"
+},
+{
+"text":" call.",
+"type":"text"
+}
+],
+"id":"adcddf1005a74fd7a9ee09d837cb4fac",
 "type":"text"
 }
 ],
