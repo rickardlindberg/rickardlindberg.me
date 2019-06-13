@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"Before optimizing something for speed it is important to measure how long something takes. We are interested in optimizing the time it takes for RLMeta to compile itself.",
+"text":"Before optimizing something for speed it is important to measure how long it takes. We are interested in optimizing the time it takes for RLMeta to compile itself.",
 "type":"text"
 }
 ],
@@ -83,7 +83,7 @@
 "type":"code"
 },
 {
-"text":" script performs those steps like this:",
+"text":" script performs those steps like follows:",
 "type":"text"
 }
 ],
@@ -119,7 +119,7 @@
 {
 "fragments":[
 {
-"text":"The Python template looks like this:",
+"text":"The Python file template rendered at the end of the script looks like this:",
 "type":"text"
 }
 ],
@@ -146,15 +146,7 @@
 {
 "fragments":[
 {
-"text":"We are interested in optimizing the time it takes for the ",
-"type":"text"
-},
-{
-"text":"compile.sh",
-"type":"code"
-},
-{
-"text":" script to run. First, we measure how long it takes:",
+"text":"To measure how long it takes for RLMeta to compile itself, we use the following command:",
 "type":"text"
 }
 ],
@@ -176,7 +168,7 @@
 {
 "fragments":[
 {
-"text":"A total of ",
+"text":"It takes ",
 "type":"text"
 },
 {
@@ -194,15 +186,7 @@
 {
 "fragments":[
 {
-"text":"The ",
-"type":"text"
-},
-{
-"text":"compile.sh",
-"type":"code"
-},
-{
-"text":" script first compiles the parser and then the code generator. Do they take different times to compile?",
+"text":"To get a better understanding of what takes time, we measure how long it takes to compile the parser and the code generator individually:",
 "type":"text"
 }
 ],
@@ -236,7 +220,7 @@
 {
 "fragments":[
 {
-"text":"No. Both grammars take roughly the same time to compile (",
+"text":"Both grammars take roughly the same time to compile (",
 "type":"text"
 },
 {
@@ -252,7 +236,7 @@
 "type":"strong"
 },
 {
-"text":"). The compilation of the grammars take up most of the time. The rest (outputting the support library and assembling the pieces) takes only about ",
+"text":"). Moreover, the compilation of the grammars take up most of the time. The rest (generating the support libraries and rendering the Python file template) takes only ",
 "type":"text"
 },
 {
@@ -260,7 +244,7 @@
 "type":"strong"
 },
 {
-"text":" (0.756-0.380-0.351).",
+"text":" (0.756-0.380-0.351). We will therefore focus on making compilation of the grammars faster.",
 "type":"text"
 }
 ],
@@ -270,15 +254,7 @@
 {
 "fragments":[
 {
-"text":"More specifically, what functions in ",
-"type":"text"
-},
-{
-"text":"rlmeta.py",
-"type":"code"
-},
-{
-"text":" take time? We use the Python profiler to figure that out for both the parser and the code generator:",
+"text":"To get a better understanding of what takes when compiling grammars, we compile the parser and the code generator with the Python profiler:",
 "type":"text"
 }
 ],
@@ -312,7 +288,7 @@
 {
 "fragments":[
 {
-"text":"Again, both grammars take roughly the same time to compile (",
+"text":"This again shows that both grammars take roughly the same time to compile (",
 "type":"text"
 },
 {
@@ -336,7 +312,7 @@
 "type":"code"
 },
 {
-"text":" measurements. Perhaps because profiling is turned on. Moreover, roughly the same functions take up the most time (",
+"text":" measurements. Perhaps because profiling is turned on. It also shows what functions most time is spend in. Both grammars have roughly the same functions at the top of the list: ",
 "type":"text"
 },
 {
@@ -384,37 +360,11 @@
 "type":"code"
 },
 {
-"text":"). Both grammars have similar performance characteristics.",
+"text":". Since they are similar, we will only profile compilation of the parser.",
 "type":"text"
 }
 ],
 "id":"55354fb22db94925a6774620ca225a57",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The overall compilation time to beat is ",
-"type":"text"
-},
-{
-"text":"0.756s",
-"type":"strong"
-},
-{
-"text":" and compilation of a single grammar is ",
-"type":"text"
-},
-{
-"text":"0.476s",
-"type":"strong"
-},
-{
-"text":". Since the performance characteristics of the parser and the code generator is the same, we will use the parser only in the following measurements.",
-"type":"text"
-}
-],
-"id":"b76d1f7a4547425fac266eea40215d45",
 "type":"text"
 }
 ],
@@ -427,7 +377,7 @@
 {
 "fragments":[
 {
-"text":"Most time is spend in the ",
+"text":"The ",
 "type":"text"
 },
 {
@@ -435,7 +385,7 @@
 "type":"code"
 },
 {
-"text":" function that looks like this:",
+"text":" function is highest on the list of time consuming functions. It looks like this:",
 "type":"text"
 }
 ],
@@ -458,7 +408,7 @@
 {
 "fragments":[
 {
-"text":"There is no obvious way to optimize this so instead we see if we can reduce the number of calls to it. The code generator always generates a call to ",
+"text":"There is no obvious way to optimize this so instead we try to reduce the number of calls to it. The code generator always generates calls to ",
 "type":"text"
 },
 {
@@ -490,7 +440,7 @@
 "type":"code"
 },
 {
-"text":" method where much time also is spent. So we add the following cases to the code generator:",
+"text":" method where much time also is spent. We add the following cases to the code generator:",
 "type":"text"
 }
 ],
