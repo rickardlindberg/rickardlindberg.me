@@ -176,7 +176,7 @@
 "type":"strong"
 },
 {
-"text":". The goal of our optimizations are to decrease this time.",
+"text":". The goal of our optimizations is to decrease this time.",
 "type":"text"
 }
 ],
@@ -244,7 +244,7 @@
 "type":"strong"
 },
 {
-"text":" (0.756-0.380-0.351). We will therefore focus on making compilation of the grammars faster.",
+"text":" (0.756-0.380-0.351). We will therefore focus on making compilation of grammars faster.",
 "type":"text"
 }
 ],
@@ -312,7 +312,7 @@
 "type":"code"
 },
 {
-"text":" measurements. Perhaps because profiling is turned on. It also shows what functions most time is spend in. Both grammars have roughly the same functions at the top of the list: ",
+"text":" measurements. Perhaps because profiling is turned on. It also shows what functions take most time. Both grammars have roughly the same functions at the top of the list: ",
 "type":"text"
 },
 {
@@ -360,11 +360,21 @@
 "type":"code"
 },
 {
-"text":". Since they are similar, we will only profile compilation of the parser.",
+"text":". Since the profiling output looks similar for the two grammars, we will only profile compilation of the parser.",
 "type":"text"
 }
 ],
 "id":"55354fb22db94925a6774620ca225a57",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Let's see how we can make RLMeta run faster.",
+"type":"text"
+}
+],
+"id":"66d646055a1f4012926e0859ac282ad5",
 "type":"text"
 }
 ],
@@ -385,7 +395,7 @@
 "type":"code"
 },
 {
-"text":" function is highest on the list of time consuming functions. It looks like this:",
+"text":" function is highest on the list of functions taking time. It looks like this:",
 "type":"text"
 }
 ],
@@ -416,7 +426,7 @@
 "type":"code"
 },
 {
-"text":" even if there is only one choice. In such cases ",
+"text":" even if there is only one choice: ",
 "type":"text"
 },
 {
@@ -424,7 +434,15 @@
 "type":"code"
 },
 {
-"text":" is equivalent to ",
+"text":". In this case the call to ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" is unnecessary because the single matcher can be called directly: ",
 "type":"text"
 },
 {
@@ -432,7 +450,7 @@
 "type":"code"
 },
 {
-"text":". The same reasoning goes for the ",
+"text":". The same reasoning goes for ",
 "type":"text"
 },
 {
@@ -440,11 +458,37 @@
 "type":"code"
 },
 {
-"text":" method where much time also is spent. We add the following cases to the code generator:",
+"text":" which also takes much time.",
 "type":"text"
 }
 ],
 "id":"bd82c8729bf44697a4b5df1236c536e3",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"To make the code generator skip the calls to ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":", we add the following cases to it:",
+"type":"text"
+}
+],
+"id":"f04c0be1594f45cf984a4d50f14c5953",
 "type":"text"
 },
 {
@@ -463,7 +507,7 @@
 {
 "fragments":[
 {
-"text":"If the code generator sees an ",
+"text":"If it sees an ",
 "type":"text"
 },
 {
@@ -471,7 +515,7 @@
 "type":"code"
 },
 {
-"text":" or ",
+"text":" or an ",
 "type":"text"
 },
 {
@@ -505,7 +549,7 @@
 {
 "fragments":[
 {
-"text":"This does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and therefore slower to run.",
+"text":"Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and slower.",
 "type":"text"
 }
 ],
@@ -523,7 +567,7 @@
 "type":"text"
 }
 ],
-"title":"And/Or optimization"
+"title":"Or/And optimization"
 },
 {
 "children":[],
@@ -532,7 +576,7 @@
 {
 "fragments":[
 {
-"text":"We turn to the ",
+"text":"We move on to the ",
 "type":"text"
 },
 {
@@ -540,7 +584,7 @@
 "type":"code"
 },
 {
-"text":" function which was the second most time consuming function in the initial measurements. It looks like this:",
+"text":" function which is next on the list of functions taking time. It looks like this:",
 "type":"text"
 }
 ],
@@ -563,7 +607,7 @@
 {
 "fragments":[
 {
-"text":"Every time it is called, the input stream is sliced: ",
+"text":"Every time it is called, which is once per object in the input stream, the input stream is sliced: ",
 "type":"text"
 },
 {
@@ -571,7 +615,7 @@
 "type":"code"
 },
 {
-"text":". It will create a new list will all objects but the first. This is wasteful.",
+"text":". It creates a new list with all objects except the first. For example, if the input stream is the string \"print(1)\", it will create the substrings \"rint(1)\", \"int(1)\", \"nt(1)\", and so on. This is wasteful.",
 "type":"text"
 }
 ],
@@ -581,7 +625,26 @@
 {
 "fragments":[
 {
-"text":"The input stream maintains a list of objects and new streams are created with the rest of the object list. We rewrite input streams to instead just have an index, and never modify the list. The ",
+"text":"To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":").",
+"type":"text"
+}
+],
+"id":"5ba7aafaf41a430ba5b58eaeafc1ab4f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"With this change, the ",
 "type":"text"
 },
 {
@@ -589,11 +652,11 @@
 "type":"code"
 },
 {
-"text":" method then looks like this:",
+"text":" method looks like this:",
 "type":"text"
 }
 ],
-"id":"5ba7aafaf41a430ba5b58eaeafc1ab4f",
+"id":"a2623d33daf946e5ab8404c4a3c0c9fa",
 "type":"text"
 },
 {
@@ -612,34 +675,16 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown with ",
+"text":"We create a new version of RLMeta as described in ",
 "type":"text"
 },
 {
-"text":"git show a358b1921a5f9afae769512ca27db795af947648 support.py",
-"type":"code"
-},
-{
-"text":" or ",
-"type":"text"
-},
-{
-"text":"viewed online",
+"text":"Modifying the RLMeta metacompiler",
 "type":"link",
-"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
+"url":"/writing/modifying-rlmeta/"
 },
 {
-"text":".",
-"type":"text"
-}
-],
-"id":"408869ecec3c4077905af0f17f93c868",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Then we measure:",
+"text":" and then we measure:",
 "type":"text"
 }
 ],
@@ -673,7 +718,7 @@
 {
 "fragments":[
 {
-"text":"Overall compilation time went from ",
+"text":"The overall compilation time went from ",
 "type":"text"
 },
 {
@@ -697,7 +742,7 @@
 "type":"strong"
 },
 {
-"text":" faster). Single grammar went from ",
+"text":" faster). The compilation time for a single grammar went from ",
 "type":"text"
 },
 {
@@ -729,7 +774,7 @@
 "type":"code"
 },
 {
-"text":" method has moved down the list from ",
+"text":" method moved down the list from ",
 "type":"text"
 },
 {
@@ -1444,7 +1489,16 @@
 {
 "fragments":[
 {
-"text":"In this article we optimize RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
+"text":"In this article we optimize ",
+"type":"text"
+},
+{
+"text":"RLMeta",
+"type":"link",
+"url":"/writing/rlmeta"
+},
+{
+"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
 "type":"text"
 }
 ],
