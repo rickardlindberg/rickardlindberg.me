@@ -55,17 +55,17 @@
     <div class="container">
       <h1>DRAFT: Optimizing RLMeta</h1>
 
-<p><em>Published on 2019-06-13.</em></p>
+<p><em>Published on 2019-06-14.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>In this article we optimize RLMeta to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
+<p>In this article we optimize <a href="../../writing/rlmeta">RLMeta</a> to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
 
 <ul><li><a href="#31e3c712b4ce4f16bb8e5d352e76fb0e">What to measure?</a>
 
 </li>
 
-<li><a href="#2ac127d411b749919b45ae11c1e47975">And/Or optimization</a>
+<li><a href="#2ac127d411b749919b45ae11c1e47975">Or/And optimization</a>
 
 </li>
 
@@ -232,7 +232,7 @@
 
 </div>
 
-<p>It takes <strong>0.756s</strong>. The goal of our optimizations are to decrease this time.</p>
+<p>It takes <strong>0.756s</strong>. The goal of our optimizations is to decrease this time.</p>
 
 <p>To get a better understanding of what takes time, we measure how long it takes to compile the parser and the code generator individually:</p>
 
@@ -254,7 +254,7 @@
 
 </div>
 
-<p>Both grammars take roughly the same time to compile (<strong>0.380s</strong> and <strong>0.351s</strong>). Moreover, the compilation of the grammars take up most of the time. The rest (generating the support libraries and rendering the Python file template) takes only <strong>0.025s</strong> (0.756-0.380-0.351). We will therefore focus on making compilation of the grammars faster.</p>
+<p>Both grammars take roughly the same time to compile (<strong>0.380s</strong> and <strong>0.351s</strong>). Moreover, the compilation of the grammars take up most of the time. The rest (generating the support libraries and rendering the Python file template) takes only <strong>0.025s</strong> (0.756-0.380-0.351). We will therefore focus on making compilation of grammars faster.</p>
 
 <p>To get a better understanding of what takes when compiling grammars, we compile the parser and the code generator with the Python profiler:</p>
 
@@ -296,11 +296,13 @@
 
 </div>
 
-<p>This again shows that both grammars take roughly the same time to compile (<strong>0.476s</strong> and <strong>0.433s</strong>). I'm not sure why these numbers are higher than the <code>time</code> measurements. Perhaps because profiling is turned on. It also shows what functions most time is spend in. Both grammars have roughly the same functions at the top of the list: <code>_or</code>, <code>_next</code>, <code>fail</code>, <code>_and</code>, <code>_match_rule</code>, <code>write</code>. Since they are similar, we will only profile compilation of the parser.</p>
+<p>This again shows that both grammars take roughly the same time to compile (<strong>0.476s</strong> and <strong>0.433s</strong>). I'm not sure why these numbers are higher than the <code>time</code> measurements. Perhaps because profiling is turned on. It also shows what functions take most time. Both grammars have roughly the same functions at the top of the list: <code>_or</code>, <code>_next</code>, <code>fail</code>, <code>_and</code>, <code>_match_rule</code>, <code>write</code>. Since the profiling output looks similar for the two grammars, we will only profile compilation of the parser.</p>
 
-<h2><a name="2ac127d411b749919b45ae11c1e47975"></a>And/Or optimization</h2>
+<p>Let's see how we can make RLMeta run faster.</p>
 
-<p>The <code>_or</code> function is highest on the list of time consuming functions. It looks like this:</p>
+<h2><a name="2ac127d411b749919b45ae11c1e47975"></a>Or/And optimization</h2>
+
+<p>The <code>_or</code> function is highest on the list of functions taking time. It looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">_</span><span class="nf">o</span><span class="nf">r</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class> </span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="n">c</span><span class="n">h</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">o</span><span class="n">r</span><span class="n">i</span><span class="n">g</span><span class="n">i</span><span class="n">n</span><span class="n">a</span><span class="n">l</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class> </span><span class="o">=</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class>
@@ -314,7 +316,9 @@
 
 </div>
 
-<p>There is no obvious way to optimize this so instead we try to reduce the number of calls to it. The code generator always generates calls to <code>_or</code> even if there is only one choice. In such cases <code>self._or([matcher])</code> is equivalent to <code>matcher()</code>. The same reasoning goes for the <code>_and</code> method where much time also is spent. We add the following cases to the code generator:</p>
+<p>There is no obvious way to optimize this so instead we try to reduce the number of calls to it. The code generator always generates calls to <code>_or</code> even if there is only one choice: <code>self._or([matcher])</code>. In this case the call to <code>_or</code> is unnecessary because the single matcher can be called directly: <code>matcher()</code>. The same reasoning goes for <code>_and</code> which also takes much time.</p>
+
+<p>To make the code generator skip the calls to <code>_or</code> and <code>_and</code>, we add the following cases to it:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="nb">|</span><span class> </span><span class>[</span><span class="s">"</span><span class="s">O</span><span class="s">r</span><span class="s">"</span><span class> </span><span class>a</span><span class>s</span><span class>t</span><span class="nb">:</span><span class>x</span><span class>]</span><span class> </span><span class> </span><span class="nb">-</span><span class="nb">&gt;</span><span class> </span><span class>x</span><span class>
 </span><span class="nb">|</span><span class> </span><span class>[</span><span class="s">"</span><span class="s">A</span><span class="s">n</span><span class="s">d</span><span class="s">"</span><span class> </span><span class>a</span><span class>s</span><span class>t</span><span class="nb">:</span><span class>x</span><span class>]</span><span class> </span><span class="nb">-</span><span class="nb">&gt;</span><span class> </span><span class>x</span><span class>
@@ -322,15 +326,15 @@
 
 </div>
 
-<p>If the code generator sees an <code>Or</code> or <code>And</code> node with only one child, it will skip the calls to <code>_or</code> and <code>_and</code> and just generate the child matcher.</p>
+<p>If it sees an <code>Or</code> or an <code>And</code> node with only one child, it will skip the calls to <code>_or</code> and <code>_and</code> and just generate the child matcher.</p>
 
-<p>This does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and therefore slower to run.</p>
+<p>Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and slower.</p>
 
 <p>We discard this change for now and move on.</p>
 
 <h2><a name="f4741ec692124b31af139231151e3a29"></a>Avoid slicing input</h2>
 
-<p>We turn to the <code>next</code> function which was the second most time consuming function in the initial measurements. It looks like this:</p>
+<p>We move on to the <code>next</code> function which is next on the list of functions taking time. It looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">n</span><span class="nf">e</span><span class="nf">x</span><span class="nf">t</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">i</span><span class="k">f</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">s</span><span class="n">_</span><span class="n">a</span><span class="n">t</span><span class="n">_</span><span class="n">e</span><span class="n">n</span><span class="n">d</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class>
@@ -344,9 +348,11 @@
 
 </div>
 
-<p>Every time it is called, the input stream is sliced: <code>self._objects[1:]</code>. It will create a new list will all objects but the first. This is wasteful.</p>
+<p>Every time it is called, which is once per object in the input stream, the input stream is sliced: <code>self._objects[1:]</code>. It creates a new list with all objects except the first. For example, if the input stream is the string "print(1)", it will create the substrings "rint(1)", "int(1)", "nt(1)", and so on. This is wasteful.</p>
 
-<p>The input stream maintains a list of objects and new streams are created with the rest of the object list. We rewrite input streams to instead just have an index, and never modify the list. The <code>next</code> method then looks like this:</p>
+<p>To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>).</p>
+
+<p>With this change, the <code>next</code> method looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">n</span><span class="nf">e</span><span class="nf">x</span><span class="nf">t</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="k">i</span><span class="k">f</span><span class> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">i</span><span class="n">s</span><span class="n">_</span><span class="n">a</span><span class="n">t</span><span class="n">_</span><span class="n">e</span><span class="n">n</span><span class="n">d</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class>
@@ -356,9 +362,7 @@
 
 </div>
 
-<p>The complete diff can be shown with <code>git show a358b1921a5f9afae769512ca27db795af947648 support.py</code> or <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
-
-<p>Then we measure:</p>
+<p>We create a new version of RLMeta as described in <a href="../../writing/modifying-rlmeta/">Modifying the RLMeta metacompiler</a> and then we measure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -388,7 +392,7 @@
 
 </div>
 
-<p>Overall compilation time went from <strong>0.756s</strong> to <strong>0.608s</strong> (<strong>~20%</strong> faster). Single grammar went from <strong>0.476s</strong> to <strong>0.415s</strong> (<strong>~12%</strong> faster). The <code>next</code> method has moved down the list from <strong>0.040s</strong> to <strong>0.017s</strong>.</p>
+<p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.608s</strong> (<strong>~20%</strong> faster). The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.415s</strong> (<strong>~12%</strong> faster). The <code>next</code> method moved down the list from <strong>0.040s</strong> to <strong>0.017s</strong>.</p>
 
 <h2><a name="8deb8e7f493a474d8555eb7db34a89dc"></a>Faster string concatenation</h2>
 
