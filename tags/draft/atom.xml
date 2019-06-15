@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>ricli85@gmail.com</email>
     </author>
-    <updated>2019-06-14T00:00:00Z</updated>
+    <updated>2019-06-15T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Optimizing RLMeta</title>
     <link href="http://rickardlindberg.me/writing/draft-rlmeta-optimizing/" />
     <id>http://rickardlindberg.me/writing/draft-rlmeta-optimizing/</id>
-    <published>2019-06-14T00:00:00Z</published>
-    <updated>2019-06-14T00:00:00Z</updated>
+    <published>2019-06-15T00:00:00Z</published>
+    <updated>2019-06-15T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Optimizing RLMeta</h1>
 
-<p><em>Published on 2019-06-14.</em></p>
+<p><em>Published on 2019-06-15.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -39,7 +39,7 @@
 
 </li>
 
-<li><a href="#006ce805fef64eb88c4b8214d7e85495">And/Or again</a>
+<li><a href="#006ce805fef64eb88c4b8214d7e85495">Or/And again</a>
 
 </li>
 
@@ -218,7 +218,7 @@
 
 <p>Both grammars take roughly the same time to compile (<strong>0.380s</strong> and <strong>0.351s</strong>). Moreover, the compilation of the grammars take up most of the time. The rest (generating the support libraries and rendering the Python file template) takes only <strong>0.025s</strong> (0.756-0.380-0.351). We will therefore focus on making compilation of grammars faster.</p>
 
-<p>To get a better understanding of what takes when compiling grammars, we compile the parser and the code generator with the Python profiler:</p>
+<p>To get a better understanding of what takes time when compiling grammars, we compile the parser and the code generator with the Python profiler:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">p</span><span class="">y</span><span class="">t</span><span class="">h</span><span class="">o</span><span class="">n</span><span class=""> </span><span class="">-</span><span class="">m</span><span class=""> </span><span class="">c</span><span class="">P</span><span class="">r</span><span class="">o</span><span class="">f</span><span class="">i</span><span class="">l</span><span class="">e</span><span class=""> </span><span class="">-</span><span class="">s</span><span class=""> </span><span class="">t</span><span class="">o</span><span class="">t</span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&lt;</span><span class=""> </span><span class="">p</span><span class="">a</span><span class="">r</span><span class="">s</span><span class="">e</span><span class="">r</span><span class="">.</span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">
 </span><span class="">.</span><span class="">.</span><span class="">.</span><span class="">
@@ -358,7 +358,7 @@
 
 <h2><a name="8deb8e7f493a474d8555eb7db34a89dc"></a>Faster string concatenation</h2>
 
-<p>Next we examine the <code>write</code> method of the <code>_Output</code> class:</p>
+<p>Next we examine the <code>write</code> method of the <code>_Output</code> class. It looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class=""> </span><span class="nc">_</span><span class="nc">O</span><span class="nc">u</span><span class="nc">t</span><span class="nc">p</span><span class="nc">u</span><span class="nc">t</span><span class="p">(</span><span class="nb">o</span><span class="nb">b</span><span class="nb">j</span><span class="nb">e</span><span class="nb">c</span><span class="nb">t</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
@@ -401,9 +401,9 @@
 
 </div>
 
-<p>The complete diff can be shown with <code>git show d5327b86d3de97a621f9ca0a8d11e445484d0fcb support.py</code> or <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
-<p>Then we measure:</p>
+<p>We create a new version of RLMeta and then we measure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -434,11 +434,13 @@
 
 </div>
 
-<p>Overall compilation time went from <strong>0.608s</strong> to <strong>0.603s</strong>. Single grammar went from <strong>0.415s</strong> to <strong>0.397s</strong>. This is really not significant. But much less time is spent in the <code>write</code> method (<strong>0.006s</strong> compared to <strong>0.019s</strong>) so we keep this change.</p>
+<p>The overall compilation time went from <strong>0.608s</strong> to <strong>0.603s</strong>. The compilation time for a single grammar went from <strong>0.415s</strong> to <strong>0.397s</strong>. This is not significant. But much less time is spent in the <code>write</code> method (<strong>0.006s</strong> compared to <strong>0.019s</strong>) so we keep this change.</p>
 
-<p>It might be that some more time is spend doing the <code>getvalue</code> call.</p>
+<p>It might be that some more time is spent doing the <code>getvalue</code> call. But it does not show up at the top of the list.</p>
 
-<h2><a name="006ce805fef64eb88c4b8214d7e85495"></a>And/Or again</h2>
+<h2><a name="006ce805fef64eb88c4b8214d7e85495"></a>Or/And again</h2>
+
+<p>Now that we have made certain parts of the code generator faster, the or/and optimization might be more useful. We apply it and then we measure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -470,7 +472,7 @@
 
 </div>
 
-<p>a little faster, but not abvoius less time spend in or and and</p>
+<p>The overall compilation time went from <strong>0.603s</strong> to <strong>0.592s</strong>. The compilation time for a single grammar went from <strong>0.397s</strong> to <strong>0.380s</strong>. This is significant, but less time is spend int <code>_or</code> and <code>_and</code>, so we keep this change now.</p>
 
 <h2><a name="a06ba4a722cc461f9f3eabe2c0f60e53"></a>Collapse and remove newlines/indents</h2>
 
@@ -507,6 +509,8 @@
 </div>
 
 <p>a little overall faster (a little less readable generated code)</p>
+
+<p>git show 496c98d367a5dce2def17680d92f095cd2c274a5</p>
 
 <h2><a name="e7f710aa99bc4a7c895e905f60b4beb8"></a>Match call rule</h2>
 
