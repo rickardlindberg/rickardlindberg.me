@@ -254,7 +254,7 @@
 {
 "fragments":[
 {
-"text":"To get a better understanding of what takes when compiling grammars, we compile the parser and the code generator with the Python profiler:",
+"text":"To get a better understanding of what takes time when compiling grammars, we compile the parser and the code generator with the Python profiler:",
 "type":"text"
 }
 ],
@@ -823,7 +823,7 @@
 "type":"code"
 },
 {
-"text":" class:",
+"text":" class. It looks like this:",
 "type":"text"
 }
 ],
@@ -911,15 +911,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown with ",
-"type":"text"
-},
-{
-"text":"git show d5327b86d3de97a621f9ca0a8d11e445484d0fcb support.py",
-"type":"code"
-},
-{
-"text":" or ",
+"text":"The complete diff can be shown ",
 "type":"text"
 },
 {
@@ -938,7 +930,7 @@
 {
 "fragments":[
 {
-"text":"Then we measure:",
+"text":"We create a new version of RLMeta and then we measure:",
 "type":"text"
 }
 ],
@@ -972,7 +964,7 @@
 {
 "fragments":[
 {
-"text":"Overall compilation time went from ",
+"text":"The overall compilation time went from ",
 "type":"text"
 },
 {
@@ -988,7 +980,7 @@
 "type":"strong"
 },
 {
-"text":". Single grammar went from ",
+"text":". The compilation time for a single grammar went from ",
 "type":"text"
 },
 {
@@ -1004,7 +996,7 @@
 "type":"strong"
 },
 {
-"text":". This is really not significant. But much less time is spent in the ",
+"text":". This is not significant. But much less time is spent in the ",
 "type":"text"
 },
 {
@@ -1038,7 +1030,7 @@
 {
 "fragments":[
 {
-"text":"It might be that some more time is spend doing the ",
+"text":"It might be that some more time is spent doing the ",
 "type":"text"
 },
 {
@@ -1046,7 +1038,7 @@
 "type":"code"
 },
 {
-"text":" call.",
+"text":" call. But it does not show up at the top of the list.",
 "type":"text"
 }
 ],
@@ -1060,6 +1052,16 @@
 "children":[],
 "id":"006ce805fef64eb88c4b8214d7e85495",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Now that we have made certain parts of the code generator faster, the or/and optimization might be more useful. We apply it and then we measure:",
+"type":"text"
+}
+],
+"id":"4a564795514347da8f9dbd5c9fc03018",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -1087,15 +1089,63 @@
 {
 "fragments":[
 {
-"text":"a little faster, but not abvoius less time spend in or and and",
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.603s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.592s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.397s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.380s",
+"type":"strong"
+},
+{
+"text":". This is significant, but less time is spend int ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":", so we keep this change now.",
 "type":"text"
 }
 ],
-"id":"7a814a8f0b9040f4a7146b072cb62562",
+"id":"dfdab4b9190c4b2d80ed922ffddd395c",
 "type":"text"
 }
 ],
-"title":"And/Or again"
+"title":"Or/And again"
 },
 {
 "children":[],
@@ -1133,6 +1183,16 @@
 }
 ],
 "id":"7a249230c40c45beabf315117d771a5f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"git show 496c98d367a5dce2def17680d92f095cd2c274a5",
+"type":"text"
+}
+],
+"id":"9fe35f389b5e4d4e9c24e0ba3a4e0b3e",
 "type":"text"
 }
 ],
