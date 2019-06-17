@@ -418,7 +418,7 @@
 {
 "fragments":[
 {
-"text":"There is no obvious way to optimize this so instead we try to reduce the number of calls to it. The code generator always generates calls to ",
+"text":"There is no obvious way to optimize it so instead we try to reduce the number of calls to it. The code generator always generates calls to ",
 "type":"text"
 },
 {
@@ -549,7 +549,7 @@
 {
 "fragments":[
 {
-"text":"Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and slower.",
+"text":"Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it slower.",
 "type":"text"
 }
 ],
@@ -567,7 +567,7 @@
 "type":"text"
 }
 ],
-"title":"Or/And optimization"
+"title":"And/Or optimization"
 },
 {
 "children":[],
@@ -625,7 +625,7 @@
 {
 "fragments":[
 {
-"text":"To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be ",
+"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be ",
 "type":"text"
 },
 {
@@ -796,6 +796,66 @@
 ],
 "id":"b63692cca6ac4450b7d52a79c5ef3746",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Finally some progress.",
+"type":"text"
+}
+],
+"id":"90a6d8d35c624cc9af3e7c2fd4f9d26c",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Still not sure what to do with ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":"/",
+"type":"text"
+},
+{
+"text":"_and",
+"type":"code"
+},
+{
+"text":". Examine ",
+"type":"text"
+},
+{
+"text":"fail",
+"type":"code"
+},
+{
+"text":" and see that there is no obvious optimization. Same for ",
+"type":"text"
+},
+{
+"text":"_match_call_rule",
+"type":"code"
+},
+{
+"text":". Let's move on to ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"98d7e7a9360c4481a94567fba763def7",
+"type":"text"
 }
 ],
 "title":"Avoid slicing input"
@@ -854,7 +914,7 @@
 "type":"code"
 },
 {
-"text":". This concatenation is done once per generated character. Concatenating string in Python this way is not the fastest way to do it.",
+"text":". This concatenation is done once per generated character. Concatenating strings in Python this way is not the fastest way to do it.",
 "type":"text"
 }
 ],
@@ -1055,7 +1115,7 @@
 {
 "fragments":[
 {
-"text":"Now that we have made certain parts of the code generator faster, the or/and optimization might be more useful. We apply it and then we measure:",
+"text":"Now that we have made certain parts of the code generator faster, the and/or optimization might be more useful. We apply it and then we measure:",
 "type":"text"
 }
 ],
@@ -1121,7 +1181,7 @@
 "type":"strong"
 },
 {
-"text":". This is significant, but less time is spend int ",
+"text":". This is not significant, but less time is spend int ",
 "type":"text"
 },
 {
@@ -1145,12 +1205,61 @@
 "type":"text"
 }
 ],
-"title":"Or/And again"
+"title":"And/Or again"
 },
 {
 "children":[],
 "id":"a06ba4a722cc461f9f3eabe2c0f60e53",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Why was this tried? Newlines and indents was also removed. Just to write less output.",
+"type":"text"
+}
+],
+"id":"e6cd7656e66141b396e6986ab35e5780",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"First optimization that needs modifying source code.",
+"type":"text"
+}
+],
+"id":"795de59347234d26b94909c99460316a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This also lays the groundwork to enable the next optimization.",
+"type":"text"
+}
+],
+"id":"7ac771e9267c427d9acc01b8bad8494b",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The complete diff can be shown ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/496c98d367a5dce2def17680d92f095cd2c274a5#diff-14e1afbb5e4a4c88a29fd7256cd350fb"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"bcfa7fa533ec4d099365cce755c0315b",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -1188,11 +1297,43 @@
 {
 "fragments":[
 {
-"text":"git show 496c98d367a5dce2def17680d92f095cd2c274a5",
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.592s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.565s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.380s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.343s",
+"type":"strong"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
-"id":"9fe35f389b5e4d4e9c24e0ba3a4e0b3e",
+"id":"c837c11677a5464b9537266d0e6fd08e",
 "type":"text"
 }
 ],
@@ -1205,11 +1346,57 @@
 {
 "fragments":[
 {
+"text":"Can reduce a whole lot of ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" calls.",
+"type":"text"
+}
+],
+"id":"b5f4f2ebe7cd4ec3bd630370d2afb036",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Motivation is to get rid of ors in code generator.",
 "type":"text"
 }
 ],
 "id":"34855f08881448499205cbcdbe4e7bdd",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The complete diff can be shown viewed online ",
+"type":"text"
+},
+{
+"text":"here",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/61ff2132a057cf986ae0eae8575d24b066ab3e43"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"here",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/f054fdca6c939506e2820d86d466fe1763244c43#diff-14e1afbb5e4a4c88a29fd7256cd350fb"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"991870bc9fdb41b0bd564d68ce5f1bea",
 "type":"text"
 },
 {
@@ -1271,6 +1458,25 @@
 "id":"f0338cf15ddb49099abf6a135a0961d7",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The complete diff can be shown ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/3cbf3437cf0478bd899ec6c6c839b3f07c32f86b#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"aa591747e68c4049a220cf9c5e382e99",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1312,6 +1518,34 @@
 "id":"a5f5f3907de04b28bdf52a8ba57b4a71",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The complete diff can be shown viewed online ",
+"type":"text"
+},
+{
+"text":"here",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/d32dfb7235b2d1353d8045dc1999a6dc07f493bf#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"here",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/dd3d3b8c35744b6d5e5ef42dbd46aafa9e1331ad#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"33ef278f33554dd3b9d9d5dbb24cd12a",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1334,6 +1568,16 @@
 ],
 "id":"d924bf5c2ea4444fa9cb3afc812ae719",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
+"type":"text"
+}
+],
+"id":"002e03eb44d448db865027fec5b771c2",
+"type":"text"
 }
 ],
 "title":"Make fail messages lazy"
@@ -1342,6 +1586,25 @@
 "children":[],
 "id":"898ec92a13304692857a6d4de445e4d2",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The complete diff can be shown ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/6bcd1457c0fc4726c0d7bc5020a77dcef7f05ed3#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"384cd111a3bd4a20a895766d215d655c",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -1373,6 +1636,25 @@
 "children":[],
 "id":"84d9e890742c41d48fc1afc2009815c7",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The complete diff can be shown ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/079d437dee27cca6cf7aa18d4fffdb5b2dd26172#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"a84b0514ddda4806a8ac1804235abe47",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -1432,6 +1714,16 @@
 }
 ],
 "id":"1034d5b114154a9986a261da947633d6",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Only focus on the 20% of the optimizations that were really significant?",
+"type":"text"
+}
+],
+"id":"eb7ab3ad65694d5f8ae8c553e0c3546c",
 "type":"text"
 }
 ],
