@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: Optimizing RLMeta</h1>
 
-<p><em>Published on 2019-06-15.</em></p>
+<p><em>Published on 2019-06-17.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -65,7 +65,7 @@
 
 </li>
 
-<li><a href="#2ac127d411b749919b45ae11c1e47975">Or/And optimization</a>
+<li><a href="#2ac127d411b749919b45ae11c1e47975">And/Or optimization</a>
 
 </li>
 
@@ -77,7 +77,7 @@
 
 </li>
 
-<li><a href="#006ce805fef64eb88c4b8214d7e85495">Or/And again</a>
+<li><a href="#006ce805fef64eb88c4b8214d7e85495">And/Or again</a>
 
 </li>
 
@@ -300,7 +300,7 @@
 
 <p>Let's see how we can make RLMeta run faster.</p>
 
-<h2><a name="2ac127d411b749919b45ae11c1e47975"></a>Or/And optimization</h2>
+<h2><a name="2ac127d411b749919b45ae11c1e47975"></a>And/Or optimization</h2>
 
 <p>The <code>_or</code> function is highest on the list of functions taking time. It looks like this:</p>
 
@@ -316,7 +316,7 @@
 
 </div>
 
-<p>There is no obvious way to optimize this so instead we try to reduce the number of calls to it. The code generator always generates calls to <code>_or</code> even if there is only one choice: <code>self._or([matcher])</code>. In this case the call to <code>_or</code> is unnecessary because the single matcher can be called directly: <code>matcher()</code>. The same reasoning goes for <code>_and</code> which also takes much time.</p>
+<p>There is no obvious way to optimize it so instead we try to reduce the number of calls to it. The code generator always generates calls to <code>_or</code> even if there is only one choice: <code>self._or([matcher])</code>. In this case the call to <code>_or</code> is unnecessary because the single matcher can be called directly: <code>matcher()</code>. The same reasoning goes for <code>_and</code> which also takes much time.</p>
 
 <p>To make the code generator skip the calls to <code>_or</code> and <code>_and</code>, we add the following cases to it:</p>
 
@@ -328,7 +328,7 @@
 
 <p>If it sees an <code>Or</code> or an <code>And</code> node with only one child, it will skip the calls to <code>_or</code> and <code>_and</code> and just generate the child matcher.</p>
 
-<p>Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it bigger and slower.</p>
+<p>Unfortunately, this does not seem to have any effect on the speed. Why is that? Perhaps because the two added cases to the code generator also makes it slower.</p>
 
 <p>We discard this change for now and move on.</p>
 
@@ -350,7 +350,7 @@
 
 <p>Every time it is called, which is once per object in the input stream, the input stream is sliced: <code>self._objects[1:]</code>. It creates a new list with all objects except the first. For example, if the input stream is the string "print(1)", it will create the substrings "rint(1)", "int(1)", "nt(1)", and so on. This is wasteful.</p>
 
-<p>To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>).</p>
+<p>To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>).</p>
 
 <p>With this change, the <code>next</code> method looks like this:</p>
 
@@ -394,6 +394,10 @@
 
 <p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.608s</strong> (<strong>~20%</strong> faster). The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.415s</strong> (<strong>~12%</strong> faster). The <code>next</code> method moved down the list from <strong>0.040s</strong> to <strong>0.017s</strong>.</p>
 
+<p>Finally some progress.</p>
+
+<p>Still not sure what to do with <code>_or</code>/<code>_and</code>. Examine <code>fail</code> and see that there is no obvious optimization. Same for <code>_match_call_rule</code>. Let's move on to <code>write</code>.</p>
+
 <h2><a name="8deb8e7f493a474d8555eb7db34a89dc"></a>Faster string concatenation</h2>
 
 <p>Next we examine the <code>write</code> method of the <code>_Output</code> class. It looks like this:</p>
@@ -413,7 +417,7 @@
 
 </div>
 
-<p>It builds up the value by concatenating strings to the current value: <code>self.value += ..</code>. This concatenation is done once per generated character. Concatenating string in Python this way is not the fastest way to do it.</p>
+<p>It builds up the value by concatenating strings to the current value: <code>self.value += ..</code>. This concatenation is done once per generated character. Concatenating strings in Python this way is not the fastest way to do it.</p>
 
 <p>A better way is to use the <code>StringIO</code> class. Its <code>write</code> method is used to build up the value, and its <code>getvalue</code> method is used to return it:</p>
 
@@ -476,9 +480,9 @@
 
 <p>It might be that some more time is spent doing the <code>getvalue</code> call. But it does not show up at the top of the list.</p>
 
-<h2><a name="006ce805fef64eb88c4b8214d7e85495"></a>Or/And again</h2>
+<h2><a name="006ce805fef64eb88c4b8214d7e85495"></a>And/Or again</h2>
 
-<p>Now that we have made certain parts of the code generator faster, the or/and optimization might be more useful. We apply it and then we measure:</p>
+<p>Now that we have made certain parts of the code generator faster, the and/or optimization might be more useful. We apply it and then we measure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -510,9 +514,17 @@
 
 </div>
 
-<p>The overall compilation time went from <strong>0.603s</strong> to <strong>0.592s</strong>. The compilation time for a single grammar went from <strong>0.397s</strong> to <strong>0.380s</strong>. This is significant, but less time is spend int <code>_or</code> and <code>_and</code>, so we keep this change now.</p>
+<p>The overall compilation time went from <strong>0.603s</strong> to <strong>0.592s</strong>. The compilation time for a single grammar went from <strong>0.397s</strong> to <strong>0.380s</strong>. This is not significant, but less time is spend int <code>_or</code> and <code>_and</code>, so we keep this change now.</p>
 
 <h2><a name="a06ba4a722cc461f9f3eabe2c0f60e53"></a>Collapse and remove newlines/indents</h2>
+
+<p>Why was this tried? Newlines and indents was also removed. Just to write less output.</p>
+
+<p>First optimization that needs modifying source code.</p>
+
+<p>This also lays the groundwork to enable the next optimization.</p>
+
+<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/496c98d367a5dce2def17680d92f095cd2c274a5#diff-14e1afbb5e4a4c88a29fd7256cd350fb">viewed online</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -548,11 +560,15 @@
 
 <p>a little overall faster (a little less readable generated code)</p>
 
-<p>git show 496c98d367a5dce2def17680d92f095cd2c274a5</p>
+<p>The overall compilation time went from <strong>0.592s</strong> to <strong>0.565s</strong>. The compilation time for a single grammar went from <strong>0.380s</strong> to <strong>0.343s</strong>.</p>
 
 <h2><a name="e7f710aa99bc4a7c895e905f60b4beb8"></a>Match call rule</h2>
 
+<p>Can reduce a whole lot of <code>_or</code> calls.</p>
+
 <p>Motivation is to get rid of ors in code generator.</p>
+
+<p>The complete diff can be shown viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/61ff2132a057cf986ae0eae8575d24b066ab3e43">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/f054fdca6c939506e2820d86d466fe1763244c43#diff-14e1afbb5e4a4c88a29fd7256cd350fb">here</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -596,6 +612,8 @@
 
 <h2><a name="f0338cf15ddb49099abf6a135a0961d7"></a>Optimize position</h2>
 
+<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/3cbf3437cf0478bd899ec6c6c839b3f07c32f86b#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
 </span><span class>r</span><span class>e</span><span class>a</span><span class>l</span><span class>	</span><span class>0</span><span class>m</span><span class>0</span><span class>.</span><span class>3</span><span class>9</span><span class>2</span><span class>s</span><span class>
@@ -630,6 +648,8 @@
 <p>Slightly better.</p>
 
 <h2><a name="a5f5f3907de04b28bdf52a8ba57b4a71"></a>Make fail messages lazy</h2>
+
+<p>The complete diff can be shown viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d32dfb7235b2d1353d8045dc1999a6dc07f493bf#diff-f500390afaa13cfd96d938b9065dc0c1">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/dd3d3b8c35744b6d5e5ef42dbd46aafa9e1331ad#diff-f500390afaa13cfd96d938b9065dc0c1">here</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -671,7 +691,11 @@
 
 </div>
 
+<p>During search we found a few super optimizations and a few less super once. We will stop here.</p>
+
 <h2><a name="898ec92a13304692857a6d4de445e4d2"></a>Peek</h2>
+
+<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/6bcd1457c0fc4726c0d7bc5020a77dcef7f05ed3#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
@@ -714,6 +738,8 @@
 
 <h2><a name="84d9e890742c41d48fc1afc2009815c7"></a>No exception last or</h2>
 
+<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/079d437dee27cca6cf7aa18d4fffdb5b2dd26172#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>t</span><span class>i</span><span class>m</span><span class>e</span><span class> </span><span class>.</span><span class>/</span><span class>c</span><span class>o</span><span class>m</span><span class>p</span><span class>i</span><span class>l</span><span class>e</span><span class>.</span><span class>s</span><span class>h</span><span class> </span><span class>r</span><span class>l</span><span class>m</span><span class>e</span><span class>t</span><span class>a</span><span class>.</span><span class>p</span><span class>y</span><span class> </span><span class>&gt;</span><span class> </span><span class>/</span><span class>d</span><span class>e</span><span class>v</span><span class>/</span><span class>n</span><span class>u</span><span class>l</span><span class>l</span><span class>
 </span><span class>
 </span><span class>r</span><span class>e</span><span class>a</span><span class>l</span><span class>	</span><span class>0</span><span class>m</span><span class>0</span><span class>.</span><span class>3</span><span class>4</span><span class>4</span><span class>s</span><span class>
@@ -752,6 +778,8 @@
 <p>Overall performance roughly doubled.</p>
 
 <p>Performance measurements were not very detailed. A bigger grammar could have helped.</p>
+
+<p>Only focus on the 20% of the optimizations that were really significant?</p>
 
 <h2><a name="3aafb64996414339b01b0d407e6e1810"></a>Code listings for RLMeta</h2>
 
