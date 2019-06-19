@@ -660,7 +660,7 @@
 {
 "fragments":[
 {
-"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be ",
+"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
 "type":"text"
 },
 {
@@ -669,7 +669,7 @@
 "url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
 },
 {
-"text":").",
+"text":".",
 "type":"text"
 }
 ],
@@ -760,15 +760,7 @@
 "type":"strong"
 },
 {
-"text":" (",
-"type":"text"
-},
-{
-"text":"~20%",
-"type":"strong"
-},
-{
-"text":" faster). The compilation time for a single grammar went from ",
+"text":". The compilation time for a single grammar went from ",
 "type":"text"
 },
 {
@@ -784,15 +776,7 @@
 "type":"strong"
 },
 {
-"text":" (",
-"type":"text"
-},
-{
-"text":"~12%",
-"type":"strong"
-},
-{
-"text":" faster). The ",
+"text":". The ",
 "type":"text"
 },
 {
@@ -997,7 +981,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown ",
+"text":"The complete diff can be ",
 "type":"text"
 },
 {
@@ -1338,7 +1322,7 @@
 {
 "fragments":[
 {
-"text":"The newlines and indentation is not necessary. It might make the generated code easier to the read at the expense of outputting at least 6 more characters (two newlines and at least 4 spaces of indent). Instead we could generate this:",
+"text":"The newlines and indentation are not necessary. It might make the generated code easier to the read at the expense of outputting at least 6 more characters (two newlines and at least 4 spaces of indent). Instead we could generate this:",
 "type":"text"
 }
 ],
@@ -1384,7 +1368,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown ",
+"text":"The complete diff can be ",
 "type":"text"
 },
 {
@@ -1411,7 +1395,7 @@
 "type":"code"
 },
 {
-"text":" rule in favor of duplicating the lambda output code. This also lays the groundwork to enable the next optimization.",
+"text":" rule in favor of duplicating the lambda output code. This removes one function call, but more importantly lays the groundwork for the next optimization.",
 "type":"text"
 }
 ],
@@ -1505,7 +1489,7 @@
 "type":"text"
 }
 ],
-"title":"Collapse and remove newlines/indents"
+"title":"Remove newlines and indentation"
 },
 {
 "children":[],
@@ -1514,15 +1498,15 @@
 {
 "fragments":[
 {
-"text":"Can reduce a whole lot of ",
+"text":"The largest part of the code generator is the ",
 "type":"text"
 },
 {
-"text":"_or",
+"text":"ast",
 "type":"code"
 },
 {
-"text":" calls.",
+"text":". It has many choices that are tried in order to generate code for different type of ast nodes:",
 "type":"text"
 }
 ],
@@ -1530,9 +1514,64 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"Motivation is to get rid of ors in code generator.",
+"text":"CodeGenerator {\n  ast =\n    | [\"Grammar\" .:x ast*:ys] -> { \"class \" x \"(_Grammar):\\n\" > ys <   }\n    ... (22 choices omitted) ...\n    | [\"MatchList\" ast:x]     -> { \"(lambda: self._match_list(\" x \"))\" }\n  ...\n}\n",
+"type":"code"
+}
+],
+"id":"a0d4c57e227b4a39871967181a660336",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"To generate code for the ",
+"type":"text"
+},
+{
+"text":"MatchList",
+"type":"code"
+},
+{
+"text":" ast node, the ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" methods first need to fail 23 times before it reaches the last choice that matches. Can we introduce a new concept in RLMeta that allow us to improve this situation?",
+"type":"text"
+}
+],
+"id":"66d8dd8b39684776b9fff7cf48187987",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We introduce a new operator, ",
+"type":"text"
+},
+{
+"text":"%",
+"type":"code"
+},
+{
+"text":", that means read one item from the input stream and treat it as a name of a rule in the grammar. Then call that rule. The ",
+"type":"text"
+},
+{
+"text":"ast",
+"type":"code"
+},
+{
+"text":" rule simply becomes matching a list, then calling the rule for that ast node. All choices are converted to rules where the ast node name becomes the rule name:",
 "type":"text"
 }
 ],
@@ -1540,9 +1579,22 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"The complete diff can be shown viewed online ",
+"text":"CodeGenerator {\n  Grammar   = .:x ast*:ys -> { \"class \" x \"(_Grammar):\\n\" > ys <   }\n  ...\n  MatchList = ast:x       -> { \"(lambda: self._match_list(\" x \"))\" }\n  ast       = [%:x]       -> x\n  ...\n}\n",
+"type":"code"
+}
+],
+"id":"db24db78fb4840b091d6e294ff09b90b",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The complete diff can be viewed online ",
 "type":"text"
 },
 {
@@ -1565,6 +1617,34 @@
 }
 ],
 "id":"991870bc9fdb41b0bd564d68ce5f1bea",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"With this change, the main part of the code generator is completely free of choice operators which should eliminate many calls to ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"5d07402498c94a1cb3ada07c94611dc2",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure:",
+"type":"text"
+}
+],
+"id":"d2e634f9e6504ff29a3eee6f5672d128",
 "type":"text"
 },
 {
@@ -1640,6 +1720,16 @@
 ],
 "id":"aab6484037fe44589bde970ba5e725c0",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Now that the code generator is mostly free from choices, is it still worthwhile to memoize results?",
+"type":"text"
+}
+],
+"id":"e9804cf9d95d4624a0be8b05bbe47693",
+"type":"text"
 }
 ],
 "title":"Match call rule"
@@ -1651,11 +1741,85 @@
 {
 "fragments":[
 {
+"text":"Memoizing results is done in ",
+"type":"text"
+},
+{
+"text":"_match_rule",
+"type":"code"
+},
+{
+"text":" that looks like this:",
+"type":"text"
+}
+],
+"id":"89247bec6c9b4d418b6993ffc8df0463",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_rule(self, rule_name):\n    key = (rule_name, self._stream.position())\n    if key in self._memo:\n        result, _, self._stream = self._memo[key]\n    else:\n        start = self._stream\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end = self._stream\n        self._memo[key] = (result, start, end)\n    return result\n",
+"type":"code"
+}
+],
+"id":"cbb1c2679ec6426bb1dcb750e881fe65",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the rule has matched before at the current position, the memozied result is returned. In the new code generator there will not be many such matches since most choice is elimiated. For the code generator, we can instead just do this:",
+"type":"text"
+}
+],
+"id":"dce8bd60ae124475bf08f14d63b5bd54",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_rule(self, rule_name):\n    return getattr(self, \"_rule_{}\".format(rule_name))()\n",
+"type":"code"
+}
+],
+"id":"dce682dbfa36429dab6b415068433a07",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure.",
+"type":"text"
+}
+],
+"id":"20af77f424cb411c8ccdcb36892122a7",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"This was not really significant.",
 "type":"text"
 }
 ],
 "id":"3f4185deb25b4f08a6b167b25844871f",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Match rule is still high up on the list, We see the position call there. Can it be optimized?",
+"type":"text"
+}
+],
+"id":"1ee33db43a0f412b84385c440b730178",
 "type":"text"
 }
 ],
@@ -1668,7 +1832,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown ",
+"text":"The complete diff can be ",
 "type":"text"
 },
 {
@@ -1711,7 +1875,49 @@
 {
 "fragments":[
 {
-"text":"Slightly better.",
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.406s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.392s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.220s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.220s",
+"type":"strong"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"c7c97427a22e4cd287cbb979fc76d182",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Slightly better. Or not. Just fooled by inacurate time measurements?",
 "type":"text"
 }
 ],
@@ -1728,7 +1934,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown viewed online ",
+"text":"The complete diff can be viewed online ",
 "type":"text"
 },
 {
@@ -1780,11 +1986,43 @@
 {
 "fragments":[
 {
-"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.392s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.370s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.220s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.204s",
+"type":"strong"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
-"id":"002e03eb44d448db865027fec5b771c2",
+"id":"0ba32f7bf8184887aabffa6b21331acd",
 "type":"text"
 }
 ],
@@ -1797,7 +2035,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown ",
+"text":"The complete diff can be ",
 "type":"text"
 },
 {
@@ -1836,6 +2074,48 @@
 ],
 "id":"20e97823102d44eebb5e45a8cb796cd1",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.370s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.351s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.204s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.187s",
+"type":"strong"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"28bae40877d84db78e28286d8bb02b30",
+"type":"text"
 }
 ],
 "title":"Peek"
@@ -1847,7 +2127,7 @@
 {
 "fragments":[
 {
-"text":"The complete diff can be shown ",
+"text":"The complete diff can be ",
 "type":"text"
 },
 {
@@ -1890,11 +2170,63 @@
 {
 "fragments":[
 {
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.351s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.344s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.187s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.185s",
+"type":"strong"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"716ffb55967a4103844b0857e4c6a651",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Can't really tell if better or worse. But should reduce one exception catch/trow. And I like this code better.",
 "type":"text"
 }
 ],
 "id":"806aff9cb25247c5a37cea9113ca48ca",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
+"type":"text"
+}
+],
+"id":"002e03eb44d448db865027fec5b771c2",
 "type":"text"
 }
 ],
@@ -1904,6 +2236,48 @@
 "children":[],
 "id":"3616eda03f5c40458ac9439def097739",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The overall compilation time went from ",
+"type":"text"
+},
+{
+"text":"0.756s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.344s",
+"type":"strong"
+},
+{
+"text":". The compilation time for a single grammar went from ",
+"type":"text"
+},
+{
+"text":"0.476s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.185s",
+"type":"strong"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"692f0b3b69504923988210033d604134",
+"type":"text"
+},
 {
 "fragments":[
 {
