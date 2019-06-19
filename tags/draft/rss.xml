@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 18 Jun 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 19 Jun 2019 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Optimizing RLMeta</title>
     <link>http://rickardlindberg.me/writing/draft-rlmeta-optimizing/</link>
     <description><![CDATA[<h1>DRAFT: Optimizing RLMeta</h1>
 
-<p><em>Published on 2019-06-18.</em></p>
+<p><em>Published on 2019-06-19.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -39,7 +39,7 @@
 
 </li>
 
-<li><a href="#a06ba4a722cc461f9f3eabe2c0f60e53">Collapse and remove newlines/indents</a>
+<li><a href="#a06ba4a722cc461f9f3eabe2c0f60e53">Remove newlines and indentation</a>
 
 </li>
 
@@ -310,7 +310,7 @@
 
 <p>Every time it is called, which is once per object in the input stream, the input stream is sliced: <code>self._objects[1:]</code>. It creates a new list with all objects except the first. For example, if the input stream is the string "print(1)", it will create the substrings "rint(1)", "int(1)", "nt(1)", and so on. This is wasteful.</p>
 
-<p>To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. (The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>).</p>
+<p>To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <p>With this change, the <code>next</code> method looks like this:</p>
 
@@ -352,7 +352,7 @@
 
 </div>
 
-<p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.608s</strong> (<strong>~20%</strong> faster). The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.415s</strong> (<strong>~12%</strong> faster). The <code>next</code> method moved down the list from <strong>0.040s</strong> to <strong>0.017s</strong>.</p>
+<p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.608s</strong>. The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.415s</strong>. The <code>next</code> method moved down the list from <strong>0.040s</strong> to <strong>0.017s</strong>.</p>
 
 <p>Finally some progress.</p>
 
@@ -403,7 +403,7 @@
 
 </div>
 
-<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+<p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d5327b86d3de97a621f9ca0a8d11e445484d0fcb#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <p>We create a new version of RLMeta and then we measure:</p>
 
@@ -480,7 +480,7 @@
 
 <p>We previously observed that writing output took some time. We made the write method faster. Now we will try another change that will cause less characters to be written to the output. This will change the grammar, and not just support libraries.</p>
 
-<h2><a name="a06ba4a722cc461f9f3eabe2c0f60e53"></a>Collapse and remove newlines/indents</h2>
+<h2><a name="a06ba4a722cc461f9f3eabe2c0f60e53"></a>Remove newlines and indentation</h2>
 
 <p>The main part of the code generator has two rules that generate code for ast nodes:</p>
 
@@ -507,7 +507,7 @@
 
 </div>
 
-<p>The newlines and indentation is not necessary. It might make the generated code easier to the read at the expense of outputting at least 6 more characters (two newlines and at least 4 spaces of indent). Instead we could generate this:</p>
+<p>The newlines and indentation are not necessary. It might make the generated code easier to the read at the expense of outputting at least 6 more characters (two newlines and at least 4 spaces of indent). Instead we could generate this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="p">(</span><span class="k">l</span><span class="k">a</span><span class="k">m</span><span class="k">b</span><span class="k">d</span><span class="k">a</span><span class="p">:</span><span class=""> </span><span class="n">b</span><span class="n">o</span><span class="n">d</span><span class="n">y</span><span class="p">)</span><span class="">
 </span></pre></div>
@@ -528,9 +528,9 @@
 
 </div>
 
-<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/496c98d367a5dce2def17680d92f095cd2c274a5#diff-14e1afbb5e4a4c88a29fd7256cd350fb">viewed online</a>.</p>
+<p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/496c98d367a5dce2def17680d92f095cd2c274a5#diff-14e1afbb5e4a4c88a29fd7256cd350fb">viewed online</a>.</p>
 
-<p>This also removes the <code>astFnBody</code> rule in favor of duplicating the lambda output code. This also lays the groundwork to enable the next optimization.</p>
+<p>This also removes the <code>astFnBody</code> rule in favor of duplicating the lambda output code. This removes one function call, but more importantly lays the groundwork for the next optimization.</p>
 
 <p>We create a new version of RLMeta and then we measure:</p>
 
@@ -572,11 +572,39 @@
 
 <h2><a name="e7f710aa99bc4a7c895e905f60b4beb8"></a>Match call rule</h2>
 
-<p>Can reduce a whole lot of <code>_or</code> calls.</p>
+<p>The largest part of the code generator is the <code>ast</code>. It has many choices that are tried in order to generate code for different type of ast nodes:</p>
 
-<p>Motivation is to get rid of ors in code generator.</p>
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">C</span><span class="">o</span><span class="">d</span><span class="">e</span><span class="">G</span><span class="">e</span><span class="">n</span><span class="">e</span><span class="">r</span><span class="">a</span><span class="">t</span><span class="">o</span><span class="">r</span><span class=""> </span><span class="">{</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class=""> </span><span class="nb">=</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">G</span><span class="s">r</span><span class="s">a</span><span class="s">m</span><span class="s">m</span><span class="s">a</span><span class="s">r</span><span class="s">"</span><span class=""> </span><span class="nc">.</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nc">*</span><span class="nb">:</span><span class="">y</span><span class="">s</span><span class="">]</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">{</span><span class=""> </span><span class="s">"</span><span class="s">c</span><span class="s">l</span><span class="s">a</span><span class="s">s</span><span class="s">s</span><span class="s"> </span><span class="s">"</span><span class=""> </span><span class="">x</span><span class=""> </span><span class="s">"</span><span class="s">(</span><span class="s">_</span><span class="s">G</span><span class="s">r</span><span class="s">a</span><span class="s">m</span><span class="s">m</span><span class="s">a</span><span class="s">r</span><span class="s">)</span><span class="s">:</span><span class="se">\</span><span class="se">n</span><span class="s">"</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">y</span><span class="">s</span><span class=""> </span><span class="">&lt;</span><span class=""> </span><span class=""> </span><span class=""> </span><span class="">}</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nc">.</span><span class="nc">.</span><span class="nc">.</span><span class=""> </span><span class="">(</span><span class="">2</span><span class="">2</span><span class=""> </span><span class="">c</span><span class="">h</span><span class="">o</span><span class="">i</span><span class="">c</span><span class="">e</span><span class="">s</span><span class=""> </span><span class="">o</span><span class="">m</span><span class="">i</span><span class="">t</span><span class="">t</span><span class="">e</span><span class="">d</span><span class="">)</span><span class=""> </span><span class="nc">.</span><span class="nc">.</span><span class="nc">.</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">M</span><span class="s">a</span><span class="s">t</span><span class="s">c</span><span class="s">h</span><span class="s">L</span><span class="s">i</span><span class="s">s</span><span class="s">t</span><span class="s">"</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">{</span><span class=""> </span><span class="s">"</span><span class="s">(</span><span class="s">l</span><span class="s">a</span><span class="s">m</span><span class="s">b</span><span class="s">d</span><span class="s">a</span><span class="s">:</span><span class="s"> </span><span class="s">s</span><span class="s">e</span><span class="s">l</span><span class="s">f</span><span class="s">.</span><span class="s">_</span><span class="s">m</span><span class="s">a</span><span class="s">t</span><span class="s">c</span><span class="s">h</span><span class="s">_</span><span class="s">l</span><span class="s">i</span><span class="s">s</span><span class="s">t</span><span class="s">(</span><span class="s">"</span><span class=""> </span><span class="">x</span><span class=""> </span><span class="s">"</span><span class="s">)</span><span class="s">)</span><span class="s">"</span><span class=""> </span><span class="">}</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="nc">.</span><span class="nc">.</span><span class="nc">.</span><span class="">
+</span><span class="">}</span><span class="">
+</span></pre></div>
 
-<p>The complete diff can be shown viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/61ff2132a057cf986ae0eae8575d24b066ab3e43">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/f054fdca6c939506e2820d86d466fe1763244c43#diff-14e1afbb5e4a4c88a29fd7256cd350fb">here</a>.</p>
+</div>
+
+<p>To generate code for the <code>MatchList</code> ast node, the <code>_or</code> methods first need to fail 23 times before it reaches the last choice that matches. Can we introduce a new concept in RLMeta that allow us to improve this situation?</p>
+
+<p>We introduce a new operator, <code>%</code>, that means read one item from the input stream and treat it as a name of a rule in the grammar. Then call that rule. The <code>ast</code> rule simply becomes matching a list, then calling the rule for that ast node. All choices are converted to rules where the ast node name becomes the rule name:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">C</span><span class="">o</span><span class="">d</span><span class="">e</span><span class="">G</span><span class="">e</span><span class="">n</span><span class="">e</span><span class="">r</span><span class="">a</span><span class="">t</span><span class="">o</span><span class="">r</span><span class=""> </span><span class="">{</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">G</span><span class="">r</span><span class="">a</span><span class="">m</span><span class="">m</span><span class="">a</span><span class="">r</span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="nc">.</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nc">*</span><span class="nb">:</span><span class="">y</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">{</span><span class=""> </span><span class="s">"</span><span class="s">c</span><span class="s">l</span><span class="s">a</span><span class="s">s</span><span class="s">s</span><span class="s"> </span><span class="s">"</span><span class=""> </span><span class="">x</span><span class=""> </span><span class="s">"</span><span class="s">(</span><span class="s">_</span><span class="s">G</span><span class="s">r</span><span class="s">a</span><span class="s">m</span><span class="s">m</span><span class="s">a</span><span class="s">r</span><span class="s">)</span><span class="s">:</span><span class="se">\</span><span class="se">n</span><span class="s">"</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">y</span><span class="">s</span><span class=""> </span><span class="">&lt;</span><span class=""> </span><span class=""> </span><span class=""> </span><span class="">}</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="nc">.</span><span class="nc">.</span><span class="nc">.</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">M</span><span class="">a</span><span class="">t</span><span class="">c</span><span class="">h</span><span class="">L</span><span class="">i</span><span class="">s</span><span class="">t</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">{</span><span class=""> </span><span class="s">"</span><span class="s">(</span><span class="s">l</span><span class="s">a</span><span class="s">m</span><span class="s">b</span><span class="s">d</span><span class="s">a</span><span class="s">:</span><span class="s"> </span><span class="s">s</span><span class="s">e</span><span class="s">l</span><span class="s">f</span><span class="s">.</span><span class="s">_</span><span class="s">m</span><span class="s">a</span><span class="s">t</span><span class="s">c</span><span class="s">h</span><span class="s">_</span><span class="s">l</span><span class="s">i</span><span class="s">s</span><span class="s">t</span><span class="s">(</span><span class="s">"</span><span class=""> </span><span class="">x</span><span class=""> </span><span class="s">"</span><span class="s">)</span><span class="s">)</span><span class="s">"</span><span class=""> </span><span class="">}</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">[</span><span class="">%</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">x</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="nc">.</span><span class="nc">.</span><span class="nc">.</span><span class="">
+</span><span class="">}</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>The complete diff can be viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/61ff2132a057cf986ae0eae8575d24b066ab3e43">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/f054fdca6c939506e2820d86d466fe1763244c43#diff-14e1afbb5e4a4c88a29fd7256cd350fb">here</a>.</p>
+
+<p>With this change, the main part of the code generator is completely free of choice operators which should eliminate many calls to <code>_or</code>.</p>
+
+<p>We create a new version of RLMeta and then we measure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -614,13 +642,43 @@
 
 <p>The overall compilation time went from <strong>0.565s</strong> to <strong>0.406s</strong>. The compilation time for a single grammar went from <strong>0.343s</strong> to <strong>0.220s</strong>. Real performance gain! <code>_or</code> is kicked down to the second position.</p>
 
+<p>Now that the code generator is mostly free from choices, is it still worthwhile to memoize results?</p>
+
 <h2><a name="5160cbceeb9f45bb992c65cc688c3c18"></a>Don't memoize code generator</h2>
+
+<p>Memoizing results is done in <code>_match_rule</code> that looks like this:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">m</span><span class="nf">a</span><span class="nf">t</span><span class="nf">c</span><span class="nf">h</span><span class="nf">_</span><span class="nf">r</span><span class="nf">u</span><span class="nf">l</span><span class="nf">e</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">r</span><span class="n">u</span><span class="n">l</span><span class="n">e</span><span class="n">_</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">k</span><span class="n">e</span><span class="n">y</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">(</span><span class="n">r</span><span class="n">u</span><span class="n">l</span><span class="n">e</span><span class="n">_</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">,</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class="o">.</span><span class="n">p</span><span class="n">o</span><span class="n">s</span><span class="n">i</span><span class="n">t</span><span class="n">i</span><span class="n">o</span><span class="n">n</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">i</span><span class="k">f</span><span class=""> </span><span class="n">k</span><span class="n">e</span><span class="n">y</span><span class=""> </span><span class="ow">i</span><span class="ow">n</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">m</span><span class="n">e</span><span class="n">m</span><span class="n">o</span><span class="p">:</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">r</span><span class="n">e</span><span class="n">s</span><span class="n">u</span><span class="n">l</span><span class="n">t</span><span class="p">,</span><span class=""> </span><span class="n">_</span><span class="p">,</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">m</span><span class="n">e</span><span class="n">m</span><span class="n">o</span><span class="p">[</span><span class="n">k</span><span class="n">e</span><span class="n">y</span><span class="p">]</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">e</span><span class="k">l</span><span class="k">s</span><span class="k">e</span><span class="p">:</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">s</span><span class="n">t</span><span class="n">a</span><span class="n">r</span><span class="n">t</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">r</span><span class="n">e</span><span class="n">s</span><span class="n">u</span><span class="n">l</span><span class="n">t</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="nb">g</span><span class="nb">e</span><span class="nb">t</span><span class="nb">a</span><span class="nb">t</span><span class="nb">t</span><span class="nb">r</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">_</span><span class="s2">r</span><span class="s2">u</span><span class="s2">l</span><span class="s2">e</span><span class="s2">_</span><span class="s2">{</span><span class="s2">}</span><span class="s2">"</span><span class="o">.</span><span class="n">f</span><span class="n">o</span><span class="n">r</span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="p">(</span><span class="n">r</span><span class="n">u</span><span class="n">l</span><span class="n">e</span><span class="n">_</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">)</span><span class="p">)</span><span class="p">(</span><span class="p">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">e</span><span class="n">n</span><span class="n">d</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">m</span><span class="n">e</span><span class="n">m</span><span class="n">o</span><span class="p">[</span><span class="n">k</span><span class="n">e</span><span class="n">y</span><span class="p">]</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">(</span><span class="n">r</span><span class="n">e</span><span class="n">s</span><span class="n">u</span><span class="n">l</span><span class="n">t</span><span class="p">,</span><span class=""> </span><span class="n">s</span><span class="n">t</span><span class="n">a</span><span class="n">r</span><span class="n">t</span><span class="p">,</span><span class=""> </span><span class="n">e</span><span class="n">n</span><span class="n">d</span><span class="p">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">r</span><span class="k">e</span><span class="k">t</span><span class="k">u</span><span class="k">r</span><span class="k">n</span><span class=""> </span><span class="n">r</span><span class="n">e</span><span class="n">s</span><span class="n">u</span><span class="n">l</span><span class="n">t</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>If the rule has matched before at the current position, the memozied result is returned. In the new code generator there will not be many such matches since most choice is elimiated. For the code generator, we can instead just do this:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">m</span><span class="nf">a</span><span class="nf">t</span><span class="nf">c</span><span class="nf">h</span><span class="nf">_</span><span class="nf">r</span><span class="nf">u</span><span class="nf">l</span><span class="nf">e</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">r</span><span class="n">u</span><span class="n">l</span><span class="n">e</span><span class="n">_</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">)</span><span class="p">:</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">r</span><span class="k">e</span><span class="k">t</span><span class="k">u</span><span class="k">r</span><span class="k">n</span><span class=""> </span><span class="nb">g</span><span class="nb">e</span><span class="nb">t</span><span class="nb">a</span><span class="nb">t</span><span class="nb">t</span><span class="nb">r</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">_</span><span class="s2">r</span><span class="s2">u</span><span class="s2">l</span><span class="s2">e</span><span class="s2">_</span><span class="s2">{</span><span class="s2">}</span><span class="s2">"</span><span class="o">.</span><span class="n">f</span><span class="n">o</span><span class="n">r</span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="p">(</span><span class="n">r</span><span class="n">u</span><span class="n">l</span><span class="n">e</span><span class="n">_</span><span class="n">n</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">)</span><span class="p">)</span><span class="p">(</span><span class="p">)</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>We create a new version of RLMeta and then we measure.</p>
 
 <p>This was not really significant.</p>
 
+<p>Match rule is still high up on the list, We see the position call there. Can it be optimized?</p>
+
 <h2><a name="f0338cf15ddb49099abf6a135a0961d7"></a>Optimize position</h2>
 
-<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/3cbf3437cf0478bd899ec6c6c839b3f07c32f86b#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+<p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/3cbf3437cf0478bd899ec6c6c839b3f07c32f86b#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -653,11 +711,13 @@
 
 </div>
 
-<p>Slightly better.</p>
+<p>The overall compilation time went from <strong>0.406s</strong> to <strong>0.392s</strong>. The compilation time for a single grammar went from <strong>0.220s</strong> to <strong>0.220s</strong>.</p>
+
+<p>Slightly better. Or not. Just fooled by inacurate time measurements?</p>
 
 <h2><a name="a5f5f3907de04b28bdf52a8ba57b4a71"></a>Make fail messages lazy</h2>
 
-<p>The complete diff can be shown viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d32dfb7235b2d1353d8045dc1999a6dc07f493bf#diff-f500390afaa13cfd96d938b9065dc0c1">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/dd3d3b8c35744b6d5e5ef42dbd46aafa9e1331ad#diff-f500390afaa13cfd96d938b9065dc0c1">here</a>.</p>
+<p>The complete diff can be viewed online <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/d32dfb7235b2d1353d8045dc1999a6dc07f493bf#diff-f500390afaa13cfd96d938b9065dc0c1">here</a> and <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/dd3d3b8c35744b6d5e5ef42dbd46aafa9e1331ad#diff-f500390afaa13cfd96d938b9065dc0c1">here</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -699,11 +759,11 @@
 
 </div>
 
-<p>During search we found a few super optimizations and a few less super once. We will stop here.</p>
+<p>The overall compilation time went from <strong>0.392s</strong> to <strong>0.370s</strong>. The compilation time for a single grammar went from <strong>0.220s</strong> to <strong>0.204s</strong>.</p>
 
 <h2><a name="898ec92a13304692857a6d4de445e4d2"></a>Peek</h2>
 
-<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/6bcd1457c0fc4726c0d7bc5020a77dcef7f05ed3#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+<p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/6bcd1457c0fc4726c0d7bc5020a77dcef7f05ed3#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -744,9 +804,11 @@
 
 </div>
 
+<p>The overall compilation time went from <strong>0.370s</strong> to <strong>0.351s</strong>. The compilation time for a single grammar went from <strong>0.204s</strong> to <strong>0.187s</strong>.</p>
+
 <h2><a name="84d9e890742c41d48fc1afc2009815c7"></a>No exception last or</h2>
 
-<p>The complete diff can be shown <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/079d437dee27cca6cf7aa18d4fffdb5b2dd26172#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+<p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/079d437dee27cca6cf7aa18d4fffdb5b2dd26172#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">t</span><span class="">i</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">.</span><span class="">/</span><span class="">c</span><span class="">o</span><span class="">m</span><span class="">p</span><span class="">i</span><span class="">l</span><span class="">e</span><span class="">.</span><span class="">s</span><span class="">h</span><span class=""> </span><span class="">r</span><span class="">l</span><span class="">m</span><span class="">e</span><span class="">t</span><span class="">a</span><span class="">.</span><span class="">p</span><span class="">y</span><span class=""> </span><span class="">&gt;</span><span class=""> </span><span class="">/</span><span class="">d</span><span class="">e</span><span class="">v</span><span class="">/</span><span class="">n</span><span class="">u</span><span class="">l</span><span class="">l</span><span class="">
 </span><span class="">
@@ -779,9 +841,15 @@
 
 </div>
 
+<p>The overall compilation time went from <strong>0.351s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.187s</strong> to <strong>0.185s</strong>.</p>
+
 <p>Can't really tell if better or worse. But should reduce one exception catch/trow. And I like this code better.</p>
 
+<p>During search we found a few super optimizations and a few less super once. We will stop here.</p>
+
 <h2><a name="3616eda03f5c40458ac9439def097739"></a>Conclusions</h2>
+
+<p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.185s</strong>.</p>
 
 <p>Overall performance roughly doubled.</p>
 
@@ -1292,7 +1360,7 @@
 </div>
 
 ]]></description>
-    <pubDate>Tue, 18 Jun 2019 00:00:00 UT</pubDate>
+    <pubDate>Wed, 19 Jun 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/draft-rlmeta-optimizing/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
