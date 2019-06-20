@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"Before optimizing something for speed it is important to measure how long it takes. We are interested in optimizing the time it takes for RLMeta to compile itself.",
+"text":"Before optimizing something for speed it is important to measure how long it takes. We are interested in optimizing the time it takes for RLMeta to compile itself. If it compiles itself faster, it will most likely also compile other RLMeta programs faster.",
 "type":"text"
 }
 ],
@@ -146,7 +146,15 @@
 {
 "fragments":[
 {
-"text":"To measure how long it takes for RLMeta to compile itself, we use the following command:",
+"text":"To measure how long it takes for RLMeta to compile itself, we use the ",
+"type":"text"
+},
+{
+"text":"time",
+"type":"code"
+},
+{
+"text":" command:",
 "type":"text"
 }
 ],
@@ -324,7 +332,7 @@
 "type":"text"
 },
 {
-"text":"_next",
+"text":"next",
 "type":"code"
 },
 {
@@ -360,7 +368,7 @@
 "type":"code"
 },
 {
-"text":". Since the profiling output looks similar for the two grammars, we will only profile compilation of the parser.",
+"text":".",
 "type":"text"
 }
 ],
@@ -370,7 +378,17 @@
 {
 "fragments":[
 {
-"text":"Let's examine the ",
+"text":"Since the profiling output looks similar for the two grammars, we will only profile compilation of the parser.",
+"type":"text"
+}
+],
+"id":"55e3ad058dc14c109895c306d2c78600",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Let's start by examining the ",
 "type":"text"
 },
 {
@@ -378,7 +396,7 @@
 "type":"code"
 },
 {
-"text":" function since most time is spend there and see if we can make it any faster.",
+"text":" function, since most time is spend there, and see if we can make it any faster.",
 "type":"text"
 }
 ],
@@ -403,7 +421,7 @@
 "type":"code"
 },
 {
-"text":" function looks like this:",
+"text":" function is called any time there is a choice in a grammar and it looks like this:",
 "type":"text"
 }
 ],
@@ -531,7 +549,7 @@
 "type":"code"
 },
 {
-"text":" node with only one child, it will skip the calls to ",
+"text":" ast node with only one child, it will skip the calls to ",
 "type":"text"
 },
 {
@@ -619,7 +637,7 @@
 "type":"code"
 },
 {
-"text":" function looks like this:",
+"text":" function is used to get the next object from an input stream and it looks like this:",
 "type":"text"
 }
 ],
@@ -660,7 +678,7 @@
 {
 "fragments":[
 {
-"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is gotten by indexing the array, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
+"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is retrieved by indexing, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
 "type":"text"
 },
 {
@@ -860,8 +878,12 @@
 "type":"code"
 },
 {
-"text":".",
+"text":". ",
 "type":"text"
+},
+{
+"text":"TODO: flesh out.",
+"type":"strong"
 }
 ],
 "id":"98d7e7a9360c4481a94567fba763def7",
@@ -1481,8 +1503,12 @@
 {
 "fragments":[
 {
-"text":"Armed with a new mindset we think about how another optimization that changes the grammar.",
+"text":"Armed with a new mindset we think about how another optimization that changes the grammar. ",
 "type":"text"
+},
+{
+"text":"TODO: better formulation.",
+"type":"strong"
 }
 ],
 "id":"fd39dbcf20b2476fbe0b7755202c77a7",
@@ -1506,7 +1532,7 @@
 "type":"code"
 },
 {
-"text":". It has many choices that are tried in order to generate code for different type of ast nodes:",
+"text":" rule. It has many choices that are tried in order to generate code for different type of ast nodes:",
 "type":"text"
 }
 ],
@@ -1545,7 +1571,7 @@
 "type":"code"
 },
 {
-"text":" methods first need to fail 23 times before it reaches the last choice that matches. Can we introduce a new concept in RLMeta that allow us to improve this situation?",
+"text":" method first needs to fail 23 times before it reaches the last choice that matches. Can we introduce a new concept in RLMeta that allow us to improve this situation?",
 "type":"text"
 }
 ],
@@ -1563,7 +1589,30 @@
 "type":"code"
 },
 {
-"text":", that means read one item from the input stream and treat it as a name of a rule in the grammar. Then call that rule. The ",
+"text":", that means read one item from the input stream and treat it as a name of a rule in the grammar. Then call that rule. It is implemented like this:",
+"type":"text"
+}
+],
+"id":"34855f08881448499205cbcdbe4e7bdd",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_call_rule(self):\n    next_object, self._stream = self._stream.next()\n    return self._match_rule(str(next_object))\n",
+"type":"code"
+}
+],
+"id":"2b3492eff13c4f93b3f1ad90405f4dbb",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
 "type":"text"
 },
 {
@@ -1575,7 +1624,7 @@
 "type":"text"
 }
 ],
-"id":"34855f08881448499205cbcdbe4e7bdd",
+"id":"2dfa146a6f534577b87011b612611a20",
 "type":"text"
 },
 {
@@ -1772,7 +1821,7 @@
 {
 "fragments":[
 {
-"text":"If the rule has matched before at the current position, the memozied result is returned. In the new code generator there will not be many such matches since most choice is elimiated. For the code generator, we can instead just do this:",
+"text":"If the rule has matched before at the current position, the memozied result is returned. In the new code generator there will not be many such matches since most choices have been elimiated. For the code generator, we can instead just do this:",
 "type":"text"
 }
 ],
@@ -1815,8 +1864,12 @@
 {
 "fragments":[
 {
-"text":"Match rule is still high up on the list, We see the position call there. Can it be optimized?",
+"text":"Match rule is still high up on the list, We see the position call there. Can it be optimized? ",
 "type":"text"
+},
+{
+"text":"TODO: flow breaks here.",
+"type":"strong"
 }
 ],
 "id":"1ee33db43a0f412b84385c440b730178",
@@ -1829,6 +1882,24 @@
 "children":[],
 "id":"f0338cf15ddb49099abf6a135a0961d7",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"position",
+"type":"code"
+},
+{
+"text":" method is called many times and does computation. Can we move computation so that it is only done once?",
+"type":"text"
+}
+],
+"id":"a9e08109298549559e38d177321df855",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -1846,6 +1917,16 @@
 }
 ],
 "id":"aa591747e68c4049a220cf9c5e382e99",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure:",
+"type":"text"
+}
+],
+"id":"09f0a5f199ca490abe3ba81c9a33ef4d",
 "type":"text"
 },
 {
@@ -1891,23 +1972,7 @@
 "type":"strong"
 },
 {
-"text":". The compilation time for a single grammar went from ",
-"type":"text"
-},
-{
-"text":"0.220s",
-"type":"strong"
-},
-{
-"text":" to ",
-"type":"text"
-},
-{
-"text":"0.220s",
-"type":"strong"
-},
-{
-"text":".",
+"text":". The compilation time for a single grammar did not change.",
 "type":"text"
 }
 ],
@@ -1923,6 +1988,16 @@
 ],
 "id":"d89cfb31abe04f36abc33dab1572f62e",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"String formatting takes a whole lot of time.",
+"type":"text"
+}
+],
+"id":"6853acdc7769465097536d8b60dfe23f",
+"type":"text"
 }
 ],
 "title":"Optimize position"
@@ -1931,6 +2006,24 @@
 "children":[],
 "id":"a5f5f3907de04b28bdf52a8ba57b4a71",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"String formatting used for fail messages, but most of them never used. Defer ",
+"type":"text"
+},
+{
+"text":".format",
+"type":"code"
+},
+{
+"text":" using lambda.",
+"type":"text"
+}
+],
+"id":"38154909a6664044b11ff19046304588",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -1957,6 +2050,16 @@
 }
 ],
 "id":"33ef278f33554dd3b9d9d5dbb24cd12a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure:",
+"type":"text"
+}
+],
+"id":"4d43da3016f24c7ea891d2a264136dbf",
 "type":"text"
 },
 {
@@ -2018,6 +2121,22 @@
 "type":"strong"
 },
 {
+"text":". Time spent formatting strings went from ",
+"type":"text"
+},
+{
+"text":"0.006s",
+"type":"strong"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"0.002s",
+"type":"strong"
+},
+{
 "text":".",
 "type":"text"
 }
@@ -2049,6 +2168,16 @@
 }
 ],
 "id":"384cd111a3bd4a20a895766d215d655c",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure:",
+"type":"text"
+}
+],
+"id":"5816276fd7c843c2b4d733caa8807020",
 "type":"text"
 },
 {
@@ -2141,6 +2270,16 @@
 }
 ],
 "id":"a84b0514ddda4806a8ac1804235abe47",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We create a new version of RLMeta and then we measure:",
+"type":"text"
+}
+],
+"id":"aa96e3fa9bf340158dce9c9da26321f8",
 "type":"text"
 },
 {
@@ -2301,7 +2440,7 @@
 {
 "fragments":[
 {
-"text":"Only focus on the 20% of the optimizations that were really significant?",
+"text":"Only focus on the 20% of the optimizations that were really significant? Did we fall in love with and/or optimization?",
 "type":"text"
 }
 ],
@@ -2316,6 +2455,16 @@
 }
 ],
 "id":"9b986a3856814e10ab93d538aa26daab",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"There are probably many other optimizations that can be done. Let this be inspiration for further exploring.",
+"type":"text"
+}
+],
+"id":"fd7b821d82f5411bb17c4b50c168293f",
 "type":"text"
 }
 ],
@@ -2442,7 +2591,7 @@
 "url":"/writing/rlmeta"
 },
 {
-"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
+"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast without doing anything particularly difficult.",
 "type":"text"
 }
 ],
