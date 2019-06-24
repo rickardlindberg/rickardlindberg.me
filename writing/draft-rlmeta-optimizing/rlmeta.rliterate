@@ -312,7 +312,7 @@
 "type":"strong"
 },
 {
-"text":"). I'm not sure why these numbers are higher than the ",
+"text":"). (These numbers are higher than the ",
 "type":"text"
 },
 {
@@ -320,7 +320,7 @@
 "type":"code"
 },
 {
-"text":" measurements. Perhaps because profiling is turned on. It also shows what functions take most time. Both grammars have roughly the same functions at the top of the list: ",
+"text":" measurements. Probably because profiling is turned on.) It also shows what functions take most time. Both grammars have roughly the same functions at the top of the list: ",
 "type":"text"
 },
 {
@@ -678,7 +678,7 @@
 {
 "fragments":[
 {
-"text":"To avoid slicing the input stream we rewrite input streams to instead maintain an index where threy're at. The next object is retrieved by indexing, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
+"text":"To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is retrieved by indexing, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
 "type":"text"
 },
 {
@@ -838,7 +838,7 @@
 {
 "fragments":[
 {
-"text":"Still not sure what to do with ",
+"text":"We still don't have an obvious way to optimize ",
 "type":"text"
 },
 {
@@ -846,7 +846,7 @@
 "type":"code"
 },
 {
-"text":"/",
+"text":" and ",
 "type":"text"
 },
 {
@@ -854,7 +854,7 @@
 "type":"code"
 },
 {
-"text":". Examine ",
+"text":". Next on the list is the ",
 "type":"text"
 },
 {
@@ -862,15 +862,61 @@
 "type":"code"
 },
 {
-"text":" and see that there is no obvious optimization. Same for ",
+"text":" function that looks like this:",
+"type":"text"
+}
+],
+"id":"98d7e7a9360c4481a94567fba763def7",
 "type":"text"
 },
 {
-"text":"_match_call_rule",
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def fail(self, stream, message):\n    if stream.position() >= self._latest_stream.position():\n        self._latest_stream = stream\n        self._latest_message = message\n    raise _MatchError(self)\n",
+"type":"code"
+}
+],
+"id":"eb9b0839dae94b65ab4bf3a73feb34b2",
+"language":"python",
 "type":"code"
 },
 {
-"text":". Let's move on to ",
+"fragments":[
+{
+"text":"There is no obvious way to make this faster. The same goes for the ",
+"type":"text"
+},
+{
+"text":"_match_rule",
+"type":"code"
+},
+{
+"text":" function that looks like this:",
+"type":"text"
+}
+],
+"id":"d9d89f2922c841c5aefbc7f29d66c47d",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_rule(self, rule_name):\n    key = (rule_name, self._stream.position())\n    if key in self._memo:\n        result, _, self._stream = self._memo[key]\n    else:\n        start = self._stream\n        result = getattr(self, \"_rule_{}\".format(rule_name))()\n        end = self._stream\n        self._memo[key] = (result, start, end)\n    return result\n",
+"type":"code"
+}
+],
+"id":"398eca11ba7a457fabcb7d6138463868",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"We move on down the list and examine the ",
 "type":"text"
 },
 {
@@ -878,15 +924,11 @@
 "type":"code"
 },
 {
-"text":". ",
+"text":" function.",
 "type":"text"
-},
-{
-"text":"TODO: flesh out.",
-"type":"strong"
 }
 ],
-"id":"98d7e7a9360c4481a94567fba763def7",
+"id":"46be33a0c9454581a90890586240f48c",
 "type":"text"
 }
 ],
@@ -1503,12 +1545,8 @@
 {
 "fragments":[
 {
-"text":"Armed with a new mindset we think about how another optimization that changes the grammar. ",
+"text":"Now that we've made an optimization by modifying the source code, we think about how we can further modify the source code to make it faster.",
 "type":"text"
-},
-{
-"text":"TODO: better formulation.",
-"type":"strong"
 }
 ],
 "id":"fd39dbcf20b2476fbe0b7755202c77a7",
@@ -1864,12 +1902,24 @@
 {
 "fragments":[
 {
-"text":"Match rule is still high up on the list, We see the position call there. Can it be optimized? ",
+"text":"Now the ",
 "type":"text"
 },
 {
-"text":"TODO: flow breaks here.",
-"type":"strong"
+"text":"_match_rule",
+"type":"code"
+},
+{
+"text":" function takes most time. We previously saw no way to optimize it, but we observe now that it makes a call to the ",
+"type":"text"
+},
+{
+"text":"position",
+"type":"code"
+},
+{
+"text":" function. Can that be made faster?",
+"type":"text"
 }
 ],
 "id":"1ee33db43a0f412b84385c440b730178",
@@ -1893,7 +1943,7 @@
 "type":"code"
 },
 {
-"text":" method is called many times and does computation. Can we move computation so that it is only done once?",
+"text":" function exists on streams and looks like this:",
 "type":"text"
 }
 ],
@@ -1901,9 +1951,53 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"The complete diff can be ",
+"text":"class _CharStream(_Stream):\n\n    def position(self):\n        return (self._line, self._column)\n\n    ...\n",
+"type":"code"
+}
+],
+"id":"e9ace2797bf44cc4b7ba988c19d545fa",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"class _ObjectStream(_Stream):\n\n    def position(self):\n        return self._parent + (self._position,)\n\n    ...\n",
+"type":"code"
+}
+],
+"id":"da20711bd0ce4a8fa02efbce168c354a",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Every time it is called, a new tuple is created. What if we refactor it to create the position only once and return it when the ",
+"type":"text"
+},
+{
+"text":"position",
+"type":"code"
+},
+{
+"text":" function is called?",
+"type":"text"
+}
+],
+"id":"29e312f78f4f4be088dac1796ed15035",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"With this change, the position is created in the constructor and just returned. The complete diff can be ",
 "type":"text"
 },
 {
@@ -1972,7 +2066,7 @@
 "type":"strong"
 },
 {
-"text":". The compilation time for a single grammar did not change.",
+"text":". The compilation time for a single grammar did not change. Did anything improve? Perhaps not. But since the overall compilation time improved and the resulting code is not worse, we keep this change.",
 "type":"text"
 }
 ],
@@ -1982,21 +2076,50 @@
 {
 "fragments":[
 {
-"text":"Slightly better. Or not. Just fooled by inacurate time measurements?",
-"type":"text"
-}
-],
-"id":"d89cfb31abe04f36abc33dab1572f62e",
+"text":"A new function has floated up the list, and that is ",
 "type":"text"
 },
 {
-"fragments":[
+"text":"_match_charseq",
+"type":"code"
+},
 {
-"text":"String formatting takes a whole lot of time.",
+"text":". It looks like this:",
 "type":"text"
 }
 ],
 "id":"6853acdc7769465097536d8b60dfe23f",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_charseq(self, charseq):\n    for char in charseq:\n        original_stream = self._stream\n        next_object, self._stream = self._stream.next()\n        if next_object != char:\n            original_stream.fail(\n                \"expected {!r} but found {!r}\".format(char, next_object)\n            )\n    return _SemanticAction(lambda: charseq)\n",
+"type":"code"
+}
+],
+"id":"55b2e8b948d94c168b90607b2bf2de85",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"There is no obvious way to optimize it. But we notice the formatting of the fail message. The ",
+"type":"text"
+},
+{
+"text":"format",
+"type":"code"
+},
+{
+"text":" function shows up on the list a bit further down. We observe that fail messages are seldom used. Only the last fail message is presented to the user. So formatting all fail messages is unnecessary. But we still want nice looking fail messages. We try to defer the formatting until it is actually needed.",
+"type":"text"
+}
+],
+"id":"0ab0b5413c6b46e6a9c57df29f857dfb",
 "type":"text"
 }
 ],
@@ -2009,20 +2132,33 @@
 {
 "fragments":[
 {
-"text":"String formatting used for fail messages, but most of them never used. Defer ",
+"text":"To defer the fail messages we change from from strings to lambdas. To format the fail message the lambda has to be called. With this change, the ",
 "type":"text"
 },
 {
-"text":".format",
+"text":"_match_charseq",
 "type":"code"
 },
 {
-"text":" using lambda.",
+"text":" function looks like this:",
 "type":"text"
 }
 ],
 "id":"38154909a6664044b11ff19046304588",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_charseq(self, charseq):\n    for char in charseq:\n        original_stream = self._stream\n        next_object, self._stream = self._stream.next()\n        if next_object != char:\n            original_stream.fail(\n                lambda: \"expected {!r} but found {!r}\".format(char, next_object)\n            )\n    return _SemanticAction(lambda: charseq)\n",
+"type":"code"
+}
+],
+"id":"45663400188a471184f22ca28442a3b3",
+"language":"python",
+"type":"code"
 },
 {
 "fragments":[
@@ -2143,6 +2279,16 @@
 ],
 "id":"0ba32f7bf8184887aabffa6b21331acd",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: motivate peek",
+"type":"strong"
+}
+],
+"id":"b3138ae5d85c469b811cb0619e7c98e6",
+"type":"text"
 }
 ],
 "title":"Make fail messages lazy"
@@ -2151,6 +2297,19 @@
 "children":[],
 "id":"898ec92a13304692857a6d4de445e4d2",
 "paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _match_charseq(self, charseq):\n    for char in charseq:\n        next_object = self._stream.peek()\n        if next_object != char:\n            self._stream.fail(\n                lambda: \"expected {!r} but found {!r}\".format(char, next_object)\n            )\n        self._stream = self._stream.advance()\n    return _SemanticAction(lambda: charseq)\n",
+"type":"code"
+}
+],
+"id":"578e0dc62b2844fcb0f8c96a0bcb8106",
+"language":"python",
+"type":"code"
+},
 {
 "fragments":[
 {
@@ -2245,6 +2404,16 @@
 ],
 "id":"28bae40877d84db78e28286d8bb02b30",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"TODO: motivate no last or exception. or/fail still high up. We can reduce one fail in or.",
+"type":"strong"
+}
+],
+"id":"7b9be03955e1493fac81d95614716401",
+"type":"text"
 }
 ],
 "title":"Peek"
@@ -2253,6 +2422,32 @@
 "children":[],
 "id":"84d9e890742c41d48fc1afc2009815c7",
 "paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _or(self, matchers):\n    original_stream = self._stream\n    for matcher in matchers:\n        try:\n            return matcher()\n        except _MatchError:\n            self._stream = original_stream\n    original_stream.fail(lambda: \"no choice matched\")\n",
+"type":"code"
+}
+],
+"id":"03c62c086d3340f08af6e090fa1a782b",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def _or(self, matchers):\n    original_stream = self._stream\n    for matcher in matchers[:-1]:\n        try:\n            return matcher()\n        except _MatchError:\n            self._stream = original_stream\n    return matchers[-1]()\n",
+"type":"code"
+}
+],
+"id":"b77d2aebe22748ca96625f41101d8ce0",
+"language":"python",
+"type":"code"
+},
 {
 "fragments":[
 {
@@ -2361,7 +2556,7 @@
 {
 "fragments":[
 {
-"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
+"text":"We will stop here.",
 "type":"text"
 }
 ],
@@ -2375,6 +2570,16 @@
 "children":[],
 "id":"3616eda03f5c40458ac9439def097739",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
+"type":"text"
+}
+],
+"id":"c28522ba1a2549efbab5b0b4ae452888",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -2591,7 +2796,7 @@
 "url":"/writing/rlmeta"
 },
 {
-"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast without doing anything particularly difficult.",
+"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
 "type":"text"
 }
 ],
