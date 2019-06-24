@@ -678,26 +678,7 @@
 {
 "fragments":[
 {
-"text":"To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is retrieved by indexing, and the rest of the objects no longer has to be computed. The index is just incremented instead. The complete diff can be ",
-"type":"text"
-},
-{
-"text":"viewed online",
-"type":"link",
-"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"5ba7aafaf41a430ba5b58eaeafc1ab4f",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"With this change, the ",
+"text":"To avoid slicing the input stream we rewrite it to instead maintain an index where it's at. The next object is retrieved by indexing, and the rest of the objects no longer has to be computed. The index is just incremented instead. With this change, the ",
 "type":"text"
 },
 {
@@ -705,11 +686,11 @@
 "type":"code"
 },
 {
-"text":" method looks like this:",
+"text":" function looks like this:",
 "type":"text"
 }
 ],
-"id":"a2623d33daf946e5ab8404c4a3c0c9fa",
+"id":"5ba7aafaf41a430ba5b58eaeafc1ab4f",
 "type":"text"
 },
 {
@@ -724,6 +705,25 @@
 "id":"0fc87189a13b4d9cb5b574f1cb0c95ea",
 "language":"python",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The complete diff can be ",
+"type":"text"
+},
+{
+"text":"viewed online",
+"type":"link",
+"url":"https://github.com/rickardlindberg/rickardlindberg.me/commit/a358b1921a5f9afae769512ca27db795af947648#diff-f500390afaa13cfd96d938b9065dc0c1"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"6ebf06c35b184a6c892a050ec61a4b7d",
+"type":"text"
 },
 {
 "fragments":[
@@ -802,7 +802,7 @@
 "type":"code"
 },
 {
-"text":" method moved down the list from ",
+"text":" function moved down the list from ",
 "type":"text"
 },
 {
@@ -862,7 +862,7 @@
 "type":"code"
 },
 {
-"text":" function that looks like this:",
+"text":" function which looks like this:",
 "type":"text"
 }
 ],
@@ -893,7 +893,7 @@
 "type":"code"
 },
 {
-"text":" function that looks like this:",
+"text":" function which looks like this:",
 "type":"text"
 }
 ],
@@ -916,7 +916,7 @@
 {
 "fragments":[
 {
-"text":"We move on down the list and examine the ",
+"text":"We move down the list and examine the ",
 "type":"text"
 },
 {
@@ -949,7 +949,7 @@
 "type":"code"
 },
 {
-"text":" method of the ",
+"text":" function in the ",
 "type":"text"
 },
 {
@@ -980,7 +980,7 @@
 {
 "fragments":[
 {
-"text":"It builds up the value by concatenating strings to the current value: ",
+"text":"It is used by the code generator to generate string output. It builds up the value by concatenating strings to the current value: ",
 "type":"text"
 },
 {
@@ -1014,7 +1014,7 @@
 "type":"code"
 },
 {
-"text":" method is used to build up the value, and its ",
+"text":" function is used to build up the value, and its ",
 "type":"text"
 },
 {
@@ -1022,7 +1022,7 @@
 "type":"code"
 },
 {
-"text":" method is used to return it:",
+"text":" function is used to return it:",
 "type":"text"
 }
 ],
@@ -1138,7 +1138,7 @@
 "type":"code"
 },
 {
-"text":" method (",
+"text":" function (",
 "type":"text"
 },
 {
@@ -1281,7 +1281,7 @@
 "type":"strong"
 },
 {
-"text":". This is not significant, but less time is spend int ",
+"text":". This is not significant, but less time is spend in ",
 "type":"text"
 },
 {
@@ -1307,7 +1307,15 @@
 {
 "fragments":[
 {
-"text":"We previously observed that writing output took some time. We made the write method faster. Now we will try another change that will cause less characters to be written to the output. This will change the grammar, and not just support libraries.",
+"text":"We previously observed that writing output took some time. We made the ",
+"type":"text"
+},
+{
+"text":"write",
+"type":"code"
+},
+{
+"text":" function faster. Now we will try another change that will cause less characters to be written to the output. This will change the grammar, and not just support libraries.",
 "type":"text"
 }
 ],
@@ -1432,6 +1440,24 @@
 {
 "fragments":[
 {
+"text":"This also removes the ",
+"type":"text"
+},
+{
+"text":"astFnBody",
+"type":"code"
+},
+{
+"text":" rule in favor of duplicating the lambda output code. This removes one function call, but more importantly lays the groundwork for the next optimization.",
+"type":"text"
+}
+],
+"id":"7ac771e9267c427d9acc01b8bad8494b",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"The complete diff can be ",
 "type":"text"
 },
@@ -1446,24 +1472,6 @@
 }
 ],
 "id":"bcfa7fa533ec4d099365cce755c0315b",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"This also removes the ",
-"type":"text"
-},
-{
-"text":"astFnBody",
-"type":"code"
-},
-{
-"text":" rule in favor of duplicating the lambda output code. This removes one function call, but more importantly lays the groundwork for the next optimization.",
-"type":"text"
-}
-],
-"id":"7ac771e9267c427d9acc01b8bad8494b",
 "type":"text"
 },
 {
@@ -1609,7 +1617,7 @@
 "type":"code"
 },
 {
-"text":" method first needs to fail 23 times before it reaches the last choice that matches. Can we introduce a new concept in RLMeta that allow us to improve this situation?",
+"text":" function first needs to fail 23 times before it reaches the last choice that matches.",
 "type":"text"
 }
 ],
@@ -1619,7 +1627,7 @@
 {
 "fragments":[
 {
-"text":"We introduce a new operator, ",
+"text":"We introduce a new operator in RLMeta, ",
 "type":"text"
 },
 {
@@ -1627,7 +1635,7 @@
 "type":"code"
 },
 {
-"text":", that means read one item from the input stream and treat it as a name of a rule in the grammar. Then call that rule. It is implemented like this:",
+"text":", which means read one object from the input stream and treat it as the name of a rule in the grammar. Then call that rule. It is implemented like this:",
 "type":"text"
 }
 ],
@@ -1650,7 +1658,7 @@
 {
 "fragments":[
 {
-"text":"The ",
+"text":"We then rewrite the code generator using this operator. The ",
 "type":"text"
 },
 {
@@ -1681,6 +1689,24 @@
 {
 "fragments":[
 {
+"text":"With this change, the main part of the code generator is completely free of choice operators which should eliminate many calls to ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"5d07402498c94a1cb3ada07c94611dc2",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"The complete diff can be viewed online ",
 "type":"text"
 },
@@ -1704,24 +1730,6 @@
 }
 ],
 "id":"991870bc9fdb41b0bd564d68ce5f1bea",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"With this change, the main part of the code generator is completely free of choice operators which should eliminate many calls to ",
-"type":"text"
-},
-{
-"text":"_or",
-"type":"code"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"5d07402498c94a1cb3ada07c94611dc2",
 "type":"text"
 },
 {
@@ -1836,7 +1844,7 @@
 "type":"code"
 },
 {
-"text":" that looks like this:",
+"text":" which looks like this:",
 "type":"text"
 }
 ],
@@ -1859,7 +1867,7 @@
 {
 "fragments":[
 {
-"text":"If the rule has matched before at the current position, the memozied result is returned. In the new code generator there will not be many such matches since most choices have been elimiated. For the code generator, we can instead just do this:",
+"text":"If the rule has matched before at the current position, the memoized result is returned. In the new code generator there will not be many such matches because most choices have been eliminated. For the code generator, we can instead just do this:",
 "type":"text"
 }
 ],
@@ -1918,7 +1926,7 @@
 "type":"code"
 },
 {
-"text":" function. Can that be made faster?",
+"text":" function. Can we make it faster?",
 "type":"text"
 }
 ],
@@ -2291,7 +2299,15 @@
 "type":"code"
 },
 {
-"text":", which is still taking much time, we see that its next method is called, resulting in a tuple being created and returned. But if the check fails, we have done some unnecessary work like assigning to ",
+"text":", which is still taking much time, we see that the ",
+"type":"text"
+},
+{
+"text":"next",
+"type":"code"
+},
+{
+"text":" function is called, resulting in a tuple being created and returned. But if the check fails, we have done some unnecessary work like assigning to ",
 "type":"text"
 },
 {
@@ -2299,7 +2315,7 @@
 "type":"code"
 },
 {
-"text":" and advancing the stream. Let's see if we can avoid that by implementing a peek method on streams.",
+"text":" and advancing the stream. Let's see if we can avoid that by implementing a peek function.",
 "type":"text"
 }
 ],
@@ -2324,7 +2340,7 @@
 "type":"code"
 },
 {
-"text":" method that returns the next object and a new stream representing the rest of the objects. If a matcher fails after examining the next object, the rest of the objects are never used. We therefore split the ",
+"text":" function which returns the next object and a new stream representing the rest of the objects. If a matcher fails after examining the next object, the rest of the objects are never used. We therefore split the ",
 "type":"text"
 },
 {
@@ -2332,7 +2348,7 @@
 "type":"code"
 },
 {
-"text":" method into two: ",
+"text":" function into two: ",
 "type":"text"
 },
 {
@@ -2356,7 +2372,7 @@
 "type":"code"
 },
 {
-"text":" method then looks like this:",
+"text":" function then looks like this:",
 "type":"text"
 }
 ],
@@ -2490,7 +2506,7 @@
 "type":"code"
 },
 {
-"text":" methods are still high on the list. We think of one more optimization we can do there.",
+"text":" functions are still high on the list. We think of one more optimization we can do there.",
 "type":"text"
 }
 ],
@@ -2515,7 +2531,7 @@
 "type":"code"
 },
 {
-"text":" method looks like this:",
+"text":" function looks like this:",
 "type":"text"
 }
 ],
@@ -2546,7 +2562,7 @@
 "type":"code"
 },
 {
-"text":" method will be called four times. This is unnecessary. If all but the last matchers have failed, there is no need to catch the exception from the last matcher. We can just let it fail and the failure will be handled higher up the call stack. We rewrite the ",
+"text":" function will be called four times. This is unnecessary. If all but the last matchers have failed, there is no need to catch the exception from the last matcher. We can just let it fail and the failure will be handled higher up the call stack. We rewrite the ",
 "type":"text"
 },
 {
@@ -2554,7 +2570,7 @@
 "type":"code"
 },
 {
-"text":" method so that it instead looks like this:",
+"text":" function so that it instead looks like this:",
 "type":"text"
 }
 ],
@@ -2577,6 +2593,16 @@
 {
 "fragments":[
 {
+"text":"This could have been done earlier as well, but we didn't see it then.",
+"type":"text"
+}
+],
+"id":"517b08c16f964ba898e41b53aa9ed72e",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"The complete diff can be ",
 "type":"text"
 },
@@ -2591,16 +2617,6 @@
 }
 ],
 "id":"a84b0514ddda4806a8ac1804235abe47",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"This could have been done earlier as well, but we didn't see it then.",
-"type":"text"
-}
-],
-"id":"517b08c16f964ba898e41b53aa9ed72e",
 "type":"text"
 },
 {
@@ -2751,7 +2767,7 @@
 {
 "fragments":[
 {
-"text":"Sometimes it was difficult to determine if a changes led to faster compilation or not. The ",
+"text":"Sometimes it was difficult to determine if a change led to faster compilation or not. The ",
 "type":"text"
 },
 {
@@ -2778,7 +2794,7 @@
 "url":"http://www.vpri.org/pdf/tr2008003_experimenting.pdf"
 },
 {
-"text":" used it, so we wanted to be equally cool, but our measurements showed only slight performance increase.",
+"text":" uses it, so we wanted to be equally cool, but our measurements showed only slight performance increase.",
 "type":"text"
 }
 ],
