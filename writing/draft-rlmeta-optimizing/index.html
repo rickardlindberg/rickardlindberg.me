@@ -5,7 +5,7 @@ tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>In this article we optimize <a href="/writing/rlmeta">RLMeta</a> to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.</p>
+<p>In this article we optimize <a href="/writing/rlmeta">RLMeta</a> to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run roughly twice as fast.</p>
 
 <ul><li><a href="#31e3c712b4ce4f16bb8e5d352e76fb0e">What to measure?</a>
 
@@ -784,7 +784,7 @@ tags: rlmeta,draft
 
 <h2><a name="a5f5f3907de04b28bdf52a8ba57b4a71"></a>Make fail messages lazy</h2>
 
-<p>To defer the fail messages we change from from strings to lambdas. To format the fail message the lambda has to be called. With this change, the <code>_match_charseq</code> function looks like this:</p>
+<p>To defer fail messages we change them from strings to lambdas. To format a fail message, the lambda has to be called. With this change, the <code>_match_charseq</code> function looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">m</span><span class="nf">a</span><span class="nf">t</span><span class="nf">c</span><span class="nf">h</span><span class="nf">_</span><span class="nf">c</span><span class="nf">h</span><span class="nf">a</span><span class="nf">r</span><span class="nf">s</span><span class="nf">e</span><span class="nf">q</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="n">e</span><span class="n">q</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class=""> </span><span class="ow">i</span><span class="ow">n</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="n">e</span><span class="n">q</span><span class="p">:</span><span class="">
@@ -845,9 +845,11 @@ tags: rlmeta,draft
 
 <p>The overall compilation time went from <strong>0.392s</strong> to <strong>0.370s</strong>. The compilation time for a single grammar went from <strong>0.220s</strong> to <strong>0.204s</strong>. Time spent formatting strings went from <strong>0.006s</strong> to <strong>0.002s</strong>.</p>
 
-<p><strong>TODO: motivate peek</strong></p>
+<p>When we take another look at <code>_match_charseq</code>, which is still taking much time, we see that its next method is called, resulting in a tuple being created and returned. But if the check fails, we have done some unnecessary work like assigning to <code>self._stream</code> and advancing the stream. Let's see if we can avoid that by implementing a peek method on streams.</p>
 
 <h2><a name="898ec92a13304692857a6d4de445e4d2"></a>Peek</h2>
+
+<p>Streams implement a <code>next</code> method that returns the next object and a new stream representing the rest of the objects. If a matcher fails after examining the next object, the rest of the objects are never used. We therefore split the <code>next</code> method into two: <code>peek</code> and <code>advance</code>. The <code>_match_charseq</code> method then looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">m</span><span class="nf">a</span><span class="nf">t</span><span class="nf">c</span><span class="nf">h</span><span class="nf">_</span><span class="nf">c</span><span class="nf">h</span><span class="nf">a</span><span class="nf">r</span><span class="nf">s</span><span class="nf">e</span><span class="nf">q</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="n">e</span><span class="n">q</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">f</span><span class="k">o</span><span class="k">r</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class=""> </span><span class="ow">i</span><span class="ow">n</span><span class=""> </span><span class="n">c</span><span class="n">h</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="n">e</span><span class="n">q</span><span class="p">:</span><span class="">
@@ -907,9 +909,11 @@ tags: rlmeta,draft
 
 <p>The overall compilation time went from <strong>0.370s</strong> to <strong>0.351s</strong>. The compilation time for a single grammar went from <strong>0.204s</strong> to <strong>0.187s</strong>.</p>
 
-<p><strong>TODO: motivate no last or exception. or/fail still high up. We can reduce one fail in or.</strong></p>
+<p>The <code>_or</code> and <code>fail</code> methods are still high on the list. We think of one more optimization we can do there.</p>
 
 <h2><a name="84d9e890742c41d48fc1afc2009815c7"></a>No exception last or</h2>
+
+<p>The <code>_or</code> method looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">o</span><span class="nf">r</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="n">c</span><span class="n">h</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">o</span><span class="n">r</span><span class="n">i</span><span class="n">g</span><span class="n">i</span><span class="n">n</span><span class="n">a</span><span class="n">l</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class="">
@@ -922,6 +926,8 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
+
+<p>If it gets three matchers that all fail, the <code>fail</code> method will be called four times. This is unnecessary. If all but the last matchers have failed, there is no need to catch the exception from the last matcher. We can just let it fail and the failure will be handled higher up the call stack. We rewrite the <code>_or</code> method so that it instead looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">_</span><span class="nf">o</span><span class="nf">r</span><span class="p">(</span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="p">,</span><span class=""> </span><span class="n">m</span><span class="n">a</span><span class="n">t</span><span class="n">c</span><span class="n">h</span><span class="n">e</span><span class="n">r</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">o</span><span class="n">r</span><span class="n">i</span><span class="n">g</span><span class="n">i</span><span class="n">n</span><span class="n">a</span><span class="n">l</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="bp">s</span><span class="bp">e</span><span class="bp">l</span><span class="bp">f</span><span class="o">.</span><span class="n">_</span><span class="n">s</span><span class="n">t</span><span class="n">r</span><span class="n">e</span><span class="n">a</span><span class="n">m</span><span class="">
@@ -936,6 +942,8 @@ tags: rlmeta,draft
 </div>
 
 <p>The complete diff can be <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/079d437dee27cca6cf7aa18d4fffdb5b2dd26172#diff-f500390afaa13cfd96d938b9065dc0c1">viewed online</a>.</p>
+
+<p>This could have been done earlier as well, but we didn't see it then.</p>
 
 <p>We create a new version of RLMeta and then we measure:</p>
 
@@ -972,25 +980,19 @@ tags: rlmeta,draft
 
 <p>The overall compilation time went from <strong>0.351s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.187s</strong> to <strong>0.185s</strong>.</p>
 
-<p>Can't really tell if better or worse. But should reduce one exception catch/trow. And I like this code better.</p>
+<p>We can't tell if better or worse. But it should reduce one exception catch/throw. We therefore keep it.</p>
 
-<p>We will stop here.</p>
+<p>We are seeing mostly small performance gains, so we will stop here.</p>
 
 <h2><a name="3616eda03f5c40458ac9439def097739"></a>Conclusions</h2>
 
-<p>During search we found a few super optimizations and a few less super once. We will stop here.</p>
+<p>In summary, the overall compilation time went from <strong>0.756s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.185s</strong>. This is roughly twice as fast. Not that bad.</p>
 
-<p>The overall compilation time went from <strong>0.756s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.476s</strong> to <strong>0.185s</strong>.</p>
+<p>Sometimes it was difficult to determine if a changes led to faster compilation or not. The <code>time</code> command is not a reliable tool for performance measurements. We could perhaps have gotten better results by compiling bigger grammars so that small changes in time had been less significant.</p>
 
-<p>Overall performance roughly doubled.</p>
+<p>Some of the optimizations were significant, others not. Should we have focused only on the ones that were significant and discarded the rest. Usually better performance means less readable code. So if the performance gain is not significant, but the code becomes less readable, is it worth it? In particular, did we fall in love with the and/or optimization? We have read that <a href="http://www.vpri.org/pdf/tr2008003_experimenting.pdf">OMeta</a> used it, so we wanted to be equally cool, but our measurements showed only slight performance increase.</p>
 
-<p>Performance measurements were not very detailed. A bigger grammar could have helped.</p>
-
-<p>Only focus on the 20% of the optimizations that were really significant? Did we fall in love with and/or optimization?</p>
-
-<p>Pick only top 3 optimizations from this article and observe performance gain?</p>
-
-<p>There are probably many other optimizations that can be done. Let this be inspiration for further exploring.</p>
+<p>There are probably many more optimizations that can be done to RLMeta that we didn't think of in this article. If you find any, let me know.</p>
 
 <h2><a name="3aafb64996414339b01b0d407e6e1810"></a>Code listings for RLMeta</h2>
 

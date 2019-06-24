@@ -2132,7 +2132,7 @@
 {
 "fragments":[
 {
-"text":"To defer the fail messages we change from from strings to lambdas. To format the fail message the lambda has to be called. With this change, the ",
+"text":"To defer fail messages we change them from strings to lambdas. To format a fail message, the lambda has to be called. With this change, the ",
 "type":"text"
 },
 {
@@ -2283,8 +2283,24 @@
 {
 "fragments":[
 {
-"text":"TODO: motivate peek",
-"type":"strong"
+"text":"When we take another look at ",
+"type":"text"
+},
+{
+"text":"_match_charseq",
+"type":"code"
+},
+{
+"text":", which is still taking much time, we see that its next method is called, resulting in a tuple being created and returned. But if the check fails, we have done some unnecessary work like assigning to ",
+"type":"text"
+},
+{
+"text":"self._stream",
+"type":"code"
+},
+{
+"text":" and advancing the stream. Let's see if we can avoid that by implementing a peek method on streams.",
+"type":"text"
 }
 ],
 "id":"b3138ae5d85c469b811cb0619e7c98e6",
@@ -2297,6 +2313,56 @@
 "children":[],
 "id":"898ec92a13304692857a6d4de445e4d2",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Streams implement a ",
+"type":"text"
+},
+{
+"text":"next",
+"type":"code"
+},
+{
+"text":" method that returns the next object and a new stream representing the rest of the objects. If a matcher fails after examining the next object, the rest of the objects are never used. We therefore split the ",
+"type":"text"
+},
+{
+"text":"next",
+"type":"code"
+},
+{
+"text":" method into two: ",
+"type":"text"
+},
+{
+"text":"peek",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"advance",
+"type":"code"
+},
+{
+"text":". The ",
+"type":"text"
+},
+{
+"text":"_match_charseq",
+"type":"code"
+},
+{
+"text":" method then looks like this:",
+"type":"text"
+}
+],
+"id":"bfc20072e2594ea3a0b0490bc65b915f",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -2408,8 +2474,24 @@
 {
 "fragments":[
 {
-"text":"TODO: motivate no last or exception. or/fail still high up. We can reduce one fail in or.",
-"type":"strong"
+"text":"The ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"fail",
+"type":"code"
+},
+{
+"text":" methods are still high on the list. We think of one more optimization we can do there.",
+"type":"text"
 }
 ],
 "id":"7b9be03955e1493fac81d95614716401",
@@ -2423,6 +2505,24 @@
 "id":"84d9e890742c41d48fc1afc2009815c7",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" method looks like this:",
+"type":"text"
+}
+],
+"id":"8a2ca966c33d471f964b5c96054a9d2f",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2434,6 +2534,32 @@
 "id":"03c62c086d3340f08af6e090fa1a782b",
 "language":"python",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If it gets three matchers that all fail, the ",
+"type":"text"
+},
+{
+"text":"fail",
+"type":"code"
+},
+{
+"text":" method will be called four times. This is unnecessary. If all but the last matchers have failed, there is no need to catch the exception from the last matcher. We can just let it fail and the failure will be handled higher up the call stack. We rewrite the ",
+"type":"text"
+},
+{
+"text":"_or",
+"type":"code"
+},
+{
+"text":" method so that it instead looks like this:",
+"type":"text"
+}
+],
+"id":"094fb86028874fa8bafceead8cea5ef4",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -2465,6 +2591,16 @@
 }
 ],
 "id":"a84b0514ddda4806a8ac1804235abe47",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This could have been done earlier as well, but we didn't see it then.",
+"type":"text"
+}
+],
+"id":"517b08c16f964ba898e41b53aa9ed72e",
 "type":"text"
 },
 {
@@ -2546,7 +2682,7 @@
 {
 "fragments":[
 {
-"text":"Can't really tell if better or worse. But should reduce one exception catch/trow. And I like this code better.",
+"text":"We can't tell if better or worse. But it should reduce one exception catch/throw. We therefore keep it.",
 "type":"text"
 }
 ],
@@ -2556,7 +2692,7 @@
 {
 "fragments":[
 {
-"text":"We will stop here.",
+"text":"We are seeing mostly small performance gains, so we will stop here.",
 "type":"text"
 }
 ],
@@ -2573,17 +2709,7 @@
 {
 "fragments":[
 {
-"text":"During search we found a few super optimizations and a few less super once. We will stop here.",
-"type":"text"
-}
-],
-"id":"c28522ba1a2549efbab5b0b4ae452888",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The overall compilation time went from ",
+"text":"In summary, the overall compilation time went from ",
 "type":"text"
 },
 {
@@ -2615,7 +2741,7 @@
 "type":"strong"
 },
 {
-"text":".",
+"text":". This is roughly twice as fast. Not that bad.",
 "type":"text"
 }
 ],
@@ -2625,17 +2751,15 @@
 {
 "fragments":[
 {
-"text":"Overall performance roughly doubled.",
-"type":"text"
-}
-],
-"id":"bf140dd877764128addd0411f7210bab",
+"text":"Sometimes it was difficult to determine if a changes led to faster compilation or not. The ",
 "type":"text"
 },
 {
-"fragments":[
+"text":"time",
+"type":"code"
+},
 {
-"text":"Performance measurements were not very detailed. A bigger grammar could have helped.",
+"text":" command is not a reliable tool for performance measurements. We could perhaps have gotten better results by compiling bigger grammars so that small changes in time had been less significant.",
 "type":"text"
 }
 ],
@@ -2645,7 +2769,16 @@
 {
 "fragments":[
 {
-"text":"Only focus on the 20% of the optimizations that were really significant? Did we fall in love with and/or optimization?",
+"text":"Some of the optimizations were significant, others not. Should we have focused only on the ones that were significant and discarded the rest. Usually better performance means less readable code. So if the performance gain is not significant, but the code becomes less readable, is it worth it? In particular, did we fall in love with the and/or optimization? We have read that ",
+"type":"text"
+},
+{
+"text":"OMeta",
+"type":"link",
+"url":"http://www.vpri.org/pdf/tr2008003_experimenting.pdf"
+},
+{
+"text":" used it, so we wanted to be equally cool, but our measurements showed only slight performance increase.",
 "type":"text"
 }
 ],
@@ -2655,17 +2788,7 @@
 {
 "fragments":[
 {
-"text":"Pick only top 3 optimizations from this article and observe performance gain?",
-"type":"text"
-}
-],
-"id":"9b986a3856814e10ab93d538aa26daab",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"There are probably many other optimizations that can be done. Let this be inspiration for further exploring.",
+"text":"There are probably many more optimizations that can be done to RLMeta that we didn't think of in this article. If you find any, let me know.",
 "type":"text"
 }
 ],
@@ -2796,7 +2919,7 @@
 "url":"/writing/rlmeta"
 },
 {
-"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run twice as fast.",
+"text":" to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run roughly twice as fast.",
 "type":"text"
 }
 ],
