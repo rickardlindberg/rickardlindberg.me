@@ -101,8 +101,6 @@ Convert my dotfiles to an RLiterate document and publish it on this blog.
 
 Write more articles in the [RLMeta](/tags/rlmeta/index.html) series:
 
-* Optimizing RLMeta.
-
 * Associativity and precedence. A good resource:
   [http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
 
@@ -147,9 +145,6 @@ if __name__ == "__main__":
             sys.exit(1)
 ```
 
-* Implement call rule in the matching string to improve performance of
-  ast-traverse.
-
 * How to implement off-side rule? (Python INDENT/DEDENT.)
 
 ```
@@ -160,8 +155,6 @@ def foo():
 
 foo()
 ```
-
-* Implement PEG with VM as described in [A Text Pattern-Matching Tool based on Parsing Expression Grammars](http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf).
 
 ---
 
