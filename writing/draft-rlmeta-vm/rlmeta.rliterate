@@ -544,6 +544,39 @@
 },
 {
 "children":[],
+"id":"18d541f39625425c82e285cdae8d7523",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\nclass _Program(object):\n\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"vm"
+],
+"prefix":"    ",
+"type":"chunk"
+},
+{
+"text":"\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
+"type":"code"
+}
+],
+"id":"4d06e64ddc8941928ee419ac82f56c4d",
+"type":"code"
+}
+],
+"title":"Rest of support library"
+},
+{
+"children":[],
 "id":"5cca99df2e2c4c78ab4bfe4cb946d89a",
 "paragraphs":[
 {
@@ -705,30 +738,9 @@
 "id":"60ff77cb85fa455589e3e45cdeac8160",
 "paragraphs":[
 {
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\nclass _Program(object):\n\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"vm"
-],
-"prefix":"    ",
-"type":"chunk"
-},
-{
-"text":"\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
-"type":"code"
-}
-],
-"id":"4d06e64ddc8941928ee419ac82f56c4d",
-"type":"code"
+"code_id":"4d06e64ddc8941928ee419ac82f56c4d",
+"id":"36d97cd6364b4b7c92b9088f6542db59",
+"type":"expanded_code"
 }
 ],
 "title":"support.py"
