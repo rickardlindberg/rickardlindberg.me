@@ -101,9 +101,6 @@ Convert my dotfiles to an RLiterate document and publish it on this blog.
 
 Write more articles in the [RLMeta](/tags/rlmeta/index.html) series:
 
-* Associativity and precedence. A good resource:
-  [http://beastie.cs.ua.edu/proglan/readings/precedence.pdf](http://beastie.cs.ua.edu/proglan/readings/precedence.pdf).
-
 * Connecting "Learn how to implement languages" and RLMeta: 6 years
   later I did what I suggested.
 
@@ -143,17 +140,6 @@ if __name__ == "__main__":
         except _MatchError as e:
             sys.stderr.write(e.describe())
             sys.exit(1)
-```
-
-* How to implement off-side rule? (Python INDENT/DEDENT.)
-
-```
-def foo():
-    for i in range(
-5):
-        print(str(i))
-
-foo()
 ```
 
 ---
