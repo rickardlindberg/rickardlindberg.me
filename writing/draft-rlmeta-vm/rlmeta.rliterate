@@ -17,7 +17,7 @@
 ],
 "fragments":[
 {
-"text":"if name == 'PUSH_SCOPE':\n    envs.append({})\n    pc += 1\n    continue\n",
+"text":"if name == \"PUSH_SCOPE\":\n    envs.append({})\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -41,7 +41,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'BACKTRACK':\n    stack.append((labels[arg1], pos, len(stream_stack), len(envs)))\n    pc += 1\n    continue\n",
+"text":"elif name == \"BACKTRACK\":\n    stack.append((labels[arg1], pos, len(stream_stack), len(envs)))\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -65,7 +65,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'CALL':\n    key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))\n    if key in memo:\n        last_action, stream_stack = memo[key]\n        stream_stack = stream_stack[:]\n        stream, pos = stream_stack.pop()\n        pc += 1\n    else:\n        stack.append((pc+1, key))\n        pc = labels[arg1]\n    continue\n",
+"text":"elif name == \"CALL\":\n    key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))\n    if key in memo:\n        last_action, stream_stack = memo[key]\n        stream_stack = stream_stack[:]\n        stream, pos = stream_stack.pop()\n        pc += 1\n    else:\n        stack.append((pc+1, key))\n        pc = labels[arg1]\n    continue\n",
 "type":"code"
 }
 ],
@@ -89,7 +89,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'MATCH_CHARSEQ':\n    for char in arg1:\n        if pos >= len(stream) or stream[pos] != char:\n            fail_message = \"match charseq\"\n            break\n        pos += 1\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_CHARSEQ\":\n    for char in arg1:\n        if pos >= len(stream) or stream[pos] != char:\n            fail_message = \"match charseq\"\n            break\n        pos += 1\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -113,7 +113,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'COMMIT':\n    stack.pop()\n    pc = labels[arg1]\n    continue\n",
+"text":"elif name == \"COMMIT\":\n    stack.pop()\n    pc = labels[arg1]\n    continue\n",
 "type":"code"
 }
 ],
@@ -137,7 +137,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'POP_SCOPE':\n    envs.pop()\n    pc += 1\n    continue\n",
+"text":"elif name == \"POP_SCOPE\":\n    envs.pop()\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -161,7 +161,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'RETURN':\n    if len(stack) == 0:\n        result = last_action.eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n    pc, key = stack.pop()\n    memo[key] = (last_action, stream_stack[:]+[(stream, pos)])\n    continue\n",
+"text":"elif name == \"RETURN\":\n    if len(stack) == 0:\n        result = last_action.eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n    pc, key = stack.pop()\n    memo[key] = (last_action, stream_stack[:]+[(stream, pos)])\n    continue\n",
 "type":"code"
 }
 ],
@@ -185,7 +185,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'LIST_APPEND':\n    envs[-1].append(last_action)\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_APPEND\":\n    envs[-1].append(last_action)\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -209,7 +209,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'BIND':\n    envs[-1][arg1] = last_action\n    pc += 1\n    continue\n",
+"text":"elif name == \"BIND\":\n    envs[-1][arg1] = last_action\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -233,7 +233,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'ACTION':\n    last_action = _SemanticAction(arg1, envs[-1])\n    pc += 1\n    continue\n",
+"text":"elif name == \"ACTION\":\n    last_action = _SemanticAction(arg1, envs[-1])\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -257,7 +257,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'MATCH_RANGE':\n    if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n        fail_message = \"match range\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_RANGE\":\n    if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n        fail_message = \"match range\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -281,7 +281,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'LIST_START':\n    envs.append([])\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_START\":\n    envs.append([])\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -305,7 +305,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'LIST_END':\n    last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_END\":\n    last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -329,7 +329,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'MATCH_ANY':\n    if pos >= len(stream):\n        fail_message = \"match any\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_ANY\":\n    if pos >= len(stream):\n        fail_message = \"match any\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -353,7 +353,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'PUSH_INPUT':\n    if pos >= len(stream) or not isinstance(stream[pos], list):\n        fail_message = \"push input\"\n    else:\n        stream_stack.append((stream, pos+1))\n        stream = stream[pos]\n        pos = 0\n        pc += 1\n        continue\n",
+"text":"elif name == \"PUSH_INPUT\":\n    if pos >= len(stream) or not isinstance(stream[pos], list):\n        fail_message = \"push input\"\n    else:\n        stream_stack.append((stream, pos+1))\n        stream = stream[pos]\n        pos = 0\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -377,7 +377,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'POP_INPUT':\n    if pos < len(stream):\n        fail_message = \"pop input\"\n    else:\n        stream, pos = stream_stack.pop()\n        pc += 1\n        continue\n",
+"text":"elif name == \"POP_INPUT\":\n    if pos < len(stream):\n        fail_message = \"pop input\"\n    else:\n        stream, pos = stream_stack.pop()\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -401,7 +401,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'MATCH_CALL_RULE':\n    if pos >= len(stream):\n        fail_message = \"match call rule\"\n    else:\n        fn_name = stream[pos]\n        key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))\n        if key in memo:\n            last_action, stream_stack = memo[key]\n            stream_stack = stream_stack[:]\n            stream, pos = stream_stack.pop()\n            pc += 1\n        else:\n            stack.append((pc+1, key))\n            pc = labels[fn_name]\n            pos += 1\n        continue\n",
+"text":"elif name == \"MATCH_CALL_RULE\":\n    if pos >= len(stream):\n        fail_message = \"match call rule\"\n    else:\n        fn_name = stream[pos]\n        key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))\n        if key in memo:\n            last_action, stream_stack = memo[key]\n            stream_stack = stream_stack[:]\n            stream, pos = stream_stack.pop()\n            pc += 1\n        else:\n            stack.append((pc+1, key))\n            pc = labels[fn_name]\n            pos += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -425,7 +425,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'FAIL':\n    fail_message = \"fail\"\n",
+"text":"elif name == \"FAIL\":\n    fail_message = \"fail\"\n",
 "type":"code"
 }
 ],
@@ -435,7 +435,7 @@
 {
 "chunkpath":[
 "vm",
-"fail"
+"fail case"
 ],
 "filepath":[
 "support.py"
@@ -466,7 +466,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'LABEL':\n    last_action = _ConstantSemanticAction(label_counter)\n    label_counter += 1\n    pc += 1\n    continue\n",
+"text":"elif name == \"LABEL\":\n    last_action = _ConstantSemanticAction(label_counter)\n    label_counter += 1\n    pc += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -490,7 +490,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == 'MATCH_STRING':\n    if pos >= len(stream) or stream[pos] != arg1:\n        fail_message = \"match string {}\".format(arg1)\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_STRING\":\n    if pos >= len(stream) or stream[pos] != arg1:\n        fail_message = \"match string {}\".format(arg1)\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pos += 1\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -512,7 +512,7 @@
 ],
 "fragments":[
 {
-"text":"def run(self, rule_name, input_object):\n    instructions = self._instructions\n    labels = self._labels\n    label_counter = 0\n    envs = []\n    stack = []\n    last_action = _ConstantSemanticAction(None)\n    pc = labels[rule_name]\n    memo = {}\n    if isinstance(input_object, basestring):\n        stream = input_object\n    else:\n        stream = [input_object]\n    pos = 0\n    stream_stack = []\n    fail_message = \"\"\n    while True:\n        name, arg1, arg2 = instructions[pc]\n",
+"text":"def rlmeta_vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    envs = []\n    stack = []\n    last_action = _ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    memo = {}\n    pos = 0\n    stream_stack = []\n    fail_message = \"\"\n    while True:\n        name, arg1, arg2 = instructions[pc]\n",
 "type":"code"
 },
 {
@@ -530,13 +530,13 @@
 {
 "blank_lines_before":0,
 "path":[
-"fail"
+"fail case"
 ],
 "prefix":"        ",
 "type":"chunk"
 }
 ],
-"id":"8e97cf4bb0f6438abeacf7dc0a108391",
+"id":"f00b388c4529474b9925b3aa4149b0e3",
 "type":"code"
 }
 ],
@@ -553,7 +553,7 @@
 ],
 "fragments":[
 {
-"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\nclass _Program(object):\n\n",
+"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\n",
 "type":"code"
 },
 {
@@ -561,11 +561,11 @@
 "path":[
 "vm"
 ],
-"prefix":"    ",
+"prefix":"",
 "type":"chunk"
 },
 {
-"text":"\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
+"text":"\nclass _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
 "type":"code"
 }
 ],
@@ -667,7 +667,7 @@
 {
 "fragments":[
 {
-"text":"Add failure messages again.",
+"text":"Add failure messages again. And make sure python template exception handling is the same again.",
 "type":"text"
 }
 ],
@@ -722,7 +722,7 @@
 ],
 "fragments":[
 {
-"text":"CodeGenerator {\n  Grammar        = .:x ast*:ys     -> { \"class \" x \"(_Program):\\n\" >\n                                          \"def __init__(self):\\n\" >\n                                            \"instructions = []\\n\"\n                                            \"labels = {}\\n\"\n                                            \"def I(name, x=None, y=None):\\n\" >\n                                              \"instructions.append((name, x, y))\\n\"\n                                            <\n                                            \"def LABEL(name):\\n\" >\n                                              \"labels[name] = len(instructions)\\n\"\n                                            <\n                                            ys\n                                            \"self._instructions = instructions\\n\"\n                                            \"self._labels = labels\\n\"\n                                          <\n                                        <                                  }\n  Rule           = py:x ast:y      -> { \"LABEL(\" x \")\\n\"\n                                        y\n                                        \"I('RETURN')\\n\"                    }\n  Or             =\n    | ast:x !.                     -> x\n    | ast:x Or:y #:a #:b           -> { \"I('BACKTRACK', \" a \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" b \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        y\n                                        \"LABEL(\" b \")\\n\"                   }\n  Scope          = ast:x           -> { \"I('PUSH_SCOPE')\\n\"\n                                        x\n                                        \"I('POP_SCOPE')\\n\"                 }\n  And            = ast*\n  Bind           = py:x ast:y      -> { y\n                                        \"I('BIND', \" x \")\\n\"               }\n  Star           = ast:x #:a #:b   -> { \"I('LIST_START')\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('LIST_APPEND')\\n\"\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" b \")\\n\"\n                                        \"I('LIST_END')\\n\"                  }\n  Not            = ast:x #:a #:b   -> { \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('FAIL')\\n\"\n                                        \"LABEL(\" b \")\\n\"                   }\n  MatchCallRule  =                 -> { \"I('MATCH_CALL_RULE')\\n\"           }\n  Label          =                 -> { \"I('LABEL')\\n\"                     }\n  SemanticAction = ast:x           -> { \"I('ACTION', lambda env: \" x \")\\n\" }\n  MatchRule      = py:x            -> { \"I('CALL', \" x \")\\n\"               }\n  MatchRange     = py:x py:y       -> { \"I('MATCH_RANGE', \" x \", \" y \")\\n\" }\n  MatchString    = py:x            -> { \"I('MATCH_STRING', \" x \")\\n\"       }\n  MatchCharseq   = py:x            -> { \"I('MATCH_CHARSEQ', \" x \")\\n\"      }\n  MatchAny       =                 -> { \"I('MATCH_ANY')\\n\"                 }\n  MatchList      = ast:x           -> { \"I('PUSH_INPUT')\\n\"\n                                        x\n                                        \"I('POP_INPUT')\\n\"                 }\n  String         = py\n  List           = astList:x       -> { x                                  }\n  Builder        = astItems:x      -> { \"_Builder.create([\" x \"])\"         }\n  IndentBuilder  =                 -> { \"_IndentBuilder()\"                 }\n  DedentBuilder  =                 -> { \"_DedentBuilder()\"                 }\n  FnCall         = .:x astItems:y  -> { x \"(\" y \")\"                        }\n  VarLookup      = py:x            -> { \"env[\" x \"].eval()\"                }\n  ast            = [%:x]           -> { x                                  }\n  astItems       =\n    | ast:x astItem*:xs            -> { x xs                               }\n    |                              -> {                                    }\n  astItem        = ast:x           -> { \", \" x                             }\n  astList        = astListItem*:xs -> { \"(\" xs \"[])\"                       }\n  astListItem    =\n    | [\"ListItemSplice\" ast:x]     -> {     x  \"+\"                         }\n    | ast:x                        -> { \"[\" x \"]+\"                         }\n  py             = .:x             -> repr(x)\n}\n",
+"text":"CodeGenerator {\n  Grammar        = .:x ast*:ys     -> { \"class \" x \"(_Grammar):\\n\" >\n                                          \"def __init__(self):\\n\" >\n                                            \"instructions = []\\n\"\n                                            \"labels = {}\\n\"\n                                            \"def I(name, x=None, y=None):\\n\" >\n                                              \"instructions.append((name, x, y))\\n\"\n                                            <\n                                            \"def LABEL(name):\\n\" >\n                                              \"labels[name] = len(instructions)\\n\"\n                                            <\n                                            ys\n                                            \"self._instructions = instructions\\n\"\n                                            \"self._labels = labels\\n\"\n                                          <\n                                        <                                  }\n  Rule           = py:x ast:y      -> { \"LABEL(\" x \")\\n\"\n                                        y\n                                        \"I('RETURN')\\n\"                    }\n  Or             =\n    | ast:x !.                     -> x\n    | ast:x Or:y #:a #:b           -> { \"I('BACKTRACK', \" a \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" b \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        y\n                                        \"LABEL(\" b \")\\n\"                   }\n  Scope          = ast:x           -> { \"I('PUSH_SCOPE')\\n\"\n                                        x\n                                        \"I('POP_SCOPE')\\n\"                 }\n  And            = ast*\n  Bind           = py:x ast:y      -> { y\n                                        \"I('BIND', \" x \")\\n\"               }\n  Star           = ast:x #:a #:b   -> { \"I('LIST_START')\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('LIST_APPEND')\\n\"\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" b \")\\n\"\n                                        \"I('LIST_END')\\n\"                  }\n  Not            = ast:x #:a #:b   -> { \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('FAIL')\\n\"\n                                        \"LABEL(\" b \")\\n\"                   }\n  MatchCallRule  =                 -> { \"I('MATCH_CALL_RULE')\\n\"           }\n  Label          =                 -> { \"I('LABEL')\\n\"                     }\n  SemanticAction = ast:x           -> { \"I('ACTION', lambda env: \" x \")\\n\" }\n  MatchRule      = py:x            -> { \"I('CALL', \" x \")\\n\"               }\n  MatchRange     = py:x py:y       -> { \"I('MATCH_RANGE', \" x \", \" y \")\\n\" }\n  MatchString    = py:x            -> { \"I('MATCH_STRING', \" x \")\\n\"       }\n  MatchCharseq   = py:x            -> { \"I('MATCH_CHARSEQ', \" x \")\\n\"      }\n  MatchAny       =                 -> { \"I('MATCH_ANY')\\n\"                 }\n  MatchList      = ast:x           -> { \"I('PUSH_INPUT')\\n\"\n                                        x\n                                        \"I('POP_INPUT')\\n\"                 }\n  String         = py\n  List           = astList:x       -> { x                                  }\n  Builder        = astItems:x      -> { \"_Builder.create([\" x \"])\"         }\n  IndentBuilder  =                 -> { \"_IndentBuilder()\"                 }\n  DedentBuilder  =                 -> { \"_DedentBuilder()\"                 }\n  FnCall         = .:x astItems:y  -> { x \"(\" y \")\"                        }\n  VarLookup      = py:x            -> { \"env[\" x \"].eval()\"                }\n  ast            = [%:x]           -> { x                                  }\n  astItems       =\n    | ast:x astItem*:xs            -> { x xs                               }\n    |                              -> {                                    }\n  astItem        = ast:x           -> { \", \" x                             }\n  astList        = astListItem*:xs -> { \"(\" xs \"[])\"                       }\n  astListItem    =\n    | [\"ListItemSplice\" ast:x]     -> {     x  \"+\"                         }\n    | ast:x                        -> { \"[\" x \"]+\"                         }\n  py             = .:x             -> repr(x)\n}\n",
 "type":"code"
 }
 ],
