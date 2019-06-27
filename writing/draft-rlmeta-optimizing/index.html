@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Optimizing RLMeta'
-date: 2019-06-26
+date: 2019-06-27
 tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
@@ -266,7 +266,7 @@ tags: rlmeta,draft
 
 <p>There is no obvious way to optimize it so instead we try to reduce the number of calls to it. The code generator always generates calls to <code>_or</code> even if there is only one choice: <code>self._or([matcher])</code>. In this case the call to <code>_or</code> is unnecessary because the single matcher can be called directly: <code>matcher()</code>. The same reasoning goes for <code>_and</code>.</p>
 
-<p>To make the code generator skip the calls to <code>_or</code> and <code>_and</code>, we add the following cases to it:</p>
+<p>To make the code generator skip unnecessary calls to <code>_or</code> and <code>_and</code>, we add the following cases to it:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">O</span><span class="s">r</span><span class="s">"</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">x</span><span class="">
 </span><span class="nb">|</span><span class=""> </span><span class="">[</span><span class="s">"</span><span class="s">A</span><span class="s">n</span><span class="s">d</span><span class="s">"</span><span class=""> </span><span class="">a</span><span class="">s</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class="">]</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">x</span><span class="">
@@ -696,7 +696,7 @@ tags: rlmeta,draft
 
 <p>We create a new version of RLMeta and then we measure.</p>
 
-<p>It turns out this is not really significant. The code generator will still benefit from memoization.</p>
+<p>It turns out this is not really significant. The code generator is not getting faster without memoization.</p>
 
 <p>Now the <code>_match_rule</code> function takes most time. We previously saw no way to optimize it, but we observe now that it makes a call to the <code>position</code> function. Can we make it faster?</p>
 
@@ -978,7 +978,7 @@ tags: rlmeta,draft
 
 <p>The overall compilation time went from <strong>0.351s</strong> to <strong>0.344s</strong>. The compilation time for a single grammar went from <strong>0.187s</strong> to <strong>0.185s</strong>.</p>
 
-<p>We can't tell if better or worse. But it should reduce one exception catch/throw. We therefore keep it.</p>
+<p>We can't tell if it is better or worse. But it should reduce one exception catch/throw. We therefore keep it.</p>
 
 <p>We are seeing mostly small performance gains now, so we will stop here.</p>
 
