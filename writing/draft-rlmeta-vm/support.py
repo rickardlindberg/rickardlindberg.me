@@ -157,15 +157,6 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         stream_stack = stream_stack[:stream_stack_len]
         envs = envs[:envs_len]
 
-class _Grammar(object):
-
-    def run(self, rule_name, input_object):
-        if isinstance(input_object, basestring):
-            stream = input_object
-        else:
-            stream = [input_object]
-        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)
-
 class _SemanticAction(object):
 
     def __init__(self, fn, env):
@@ -182,6 +173,15 @@ class _ConstantSemanticAction(object):
 
     def eval(self):
         return self.value
+
+class _Grammar(object):
+
+    def run(self, rule_name, input_object):
+        if isinstance(input_object, basestring):
+            stream = input_object
+        else:
+            stream = [input_object]
+        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)
 
 class _Builder(object):
 

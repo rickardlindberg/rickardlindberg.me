@@ -2,6 +2,31 @@
 "root_page":{
 "children":[
 {
+"children":[],
+"id":"d1a2d050fcc444cfa4991b968a02a315",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Same as before except it also supports the label operator ",
+"type":"text"
+},
+{
+"text":"#",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"a3521271f17b4678bef1d97dd6c53ae0",
+"type":"text"
+}
+],
+"title":"Parser"
+},
+{
 "children":[
 {
 "children":[],
@@ -538,182 +563,45 @@
 ],
 "id":"f00b388c4529474b9925b3aa4149b0e3",
 "type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n",
+"type":"code"
+}
+],
+"id":"64bbd9910fc94f7c9fcb5918408a9ff0",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n",
+"type":"code"
+}
+],
+"id":"435a082d5e964a7e835a9362d6c5c045",
+"type":"code"
 }
 ],
 "title":"VM"
 },
 {
 "children":[],
-"id":"18d541f39625425c82e285cdae8d7523",
-"paragraphs":[
-{
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"vm"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"text":"\nclass _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
-"type":"code"
-}
-],
-"id":"4d06e64ddc8941928ee419ac82f56c4d",
-"type":"code"
-}
-],
-"title":"Rest of support library"
-},
-{
-"children":[],
-"id":"5cca99df2e2c4c78ab4bfe4cb946d89a",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"This builds upon the ",
-"type":"text"
-},
-{
-"text":"optimized version of RLMeta",
-"type":"link",
-"url":"/writing/optimizing-rlmeta/index.html"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"79ae9067afde497085d5b885fe4fb8a4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"This is inspired by ",
-"type":"text"
-},
-{
-"text":"Regular Expression Matching: the Virtual Machine Approach",
-"type":"link",
-"url":"https://swtch.com/~rsc/regexp/regexp2.html"
-},
-{
-"text":" and ",
-"type":"text"
-},
-{
-"text":"A Text Pattern-Matching Tool based on Parsing Expression Grammars",
-"type":"link",
-"url":"http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"d21cbbff552e4c8dafd419861250c3c4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Not using ",
-"type":"text"
-},
-{
-"text":"self",
-"type":"code"
-},
-{
-"text":" seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?",
-"type":"text"
-}
-],
-"id":"3a5fbbadfd654c42bc1cd57075467383",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Instruction frequency analysis to optimize order of while loop.",
-"type":"text"
-}
-],
-"id":"68e3bcae66ca4daf9fd359a53559b019",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Why did labels change when making first vm based metacompiler? Investigate in branch.",
-"type":"text"
-}
-],
-"id":"4230d0b352b74f578d1e820477d4f0bb",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Add failure messages again. And make sure python template exception handling is the same again.",
-"type":"text"
-}
-],
-"id":"b96e160d222e4d28a37b51ddba1a290b",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Back patch jump instructions instead of using labels?",
-"type":"text"
-}
-],
-"id":"0cafd15b18cc43aea7ff1e4336e11e02",
-"type":"text"
-}
-],
-"title":"Notes"
-},
-{
-"children":[
-{
-"children":[],
-"id":"53f0708b231b468d844291df3fe17cf2",
-"paragraphs":[
-{
-"chunkpath":[],
-"filepath":[
-"parser.rlmeta"
-],
-"fragments":[
-{
-"text":"Parser {\n  grammar =\n    | name:x space '{' rule*:ys space '}'      -> [\"Grammar\" x ~ys]\n  rule =\n    | name:x space '=' choice:y                -> [\"Rule\" x y]\n  choice =\n    | (space '|')?\n      sequence:x (space '|' sequence)*:xs      -> [\"Or\" x ~xs]\n  sequence =\n    | expr:x expr*:xs                          -> [\"Scope\" [\"And\" x ~xs]]\n  expr =\n    | expr1:x space ':' name:y                 -> [\"Bind\" y x]\n    | expr1\n  expr1 =\n    | expr2:x space '*'                        -> [\"Star\" x]\n    | expr2:x space '?'                        -> [\"Or\" x [\"And\"]]\n    | space '!' expr2:x                        -> [\"Not\" x]\n    | space '%'                                -> [\"MatchCallRule\"]\n    | space '#'                                -> [\"Label\"]\n    | expr2\n  expr2 =\n    | space '->' hostExpr:x                    -> [\"SemanticAction\" x]\n    | name:x !(space '=')                      -> [\"MatchRule\" x]\n    | space char:x '-' char:y                  -> [\"MatchRange\" x y]\n    | space string:x                           -> [\"MatchString\" x]\n    | space charseq:x                          -> [\"MatchCharseq\" x]\n    | space '.'                                -> [\"MatchAny\"]\n    | space '(' choice:x space ')'             -> x\n    | space '[' expr*:xs space ']'             -> [\"MatchList\" [\"And\" ~xs]]\n  hostExpr =\n    | space string:x                           -> [\"String\" x]\n    | space '[' hostExprListItem*:xs space ']' -> [\"List\" ~xs]\n    | space '{' buildExpr*:xs space '}'        -> [\"Builder\" ~xs]\n    | name:x space '(' hostExpr*:ys space ')'  -> [\"FnCall\" x ~ys]\n    | name:x                                   -> [\"VarLookup\" x]\n  hostExprListItem =\n    | space '~' hostExpr:x                     -> [\"ListItemSplice\" x]\n    | hostExpr\n  buildExpr =\n    | space '>'                                -> [\"IndentBuilder\"]\n    | space '<'                                -> [\"DedentBuilder\"]\n    | hostExpr\n  string    = '\"'  (!'\"'  innerChar)*:xs '\"'   -> join(xs)\n  charseq   = '\\'' (!'\\'' innerChar)*:xs '\\''  -> join(xs)\n  char      = '\\''  !'\\'' innerChar  :x  '\\''  -> x\n  innerChar = '\\\\' escape | .\n  escape    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n            | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n  name      = space nameStart:x nameChar*:xs   -> join([x ~xs])\n  nameStart = 'a'-'z' | 'A'-'Z'\n  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'\n  space     = (' ' | '\\n')*\n}\n",
-"type":"code"
-}
-],
-"id":"0a3d1c1a8c4c49ab803ba2aabb11f6b1",
-"language":"",
-"type":"code"
-}
-],
-"title":"parser.rlmeta"
-},
-{
-"children":[],
-"id":"74bf51f7e8d94bcba1747edb477137ef",
+"id":"24aa83d59704475dba2a010f1b5d3eb0",
 "paragraphs":[
 {
 "chunkpath":[],
@@ -722,7 +610,36 @@
 ],
 "fragments":[
 {
-"text":"CodeGenerator {\n  Grammar ",
+"text":"CodeGenerator {\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"rules"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"c4887eaa08da4799acaad6fdbde5d2f7",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Grammar ",
 "type":"code"
 },
 {
@@ -858,7 +775,40 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Rule ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"9111d958b8ac481a95afc4becfe2f673",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n",
+"type":"code"
+}
+],
+"id":"23389acd149c413aa2eb051b1733e79f",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Rule ",
 "type":"code"
 },
 {
@@ -898,7 +848,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Or ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"0030bc01dfd4497ca5d1a1e7af5a5267",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Or ",
 "type":"code"
 },
 {
@@ -906,7 +873,7 @@
 "type":"tabstop"
 },
 {
-"text":"=\n    | ast:x !. ",
+"text":"=\n  | ast:x !. ",
 "type":"code"
 },
 {
@@ -914,7 +881,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> x\n    | ast:x Or:y #:a #:b ",
+"text":"-> x\n  | ast:x Or:y #:a #:b ",
 "type":"code"
 },
 {
@@ -970,7 +937,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Scope ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"60c72ca468044457b6bcaafc4178cc05",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Scope ",
 "type":"code"
 },
 {
@@ -1010,7 +994,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  And ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"7dfdff1e9c5b49b0b9438274eb4c9066",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"And ",
 "type":"code"
 },
 {
@@ -1018,7 +1019,24 @@
 "type":"tabstop"
 },
 {
-"text":"= ast*\n  Bind ",
+"text":"= ast*\n",
+"type":"code"
+}
+],
+"id":"f7d10f9b03cb4de9b586b1630437c1cc",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Bind ",
 "type":"code"
 },
 {
@@ -1034,7 +1052,15 @@
 "type":"tabstop"
 },
 {
-"text":"-> { y\n                                        \"I('BIND', \" x \")\\n\" ",
+"text":"-> { y\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('BIND', \" x \")\\n\" ",
 "type":"code"
 },
 {
@@ -1042,7 +1068,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Star ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"91b566e351da49a1b368525c3a1a9879",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Star ",
 "type":"code"
 },
 {
@@ -1122,7 +1165,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Not ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"30ee03ac51a74627829bfcce1ac3904c",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Not ",
 "type":"code"
 },
 {
@@ -1186,7 +1246,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchCallRule ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"591d05c1297e4fb88e8c38d9a3147cf5",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchCallRule ",
 "type":"code"
 },
 {
@@ -1210,7 +1287,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Label ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"58615573c36b4b64a383842e606b8c3c",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"Label ",
 "type":"code"
 },
 {
@@ -1234,7 +1328,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  SemanticAction ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"29f6921c01e944589f1955077ef0a589",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"SemanticAction ",
 "type":"code"
 },
 {
@@ -1258,7 +1369,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchRule ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"da478954dd5e474cab2bd28756636e33",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchRule ",
 "type":"code"
 },
 {
@@ -1282,7 +1410,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchRange ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"7bf436c56fdc473b8e8d4102f9e9d75f",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchRange ",
 "type":"code"
 },
 {
@@ -1306,7 +1451,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchString ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"de2ceb8e15d64c4797d956d3015f41bb",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchString ",
 "type":"code"
 },
 {
@@ -1330,7 +1492,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchCharseq ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"57444b0d737840e88781f30b1ba8d250",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchCharseq ",
 "type":"code"
 },
 {
@@ -1354,7 +1533,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchAny ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"ae3894890b5f46ee83f0350438e9e307",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchAny ",
 "type":"code"
 },
 {
@@ -1378,7 +1574,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  MatchList ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"da1967debbe5402392c3b98c6b8d58ef",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"MatchList ",
 "type":"code"
 },
 {
@@ -1394,7 +1607,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"I('PUSH_INPUT')\\n\"\n                                        x\n                                        \"I('POP_INPUT')\\n\" ",
+"text":"-> { \"I('PUSH_INPUT')\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     x\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('POP_INPUT')\\n\" ",
 "type":"code"
 },
 {
@@ -1402,7 +1631,24 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  String ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"f1cd0227605b46789a8dfd623e24d3f9",
+"language":"",
+"type":"code"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"String ",
 "type":"code"
 },
 {
@@ -1410,7 +1656,7 @@
 "type":"tabstop"
 },
 {
-"text":"= py\n  List ",
+"text":"= py\nList ",
 "type":"code"
 },
 {
@@ -1434,7 +1680,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  Builder ",
+"text":"}\nBuilder ",
 "type":"code"
 },
 {
@@ -1458,7 +1704,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  IndentBuilder ",
+"text":"}\nIndentBuilder ",
 "type":"code"
 },
 {
@@ -1482,7 +1728,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  DedentBuilder ",
+"text":"}\nDedentBuilder ",
 "type":"code"
 },
 {
@@ -1506,7 +1752,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  FnCall ",
+"text":"}\nFnCall ",
 "type":"code"
 },
 {
@@ -1530,7 +1776,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  VarLookup ",
+"text":"}\nVarLookup ",
 "type":"code"
 },
 {
@@ -1554,7 +1800,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  ast ",
+"text":"}\nast ",
 "type":"code"
 },
 {
@@ -1578,7 +1824,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  astItems ",
+"text":"}\nastItems ",
 "type":"code"
 },
 {
@@ -1586,7 +1832,7 @@
 "type":"tabstop"
 },
 {
-"text":"=\n    | ast:x astItem*:xs ",
+"text":"=\n  | ast:x astItem*:xs ",
 "type":"code"
 },
 {
@@ -1602,7 +1848,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n    |                   ",
+"text":"}\n  |                   ",
 "type":"code"
 },
 {
@@ -1618,7 +1864,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  astItem ",
+"text":"}\nastItem ",
 "type":"code"
 },
 {
@@ -1642,7 +1888,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  astList ",
+"text":"}\nastList ",
 "type":"code"
 },
 {
@@ -1666,7 +1912,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  astListItem ",
+"text":"}\nastListItem ",
 "type":"code"
 },
 {
@@ -1674,7 +1920,7 @@
 "type":"tabstop"
 },
 {
-"text":"=\n    | [\"ListItemSplice\" ast:x] ",
+"text":"=\n  | [\"ListItemSplice\" ast:x] ",
 "type":"code"
 },
 {
@@ -1690,7 +1936,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n    | ast:x                    ",
+"text":"}\n  | ast:x                    ",
 "type":"code"
 },
 {
@@ -1706,7 +1952,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n  py ",
+"text":"}\npy ",
 "type":"code"
 },
 {
@@ -1722,13 +1968,235 @@
 "type":"tabstop"
 },
 {
-"text":"-> repr(x)\n}\n",
+"text":"-> repr(x)\n",
 "type":"code"
 }
 ],
-"id":"c4887eaa08da4799acaad6fdbde5d2f7",
+"id":"2ee5361a424942a6aa7944db88e80f22",
 "language":"",
 "type":"code"
+},
+{
+"chunkpath":[
+"imports"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n",
+"type":"code"
+}
+],
+"id":"4d06e64ddc8941928ee419ac82f56c4d",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n",
+"type":"code"
+}
+],
+"id":"5545be940203494ab9bcd6ce8227bba4",
+"type":"code"
+}
+],
+"title":"Code generator"
+},
+{
+"children":[],
+"id":"5cca99df2e2c4c78ab4bfe4cb946d89a",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"This builds upon the ",
+"type":"text"
+},
+{
+"text":"optimized version of RLMeta",
+"type":"link",
+"url":"/writing/optimizing-rlmeta/index.html"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"79ae9067afde497085d5b885fe4fb8a4",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"This is inspired by ",
+"type":"text"
+},
+{
+"text":"Regular Expression Matching: the Virtual Machine Approach",
+"type":"link",
+"url":"https://swtch.com/~rsc/regexp/regexp2.html"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"A Text Pattern-Matching Tool based on Parsing Expression Grammars",
+"type":"link",
+"url":"http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"d21cbbff552e4c8dafd419861250c3c4",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Not using ",
+"type":"text"
+},
+{
+"text":"self",
+"type":"code"
+},
+{
+"text":" seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?",
+"type":"text"
+}
+],
+"id":"3a5fbbadfd654c42bc1cd57075467383",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Instruction frequency analysis to optimize order of while loop.",
+"type":"text"
+}
+],
+"id":"68e3bcae66ca4daf9fd359a53559b019",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Why did labels change when making first vm based metacompiler? Investigate in branch.",
+"type":"text"
+}
+],
+"id":"4230d0b352b74f578d1e820477d4f0bb",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Add failure messages again. And make sure python template exception handling is the same again.",
+"type":"text"
+}
+],
+"id":"b96e160d222e4d28a37b51ddba1a290b",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Back patch jump instructions instead of using labels?",
+"type":"text"
+}
+],
+"id":"0cafd15b18cc43aea7ff1e4336e11e02",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"blank_lines_before":1,
+"path":[
+"imports"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"\n",
+"type":"code"
+},
+{
+"blank_lines_before":1,
+"path":[
+"vm"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"\n",
+"type":"code"
+},
+{
+"blank_lines_before":1,
+"path":[
+"classes"
+],
+"prefix":"",
+"type":"chunk"
+}
+],
+"id":"5dd5edbabef546a383244c3df74dc7b0",
+"type":"code"
+}
+],
+"title":"Notes"
+},
+{
+"children":[
+{
+"children":[],
+"id":"53f0708b231b468d844291df3fe17cf2",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[
+"parser.rlmeta"
+],
+"fragments":[
+{
+"text":"Parser {\n  grammar =\n    | name:x space '{' rule*:ys space '}'      -> [\"Grammar\" x ~ys]\n  rule =\n    | name:x space '=' choice:y                -> [\"Rule\" x y]\n  choice =\n    | (space '|')?\n      sequence:x (space '|' sequence)*:xs      -> [\"Or\" x ~xs]\n  sequence =\n    | expr:x expr*:xs                          -> [\"Scope\" [\"And\" x ~xs]]\n  expr =\n    | expr1:x space ':' name:y                 -> [\"Bind\" y x]\n    | expr1\n  expr1 =\n    | expr2:x space '*'                        -> [\"Star\" x]\n    | expr2:x space '?'                        -> [\"Or\" x [\"And\"]]\n    | space '!' expr2:x                        -> [\"Not\" x]\n    | space '%'                                -> [\"MatchCallRule\"]\n    | space '#'                                -> [\"Label\"]\n    | expr2\n  expr2 =\n    | space '->' hostExpr:x                    -> [\"SemanticAction\" x]\n    | name:x !(space '=')                      -> [\"MatchRule\" x]\n    | space char:x '-' char:y                  -> [\"MatchRange\" x y]\n    | space string:x                           -> [\"MatchString\" x]\n    | space charseq:x                          -> [\"MatchCharseq\" x]\n    | space '.'                                -> [\"MatchAny\"]\n    | space '(' choice:x space ')'             -> x\n    | space '[' expr*:xs space ']'             -> [\"MatchList\" [\"And\" ~xs]]\n  hostExpr =\n    | space string:x                           -> [\"String\" x]\n    | space '[' hostExprListItem*:xs space ']' -> [\"List\" ~xs]\n    | space '{' buildExpr*:xs space '}'        -> [\"Builder\" ~xs]\n    | name:x space '(' hostExpr*:ys space ')'  -> [\"FnCall\" x ~ys]\n    | name:x                                   -> [\"VarLookup\" x]\n  hostExprListItem =\n    | space '~' hostExpr:x                     -> [\"ListItemSplice\" x]\n    | hostExpr\n  buildExpr =\n    | space '>'                                -> [\"IndentBuilder\"]\n    | space '<'                                -> [\"DedentBuilder\"]\n    | hostExpr\n  string    = '\"'  (!'\"'  innerChar)*:xs '\"'   -> join(xs)\n  charseq   = '\\'' (!'\\'' innerChar)*:xs '\\''  -> join(xs)\n  char      = '\\''  !'\\'' innerChar  :x  '\\''  -> x\n  innerChar = '\\\\' escape | .\n  escape    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"\n            | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"\n  name      = space nameStart:x nameChar*:xs   -> join([x ~xs])\n  nameStart = 'a'-'z' | 'A'-'Z'\n  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'\n  space     = (' ' | '\\n')*\n}\n",
+"type":"code"
+}
+],
+"id":"0a3d1c1a8c4c49ab803ba2aabb11f6b1",
+"language":"",
+"type":"code"
+}
+],
+"title":"parser.rlmeta"
+},
+{
+"children":[],
+"id":"74bf51f7e8d94bcba1747edb477137ef",
+"paragraphs":[
+{
+"code_id":"c4887eaa08da4799acaad6fdbde5d2f7",
+"id":"a376af48b31246aba6d5a8bc75857e7f",
+"type":"expanded_code"
 }
 ],
 "title":"codegenerator.rlmeta"
@@ -1738,8 +2206,8 @@
 "id":"60ff77cb85fa455589e3e45cdeac8160",
 "paragraphs":[
 {
-"code_id":"4d06e64ddc8941928ee419ac82f56c4d",
-"id":"36d97cd6364b4b7c92b9088f6542db59",
+"code_id":"5dd5edbabef546a383244c3df74dc7b0",
+"id":"a5db6607ca9547a885d956e3916cb92d",
 "type":"expanded_code"
 }
 ],
