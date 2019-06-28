@@ -54,13 +54,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             continue
         elif name == "RETURN":
             if len(stack) == 0:
-                result = last_action.eval()
-                if isinstance(result, _Builder):
-                    return result.build_string()
-                else:
-                    return result
+                return last_action.eval()
             pc, key = stack.pop()
-            memo[key] = (last_action, stream_stack[:]+[(stream, pos)])
+            memo[key] = (last_action, stream_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
             envs[-1].append(last_action)
@@ -98,18 +94,18 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pos += 1
                 pc += 1
                 continue
-        elif name == "PUSH_INPUT":
+        elif name == "PUSH_STREAM":
             if pos >= len(stream) or not isinstance(stream[pos], list):
-                fail_message = "push input"
+                fail_message = "push stream"
             else:
                 stream_stack.append((stream, pos+1))
                 stream = stream[pos]
                 pos = 0
                 pc += 1
                 continue
-        elif name == "POP_INPUT":
+        elif name == "POP_STREAM":
             if pos < len(stream):
-                fail_message = "pop input"
+                fail_message = "pop stream"
             else:
                 stream, pos = stream_stack.pop()
                 pc += 1
@@ -159,12 +155,12 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
 
 class _SemanticAction(object):
 
-    def __init__(self, fn, env):
+    def __init__(self, fn, value):
         self.fn = fn
-        self.env = env
+        self.value = value
 
     def eval(self):
-        return self.fn(self.env)
+        return self.fn(self.value)
 
 class _ConstantSemanticAction(object):
 
@@ -181,7 +177,11 @@ class _Grammar(object):
             stream = input_object
         else:
             stream = [input_object]
-        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)
+        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)
+        if isinstance(result, _Builder):
+            return result.build_string()
+        else:
+            return result
 
 class _Builder(object):
 

@@ -186,7 +186,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"RETURN\":\n    if len(stack) == 0:\n        result = last_action.eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n    pc, key = stack.pop()\n    memo[key] = (last_action, stream_stack[:]+[(stream, pos)])\n    continue\n",
+"text":"elif name == \"RETURN\":\n    if len(stack) == 0:\n        return last_action.eval()\n    pc, key = stack.pop()\n    memo[key] = (last_action, stream_stack+[(stream, pos)])\n    continue\n",
 "type":"code"
 }
 ],
@@ -378,7 +378,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"PUSH_INPUT\":\n    if pos >= len(stream) or not isinstance(stream[pos], list):\n        fail_message = \"push input\"\n    else:\n        stream_stack.append((stream, pos+1))\n        stream = stream[pos]\n        pos = 0\n        pc += 1\n        continue\n",
+"text":"elif name == \"PUSH_STREAM\":\n    if pos >= len(stream) or not isinstance(stream[pos], list):\n        fail_message = \"push stream\"\n    else:\n        stream_stack.append((stream, pos+1))\n        stream = stream[pos]\n        pos = 0\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -386,7 +386,7 @@
 "type":"code"
 }
 ],
-"title":"PUSH_INPUT"
+"title":"PUSH_STREAM"
 },
 {
 "children":[],
@@ -402,7 +402,7 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"POP_INPUT\":\n    if pos < len(stream):\n        fail_message = \"pop input\"\n    else:\n        stream, pos = stream_stack.pop()\n        pc += 1\n        continue\n",
+"text":"elif name == \"POP_STREAM\":\n    if pos < len(stream):\n        fail_message = \"pop stream\"\n    else:\n        stream, pos = stream_stack.pop()\n        pc += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -410,7 +410,7 @@
 "type":"code"
 }
 ],
-"title":"POP_INPUT"
+"title":"POP_STREAM"
 },
 {
 "children":[],
@@ -529,6 +529,41 @@
 "id":"e66f8cec6206420abe4736ae32849c53",
 "paragraphs":[
 {
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"envs",
+"type":"code"
+},
+{
+"text":" keeps track of environments.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"stack",
+"type":"code"
+},
+{
+"text":" keeps track of call stack and backtrack entries.",
+"type":"text"
+}
+]
+}
+],
+"id":"539fcebc3c894449af9d0cf35c082ef5",
+"type":"list"
+},
+{
 "chunkpath":[
 "vm"
 ],
@@ -573,7 +608,7 @@
 ],
 "fragments":[
 {
-"text":"class _SemanticAction(object):\n\n    def __init__(self, fn, env):\n        self.fn = fn\n        self.env = env\n\n    def eval(self):\n        return self.fn(self.env)\n",
+"text":"class _SemanticAction(object):\n\n    def __init__(self, fn, value):\n        self.fn = fn\n        self.value = value\n\n    def eval(self):\n        return self.fn(self.value)\n",
 "type":"code"
 }
 ],
@@ -792,7 +827,7 @@
 ],
 "fragments":[
 {
-"text":"class _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n",
+"text":"class _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n",
 "type":"code"
 }
 ],
@@ -1607,7 +1642,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"I('PUSH_INPUT')\\n\"\n",
+"text":"-> { \"I('PUSH_STREAM')\\n\"\n",
 "type":"code"
 },
 {
@@ -1623,7 +1658,7 @@
 "type":"tabstop"
 },
 {
-"text":"     \"I('POP_INPUT')\\n\" ",
+"text":"     \"I('POP_STREAM')\\n\" ",
 "type":"code"
 },
 {

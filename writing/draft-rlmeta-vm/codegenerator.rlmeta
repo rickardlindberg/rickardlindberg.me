@@ -53,9 +53,9 @@ CodeGenerator {
   MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"       }
   MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"      }
   MatchAny       =                 -> { "I('MATCH_ANY')\n"                 }
-  MatchList      = ast:x           -> { "I('PUSH_INPUT')\n"
+  MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
                                         x
-                                        "I('POP_INPUT')\n"                 }
+                                        "I('POP_STREAM')\n"                }
   String         = py
   List           = astList:x       -> { x                                  }
   Builder        = astItems:x      -> { "_Builder.create([" x "])"         }
