@@ -722,7 +722,1007 @@
 ],
 "fragments":[
 {
-"text":"CodeGenerator {\n  Grammar        = .:x ast*:ys     -> { \"class \" x \"(_Grammar):\\n\" >\n                                          \"def __init__(self):\\n\" >\n                                            \"instructions = []\\n\"\n                                            \"labels = {}\\n\"\n                                            \"def I(name, x=None, y=None):\\n\" >\n                                              \"instructions.append((name, x, y))\\n\"\n                                            <\n                                            \"def LABEL(name):\\n\" >\n                                              \"labels[name] = len(instructions)\\n\"\n                                            <\n                                            ys\n                                            \"self._instructions = instructions\\n\"\n                                            \"self._labels = labels\\n\"\n                                          <\n                                        <                                  }\n  Rule           = py:x ast:y      -> { \"LABEL(\" x \")\\n\"\n                                        y\n                                        \"I('RETURN')\\n\"                    }\n  Or             =\n    | ast:x !.                     -> x\n    | ast:x Or:y #:a #:b           -> { \"I('BACKTRACK', \" a \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" b \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        y\n                                        \"LABEL(\" b \")\\n\"                   }\n  Scope          = ast:x           -> { \"I('PUSH_SCOPE')\\n\"\n                                        x\n                                        \"I('POP_SCOPE')\\n\"                 }\n  And            = ast*\n  Bind           = py:x ast:y      -> { y\n                                        \"I('BIND', \" x \")\\n\"               }\n  Star           = ast:x #:a #:b   -> { \"I('LIST_START')\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('LIST_APPEND')\\n\"\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" b \")\\n\"\n                                        \"I('LIST_END')\\n\"                  }\n  Not            = ast:x #:a #:b   -> { \"I('BACKTRACK', \" b \")\\n\"\n                                        x\n                                        \"I('COMMIT', \" a \")\\n\"\n                                        \"LABEL(\" a \")\\n\"\n                                        \"I('FAIL')\\n\"\n                                        \"LABEL(\" b \")\\n\"                   }\n  MatchCallRule  =                 -> { \"I('MATCH_CALL_RULE')\\n\"           }\n  Label          =                 -> { \"I('LABEL')\\n\"                     }\n  SemanticAction = ast:x           -> { \"I('ACTION', lambda env: \" x \")\\n\" }\n  MatchRule      = py:x            -> { \"I('CALL', \" x \")\\n\"               }\n  MatchRange     = py:x py:y       -> { \"I('MATCH_RANGE', \" x \", \" y \")\\n\" }\n  MatchString    = py:x            -> { \"I('MATCH_STRING', \" x \")\\n\"       }\n  MatchCharseq   = py:x            -> { \"I('MATCH_CHARSEQ', \" x \")\\n\"      }\n  MatchAny       =                 -> { \"I('MATCH_ANY')\\n\"                 }\n  MatchList      = ast:x           -> { \"I('PUSH_INPUT')\\n\"\n                                        x\n                                        \"I('POP_INPUT')\\n\"                 }\n  String         = py\n  List           = astList:x       -> { x                                  }\n  Builder        = astItems:x      -> { \"_Builder.create([\" x \"])\"         }\n  IndentBuilder  =                 -> { \"_IndentBuilder()\"                 }\n  DedentBuilder  =                 -> { \"_DedentBuilder()\"                 }\n  FnCall         = .:x astItems:y  -> { x \"(\" y \")\"                        }\n  VarLookup      = py:x            -> { \"env[\" x \"].eval()\"                }\n  ast            = [%:x]           -> { x                                  }\n  astItems       =\n    | ast:x astItem*:xs            -> { x xs                               }\n    |                              -> {                                    }\n  astItem        = ast:x           -> { \", \" x                             }\n  astList        = astListItem*:xs -> { \"(\" xs \"[])\"                       }\n  astListItem    =\n    | [\"ListItemSplice\" ast:x]     -> {     x  \"+\"                         }\n    | ast:x                        -> { \"[\" x \"]+\"                         }\n  py             = .:x             -> repr(x)\n}\n",
+"text":"CodeGenerator {\n  Grammar ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= .:x ast*:ys ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"class \" x \"(_Grammar):\\n\" >\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"       \"def __init__(self):\\n\" >\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"instructions = []\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"labels = {}\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"def I(name, x=None, y=None):\\n\" >\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"           \"instructions.append((name, x, y))\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         <\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"def LABEL(name):\\n\" >\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"           \"labels[name] = len(instructions)\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         <\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         ys\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"self._instructions = instructions\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"         \"self._labels = labels\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"       <\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     < ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Rule ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ast:y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"LABEL(\" x \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     y\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('RETURN')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Or ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"=\n    | ast:x !. ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> x\n    | ast:x Or:y #:a #:b ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('BACKTRACK', \" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     x\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('COMMIT', \" b \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     y\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" b \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Scope ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('PUSH_SCOPE')\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     x\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('POP_SCOPE')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  And ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast*\n  Bind ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ast:y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { y\n                                        \"I('BIND', \" x \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Star ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x #:a #:b ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('LIST_START')\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('BACKTRACK', \" b \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     x\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('LIST_APPEND')\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('COMMIT', \" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" b \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('LIST_END')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Not ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x #:a #:b ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('BACKTRACK', \" b \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     x\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('COMMIT', \" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" a \")\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"I('FAIL')\\n\"\n",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"     \"LABEL(\" b \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchCallRule ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('MATCH_CALL_RULE')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Label ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('LABEL')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  SemanticAction ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('ACTION', lambda env: \" x \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchRule ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('CALL', \" x \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchRange ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x py:y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('MATCH_RANGE', \" x \", \" y \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchString ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('MATCH_STRING', \" x \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchCharseq ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('MATCH_CHARSEQ', \" x \")\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchAny ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('MATCH_ANY')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  MatchList ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"I('PUSH_INPUT')\\n\"\n                                        x\n                                        \"I('POP_INPUT')\\n\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  String ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py\n  List ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= astList:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { x ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  Builder ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= astItems:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"_Builder.create([\" x \"])\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  IndentBuilder ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"_IndentBuilder()\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  DedentBuilder ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"_DedentBuilder()\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  FnCall ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= .:x astItems:y ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { x \"(\" y \")\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  VarLookup ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= py:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"env[\" x \"].eval()\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  ast ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= [%:x] ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { x ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  astItems ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"=\n    | ast:x astItem*:xs ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { x xs ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n    |                   ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  astItem ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= ast:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \", \" x ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  astList ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= astListItem*:xs ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"(\" xs \"[])\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  astListItem ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"=\n    | [\"ListItemSplice\" ast:x] ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> {     x  \"+\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n    | ast:x                    ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> { \"[\" x \"]+\" ",
+"type":"code"
+},
+{
+"index":30,
+"type":"tabstop"
+},
+{
+"text":"}\n  py ",
+"type":"code"
+},
+{
+"index":10,
+"type":"tabstop"
+},
+{
+"text":"= .:x ",
+"type":"code"
+},
+{
+"index":20,
+"type":"tabstop"
+},
+{
+"text":"-> repr(x)\n}\n",
 "type":"code"
 }
 ],
