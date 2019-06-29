@@ -10,8 +10,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
     memo = {}
-    pos = 0
-    stream_stack = []
+    stream, pos, stream_pos_stack  = (stream, 0, [])
     fail_message = ""
     while True:
         name, arg1, arg2 = instructions[pc]
@@ -20,15 +19,15 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "BACKTRACK":
-            stack.append((labels[arg1], pos, len(stream_stack), len(envs)))
+            stack.append((labels[arg1], pos, len(stream_pos_stack), len(envs)))
             pc += 1
             continue
         elif name == "CALL":
-            key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))
+            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))
             if key in memo:
-                last_action, stream_stack = memo[key]
-                stream_stack = stream_stack[:]
-                stream, pos = stream_stack.pop()
+                last_action, stream_pos_stack = memo[key]
+                stream_pos_stack = stream_pos_stack[:]
+                stream, pos = stream_pos_stack.pop()
                 pc += 1
             else:
                 stack.append((pc+1, key))
@@ -56,7 +55,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if len(stack) == 0:
                 return last_action.eval()
             pc, key = stack.pop()
-            memo[key] = (last_action, stream_stack+[(stream, pos)])
+            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
             envs[-1].append(last_action)
@@ -98,7 +97,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or not isinstance(stream[pos], list):
                 fail_message = "push stream"
             else:
-                stream_stack.append((stream, pos+1))
+                stream_pos_stack.append((stream, pos+1))
                 stream = stream[pos]
                 pos = 0
                 pc += 1
@@ -107,7 +106,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if pos < len(stream):
                 fail_message = "pop stream"
             else:
-                stream, pos = stream_stack.pop()
+                stream, pos = stream_pos_stack.pop()
                 pc += 1
                 continue
         elif name == "MATCH_CALL_RULE":
@@ -115,11 +114,11 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 fail_message = "match call rule"
             else:
                 fn_name = str(stream[pos])
-                key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))
+                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))
                 if key in memo:
-                    last_action, stream_stack = memo[key]
-                    stream_stack = stream_stack[:]
-                    stream, pos = stream_stack.pop()
+                    last_action, stream_pos_stack = memo[key]
+                    stream_pos_stack = stream_pos_stack[:]
+                    stream, pos = stream_pos_stack.pop()
                     pc += 1
                 else:
                     stack.append((pc+1, key))
@@ -148,9 +147,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         if not stack:
             raise Exception("totally failed: {}".format(fail_message))
         (pc, pos, stream_stack_len, envs_len) = stack.pop()
-        if len(stream_stack) > stream_stack_len:
-            stream = stream_stack[stream_stack_len][0]
-        stream_stack = stream_stack[:stream_stack_len]
+        if len(stream_pos_stack) > stream_stack_len:
+            stream = stream_pos_stack[stream_stack_len][0]
+        stream_pos_stack = stream_pos_stack[:stream_stack_len]
         envs = envs[:envs_len]
 
 class _SemanticAction(object):
