@@ -114,7 +114,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if pos >= len(stream):
                 fail_message = "match call rule"
             else:
-                fn_name = stream[pos]
+                fn_name = str(stream[pos])
                 key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))
                 if key in memo:
                     last_action, stream_stack = memo[key]
