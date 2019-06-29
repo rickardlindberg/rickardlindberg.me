@@ -5,21 +5,22 @@ except:
 
 def rlmeta_vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    envs = []
     stack = []
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
     memo = {}
     stream, pos, stream_pos_stack  = (stream, 0, [])
+    env, env_stack = (None, [])
     fail_message = ""
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
-            envs.append({})
+            env_stack.append(env)
+            env = {}
             pc += 1
             continue
         elif name == "BACKTRACK":
-            stack.append((labels[arg1], pos, len(stream_pos_stack), len(envs)))
+            stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
             pc += 1
             continue
         elif name == "CALL":
@@ -48,7 +49,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc = labels[arg1]
             continue
         elif name == "POP_SCOPE":
-            envs.pop()
+            env = env_stack.pop()
             pc += 1
             continue
         elif name == "RETURN":
@@ -58,15 +59,15 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
-            envs[-1].append(last_action)
+            env.append(last_action)
             pc += 1
             continue
         elif name == "BIND":
-            envs[-1][arg1] = last_action
+            env[arg1] = last_action
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = _SemanticAction(arg1, envs[-1])
+            last_action = _SemanticAction(arg1, env)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
@@ -78,11 +79,13 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pc += 1
                 continue
         elif name == "LIST_START":
-            envs.append([])
+            env_stack.append(env)
+            env = []
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())
+            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], env)
+            env = env_stack.pop()
             pc += 1
             continue
         elif name == "MATCH_ANY":
@@ -146,11 +149,13 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             stack.pop()
         if not stack:
             raise Exception("totally failed: {}".format(fail_message))
-        (pc, pos, stream_stack_len, envs_len) = stack.pop()
+        (pc, pos, stream_stack_len, env_stack_len) = stack.pop()
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
         stream_pos_stack = stream_pos_stack[:stream_stack_len]
-        envs = envs[:envs_len]
+        if len(env_stack) > env_stack_len:
+            env = env_stack[env_stack_len]
+        env_stack = env_stack[:env_stack_len]
 
 class _SemanticAction(object):
 
