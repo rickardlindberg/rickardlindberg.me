@@ -5,11 +5,11 @@ except:
 
 def rlmeta_vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    stack = []
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
     memo = {}
-    stream, pos, stream_pos_stack  = (stream, 0, [])
+    call_backrack_stack = []
+    stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
     fail_message = ""
     while True:
@@ -20,7 +20,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "BACKTRACK":
-            stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
+            call_backrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
             pc += 1
             continue
         elif name == "CALL":
@@ -31,7 +31,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 stream, pos = stream_pos_stack.pop()
                 pc += 1
             else:
-                stack.append((pc+1, key))
+                call_backrack_stack.append((pc+1, key))
                 pc = labels[arg1]
             continue
         elif name == "MATCH_CHARSEQ":
@@ -45,7 +45,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pc += 1
                 continue
         elif name == "COMMIT":
-            stack.pop()
+            call_backrack_stack.pop()
             pc = labels[arg1]
             continue
         elif name == "POP_SCOPE":
@@ -53,9 +53,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "RETURN":
-            if len(stack) == 0:
+            if len(call_backrack_stack) == 0:
                 return last_action.eval()
-            pc, key = stack.pop()
+            pc, key = call_backrack_stack.pop()
             memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
@@ -124,7 +124,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                     stream, pos = stream_pos_stack.pop()
                     pc += 1
                 else:
-                    stack.append((pc+1, key))
+                    call_backrack_stack.append((pc+1, key))
                     pc = labels[fn_name]
                     pos += 1
                 continue
@@ -145,11 +145,11 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
-        while stack and len(stack[-1]) == 2:
-            stack.pop()
-        if not stack:
+        while call_backrack_stack and len(call_backrack_stack[-1]) == 2:
+            call_backrack_stack.pop()
+        if not call_backrack_stack:
             raise Exception("totally failed: {}".format(fail_message))
-        (pc, pos, stream_stack_len, env_stack_len) = stack.pop()
+        (pc, pos, stream_stack_len, env_stack_len) = call_backrack_stack.pop()
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
         stream_pos_stack = stream_pos_stack[:stream_stack_len]
