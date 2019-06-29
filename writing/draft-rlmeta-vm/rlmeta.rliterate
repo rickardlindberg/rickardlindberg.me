@@ -42,7 +42,23 @@
 ],
 "fragments":[
 {
-"text":"if name == \"PUSH_SCOPE\":\n    envs.append({})\n    pc += 1\n    continue\n",
+"text":"if name == \"PUSH_SCOPE\":\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":".append({})\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -66,7 +82,55 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"BACKTRACK\":\n    stack.append((labels[arg1], pos, len(stream_stack), len(envs)))\n    pc += 1\n    continue\n",
+"text":"elif name == \"BACKTRACK\":\n    ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".append((",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[arg1], ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":", len(",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"), len(",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":")))\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -90,7 +154,135 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"CALL\":\n    key = (arg1, tuple([x[1] for x in stream_stack]+[pos]))\n    if key in memo:\n        last_action, stream_stack = memo[key]\n        stream_stack = stream_stack[:]\n        stream, pos = stream_stack.pop()\n        pc += 1\n    else:\n        stack.append((pc+1, key))\n        pc = labels[arg1]\n    continue\n",
+"text":"elif name == \"CALL\":\n    key = (arg1, tuple([x[1] for x in ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"]+[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"]))\n    if key in ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":":\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":"[key]\n        ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"[:]\n        ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":".pop()\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".append((",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":"+1, key))\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[arg1]\n    continue\n",
 "type":"code"
 }
 ],
@@ -114,7 +306,71 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"MATCH_CHARSEQ\":\n    for char in arg1:\n        if pos >= len(stream) or stream[pos] != char:\n            fail_message = \"match charseq\"\n            break\n        pos += 1\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_CHARSEQ\":\n    for char in arg1:\n        if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":") or ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"] != char:\n            ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"match charseq\"\n            break\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(arg1)\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -138,7 +394,31 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"COMMIT\":\n    stack.pop()\n    pc = labels[arg1]\n    continue\n",
+"text":"elif name == \"COMMIT\":\n    ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".pop()\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[arg1]\n    continue\n",
 "type":"code"
 }
 ],
@@ -162,7 +442,23 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"POP_SCOPE\":\n    envs.pop()\n    pc += 1\n    continue\n",
+"text":"elif name == \"POP_SCOPE\":\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":".pop()\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -186,7 +482,79 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"RETURN\":\n    if len(stack) == 0:\n        return last_action.eval()\n    pc, key = stack.pop()\n    memo[key] = (last_action, stream_stack+[(stream, pos)])\n    continue\n",
+"text":"elif name == \"RETURN\":\n    if len(",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":") == 0:\n        return ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":".eval()\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":", key = ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".pop()\n    ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":"[key] = (",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"+[(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":")])\n    continue\n",
 "type":"code"
 }
 ],
@@ -210,7 +578,31 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"LIST_APPEND\":\n    envs[-1].append(last_action)\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_APPEND\":\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":"[-1].append(",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":")\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -234,7 +626,31 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"BIND\":\n    envs[-1][arg1] = last_action\n    pc += 1\n    continue\n",
+"text":"elif name == \"BIND\":\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":"[-1][arg1] = ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":"\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -258,7 +674,31 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"ACTION\":\n    last_action = _SemanticAction(arg1, envs[-1])\n    pc += 1\n    continue\n",
+"text":"elif name == \"ACTION\":\n    ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _SemanticAction(arg1, ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":"[-1])\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -282,7 +722,87 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"MATCH_RANGE\":\n    if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n        fail_message = \"match range\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_RANGE\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":") or not (arg1 <= ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"] <= arg2):\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"match range\"\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"])\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -306,7 +826,23 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"LIST_START\":\n    envs.append([])\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_START\":\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":".append([])\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -330,7 +866,31 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"LIST_END\":\n    last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], envs.pop())\n    pc += 1\n    continue\n",
+"text":"elif name == \"LIST_END\":\n    ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _SemanticAction(lambda xs: [x.eval() for x in xs], ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":".pop())\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -354,7 +914,71 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"MATCH_ANY\":\n    if pos >= len(stream):\n        fail_message = \"match any\"\n    else:\n        last_action = _ConstantSemanticAction(stream[pos])\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_ANY\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"):\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"match any\"\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"])\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -378,7 +1002,111 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"PUSH_STREAM\":\n    if pos >= len(stream) or not isinstance(stream[pos], list):\n        fail_message = \"push stream\"\n    else:\n        stream_stack.append((stream, pos+1))\n        stream = stream[pos]\n        pos = 0\n        pc += 1\n        continue\n",
+"text":"elif name == \"PUSH_STREAM\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":") or not isinstance(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"], list):\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"push stream\"\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":".append((",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"+1))\n        ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"]\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" = 0\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -402,7 +1130,63 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"POP_STREAM\":\n    if pos < len(stream):\n        fail_message = \"pop stream\"\n    else:\n        stream, pos = stream_stack.pop()\n        pc += 1\n        continue\n",
+"text":"elif name == \"POP_STREAM\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" < len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"):\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"pop stream\"\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":".pop()\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -426,7 +1210,183 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"MATCH_CALL_RULE\":\n    if pos >= len(stream):\n        fail_message = \"match call rule\"\n    else:\n        fn_name = stream[pos]\n        key = (fn_name, tuple([x[1] for x in stream_stack]+[pos]))\n        if key in memo:\n            last_action, stream_stack = memo[key]\n            stream_stack = stream_stack[:]\n            stream, pos = stream_stack.pop()\n            pc += 1\n        else:\n            stack.append((pc+1, key))\n            pc = labels[fn_name]\n            pos += 1\n        continue\n",
+"text":"elif name == \"MATCH_CALL_RULE\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"):\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"match call rule\"\n    else:\n        fn_name = ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"]\n        key = (fn_name, tuple([x[1] for x in ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"]+[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"]))\n        if key in ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":":\n            ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":"[key]\n            ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"[:]\n            ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":".pop()\n            ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        else:\n            ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".append((",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":"+1, key))\n            ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[fn_name]\n            ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -450,7 +1410,15 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"FAIL\":\n    fail_message = \"fail\"\n",
+"text":"elif name == \"FAIL\":\n    ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"fail\"\n",
 "type":"code"
 }
 ],
@@ -467,7 +1435,127 @@
 ],
 "fragments":[
 {
-"text":"while stack and len(stack[-1]) == 2:\n    stack.pop()\nif not stack:\n    raise Exception(\"totally failed: {}\".format(fail_message))\n(pc, pos, stream_stack_len, envs_len) = stack.pop()\nif len(stream_stack) > stream_stack_len:\n    stream = stream_stack[stream_stack_len][0]\nstream_stack = stream_stack[:stream_stack_len]\nenvs = envs[:envs_len]\n",
+"text":"while ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":" and len(",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":"[-1]) == 2:\n    ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".pop()\nif not ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":":\n    raise Exception(\"totally failed: {}\".format(",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":"))\n(",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":", stream_stack_len, envs_len) = ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":".pop()\nif len(",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":") > stream_stack_len:\n    ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"[stream_stack_len][0]\n",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"[:stream_stack_len]\n",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":"[:envs_len]\n",
 "type":"code"
 }
 ],
@@ -491,7 +1579,39 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"LABEL\":\n    last_action = _ConstantSemanticAction(label_counter)\n    label_counter += 1\n    pc += 1\n    continue\n",
+"text":"elif name == \"LABEL\":\n    ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(",
+"type":"code"
+},
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":")\n    ",
+"type":"code"
+},
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":" += 1\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
 "type":"code"
 }
 ],
@@ -515,7 +1635,71 @@
 ],
 "fragments":[
 {
-"text":"elif name == \"MATCH_STRING\":\n    if pos >= len(stream) or stream[pos] != arg1:\n        fail_message = \"match string {}\".format(arg1)\n    else:\n        last_action = _ConstantSemanticAction(arg1)\n        pos += 1\n        pc += 1\n        continue\n",
+"text":"elif name == \"MATCH_STRING\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":") or ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"] != arg1:\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"match string {}\".format(arg1)\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(arg1)\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
 "type":"code"
 }
 ],
@@ -572,7 +1756,143 @@
 ],
 "fragments":[
 {
-"text":"def rlmeta_vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    envs = []\n    stack = []\n    last_action = _ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    memo = {}\n    pos = 0\n    stream_stack = []\n    fail_message = \"\"\n    while True:\n        name, arg1, arg2 = instructions[pc]\n",
+"text":"def rlmeta_vm(",
+"type":"code"
+},
+{
+"id":"ca256b5a40ca4d7a9359374655d29b3d",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"46962506a4b34797a7bd52e4203131ef",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"):\n    ",
+"type":"code"
+},
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":" = 0\n    ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":" = []\n    ",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":" = []\n    ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(None)\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"46962506a4b34797a7bd52e4203131ef",
+"type":"variable"
+},
+{
+"text":"]\n    ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":" = {}\n    ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" = 0\n    ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = []\n    ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = \"\"\n    while True:\n        name, arg1, arg2 = ",
+"type":"code"
+},
+{
+"id":"ca256b5a40ca4d7a9359374655d29b3d",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":"]\n",
 "type":"code"
 },
 {
@@ -2311,5 +3631,19 @@
 ],
 "title":"RLMeta: a VM based approach"
 },
-"variables":{}
+"variables":{
+"0a9fe66a6284461caec36d4cc17e0f84":"stream_stack",
+"1a932d7b55d945b68f7ac7a869283721":"labels",
+"46962506a4b34797a7bd52e4203131ef":"start_rule",
+"4ae34787de174f88ac725fd6d0132a9b":"stream",
+"68c9f5e79a3d4b04b5fe8c855cd71fff":"memo",
+"6e2f0ba81b194ccab59fa146d23bb428":"envs",
+"ad46fcaa30dd48a0b04ab6d5ed3eb6c6":"pos",
+"afdefdc6c0eb44d698ceb67eda022dc8":"stack",
+"b097b5b85d854f2bb89c4d50e8fe5577":"label_counter",
+"c21d83213c4b4e3d9fc2f0b1d6940f77":"pc",
+"ca256b5a40ca4d7a9359374655d29b3d":"instructions",
+"d8f11069efcf4d318774bb082784c178":"last_action",
+"e3158ae25dfe4975a53ca22a70d76d01":"fail_message"
+}
 }
