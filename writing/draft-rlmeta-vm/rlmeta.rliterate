@@ -1491,7 +1491,7 @@
 ],
 "fragments":[
 {
-"text":"while ",
+"text":"backtrack_entry = None\nwhile ",
 "type":"code"
 },
 {
@@ -1499,7 +1499,7 @@
 "type":"variable"
 },
 {
-"text":" and len(",
+"text":":\n    backtrack_entry = ",
 "type":"code"
 },
 {
@@ -1507,23 +1507,7 @@
 "type":"variable"
 },
 {
-"text":"[-1]) == 2:\n    ",
-"type":"code"
-},
-{
-"id":"afdefdc6c0eb44d698ceb67eda022dc8",
-"type":"variable"
-},
-{
-"text":".pop()\nif not ",
-"type":"code"
-},
-{
-"id":"afdefdc6c0eb44d698ceb67eda022dc8",
-"type":"variable"
-},
-{
-"text":":\n    raise Exception(\"totally failed: {}\".format(",
+"text":".pop()\n    if len(backtrack_entry) == 4:\n        break\nif backtrack_entry is None:\n    raise Exception(\"totally failed: {}\".format(",
 "type":"code"
 },
 {
@@ -1547,15 +1531,7 @@
 "type":"variable"
 },
 {
-"text":", stream_stack_len, env_stack_len) = ",
-"type":"code"
-},
-{
-"id":"afdefdc6c0eb44d698ceb67eda022dc8",
-"type":"variable"
-},
-{
-"text":".pop()\nif len(",
+"text":", stream_stack_len, env_stack_len) = backtrack_entry\nif len(",
 "type":"code"
 },
 {

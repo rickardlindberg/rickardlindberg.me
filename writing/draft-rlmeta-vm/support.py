@@ -145,11 +145,14 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
-        while call_backrack_stack and len(call_backrack_stack[-1]) == 2:
-            call_backrack_stack.pop()
-        if not call_backrack_stack:
+        backtrack_entry = None
+        while call_backrack_stack:
+            backtrack_entry = call_backrack_stack.pop()
+            if len(backtrack_entry) == 4:
+                break
+        if backtrack_entry is None:
             raise Exception("totally failed: {}".format(fail_message))
-        (pc, pos, stream_stack_len, env_stack_len) = call_backrack_stack.pop()
+        (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
         stream_pos_stack = stream_pos_stack[:stream_stack_len]
