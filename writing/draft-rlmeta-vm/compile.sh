@@ -37,5 +37,9 @@ if __name__ == "__main__":
     if "--support" in sys.argv:
         sys.stdout.write(SUPPORT)
     else:
-        sys.stdout.write(compile_grammar(sys.stdin.read()))
+        try:
+            sys.stdout.write(compile_grammar(sys.stdin.read()))
+        except _MatchError as e:
+            sys.stderr.write(e.describe())
+            sys.exit(1)
 EOF

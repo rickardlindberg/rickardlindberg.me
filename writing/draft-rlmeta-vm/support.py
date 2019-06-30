@@ -151,7 +151,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if len(backtrack_entry) == 4:
                 break
         if backtrack_entry is None:
-            raise Exception("totally failed: {}".format(fail_message))
+            raise _MatchError("totally failed: {}".format(fail_message))
         (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -176,6 +176,11 @@ class _ConstantSemanticAction(object):
 
     def eval(self):
         return self.value
+
+class _MatchError(Exception):
+
+    def describe(self):
+        return str(self)
 
 class _Grammar(object):
 

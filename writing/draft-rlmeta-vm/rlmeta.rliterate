@@ -1507,7 +1507,15 @@
 "type":"variable"
 },
 {
-"text":".pop()\n    if len(backtrack_entry) == 4:\n        break\nif backtrack_entry is None:\n    raise Exception(\"totally failed: {}\".format(",
+"text":".pop()\n    if len(backtrack_entry) == 4:\n        break\nif backtrack_entry is None:\n    raise ",
+"type":"code"
+},
+{
+"id":"67782a80b8a0487f8930e57551490023",
+"type":"variable"
+},
+{
+"text":"(\"totally failed: {}\".format(",
 "type":"code"
 },
 {
@@ -1616,6 +1624,30 @@
 }
 ],
 "id":"3aeef8c3298b44c0acb4a2ce8079d334",
+"type":"code"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"67782a80b8a0487f8930e57551490023",
+"type":"variable"
+},
+{
+"text":"(Exception):\n\n    def describe(self):\n        return str(self)\n",
+"type":"code"
+}
+],
+"id":"cb26185f6f2d4de68f35b8f00712b577",
 "type":"code"
 }
 ],
@@ -3512,7 +3544,7 @@
 {
 "fragments":[
 {
-"text":"Why did labels change when making first vm based metacompiler? Investigate in branch.",
+"text":"Why did labels change when making first vm based metacompiler? Investigate in branch. (Also, meta compile script differs.)",
 "type":"text"
 }
 ],
@@ -3522,7 +3554,7 @@
 {
 "fragments":[
 {
-"text":"Add failure messages again. And make sure python template exception handling is the same again.",
+"text":"Add proper failure messages again.",
 "type":"text"
 }
 ],
@@ -3643,7 +3675,15 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        sys.stdout.write(compile_grammar(sys.stdin.read()))\nEOF\n",
+"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$(pwd)/$1\"\n\ncd \"$(dirname \"$0\")\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\njoin = \"\".join\n\ndef compile_grammar(grammar):\n    parser = Parser()\n    code_generator = CodeGenerator()\n    return code_generator.run(\"ast\", parser.run(\"grammar\", grammar))\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(compile_grammar(sys.stdin.read()))\n        except ",
+"type":"code"
+},
+{
+"id":"67782a80b8a0487f8930e57551490023",
+"type":"variable"
+},
+{
+"text":" as e:\n            sys.stderr.write(e.describe())\n            sys.exit(1)\nEOF\n",
 "type":"code"
 }
 ],
@@ -3700,6 +3740,7 @@
 "1a932d7b55d945b68f7ac7a869283721":"labels",
 "46962506a4b34797a7bd52e4203131ef":"start_rule",
 "4ae34787de174f88ac725fd6d0132a9b":"stream",
+"67782a80b8a0487f8930e57551490023":"_MatchError",
 "68c9f5e79a3d4b04b5fe8c855cd71fff":"memo",
 "6e2f0ba81b194ccab59fa146d23bb428":"env_stack",
 "8da6870b3e814a309ac487512eb28fc6":"env",
