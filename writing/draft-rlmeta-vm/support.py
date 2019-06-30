@@ -10,8 +10,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
-    fail_message = ("",)
-    fail_messages = {}
+    fail_message, fail_messages = (None, {})
     memo = {}
     while True:
         name, arg1, arg2 = instructions[pc]
@@ -146,10 +145,8 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
-        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
-        if fail_pos not in fail_messages:
-            fail_messages[fail_pos] = []
-        fail_messages[fail_pos].append((stream, pos, fail_message))
+        fail_key = tuple([x[1] for x in stream_pos_stack]+[pos])
+        fail_messages[fail_key] = (stream, pos, fail_message)
         backtrack_entry = None
         while call_backtrack_stack:
             backtrack_entry = call_backtrack_stack.pop()
@@ -184,13 +181,13 @@ class _ConstantSemanticAction(object):
 
 class _MatchError(Exception):
 
-    def __init__(self, fails):
+    def __init__(self, fail_messages):
         Exception.__init__(self)
-        self.fails = fails
+        self.fail_messages = fail_messages
 
     def describe(self):
-        latest = max(self.fails.keys())
-        stream, pos, fail = self.fails[latest][-1]
+        latest = max(self.fail_messages.keys())
+        stream, pos, fail_message = self.fail_messages[latest]
         message = ""
         if isinstance(stream, basestring):
             line = []
@@ -220,7 +217,7 @@ class _MatchError(Exception):
         else:
             message += "todo: list failure context\n"
         message += "Error: "
-        message += fail[0].format(*fail[1:])
+        message += fail_message[0].format(*fail_message[1:])
         message += "\n"
         return message
 

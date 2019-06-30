@@ -1491,7 +1491,7 @@
 ],
 "fragments":[
 {
-"text":"fail_pos = tuple([x[1] for x in ",
+"text":"fail_key = tuple([x[1] for x in ",
 "type":"code"
 },
 {
@@ -1499,7 +1499,7 @@
 "type":"variable"
 },
 {
-"text":"]+[pos])\nif fail_pos not in ",
+"text":"]+[pos])\n",
 "type":"code"
 },
 {
@@ -1507,23 +1507,7 @@
 "type":"variable"
 },
 {
-"text":":\n    ",
-"type":"code"
-},
-{
-"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
-"type":"variable"
-},
-{
-"text":"[fail_pos] = []\n",
-"type":"code"
-},
-{
-"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
-"type":"variable"
-},
-{
-"text":"[fail_pos].append((stream, pos, ",
+"text":"[fail_key] = (stream, pos, ",
 "type":"code"
 },
 {
@@ -1531,7 +1515,7 @@
 "type":"variable"
 },
 {
-"text":"))\n",
+"text":")\n",
 "type":"code"
 }
 ],
@@ -1700,7 +1684,71 @@
 "type":"variable"
 },
 {
-"text":"(Exception):\n\n    def __init__(self, fails):\n        Exception.__init__(self)\n        self.fails = fails\n\n    def describe(self):\n        latest = max(self.fails.keys())\n        stream, pos, fail = self.fails[latest][-1]\n        message = \"\"\n        if isinstance(stream, basestring):\n            line = []\n            index = pos - 1\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.insert(0, stream[index])\n                    index -= 1\n                except IndexError:\n                    break\n            to_pos = len(line)\n            index = pos\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.append(stream[index])\n                    index += 1\n                except IndexError:\n                    break\n            message += \"\".join(line)\n            message += \"\\n\"\n            message += \"-\"*to_pos\n            message += \"^\\n\"\n        else:\n            message += \"todo: list failure context\\n\"\n        message += \"Error: \"\n        message += fail[0].format(*fail[1:])\n        message += \"\\n\"\n        return message\n",
+"text":"(Exception):\n\n    def __init__(self, ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":"):\n        Exception.__init__(self)\n        self.",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":"\n\n    def describe(self):\n        latest = max(self.",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":".keys())\n        stream, pos, ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = self.",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":"[latest]\n        message = \"\"\n        if isinstance(stream, basestring):\n            line = []\n            index = pos - 1\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.insert(0, stream[index])\n                    index -= 1\n                except IndexError:\n                    break\n            to_pos = len(line)\n            index = pos\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.append(stream[index])\n                    index += 1\n                except IndexError:\n                    break\n            message += \"\".join(line)\n            message += \"\\n\"\n            message += \"-\"*to_pos\n            message += \"^\\n\"\n        else:\n            message += \"todo: list failure context\\n\"\n        message += \"Error: \"\n        message += ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":"[0].format(*",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":"[1:])\n        message += \"\\n\"\n        return message\n",
 "type":"code"
 }
 ],
@@ -2075,7 +2123,7 @@
 "type":"variable"
 },
 {
-"text":" = (\"\",)\n    ",
+"text":", ",
 "type":"code"
 },
 {
@@ -2083,7 +2131,7 @@
 "type":"variable"
 },
 {
-"text":" = {}\n    ",
+"text":" = (None, {})\n    ",
 "type":"code"
 },
 {
@@ -3673,7 +3721,7 @@
 {
 "fragments":[
 {
-"text":"Add proper failure messages again.",
+"text":"Fix list failure messages. And cleanup failure message formatting.",
 "type":"text"
 }
 ],
