@@ -185,6 +185,10 @@ rulesPageIndexPandocTemplate isBuildTargetWebserver tags = do
                 [ ("thoughts", patternThoughtOfTheDay1)
                 , ("thoughts2", patternThoughtOfTheDay2)
                 ]
+    match "writing/newsletter/index.markdown" $
+        process $ contextPosts isBuildTargetWebserver recentFirst
+                [ ("newsletters", patternNewsletter)
+                ]
     where
         process context = do
             route $ setExtension "html"
@@ -275,6 +279,10 @@ patternAllPosts =
     .||. patternPostIndexPandoc
     .||. patternPostIndexPandocWithOwnTitle
 
+patternNewsletter :: Pattern
+patternNewsletter =
+    "writing/newsletter/*/index.markdown"
+
 patternThoughtOfTheDay1 :: Pattern
 patternThoughtOfTheDay1 =
     "writing/thought-of-the-day/thoughts/*.markdown"
@@ -301,6 +309,7 @@ patternPostIndexPandoc =
     .||. "writing/bitten-by-python-generators/index.markdown"
     .||. "writing/evolution-recalling-bash-history/index.md"
     .||. "writing/new-home-for-timeline/index.markdown"
+    .||. patternNewsletter
 
 patternPostIndexPandocWithOwnTitle :: Pattern
 patternPostIndexPandocWithOwnTitle =
