@@ -8,8 +8,52 @@
         <name>Rickard Lindberg</name>
         <email>ricli85@gmail.com</email>
     </author>
-    <updated>2019-06-28T00:00:00Z</updated>
+    <updated>2019-06-30T00:00:00Z</updated>
     <entry>
+    <title>Newsletter June 2019</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/june-2019/" />
+    <id>http://rickardlindberg.me/writing/newsletter/june-2019/</id>
+    <published>2019-06-30T00:00:00Z</published>
+    <updated>2019-06-30T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Newsletter June 2019</h1>
+
+<p><em>Published on 30 June 2019.</em></p>
+
+<p>This is what I’ve been up to in June 2019:</p>
+<ul>
+<li><p>I was inspired to try writing a journal after stumbling across Derek Siver’s blog post <a href="https://sivers.org/dj">Benefits of a daily diary and topic journals</a>. The idea is to write for my future self to help me solve problems by recording my thoughts and reflecting on them.</p></li>
+<li><p>I read <em>Poke the Box</em> by Seth Godin. My main takeaway was that <strong>initiative is scarce</strong>, and if you take initiative, you are valuable.</p></li>
+<li><p>I read <a href="https://compilerbook.com/">Writing A Compiler In Go</a> by Thorsten Ball. It is a topic that interests me. I learned about designing virtual machines.</p></li>
+<li><p>I learned a technique for parsing offside rule languages with PEG parsers via <a href="https://github.com/jgm/peg-markdown/">A PEG Markdown parser</a>. I plan to write a blog post about this technique.</p></li>
+<li><p>I read <em>Show Your Work!</em> by Austin Kleon. Some takeaways:</p>
+<ul>
+<li><p>An amateur is sometimes better at explaining something than an expert because the amateur has recently encountered it and knows what is hard. An expert has forgotten. Therefore <strong>blogging about problems and solutions when I encounter them is useful</strong>.</p></li>
+<li><p>It is useful to share the process of creating something, not just the finished work.</p></li>
+<li><p>It inspired me to publish draft posts on this blog.</p></li>
+<li><p>It inspired me to write these monthly newsletters.</p></li>
+</ul></li>
+<li><p>I finished writing <a href="/writing/optimizing-rlmeta/index.html">Optimizing RLMeta</a>. I struggled with grammar and usage (should I use past or present, active or passive, we or I, and so on). I read other articles to try to analyze what they did. But I also came to one important realization: if I find it hard to write, I can read what I’ve written, find something small to fix, and then I’m suddenly writing again. I will keep writing and hopefully keep improving.</p></li>
+<li><p>I have tried to get into the habit of writing a bit at least every day. Even though some days I produced almost nothing, I kept doing it. Eventually it payed off, but sometimes I felt like I needed a longer session to get something useful done. Often times, short sessions worked as well. One thing that helped me continue was to take a note at the end of a session what to proceed with.</p></li>
+<li><p>I read parts of <a href="https://beautifulracket.com/">Beautiful Racket</a>. Racket is a programming language designed for language-oriented programming. I have for a long time felt that this is a better way to program, but never fully put it into practice. I even started writing <a href="https://leanpub.com/ldd">a book</a> about it. I intend to continue pursuing this way of programming with the help of <a href="/tags/rlmeta/index.html">RLMeta</a>. I will most likely return to <em>Beautiful Racket</em>.</p></li>
+<li><p>I read <em>4-Hour Work Week</em> by Timothy Ferris. Some takeaways:</p>
+<ul>
+<li><p>Unrealistic goals as easier to achieve because the competition is not as fierce.</p></li>
+<li><p>80/20 rule. I can stop doing 80% of what I’m doing and still perform as well.</p></li>
+<li><p>Batching work is sometimes more effective. Limit Twitter/Email/etc to once/twice a day to not be bothered with it the rest of the time.</p></li>
+<li><p>If I did not have to work for money, what would I do? If this is the last day of my life, would I do what I’m doing?</p></li>
+<li><blockquote>
+<p>First, “expert” in the context of selling product means that you know more about the topic than the purchaser. No more.</p>
+</blockquote></li>
+</ul></li>
+<li><p>I watched <a href="https://www.youtube.com/watch?v=o_ptYjf8Bes">(sixth RacketCon): Matthew Butterick – The Making of “Beautiful Racket”</a>. My main takeaway was that a DSL has two parts: the domain and the programming language. And the most important part is the domain. In order to create a good DLS you need to have much knowledge about the domain.</p></li>
+<li><p>I watched <a href="https://www.youtube.com/watch?v=eWJVvNptHZ4">Arnold Schwarzenegger 2019 - The speech that broke the internet - Motivational &amp; Inspiring</a>. In it he says that you should work hard and advertise. This felt similar to Austin Kleon’s advice that you should show your work.</p></li>
+<li><p>I watched <a href="https://www.youtube.com/watch?v=8J6HuvosP0s">Typography for Docs</a>. This is also by Matthew Butterick. I like this talk as well. It inspired me to try to improve typography on my blog. We’ll see if I get around to it.</p></li>
+<li><p>I read <a href="https://m00natic.github.io/lisp/manual-jit.html">Uniform Structured Syntax, Metaprogramming and Run-time Compilation</a>. My main takeaway was that compilation happens at runtime. Just in time. Therefore the compiler must be shipped with the runtime. Common Lisp has hooks for different times during compilation: reader macro, macro, etc.</p></li>
+<li><p>I watched <a href="https://www.youtube.com/watch?v=viF1bVTOO6k">Steady Typing</a>. It shows a projectional editor. Those interest me. They are one inspiration for <a href="/projects/rliterate/index.html">RLiterate</a>.</p></li>
+</ul>
+]]></summary>
+</entry>
+<entry>
     <title>Optimizing RLMeta</title>
     <link href="http://rickardlindberg.me/writing/optimizing-rlmeta/" />
     <id>http://rickardlindberg.me/writing/optimizing-rlmeta/</id>
@@ -11879,26 +11923,6 @@ if [ &quot;$1&quot; = &quot;post&quot; ] ; then
 	su -c &quot;/usr/bin/xmodmap ~/.Xmodmap&quot; rick
 fi</code></pre>
 <p>Without it, I had to type <code>xmodmap ~/.Xmodmap</code> manually each time after resuming my laptop from sleep. In Fedora 20 this seems to be no longer required.</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Accumulating cruft</title>
-    <link href="http://rickardlindberg.me/writing/thought-of-the-day/2014-06-05-accumulating-cruft/" />
-    <id>http://rickardlindberg.me/writing/thought-of-the-day/2014-06-05-accumulating-cruft/</id>
-    <published>2014-06-05T00:00:00Z</published>
-    <updated>2014-06-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Accumulating cruft</h1>
-
-<p><em>Published on  5 June 2014.</em></p>
-
-<p>In the final <a href="http://martinfowler.com/articles/is-tdd-dead/">is TDD dead</a> discussion, DHH said something that I interpreted to mean that all software projects accumulate cruft as they go, and at some point you need a reboot to clean up larger mistakes that can not be eliminated with a simple refactoring.</p>
-<p>Then I thought about what projects I’m most motivated to work on: it’s the new ones where I try a new idea or a new framework. It feels fresh and exciting, but after a while I notice all the cruft. I start to think that maybe this new idea was not the silver bullet. Even though I thought so, I ended up with some cruft.</p>
-<p>So perhaps I should learn how to reboot. Learn to notice what was good with an idea and try to eliminate the bad parts the next time I write something. Maybe it’s ok for some projects to just die if their main purpose was to try a new idea.</p>
-<p>But what about a project I must keep working on? How can I reboot a project that is in production and needs a new feature? Is it possible to do in small steps? If I have the reboot mindset, I probably can.</p>
-<p>–</p>
-<ul>
-<li><a href="https://plus.google.com/112175093836850283531/posts/35gHVGCSdQb">Comments on Google+</a></li>
-</ul>
 ]]></summary>
 </entry>
 
