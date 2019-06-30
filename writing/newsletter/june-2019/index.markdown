@@ -73,6 +73,9 @@ This is what I've been up to in June 2019:
     * If I did not have to work for money, what would I do? If this is the last
       day of my life, would I do what I'm doing?
 
+    * > First, “expert” in the context of selling product means that you know
+      > more about the topic than the purchaser. No more.
+
 * I watched [(sixth RacketCon): Matthew Butterick -- The Making of “Beautiful
   Racket”](https://www.youtube.com/watch?v=o_ptYjf8Bes). My main takeaway was
   that a DSL has two parts: the domain and the programming language. And the
