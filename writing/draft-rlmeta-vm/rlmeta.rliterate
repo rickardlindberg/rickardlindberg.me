@@ -362,7 +362,7 @@
 "type":"variable"
 },
 {
-"text":" = \"match charseq\"\n            break\n        ",
+"text":" = (\"expected {!r}\", char)\n            break\n        ",
 "type":"code"
 },
 {
@@ -786,7 +786,7 @@
 "type":"variable"
 },
 {
-"text":" = \"match range\"\n    else:\n        ",
+"text":" = (\"expected range {!r}-{!r}\", arg1, arg2)\n    else:\n        ",
 "type":"code"
 },
 {
@@ -994,7 +994,7 @@
 "type":"variable"
 },
 {
-"text":" = \"match any\"\n    else:\n        ",
+"text":" = (\"expected any\",)\n    else:\n        ",
 "type":"code"
 },
 {
@@ -1098,7 +1098,7 @@
 "type":"variable"
 },
 {
-"text":" = \"push stream\"\n    else:\n        ",
+"text":" = (\"expected list\",)\n    else:\n        ",
 "type":"code"
 },
 {
@@ -1210,7 +1210,7 @@
 "type":"variable"
 },
 {
-"text":" = \"pop stream\"\n    else:\n        ",
+"text":" = (\"expected end of list\",)\n    else:\n        ",
 "type":"code"
 },
 {
@@ -1290,7 +1290,7 @@
 "type":"variable"
 },
 {
-"text":" = \"match call rule\"\n    else:\n        fn_name = str(",
+"text":" = (\"expected any\",)\n    else:\n        fn_name = str(",
 "type":"code"
 },
 {
@@ -1474,11 +1474,68 @@
 "type":"variable"
 },
 {
-"text":" = \"fail\"\n",
+"text":" = (\"fatal error\",)\n",
 "type":"code"
 }
 ],
 "id":"455aa8f0eafd4641a124090a5b7bdb25",
+"type":"code"
+},
+{
+"chunkpath":[
+"vm",
+"fail case"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"fail_pos = tuple([x[1] for x in ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":"]+[pos])\nif fail_pos not in ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":":\n    ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":"[fail_pos] = []\n",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":"[fail_pos].append((stream, pos, ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":"))\n",
+"type":"code"
+}
+],
+"id":"3aeef8c3298b44c0acb4a2ce8079d334",
 "type":"code"
 },
 {
@@ -1515,15 +1572,15 @@
 "type":"variable"
 },
 {
-"text":"(\"totally failed: {}\".format(",
+"text":"(",
 "type":"code"
 },
 {
-"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
 "type":"variable"
 },
 {
-"text":"))\n(",
+"text":")\n(",
 "type":"code"
 },
 {
@@ -1623,7 +1680,7 @@
 "type":"code"
 }
 ],
-"id":"3aeef8c3298b44c0acb4a2ce8079d334",
+"id":"24208f79ca7941c390b8600e4977b413",
 "type":"code"
 },
 {
@@ -1643,7 +1700,7 @@
 "type":"variable"
 },
 {
-"text":"(Exception):\n\n    def describe(self):\n        return str(self)\n",
+"text":"(Exception):\n\n    def __init__(self, fails):\n        Exception.__init__(self)\n        self.fails = fails\n\n    def describe(self):\n        latest = max(self.fails.keys())\n        stream, pos, fail = self.fails[latest][-1]\n        message = \"\"\n        if isinstance(stream, basestring):\n            line = []\n            index = pos - 1\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.insert(0, stream[index])\n                    index -= 1\n                except IndexError:\n                    break\n            to_pos = len(line)\n            index = pos\n            while True:\n                try:\n                    if stream[index] == \"\\n\" and line:\n                        break\n                    line.append(stream[index])\n                    index += 1\n                except IndexError:\n                    break\n            message += \"\".join(line)\n            message += \"\\n\"\n            message += \"-\"*to_pos\n            message += \"^\\n\"\n        else:\n            message += \"todo: list failure context\\n\"\n        message += \"Error: \"\n        message += fail[0].format(*fail[1:])\n        message += \"\\n\"\n        return message\n",
 "type":"code"
 }
 ],
@@ -1763,7 +1820,7 @@
 "type":"variable"
 },
 {
-"text":" = \"match string {}\".format(arg1)\n    else:\n        ",
+"text":" = (\"expected {!r}\", arg1)\n    else:\n        ",
 "type":"code"
 },
 {
@@ -1804,15 +1861,14 @@
 "child_type":"unordered",
 "children":[
 {
+"child_type":"unordered",
+"children":[
+{
 "child_type":null,
 "children":[],
 "fragments":[
 {
-"text":"envs",
-"type":"code"
-},
-{
-"text":" keeps track of environments.",
+"text":"Environment",
 "type":"text"
 }
 ]
@@ -1822,11 +1878,66 @@
 "children":[],
 "fragments":[
 {
-"text":"stack",
-"type":"code"
+"text":"Stream",
+"type":"text"
+}
+]
 },
 {
-"text":" keeps track of call stack and backtrack entries.",
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Call/Backtrack",
+"type":"text"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Stacks",
+"type":"text"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Label counter",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Last action",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"PC",
+"type":"text"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Registers",
 "type":"text"
 }
 ]
@@ -1912,14 +2023,6 @@
 "type":"code"
 },
 {
-"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
-"type":"variable"
-},
-{
-"text":" = {}\n    ",
-"type":"code"
-},
-{
 "id":"afdefdc6c0eb44d698ceb67eda022dc8",
 "type":"variable"
 },
@@ -1972,7 +2075,23 @@
 "type":"variable"
 },
 {
-"text":" = \"\"\n    while True:\n        name, arg1, arg2 = ",
+"text":" = (\"\",)\n    ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":" = {}\n    ",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":" = {}\n    while True:\n        name, arg1, arg2 = ",
 "type":"code"
 },
 {
@@ -3740,6 +3859,7 @@
 "1a932d7b55d945b68f7ac7a869283721":"labels",
 "46962506a4b34797a7bd52e4203131ef":"start_rule",
 "4ae34787de174f88ac725fd6d0132a9b":"stream",
+"5a36de8ac0824e5e9e2d50ce6256b57a":"fail_messages",
 "67782a80b8a0487f8930e57551490023":"_MatchError",
 "68c9f5e79a3d4b04b5fe8c855cd71fff":"memo",
 "6e2f0ba81b194ccab59fa146d23bb428":"env_stack",

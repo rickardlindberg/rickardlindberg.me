@@ -7,11 +7,12 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     label_counter = 0
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
-    memo = {}
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
-    fail_message = ""
+    fail_message = ("",)
+    fail_messages = {}
+    memo = {}
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
@@ -37,7 +38,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         elif name == "MATCH_CHARSEQ":
             for char in arg1:
                 if pos >= len(stream) or stream[pos] != char:
-                    fail_message = "match charseq"
+                    fail_message = ("expected {!r}", char)
                     break
                 pos += 1
             else:
@@ -72,7 +73,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             continue
         elif name == "MATCH_RANGE":
             if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
-                fail_message = "match range"
+                fail_message = ("expected range {!r}-{!r}", arg1, arg2)
             else:
                 last_action = _ConstantSemanticAction(stream[pos])
                 pos += 1
@@ -90,7 +91,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             continue
         elif name == "MATCH_ANY":
             if pos >= len(stream):
-                fail_message = "match any"
+                fail_message = ("expected any",)
             else:
                 last_action = _ConstantSemanticAction(stream[pos])
                 pos += 1
@@ -98,7 +99,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         elif name == "PUSH_STREAM":
             if pos >= len(stream) or not isinstance(stream[pos], list):
-                fail_message = "push stream"
+                fail_message = ("expected list",)
             else:
                 stream_pos_stack.append((stream, pos+1))
                 stream = stream[pos]
@@ -107,14 +108,14 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         elif name == "POP_STREAM":
             if pos < len(stream):
-                fail_message = "pop stream"
+                fail_message = ("expected end of list",)
             else:
                 stream, pos = stream_pos_stack.pop()
                 pc += 1
                 continue
         elif name == "MATCH_CALL_RULE":
             if pos >= len(stream):
-                fail_message = "match call rule"
+                fail_message = ("expected any",)
             else:
                 fn_name = str(stream[pos])
                 key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))
@@ -129,7 +130,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                     pos += 1
                 continue
         elif name == "FAIL":
-            fail_message = "fail"
+            fail_message = ("fatal error",)
         elif name == "LABEL":
             last_action = _ConstantSemanticAction(label_counter)
             label_counter += 1
@@ -137,7 +138,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             continue
         elif name == "MATCH_STRING":
             if pos >= len(stream) or stream[pos] != arg1:
-                fail_message = "match string {}".format(arg1)
+                fail_message = ("expected {!r}", arg1)
             else:
                 last_action = _ConstantSemanticAction(arg1)
                 pos += 1
@@ -145,13 +146,17 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
+        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
+        if fail_pos not in fail_messages:
+            fail_messages[fail_pos] = []
+        fail_messages[fail_pos].append((stream, pos, fail_message))
         backtrack_entry = None
         while call_backtrack_stack:
             backtrack_entry = call_backtrack_stack.pop()
             if len(backtrack_entry) == 4:
                 break
         if backtrack_entry is None:
-            raise _MatchError("totally failed: {}".format(fail_message))
+            raise _MatchError(fail_messages)
         (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -179,8 +184,45 @@ class _ConstantSemanticAction(object):
 
 class _MatchError(Exception):
 
+    def __init__(self, fails):
+        Exception.__init__(self)
+        self.fails = fails
+
     def describe(self):
-        return str(self)
+        latest = max(self.fails.keys())
+        stream, pos, fail = self.fails[latest][-1]
+        message = ""
+        if isinstance(stream, basestring):
+            line = []
+            index = pos - 1
+            while True:
+                try:
+                    if stream[index] == "\n" and line:
+                        break
+                    line.insert(0, stream[index])
+                    index -= 1
+                except IndexError:
+                    break
+            to_pos = len(line)
+            index = pos
+            while True:
+                try:
+                    if stream[index] == "\n" and line:
+                        break
+                    line.append(stream[index])
+                    index += 1
+                except IndexError:
+                    break
+            message += "".join(line)
+            message += "\n"
+            message += "-"*to_pos
+            message += "^\n"
+        else:
+            message += "todo: list failure context\n"
+        message += "Error: "
+        message += fail[0].format(*fail[1:])
+        message += "\n"
+        return message
 
 class _Grammar(object):
 
