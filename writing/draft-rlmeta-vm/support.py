@@ -8,7 +8,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
     memo = {}
-    call_backrack_stack = []
+    call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
     fail_message = ""
@@ -20,7 +20,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "BACKTRACK":
-            call_backrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
+            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
             pc += 1
             continue
         elif name == "CALL":
@@ -31,7 +31,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 stream, pos = stream_pos_stack.pop()
                 pc += 1
             else:
-                call_backrack_stack.append((pc+1, key))
+                call_backtrack_stack.append((pc+1, key))
                 pc = labels[arg1]
             continue
         elif name == "MATCH_CHARSEQ":
@@ -45,7 +45,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pc += 1
                 continue
         elif name == "COMMIT":
-            call_backrack_stack.pop()
+            call_backtrack_stack.pop()
             pc = labels[arg1]
             continue
         elif name == "POP_SCOPE":
@@ -53,9 +53,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "RETURN":
-            if len(call_backrack_stack) == 0:
+            if len(call_backtrack_stack) == 0:
                 return last_action.eval()
-            pc, key = call_backrack_stack.pop()
+            pc, key = call_backtrack_stack.pop()
             memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
@@ -124,7 +124,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                     stream, pos = stream_pos_stack.pop()
                     pc += 1
                 else:
-                    call_backrack_stack.append((pc+1, key))
+                    call_backtrack_stack.append((pc+1, key))
                     pc = labels[fn_name]
                     pos += 1
                 continue
@@ -146,8 +146,8 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         else:
             raise Exception("unknown command {}".format(name))
         backtrack_entry = None
-        while call_backrack_stack:
-            backtrack_entry = call_backrack_stack.pop()
+        while call_backtrack_stack:
+            backtrack_entry = call_backtrack_stack.pop()
             if len(backtrack_entry) == 4:
                 break
         if backtrack_entry is None:
