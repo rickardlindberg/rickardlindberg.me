@@ -3,6 +3,121 @@
 "children":[
 {
 "children":[],
+"id":"3df386e2afb1452b87a29185c2de0673",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"The original version of RLMeta compiles grammars into Python classes which can then be used like this:",
+"type":"text"
+}
+],
+"id":"2be765e8aac244ec9d8f00b89c97690d",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"g = Grammar()\nresult = g.run(\"foo\", input_stream)\n",
+"type":"code"
+}
+],
+"id":"220c9a12505344b2943560b1ca1adba5",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The VM based version uses the exact same interface. The difference is how ",
+"type":"text"
+},
+{
+"text":"run",
+"type":"code"
+},
+{
+"text":" is implemented. In the original version, it calls methods that represent rules in the grammar. The above call would result in ",
+"type":"text"
+},
+{
+"text":"_rule_foo",
+"type":"code"
+},
+{
+"text":" being called. That in turn make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute.",
+"type":"text"
+}
+],
+"id":"0b695995e2434be7b4c363d147acbb26",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The following example shows what a simple grammar looks like when compiled with the original version and the VM based version:",
+"type":"text"
+}
+],
+"id":"6e5eda3c12ca4c3c92b1b150d467ba6e",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"Grammar {\n    foo = bar*\n    bar = .\n}\n",
+"type":"code"
+}
+],
+"id":"7f6647a8299145bc92f25e9b5dd2f09c",
+"language":"rlmeta",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"class Grammar(_Grammar):\n\n    def _rule_foo(self):\n        return (lambda:\n            self._or([\n                (lambda:\n                    (lambda _vars:\n                        (lambda:\n                            self._and([\n                                (lambda:\n                                    self._star((lambda:\n                                        self._match_rule('bar')\n                                    ))\n                                ),\n                            ])\n                        )()\n                    )(_Vars())\n                ),\n            ])\n        )()\n\n    def _rule_bar(self):\n        return (lambda:\n            self._or([\n                (lambda:\n                    (lambda _vars:\n                        (lambda:\n                            self._and([\n                                self._match_any,\n                            ])\n                        )()\n                    )(_Vars())\n                ),\n            ])\n        )()\n",
+"type":"code"
+}
+],
+"id":"beb6ce197a734bc5b2d596f836d08d14",
+"language":"python",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"class Grammar(_Grammar):\n    def __init__(self):\n        instructions = []\n        labels = {}\n        def I(name, x=None, y=None):\n            instructions.append((name, x, y))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        LABEL('foo')\n        I('PUSH_SCOPE')\n        I('LIST_START')\n        LABEL(0)\n        I('BACKTRACK', 1)\n        I('CALL', 'bar')\n        I('LIST_APPEND')\n        I('COMMIT', 0)\n        LABEL(1)\n        I('LIST_END')\n        I('POP_SCOPE')\n        I('RETURN')\n        LABEL('bar')\n        I('PUSH_SCOPE')\n        I('MATCH_ANY')\n        I('POP_SCOPE')\n        I('RETURN')\n        self._instructions = instructions\n        self._labels = labels\n",
+"type":"code"
+}
+],
+"id":"c7d435c9c6714df98f5fd1709a6e1804",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The interface is exactly the same, but the two programs look rather different. In the following sections I explain how the VM works and how to compile grammars to VM instructions.",
+"type":"text"
+}
+],
+"id":"99ed4abae55e43e7b6df26caa6468a0d",
+"type":"text"
+}
+],
+"title":"Setup"
+},
+{
+"children":[],
 "id":"d1a2d050fcc444cfa4991b968a02a315",
 "paragraphs":[
 {
@@ -2222,6 +2337,16 @@
 "id":"24aa83d59704475dba2a010f1b5d3eb0",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"How to generate the instructions for the VM?",
+"type":"text"
+}
+],
+"id":"77fbc0cbe00244098d618e7ec42178ca",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "codegenerator.rlmeta"
@@ -3912,7 +4037,16 @@
 {
 "fragments":[
 {
-"text":"In this article we change how RLMeta is executed. Instead of compiling it to a Python class, we will instead compile it to a sequence of bytecode instructions for a virtual machine that we define.",
+"text":"In this article I present an alternative implementation of ",
+"type":"text"
+},
+{
+"text":"RLMeta",
+"type":"link",
+"url":"/writing/rlmeta/index.html"
+},
+{
+"text":" in which grammars are compiled into assembly-like instructions for a virtual machine (VM).",
 "type":"text"
 }
 ],
