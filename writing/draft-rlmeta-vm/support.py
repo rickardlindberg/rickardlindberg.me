@@ -10,7 +10,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
-    fail_message, fail_messages = (None, {})
+    fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())
     memo = {}
     while True:
         name, arg1, arg2 = instructions[pc]
@@ -145,15 +145,21 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
-        fail_key = tuple([x[1] for x in stream_pos_stack]+[pos])
-        fail_messages[fail_key] = (stream, pos, fail_message)
-        backtrack_entry = None
+        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
+        if fail_pos >= latest_fail_pos:
+            latest_fail_message = fail_message
+            latest_fail_pos = fail_pos
+        backtrack_entry = tuple()
         while call_backtrack_stack:
             backtrack_entry = call_backtrack_stack.pop()
             if len(backtrack_entry) == 4:
                 break
-        if backtrack_entry is None:
-            raise _MatchError(fail_messages)
+        if len(backtrack_entry) != 4:
+            raise _MatchError(
+                latest_fail_message,
+                latest_fail_pos,
+                stream_pos_stack[0] if stream_pos_stack else stream
+            )
         (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -194,45 +200,62 @@ class _ConstantSemanticAction(object):
 
 class _MatchError(Exception):
 
-    def __init__(self, fail_messages):
+    def __init__(self, message, pos, stream):
         Exception.__init__(self)
-        self.fail_messages = fail_messages
+        self.message = message
+        self.pos = pos
+        self.stream = stream
 
     def describe(self):
-        latest = max(self.fail_messages.keys())
-        stream, pos, fail_message = self.fail_messages[latest]
+        stream = self.stream
+        pos = self.pos
+        while len(pos) > 1:
+            stream = stream[pos.pop(0)]
+        pos = pos[0]
         message = ""
         if isinstance(stream, basestring):
-            line = []
-            index = pos - 1
-            while True:
-                try:
-                    if stream[index] == "\n" and line:
-                        break
-                    line.insert(0, stream[index])
-                    index -= 1
-                except IndexError:
-                    break
-            to_pos = len(line)
-            index = pos
-            while True:
-                try:
-                    if stream[index] == "\n" and line:
-                        break
-                    line.append(stream[index])
-                    index += 1
-                except IndexError:
-                    break
-            message += "".join(line)
+            pos1, error_line_before = self._extract_line(stream, pos, -1)
+            pos2, error_line_after = self._extract_line(stream, pos+1, 1)
+            _, context_before = self._extract_line(stream, pos1, -1)
+            _, context_after = self._extract_line(stream, pos2, 1)
+            if context_before:
+                message += "> "
+                message += context_before
+                message += "\n"
+            message += "> "
+            message += error_line_before
+            message += error_line_after
             message += "\n"
-            message += "-"*to_pos
+            message += "--"
+            message += "-"*(len(error_line_before)-1)
             message += "^\n"
+            if context_after:
+                message += "> "
+                message += context_after
+                message += "\n"
         else:
             message += "todo: list failure context\n"
         message += "Error: "
-        message += fail_message[0].format(*fail_message[1:])
+        message += self.message[0].format(*self.message[1:])
         message += "\n"
         return message
+
+    def _extract_line(self, text, pos, direction):
+        line = []
+        while pos >= 0:
+            try:
+                if text[pos] == "\n":
+                    if line:
+                        break
+                else:
+                    if direction == 1:
+                        line.append(text[pos])
+                    else:
+                        line.insert(0, text[pos])
+                pos += direction
+            except IndexError:
+                break
+        return (pos+direction, "".join(line))
 
 class _Builder(object):
 

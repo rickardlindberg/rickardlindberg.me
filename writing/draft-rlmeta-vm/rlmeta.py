@@ -1,6 +1,6 @@
 import sys
 
-SUPPORT = 'try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\ndef rlmeta_vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    last_action = _ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    env, env_stack = (None, [])\n    fail_message, fail_messages = (None, {})\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == "PUSH_SCOPE":\n            env_stack.append(env)\n            env = {}\n            pc += 1\n            continue\n        elif name == "BACKTRACK":\n            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))\n            pc += 1\n            continue\n        elif name == "CALL":\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                last_action, stream_pos_stack = memo[key]\n                stream_pos_stack = stream_pos_stack[:]\n                stream, pos = stream_pos_stack.pop()\n                pc += 1\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n            continue\n        elif name == "MATCH_CHARSEQ":\n            for char in arg1:\n                if pos >= len(stream) or stream[pos] != char:\n                    fail_message = ("expected {!r}", char)\n                    break\n                pos += 1\n            else:\n                last_action = _ConstantSemanticAction(arg1)\n                pc += 1\n                continue\n        elif name == "COMMIT":\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n            continue\n        elif name == "POP_SCOPE":\n            env = env_stack.pop()\n            pc += 1\n            continue\n        elif name == "RETURN":\n            if len(call_backtrack_stack) == 0:\n                return last_action.eval()\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])\n            continue\n        elif name == "LIST_APPEND":\n            env.append(last_action)\n            pc += 1\n            continue\n        elif name == "BIND":\n            env[arg1] = last_action\n            pc += 1\n            continue\n        elif name == "ACTION":\n            last_action = _SemanticAction(arg1, env)\n            pc += 1\n            continue\n        elif name == "MATCH_RANGE":\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n            else:\n                last_action = _ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "LIST_START":\n            env_stack.append(env)\n            env = []\n            pc += 1\n            continue\n        elif name == "LIST_END":\n            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], env)\n            env = env_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_ANY":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                last_action = _ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "PUSH_STREAM":\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n            else:\n                stream_pos_stack.append((stream, pos+1))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n                continue\n        elif name == "POP_STREAM":\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pc += 1\n                continue\n        elif name == "MATCH_CALL_RULE":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    last_action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n                continue\n        elif name == "FAIL":\n            fail_message = ("fatal error",)\n        elif name == "LABEL":\n            last_action = _ConstantSemanticAction(label_counter)\n            label_counter += 1\n            pc += 1\n            continue\n        elif name == "MATCH_STRING":\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n            else:\n                last_action = _ConstantSemanticAction(arg1)\n                pos += 1\n                pc += 1\n                continue\n        else:\n            raise Exception("unknown command {}".format(name))\n        fail_key = tuple([x[1] for x in stream_pos_stack]+[pos])\n        fail_messages[fail_key] = (stream, pos, fail_message)\n        backtrack_entry = None\n        while call_backtrack_stack:\n            backtrack_entry = call_backtrack_stack.pop()\n            if len(backtrack_entry) == 4:\n                break\n        if backtrack_entry is None:\n            raise _MatchError(fail_messages)\n        (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry\n        if len(stream_pos_stack) > stream_stack_len:\n            stream = stream_pos_stack[stream_stack_len][0]\n        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n        if len(env_stack) > env_stack_len:\n            env = env_stack[env_stack_len]\n        env_stack = env_stack[:env_stack_len]\n\nclass _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn, value):\n        self.fn = fn\n        self.value = value\n\n    def eval(self):\n        return self.fn(self.value)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _MatchError(Exception):\n\n    def __init__(self, fail_messages):\n        Exception.__init__(self)\n        self.fail_messages = fail_messages\n\n    def describe(self):\n        latest = max(self.fail_messages.keys())\n        stream, pos, fail_message = self.fail_messages[latest]\n        message = ""\n        if isinstance(stream, basestring):\n            line = []\n            index = pos - 1\n            while True:\n                try:\n                    if stream[index] == "\\n" and line:\n                        break\n                    line.insert(0, stream[index])\n                    index -= 1\n                except IndexError:\n                    break\n            to_pos = len(line)\n            index = pos\n            while True:\n                try:\n                    if stream[index] == "\\n" and line:\n                        break\n                    line.append(stream[index])\n                    index += 1\n                except IndexError:\n                    break\n            message += "".join(line)\n            message += "\\n"\n            message += "-"*to_pos\n            message += "^\\n"\n        else:\n            message += "todo: list failure context\\n"\n        message += "Error: "\n        message += fail_message[0].format(*fail_message[1:])\n        message += "\\n"\n        return message\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == "\\n"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write("    "*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n'
+SUPPORT = 'try:\n    from cStringIO import StringIO\nexcept:\n    from StringIO import StringIO\n\ndef rlmeta_vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    last_action = _ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    env, env_stack = (None, [])\n    fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == "PUSH_SCOPE":\n            env_stack.append(env)\n            env = {}\n            pc += 1\n            continue\n        elif name == "BACKTRACK":\n            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))\n            pc += 1\n            continue\n        elif name == "CALL":\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                last_action, stream_pos_stack = memo[key]\n                stream_pos_stack = stream_pos_stack[:]\n                stream, pos = stream_pos_stack.pop()\n                pc += 1\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n            continue\n        elif name == "MATCH_CHARSEQ":\n            for char in arg1:\n                if pos >= len(stream) or stream[pos] != char:\n                    fail_message = ("expected {!r}", char)\n                    break\n                pos += 1\n            else:\n                last_action = _ConstantSemanticAction(arg1)\n                pc += 1\n                continue\n        elif name == "COMMIT":\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n            continue\n        elif name == "POP_SCOPE":\n            env = env_stack.pop()\n            pc += 1\n            continue\n        elif name == "RETURN":\n            if len(call_backtrack_stack) == 0:\n                return last_action.eval()\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])\n            continue\n        elif name == "LIST_APPEND":\n            env.append(last_action)\n            pc += 1\n            continue\n        elif name == "BIND":\n            env[arg1] = last_action\n            pc += 1\n            continue\n        elif name == "ACTION":\n            last_action = _SemanticAction(arg1, env)\n            pc += 1\n            continue\n        elif name == "MATCH_RANGE":\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n            else:\n                last_action = _ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "LIST_START":\n            env_stack.append(env)\n            env = []\n            pc += 1\n            continue\n        elif name == "LIST_END":\n            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], env)\n            env = env_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_ANY":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                last_action = _ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "PUSH_STREAM":\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n            else:\n                stream_pos_stack.append((stream, pos+1))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n                continue\n        elif name == "POP_STREAM":\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pc += 1\n                continue\n        elif name == "MATCH_CALL_RULE":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    last_action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n                continue\n        elif name == "FAIL":\n            fail_message = ("fatal error",)\n        elif name == "LABEL":\n            last_action = _ConstantSemanticAction(label_counter)\n            label_counter += 1\n            pc += 1\n            continue\n        elif name == "MATCH_STRING":\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n            else:\n                last_action = _ConstantSemanticAction(arg1)\n                pos += 1\n                pc += 1\n                continue\n        else:\n            raise Exception("unknown command {}".format(name))\n        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n        if fail_pos >= latest_fail_pos:\n            latest_fail_message = fail_message\n            latest_fail_pos = fail_pos\n        backtrack_entry = tuple()\n        while call_backtrack_stack:\n            backtrack_entry = call_backtrack_stack.pop()\n            if len(backtrack_entry) == 4:\n                break\n        if len(backtrack_entry) != 4:\n            raise _MatchError(\n                latest_fail_message,\n                latest_fail_pos,\n                stream_pos_stack[0] if stream_pos_stack else stream\n            )\n        (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry\n        if len(stream_pos_stack) > stream_stack_len:\n            stream = stream_pos_stack[stream_stack_len][0]\n        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n        if len(env_stack) > env_stack_len:\n            env = env_stack[env_stack_len]\n        env_stack = env_stack[:env_stack_len]\n\nclass _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn, value):\n        self.fn = fn\n        self.value = value\n\n    def eval(self):\n        return self.fn(self.value)\n\nclass _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass _MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\n    def describe(self):\n        stream = self.stream\n        pos = self.pos\n        while len(pos) > 1:\n            stream = stream[pos.pop(0)]\n        pos = pos[0]\n        message = ""\n        if isinstance(stream, basestring):\n            pos1, error_line_before = self._extract_line(stream, pos, -1)\n            pos2, error_line_after = self._extract_line(stream, pos+1, 1)\n            _, context_before = self._extract_line(stream, pos1, -1)\n            _, context_after = self._extract_line(stream, pos2, 1)\n            if context_before:\n                message += "> "\n                message += context_before\n                message += "\\n"\n            message += "> "\n            message += error_line_before\n            message += error_line_after\n            message += "\\n"\n            message += "--"\n            message += "-"*(len(error_line_before)-1)\n            message += "^\\n"\n            if context_after:\n                message += "> "\n                message += context_after\n                message += "\\n"\n        else:\n            message += "todo: list failure context\\n"\n        message += "Error: "\n        message += self.message[0].format(*self.message[1:])\n        message += "\\n"\n        return message\n\n    def _extract_line(self, text, pos, direction):\n        line = []\n        while pos >= 0:\n            try:\n                if text[pos] == "\\n":\n                    if line:\n                        break\n                else:\n                    if direction == 1:\n                        line.append(text[pos])\n                    else:\n                        line.insert(0, text[pos])\n                pos += direction\n            except IndexError:\n                break\n        return (pos+direction, "".join(line))\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == "\\n"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write("    "*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n'
 
 try:
     from cStringIO import StringIO
@@ -14,7 +14,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     env, env_stack = (None, [])
-    fail_message, fail_messages = (None, {})
+    fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())
     memo = {}
     while True:
         name, arg1, arg2 = instructions[pc]
@@ -149,15 +149,21 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 continue
         else:
             raise Exception("unknown command {}".format(name))
-        fail_key = tuple([x[1] for x in stream_pos_stack]+[pos])
-        fail_messages[fail_key] = (stream, pos, fail_message)
-        backtrack_entry = None
+        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
+        if fail_pos >= latest_fail_pos:
+            latest_fail_message = fail_message
+            latest_fail_pos = fail_pos
+        backtrack_entry = tuple()
         while call_backtrack_stack:
             backtrack_entry = call_backtrack_stack.pop()
             if len(backtrack_entry) == 4:
                 break
-        if backtrack_entry is None:
-            raise _MatchError(fail_messages)
+        if len(backtrack_entry) != 4:
+            raise _MatchError(
+                latest_fail_message,
+                latest_fail_pos,
+                stream_pos_stack[0] if stream_pos_stack else stream
+            )
         (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -198,45 +204,62 @@ class _ConstantSemanticAction(object):
 
 class _MatchError(Exception):
 
-    def __init__(self, fail_messages):
+    def __init__(self, message, pos, stream):
         Exception.__init__(self)
-        self.fail_messages = fail_messages
+        self.message = message
+        self.pos = pos
+        self.stream = stream
 
     def describe(self):
-        latest = max(self.fail_messages.keys())
-        stream, pos, fail_message = self.fail_messages[latest]
+        stream = self.stream
+        pos = self.pos
+        while len(pos) > 1:
+            stream = stream[pos.pop(0)]
+        pos = pos[0]
         message = ""
         if isinstance(stream, basestring):
-            line = []
-            index = pos - 1
-            while True:
-                try:
-                    if stream[index] == "\n" and line:
-                        break
-                    line.insert(0, stream[index])
-                    index -= 1
-                except IndexError:
-                    break
-            to_pos = len(line)
-            index = pos
-            while True:
-                try:
-                    if stream[index] == "\n" and line:
-                        break
-                    line.append(stream[index])
-                    index += 1
-                except IndexError:
-                    break
-            message += "".join(line)
+            pos1, error_line_before = self._extract_line(stream, pos, -1)
+            pos2, error_line_after = self._extract_line(stream, pos+1, 1)
+            _, context_before = self._extract_line(stream, pos1, -1)
+            _, context_after = self._extract_line(stream, pos2, 1)
+            if context_before:
+                message += "> "
+                message += context_before
+                message += "\n"
+            message += "> "
+            message += error_line_before
+            message += error_line_after
             message += "\n"
-            message += "-"*to_pos
+            message += "--"
+            message += "-"*(len(error_line_before)-1)
             message += "^\n"
+            if context_after:
+                message += "> "
+                message += context_after
+                message += "\n"
         else:
             message += "todo: list failure context\n"
         message += "Error: "
-        message += fail_message[0].format(*fail_message[1:])
+        message += self.message[0].format(*self.message[1:])
         message += "\n"
         return message
+
+    def _extract_line(self, text, pos, direction):
+        line = []
+        while pos >= 0:
+            try:
+                if text[pos] == "\n":
+                    if line:
+                        break
+                else:
+                    if direction == 1:
+                        line.append(text[pos])
+                    else:
+                        line.insert(0, text[pos])
+                pos += direction
+            except IndexError:
+                break
+        return (pos+direction, "".join(line))
 
 class _Builder(object):
 
