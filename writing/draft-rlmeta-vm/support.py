@@ -162,6 +162,19 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             env = env_stack[env_stack_len]
         env_stack = env_stack[:env_stack_len]
 
+class _Grammar(object):
+
+    def run(self, rule_name, input_object):
+        if isinstance(input_object, basestring):
+            stream = input_object
+        else:
+            stream = [input_object]
+        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)
+        if isinstance(result, _Builder):
+            return result.build_string()
+        else:
+            return result
+
 class _SemanticAction(object):
 
     def __init__(self, fn, value):
@@ -220,19 +233,6 @@ class _MatchError(Exception):
         message += fail_message[0].format(*fail_message[1:])
         message += "\n"
         return message
-
-class _Grammar(object):
-
-    def run(self, rule_name, input_object):
-        if isinstance(input_object, basestring):
-            stream = input_object
-        else:
-            stream = [input_object]
-        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)
-        if isinstance(result, _Builder):
-            return result.build_string()
-        else:
-            return result
 
 class _Builder(object):
 

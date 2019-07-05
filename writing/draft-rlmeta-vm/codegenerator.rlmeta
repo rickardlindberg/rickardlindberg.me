@@ -1,17 +1,15 @@
 CodeGenerator {
-  Grammar        = .:x ast*:ys     -> { "class " x "(_Grammar):\n" >
+  Grammar        = .:x ast*:ys     -> { "class " x "(_Grammar):\n\n" >
                                           "def __init__(self):\n" >
-                                            "instructions = []\n"
-                                            "labels = {}\n"
+                                            "self._instructions = i = []\n"
+                                            "self._labels = l = {}\n"
                                             "def I(name, x=None, y=None):\n" >
-                                              "instructions.append((name, x, y))\n"
+                                              "i.append((name, x, y))\n"
                                             <
                                             "def LABEL(name):\n" >
-                                              "labels[name] = len(instructions)\n"
+                                              "l[name] = len(i)\n"
                                             <
                                             ys
-                                            "self._instructions = instructions\n"
-                                            "self._labels = labels\n"
                                           <
                                         <                                  }
   Rule           = py:x ast:y      -> { "LABEL(" x ")\n"

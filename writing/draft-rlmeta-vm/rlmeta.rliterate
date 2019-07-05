@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The original version of RLMeta compiles grammars into Python classes which can then be used like this:",
+"text":"The original version of RLMeta compiles grammars into Python classes which can be used like this:",
 "type":"text"
 }
 ],
@@ -20,7 +20,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"g = Grammar()\nresult = g.run(\"foo\", input_stream)\n",
+"text":"g = Grammar()\nresult = g.run(\"foo\", \"input string\")\n",
 "type":"code"
 }
 ],
@@ -47,7 +47,7 @@
 "type":"code"
 },
 {
-"text":" being called. That in turn make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute.",
+"text":" being called. That in turn would make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute.",
 "type":"text"
 }
 ],
@@ -57,11 +57,11 @@
 {
 "fragments":[
 {
-"text":"The following example shows what a simple grammar looks like when compiled with the original version and the VM based version:",
+"text":"Let's look at the following grammar:",
 "type":"text"
 }
 ],
-"id":"6e5eda3c12ca4c3c92b1b150d467ba6e",
+"id":"0905a88ed23d496f91063bd270e2c9e9",
 "type":"text"
 },
 {
@@ -78,6 +78,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The original version compiles it into the following class:",
+"type":"text"
+}
+],
+"id":"6e5eda3c12ca4c3c92b1b150d467ba6e",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -91,11 +101,21 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The VM based version compiles it into the following class:",
+"type":"text"
+}
+],
+"id":"25730620110f43b0bbad7cbc22351e35",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"class Grammar(_Grammar):\n    def __init__(self):\n        instructions = []\n        labels = {}\n        def I(name, x=None, y=None):\n            instructions.append((name, x, y))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        LABEL('foo')\n        I('PUSH_SCOPE')\n        I('LIST_START')\n        LABEL(0)\n        I('BACKTRACK', 1)\n        I('CALL', 'bar')\n        I('LIST_APPEND')\n        I('COMMIT', 0)\n        LABEL(1)\n        I('LIST_END')\n        I('POP_SCOPE')\n        I('RETURN')\n        LABEL('bar')\n        I('PUSH_SCOPE')\n        I('MATCH_ANY')\n        I('POP_SCOPE')\n        I('RETURN')\n        self._instructions = instructions\n        self._labels = labels\n",
+"text":"class Grammar(_Grammar):\n\n    def __init__(self):\n        self._instructions = i = []\n        self._labels = l = {}\n        def I(name, x=None, y=None):\n            i.append((name, x, y))\n        def LABEL(name):\n            l[name] = len(i)\n        LABEL('foo')\n        I('PUSH_SCOPE')\n        I('LIST_START')\n        LABEL(0)\n        I('BACKTRACK', 1)\n        I('CALL', 'bar')\n        I('LIST_APPEND')\n        I('COMMIT', 0)\n        LABEL(1)\n        I('LIST_END')\n        I('POP_SCOPE')\n        I('RETURN')\n        LABEL('bar')\n        I('PUSH_SCOPE')\n        I('MATCH_ANY')\n        I('POP_SCOPE')\n        I('RETURN')\n",
 "type":"code"
 }
 ],
@@ -106,15 +126,108 @@
 {
 "fragments":[
 {
-"text":"The interface is exactly the same, but the two programs look rather different. In the following sections I explain how the VM works and how to compile grammars to VM instructions.",
+"text":"The interface is exactly the same, but the two classes look rather different. The ",
+"type":"text"
+},
+{
+"text":"run",
+"type":"code"
+},
+{
+"text":" method in the original version looks like this:",
 "type":"text"
 }
 ],
 "id":"99ed4abae55e43e7b6df26caa6468a0d",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def run(self, rule_name, input_object):\n    self._memo = _Memo()\n    self._stream = _Stream.from_object(self._memo, input_object)\n    result = self._match_rule(rule_name).eval()\n    if isinstance(result, _Builder):\n        return result.build_string()\n    else:\n        return result\n",
+"type":"code"
 }
 ],
-"title":"Setup"
+"id":"c0966aed1bd14c84a45f025fba4f9dc5",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"It does some setup and then calls ",
+"type":"text"
+},
+{
+"text":"_match_rule",
+"type":"code"
+},
+{
+"text":" to kick of the parsing.",
+"type":"text"
+}
+],
+"id":"b1ae724cee0f423cb4445baafbbf6225",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"run",
+"type":"code"
+},
+{
+"text":" method in the VM based version looks like this:",
+"type":"text"
+}
+],
+"id":"e092d58a192c45d2becccf7dea1a8c17",
+"type":"text"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n",
+"type":"code"
+}
+],
+"id":"23389acd149c413aa2eb051b1733e79f",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"It also does some setup, but then it hands over the instructions to the VM that then executes them and returns a result.",
+"type":"text"
+}
+],
+"id":"b383f81f81294a04a559bb3d1277d1cf",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"In the rest of this article I explain how the VM works and how grammars are compiled into VM instructions.",
+"type":"text"
+}
+],
+"id":"835ddd05753e4f0093aa9df649ea825b",
+"type":"text"
+}
+],
+"title":"Difference from original"
 },
 {
 "children":[],
@@ -1869,6 +1982,36 @@
 ],
 "id":"cb26185f6f2d4de68f35b8f00712b577",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Fix list failure messages. And cleanup failure message formatting.",
+"type":"text"
+}
+],
+"id":"b96e160d222e4d28a37b51ddba1a290b",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"FAIL command should take message as argument.",
+"type":"text"
+}
+],
+"id":"18b8589cb7d042e589ff674147e7993a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Store only one failure message? Do position comparison all the time?",
+"type":"text"
+}
+],
+"id":"6a7e9a61223f4f63ac6a38e71aa005db",
+"type":"text"
 }
 ],
 "title":"FAIL"
@@ -2298,6 +2441,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Instruction frequency analysis to optimize order of while loop.",
+"type":"text"
+}
+],
+"id":"68e3bcae66ca4daf9fd359a53559b019",
+"type":"text"
+},
+{
 "chunkpath":[
 "classes"
 ],
@@ -2398,7 +2551,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"class \" x \"(_Grammar):\\n\" >\n",
+"text":"-> { \"class \" x \"(_Grammar):\\n\\n\" >\n",
 "type":"code"
 },
 {
@@ -2414,7 +2567,7 @@
 "type":"tabstop"
 },
 {
-"text":"         \"instructions = []\\n\"\n",
+"text":"         \"self._instructions = i = []\\n\"\n",
 "type":"code"
 },
 {
@@ -2422,7 +2575,7 @@
 "type":"tabstop"
 },
 {
-"text":"         \"labels = {}\\n\"\n",
+"text":"         \"self._labels = l = {}\\n\"\n",
 "type":"code"
 },
 {
@@ -2438,7 +2591,7 @@
 "type":"tabstop"
 },
 {
-"text":"           \"instructions.append((name, x, y))\\n\"\n",
+"text":"           \"i.append((name, x, y))\\n\"\n",
 "type":"code"
 },
 {
@@ -2462,7 +2615,7 @@
 "type":"tabstop"
 },
 {
-"text":"           \"labels[name] = len(instructions)\\n\"\n",
+"text":"           \"l[name] = len(i)\\n\"\n",
 "type":"code"
 },
 {
@@ -2479,22 +2632,6 @@
 },
 {
 "text":"         ys\n",
-"type":"code"
-},
-{
-"index":20,
-"type":"tabstop"
-},
-{
-"text":"         \"self._instructions = instructions\\n\"\n",
-"type":"code"
-},
-{
-"index":20,
-"type":"tabstop"
-},
-{
-"text":"         \"self._labels = labels\\n\"\n",
 "type":"code"
 },
 {
@@ -2527,20 +2664,22 @@
 "type":"code"
 },
 {
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"support.py"
-],
 "fragments":[
 {
-"text":"class _Grammar(object):\n\n    def run(self, rule_name, input_object):\n        if isinstance(input_object, basestring):\n            stream = input_object\n        else:\n            stream = [input_object]\n        result = rlmeta_vm(self._instructions, self._labels, rule_name, stream)\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n",
+"text":"Not using ",
+"type":"text"
+},
+{
+"text":"self",
 "type":"code"
+},
+{
+"text":" seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?",
+"type":"text"
 }
 ],
-"id":"23389acd149c413aa2eb051b1733e79f",
-"type":"code"
+"id":"3a5fbbadfd654c42bc1cd57075467383",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -3761,81 +3900,6 @@
 {
 "fragments":[
 {
-"text":"This builds upon the ",
-"type":"text"
-},
-{
-"text":"optimized version of RLMeta",
-"type":"link",
-"url":"/writing/optimizing-rlmeta/index.html"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"79ae9067afde497085d5b885fe4fb8a4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"This is inspired by ",
-"type":"text"
-},
-{
-"text":"Regular Expression Matching: the Virtual Machine Approach",
-"type":"link",
-"url":"https://swtch.com/~rsc/regexp/regexp2.html"
-},
-{
-"text":" and ",
-"type":"text"
-},
-{
-"text":"A Text Pattern-Matching Tool based on Parsing Expression Grammars",
-"type":"link",
-"url":"http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"d21cbbff552e4c8dafd419861250c3c4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Not using ",
-"type":"text"
-},
-{
-"text":"self",
-"type":"code"
-},
-{
-"text":" seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?",
-"type":"text"
-}
-],
-"id":"3a5fbbadfd654c42bc1cd57075467383",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Instruction frequency analysis to optimize order of while loop.",
-"type":"text"
-}
-],
-"id":"68e3bcae66ca4daf9fd359a53559b019",
-"type":"text"
-},
-{
-"fragments":[
-{
 "text":"Why did labels change when making first vm based metacompiler? Investigate in branch. (Also, meta compile script differs.)",
 "type":"text"
 }
@@ -3846,41 +3910,11 @@
 {
 "fragments":[
 {
-"text":"Fix list failure messages. And cleanup failure message formatting.",
-"type":"text"
-}
-],
-"id":"b96e160d222e4d28a37b51ddba1a290b",
-"type":"text"
-},
-{
-"fragments":[
-{
 "text":"Back patch jump instructions instead of using labels?",
 "type":"text"
 }
 ],
 "id":"0cafd15b18cc43aea7ff1e4336e11e02",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"FAIL command should take message as argument.",
-"type":"text"
-}
-],
-"id":"18b8589cb7d042e589ff674147e7993a",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Store only one failure message? Do position comparison all the time?",
-"type":"text"
-}
-],
-"id":"6a7e9a61223f4f63ac6a38e71aa005db",
 "type":"text"
 },
 {
@@ -4051,6 +4085,53 @@
 }
 ],
 "id":"ad1d041250524b98a193f9fd3fa627f5",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The VM based version builds upon the ",
+"type":"text"
+},
+{
+"text":"optimized version of RLMeta",
+"type":"link",
+"url":"/writing/optimizing-rlmeta/index.html"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"79ae9067afde497085d5b885fe4fb8a4",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The implementation is inspired by ",
+"type":"text"
+},
+{
+"text":"Regular Expression Matching: the Virtual Machine Approach",
+"type":"link",
+"url":"https://swtch.com/~rsc/regexp/regexp2.html"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"A Text Pattern-Matching Tool based on Parsing Expression Grammars",
+"type":"link",
+"url":"http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"d21cbbff552e4c8dafd419861250c3c4",
 "type":"text"
 }
 ],
