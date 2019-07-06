@@ -53,7 +53,6 @@ CodeGenerator {
   DedentBuilder  =                 -> { "_DedentBuilder()"                 }
   FnCall         = .:x astItems:y  -> { x "(" y ")"                        }
   VarLookup      = py:x            -> { "env[" x "].eval()"                }
-  ast            = [%:x]           -> { x                                  }
   astItems       =
     | ast:x astItem*:xs            -> { x xs                               }
     |                              -> {                                    }
@@ -70,5 +69,6 @@ CodeGenerator {
   MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
                                         x
                                         "I('POP_STREAM')\n"                }
+  ast            = [%:x]           -> { x                                  }
   py             = .:x             -> repr(x)
 }
