@@ -46,14 +46,6 @@ CodeGenerator {
   MatchCallRule  =                 -> { "I('MATCH_CALL_RULE')\n"           }
   Label          =                 -> { "I('LABEL')\n"                     }
   SemanticAction = ast:x           -> { "I('ACTION', lambda env: " x ")\n" }
-  MatchRule      = py:x            -> { "I('CALL', " x ")\n"               }
-  MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n" }
-  MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"       }
-  MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"      }
-  MatchAny       =                 -> { "I('MATCH_ANY')\n"                 }
-  MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
-                                        x
-                                        "I('POP_STREAM')\n"                }
   String         = py
   List           = astList:x       -> { x                                  }
   Builder        = astItems:x      -> { "_Builder.create([" x "])"         }
@@ -70,5 +62,13 @@ CodeGenerator {
   astListItem    =
     | ["ListItemSplice" ast:x]     -> {     x  "+"                         }
     | ast:x                        -> { "[" x "]+"                         }
+  MatchRule      = py:x            -> { "I('CALL', " x ")\n"               }
+  MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n" }
+  MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"       }
+  MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"      }
+  MatchAny       =                 -> { "I('MATCH_ANY')\n"                 }
+  MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
+                                        x
+                                        "I('POP_STREAM')\n"                }
   py             = .:x             -> repr(x)
 }

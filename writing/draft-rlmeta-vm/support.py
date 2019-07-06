@@ -181,6 +181,68 @@ class _Grammar(object):
         else:
             return result
 
+class _Builder(object):
+
+    def build_string(self):
+        output = _Output()
+        self.write(output)
+        return output.value
+
+    @classmethod
+    def create(self, item):
+        if isinstance(item, _Builder):
+            return item
+        elif isinstance(item, list):
+            return _ListBuilder([_Builder.create(x) for x in item])
+        else:
+            return _AtomBuilder(item)
+
+class _Output(object):
+
+    def __init__(self):
+        self.buffer = StringIO()
+        self.indentation = 0
+        self.on_newline = True
+
+    @property
+    def value(self):
+        return self.buffer.getvalue()
+
+    def write(self, value):
+        for ch in value:
+            is_linebreak = ch == "\n"
+            if self.indentation and self.on_newline and not is_linebreak:
+                self.buffer.write("    "*self.indentation)
+            self.buffer.write(ch)
+            self.on_newline = is_linebreak
+
+class _ListBuilder(_Builder):
+
+    def __init__(self, builders):
+        self.builders = builders
+
+    def write(self, output):
+        for builder in self.builders:
+            builder.write(output)
+
+class _AtomBuilder(_Builder):
+
+    def __init__(self, atom):
+        self.atom = atom
+
+    def write(self, output):
+        output.write(str(self.atom))
+
+class _IndentBuilder(_Builder):
+
+    def write(self, output):
+        output.indentation += 1
+
+class _DedentBuilder(_Builder):
+
+    def write(self, output):
+        output.indentation -= 1
+
 class _SemanticAction(object):
 
     def __init__(self, fn, value):
@@ -256,65 +318,3 @@ class _MatchError(Exception):
             except IndexError:
                 break
         return (pos+direction, "".join(line))
-
-class _Builder(object):
-
-    def build_string(self):
-        output = _Output()
-        self.write(output)
-        return output.value
-
-    @classmethod
-    def create(self, item):
-        if isinstance(item, _Builder):
-            return item
-        elif isinstance(item, list):
-            return _ListBuilder([_Builder.create(x) for x in item])
-        else:
-            return _AtomBuilder(item)
-
-class _Output(object):
-
-    def __init__(self):
-        self.buffer = StringIO()
-        self.indentation = 0
-        self.on_newline = True
-
-    @property
-    def value(self):
-        return self.buffer.getvalue()
-
-    def write(self, value):
-        for ch in value:
-            is_linebreak = ch == "\n"
-            if self.indentation and self.on_newline and not is_linebreak:
-                self.buffer.write("    "*self.indentation)
-            self.buffer.write(ch)
-            self.on_newline = is_linebreak
-
-class _ListBuilder(_Builder):
-
-    def __init__(self, builders):
-        self.builders = builders
-
-    def write(self, output):
-        for builder in self.builders:
-            builder.write(output)
-
-class _AtomBuilder(_Builder):
-
-    def __init__(self, atom):
-        self.atom = atom
-
-    def write(self, output):
-        output.write(str(self.atom))
-
-class _IndentBuilder(_Builder):
-
-    def write(self, output):
-        output.indentation += 1
-
-class _DedentBuilder(_Builder):
-
-    def write(self, output):
-        output.indentation -= 1
