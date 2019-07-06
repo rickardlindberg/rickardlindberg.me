@@ -4600,7 +4600,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\n./compile.sh rlmeta3.py > rlmeta4.py\n\ndiff rlmeta3.py rlmeta4.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta4.py rlmeta3.py\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
+"text":"#!/bin/bash\n\nset -e\n\ncd \"$(dirname \"$0\")\"\n\n./compile.sh rlmeta.py > rlmeta1.py\n\n./compile.sh rlmeta1.py > rlmeta2.py\n\n./compile.sh rlmeta2.py > rlmeta3.py\n\ndiff rlmeta2.py rlmeta3.py\n\ndiff support.py <(python rlmeta3.py --support)\n\nmv rlmeta3.py rlmeta2.py\n\nmv rlmeta2.py rlmeta1.py\n\nmv rlmeta1.py rlmeta.py\n\necho OK\n",
 "type":"code"
 }
 ],
