@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 06 Jul 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 07 Jul 2019 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: RLMeta: a VM based approach</title>
     <link>http://rickardlindberg.me/writing/draft-rlmeta-vm/</link>
     <description><![CDATA[<h1>DRAFT: RLMeta: a VM based approach</h1>
 
-<p><em>Published on 2019-07-06.</em></p>
+<p><em>Published on 2019-07-07.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -213,7 +213,7 @@
 
 </ul><h2><a name="3df386e2afb1452b87a29185c2de0673"></a>Difference from original</h2>
 
-<p>The original version of RLMeta compiles grammars into Python classes which can be used like this:</p>
+<p>The optimized version of RLMeta compiles grammars into Python classes which can be used like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="n">g</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">G</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">m</span><span class="n">a</span><span class="n">r</span><span class="p">(</span><span class="p">)</span><span class="">
 </span><span class="n">r</span><span class="n">e</span><span class="n">s</span><span class="n">u</span><span class="n">l</span><span class="n">t</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="n">g</span><span class="o">.</span><span class="n">r</span><span class="n">u</span><span class="n">n</span><span class="p">(</span><span class="s2">"</span><span class="s2">f</span><span class="s2">o</span><span class="s2">o</span><span class="s2">"</span><span class="p">,</span><span class=""> </span><span class="s2">"</span><span class="s2">i</span><span class="s2">n</span><span class="s2">p</span><span class="s2">u</span><span class="s2">t</span><span class="s2"> </span><span class="s2">s</span><span class="s2">t</span><span class="s2">r</span><span class="s2">i</span><span class="s2">n</span><span class="s2">g</span><span class="s2">"</span><span class="p">)</span><span class="">
@@ -221,7 +221,7 @@
 
 </div>
 
-<p>The VM based version uses the exact same interface. The difference is how the <code>run</code> method is implemented. In the original version, it calls methods that represent rules in the grammar. The above call would result in <code>_rule_foo</code> being called. That in turn would make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute.</p>
+<p>The VM based version uses the exact same interface. The difference is how the <code>run</code> method is implemented. In the optimized version, it calls methods that represent rules in the grammar. The above call would result in <code>_rule_foo</code> being called. That in turn would make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute. The VM is invoked from the <code>run</code> method.</p>
 
 <p>Let's look at the following grammar:</p>
 
@@ -233,7 +233,7 @@
 
 </div>
 
-<p>The original version compiles it into the following class:</p>
+<p>The original version compiles it into the following class with one method per rule in the grammar:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class=""> </span><span class="nc">G</span><span class="nc">r</span><span class="nc">a</span><span class="nc">m</span><span class="nc">m</span><span class="nc">a</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">G</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">m</span><span class="n">a</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
@@ -274,7 +274,7 @@
 
 </div>
 
-<p>The VM based version compiles it into the following class:</p>
+<p>The VM based version compiles it into the following class with a sequence of instructions:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">c</span><span class="k">l</span><span class="k">a</span><span class="k">s</span><span class="k">s</span><span class=""> </span><span class="nc">G</span><span class="nc">r</span><span class="nc">a</span><span class="nc">m</span><span class="nc">m</span><span class="nc">a</span><span class="nc">r</span><span class="p">(</span><span class="n">_</span><span class="n">G</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">m</span><span class="n">a</span><span class="n">r</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class="">
@@ -320,7 +320,7 @@
 
 </div>
 
-<p>It does some setup and then calls <code>_match_rule</code> to kick of the parsing.</p>
+<p>It does some setup and then calls <code>_match_rule</code> to start matching.</p>
 
 <p>The <code>run</code> method in the VM based version looks like this:</p>
 
@@ -346,13 +346,13 @@
 
 </div>
 
-<p>It also does some setup, but then it hands over the instructions to the VM that then executes them and returns a result.</p>
+<p>It also does some setup, but then it hands over the instructions (created in the <code>__init__</code> method) to the VM that then executes them.</p>
 
 <p>In the rest of this article I explain how grammars are compiled into VM instructions and how the VM is implemented.</p>
 
 <h2><a name="d1a2d050fcc444cfa4991b968a02a315"></a>Parser</h2>
 
-<p>The parser has one additional rule for labels:</p>
+<p>The parser in the VM based version has one additional rule for labels:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>parser.rlmeta</li><li><span class="cp">expr1</span>
 
@@ -365,9 +365,9 @@
 
 </div>
 
-<p>A label is a semantic action that returns a unique number that can be used to generate labels in the code generator.</p>
+<p>A label is a semantic action that evaluates to a unique number. You will see later (in <a href="#613d04f41a3e4521ad022a3d4e0237ea"><em>Or</em></a>, <a href="#963d53648b304544be75045e59c6e183"><em>Star</em></a>, and <a href="#0efe424b680f477a9bb8c1b9f679ff84"><em>Not</em></a>) how it is used in the code generator.</p>
 
-<p>The rest of the parser is exactly the same as in the previous version of RLMeta:</p>
+<p>The rest of the parser is exactly the same as in the optimized version of RLMeta:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>parser.rlmeta</li></ol>
 
@@ -462,6 +462,8 @@
 
 <h3><a name="8fc432da8cb94c91baeba2ee6b69f40b"></a>Grammar</h3>
 
+<p>When a <code>Grammar</code> AST node is matched, a Python class inheriting <code>_Grammar</code> is generated:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
 </li></ol>
@@ -485,9 +487,17 @@
 
 </div>
 
-<p>Not using <code>self</code> seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?</p>
+<p>The name of the class is the same as the name of the grammar.</p>
+
+<p>The <code>__init__</code> method has functionality for creating instructions. An instruction is represented as a Python tuple with three elements: the name, the first argument, and the second argument. Arguments can be <code>None</code>. Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instructions list.</p>
+
+<p>The reason the shorthand names <code>i</code> and <code>l</code> are used instead of <code>self._instructions</code> and <code>self._labels</code> is that it is faster. Not using <code>self</code> reduces one dictionary lookup.</p>
+
+<p>The child AST nodes of <code>Grammar</code> are assumed to use the <code>I</code> and <code>LABEL</code> functions to create instructions.</p>
 
 <h3><a name="72b77f7c8a594757a67ef61f9502f8e9"></a>Rule</h3>
+
+<p>When a <code>Rule</code> AST node is matched, instructions for that rule is generated:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>codegenerator.rlmeta</li><li><span class="cp">rules</span>
 
@@ -501,6 +511,10 @@
 </span></pre></div>
 
 </div>
+
+<p>First a label with the rule name is generated so that that location can be jumped to. Then instructions for the child AST nodes are generated. It ends with a return.</p>
+
+<p>A textual representation of the instructions where labels are in the first column and instructions in the second column would look like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">&lt;</span><span class="">x</span><span class="">&gt;</span><span class="">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="">&lt;</span><span class="">y</span><span class=""> </span><span class="">i</span><span class="">n</span><span class="">s</span><span class="">t</span><span class="">r</span><span class="">u</span><span class="">c</span><span class="">t</span><span class="">i</span><span class="">o</span><span class="">n</span><span class="">s</span><span class="">&gt;</span><span class="">
@@ -1052,6 +1066,8 @@
 </span></pre></div>
 
 </div>
+
+<p>Is lengths enough to save? Can stacks never change just topmost item?</p>
 
 <h3><a name="8e19cbb2e71c412f95c7e241a69f0901"></a>CALL</h3>
 
@@ -2099,7 +2115,7 @@
 </div>
 
 ]]></description>
-    <pubDate>Sat, 06 Jul 2019 00:00:00 UT</pubDate>
+    <pubDate>Sun, 07 Jul 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/draft-rlmeta-vm/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
