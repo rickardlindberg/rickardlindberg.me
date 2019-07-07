@@ -900,7 +900,7 @@
 "type":"code"
 },
 {
-"text":" AST node is matched, instructions for that rule is generated:",
+"text":" AST node is matched, instructions representing a function is generated:",
 "type":"text"
 }
 ],
@@ -967,17 +967,7 @@
 {
 "fragments":[
 {
-"text":"First a label with the rule name is generated so that that location can be jumped to. Then instructions for the child AST nodes are generated. It ends with a return.",
-"type":"text"
-}
-],
-"id":"b054f14bf70948f48157f29d5f365828",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"A textual representation of the instructions where labels are in the first column and instructions in the second column would look like this:",
+"text":"In a textual assembly-like notation (where labels are in the first column and instructions are in the second column) it would look like this:",
 "type":"text"
 }
 ],
@@ -995,6 +985,16 @@
 ],
 "id":"e12c0ee9cbd24ef79b6036c53ab1b690",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"First a label with the rule name is generated so that that location can be jumped to. Then instructions for the child AST nodes are generated. It ends with a return.",
+"type":"text"
+}
+],
+"id":"b054f14bf70948f48157f29d5f365828",
+"type":"text"
 }
 ],
 "title":"Rule"
@@ -1003,6 +1003,24 @@
 "children":[],
 "id":"613d04f41a3e4521ad022a3d4e0237ea",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When an ",
+"type":"text"
+},
+{
+"text":"Or",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions representing a choice is generated:",
+"type":"text"
+}
+],
+"id":"c0c1e5c530cc45c9af6af459d4cb1773",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1093,6 +1111,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"If there is only one choice, only the instructions for that choice are generated. Otherwise the following sequence is generated:",
+"type":"text"
+}
+],
+"id":"97d832060c594b469d8128bcd22e4caa",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1103,6 +1131,32 @@
 ],
 "id":"db7b64eddc0f42f4b0c349c380c7a525",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Backtrack instructs the VM to try the next choice at label ",
+"type":"text"
+},
+{
+"text":"a",
+"type":"code"
+},
+{
+"text":" if the following instructions fail. Commit instructs the VM that the choice denoted by backtrack was successfully matched and continue execution at label ",
+"type":"text"
+},
+{
+"text":"b",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"9a3ecf2ae87648b2897f1499fd96dfae",
+"type":"text"
 }
 ],
 "title":"Or"
