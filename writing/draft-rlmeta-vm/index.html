@@ -599,7 +599,7 @@
 
 </div>
 
-<p>Backtrack instructs the VM to try the next choice at label <code>a</code> if the following instructions fail. Commit instructs the VM that the choice denoted by backtrack was successfully matched and continue execution at label <code>b</code>. The <code>y</code> instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated.</p>
+<p><code>BACKTRACK</code> instructs the VM to try the next choice at label <code>a</code> if the <code>x</code> instructions fail. <code>COMMIT</code> instructs the VM that the current choice was successfully matched and to continue execution at label <code>b</code>. The <code>y</code> instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated. In that case, no backtrack and commit are needed.</p>
 
 <h3><a name="e0d721aa4fae40af8de5a54253243cb0"></a>Scope</h3>
 
