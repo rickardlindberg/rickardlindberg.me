@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The original version of RLMeta compiles grammars into Python classes which can be used like this:",
+"text":"The optimized version of RLMeta compiles grammars into Python classes which can be used like this:",
 "type":"text"
 }
 ],
@@ -39,7 +39,7 @@
 "type":"code"
 },
 {
-"text":" method is implemented. In the original version, it calls methods that represent rules in the grammar. The above call would result in ",
+"text":" method is implemented. In the optimized version, it calls methods that represent rules in the grammar. The above call would result in ",
 "type":"text"
 },
 {
@@ -47,7 +47,15 @@
 "type":"code"
 },
 {
-"text":" being called. That in turn would make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute.",
+"text":" being called. That in turn would make calls to other methods representing other rules in the grammar. The VM based version instead has a sequence of instructions and a program counter that keeps track of which instruction to execute. The VM is invoked from the ",
+"type":"text"
+},
+{
+"text":"run",
+"type":"code"
+},
+{
+"text":" method.",
 "type":"text"
 }
 ],
@@ -80,7 +88,7 @@
 {
 "fragments":[
 {
-"text":"The original version compiles it into the following class:",
+"text":"The original version compiles it into the following class with one method per rule in the grammar:",
 "type":"text"
 }
 ],
@@ -103,7 +111,7 @@
 {
 "fragments":[
 {
-"text":"The VM based version compiles it into the following class:",
+"text":"The VM based version compiles it into the following class with a sequence of instructions:",
 "type":"text"
 }
 ],
@@ -165,7 +173,7 @@
 "type":"code"
 },
 {
-"text":" to kick of the parsing.",
+"text":" to start matching.",
 "type":"text"
 }
 ],
@@ -209,7 +217,15 @@
 {
 "fragments":[
 {
-"text":"It also does some setup, but then it hands over the instructions to the VM that then executes them and returns a result.",
+"text":"It also does some setup, but then it hands over the instructions (created in the ",
+"type":"text"
+},
+{
+"text":"__init__",
+"type":"code"
+},
+{
+"text":" method) to the VM that then executes them.",
 "type":"text"
 }
 ],
@@ -236,7 +252,7 @@
 {
 "fragments":[
 {
-"text":"The parser has one additional rule for labels:",
+"text":"The parser in the VM based version has one additional rule for labels:",
 "type":"text"
 }
 ],
@@ -271,7 +287,34 @@
 {
 "fragments":[
 {
-"text":"A label is a semantic action that returns a unique number that can be used to generate labels in the code generator.",
+"text":"A label is a semantic action that evaluates to a unique number. You will see later (in ",
+"type":"text"
+},
+{
+"page_id":"613d04f41a3e4521ad022a3d4e0237ea",
+"text":null,
+"type":"reference"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"page_id":"963d53648b304544be75045e59c6e183",
+"text":null,
+"type":"reference"
+},
+{
+"text":", and ",
+"type":"text"
+},
+{
+"page_id":"0efe424b680f477a9bb8c1b9f679ff84",
+"text":null,
+"type":"reference"
+},
+{
+"text":") how it is used in the code generator.",
 "type":"text"
 }
 ],
@@ -281,7 +324,7 @@
 {
 "fragments":[
 {
-"text":"The rest of the parser is exactly the same as in the previous version of RLMeta:",
+"text":"The rest of the parser is exactly the same as in the optimized version of RLMeta:",
 "type":"text"
 }
 ],
@@ -557,6 +600,32 @@
 "id":"8fc432da8cb94c91baeba2ee6b69f40b",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Grammar",
+"type":"code"
+},
+{
+"text":" AST node is matched, a Python class inheriting ",
+"type":"text"
+},
+{
+"text":"_Grammar",
+"type":"code"
+},
+{
+"text":" is generated:",
+"type":"text"
+}
+],
+"id":"8486ff5b719645eab49940a26d36242d",
+"type":"text"
+},
+{
 "chunkpath":[
 "rules"
 ],
@@ -696,7 +765,75 @@
 {
 "fragments":[
 {
-"text":"Not using ",
+"text":"The name of the class is the same as the name of the grammar.",
+"type":"text"
+}
+],
+"id":"1735aab3a10f43c38a926cbcea8e7759",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"__init__",
+"type":"code"
+},
+{
+"text":" method has functionality for creating instructions. An instruction is represented as a Python tuple with three elements: the name, the first argument, and the second argument. Arguments can be ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":". Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instructions list.",
+"type":"text"
+}
+],
+"id":"99eb57fd403a43078274deb9c131253e",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The reason the shorthand names ",
+"type":"text"
+},
+{
+"text":"i",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"l",
+"type":"code"
+},
+{
+"text":" are used instead of ",
+"type":"text"
+},
+{
+"text":"self._instructions",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"self._labels",
+"type":"code"
+},
+{
+"text":" is that it is faster. Not using ",
 "type":"text"
 },
 {
@@ -704,11 +841,45 @@
 "type":"code"
 },
 {
-"text":" seems to improve performance. Is self always compiled to dictionary lookup, but local variable lookup to indexing in call stack?",
+"text":" reduces one dictionary lookup.",
 "type":"text"
 }
 ],
 "id":"3a5fbbadfd654c42bc1cd57075467383",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The child AST nodes of ",
+"type":"text"
+},
+{
+"text":"Grammar",
+"type":"code"
+},
+{
+"text":" are assumed to use the ",
+"type":"text"
+},
+{
+"text":"I",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"LABEL",
+"type":"code"
+},
+{
+"text":" functions to create instructions.",
+"type":"text"
+}
+],
+"id":"0066adc26f364c9280b98d78c07d8b1c",
 "type":"text"
 }
 ],
@@ -718,6 +889,24 @@
 "children":[],
 "id":"72b77f7c8a594757a67ef61f9502f8e9",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Rule",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions for that rule is generated:",
+"type":"text"
+}
+],
+"id":"f946bf28c65242788cd1180ebae9d8d4",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -774,6 +963,26 @@
 "id":"0030bc01dfd4497ca5d1a1e7af5a5267",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"First a label with the rule name is generated so that that location can be jumped to. Then instructions for the child AST nodes are generated. It ends with a return.",
+"type":"text"
+}
+],
+"id":"b054f14bf70948f48157f29d5f365828",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"A textual representation of the instructions where labels are in the first column and instructions in the second column would look like this:",
+"type":"text"
+}
+],
+"id":"5e625d7f13f64c0aba40c4da05e3a232",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -2426,6 +2635,16 @@
 ],
 "id":"d29ae793a57c42b5bb6e02f16abaf717",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Is lengths enough to save? Can stacks never change just topmost item?",
+"type":"text"
+}
+],
+"id":"a36b46a7d47a432a86f322cece209102",
+"type":"text"
 }
 ],
 "title":"BACKTRACK"
