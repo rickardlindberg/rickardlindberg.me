@@ -16,13 +16,13 @@ CodeGenerator {
                                         y
                                         "I('RETURN')\n"                    }
   Or             =
-    | ast:x !.                     -> x
     | ast:x Or:y #:a #:b           -> { "I('BACKTRACK', " a ")\n"
                                         x
                                         "I('COMMIT', " b ")\n"
                                         "LABEL(" a ")\n"
                                         y
                                         "LABEL(" b ")\n"                   }
+    | ast
   Scope          = ast:x           -> { "I('PUSH_SCOPE')\n"
                                         x
                                         "I('POP_SCOPE')\n"                 }

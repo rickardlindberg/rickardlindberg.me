@@ -900,7 +900,7 @@
 "type":"code"
 },
 {
-"text":" AST node is matched, instructions representing a function is generated:",
+"text":" AST node is matched, instructions representing a function are generated:",
 "type":"text"
 }
 ],
@@ -967,7 +967,7 @@
 {
 "fragments":[
 {
-"text":"In a textual assembly-like notation (where labels are in the first column and instructions are in the second column) it would look like this:",
+"text":"In a textual assembly-like notation (where labels are in the first column and instructions are in the second column) they would look like this:",
 "type":"text"
 }
 ],
@@ -1014,7 +1014,7 @@
 "type":"code"
 },
 {
-"text":" AST node is matched, instructions representing a choice is generated:",
+"text":" AST node is matched, instructions representing a choice are generated:",
 "type":"text"
 }
 ],
@@ -1038,15 +1038,7 @@
 "type":"tabstop"
 },
 {
-"text":"=\n  | ast:x !. ",
-"type":"code"
-},
-{
-"index":20,
-"type":"tabstop"
-},
-{
-"text":"-> x\n  | ast:x Or:y #:a #:b ",
+"text":"=\n  | ast:x Or:y #:a #:b ",
 "type":"code"
 },
 {
@@ -1102,7 +1094,7 @@
 "type":"tabstop"
 },
 {
-"text":"}\n",
+"text":"}\n  | ast\n",
 "type":"code"
 }
 ],
@@ -1113,11 +1105,11 @@
 {
 "fragments":[
 {
-"text":"If there is only one choice, only the instructions for that choice are generated. Otherwise the following sequence is generated:",
+"text":"In a textual assembly-like notation they would look like this:",
 "type":"text"
 }
 ],
-"id":"97d832060c594b469d8128bcd22e4caa",
+"id":"012795ebc57d4d2499ee36546cf7f54e",
 "type":"text"
 },
 {
@@ -1151,7 +1143,15 @@
 "type":"code"
 },
 {
-"text":".",
+"text":". The ",
+"type":"text"
+},
+{
+"text":"y",
+"type":"code"
+},
+{
+"text":" instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated.",
 "type":"text"
 }
 ],
