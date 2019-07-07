@@ -129,7 +129,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                     pos += 1
                 continue
         elif name == "FAIL":
-            fail_message = ("fatal error",)
+            fail_message = (arg1,)
         elif name == "LABEL":
             last_action = _ConstantSemanticAction(label_counter)
             label_counter += 1
@@ -149,18 +149,18 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         if fail_pos >= latest_fail_pos:
             latest_fail_message = fail_message
             latest_fail_pos = fail_pos
-        backtrack_entry = tuple()
+        call_backtrack_entry = tuple()
         while call_backtrack_stack:
-            backtrack_entry = call_backtrack_stack.pop()
-            if len(backtrack_entry) == 4:
+            call_backtrack_entry = call_backtrack_stack.pop()
+            if len(call_backtrack_entry) == 4:
                 break
-        if len(backtrack_entry) != 4:
+        if len(call_backtrack_entry) != 4:
             raise _MatchError(
                 latest_fail_message,
                 latest_fail_pos,
                 stream_pos_stack[0] if stream_pos_stack else stream
             )
-        (pc, pos, stream_stack_len, env_stack_len) = backtrack_entry
+        (pc, pos, stream_stack_len, env_stack_len) = call_backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
         stream_pos_stack = stream_pos_stack[:stream_stack_len]

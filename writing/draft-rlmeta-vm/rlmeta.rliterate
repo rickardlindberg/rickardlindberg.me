@@ -791,7 +791,7 @@
 "type":"code"
 },
 {
-"text":". Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instructions list.",
+"text":". Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instruction list.",
 "type":"text"
 }
 ],
@@ -1460,7 +1460,7 @@
 "type":"tabstop"
 },
 {
-"text":"     \"I('FAIL')\\n\"\n",
+"text":"     \"I('FAIL', 'no match expected')\\n\"\n",
 "type":"code"
 },
 {
@@ -1489,12 +1489,22 @@
 "filepath":[],
 "fragments":[
 {
-"text":"    BACKTRACK b\n    <x instructions>\n    COMMIT a\na:\n    FAIL\nb:\n",
+"text":"    BACKTRACK b\n    <x instructions>\n    COMMIT a\na:\n    FAIL 'no match expected'\nb:\n",
 "type":"code"
 }
 ],
 "id":"a236ed6e09a74616a8c6a744580dfe0e",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Fail position is incorrect. Should be before any matching at all.",
+"type":"text"
+}
+],
+"id":"025cbe8b202845f28a233a0cd976460f",
+"type":"text"
 }
 ],
 "title":"Not"
@@ -3967,7 +3977,7 @@
 "type":"variable"
 },
 {
-"text":" = (\"fatal error\",)\n",
+"text":" = (arg1,)\n",
 "type":"code"
 }
 ],
@@ -4041,7 +4051,7 @@
 ],
 "fragments":[
 {
-"text":"backtrack_entry = tuple()\nwhile ",
+"text":"call_backtrack_entry = tuple()\nwhile ",
 "type":"code"
 },
 {
@@ -4049,7 +4059,7 @@
 "type":"variable"
 },
 {
-"text":":\n    backtrack_entry = ",
+"text":":\n    call_backtrack_entry = ",
 "type":"code"
 },
 {
@@ -4057,7 +4067,7 @@
 "type":"variable"
 },
 {
-"text":".pop()\n    if len(backtrack_entry) == 4:\n        break\nif len(backtrack_entry) != 4:\n    raise ",
+"text":".pop()\n    if len(call_backtrack_entry) == 4:\n        break\nif len(call_backtrack_entry) != 4:\n    raise ",
 "type":"code"
 },
 {
@@ -4113,7 +4123,7 @@
 "type":"variable"
 },
 {
-"text":", stream_stack_len, env_stack_len) = backtrack_entry\nif len(",
+"text":", stream_stack_len, env_stack_len) = call_backtrack_entry\nif len(",
 "type":"code"
 },
 {
@@ -4232,16 +4242,6 @@
 }
 ],
 "id":"b96e160d222e4d28a37b51ddba1a290b",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"FAIL command should take message as argument.",
-"type":"text"
-}
-],
-"id":"18b8589cb7d042e589ff674147e7993a",
 "type":"text"
 }
 ],
