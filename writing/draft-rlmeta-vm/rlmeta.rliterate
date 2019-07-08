@@ -31,7 +31,7 @@
 {
 "fragments":[
 {
-"text":"The VM based version uses the exact same interface. The difference is how the ",
+"text":"The VM based version also compiles grammars into Python classes with the same interface. The difference is how the ",
 "type":"text"
 },
 {
@@ -65,7 +65,31 @@
 {
 "fragments":[
 {
-"text":"Let's look at the following grammar:",
+"text":"To make the difference more clear, let's look at the ",
+"type":"text"
+},
+{
+"text":"Scream",
+"type":"code"
+},
+{
+"text":" grammar that turns its input into a screaming equivalent (",
+"type":"text"
+},
+{
+"text":"hello",
+"type":"code"
+},
+{
+"text":" to ",
+"type":"text"
+},
+{
+"text":"HELLO!!",
+"type":"code"
+},
+{
+"text":" for example):",
 "type":"text"
 }
 ],
@@ -77,12 +101,13 @@
 "filepath":[],
 "fragments":[
 {
-"text":"Grammar {\n    foo = bar*\n    bar = .\n}\n",
+"text":"Scream {\n    scream = char*:xs -> { xs \"!!\" }\n    char   = .:x      -> upper(x)\n}\n",
 "type":"code"
 }
 ],
-"id":"7f6647a8299145bc92f25e9b5dd2f09c",
+"id":"e1a908541846473db76a4661491f43d5",
 "language":"rlmeta",
+"post_process":[],
 "type":"code"
 },
 {
@@ -100,7 +125,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"class Grammar(_Grammar):\n\n    def _rule_foo(self):\n        return (lambda:\n            self._or([\n                (lambda:\n                    (lambda _vars:\n                        (lambda:\n                            self._and([\n                                (lambda:\n                                    self._star((lambda:\n                                        self._match_rule('bar')\n                                    ))\n                                ),\n                            ])\n                        )()\n                    )(_Vars())\n                ),\n            ])\n        )()\n\n    def _rule_bar(self):\n        return (lambda:\n            self._or([\n                (lambda:\n                    (lambda _vars:\n                        (lambda:\n                            self._and([\n                                self._match_any,\n                            ])\n                        )()\n                    )(_Vars())\n                ),\n            ])\n        )()\n",
+"text":"class Scream(_Grammar):\n\n    def _rule_scream(self):\n        return (lambda: (lambda _vars:\n            (lambda: self._and([\n                (lambda: _vars.bind('xs', (lambda: self._star((lambda: self._match_rule('char'))))())),\n                (lambda: _SemanticAction(lambda: _Builder.create([\n                    _vars.lookup('xs').eval(),\n                    '!!',\n                ]))),\n            ]))()\n        )(_Vars()))()\n\n    def _rule_char(self):\n        return (lambda: (lambda _vars:\n            (lambda: self._and([\n                (lambda: _vars.bind('x', self._match_any())),\n                (lambda: _SemanticAction(lambda: upper(\n                    _vars.lookup('x').eval(),\n                ))),\n            ]))()\n        )(_Vars()))()\n",
 "type":"code"
 }
 ],
@@ -111,7 +136,7 @@
 {
 "fragments":[
 {
-"text":"The VM based version compiles it into the following class with a sequence of instructions:",
+"text":"The VM based version compiles it into the following class with a sequence of instructions (don't worry about understanding it now, it will be clear later what the instructions mean):",
 "type":"text"
 }
 ],
@@ -123,11 +148,11 @@
 "filepath":[],
 "fragments":[
 {
-"text":"class Grammar(_Grammar):\n\n    def __init__(self):\n        self._instructions = i = []\n        self._labels = l = {}\n        def I(name, x=None, y=None):\n            i.append((name, x, y))\n        def LABEL(name):\n            l[name] = len(i)\n        LABEL('foo')\n        I('PUSH_SCOPE')\n        I('LIST_START')\n        LABEL(0)\n        I('BACKTRACK', 1)\n        I('CALL', 'bar')\n        I('LIST_APPEND')\n        I('COMMIT', 0)\n        LABEL(1)\n        I('LIST_END')\n        I('POP_SCOPE')\n        I('RETURN')\n        LABEL('bar')\n        I('PUSH_SCOPE')\n        I('MATCH_ANY')\n        I('POP_SCOPE')\n        I('RETURN')\n",
+"text":"class Scream(_Grammar):\n\n    def __init__(self):\n        self._instructions = i = []\n        self._labels = l = {}\n        def I(name, x=None, y=None):\n            i.append((name, x, y))\n        def LABEL(name):\n            l[name] = len(i)\n        LABEL('scream')\n        I('PUSH_SCOPE')\n        I('LIST_START')\n        LABEL(0)\n        I('BACKTRACK', 1)\n        I('CALL', 'char')\n        I('LIST_APPEND')\n        I('COMMIT', 0)\n        LABEL(1)\n        I('LIST_END')\n        I('BIND', 'xs')\n        I('ACTION', lambda scope: _Builder.create([scope['xs'].eval(), '!!']))\n        I('POP_SCOPE')\n        I('RETURN')\n        LABEL('char')\n        I('PUSH_SCOPE')\n        I('MATCH_ANY')\n        I('BIND', 'x')\n        I('ACTION', lambda scope: upper(scope['x'].eval()))\n        I('POP_SCOPE')\n        I('RETURN')\n",
 "type":"code"
 }
 ],
-"id":"c7d435c9c6714df98f5fd1709a6e1804",
+"id":"0a31a676a4814fe3866f0d06530e4a97",
 "language":"python",
 "type":"code"
 },
@@ -1151,7 +1176,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to save its current state and try the next choice at label ",
+"text":" instructs the VM to push a backtrack entry onto the stack so that it can try matching again at label ",
 "type":"text"
 },
 {
@@ -1176,7 +1201,31 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM that the current choice was successfully matched and to continue execution at label ",
+"text":" instructs the VM to pop the backtrack entry off the stack and continue execution at label ",
+"type":"text"
+},
+{
+"text":"b",
+"type":"code"
+},
+{
+"text":". If ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions fail, the second choice at label ",
+"type":"text"
+},
+{
+"text":"a",
+"type":"code"
+},
+{
+"text":" will be tried, otherwise, execution will continue at label ",
 "type":"text"
 },
 {
@@ -1192,7 +1241,23 @@
 "type":"code"
 },
 {
-"text":" instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated. In that case, no backtrack and commit are needed.",
+"text":" instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated. In that case, no ",
+"type":"text"
+},
+{
+"text":"BACKTRACK",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"COMMIT",
+"type":"code"
+},
+{
+"text":" are needed.",
 "type":"text"
 }
 ],
@@ -1403,7 +1468,7 @@
 "type":"code"
 },
 {
-"text":" AST node is matched, instructions binding the last result to a variable are generated:",
+"text":" AST node is matched, instructions binding the last result to a name are generated:",
 "type":"text"
 }
 ],
@@ -1690,7 +1755,47 @@
 "type":"code"
 },
 {
-"text":" instructions are used to create control flow for a loop.",
+"text":" instructions are used to create control flow for a loop. As long as ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions succeed, the program will loop between label ",
+"type":"text"
+},
+{
+"text":"a",
+"type":"code"
+},
+{
+"text":" and the ",
+"type":"text"
+},
+{
+"text":"COMMIT",
+"type":"code"
+},
+{
+"text":" instruction. As soon as ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions fail, the program will jump to label ",
+"type":"text"
+},
+{
+"text":"b",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
@@ -1715,7 +1820,7 @@
 "type":"code"
 },
 {
-"text":" AST node is matched, instructions representing a negative lookahead are generated:",
+"text":" AST node is matched, instructions representing negative lookahead are generated:",
 "type":"text"
 }
 ],
@@ -1833,7 +1938,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM that there is a failure and that it should backtrack. The ",
+"text":" instructs the VM that it should backtrack and try matching again. The ",
 "type":"text"
 },
 {
@@ -1849,7 +1954,55 @@
 "type":"code"
 },
 {
-"text":" instructions are used to create control flow for negative lookahead.",
+"text":" instructions are used to create control flow for negative lookahead. If ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions succeed, the ",
+"type":"text"
+},
+{
+"text":"COMMIT",
+"type":"code"
+},
+{
+"text":" instruction will make the program continue at label ",
+"type":"text"
+},
+{
+"text":"a",
+"type":"code"
+},
+{
+"text":". That immediately fails because the negative lookahead does not expect a match. In case ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions fail, the program continues execution at label ",
+"type":"text"
+},
+{
+"text":"b",
+"type":"code"
+},
+{
+"text":", and the ",
+"type":"text"
+},
+{
+"text":"FAIL",
+"type":"code"
+},
+{
+"text":" instruction is skipped.",
 "type":"text"
 }
 ],
@@ -3159,6 +3312,71 @@
 }
 ],
 "title":"MatchList"
+},
+{
+"children":[],
+"id":"6cc83570ba674d71bccd12660fddefcc",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Let's have a look at the ",
+"type":"text"
+},
+{
+"text":"Scream",
+"type":"code"
+},
+{
+"text":" grammar again:",
+"type":"text"
+}
+],
+"id":"7f8b6bb4e9ba4f9e9b3f633664dc9f19",
+"type":"text"
+},
+{
+"code_id":"e1a908541846473db76a4661491f43d5",
+"id":"21212cd9ca4a43df850bc60916292f87",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"The class that is generated should now make more sense:",
+"type":"text"
+}
+],
+"id":"07da11f463c94ae6a9c0ef695a84ac6f",
+"type":"text"
+},
+{
+"code_id":"0a31a676a4814fe3866f0d06530e4a97",
+"id":"0e102d7433cd4d14882fa53299400825",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"TODO: explain instructions",
+"type":"strong"
+}
+],
+"id":"e92b1c0856c44552991c692b8db1f7a5",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Now let's move on to the implementation of the VM.",
+"type":"text"
+}
+],
+"id":"fda603f0ae284f559dce8f54937feadb",
+"type":"text"
+}
+],
+"title":"Example"
 }
 ],
 "id":"24aa83d59704475dba2a010f1b5d3eb0",
@@ -3166,15 +3384,7 @@
 {
 "fragments":[
 {
-"text":"The code generator in the VM based version is similarly structured to the code generator in the optimized version, but instead of generating a class with methods, it generates a class with a single ",
-"type":"text"
-},
-{
-"text":"__init__",
-"type":"code"
-},
-{
-"text":" method that creates instructions. Here is the template:",
+"text":"The code generator in the VM based version is similarly structured to the code generator in the optimized version with a grammar and a support library:",
 "type":"text"
 }
 ],
@@ -3206,6 +3416,48 @@
 ],
 "id":"c4887eaa08da4799acaad6fdbde5d2f7",
 "language":"",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"blank_lines_before":1,
+"path":[
+"imports"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"\n",
+"type":"code"
+},
+{
+"blank_lines_before":1,
+"path":[
+"vm"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"\n",
+"type":"code"
+},
+{
+"blank_lines_before":1,
+"path":[
+"classes"
+],
+"prefix":"",
+"type":"chunk"
+}
+],
+"id":"5dd5edbabef546a383244c3df74dc7b0",
 "type":"code"
 },
 {
@@ -3305,59 +3557,7 @@
 {
 "fragments":[
 {
-"text":"The support library will be filled out in the rest of the article:",
-"type":"text"
-}
-],
-"id":"defb5ed2ab7e460d9361a6e6107cb1da",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"blank_lines_before":1,
-"path":[
-"imports"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"text":"\n",
-"type":"code"
-},
-{
-"blank_lines_before":1,
-"path":[
-"vm"
-],
-"prefix":"",
-"type":"chunk"
-},
-{
-"text":"\n",
-"type":"code"
-},
-{
-"blank_lines_before":1,
-"path":[
-"classes"
-],
-"prefix":"",
-"type":"chunk"
-}
-],
-"id":"5dd5edbabef546a383244c3df74dc7b0",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"Let's move on to look at how VM instructions are generated.",
+"text":"Let's move on and look at how VM instructions are generated.",
 "type":"text"
 }
 ],
