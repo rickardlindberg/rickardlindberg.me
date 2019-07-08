@@ -88,7 +88,7 @@
 {
 "fragments":[
 {
-"text":"The original version compiles it into the following class with one method per rule in the grammar:",
+"text":"The optimized version compiles it into the following class with one method per rule in the grammar:",
 "type":"text"
 }
 ],
@@ -134,7 +134,7 @@
 {
 "fragments":[
 {
-"text":"The interface is exactly the same, but the two classes look rather different. The ",
+"text":"The external interface of the classes is exactly the same, but internally they look rather different. The ",
 "type":"text"
 },
 {
@@ -142,7 +142,7 @@
 "type":"code"
 },
 {
-"text":" method in the original version looks like this:",
+"text":" method in the optimized version looks like this:",
 "type":"text"
 }
 ],
@@ -217,7 +217,7 @@
 {
 "fragments":[
 {
-"text":"It also does some setup, but then it hands over the instructions (created in the ",
+"text":"It also does some setup, but then it hands over the instructions (that are created in the ",
 "type":"text"
 },
 {
@@ -243,7 +243,7 @@
 "type":"text"
 }
 ],
-"title":"Difference from original"
+"title":"VM big pucture difference"
 },
 {
 "children":[],
@@ -287,7 +287,7 @@
 {
 "fragments":[
 {
-"text":"A label is a semantic action that evaluates to a unique number. You will see later (in ",
+"text":"A label gives a semantic action that evaluates to a unique number. You will see later (in ",
 "type":"text"
 },
 {
@@ -967,7 +967,7 @@
 {
 "fragments":[
 {
-"text":"In a textual assembly-like notation (where labels are in the first column and instructions are in the second column) they would look like this:",
+"text":"In assembly-like notation (where labels are in the first column and instructions are in the second column) they would look like this:",
 "type":"text"
 }
 ],
@@ -989,7 +989,16 @@
 {
 "fragments":[
 {
-"text":"First a label with the rule name is generated so that that location can be jumped to. Then instructions for the child AST nodes are generated. It ends with a return.",
+"text":"The label name is the name of the function. ",
+"type":"text"
+},
+{
+"page_id":"d104aa6d6b8e43818f662498f6566e38",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to resume execution at wherever it was at before calling the function.",
 "type":"text"
 }
 ],
@@ -1105,7 +1114,7 @@
 {
 "fragments":[
 {
-"text":"In a textual assembly-like notation they would look like this:",
+"text":"In assembly-like notation they would look like this:",
 "type":"text"
 }
 ],
@@ -1127,11 +1136,12 @@
 {
 "fragments":[
 {
-"text":"BACKTRACK",
-"type":"code"
+"page_id":"542906286e124874b2975d0ae23f034f",
+"text":null,
+"type":"reference"
 },
 {
-"text":" instructs the VM to try the next choice at label ",
+"text":" instructs the VM to save its current state and try the next choice at label ",
 "type":"text"
 },
 {
@@ -1151,8 +1161,9 @@
 "type":"text"
 },
 {
-"text":"COMMIT",
-"type":"code"
+"page_id":"5b99ed36fbde45989829fde6e17d4821",
+"text":null,
+"type":"reference"
 },
 {
 "text":" instructs the VM that the current choice was successfully matched and to continue execution at label ",
@@ -1185,6 +1196,24 @@
 "children":[],
 "id":"e0d721aa4fae40af8de5a54253243cb0",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Scope",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions creating a new scope are generated:",
+"type":"text"
+}
+],
+"id":"47dc6dc757a34febbe533a5b46ac1b30",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1243,6 +1272,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation they would look like this:",
+"type":"text"
+}
+],
+"id":"fbd8ef6569724187804e811e554eee8a",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1253,6 +1292,38 @@
 ],
 "id":"6a44a5d5f46c45978ea745716fb015e9",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"49ca0a2fa665466cb90c8c128d5cc835",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to push a new scope onto the stack so that all bindings that are done by ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions happens in this new scope. ",
+"type":"text"
+},
+{
+"page_id":"b2510846e20d4cd08f9b0cd2dfb5c01d",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to pop the current scope off the stack.",
+"type":"text"
+}
+],
+"id":"646de6553fdd482b872abeeea3ddf180",
+"type":"text"
 }
 ],
 "title":"Scope"
@@ -1261,6 +1332,24 @@
 "children":[],
 "id":"34ee0862096d4fd4aa3342c4b3b6c294",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When an ",
+"type":"text"
+},
+{
+"text":"And",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions for all items in the sequence are generated:",
+"type":"text"
+}
+],
+"id":"b0abfb986a804847b16f08cca6c8a8a3",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1293,6 +1382,24 @@
 "children":[],
 "id":"8275c4d4e16c483f84be55f550e3d39c",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Bind",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions binding the last result to a variable are generated:",
+"type":"text"
+}
+],
+"id":"3a04e0d7672f492980593c7b482112a7",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1343,6 +1450,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation they would look like this:",
+"type":"text"
+}
+],
+"id":"70b23be6d9484ddbb5060aab75d4ea03",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1353,6 +1470,29 @@
 ],
 "id":"4677b3a2c9a34a6b8d346abe5d31add4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"1315305641224e4aa99dd00ec5b524b1",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to bind the last result to the name ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" in the current scope.",
+"type":"text"
+}
+],
+"id":"dd2a80cd76ac4e0bb7f4a85423700124",
+"type":"text"
 }
 ],
 "title":"Bind"
@@ -1361,6 +1501,24 @@
 "children":[],
 "id":"963d53648b304544be75045e59c6e183",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Star",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions representing a repetition are generated:",
+"type":"text"
+}
+],
+"id":"269c724eef5a49c4bd5988b85d5135d2",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1459,6 +1617,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation they would look like this:",
+"type":"text"
+}
+],
+"id":"b6d436bab95d44869f8ffbce56e7f0cb",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1469,6 +1637,55 @@
 ],
 "id":"4b242e08b44c4a5cab63a14a86b0f38e",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"b3562467300348028f04ae5034db0f34",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to create a new list for accumulating results. ",
+"type":"text"
+},
+{
+"page_id":"b4aacd38dec8406c9db784e0823c3554",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to append the last result to the list. ",
+"type":"text"
+},
+{
+"page_id":"9940cd44d7fe4777b1c12e335bac33ae",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to make the list itself the last result. The ",
+"type":"text"
+},
+{
+"text":"BACKTRACK",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"COMMIT",
+"type":"code"
+},
+{
+"text":" instructions are used to create control flow for a loop.",
+"type":"text"
+}
+],
+"id":"4658f86527c447a6ac6052536e6110da",
+"type":"text"
 }
 ],
 "title":"Star"
@@ -1477,6 +1694,24 @@
 "children":[],
 "id":"0efe424b680f477a9bb8c1b9f679ff84",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Not",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions representing a negative lookahead are generated:",
+"type":"text"
+}
+],
+"id":"6baaca923d4942d1919c20256748ed34",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1559,6 +1794,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation they would look like this:",
+"type":"text"
+}
+],
+"id":"2e023def47854499b4519fa8817c1d5b",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1573,21 +1818,32 @@
 {
 "fragments":[
 {
-"text":"Fail position is incorrect. Should be before any matching at all.",
-"type":"text"
-}
-],
-"id":"025cbe8b202845f28a233a0cd976460f",
+"page_id":"34915cae29994179abbe19f2f7e4c267",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM that there is a failure and that it should backtrack. The ",
 "type":"text"
 },
 {
-"fragments":[
+"text":"BACKTRACK",
+"type":"code"
+},
 {
-"text":"Hmm. When inside a not, failures should probably not be recorded at all.",
+"text":" and ",
+"type":"text"
+},
+{
+"text":"COMMIT",
+"type":"code"
+},
+{
+"text":" instructions are used to create control flow for negative lookahead.",
 "type":"text"
 }
 ],
-"id":"d51f8161207846ff8135a8711652610e",
+"id":"18a338c3dd1b4b6fbeaaae0387b8577e",
 "type":"text"
 }
 ],
@@ -1597,6 +1853,24 @@
 "children":[],
 "id":"24675b6707284a99ba3d3cb17b60e3f2",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchCallRule",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"9cc367cad52541c1b94c18f5fde5f2f4",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1639,6 +1913,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"54a07ff03ab147d3a0e747c33a4d562a",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1649,6 +1933,21 @@
 ],
 "id":"955e4c5838154ae1be3ad97c79b40778",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"d42df29209bf475280ac510d9ae31182",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to call the rule denoted by the current input object.",
+"type":"text"
+}
+],
+"id":"5766709ee3a6467bb4ea1447892c5fd4",
+"type":"text"
 }
 ],
 "title":"MatchCallRule"
@@ -1657,6 +1956,24 @@
 "children":[],
 "id":"629b7ffad2d54725ad0af4e73bf434d8",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"Label",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"44fd82f1b73241c59ff0ca8d6113aab5",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1699,6 +2016,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"0ce28738979d43cba82f698231077589",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1709,6 +2036,21 @@
 ],
 "id":"a38019613bfa4096bb368ea511fdf0be",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"d7d285d9586b437ca7d7f51b5deb6193",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to create a semantic action that returns a unique number as last result.",
+"type":"text"
+}
+],
+"id":"f22e084c52d442df9012dfe7f17c166b",
+"type":"text"
 }
 ],
 "title":"Label"
@@ -1717,6 +2059,24 @@
 "children":[],
 "id":"4ddebcb41511403c8b3fa5c96f14c8f4",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"SemanticAction",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"55095d61ae634ae394735426ac65a5ee",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -1742,7 +2102,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"I('ACTION', lambda env: \" x \")\\n\" ",
+"text":"-> { \"I('ACTION', lambda scope: \" x \")\\n\" ",
 "type":"code"
 },
 {
@@ -1759,6 +2119,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"6a292db8ae584edf90121aa349d0b930",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1769,6 +2139,31 @@
 ],
 "id":"a3469ef02b8041c58a9142a2de0f170b",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"738356fde86e4c7290b0f99850917ba8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to create a semantic action as last result. This instruction is least assembly like because its first argument is actually a Python function.",
+"type":"text"
+}
+],
+"id":"231d28711af949f09eed77276b7bdc20",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The lambda expression is generated by the following rules similarly to how it was done in the optimized version:",
+"type":"text"
+}
+],
+"id":"a54045f34d834bffaea9cc3e0150ce49",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -1923,7 +2318,7 @@
 "type":"tabstop"
 },
 {
-"text":"-> { \"env[\" x \"].eval()\" ",
+"text":"-> { \"scope[\" x \"].eval()\" ",
 "type":"code"
 },
 {
@@ -2068,6 +2463,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The related pieces in the support library also similar to how it was in the optimized version:",
+"type":"text"
+}
+],
+"id":"dc9e1fe0347b47ec93119cc136f0fda7",
+"type":"text"
+},
+{
 "chunkpath":[
 "imports"
 ],
@@ -2106,6 +2511,24 @@
 "children":[],
 "id":"fc62b5be27fd4e40978d415ba4070a05",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchRule",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"64ba36891b8d47ea85042f60045f41cb",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2148,6 +2571,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"62491829265642debd188e7f32c8e5cc",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2158,6 +2591,21 @@
 ],
 "id":"3f1433008b854027bcd35fd68c51b2f4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"8e19cbb2e71c412f95c7e241a69f0901",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to call the rule denoted by the argument to it.",
+"type":"text"
+}
+],
+"id":"e2f6fa8e340f4245836de6396439df22",
+"type":"text"
 }
 ],
 "title":"MatchRule"
@@ -2166,6 +2614,24 @@
 "children":[],
 "id":"ce3171f9336a4f1a961f4d6fd6665361",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchRange",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"1a2f6b63b0a04ca7ab2e59a7008fa1a1",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2208,6 +2674,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"0930959122ba4f248f1a6a33223bbd3f",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2218,6 +2694,21 @@
 ],
 "id":"c8cb5b2b91e941ee8ed35c8a8a88c1e3",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"d8dcb57d5da141908f28f8c52983d1a6",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to match an object in the given range and make it the last result.",
+"type":"text"
+}
+],
+"id":"9d40c2556ed4484aafd1b06b8d3bc0c8",
+"type":"text"
 }
 ],
 "title":"MatchRange"
@@ -2226,6 +2717,24 @@
 "children":[],
 "id":"40fcdbbabfe44b009d3f405060a2055f",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchString",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"1c31057039f74f5582ec56af91f2835b",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2268,6 +2777,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"ffef2127e71a423cb2965c2c2a09ad65",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2278,6 +2797,21 @@
 ],
 "id":"844cbe1b28ee4f578a3f037ab94e74d4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"a8160d30b886418882ada3a2a884e580",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to match the given string and make it the last result.",
+"type":"text"
+}
+],
+"id":"4da61624b22c4718a976addc31a75c7a",
+"type":"text"
 }
 ],
 "title":"MatchString"
@@ -2286,6 +2820,24 @@
 "children":[],
 "id":"c6e2326b6b774601b761538455918bbe",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchCharseq",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"9912ee1101d6461c99234a167ba63ecc",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2328,6 +2880,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"6eae413ee9eb4c33b2c656b180d9f521",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2338,6 +2900,21 @@
 ],
 "id":"aea4f196262c4096a2ba6f734076a1cc",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"df5dc1b5e5054e548d5c3606daba0d55",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to match the given sequence of characters and make it the last result.",
+"type":"text"
+}
+],
+"id":"6e6edf9c5d0a43319d885bc5d38ca4a0",
+"type":"text"
 }
 ],
 "title":"MatchCharseq"
@@ -2346,6 +2923,24 @@
 "children":[],
 "id":"de0847d410c6495d9a8ee4e75a0423cc",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchAny",
+"type":"code"
+},
+{
+"text":" AST node is matched, an instruction representing that operation is generated:",
+"type":"text"
+}
+],
+"id":"d01fd361666441099b1f98f65033310a",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2388,6 +2983,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation it would look like this:",
+"type":"text"
+}
+],
+"id":"237c33b9b1b94339b75f8d3441de2cde",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2398,6 +3003,21 @@
 ],
 "id":"6a45732466244481ac5333f8bd104e11",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"8f0fffeab7084a1d9b01d928be4878a8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to match any object and make it the last result.",
+"type":"text"
+}
+],
+"id":"26f146d6360a4012ab753eabdfd54a29",
+"type":"text"
 }
 ],
 "title":"MatchAny"
@@ -2406,6 +3026,24 @@
 "children":[],
 "id":"1dc829aba4484ed399eb025d01ed843e",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"When a ",
+"type":"text"
+},
+{
+"text":"MatchList",
+"type":"code"
+},
+{
+"text":" AST node is matched, instructions changing the input stream are generated:",
+"type":"text"
+}
+],
+"id":"678aef4f22a949528fc55d4162c08f05",
+"type":"text"
+},
 {
 "chunkpath":[
 "rules"
@@ -2464,6 +3102,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In assembly-like notation they would look like this:",
+"type":"text"
+}
+],
+"id":"8a79985e25254d5bab94c8decac7d224",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -2474,6 +3122,30 @@
 ],
 "id":"b8c24c202db540339de7835186403f3a",
 "type":"code"
+},
+{
+"fragments":[
+{
+"page_id":"fee2dcf573f04ac3a9e7cfd92adbe0c8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to take the current input object and make that the current stream. ",
+"type":"text"
+},
+{
+"page_id":"87a1eee2cfb94e1a9463a6561c226012",
+"text":null,
+"type":"reference"
+},
+{
+"text":" instructs the VM to restore the previous input stream.",
+"type":"text"
+}
+],
+"id":"a32122dc4bca4f70b25c3398ddf8a015",
+"type":"text"
 }
 ],
 "title":"MatchList"
@@ -2484,7 +3156,15 @@
 {
 "fragments":[
 {
-"text":"How to generate the instructions for the VM?",
+"text":"The code generator in the VM based version is similarly structured to the code generator in the optimized version, but instead of generating a class with methods, it generates a class with a single ",
+"type":"text"
+},
+{
+"text":"__init__",
+"type":"code"
+},
+{
+"text":" method that creates instructions. Here is the template that is filled out:",
 "type":"text"
 }
 ],
@@ -2510,7 +3190,42 @@
 "type":"chunk"
 },
 {
-"text":"  ast ",
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"c4887eaa08da4799acaad6fdbde5d2f7",
+"language":"",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"ast",
+"type":"code"
+},
+{
+"text":" rule is exactly the same as in the optimized version:",
+"type":"text"
+}
+],
+"id":"99e3f6f946054bdfad07a6a75146e078",
+"type":"text"
+},
+{
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"ast ",
 "type":"code"
 },
 {
@@ -2526,15 +3241,34 @@
 "type":"tabstop"
 },
 {
-"text":"-> { x ",
+"text":"-> x\n",
+"type":"code"
+}
+],
+"id":"c04b40e6bf5d4f239d5b7a27dd4f0953",
+"language":"",
 "type":"code"
 },
 {
-"index":30,
-"type":"tabstop"
+"fragments":[
+{
+"text":"Then there is an additional rule for when a Python representation of a value is needed:",
+"type":"text"
+}
+],
+"id":"e67266b960b24185b0f6e04af944e2df",
+"type":"text"
 },
 {
-"text":"}\n  py ",
+"chunkpath":[
+"rules"
+],
+"filepath":[
+"codegenerator.rlmeta"
+],
+"fragments":[
+{
+"text":"py ",
 "type":"code"
 },
 {
@@ -2550,13 +3284,23 @@
 "type":"tabstop"
 },
 {
-"text":"-> repr(x)\n}\n",
+"text":"-> repr(x)\n",
 "type":"code"
 }
 ],
-"id":"c4887eaa08da4799acaad6fdbde5d2f7",
+"id":"54bf8cb0b30e47338b9b4b87a136a3f4",
 "language":"",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The support library will be filled out in the rest of the article:",
+"type":"text"
+}
+],
+"id":"defb5ed2ab7e460d9361a6e6107cb1da",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -2599,6 +3343,16 @@
 ],
 "id":"5dd5edbabef546a383244c3df74dc7b0",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Now I move on to present how VM instructions are actually generated.",
+"type":"text"
+}
+],
+"id":"34949b2260294790b34e90ff276d7b04",
+"type":"text"
 }
 ],
 "title":"Code generator"
@@ -4159,7 +4913,7 @@
 "type":"variable"
 },
 {
-"text":"(\n        ",
+"text":"(",
 "type":"code"
 },
 {
@@ -4167,31 +4921,7 @@
 "type":"variable"
 },
 {
-"text":",\n        ",
-"type":"code"
-},
-{
-"id":"0799d98c45e348e59ff71aa2d228a38b",
-"type":"variable"
-},
-{
-"text":",\n        ",
-"type":"code"
-},
-{
-"id":"0a9fe66a6284461caec36d4cc17e0f84",
-"type":"variable"
-},
-{
-"text":"[0] if ",
-"type":"code"
-},
-{
-"id":"0a9fe66a6284461caec36d4cc17e0f84",
-"type":"variable"
-},
-{
-"text":" else stream\n    )\n(",
+"text":", pos, stream)\n(",
 "type":"code"
 },
 {
@@ -4207,7 +4937,7 @@
 "type":"variable"
 },
 {
-"text":", stream_stack_len, env_stack_len) = call_backtrack_entry\nif len(",
+"text":", stream_stack_len, scope_stack_len) = call_backtrack_entry\nif len(",
 "type":"code"
 },
 {
@@ -4255,7 +4985,7 @@
 "type":"variable"
 },
 {
-"text":") > env_stack_len:\n    ",
+"text":") > scope_stack_len:\n    ",
 "type":"code"
 },
 {
@@ -4271,7 +5001,7 @@
 "type":"variable"
 },
 {
-"text":"[env_stack_len]\n",
+"text":"[scope_stack_len]\n",
 "type":"code"
 },
 {
@@ -4287,7 +5017,7 @@
 "type":"variable"
 },
 {
-"text":"[:env_stack_len]\n",
+"text":"[:scope_stack_len]\n",
 "type":"code"
 }
 ],
@@ -4311,7 +5041,7 @@
 "type":"variable"
 },
 {
-"text":"(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\n    def describe(self):\n        stream = self.stream\n        pos = self.pos\n        while len(pos) > 1:\n            stream = stream[pos.pop(0)]\n        pos = pos[0]\n        message = \"\"\n        if isinstance(stream, basestring):\n            pos1, error_line_before = self._extract_line(stream, pos, -1)\n            pos2, error_line_after = self._extract_line(stream, pos+1, 1)\n            _, context_before = self._extract_line(stream, pos1, -1)\n            _, context_after = self._extract_line(stream, pos2, 1)\n            if context_before:\n                message += \"> \"\n                message += context_before\n                message += \"\\n\"\n            message += \"> \"\n            message += error_line_before\n            message += error_line_after\n            message += \"\\n\"\n            message += \"--\"\n            message += \"-\"*(len(error_line_before)-1)\n            message += \"^\\n\"\n            if context_after:\n                message += \"> \"\n                message += context_after\n                message += \"\\n\"\n        else:\n            message += \"todo: list failure context\\n\"\n        message += \"Error: \"\n        message += self.message[0].format(*self.message[1:])\n        message += \"\\n\"\n        return message\n\n    def _extract_line(self, text, pos, direction):\n        line = []\n        while pos >= 0:\n            try:\n                if text[pos] == \"\\n\":\n                    if line:\n                        break\n                else:\n                    if direction == 1:\n                        line.append(text[pos])\n                    else:\n                        line.insert(0, text[pos])\n                pos += direction\n            except IndexError:\n                break\n        return (pos+direction, \"\".join(line))\n",
+"text":"(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\n    def describe(self):\n        message = \"\"\n        if isinstance(self.stream, basestring):\n            pos1, error_line_before = self._extract_line(self.stream, self.pos, -1)\n            pos2, error_line_after = self._extract_line(self.stream, self.pos+1, 1)\n            _, context_before = self._extract_line(self.stream, pos1, -1)\n            _, context_after = self._extract_line(self.stream, pos2, 1)\n            if context_before:\n                message += \"> \"\n                message += context_before\n                message += \"\\n\"\n            message += \"> \"\n            message += error_line_before\n            message += error_line_after\n            message += \"\\n\"\n            message += \"--\"\n            message += \"-\"*(len(error_line_before)-1)\n            message += \"^\\n\"\n            if context_after:\n                message += \"> \"\n                message += context_after\n                message += \"\\n\"\n        else:\n            message += \"todo: list failure context\\n\"\n        message += \"Error: \"\n        message += self.message[0].format(*self.message[1:])\n        message += \"\\n\"\n        return message\n\n    def _extract_line(self, text, pos, direction):\n        line = []\n        while pos >= 0:\n            try:\n                if text[pos] == \"\\n\":\n                    if line:\n                        break\n                else:\n                    if direction == 1:\n                        line.append(text[pos])\n                    else:\n                        line.insert(0, text[pos])\n                pos += direction\n            except IndexError:\n                break\n        return (pos+direction, \"\".join(line))\n",
 "type":"code"
 }
 ],
@@ -4982,8 +5712,8 @@
 "5a36de8ac0824e5e9e2d50ce6256b57a":"latest_fail_message",
 "67782a80b8a0487f8930e57551490023":"_MatchError",
 "68c9f5e79a3d4b04b5fe8c855cd71fff":"memo",
-"6e2f0ba81b194ccab59fa146d23bb428":"env_stack",
-"8da6870b3e814a309ac487512eb28fc6":"env",
+"6e2f0ba81b194ccab59fa146d23bb428":"scope_stack",
+"8da6870b3e814a309ac487512eb28fc6":"scope",
 "ad46fcaa30dd48a0b04ab6d5ed3eb6c6":"pos",
 "afdefdc6c0eb44d698ceb67eda022dc8":"call_backtrack_stack",
 "b097b5b85d854f2bb89c4d50e8fe5577":"label_counter",

@@ -9,18 +9,18 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     pc = labels[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
-    env, env_stack = (None, [])
+    scope, scope_stack = (None, [])
     fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())
     memo = {}
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
-            env_stack.append(env)
-            env = {}
+            scope_stack.append(scope)
+            scope = {}
             pc += 1
             continue
         elif name == "BACKTRACK":
-            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(env_stack)))
+            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(scope_stack)))
             pc += 1
             continue
         elif name == "CALL":
@@ -49,7 +49,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc = labels[arg1]
             continue
         elif name == "POP_SCOPE":
-            env = env_stack.pop()
+            scope = scope_stack.pop()
             pc += 1
             continue
         elif name == "RETURN":
@@ -59,15 +59,15 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
-            env.append(last_action)
+            scope.append(last_action)
             pc += 1
             continue
         elif name == "BIND":
-            env[arg1] = last_action
+            scope[arg1] = last_action
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = _SemanticAction(arg1, env)
+            last_action = _SemanticAction(arg1, scope)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
@@ -79,13 +79,13 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pc += 1
                 continue
         elif name == "LIST_START":
-            env_stack.append(env)
-            env = []
+            scope_stack.append(scope)
+            scope = []
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], env)
-            env = env_stack.pop()
+            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], scope)
+            scope = scope_stack.pop()
             pc += 1
             continue
         elif name == "MATCH_ANY":
@@ -155,18 +155,14 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if len(call_backtrack_entry) == 4:
                 break
         if len(call_backtrack_entry) != 4:
-            raise _MatchError(
-                latest_fail_message,
-                latest_fail_pos,
-                stream_pos_stack[0] if stream_pos_stack else stream
-            )
-        (pc, pos, stream_stack_len, env_stack_len) = call_backtrack_entry
+            raise _MatchError(latest_fail_message, pos, stream)
+        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
         stream_pos_stack = stream_pos_stack[:stream_stack_len]
-        if len(env_stack) > env_stack_len:
-            env = env_stack[env_stack_len]
-        env_stack = env_stack[:env_stack_len]
+        if len(scope_stack) > scope_stack_len:
+            scope = scope_stack[scope_stack_len]
+        scope_stack = scope_stack[:scope_stack_len]
 
 class _Grammar(object):
 
@@ -269,17 +265,12 @@ class _MatchError(Exception):
         self.stream = stream
 
     def describe(self):
-        stream = self.stream
-        pos = self.pos
-        while len(pos) > 1:
-            stream = stream[pos.pop(0)]
-        pos = pos[0]
         message = ""
-        if isinstance(stream, basestring):
-            pos1, error_line_before = self._extract_line(stream, pos, -1)
-            pos2, error_line_after = self._extract_line(stream, pos+1, 1)
-            _, context_before = self._extract_line(stream, pos1, -1)
-            _, context_after = self._extract_line(stream, pos2, 1)
+        if isinstance(self.stream, basestring):
+            pos1, error_line_before = self._extract_line(self.stream, self.pos, -1)
+            pos2, error_line_after = self._extract_line(self.stream, self.pos+1, 1)
+            _, context_before = self._extract_line(self.stream, pos1, -1)
+            _, context_after = self._extract_line(self.stream, pos2, 1)
             if context_before:
                 message += "> "
                 message += context_before
