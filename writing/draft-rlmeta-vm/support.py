@@ -12,6 +12,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     scope, scope_stack = (None, [])
     fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())
     memo = {}
+
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":

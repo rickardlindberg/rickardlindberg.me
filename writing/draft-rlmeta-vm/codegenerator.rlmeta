@@ -49,7 +49,7 @@ CodeGenerator {
   Label          =                 -> { "I('LABEL')\n"                       }
   SemanticAction = ast:x           -> { "I('ACTION', lambda scope: " x ")\n" }
   String         = py
-  List           = astList:x       -> { x                                    }
+  List           = astList
   Builder        = astItems:x      -> { "_Builder.create([" x "])"           }
   IndentBuilder  =                 -> { "_IndentBuilder()"                   }
   DedentBuilder  =                 -> { "_DedentBuilder()"                   }

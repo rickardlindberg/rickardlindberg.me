@@ -136,7 +136,7 @@
 {
 "fragments":[
 {
-"text":"The VM based version compiles it into the following class with a sequence of instructions (don't worry about understanding it now, it will be clear later what the instructions mean):",
+"text":"The VM based version compiles it into the following class with a sequence of instructions (don't worry about understanding them now, it will be clear later what the instructions mean):",
 "type":"text"
 }
 ],
@@ -349,7 +349,7 @@
 {
 "fragments":[
 {
-"text":"The label feature first had to be added to the optimized version before it could be used to compile the VM based version.",
+"text":"The label feature first had to be added to the optimized version before it could be used to compile the VM based version. That implementation is not shown in this article, but the implementation of labels in the VM based version is similar.",
 "type":"text"
 }
 ],
@@ -836,7 +836,7 @@
 {
 "fragments":[
 {
-"text":"The reason the shorthand names ",
+"text":"Shorthand names ",
 "type":"text"
 },
 {
@@ -868,7 +868,7 @@
 "type":"code"
 },
 {
-"text":" is that it is faster. Not using ",
+"text":" because they are faster. Not using ",
 "type":"text"
 },
 {
@@ -1033,7 +1033,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to resume execution at wherever it was at before calling the function.",
+"text":" instructs the VM to resume execution at wherever it was before calling the function.",
 "type":"text"
 }
 ],
@@ -1225,7 +1225,7 @@
 "type":"code"
 },
 {
-"text":" will be tried, otherwise, execution will continue at label ",
+"text":" is tried, otherwise, execution continues at label ",
 "type":"text"
 },
 {
@@ -1241,7 +1241,7 @@
 "type":"code"
 },
 {
-"text":" instructions might be another choice or the last choice. If there is only once choice, only instructions for that choice are generated. In that case, no ",
+"text":" instructions might represent another choice or the last choice. If there is only once choice, only instructions for that choice are generated. In that case, no ",
 "type":"text"
 },
 {
@@ -1384,7 +1384,7 @@
 "type":"code"
 },
 {
-"text":" instructions happens in this new scope. ",
+"text":" instructions happen in this new scope. ",
 "type":"text"
 },
 {
@@ -1763,7 +1763,7 @@
 "type":"code"
 },
 {
-"text":" instructions succeed, the program will loop between label ",
+"text":" instructions succeed, the program loops between label ",
 "type":"text"
 },
 {
@@ -1787,7 +1787,7 @@
 "type":"code"
 },
 {
-"text":" instructions fail, the program will jump to label ",
+"text":" instructions fail, the program continues execution at label ",
 "type":"text"
 },
 {
@@ -1938,7 +1938,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM that it should backtrack and try matching again. The ",
+"text":" instructs the VM that it should backtrack and try matching the next choice. The ",
 "type":"text"
 },
 {
@@ -1970,7 +1970,7 @@
 "type":"code"
 },
 {
-"text":" instruction will make the program continue at label ",
+"text":" instruction makes the program continue at label ",
 "type":"text"
 },
 {
@@ -1978,7 +1978,7 @@
 "type":"code"
 },
 {
-"text":". That immediately fails because the negative lookahead does not expect a match. In case ",
+"text":". That immediately fails because the negative lookahead does not expect a match. If ",
 "type":"text"
 },
 {
@@ -2208,7 +2208,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to create a semantic action that returns a unique number as last result.",
+"text":" instructs the VM to make the last result a semantic action that returns a unique number.",
 "type":"text"
 }
 ],
@@ -2311,11 +2311,21 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to create a semantic action as last result. This instruction is least assembly like because its first argument is actually a Python function.",
+"text":" instructs the VM to make the last result a semantic action.",
 "type":"text"
 }
 ],
 "id":"231d28711af949f09eed77276b7bdc20",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Semantic actions are not evaluated by the VM, but rather by Python. The VM is only responsible for matching and creating semantic actions as result.",
+"type":"text"
+}
+],
+"id":"848e2247aa6f45a6b808a7433e77afdd",
 "type":"text"
 },
 {
@@ -2353,23 +2363,7 @@
 "type":"tabstop"
 },
 {
-"text":"= astList:x ",
-"type":"code"
-},
-{
-"index":20,
-"type":"tabstop"
-},
-{
-"text":"-> { x ",
-"type":"code"
-},
-{
-"index":30,
-"type":"tabstop"
-},
-{
-"text":"}\nBuilder ",
+"text":"= astList\nBuilder ",
 "type":"code"
 },
 {
@@ -2628,7 +2622,7 @@
 {
 "fragments":[
 {
-"text":"The related pieces in the support library also similar to how it was in the optimized version:",
+"text":"The related pieces in the support library are exactly the same as in the optimized version:",
 "type":"text"
 }
 ],
@@ -2748,7 +2742,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"    CALL <rule>\n",
+"text":"    CALL <x>\n",
 "type":"code"
 }
 ],
@@ -2763,7 +2757,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to call the rule denoted by the argument to it.",
+"text":" instructs the VM to call the given rule.",
 "type":"text"
 }
 ],
@@ -2866,7 +2860,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to match an object in the given range and make it the last result.",
+"text":" instructs the VM to match an object in the given range.",
 "type":"text"
 }
 ],
@@ -2969,7 +2963,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to match the given string and make it the last result.",
+"text":" instructs the VM to match the given string.",
 "type":"text"
 }
 ],
@@ -3072,7 +3066,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to match the given sequence of characters and make it the last result.",
+"text":" instructs the VM to match the given sequence of characters.",
 "type":"text"
 }
 ],
@@ -3175,7 +3169,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to match any object and make it the last result.",
+"text":" instructs the VM to match any object.",
 "type":"text"
 }
 ],
@@ -3294,7 +3288,15 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to take the current input object and make that the current stream. ",
+"text":" instructs the VM to push the current input object onto the stack so that ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" instructions see it as the current input stream. ",
 "type":"text"
 },
 {
@@ -3303,7 +3305,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to restore the previous input stream.",
+"text":" instructs the VM to pop the current input stream off the stack.",
 "type":"text"
 }
 ],
@@ -3320,7 +3322,7 @@
 {
 "fragments":[
 {
-"text":"Let's have a look at the ",
+"text":"The generated instructions for the ",
 "type":"text"
 },
 {
@@ -3328,7 +3330,7 @@
 "type":"code"
 },
 {
-"text":" grammar again:",
+"text":" grammar from the beginning of the article should now make more sense:",
 "type":"text"
 }
 ],
@@ -3341,16 +3343,6 @@
 "type":"expanded_code"
 },
 {
-"fragments":[
-{
-"text":"The class that is generated should now make more sense:",
-"type":"text"
-}
-],
-"id":"07da11f463c94ae6a9c0ef695a84ac6f",
-"type":"text"
-},
-{
 "code_id":"0a31a676a4814fe3866f0d06530e4a97",
 "id":"0e102d7433cd4d14882fa53299400825",
 "type":"expanded_code"
@@ -3358,8 +3350,80 @@
 {
 "fragments":[
 {
-"text":"TODO: explain instructions",
-"type":"strong"
+"text":"There are two labels for the two rules in the grammar. Both blocks of instructions end with a ",
+"type":"text"
+},
+{
+"text":"RETURN",
+"type":"code"
+},
+{
+"text":" instruction so that those labels/functions can be called and returned from. The blocks are are also wrapped in ",
+"type":"text"
+},
+{
+"text":"PUSH_SCOPE",
+"type":"code"
+},
+{
+"text":"/",
+"type":"text"
+},
+{
+"text":"POP_SCOPE",
+"type":"code"
+},
+{
+"text":" instructions so that variable bindings for the different calls happen in different scopes. Otherwise they would overwrite each other. The ",
+"type":"text"
+},
+{
+"text":"scream",
+"type":"code"
+},
+{
+"text":" rule has a repetition and therefore also the ",
+"type":"text"
+},
+{
+"text":"LIST_*",
+"type":"code"
+},
+{
+"text":" instructions. It also has generated label names (",
+"type":"text"
+},
+{
+"text":"0",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"1",
+"type":"code"
+},
+{
+"text":") to create the loop. The ",
+"type":"text"
+},
+{
+"text":"BIND",
+"type":"code"
+},
+{
+"text":" instructions bind the last result to a name in the current scope. The ",
+"type":"text"
+},
+{
+"text":"ACTION",
+"type":"code"
+},
+{
+"text":" instructions have Python lambdas as first argument that are evaluated when there is a match. They get one argument which is the scope that was active when the action was defined.",
+"type":"text"
 }
 ],
 "id":"e92b1c0856c44552991c692b8db1f7a5",
@@ -3368,7 +3432,7 @@
 {
 "fragments":[
 {
-"text":"Now let's move on to the implementation of the VM.",
+"text":"Now let's move on to the implementation of the VM to understand how the execution of these instructions work.",
 "type":"text"
 }
 ],
@@ -3376,7 +3440,7 @@
 "type":"text"
 }
 ],
-"title":"Example"
+"title":"Example revisited"
 }
 ],
 "id":"24aa83d59704475dba2a010f1b5d3eb0",
@@ -5419,6 +5483,259 @@
 "id":"e66f8cec6206420abe4736ae32849c53",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The VM is implemented as a single Python function that looks like this:",
+"type":"text"
+}
+],
+"id":"cbf9ca288e5748bdbbaba447c4f8172e",
+"type":"text"
+},
+{
+"chunkpath":[
+"vm"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def rlmeta_vm(",
+"type":"code"
+},
+{
+"id":"ca256b5a40ca4d7a9359374655d29b3d",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"46962506a4b34797a7bd52e4203131ef",
+"type":"variable"
+},
+{
+"text":", stream):\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"init"
+],
+"prefix":"    ",
+"type":"chunk"
+}
+],
+"id":"f00b388c4529474b9925b3aa4149b0e3",
+"type":"code"
+},
+{
+"chunkpath":[
+"vm",
+"init"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":" = 0\n",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(None)\n",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" = ",
+"type":"code"
+},
+{
+"id":"1a932d7b55d945b68f7ac7a869283721",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"46962506a4b34797a7bd52e4203131ef",
+"type":"variable"
+},
+{
+"text":"]\n",
+"type":"code"
+},
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":" = []\n",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" = (stream, 0, [])\n",
+"type":"code"
+},
+{
+"id":"8da6870b3e814a309ac487512eb28fc6",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":" = (None, [])\n",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":", ",
+"type":"code"
+},
+{
+"id":"0799d98c45e348e59ff71aa2d228a38b",
+"type":"variable"
+},
+{
+"text":" = (None, None, tuple())\n",
+"type":"code"
+},
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":" = {}\n",
+"type":"code"
+}
+],
+"id":"69eb8113e74047f1a049c2edd33ddb3b",
+"type":"code"
+},
+{
+"chunkpath":[
+"vm"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"    while True:\n        name, arg1, arg2 = ",
+"type":"code"
+},
+{
+"id":"ca256b5a40ca4d7a9359374655d29b3d",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":"]\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"cases"
+],
+"prefix":"        ",
+"type":"chunk"
+},
+{
+"text":"        else:\n            raise Exception(\"unknown command {}\".format(name))\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"fail case"
+],
+"prefix":"        ",
+"type":"chunk"
+}
+],
+"id":"455a8795c9774f5082f680defbbc33bc",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Enter text here...",
+"type":"text"
+}
+],
+"id":"b063b33e75374dae8f2a53bb2b99ec3d",
+"type":"text"
+},
+{
 "child_type":"unordered",
 "children":[
 {
@@ -5506,202 +5823,6 @@
 ],
 "id":"539fcebc3c894449af9d0cf35c082ef5",
 "type":"list"
-},
-{
-"chunkpath":[
-"vm"
-],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"def rlmeta_vm(",
-"type":"code"
-},
-{
-"id":"ca256b5a40ca4d7a9359374655d29b3d",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"1a932d7b55d945b68f7ac7a869283721",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"46962506a4b34797a7bd52e4203131ef",
-"type":"variable"
-},
-{
-"text":", stream):\n    ",
-"type":"code"
-},
-{
-"id":"b097b5b85d854f2bb89c4d50e8fe5577",
-"type":"variable"
-},
-{
-"text":" = 0\n    ",
-"type":"code"
-},
-{
-"id":"d8f11069efcf4d318774bb082784c178",
-"type":"variable"
-},
-{
-"text":" = _ConstantSemanticAction(None)\n    ",
-"type":"code"
-},
-{
-"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
-"type":"variable"
-},
-{
-"text":" = ",
-"type":"code"
-},
-{
-"id":"1a932d7b55d945b68f7ac7a869283721",
-"type":"variable"
-},
-{
-"text":"[",
-"type":"code"
-},
-{
-"id":"46962506a4b34797a7bd52e4203131ef",
-"type":"variable"
-},
-{
-"text":"]\n    ",
-"type":"code"
-},
-{
-"id":"afdefdc6c0eb44d698ceb67eda022dc8",
-"type":"variable"
-},
-{
-"text":" = []\n    ",
-"type":"code"
-},
-{
-"id":"4ae34787de174f88ac725fd6d0132a9b",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"0a9fe66a6284461caec36d4cc17e0f84",
-"type":"variable"
-},
-{
-"text":" = (stream, 0, [])\n    ",
-"type":"code"
-},
-{
-"id":"8da6870b3e814a309ac487512eb28fc6",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"6e2f0ba81b194ccab59fa146d23bb428",
-"type":"variable"
-},
-{
-"text":" = (None, [])\n    ",
-"type":"code"
-},
-{
-"id":"e3158ae25dfe4975a53ca22a70d76d01",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
-"type":"variable"
-},
-{
-"text":", ",
-"type":"code"
-},
-{
-"id":"0799d98c45e348e59ff71aa2d228a38b",
-"type":"variable"
-},
-{
-"text":" = (None, None, tuple())\n    ",
-"type":"code"
-},
-{
-"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
-"type":"variable"
-},
-{
-"text":" = {}\n    while True:\n        name, arg1, arg2 = ",
-"type":"code"
-},
-{
-"id":"ca256b5a40ca4d7a9359374655d29b3d",
-"type":"variable"
-},
-{
-"text":"[",
-"type":"code"
-},
-{
-"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
-"type":"variable"
-},
-{
-"text":"]\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"cases"
-],
-"prefix":"        ",
-"type":"chunk"
-},
-{
-"text":"        else:\n            raise Exception(\"unknown command {}\".format(name))\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"fail case"
-],
-"prefix":"        ",
-"type":"chunk"
-}
-],
-"id":"f00b388c4529474b9925b3aa4149b0e3",
-"type":"code"
 },
 {
 "fragments":[
@@ -5892,17 +6013,7 @@
 "url":"/writing/optimizing-rlmeta/index.html"
 },
 {
-"text":".",
-"type":"text"
-}
-],
-"id":"79ae9067afde497085d5b885fe4fb8a4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"The implementation is inspired by ",
+"text":" and the implementation is inspired by ",
 "type":"text"
 },
 {
@@ -5924,7 +6035,7 @@
 "type":"text"
 }
 ],
-"id":"d21cbbff552e4c8dafd419861250c3c4",
+"id":"79ae9067afde497085d5b885fe4fb8a4",
 "type":"text"
 }
 ],
