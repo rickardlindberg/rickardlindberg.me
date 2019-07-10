@@ -10,9 +10,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     scope, scope_stack = (None, [])
-    fail_message, latest_fail_message, latest_fail_pos = (None, None, tuple())
+    fail_message = None
+    latest_fail_message, latest_fail_pos = (None, tuple())
     memo = {}
-
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
@@ -240,6 +240,14 @@ class _DedentBuilder(_Builder):
     def write(self, output):
         output.indentation -= 1
 
+class _ConstantSemanticAction(object):
+
+    def __init__(self, value):
+        self.value = value
+
+    def eval(self):
+        return self.value
+
 class _SemanticAction(object):
 
     def __init__(self, fn, value):
@@ -248,14 +256,6 @@ class _SemanticAction(object):
 
     def eval(self):
         return self.fn(self.value)
-
-class _ConstantSemanticAction(object):
-
-    def __init__(self, value):
-        self.value = value
-
-    def eval(self):
-        return self.value
 
 class _MatchError(Exception):
 

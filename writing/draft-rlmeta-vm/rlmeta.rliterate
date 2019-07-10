@@ -3640,6 +3640,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -3696,6 +3697,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -3778,6 +3780,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -3930,6 +3933,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4018,6 +4022,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4066,6 +4071,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4114,6 +4120,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4210,6 +4217,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4258,6 +4266,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4306,6 +4315,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4354,6 +4364,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4458,6 +4469,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4514,6 +4526,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4578,6 +4591,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4666,6 +4680,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4794,6 +4809,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -4874,6 +4890,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -5074,6 +5091,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "cases"
 ],
 "filepath":[
@@ -5095,10 +5113,164 @@
 ],
 "id":"455aa8f0eafd4641a124090a5b7bdb25",
 "type":"code"
+}
+],
+"title":"FAIL"
 },
+{
+"children":[],
+"id":"d7d285d9586b437ca7d7f51b5deb6193",
+"paragraphs":[
 {
 "chunkpath":[
 "vm",
+"loop",
+"cases"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"elif name == \"LABEL\":\n    ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(",
+"type":"code"
+},
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":")\n    ",
+"type":"code"
+},
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":" += 1\n    ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n    continue\n",
+"type":"code"
+}
+],
+"id":"690d125013b74bdfa88a28e52dc4c184",
+"type":"code"
+}
+],
+"title":"LABEL"
+},
+{
+"children":[],
+"id":"a8160d30b886418882ada3a2a884e580",
+"paragraphs":[
+{
+"chunkpath":[
+"vm",
+"loop",
+"cases"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"elif name == \"MATCH_STRING\":\n    if ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" >= len(",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":") or ",
+"type":"code"
+},
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":"[",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":"] != arg1:\n        ",
+"type":"code"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" = (\"expected {!r}\", arg1)\n    else:\n        ",
+"type":"code"
+},
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" = _ConstantSemanticAction(arg1)\n        ",
+"type":"code"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" += 1\n        ",
+"type":"code"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" += 1\n        continue\n",
+"type":"code"
+}
+],
+"id":"2d8eef6d882b434abbb5f835f666c498",
+"type":"code"
+}
+],
+"title":"MATCH_STRING"
+},
+{
+"children":[],
+"id":"77edfc243204447ba84468c78f05d8e5",
+"paragraphs":[
+{
+"chunkpath":[
+"vm",
+"loop",
 "fail case"
 ],
 "filepath":[
@@ -5156,6 +5328,7 @@
 {
 "chunkpath":[
 "vm",
+"loop",
 "fail case"
 ],
 "filepath":[
@@ -5333,151 +5506,7 @@
 "type":"text"
 }
 ],
-"title":"FAIL"
-},
-{
-"children":[],
-"id":"d7d285d9586b437ca7d7f51b5deb6193",
-"paragraphs":[
-{
-"chunkpath":[
-"vm",
-"cases"
-],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"elif name == \"LABEL\":\n    ",
-"type":"code"
-},
-{
-"id":"d8f11069efcf4d318774bb082784c178",
-"type":"variable"
-},
-{
-"text":" = _ConstantSemanticAction(",
-"type":"code"
-},
-{
-"id":"b097b5b85d854f2bb89c4d50e8fe5577",
-"type":"variable"
-},
-{
-"text":")\n    ",
-"type":"code"
-},
-{
-"id":"b097b5b85d854f2bb89c4d50e8fe5577",
-"type":"variable"
-},
-{
-"text":" += 1\n    ",
-"type":"code"
-},
-{
-"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
-"type":"variable"
-},
-{
-"text":" += 1\n    continue\n",
-"type":"code"
-}
-],
-"id":"690d125013b74bdfa88a28e52dc4c184",
-"type":"code"
-}
-],
-"title":"LABEL"
-},
-{
-"children":[],
-"id":"a8160d30b886418882ada3a2a884e580",
-"paragraphs":[
-{
-"chunkpath":[
-"vm",
-"cases"
-],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"elif name == \"MATCH_STRING\":\n    if ",
-"type":"code"
-},
-{
-"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
-"type":"variable"
-},
-{
-"text":" >= len(",
-"type":"code"
-},
-{
-"id":"4ae34787de174f88ac725fd6d0132a9b",
-"type":"variable"
-},
-{
-"text":") or ",
-"type":"code"
-},
-{
-"id":"4ae34787de174f88ac725fd6d0132a9b",
-"type":"variable"
-},
-{
-"text":"[",
-"type":"code"
-},
-{
-"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
-"type":"variable"
-},
-{
-"text":"] != arg1:\n        ",
-"type":"code"
-},
-{
-"id":"e3158ae25dfe4975a53ca22a70d76d01",
-"type":"variable"
-},
-{
-"text":" = (\"expected {!r}\", arg1)\n    else:\n        ",
-"type":"code"
-},
-{
-"id":"d8f11069efcf4d318774bb082784c178",
-"type":"variable"
-},
-{
-"text":" = _ConstantSemanticAction(arg1)\n        ",
-"type":"code"
-},
-{
-"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
-"type":"variable"
-},
-{
-"text":" += 1\n        ",
-"type":"code"
-},
-{
-"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
-"type":"variable"
-},
-{
-"text":" += 1\n        continue\n",
-"type":"code"
-}
-],
-"id":"2d8eef6d882b434abbb5f835f666c498",
-"type":"code"
-}
-],
-"title":"MATCH_STRING"
+"title":"Handling failure"
 }
 ],
 "id":"e66f8cec6206420abe4736ae32849c53",
@@ -5535,10 +5564,28 @@
 ],
 "prefix":"    ",
 "type":"chunk"
+},
+{
+"blank_lines_before":0,
+"path":[
+"loop"
+],
+"prefix":"    ",
+"type":"chunk"
 }
 ],
 "id":"f00b388c4529474b9925b3aa4149b0e3",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It takes a list of instructions to execute, a dictionary of labels, the name of the start rule, and the input stream. The init section sets up the VM state:",
+"type":"text"
+}
+],
+"id":"8ca6c5d1ddaf494d8f685be16e5a207b",
+"type":"text"
 },
 {
 "chunkpath":[
@@ -5642,7 +5689,7 @@
 "type":"variable"
 },
 {
-"text":", ",
+"text":" = None\n",
 "type":"code"
 },
 {
@@ -5658,7 +5705,7 @@
 "type":"variable"
 },
 {
-"text":" = (None, None, tuple())\n",
+"text":" = (None, tuple())\n",
 "type":"code"
 },
 {
@@ -5674,15 +5721,200 @@
 "type":"code"
 },
 {
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"b097b5b85d854f2bb89c4d50e8fe5577",
+"type":"variable"
+},
+{
+"text":" is used to generate unique labels (",
+"type":"text"
+},
+{
+"page_id":"d7d285d9586b437ca7d7f51b5deb6193",
+"text":null,
+"type":"reference"
+},
+{
+"text":").",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"d8f11069efcf4d318774bb082784c178",
+"type":"variable"
+},
+{
+"text":" stores the result of the last match.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" is the program counter that determines what instruction to execute. It is set to the label of the start rule.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"afdefdc6c0eb44d698ceb67eda022dc8",
+"type":"variable"
+},
+{
+"text":" keeps track of what calls and backtrack entries have been made.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"4ae34787de174f88ac725fd6d0132a9b",
+"type":"variable"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" is the topmost item in ",
+"type":"text"
+},
+{
+"id":"0a9fe66a6284461caec36d4cc17e0f84",
+"type":"variable"
+},
+{
+"text":" which keeps track of where we are in the input stream. The topmost item is not stored in the list because it would make it slightly more difficult to modify.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"8da6870b3e814a309ac487512eb28fc6",
+"type":"variable"
+},
+{
+"text":" is the topmost item in ",
+"type":"text"
+},
+{
+"id":"6e2f0ba81b194ccab59fa146d23bb428",
+"type":"variable"
+},
+{
+"text":" which keeps track of which scope we are in.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" stores the current fail message.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"5a36de8ac0824e5e9e2d50ce6256b57a",
+"type":"variable"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"id":"0799d98c45e348e59ff71aa2d228a38b",
+"type":"variable"
+},
+{
+"text":" store the latest failure message that will be presented to the user if all choices have failed.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"id":"68c9f5e79a3d4b04b5fe8c855cd71fff",
+"type":"variable"
+},
+{
+"text":" is the memoization table that stores results for later retrieval.",
+"type":"text"
+}
+]
+}
+],
+"id":"cff07a3b1e114309ac8bbba43851895f",
+"type":"list"
+},
+{
+"fragments":[
+{
+"text":"The VM loop looks like this:",
+"type":"text"
+}
+],
+"id":"1c1717869fb040d08859d1775a887349",
+"type":"text"
+},
+{
 "chunkpath":[
-"vm"
+"vm",
+"loop"
 ],
 "filepath":[
 "support.py"
 ],
 "fragments":[
 {
-"text":"    while True:\n        name, arg1, arg2 = ",
+"text":"while True:\n    name, arg1, arg2 = ",
 "type":"code"
 },
 {
@@ -5706,11 +5938,11 @@
 "path":[
 "cases"
 ],
-"prefix":"        ",
+"prefix":"    ",
 "type":"chunk"
 },
 {
-"text":"        else:\n            raise Exception(\"unknown command {}\".format(name))\n",
+"text":"    else:\n        raise Exception(\"unknown command {}\".format(name))\n",
 "type":"code"
 },
 {
@@ -5718,7 +5950,7 @@
 "path":[
 "fail case"
 ],
-"prefix":"        ",
+"prefix":"    ",
 "type":"chunk"
 }
 ],
@@ -5728,7 +5960,7 @@
 {
 "fragments":[
 {
-"text":"Enter text here...",
+"text":"It fetches the instruction pointed to by the program counter. Then it switches on the type of instruction. If the instruction is not recognized, an exception is raised. Finally the fail case is handled at the end of the loop since it is common to many instructions.",
 "type":"text"
 }
 ],
@@ -5736,103 +5968,40 @@
 "type":"text"
 },
 {
-"child_type":"unordered",
-"children":[
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
 "fragments":[
 {
-"text":"Environment",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Stream",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Call/Backtrack",
-"type":"text"
-}
-]
-}
-],
-"fragments":[
-{
-"text":"Stacks",
-"type":"text"
-}
-]
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Label counter",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Last action",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"PC",
-"type":"text"
-}
-]
-}
-],
-"fragments":[
-{
-"text":"Registers",
-"type":"text"
-}
-]
-}
-],
-"id":"539fcebc3c894449af9d0cf35c082ef5",
-"type":"list"
-},
-{
-"fragments":[
-{
-"text":"Instruction frequency analysis to optimize order of while loop.",
+"text":"The order in which the cases appear in the if-chain is important. To get to the last case, all previous cases need to be tested, which takes time. So it is important that the more common cases appear earlier in the if-chain. I did an instruction frequency analysis when RLMeta compiled itself to determine the most common instructions. They are presented in that order.",
 "type":"text"
 }
 ],
 "id":"68e3bcae66ca4daf9fd359a53559b019",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"The VM makes use of two semantic actions: one for constant values and one for user defined functions:",
+"type":"text"
+}
+],
+"id":"639c4abdf34e4ea9ad5f30cb2eb3c6fa",
+"type":"text"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n",
+"type":"code"
+}
+],
+"id":"435a082d5e964a7e835a9362d6c5c045",
+"type":"code"
 },
 {
 "chunkpath":[
@@ -5851,23 +6020,36 @@
 "type":"code"
 },
 {
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"support.py"
-],
 "fragments":[
 {
-"text":"class _ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n",
-"type":"code"
+"text":"Let's move on to the implementation of each instruction.",
+"type":"text"
 }
 ],
-"id":"435a082d5e964a7e835a9362d6c5c045",
-"type":"code"
+"id":"f35d6c69077448f9a590b05bfa7a2093",
+"type":"text"
 }
 ],
 "title":"VM"
+},
+{
+"children":[],
+"id":"2e3ad1de345642658be2e5910ab5be4e",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"wc -l ...\n",
+"type":"code"
+}
+],
+"id":"f33fce82407345ae8e66619900f1ad6a",
+"type":"code"
+}
+],
+"title":"Note on size"
 },
 {
 "children":[],
