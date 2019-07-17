@@ -250,12 +250,12 @@ class _ConstantSemanticAction(object):
 
 class _UserSemanticAction(object):
 
-    def __init__(self, fn, value):
+    def __init__(self, fn, scope):
         self.fn = fn
-        self.value = value
+        self.scope = scope
 
     def eval(self):
-        return self.fn(self.value)
+        return self.fn(self.scope)
 
 class _MatchError(Exception):
 
