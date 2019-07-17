@@ -68,7 +68,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = _SemanticAction(arg1, scope)
+            last_action = _UserSemanticAction(arg1, scope)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
@@ -85,7 +85,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = _SemanticAction(lambda xs: [x.eval() for x in xs], scope)
+            last_action = _UserSemanticAction(lambda xs: [x.eval() for x in xs], scope)
             scope = scope_stack.pop()
             pc += 1
             continue
@@ -248,7 +248,7 @@ class _ConstantSemanticAction(object):
     def eval(self):
         return self.value
 
-class _SemanticAction(object):
+class _UserSemanticAction(object):
 
     def __init__(self, fn, value):
         self.fn = fn

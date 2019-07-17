@@ -3638,6 +3638,24 @@
 "id":"49ca0a2fa665466cb90c8c128d5cc835",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The most common instruction when RLMeta compiles itself is ",
+"type":"text"
+},
+{
+"text":"PUSH_SCOPE",
+"type":"code"
+},
+{
+"text":", and it therefore appears first. It looks like this:",
+"type":"text"
+}
+],
+"id":"4801932cf82345f9b4132718f0582e1b",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -3686,6 +3704,60 @@
 ],
 "id":"2c1a5595c42d499bbb325bae3bd2f874",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It moved the current top of the stack to the list and assigns a new scope to the top of the stack. A scope is a dictionary mapping names to values.",
+"type":"text"
+}
+],
+"id":"75805a3ac84941c6a65f6dd1d9ae14ab",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The program counter is then incremented so that the next instruction will be executed. ",
+"type":"text"
+},
+{
+"text":"continue",
+"type":"code"
+},
+{
+"text":" ensures that the failure case is skipped and the loop starts over immediately.",
+"type":"text"
+}
+],
+"id":"24baac5cd81048fd98750abebbb2d969",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Most instructions end by modifying the program counter followed by a ",
+"type":"text"
+},
+{
+"text":"continue",
+"type":"code"
+},
+{
+"text":". If ",
+"type":"text"
+},
+{
+"text":"continue",
+"type":"code"
+},
+{
+"text":" is not used, the code after the if-chain, which is the failure handling, is executed.",
+"type":"text"
+}
+],
+"id":"cd206427a23b4a59885cbc096c6aec5b",
+"type":"text"
 }
 ],
 "title":"PUSH_SCOPE"
@@ -3694,6 +3766,24 @@
 "children":[],
 "id":"542906286e124874b2975d0ae23f034f",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Next next common instruction is ",
+"type":"text"
+},
+{
+"text":"BACKTRACK",
+"type":"code"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"42f320913e09466a9071a7cca3b0e54f",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -3759,6 +3849,71 @@
 ],
 "id":"d29ae793a57c42b5bb6e02f16abaf717",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It pushes a backtrack entry onto the stack. A backtrack entry consists of",
+"type":"text"
+}
+],
+"id":"669e9e0dbe5c48cb9bac05ca3fd1b7cf",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The position at where to continue execution. The label is passed as fist argument to ",
+"type":"text"
+},
+{
+"text":"BACKTRACK",
+"type":"code"
+},
+{
+"text":", so its position is looked up in the labels dictionary.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The current position in the input stream. Further matches might change the input stream position, and when backtracking, we need to know where we were.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The length of the input stream stack.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The length of the scope stack.",
+"type":"text"
+}
+]
+}
+],
+"id":"e8c5cd73f61844b7981e5806787bb731",
+"type":"list"
 },
 {
 "fragments":[
@@ -4331,7 +4486,15 @@
 "type":"variable"
 },
 {
-"text":" = _SemanticAction(arg1, ",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"7a1794156546491399acbcdfd1e663c1",
+"type":"variable"
+},
+{
+"text":"(arg1, ",
 "type":"code"
 },
 {
@@ -4542,7 +4705,15 @@
 "type":"variable"
 },
 {
-"text":" = _SemanticAction(lambda xs: [x.eval() for x in xs], ",
+"text":" = ",
+"type":"code"
+},
+{
+"id":"7a1794156546491399acbcdfd1e663c1",
+"type":"variable"
+},
+{
+"text":"(lambda xs: [x.eval() for x in xs], ",
 "type":"code"
 },
 {
@@ -5514,7 +5685,7 @@
 {
 "fragments":[
 {
-"text":"The VM is implemented as a single Python function that looks like this:",
+"text":"The VM is implemented as a single Python function with the following definition:",
 "type":"text"
 }
 ],
@@ -5769,7 +5940,7 @@
 "type":"variable"
 },
 {
-"text":" is the program counter that determines what instruction to execute. It is set to the label of the start rule.",
+"text":" is the program counter that determines what instruction to execute. It is initialized to the label of the start rule.",
 "type":"text"
 }
 ]
@@ -6012,7 +6183,15 @@
 ],
 "fragments":[
 {
-"text":"class _SemanticAction(object):\n\n    def __init__(self, fn, value):\n        self.fn = fn\n        self.value = value\n\n    def eval(self):\n        return self.fn(self.value)\n",
+"text":"class ",
+"type":"code"
+},
+{
+"id":"7a1794156546491399acbcdfd1e663c1",
+"type":"variable"
+},
+{
+"text":"(object):\n\n    def __init__(self, fn, value):\n        self.fn = fn\n        self.value = value\n\n    def eval(self):\n        return self.fn(self.value)\n",
 "type":"code"
 }
 ],
@@ -6233,6 +6412,7 @@
 "67782a80b8a0487f8930e57551490023":"_MatchError",
 "68c9f5e79a3d4b04b5fe8c855cd71fff":"memo",
 "6e2f0ba81b194ccab59fa146d23bb428":"scope_stack",
+"7a1794156546491399acbcdfd1e663c1":"_UserSemanticAction",
 "8da6870b3e814a309ac487512eb28fc6":"scope",
 "ad46fcaa30dd48a0b04ab6d5ed3eb6c6":"pos",
 "afdefdc6c0eb44d698ceb67eda022dc8":"call_backtrack_stack",
