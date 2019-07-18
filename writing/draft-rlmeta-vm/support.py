@@ -145,7 +145,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 pc += 1
                 continue
         else:
-            raise Exception("unknown command {}".format(name))
+            raise Exception("unknown instruction {}".format(name))
         fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
         if fail_pos >= latest_fail_pos:
             latest_fail_message = fail_message
