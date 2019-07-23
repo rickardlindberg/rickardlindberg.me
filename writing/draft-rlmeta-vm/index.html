@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta: a VM based approach'
-date: 2019-07-21
+date: 2019-07-23
 tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
@@ -546,7 +546,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>The label name is the name of the function. <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> instructs the VM to resume execution at wherever it was before calling the function.</p>
+<p>The label name is the name of the function. <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> instructs the VM to continue execution at wherever it was before calling the function.</p>
 
 <h3><a name="613d04f41a3e4521ad022a3d4e0237ea"></a>Or</h3>
 
@@ -1157,7 +1157,7 @@ tags: rlmeta,draft
 
 <li><code>pc</code> is the program counter that determines what instruction to execute. It is initialized to the position of the start rule.</li>
 
-<li><code>call_backtrack_stack</code> keeps track of what <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>calls</em></a> and <a href="#542906286e124874b2975d0ae23f034f"><em>backtrack</em></a> entries have been made.</li>
+<li><code>call_backtrack_stack</code> keeps track of what <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>call</em></a> and <a href="#542906286e124874b2975d0ae23f034f"><em>backtrack</em></a> entries have been made.</li>
 
 <li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly more difficult to modify.</li>
 
@@ -1240,21 +1240,9 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It fetches the instruction pointed to by the program counter. Then it has an if-chain with cases to handle the different instructions. If the instruction is not recognized, an exception is raised in the final else clause.</p>
+<p>First it fetches the instruction pointed to by the program counter. Then it has an if-chain with cases that handle the different instructions. If an instruction is not recognized, an exception is raised. Finally, it has code to handle a failure. Many instructions can fail and therefore this common code is at the end of the loop. If an instruction does not fail, it ends with a <code>continue</code> statement to ensure that the loop is started over immediately without executing the code to handle a failure.</p>
 
 <p>The order in which the cases appear in the if-chain is important from a performance perspective. To get to the last case, all previous cases need to be tested, which takes time. So it is important that more common cases appear earlier in the if-chain. I did an instruction frequency analysis when RLMeta compiled itself to determine the most common instructions.</p>
-
-<p>Each instruction ends in one of two ways. Either the program counter is set to the next instruction to execute followed by a <code>continue</code> statement to ensure that the fail case is skipped and that the loop is started over immediately. Or <code>fail_message</code> is set followed by nothing to ensure that the fail case after the if-chain is executed.</p>
-
-<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">i</span><span class="k">f</span><span class=""> </span><span class="n">s</span><span class="n">u</span><span class="n">c</span><span class="n">c</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="p">:</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">p</span><span class="n">c</span><span class=""> </span><span class="o">+</span><span class="o">=</span><span class=""> </span><span class="mi">1</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">c</span><span class="k">o</span><span class="k">n</span><span class="k">t</span><span class="k">i</span><span class="k">n</span><span class="k">u</span><span class="k">e</span><span class="">
-</span><span class="k">e</span><span class="k">l</span><span class="k">s</span><span class="k">e</span><span class="p">:</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="n">f</span><span class="n">a</span><span class="n">i</span><span class="n">l</span><span class="n">_</span><span class="n">m</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="n">a</span><span class="n">g</span><span class="n">e</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="p">(</span><span class="s1">'</span><span class="s1">s</span><span class="s1">o</span><span class="s1">m</span><span class="s1">e</span><span class="s1">t</span><span class="s1">h</span><span class="s1">i</span><span class="s1">n</span><span class="s1">g</span><span class="s1"> </span><span class="s1">w</span><span class="s1">e</span><span class="s1">n</span><span class="s1">t</span><span class="s1"> </span><span class="s1">w</span><span class="s1">r</span><span class="s1">o</span><span class="s1">n</span><span class="s1">g</span><span class="s1">'</span><span class="p">,</span><span class="p">)</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="c1">#</span><span class="c1"> </span><span class="c1">f</span><span class="c1">a</span><span class="c1">l</span><span class="c1">l</span><span class="c1"> </span><span class="c1">t</span><span class="c1">h</span><span class="c1">r</span><span class="c1">o</span><span class="c1">u</span><span class="c1">g</span><span class="c1">h</span><span class="c1"> </span><span class="c1">t</span><span class="c1">o</span><span class="c1"> </span><span class="c1">f</span><span class="c1">a</span><span class="c1">i</span><span class="c1">l</span><span class="c1"> </span><span class="c1">c</span><span class="c1">a</span><span class="c1">s</span><span class="c1">e</span><span class="">
-</span></pre></div>
-
-</div>
 
 <p>The VM makes use of two semantic actions that represent match results: one for constant values and one for user defined functions:</p>
 
@@ -1297,6 +1285,8 @@ tags: rlmeta,draft
 
 <h3><a name="8f0fffeab7084a1d9b01d928be4878a8"></a>MATCH_ANY</h3>
 
+<p>This instruction matches any object from the input stream:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1318,7 +1308,13 @@ tags: rlmeta,draft
 
 </div>
 
+<p>The only time it fails is when the end of stream has been reached. In that case <code>fail_message</code> is set and no <code>continue</code> statement is executed to ensure that the code to handle this failure is executed.</p>
+
+<p>Otherwise, the result is the object at the current position. <code>pos</code> is incremented because one object has been matched. <code>pc</code> is incremented so that the next instruction is executed.</p>
+
 <h3><a name="a8160d30b886418882ada3a2a884e580"></a>MATCH_STRING</h3>
+
+<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not the string that is passed as the first argument:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1343,6 +1339,8 @@ tags: rlmeta,draft
 
 <h3><a name="d8dcb57d5da141908f28f8c52983d1a6"></a>MATCH_RANGE</h3>
 
+<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not in the range passed as arguments:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1365,6 +1363,8 @@ tags: rlmeta,draft
 </div>
 
 <h3><a name="df5dc1b5e5054e548d5c3606daba0d55"></a>MATCH_CHARSEQ</h3>
+
+<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the next input objects are not the characters in the string passed as the first argument:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1391,7 +1391,7 @@ tags: rlmeta,draft
 
 <h3><a name="49ca0a2fa665466cb90c8c128d5cc835"></a>PUSH_SCOPE</h3>
 
-<p>The most common instruction when RLMeta compiles itself is <code>PUSH_SCOPE</code>, and it therefore appears first:</p>
+<p>This instruction pushes a new scope onto the stack:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1414,6 +1414,8 @@ tags: rlmeta,draft
 <p>It moves the scope at the top of the stack to the list and assigns a new scope to the top of the stack. A scope is a dictionary mapping names to values. It ends by incrementing the program counter and restarting the loop to execute the next instruction.</p>
 
 <h3><a name="b2510846e20d4cd08f9b0cd2dfb5c01d"></a>POP_SCOPE</h3>
+
+<p>This instruction pops the current scope off the stack:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1683,6 +1685,8 @@ tags: rlmeta,draft
 
 <h3><a name="d104aa6d6b8e43818f662498f6566e38"></a>RETURN</h3>
 
+<p>This instruction ensures that execution continues at wherever it was before the current function was called:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1702,9 +1706,11 @@ tags: rlmeta,draft
 
 </div>
 
+<p>If the stack is empty, it means that we are at the end of the <code>start_rule</code>. We then return the result from the VM. Otherwise the <code>pc</code> is set to the position that was pushed onto the stack. The memoization table is also filled in.</p>
+
 <h3><a name="542906286e124874b2975d0ae23f034f"></a>BACKTRACK</h3>
 
-<p>The next common instruction is <code>BACKTRACK</code>:</p>
+<p>This instruction pushes a backtrack entry onto the stack:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1723,7 +1729,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It pushes a backtrack entry onto the stack which consists of the following:</p>
+<p>A backtrack entry consists of the following:</p>
 
 <ul><li>The position where to continue execution. The label is passed as fist argument to <code>BACKTRACK</code>, so its position is looked up in the labels dictionary.</li>
 
@@ -1741,7 +1747,7 @@ tags: rlmeta,draft
 
 <h3><a name="5b99ed36fbde45989829fde6e17d4821"></a>COMMIT</h3>
 
-<p>The next common instruction is <code>COMMIT</code>:</p>
+<p>This instruction pops the topmost backtrack entry off the stack:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1759,6 +1765,8 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
+
+<p>The topmost items is guaranteed to be a backtrack entry, and not a call entry.</p>
 
 <h3><a name="77edfc243204447ba84468c78f05d8e5"></a>Handling failure</h3>
 

@@ -1033,7 +1033,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to resume execution at wherever it was before calling the function.",
+"text":" instructs the VM to continue execution at wherever it was before calling the function.",
 "type":"text"
 }
 ],
@@ -3638,6 +3638,16 @@
 "id":"8f0fffeab7084a1d9b01d928be4878a8",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"This instruction matches any object from the input stream:",
+"type":"text"
+}
+],
+"id":"ed99c4ac93b94e56ab63db7a2ec1a094",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -3718,6 +3728,58 @@
 ],
 "id":"97063c2aa95a48b1886545a984494caf",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The only time it fails is when the end of stream has been reached. In that case ",
+"type":"text"
+},
+{
+"id":"e3158ae25dfe4975a53ca22a70d76d01",
+"type":"variable"
+},
+{
+"text":" is set and no ",
+"type":"text"
+},
+{
+"text":"continue",
+"type":"code"
+},
+{
+"text":" statement is executed to ensure that the code to handle this failure is executed.",
+"type":"text"
+}
+],
+"id":"feef83740a7f4fbda61ed6442254978d",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Otherwise, the result is the object at the current position. ",
+"type":"text"
+},
+{
+"id":"ad46fcaa30dd48a0b04ab6d5ed3eb6c6",
+"type":"variable"
+},
+{
+"text":" is incremented because one object has been matched. ",
+"type":"text"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" is incremented so that the next instruction is executed.",
+"type":"text"
+}
+],
+"id":"e8510882f54b45c9a072e2e0f59f6d95",
+"type":"text"
 }
 ],
 "title":"MATCH_ANY"
@@ -3726,6 +3788,25 @@
 "children":[],
 "id":"a8160d30b886418882ada3a2a884e580",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction is the same as ",
+"type":"text"
+},
+{
+"page_id":"8f0fffeab7084a1d9b01d928be4878a8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" but also fails if the current input object is not the string that is passed as the first argument:",
+"type":"text"
+}
+],
+"id":"cf2401e7678e4e0f8db53917e5a121b2",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -3815,6 +3896,25 @@
 "children":[],
 "id":"d8dcb57d5da141908f28f8c52983d1a6",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction is the same as ",
+"type":"text"
+},
+{
+"page_id":"8f0fffeab7084a1d9b01d928be4878a8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" but also fails if the current input object is not in the range passed as arguments:",
+"type":"text"
+}
+],
+"id":"ca7e4e590f844450886e1730787dd449",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -3921,6 +4021,25 @@
 "id":"df5dc1b5e5054e548d5c3606daba0d55",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"This instruction is the same as ",
+"type":"text"
+},
+{
+"page_id":"8f0fffeab7084a1d9b01d928be4878a8",
+"text":null,
+"type":"reference"
+},
+{
+"text":" but also fails if the next input objects are not the characters in the string passed as the first argument:",
+"type":"text"
+}
+],
+"id":"41eaf57a586c40ec91c1b92ccbc72ed1",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -4012,15 +4131,7 @@
 {
 "fragments":[
 {
-"text":"The most common instruction when RLMeta compiles itself is ",
-"type":"text"
-},
-{
-"text":"PUSH_SCOPE",
-"type":"code"
-},
-{
-"text":", and it therefore appears first:",
+"text":"This instruction pushes a new scope onto the stack:",
 "type":"text"
 }
 ],
@@ -4090,6 +4201,16 @@
 "children":[],
 "id":"b2510846e20d4cd08f9b0cd2dfb5c01d",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction pops the current scope off the stack:",
+"type":"text"
+}
+],
+"id":"e22cc8f77469441f959f25dcce640548",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -5158,6 +5279,16 @@
 "id":"d104aa6d6b8e43818f662498f6566e38",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"This instruction ensures that execution continues at wherever it was before the current function was called:",
+"type":"text"
+}
+],
+"id":"4533c8db346a4064b59f9798eb79b9b6",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -5246,6 +5377,32 @@
 ],
 "id":"7afc540dab7b454a9805ec62225de4dc",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If the stack is empty, it means that we are at the end of the ",
+"type":"text"
+},
+{
+"id":"46962506a4b34797a7bd52e4203131ef",
+"type":"variable"
+},
+{
+"text":". We then return the result from the VM. Otherwise the ",
+"type":"text"
+},
+{
+"id":"c21d83213c4b4e3d9fc2f0b1d6940f77",
+"type":"variable"
+},
+{
+"text":" is set to the position that was pushed onto the stack. The memoization table is also filled in.",
+"type":"text"
+}
+],
+"id":"65ff38c37a0f4945945c1a03677fb9b3",
+"type":"text"
 }
 ],
 "title":"RETURN"
@@ -5257,15 +5414,7 @@
 {
 "fragments":[
 {
-"text":"The next common instruction is ",
-"type":"text"
-},
-{
-"text":"BACKTRACK",
-"type":"code"
-},
-{
-"text":":",
+"text":"This instruction pushes a backtrack entry onto the stack:",
 "type":"text"
 }
 ],
@@ -5337,7 +5486,7 @@
 {
 "fragments":[
 {
-"text":"It pushes a backtrack entry onto the stack which consists of the following:",
+"text":"A backtrack entry consists of the following:",
 "type":"text"
 }
 ],
@@ -5438,15 +5587,7 @@
 {
 "fragments":[
 {
-"text":"The next common instruction is ",
-"type":"text"
-},
-{
-"text":"COMMIT",
-"type":"code"
-},
-{
-"text":":",
+"text":"This instruction pops the topmost backtrack entry off the stack:",
 "type":"text"
 }
 ],
@@ -5490,6 +5631,16 @@
 ],
 "id":"8222233eb6b140a495fb9884f4c637df",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The topmost items is guaranteed to be a backtrack entry, and not a call entry.",
+"type":"text"
+}
+],
+"id":"26958c5663244075ae82a0943cee3847",
+"type":"text"
 }
 ],
 "title":"COMMIT"
@@ -6112,7 +6263,7 @@
 },
 {
 "page_id":"8e19cbb2e71c412f95c7e241a69f0901",
-"text":"calls",
+"text":"call",
 "type":"reference"
 },
 {
@@ -6551,11 +6702,19 @@
 {
 "fragments":[
 {
-"text":"It fetches the instruction pointed to by the program counter. Then it has an if-chain with cases to handle the different instructions. If the instruction is not recognized, an exception is raised in the final else clause.",
+"text":"First it fetches the instruction pointed to by the program counter. Then it has an if-chain with cases that handle the different instructions. If an instruction is not recognized, an exception is raised. Finally, it has code to handle a failure. Many instructions can fail and therefore this common code is at the end of the loop. If an instruction does not fail, it ends with a ",
+"type":"text"
+},
+{
+"text":"continue",
+"type":"code"
+},
+{
+"text":" statement to ensure that the loop is started over immediately without executing the code to handle a failure.",
 "type":"text"
 }
 ],
-"id":"b063b33e75374dae8f2a53bb2b99ec3d",
+"id":"d9172feb5db34b4e820147218ffbc0a8",
 "type":"text"
 },
 {
@@ -6567,53 +6726,6 @@
 ],
 "id":"68e3bcae66ca4daf9fd359a53559b019",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"Each instruction ends in one of two ways. Either the program counter is set to the next instruction to execute followed by a ",
-"type":"text"
-},
-{
-"text":"continue",
-"type":"code"
-},
-{
-"text":" statement to ensure that the fail case is skipped and that the loop is started over immediately. Or ",
-"type":"text"
-},
-{
-"id":"e3158ae25dfe4975a53ca22a70d76d01",
-"type":"variable"
-},
-{
-"text":" is set followed by nothing to ensure that the fail case after the if-chain is executed.",
-"type":"text"
-}
-],
-"id":"961a88861d6946339b17e663f0a38896",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"if success:\n    pc += 1\n    continue\nelse:\n    ",
-"type":"code"
-},
-{
-"id":"e3158ae25dfe4975a53ca22a70d76d01",
-"type":"variable"
-},
-{
-"text":" = ('something went wrong',)\n    # fall through to fail case\n",
-"type":"code"
-}
-],
-"id":"2174eecb563249d78b189d184b4c503a",
-"language":"python",
-"type":"code"
 },
 {
 "fragments":[
