@@ -158,7 +158,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 break
         if len(call_backtrack_entry) != 4:
             fail_pos = list(latest_fail_pos)
-            fail_stream = (stream_pos_stack+[(stream, pos)])[0][0]
+            fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream
             while len(fail_pos) > 1:
                 fail_stream = fail_stream[fail_pos.pop(0)]
             raise _MatchError(latest_fail_message, fail_pos[0], fail_stream)
