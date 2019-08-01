@@ -101,7 +101,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or not isinstance(stream[pos], list):
                 fail_message = ("expected list",)
             else:
-                stream_pos_stack.append((stream, pos+1))
+                stream_pos_stack.append((stream, pos))
                 stream = stream[pos]
                 pos = 0
                 pc += 1
@@ -111,6 +111,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 fail_message = ("expected end of list",)
             else:
                 stream, pos = stream_pos_stack.pop()
+                pos += 1
                 pc += 1
                 continue
         elif name == "MATCH_CALL_RULE":
@@ -156,7 +157,11 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             if len(call_backtrack_entry) == 4:
                 break
         if len(call_backtrack_entry) != 4:
-            raise _MatchError(latest_fail_message, pos, stream)
+            fail_pos = list(latest_fail_pos)
+            fail_stream = (stream_pos_stack+[(stream, pos)])[0][0]
+            while len(fail_pos) > 1:
+                fail_stream = fail_stream[fail_pos.pop(0)]
+            raise _MatchError(latest_fail_message, fail_pos[0], fail_stream)
         (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -268,45 +273,30 @@ class _MatchError(Exception):
     def describe(self):
         message = ""
         if isinstance(self.stream, basestring):
-            pos1, error_line_before = self._extract_line(self.stream, self.pos, -1)
-            pos2, error_line_after = self._extract_line(self.stream, self.pos+1, 1)
-            _, context_before = self._extract_line(self.stream, pos1, -1)
-            _, context_after = self._extract_line(self.stream, pos2, 1)
-            if context_before:
-                message += "> "
-                message += context_before
-                message += "\n"
-            message += "> "
-            message += error_line_before
-            message += error_line_after
-            message += "\n"
-            message += "--"
-            message += "-"*(len(error_line_before)-1)
-            message += "^\n"
-            if context_after:
-                message += "> "
-                message += context_after
-                message += "\n"
+            before = self.stream[:self.pos].splitlines()
+            after = self.stream[self.pos:].splitlines()
+            for context_before in before[-4:-1]:
+                message += self._context(context_before)
+            message += self._context(before[-1], after[0])
+            message += self._arrow(len(before[-1]))
+            for context_after in after[1:4]:
+                message += self._context(context_after)
         else:
-            message += "todo: list failure context\n"
+            message += "[\n"
+            for context_before in self.stream[:self.pos]:
+                message += self._context(repr(context_before))
+            message += self._context(repr(self.stream[self.pos]))
+            message += self._arrow(0)
+            for context_after in self.stream[self.pos+1:]:
+                message += self._context(repr(context_after))
+            message += "]\n"
         message += "Error: "
         message += self.message[0].format(*self.message[1:])
         message += "\n"
         return message
 
-    def _extract_line(self, text, pos, direction):
-        line = []
-        while pos >= 0:
-            try:
-                if text[pos] == "\n":
-                    if line:
-                        break
-                else:
-                    if direction == 1:
-                        line.append(text[pos])
-                    else:
-                        line.insert(0, text[pos])
-                pos += direction
-            except IndexError:
-                break
-        return (pos+direction, "".join(line))
+    def _context(self, *args):
+        return "> {}\n".format("".join(args))
+
+    def _arrow(self, lenght):
+        return "--{}^\n".format("-"*lenght)
