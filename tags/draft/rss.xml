@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 01 Aug 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 02 Aug 2019 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: RLMeta: a VM based approach</title>
     <link>http://rickardlindberg.me/writing/draft-rlmeta-vm/</link>
     <description><![CDATA[<h1>DRAFT: RLMeta: a VM based approach</h1>
 
-<p><em>Published on 2019-08-01.</em></p>
+<p><em>Published on 2019-08-02.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -526,7 +526,7 @@
 
 <p>The name of the class is the same as the name of the grammar.</p>
 
-<p>The <code>__init__</code> method has functionality for creating instructions. An instruction is represented as a Python tuple with three elements: the name, the first argument, and the second argument. Arguments can be <code>None</code>. Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instruction list.</p>
+<p>The <code>__init__</code> method has functionality for creating instructions. An instruction is represented as a tuple with three elements: the name, the first argument, and the second argument. Arguments can be <code>None</code>. Instructions are stored in a list. Labels map names to positions in the instruction list and are stored in a dictionary.</p>
 
 <p>Shorthand names <code>i</code> and <code>l</code> are used instead of <code>self._instructions</code> and <code>self._labels</code> because they are faster. Not using <code>self</code> reduces one dictionary lookup.</p>
 
@@ -558,7 +558,7 @@
 
 </div>
 
-<p>The label name is the name of the function. <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> instructs the VM to continue execution at wherever it was before calling the function.</p>
+<p>The label name is the name of the rule. <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> instructs the VM to continue execution at wherever it was before calling this rule.</p>
 
 <h3><a name="613d04f41a3e4521ad022a3d4e0237ea"></a>Or</h3>
 
@@ -663,7 +663,7 @@
 
 </div>
 
-<p><a href="#1315305641224e4aa99dd00ec5b524b1"><em>BIND</em></a> instructs the VM to bind the last result to the name <code>x</code> in the current scope.</p>
+<p><a href="#1315305641224e4aa99dd00ec5b524b1"><em>BIND</em></a> instructs the VM to bind the last result from <code>y</code> instructions to the name <code>x</code> in the current scope.</p>
 
 <h3><a name="963d53648b304544be75045e59c6e183"></a>Star</h3>
 
@@ -735,7 +735,7 @@
 
 </div>
 
-<p><a href="#34915cae29994179abbe19f2f7e4c267"><em>FAIL</em></a> instructs the VM that it should backtrack and try matching the next choice. The <code>BACKTRACK</code> and <code>COMMIT</code> instructions are used to create control flow for negative lookahead. If <code>x</code> instructions succeed, the <code>COMMIT</code> instruction makes the program continue at label <code>a</code>. That immediately fails because the negative lookahead does not expect a match. If <code>x</code> instructions fail, the program continues execution at label <code>b</code>, and the <code>FAIL</code> instruction is skipped.</p>
+<p><a href="#34915cae29994179abbe19f2f7e4c267"><em>FAIL</em></a> instructs the VM to backtrack and try matching the next choice. The <code>BACKTRACK</code> and <code>COMMIT</code> instructions are used to create control flow for negative lookahead. If <code>x</code> instructions succeed, the <code>COMMIT</code> instruction makes the program continue at label <code>a</code>. That immediately fails because the negative lookahead does not expect a match. If <code>x</code> instructions fail, the program continues execution at label <code>b</code>, and the <code>FAIL</code> instruction is skipped.</p>
 
 <h3><a name="24675b6707284a99ba3d3cb17b60e3f2"></a>MatchCallRule</h3>
 
@@ -783,7 +783,7 @@
 
 </div>
 
-<p><a href="#d7d285d9586b437ca7d7f51b5deb6193"><em>LABEL</em></a> instructs the VM to make the last result a semantic action that returns a unique number.</p>
+<p><a href="#d7d285d9586b437ca7d7f51b5deb6193"><em>LABEL</em></a> instructs the VM to create a semantic action that returns a unique number.</p>
 
 <h3><a name="4ddebcb41511403c8b3fa5c96f14c8f4"></a>SemanticAction</h3>
 
@@ -807,7 +807,7 @@
 
 </div>
 
-<p><a href="#738356fde86e4c7290b0f99850917ba8"><em>ACTION</em></a> instructs the VM to make the last result a semantic action.</p>
+<p><a href="#738356fde86e4c7290b0f99850917ba8"><em>ACTION</em></a> instructs the VM to create a user defined a semantic action. If there is a match, it will be called with the scope that was active when the action was defined.</p>
 
 <p>Semantic actions are not evaluated by the VM, but rather by Python. The VM is only responsible for matching and creating semantic actions as result.</p>
 
@@ -1071,7 +1071,7 @@
 
 </div>
 
-<p><a href="#fee2dcf573f04ac3a9e7cfd92adbe0c8"><em>PUSH_STREAM</em></a> instructs the VM to push the current input object onto the stack so that <code>x</code> instructions see it as the current input stream. <a href="#87a1eee2cfb94e1a9463a6561c226012"><em>POP_STREAM</em></a> instructs the VM to pop the current input stream off the stack.</p>
+<p><a href="#fee2dcf573f04ac3a9e7cfd92adbe0c8"><em>PUSH_STREAM</em></a> instructs the VM to push the current input stream onto the stack and make the current input object the current input stream so that <code>x</code> instructions see it as the current input stream. <a href="#87a1eee2cfb94e1a9463a6561c226012"><em>POP_STREAM</em></a> instructs the VM to pop the current input stream off the stack.</p>
 
 <h3><a name="6cc83570ba674d71bccd12660fddefcc"></a>Example revisited</h3>
 
@@ -1119,7 +1119,7 @@
 
 </div>
 
-<p>There are two labels for the two rules in the grammar. Both blocks of instructions end with a <code>RETURN</code> instruction so that those labels/functions can be called and returned from. The blocks are are also wrapped in <code>PUSH_SCOPE</code>/<code>POP_SCOPE</code> instructions so that variable bindings for the different calls happen in different scopes. Otherwise they would overwrite each other. The <code>scream</code> rule has a repetition and therefore also the <code>LIST_*</code> instructions. It also has generated label names (<code>0</code> and <code>1</code>) to create the loop. The <code>BIND</code> instructions bind the last result to a name in the current scope. The <code>ACTION</code> instructions have Python lambdas as first argument that are evaluated when there is a match. They get one argument which is the scope that was active when the action was defined.</p>
+<p>There are two labels for the two rules in the grammar. Both blocks of instructions end with a <code>RETURN</code> instruction so that those functions can be called and returned from. The blocks are are also wrapped in <code>PUSH_SCOPE</code>/<code>POP_SCOPE</code> instructions so that variable bindings for the different calls happen in different scopes. Otherwise they would overwrite each other. The <code>scream</code> rule has a repetition and therefore also the <code>LIST_*</code> instructions. It also has generated label names (<code>0</code> and <code>1</code>) to create the loop. The <code>BIND</code> instructions bind the last result to a name in the current scope. The <code>ACTION</code> instructions have Python lambdas as first argument that are evaluated when there is a match. They get one argument which is the scope that was active when the action was defined.</p>
 
 <p>Now let's move on to the implementation of the VM to understand how the execution of these instructions work.</p>
 
@@ -1165,21 +1165,21 @@
 
 <ul><li><code>label_counter</code> is used to generate unique <a href="#d7d285d9586b437ca7d7f51b5deb6193"><em>labels</em></a>.</li>
 
-<li><code>last_action</code> stores the result of the last match.</li>
+<li><code>last_action</code> stores the result of the last expression (which is always a semantic action).</li>
 
 <li><code>pc</code> is the program counter that determines what instruction to execute. It is initialized to the position of the start rule.</li>
 
 <li><code>call_backtrack_stack</code> keeps track of what <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>call</em></a> and <a href="#542906286e124874b2975d0ae23f034f"><em>backtrack</em></a> entries have been made.</li>
 
-<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly more difficult to modify.</li>
+<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less conventient to modify.</li>
 
-<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly more difficult to modify.</li>
+<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
 
 <li><code>fail_message</code> stores the current fail message.</li>
 
-<li><code>latest_fail_message</code> and <code>latest_fail_pos</code> store the latest failure message that will be presented to the user if all choices fail.</li>
+<li><code>latest_fail_message</code> and <code>latest_fail_pos</code> store the latest failure message and its position that will be presented to the user if all choices fail.</li>
 
-<li><code>memo</code> is the memoization table that stores results of functions calls.</li>
+<li><code>memo</code> is the memoization table that stores results of rule matches.</li>
 
 </ul>
 
@@ -1256,7 +1256,7 @@
 
 <p>The order in which the cases appear in the if-chain is important from a performance perspective. To get to the last case, all previous cases need to be tested, which takes time. So it is important that more common cases appear earlier in the if-chain. I did an instruction frequency analysis when RLMeta compiled itself to determine the most common instructions.</p>
 
-<p>The VM makes use of two semantic actions that represent match results: one for constant values and one for user defined functions:</p>
+<p>The VM makes use of two semantic actions that represent results from expressions: one for constant values and one for user defined functions:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">classes</span>
 
@@ -1326,7 +1326,7 @@
 
 <h3><a name="a8160d30b886418882ada3a2a884e580"></a>MATCH_STRING</h3>
 
-<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not the string that is passed as the first argument:</p>
+<p>This instruction works like <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not the string that is passed as the first argument:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1351,7 +1351,7 @@
 
 <h3><a name="d8dcb57d5da141908f28f8c52983d1a6"></a>MATCH_RANGE</h3>
 
-<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not in the range passed as arguments:</p>
+<p>This instruction works like <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the current input object is not in the range passed as arguments:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1376,7 +1376,7 @@
 
 <h3><a name="df5dc1b5e5054e548d5c3606daba0d55"></a>MATCH_CHARSEQ</h3>
 
-<p>This instruction is the same as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the next input objects are not the characters in the string passed as the first argument:</p>
+<p>This instruction works as <a href="#8f0fffeab7084a1d9b01d928be4878a8"><em>MATCH_ANY</em></a> but also fails if the next input objects are not the characters in the string passed as the first argument:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1448,7 +1448,7 @@
 
 <h3><a name="1315305641224e4aa99dd00ec5b524b1"></a>BIND</h3>
 
-<p>This instruction binds the last match result to a name in the current scope:</p>
+<p>This instruction binds the last result to the given name in the current scope:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1469,7 +1469,7 @@
 
 <h3><a name="738356fde86e4c7290b0f99850917ba8"></a>ACTION</h3>
 
-<p>This instruction creates a new match result that is the user defined semantic action:</p>
+<p>This instruction creates a user defined semantic action:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1488,9 +1488,9 @@
 
 </div>
 
-<p>This instruction does not affect the position. It does not match anything.</p>
-
 <h3><a name="d7d285d9586b437ca7d7f51b5deb6193"></a>LABEL</h3>
+
+<p>This instruction creates a semantic action that evaluates to a unique number:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1512,6 +1512,8 @@
 
 <h3><a name="b3562467300348028f04ae5034db0f34"></a>LIST_START</h3>
 
+<p>This instruction creates a list for accumulating results:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1530,7 +1532,11 @@
 
 </div>
 
+<p>The list is actually stored on the scope stack, but it could as well have been stored in the current scope under a special name.</p>
+
 <h3><a name="b4aacd38dec8406c9db784e0823c3554"></a>LIST_APPEND</h3>
+
+<p>This instruction appends the last result to the accumulation list:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1551,6 +1557,8 @@
 
 <h3><a name="9940cd44d7fe4777b1c12e335bac33ae"></a>LIST_END</h3>
 
+<p>This instruction make the accumulation list the last result:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1569,7 +1577,11 @@
 
 </div>
 
+<p>The last result is always a semantic action. The accumulated results are also semantic actions. When evaluated, it evaluates all children...</p>
+
 <h3><a name="fee2dcf573f04ac3a9e7cfd92adbe0c8"></a>PUSH_STREAM</h3>
+
+<p>This instruction pushes the current input stream onto the stack and makes the current input object the current input stream:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1593,7 +1605,11 @@
 
 </div>
 
+<p>It fails if the current input object is not a list.</p>
+
 <h3><a name="87a1eee2cfb94e1a9463a6561c226012"></a>POP_STREAM</h3>
+
+<p>This instruction restores the parent input stream:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1618,6 +1634,8 @@
 
 <h3><a name="34915cae29994179abbe19f2f7e4c267"></a>FAIL</h3>
 
+<p>This instruction causes backtracking:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
 </li><li><span class="cp">loop</span>
@@ -1634,6 +1652,8 @@
 </div>
 
 <h3><a name="8e19cbb2e71c412f95c7e241a69f0901"></a>CALL</h3>
+
+<p>This instruction calls the given rule:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1659,17 +1679,15 @@
 
 </div>
 
-<p>It fist generates a key which consists of the name of the rule to call and the position in the input stream. Example key: <code>('Label', (0, 1, 3))</code>. If this rule has matched at this position before, the memoized result is used. Otherwise a call is made.</p>
+<p>It fist generates a key which consists of the name of the rule and the current position in the input stream. Example key: <code>('Label', (0, 1, 3))</code>. If this rule has matched at this position before, the memoized result is used. Otherwise a call is made.</p>
 
 <p>The memoized result consists of a match result and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the <code>stream_pos_stack[:]</code>.</p>
 
 <p>To make a call, the next program counter and the key is appended to the stack. The next program counter stores the position where to continue execution, and the key is used to store the result in the memoization table. See <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> for how its done.</p>
 
-<p>Compare this to <a href="#d42df29209bf475280ac510d9ae31182"><em>MATCH_CALL_RULE</em></a> which is similar.</p>
-
 <h3><a name="d42df29209bf475280ac510d9ae31182"></a>MATCH_CALL_RULE</h3>
 
-<p>This is similar to <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>CALL</em></a> but instead of getting the rule name from the instruction argument, it gets it from the input stream.</p>
+<p>This instruction works like <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>CALL</em></a> but instead of getting the rule name from the instruction argument, it gets it from the input stream.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1702,7 +1720,7 @@
 
 <h3><a name="d104aa6d6b8e43818f662498f6566e38"></a>RETURN</h3>
 
-<p>This instruction ensures that execution continues at wherever it was before the current function was called:</p>
+<p>This instruction makes execution continue at wherever it was before the current rule was called:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1723,7 +1741,7 @@
 
 </div>
 
-<p>If the stack is empty, it means that we are at the end of the <code>start_rule</code>. We then return the result from the VM. Otherwise the <code>pc</code> is set to the position that was pushed onto the stack. The memoization table is also filled in.</p>
+<p>If the stack is empty, it means that the end of the <code>start_rule</code> has been reached. In that case, the result is returned from the VM. Otherwise the <code>pc</code> is set to the position that was pushed onto the stack. The memoization table is also filled in.</p>
 
 <h3><a name="542906286e124874b2975d0ae23f034f"></a>BACKTRACK</h3>
 
@@ -1760,8 +1778,6 @@
 
 <p>This information is enough to reset the state and try matching the next choice at the current position. Actual backtracking is done in <a href="#77edfc243204447ba84468c78f05d8e5"><em>Handling failure</em></a>.</p>
 
-<p>It similarly ends by incrementing the program counter and restarting the loop to execute the next instruction.</p>
-
 <h3><a name="5b99ed36fbde45989829fde6e17d4821"></a>COMMIT</h3>
 
 <p>This instruction pops the topmost backtrack entry off the stack:</p>
@@ -1783,7 +1799,7 @@
 
 </div>
 
-<p>The topmost items is guaranteed to be a backtrack entry, and not a call entry.</p>
+<p>The topmost item is assumed to be a backtrack entry, and not a call entry. Generation of instructions must ensure this.</p>
 
 <h3><a name="77edfc243204447ba84468c78f05d8e5"></a>Handling failure</h3>
 
@@ -1887,7 +1903,7 @@
 
 <h3><a name="95ffb1abf59546e1972c78ee7159b758"></a>Optimizations</h3>
 
-<p>The <code>rlmeta_vm</code> functions is heavily optimized for speed. Here are a few choices made:</p>
+<p>The <code>rlmeta_vm</code> function is heavily optimized for speed. Here are a few choices made:</p>
 
 <ul><li>It is implemented as a single function to avoid function calls.</li>
 
@@ -1903,7 +1919,7 @@
 
 </ul>
 
-<p>These optimizations makes the VM faster and also a little harder to maintain because of duplicated code. But it's a trade off.</p>
+<p>These optimizations makes the VM faster and also a little harder to maintain. But it's a trade off.</p>
 
 <h2><a name="2e3ad1de345642658be2e5910ab5be4e"></a>Note on size</h2>
 
@@ -1918,7 +1934,7 @@
 
 </div>
 
-<p>That is 484 lines of code instead of 429. The <code>rlmeta_vm</code> function is quite optimized and therefore is slightly longer. But 484 lines is still small.</p>
+<p>That is 484 lines of code instead of 429. The <code>rlmeta_vm</code> function is quite optimized and therefore is slightly longer than it could have been. But 484 lines is still small.</p>
 
 <p><strong>TODO: verify this is correct before publishing</strong></p>
 
@@ -2476,7 +2492,7 @@
 </div>
 
 ]]></description>
-    <pubDate>Thu, 01 Aug 2019 00:00:00 UT</pubDate>
+    <pubDate>Fri, 02 Aug 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/draft-rlmeta-vm/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
