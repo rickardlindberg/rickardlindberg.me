@@ -818,7 +818,7 @@
 "type":"code"
 },
 {
-"text":" method has functionality for creating instructions. An instruction is represented as a Python tuple with three elements: the name, the first argument, and the second argument. Arguments can be ",
+"text":" method has functionality for creating instructions. An instruction is represented as a tuple with three elements: the name, the first argument, and the second argument. Arguments can be ",
 "type":"text"
 },
 {
@@ -826,7 +826,7 @@
 "type":"code"
 },
 {
-"text":". Instructions are stored in a list. Labels is a dictionary mapping label names to positions in the instruction list.",
+"text":". Instructions are stored in a list. Labels map names to positions in the instruction list and are stored in a dictionary.",
 "type":"text"
 }
 ],
@@ -1024,7 +1024,7 @@
 {
 "fragments":[
 {
-"text":"The label name is the name of the function. ",
+"text":"The label name is the name of the rule. ",
 "type":"text"
 },
 {
@@ -1033,7 +1033,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to continue execution at wherever it was before calling the function.",
+"text":" instructs the VM to continue execution at wherever it was before calling this rule.",
 "type":"text"
 }
 ],
@@ -1554,7 +1554,15 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to bind the last result to the name ",
+"text":" instructs the VM to bind the last result from ",
+"type":"text"
+},
+{
+"text":"y",
+"type":"code"
+},
+{
+"text":" instructions to the name ",
 "type":"text"
 },
 {
@@ -1938,7 +1946,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM that it should backtrack and try matching the next choice. The ",
+"text":" instructs the VM to backtrack and try matching the next choice. The ",
 "type":"text"
 },
 {
@@ -2208,7 +2216,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to make the last result a semantic action that returns a unique number.",
+"text":" instructs the VM to create a semantic action that returns a unique number.",
 "type":"text"
 }
 ],
@@ -2311,7 +2319,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to make the last result a semantic action.",
+"text":" instructs the VM to create a user defined a semantic action. If there is a match, it will be called with the scope that was active when the action was defined.",
 "type":"text"
 }
 ],
@@ -3288,7 +3296,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to push the current input object onto the stack so that ",
+"text":" instructs the VM to push the current input stream onto the stack and make the current input object the current input stream so that ",
 "type":"text"
 },
 {
@@ -3358,7 +3366,7 @@
 "type":"code"
 },
 {
-"text":" instruction so that those labels/functions can be called and returned from. The blocks are are also wrapped in ",
+"text":" instruction so that those functions can be called and returned from. The blocks are are also wrapped in ",
 "type":"text"
 },
 {
@@ -3791,7 +3799,7 @@
 {
 "fragments":[
 {
-"text":"This instruction is the same as ",
+"text":"This instruction works like ",
 "type":"text"
 },
 {
@@ -3899,7 +3907,7 @@
 {
 "fragments":[
 {
-"text":"This instruction is the same as ",
+"text":"This instruction works like ",
 "type":"text"
 },
 {
@@ -4023,7 +4031,7 @@
 {
 "fragments":[
 {
-"text":"This instruction is the same as ",
+"text":"This instruction works as ",
 "type":"text"
 },
 {
@@ -4259,7 +4267,7 @@
 {
 "fragments":[
 {
-"text":"This instruction binds the last match result to a name in the current scope:",
+"text":"This instruction binds the last result to the given name in the current scope:",
 "type":"text"
 }
 ],
@@ -4314,7 +4322,7 @@
 {
 "fragments":[
 {
-"text":"This instruction creates a new match result that is the user defined semantic action:",
+"text":"This instruction creates a user defined semantic action:",
 "type":"text"
 }
 ],
@@ -4366,16 +4374,6 @@
 ],
 "id":"ca202e729537441f88100eb2b1fb8936",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"This instruction does not affect the position. It does not match anything.",
-"type":"text"
-}
-],
-"id":"218fe6440fa5470096cd6a9d71ba6885",
-"type":"text"
 }
 ],
 "title":"ACTION"
@@ -4384,6 +4382,16 @@
 "children":[],
 "id":"d7d285d9586b437ca7d7f51b5deb6193",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction creates a semantic action that evaluates to a unique number:",
+"type":"text"
+}
+],
+"id":"06b701db9e2c49a2930d6c255a541009",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -4438,6 +4446,16 @@
 "id":"b3562467300348028f04ae5034db0f34",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"This instruction creates a list for accumulating results:",
+"type":"text"
+}
+],
+"id":"6988b5d099044c04b1b0bf18838d2396",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -4482,6 +4500,16 @@
 ],
 "id":"089a8080f82b404cbbb99de6dd80090a",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The list is actually stored on the scope stack, but it could as well have been stored in the current scope under a special name.",
+"type":"text"
+}
+],
+"id":"6d995d13a9874a43bd46616151038f5a",
+"type":"text"
 }
 ],
 "title":"LIST_START"
@@ -4490,6 +4518,16 @@
 "children":[],
 "id":"b4aacd38dec8406c9db784e0823c3554",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction appends the last result to the accumulation list:",
+"type":"text"
+}
+],
+"id":"f097642c7c894b7596fa2a4d7db5bb9d",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -4535,6 +4573,16 @@
 "children":[],
 "id":"9940cd44d7fe4777b1c12e335bac33ae",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction make the accumulation list the last result:",
+"type":"text"
+}
+],
+"id":"ad4ec026ed3847b79356aef9f10827b6",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -4596,6 +4644,16 @@
 ],
 "id":"7562783a1dc34c42beb05e22ee0ae2f4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The last result is always a semantic action. The accumulated results are also semantic actions. When evaluated, it evaluates all children...",
+"type":"text"
+}
+],
+"id":"86e3fee91d1c4490a6edfd87ceeb6493",
+"type":"text"
 }
 ],
 "title":"LIST_END"
@@ -4604,6 +4662,16 @@
 "children":[],
 "id":"fee2dcf573f04ac3a9e7cfd92adbe0c8",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction pushes the current input stream onto the stack and makes the current input object the current input stream:",
+"type":"text"
+}
+],
+"id":"9003cc46b0a64439a1725d24e7480b2a",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -4725,6 +4793,16 @@
 ],
 "id":"c5ae99acbb584d718d09917f827884f4",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It fails if the current input object is not a list.",
+"type":"text"
+}
+],
+"id":"1c9eef364e81423aa381ac8b90633050",
+"type":"text"
 }
 ],
 "title":"PUSH_STREAM"
@@ -4733,6 +4811,16 @@
 "children":[],
 "id":"87a1eee2cfb94e1a9463a6561c226012",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction restores the parent input stream:",
+"type":"text"
+}
+],
+"id":"e5caf6263642476090c96c50ec0ba69b",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -4823,6 +4911,16 @@
 "id":"34915cae29994179abbe19f2f7e4c267",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"This instruction causes backtracking:",
+"type":"text"
+}
+],
+"id":"5a0f8403071047a1ae3b807cbdd6c7ed",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -4851,6 +4949,16 @@
 "children":[],
 "id":"8e19cbb2e71c412f95c7e241a69f0901",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"This instruction calls the given rule:",
+"type":"text"
+}
+],
+"id":"89900011a9c74d75b1b178e2375f2050",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -5000,7 +5108,7 @@
 {
 "fragments":[
 {
-"text":"It fist generates a key which consists of the name of the rule to call and the position in the input stream. Example key: ",
+"text":"It fist generates a key which consists of the name of the rule and the current position in the input stream. Example key: ",
 "type":"text"
 },
 {
@@ -5051,25 +5159,6 @@
 ],
 "id":"84800d84a7b542b39db31cc3d0d31d35",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"Compare this to ",
-"type":"text"
-},
-{
-"page_id":"d42df29209bf475280ac510d9ae31182",
-"text":null,
-"type":"reference"
-},
-{
-"text":" which is similar.",
-"type":"text"
-}
-],
-"id":"0e3099fc21e44439a77d3e55217b9994",
-"type":"text"
 }
 ],
 "title":"CALL"
@@ -5081,7 +5170,7 @@
 {
 "fragments":[
 {
-"text":"This is similar to ",
+"text":"This instruction works like ",
 "type":"text"
 },
 {
@@ -5301,7 +5390,7 @@
 {
 "fragments":[
 {
-"text":"This instruction ensures that execution continues at wherever it was before the current function was called:",
+"text":"This instruction makes execution continue at wherever it was before the current rule was called:",
 "type":"text"
 }
 ],
@@ -5401,7 +5490,7 @@
 {
 "fragments":[
 {
-"text":"If the stack is empty, it means that we are at the end of the ",
+"text":"If the stack is empty, it means that the end of the ",
 "type":"text"
 },
 {
@@ -5409,7 +5498,7 @@
 "type":"variable"
 },
 {
-"text":". We then return the result from the VM. Otherwise the ",
+"text":" has been reached. In that case, the result is returned from the VM. Otherwise the ",
 "type":"text"
 },
 {
@@ -5586,16 +5675,6 @@
 ],
 "id":"0d7100b05d7347fd974be806b2f746fd",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"It similarly ends by incrementing the program counter and restarting the loop to execute the next instruction.",
-"type":"text"
-}
-],
-"id":"884fbe833fed465f92dc915357fd1fe1",
-"type":"text"
 }
 ],
 "title":"BACKTRACK"
@@ -5655,7 +5734,7 @@
 {
 "fragments":[
 {
-"text":"The topmost items is guaranteed to be a backtrack entry, and not a call entry.",
+"text":"The topmost item is assumed to be a backtrack entry, and not a call entry. Generation of instructions must ensure this.",
 "type":"text"
 }
 ],
@@ -5947,7 +6026,7 @@
 "type":"code"
 },
 {
-"text":" functions is heavily optimized for speed. Here are a few choices made:",
+"text":" function is heavily optimized for speed. Here are a few choices made:",
 "type":"text"
 }
 ],
@@ -6015,7 +6094,7 @@
 {
 "fragments":[
 {
-"text":"These optimizations makes the VM faster and also a little harder to maintain because of duplicated code. But it's a trade off.",
+"text":"These optimizations makes the VM faster and also a little harder to maintain. But it's a trade off.",
 "type":"text"
 }
 ],
@@ -6272,7 +6351,7 @@
 "type":"variable"
 },
 {
-"text":" stores the result of the last match.",
+"text":" stores the result of the last expression (which is always a semantic action).",
 "type":"text"
 }
 ]
@@ -6348,7 +6427,7 @@
 "type":"variable"
 },
 {
-"text":" which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly more difficult to modify.",
+"text":" which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less conventient to modify.",
 "type":"text"
 }
 ]
@@ -6370,7 +6449,7 @@
 "type":"variable"
 },
 {
-"text":" which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly more difficult to modify.",
+"text":" which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly less convenient to modify.",
 "type":"text"
 }
 ]
@@ -6406,7 +6485,7 @@
 "type":"variable"
 },
 {
-"text":" store the latest failure message that will be presented to the user if all choices fail.",
+"text":" store the latest failure message and its position that will be presented to the user if all choices fail.",
 "type":"text"
 }
 ]
@@ -6420,7 +6499,7 @@
 "type":"variable"
 },
 {
-"text":" is the memoization table that stores results of functions calls.",
+"text":" is the memoization table that stores results of rule matches.",
 "type":"text"
 }
 ]
@@ -6772,7 +6851,7 @@
 {
 "fragments":[
 {
-"text":"The VM makes use of two semantic actions that represent match results: one for constant values and one for user defined functions:",
+"text":"The VM makes use of two semantic actions that represent results from expressions: one for constant values and one for user defined functions:",
 "type":"text"
 }
 ],
@@ -6869,7 +6948,7 @@
 "type":"code"
 },
 {
-"text":" function is quite optimized and therefore is slightly longer. But 484 lines is still small.",
+"text":" function is quite optimized and therefore is slightly longer than it could have been. But 484 lines is still small.",
 "type":"text"
 }
 ],
