@@ -3756,7 +3756,16 @@
 "type":"code"
 },
 {
-"text":" statement is executed to ensure that the code to handle this failure is executed.",
+"text":" statement is executed to ensure that the code to ",
+"type":"text"
+},
+{
+"page_id":"77edfc243204447ba84468c78f05d8e5",
+"text":"handle this failure",
+"type":"reference"
+},
+{
+"text":" is executed.",
 "type":"text"
 }
 ],
@@ -3766,7 +3775,7 @@
 {
 "fragments":[
 {
-"text":"Otherwise, the result is a semantic action that evaluates to the object at the current position. ",
+"text":"Otherwise, the last result is set to a semantic action that evaluates to the current input object. ",
 "type":"text"
 },
 {
@@ -3774,7 +3783,7 @@
 "type":"variable"
 },
 {
-"text":" is incremented because one object has been matched. ",
+"text":" is incremented because one object has been consumed from the input stream. ",
 "type":"text"
 },
 {
@@ -4195,7 +4204,7 @@
 {
 "fragments":[
 {
-"text":"It moves the scope at the top of the stack to the list and assigns a new scope to the top of the stack. A scope is a dictionary mapping names to values.",
+"text":"Pushing a new scope onto the stack means moving the current scope to the list and assigning a new scope to the current scope. A scope is a dictionary mapping names to values.",
 "type":"text"
 }
 ],
@@ -4437,6 +4446,16 @@
 ],
 "id":"690d125013b74bdfa88a28e52dc4c184",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The label counter is incremented to make all labels unique.",
+"type":"text"
+}
+],
+"id":"1b12e3bf5abb4dab8e1515dbf4fa053c",
+"type":"text"
 }
 ],
 "title":"LABEL"
@@ -4569,7 +4588,7 @@
 {
 "fragments":[
 {
-"text":"Current scope is assumed to be an accumulation list.",
+"text":"The current scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
@@ -4658,21 +4677,21 @@
 {
 "fragments":[
 {
-"text":"The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the list is also evaluated.",
+"text":"The current scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
-"id":"86e3fee91d1c4490a6edfd87ceeb6493",
+"id":"b98fa1a15b6742b895e81b8b39bbd777",
 "type":"text"
 },
 {
 "fragments":[
 {
-"text":"Current scope is assumed to be an accumulation list.",
+"text":"The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the list is also evaluated.",
 "type":"text"
 }
 ],
-"id":"b98fa1a15b6742b895e81b8b39bbd777",
+"id":"86e3fee91d1c4490a6edfd87ceeb6493",
 "type":"text"
 }
 ],
@@ -4823,6 +4842,16 @@
 ],
 "id":"1c9eef364e81423aa381ac8b90633050",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Otherwise the current input object becomes the current input stream and the position is set to 0.",
+"type":"text"
+}
+],
+"id":"320a76c5314e463c9ca809b1fd7260a4",
+"type":"text"
 }
 ],
 "title":"PUSH_STREAM"
@@ -4922,6 +4951,26 @@
 ],
 "id":"5f242526e0af408ebd0038e2ec2c4797",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It fails if not all items in the input stream have been consumed.",
+"type":"text"
+}
+],
+"id":"4bc57e38842544d590e64fc142943b3a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The position that is stored on the stack refers to the position where the child list was found. This item has been consumed. So the positions must be incremented.",
+"type":"text"
+}
+],
+"id":"d98212ab9a724ec7a9fd9e0bf61b570f",
+"type":"text"
 }
 ],
 "title":"POP_STREAM"
@@ -5146,7 +5195,7 @@
 {
 "fragments":[
 {
-"text":"The memoized result consists of a match result and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the ",
+"text":"The memoized result consists of a result from calling the rule and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the ",
 "type":"text"
 },
 {

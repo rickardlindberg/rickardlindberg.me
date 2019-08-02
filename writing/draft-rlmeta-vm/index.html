@@ -1308,9 +1308,9 @@ tags: rlmeta,draft
 
 </div>
 
-<p>The only time it fails is when the end of stream has been reached. In that case <code>fail_message</code> is set and no <code>continue</code> statement is executed to ensure that the code to handle this failure is executed.</p>
+<p>The only time it fails is when the end of stream has been reached. In that case <code>fail_message</code> is set and no <code>continue</code> statement is executed to ensure that the code to <a href="#77edfc243204447ba84468c78f05d8e5"><em>handle this failure</em></a> is executed.</p>
 
-<p>Otherwise, the result is a semantic action that evaluates to the object at the current position. <code>pos</code> is incremented because one object has been matched. <code>pc</code> is incremented so that the next instruction is executed.</p>
+<p>Otherwise, the last result is set to a semantic action that evaluates to the current input object. <code>pos</code> is incremented because one object has been consumed from the input stream. <code>pc</code> is incremented so that the next instruction is executed.</p>
 
 <h3><a name="a8160d30b886418882ada3a2a884e580"></a>MATCH_STRING</h3>
 
@@ -1411,7 +1411,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It moves the scope at the top of the stack to the list and assigns a new scope to the top of the stack. A scope is a dictionary mapping names to values.</p>
+<p>Pushing a new scope onto the stack means moving the current scope to the list and assigning a new scope to the current scope. A scope is a dictionary mapping names to values.</p>
 
 <h3><a name="b2510846e20d4cd08f9b0cd2dfb5c01d"></a>POP_SCOPE</h3>
 
@@ -1498,6 +1498,8 @@ tags: rlmeta,draft
 
 </div>
 
+<p>The label counter is incremented to make all labels unique.</p>
+
 <h3><a name="b3562467300348028f04ae5034db0f34"></a>LIST_START</h3>
 
 <p>This instruction creates a list for accumulating results:</p>
@@ -1543,7 +1545,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>Current scope is assumed to be an accumulation list.</p>
+<p>The current scope is assumed to be an accumulation list.</p>
 
 <h3><a name="9940cd44d7fe4777b1c12e335bac33ae"></a>LIST_END</h3>
 
@@ -1567,9 +1569,9 @@ tags: rlmeta,draft
 
 </div>
 
-<p>The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the list is also evaluated.</p>
+<p>The current scope is assumed to be an accumulation list.</p>
 
-<p>Current scope is assumed to be an accumulation list.</p>
+<p>The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the list is also evaluated.</p>
 
 <h3><a name="fee2dcf573f04ac3a9e7cfd92adbe0c8"></a>PUSH_STREAM</h3>
 
@@ -1599,6 +1601,8 @@ tags: rlmeta,draft
 
 <p>It fails if the current input object is not a list.</p>
 
+<p>Otherwise the current input object becomes the current input stream and the position is set to 0.</p>
+
 <h3><a name="87a1eee2cfb94e1a9463a6561c226012"></a>POP_STREAM</h3>
 
 <p>This instruction pops an input stream off the stack:</p>
@@ -1623,6 +1627,10 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
+
+<p>It fails if not all items in the input stream have been consumed.</p>
+
+<p>The position that is stored on the stack refers to the position where the child list was found. This item has been consumed. So the positions must be incremented.</p>
 
 <h3><a name="34915cae29994179abbe19f2f7e4c267"></a>FAIL</h3>
 
@@ -1673,7 +1681,7 @@ tags: rlmeta,draft
 
 <p>It fist generates a key which consists of the name of the rule and the current position in the input stream. Example key: <code>('Label', (0, 1, 3))</code>. If this rule has matched at this position before, the memoized result is used. Otherwise a call is made.</p>
 
-<p>The memoized result consists of a match result and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the <code>stream_pos_stack[:]</code>.</p>
+<p>The memoized result consists of a result from calling the rule and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the <code>stream_pos_stack[:]</code>.</p>
 
 <p>To make a call, the next program counter and the key is appended to the stack. The next program counter stores the position where to continue execution, and the key is used to store the result in the memoization table. See <a href="#d104aa6d6b8e43818f662498f6566e38"><em>RETURN</em></a> for how its done.</p>
 
