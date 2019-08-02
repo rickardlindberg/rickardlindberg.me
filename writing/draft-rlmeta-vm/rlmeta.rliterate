@@ -1393,7 +1393,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to pop the current scope off the stack.",
+"text":" instructs the VM to pop the scope off the stack.",
 "type":"text"
 }
 ],
@@ -1946,7 +1946,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to backtrack and try matching the next choice. The ",
+"text":" instructs the VM fail with the given message. The ",
 "type":"text"
 },
 {
@@ -2216,7 +2216,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to create a semantic action that returns a unique number.",
+"text":" instructs the VM to create a semantic action that evaluates to a unique number.",
 "type":"text"
 }
 ],
@@ -3296,7 +3296,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to push the current input stream onto the stack and make the current input object the current input stream so that ",
+"text":" instructs the VM to push the current input object onto the stack so that ",
 "type":"text"
 },
 {
@@ -3313,7 +3313,7 @@
 "type":"reference"
 },
 {
-"text":" instructs the VM to pop the current input stream off the stack.",
+"text":" instructs the VM to pop this input stream off the stack.",
 "type":"text"
 }
 ],
@@ -4212,7 +4212,7 @@
 {
 "fragments":[
 {
-"text":"This instruction pops the current scope off the stack:",
+"text":"This instruction pops a scope off the stack:",
 "type":"text"
 }
 ],
@@ -4565,6 +4565,16 @@
 ],
 "id":"356f537a114549d590cbcec132d12154",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Current scope is assumed to be an accumulation list.",
+"type":"text"
+}
+],
+"id":"87554946772d4c35ba30071d11ebd175",
+"type":"text"
 }
 ],
 "title":"LIST_APPEND"
@@ -4576,7 +4586,7 @@
 {
 "fragments":[
 {
-"text":"This instruction make the accumulation list the last result:",
+"text":"This instruction makes the accumulation list the last result:",
 "type":"text"
 }
 ],
@@ -4648,11 +4658,21 @@
 {
 "fragments":[
 {
-"text":"The last result is always a semantic action. The accumulated results are also semantic actions. When evaluated, it evaluates all children...",
+"text":"The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the list is also evaluated.",
 "type":"text"
 }
 ],
 "id":"86e3fee91d1c4490a6edfd87ceeb6493",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Current scope is assumed to be an accumulation list.",
+"type":"text"
+}
+],
+"id":"b98fa1a15b6742b895e81b8b39bbd777",
 "type":"text"
 }
 ],
@@ -4665,7 +4685,7 @@
 {
 "fragments":[
 {
-"text":"This instruction pushes the current input stream onto the stack and makes the current input object the current input stream:",
+"text":"This instruction pushes the current input object onto the stack:",
 "type":"text"
 }
 ],
@@ -4814,7 +4834,7 @@
 {
 "fragments":[
 {
-"text":"This instruction restores the parent input stream:",
+"text":"This instruction pops an input stream off the stack:",
 "type":"text"
 }
 ],
@@ -4913,7 +4933,7 @@
 {
 "fragments":[
 {
-"text":"This instruction causes backtracking:",
+"text":"This instruction causes a failure with the given message:",
 "type":"text"
 }
 ],
@@ -5686,7 +5706,7 @@
 {
 "fragments":[
 {
-"text":"This instruction pops the topmost backtrack entry off the stack:",
+"text":"This instruction pops a backtrack entry off the stack:",
 "type":"text"
 }
 ],
