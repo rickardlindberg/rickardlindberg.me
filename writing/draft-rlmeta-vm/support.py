@@ -282,14 +282,14 @@ class _MatchError(Exception):
             for context_after in after[1:4]:
                 message += self._context(context_after)
         else:
-            message += "[\n"
+            message += self._context("[")
             for context_before in self.stream[:self.pos]:
-                message += self._context(repr(context_before))
-            message += self._context(repr(self.stream[self.pos]))
-            message += self._arrow(0)
+                message += self._context("  ", repr(context_before), ",")
+            message += self._context("  ", repr(self.stream[self.pos]), ",")
+            message += self._arrow(2)
             for context_after in self.stream[self.pos+1:]:
-                message += self._context(repr(context_after))
-            message += "]\n"
+                message += self._context("  ", repr(context_after), ",")
+            message += self._context("]")
         message += "Error: "
         message += self.message[0].format(*self.message[1:])
         message += "\n"
