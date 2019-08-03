@@ -3791,7 +3791,7 @@
 "type":"variable"
 },
 {
-"text":" is incremented so that the next instruction is executed.",
+"text":" is incremented so that the next instruction is executed in the next loop iteration.",
 "type":"text"
 }
 ],
@@ -4204,7 +4204,7 @@
 {
 "fragments":[
 {
-"text":"Pushing a new scope onto the stack means moving the current scope to the list and assigning a new scope to the current scope. A scope is a dictionary mapping names to values.",
+"text":"Pushing a new scope onto the stack means moving the topmost scope to the list and assigning a new scope to the topmost scope. A scope is a dictionary mapping names to values.",
 "type":"text"
 }
 ],
@@ -4276,7 +4276,7 @@
 {
 "fragments":[
 {
-"text":"This instruction binds the last result to the given name in the current scope:",
+"text":"This instruction binds the last result to the given name in the topmost scope:",
 "type":"text"
 }
 ],
@@ -4533,7 +4533,7 @@
 {
 "fragments":[
 {
-"text":"The list is actually stored on the scope stack, but it could as well have been stored in the current scope under a special name.",
+"text":"The list is actually stored on the scope stack, but it could as well have been stored in the topmost scope under a special name.",
 "type":"text"
 }
 ],
@@ -4598,7 +4598,7 @@
 {
 "fragments":[
 {
-"text":"The current scope is assumed to be an accumulation list.",
+"text":"The topmost scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
@@ -4687,7 +4687,7 @@
 {
 "fragments":[
 {
-"text":"The current scope is assumed to be an accumulation list.",
+"text":"The topmost scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
@@ -4846,7 +4846,7 @@
 {
 "fragments":[
 {
-"text":"It fails if the current input object is not a list. Only lists can be input streams.",
+"text":"It fails if the current input object is not a list. Only lists can become input streams.",
 "type":"text"
 }
 ],
@@ -4856,7 +4856,7 @@
 {
 "fragments":[
 {
-"text":"Otherwise the current input object becomes the current input stream and the position is set to 0.",
+"text":"Otherwise the current input object becomes the topmost input stream and the position is set to 0.",
 "type":"text"
 }
 ],
@@ -4975,7 +4975,7 @@
 {
 "fragments":[
 {
-"text":"The position that is stored on the stack refers to the position where the child list was found. This item has been consumed. So the positions must be incremented.",
+"text":"The position that is stored on the stack refers to the position where the topmost input stream was found. This input stream has now been consumed so the position is therefore incremented.",
 "type":"text"
 }
 ],
@@ -5205,7 +5205,7 @@
 {
 "fragments":[
 {
-"text":"The memoized result consists of a result from calling the rule and the state of the input stream. It is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the ",
+"text":"The memoized result consists of the result from calling the rule and the state of the input stream. The memoized state is assigned to VM state. The state of the input stream stored in the memoization table can not be modified, hence the ",
 "type":"text"
 },
 {
@@ -5689,15 +5689,7 @@
 "children":[],
 "fragments":[
 {
-"text":"The position where to continue execution. The label is passed as fist argument to ",
-"type":"text"
-},
-{
-"text":"BACKTRACK",
-"type":"code"
-},
-{
-"text":", so its position is looked up in the labels dictionary.",
+"text":"The position where to continue execution. The label is passed as fist argument to, so its position is looked up in the labels dictionary.",
 "type":"text"
 }
 ]
@@ -5707,7 +5699,7 @@
 "children":[],
 "fragments":[
 {
-"text":"The position in the input stream where to continue matching.",
+"text":"The position in the input stream where to try matching again.",
 "type":"text"
 }
 ]
@@ -5813,7 +5805,7 @@
 {
 "fragments":[
 {
-"text":"The topmost item is assumed to be a backtrack entry, and not a call entry. Generation of instructions must ensure this.",
+"text":"The topmost item is assumed to be a backtrack entry, and not a call entry.",
 "type":"text"
 }
 ],
@@ -5837,6 +5829,16 @@
 "children":[],
 "id":"77edfc243204447ba84468c78f05d8e5",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The first step in handling a failure is to figure out if this failure should be presented to the user. It is done based on the position where the failure occurred. Failures occurring at later positions are assumed to be more relevant.",
+"type":"text"
+}
+],
+"id":"02cdf09bf602410eb48e66457b004223",
+"type":"text"
+},
 {
 "chunkpath":[
 "vm",
@@ -5896,6 +5898,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Next actual backtracking is done. First items are popped of the stack until a backtrack entry is found. Backtrack entries are tuples with 4 arguments.",
+"type":"text"
+}
+],
+"id":"987365ec122e4020b06e2663265290b0",
+"type":"text"
+},
+{
 "chunkpath":[
 "vm",
 "loop",
@@ -5922,7 +5934,35 @@
 "type":"variable"
 },
 {
-"text":".pop()\n    if len(call_backtrack_entry) == 4:\n        break\nif len(call_backtrack_entry) != 4:\n    fail_pos = list(",
+"text":".pop()\n    if len(call_backtrack_entry) == 4:\n        break\n",
+"type":"code"
+}
+],
+"id":"24208f79ca7941c390b8600e4977b413",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"If no backtrack entry was found, matching failed completely and the user is notified with an exception. The latest fail message and position is ...",
+"type":"text"
+}
+],
+"id":"f1d48c24453e4f1f8fc7faf9a0cde34b",
+"type":"text"
+},
+{
+"chunkpath":[
+"vm",
+"loop",
+"handle failure"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"if len(call_backtrack_entry) != 4:\n    fail_pos = list(",
 "type":"code"
 },
 {
@@ -5970,7 +6010,35 @@
 "type":"variable"
 },
 {
-"text":", fail_pos[0], fail_stream)\n(",
+"text":", fail_pos[0], fail_stream)\n",
+"type":"code"
+}
+],
+"id":"d56802bc048d436886bad26810c4dad5",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Finally the state of the VM is restored:",
+"type":"text"
+}
+],
+"id":"fd9c9aad3b0644c28177b993578e16f9",
+"type":"text"
+},
+{
+"chunkpath":[
+"vm",
+"loop",
+"handle failure"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"(",
 "type":"code"
 },
 {
@@ -6070,7 +6138,7 @@
 "type":"code"
 }
 ],
-"id":"24208f79ca7941c390b8600e4977b413",
+"id":"6fe6ea6d856543ae8bb9f473c8acfedf",
 "type":"code"
 },
 {
@@ -6552,7 +6620,7 @@
 "type":"variable"
 },
 {
-"text":" stores the current fail message.",
+"text":" stores the current fail message as a tuple representing arguments to string formatting. The fail message is not formatted immediately to avoid the extra speed cost of formatting if the message is not used. (Most fail messages are never used.)",
 "type":"text"
 }
 ]
