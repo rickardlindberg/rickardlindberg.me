@@ -5832,7 +5832,7 @@
 {
 "fragments":[
 {
-"text":"The first step in handling a failure is to figure out if this failure should be presented to the user. It is done based on the position where the failure occurred. Failures occurring at later positions are assumed to be more relevant.",
+"text":"The first step in handling a failure is to figure out if this failure should be presented to the user. It is done based on the position where the failure occurred. Failures occurring at later positions are assumed to be more relevant. The latest fail message is saved like this:",
 "type":"text"
 }
 ],
@@ -5900,7 +5900,7 @@
 {
 "fragments":[
 {
-"text":"Next actual backtracking is done. First items are popped of the stack until a backtrack entry is found. Backtrack entries are tuples with 4 arguments.",
+"text":"Next actual backtracking is done. Items are popped of the stack until a backtrack entry is found. Backtrack entries are tuples with 4 arguments.",
 "type":"text"
 }
 ],
@@ -5944,7 +5944,7 @@
 {
 "fragments":[
 {
-"text":"If no backtrack entry was found, matching failed completely and the user is notified with an exception. The latest fail message and position is ...",
+"text":"If no backtrack entry is found, matching failed completely and the user is notified with an exception. The latest fail message is passed to the exception along with the position and stream where the failure occurred.",
 "type":"text"
 }
 ],
@@ -6015,6 +6015,48 @@
 }
 ],
 "id":"d56802bc048d436886bad26810c4dad5",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"The exception has a ",
+"type":"text"
+},
+{
+"text":"describe",
+"type":"code"
+},
+{
+"text":" method that formats the error nicely for the user:",
+"type":"text"
+}
+],
+"id":"841dd4ba8cbc4793b8d32bbbdc9512cb",
+"type":"text"
+},
+{
+"chunkpath":[
+"classes"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class ",
+"type":"code"
+},
+{
+"id":"67782a80b8a0487f8930e57551490023",
+"type":"variable"
+},
+{
+"text":"(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\n    def describe(self):\n        message = \"\"\n        if isinstance(self.stream, basestring):\n            before = self.stream[:self.pos].splitlines()\n            after = self.stream[self.pos:].splitlines()\n            for context_before in before[-4:-1]:\n                message += self._context(context_before)\n            message += self._context(before[-1], after[0])\n            message += self._arrow(len(before[-1]))\n            for context_after in after[1:4]:\n                message += self._context(context_after)\n        else:\n            message += self._context(\"[\")\n            for context_before in self.stream[:self.pos]:\n                message += self._context(\"  \", repr(context_before), \",\")\n            message += self._context(\"  \", repr(self.stream[self.pos]), \",\")\n            message += self._arrow(2)\n            for context_after in self.stream[self.pos+1:]:\n                message += self._context(\"  \", repr(context_after), \",\")\n            message += self._context(\"]\")\n        message += \"Error: \"\n        message += self.message[0].format(*self.message[1:])\n        message += \"\\n\"\n        return message\n\n    def _context(self, *args):\n        return \"> {}\\n\".format(\"\".join(args))\n\n    def _arrow(self, lenght):\n        return \"--{}^\\n\".format(\"-\"*lenght)\n",
+"type":"code"
+}
+],
+"id":"cb26185f6f2d4de68f35b8f00712b577",
 "type":"code"
 },
 {
@@ -6142,28 +6184,14 @@
 "type":"code"
 },
 {
-"chunkpath":[
-"classes"
-],
-"filepath":[
-"support.py"
-],
 "fragments":[
 {
-"text":"class ",
-"type":"code"
-},
-{
-"id":"67782a80b8a0487f8930e57551490023",
-"type":"variable"
-},
-{
-"text":"(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\n    def describe(self):\n        message = \"\"\n        if isinstance(self.stream, basestring):\n            before = self.stream[:self.pos].splitlines()\n            after = self.stream[self.pos:].splitlines()\n            for context_before in before[-4:-1]:\n                message += self._context(context_before)\n            message += self._context(before[-1], after[0])\n            message += self._arrow(len(before[-1]))\n            for context_after in after[1:4]:\n                message += self._context(context_after)\n        else:\n            message += self._context(\"[\")\n            for context_before in self.stream[:self.pos]:\n                message += self._context(\"  \", repr(context_before), \",\")\n            message += self._context(\"  \", repr(self.stream[self.pos]), \",\")\n            message += self._arrow(2)\n            for context_after in self.stream[self.pos+1:]:\n                message += self._context(\"  \", repr(context_after), \",\")\n            message += self._context(\"]\")\n        message += \"Error: \"\n        message += self.message[0].format(*self.message[1:])\n        message += \"\\n\"\n        return message\n\n    def _context(self, *args):\n        return \"> {}\\n\".format(\"\".join(args))\n\n    def _arrow(self, lenght):\n        return \"--{}^\\n\".format(\"-\"*lenght)\n",
-"type":"code"
+"text":"The program counter and the position is restored from the backtrack entry. The stack lengths are used to restore the stacks. A failure might have occurred deeper in the input stream than when the backtrack entry was created. Similarly for the scope.",
+"type":"text"
 }
 ],
-"id":"cb26185f6f2d4de68f35b8f00712b577",
-"type":"code"
+"id":"c039e1014a954dd5bdf33f5249b766dd",
+"type":"text"
 }
 ],
 "title":"Handling failure"
@@ -6239,7 +6267,7 @@
 ],
 "fragments":[
 {
-"text":"It duplicates code to avoid some Python instructions",
+"text":"It duplicates code to avoid some Python instructions.",
 "type":"text"
 }
 ]
