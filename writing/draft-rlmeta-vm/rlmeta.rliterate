@@ -4204,7 +4204,7 @@
 {
 "fragments":[
 {
-"text":"Pushing a new scope onto the stack means moving the topmost scope to the list and assigning a new scope to the topmost scope. A scope is a dictionary mapping names to values.",
+"text":"Pushing a new scope onto the stack means moving the current scope to the list and assigning a new scope to the current scope. A scope is a dictionary mapping names to values.",
 "type":"text"
 }
 ],
@@ -4276,7 +4276,7 @@
 {
 "fragments":[
 {
-"text":"This instruction binds the last result to the given name in the topmost scope:",
+"text":"This instruction binds the last result to the given name in the current scope:",
 "type":"text"
 }
 ],
@@ -4533,7 +4533,7 @@
 {
 "fragments":[
 {
-"text":"The list is actually stored on the scope stack, but it could as well have been stored in the topmost scope under a special name.",
+"text":"The list is actually stored on the scope stack, but it could as well have been stored in the current scope under a special name.",
 "type":"text"
 }
 ],
@@ -4598,7 +4598,7 @@
 {
 "fragments":[
 {
-"text":"The topmost scope is assumed to be an accumulation list.",
+"text":"The current scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
@@ -4687,7 +4687,7 @@
 {
 "fragments":[
 {
-"text":"The topmost scope is assumed to be an accumulation list.",
+"text":"The current scope is assumed to be an accumulation list.",
 "type":"text"
 }
 ],
@@ -4856,7 +4856,7 @@
 {
 "fragments":[
 {
-"text":"Otherwise the current input object becomes the topmost input stream and the position is set to 0.",
+"text":"Otherwise the current input object becomes the current input stream and the position is set to 0.",
 "type":"text"
 }
 ],
@@ -5805,7 +5805,7 @@
 {
 "fragments":[
 {
-"text":"The topmost item is assumed to be a backtrack entry, and not a call entry.",
+"text":"The popped item is assumed to be a backtrack entry, and not a call entry.",
 "type":"text"
 }
 ],
@@ -6674,7 +6674,7 @@
 "type":"variable"
 },
 {
-"text":" which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.",
+"text":" which keeps track of the current input stream position. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.",
 "type":"text"
 }
 ]
@@ -6696,7 +6696,7 @@
 "type":"variable"
 },
 {
-"text":" which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly less convenient to modify.",
+"text":" which keeps track of current scope. The topmost item is not stored in the list because it would make it slightly less convenient to modify.",
 "type":"text"
 }
 ]
