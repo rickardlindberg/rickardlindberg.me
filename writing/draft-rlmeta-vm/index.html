@@ -1213,9 +1213,9 @@
 
 <li><code>call_backtrack_stack</code> keeps track of what <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>call</em></a> and <a href="#542906286e124874b2975d0ae23f034f"><em>backtrack</em></a> entries have been made.</li>
 
-<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of where we are in the input stream. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
+<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of the current input stream position. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
 
-<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of which scope we are in. The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
+<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of current scope. The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
 
 <li><code>fail_message</code> stores the current fail message as a tuple representing arguments to string formatting. The fail message is not formatted immediately to avoid the extra speed cost of formatting if the message is not used. (Most fail messages are never used.)</li>
 
@@ -1465,7 +1465,7 @@
 
 </div>
 
-<p>Pushing a new scope onto the stack means moving the topmost scope to the list and assigning a new scope to the topmost scope. A scope is a dictionary mapping names to values.</p>
+<p>Pushing a new scope onto the stack means moving the current scope to the list and assigning a new scope to the current scope. A scope is a dictionary mapping names to values.</p>
 
 <h3><a name="b2510846e20d4cd08f9b0cd2dfb5c01d"></a>POP_SCOPE</h3>
 
@@ -1490,7 +1490,7 @@
 
 <h3><a name="1315305641224e4aa99dd00ec5b524b1"></a>BIND</h3>
 
-<p>This instruction binds the last result to the given name in the topmost scope:</p>
+<p>This instruction binds the last result to the given name in the current scope:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
@@ -1578,7 +1578,7 @@
 
 </div>
 
-<p>The list is actually stored on the scope stack, but it could as well have been stored in the topmost scope under a special name.</p>
+<p>The list is actually stored on the scope stack, but it could as well have been stored in the current scope under a special name.</p>
 
 <h3><a name="b4aacd38dec8406c9db784e0823c3554"></a>LIST_APPEND</h3>
 
@@ -1601,7 +1601,7 @@
 
 </div>
 
-<p>The topmost scope is assumed to be an accumulation list.</p>
+<p>The current scope is assumed to be an accumulation list.</p>
 
 <h3><a name="9940cd44d7fe4777b1c12e335bac33ae"></a>LIST_END</h3>
 
@@ -1625,7 +1625,7 @@
 
 </div>
 
-<p>The topmost scope is assumed to be an accumulation list.</p>
+<p>The current scope is assumed to be an accumulation list.</p>
 
 <p>The accumulation list is turned into a semantic action that evaluates to a list where each semantic action in the accumulation list is also evaluated.</p>
 
@@ -1657,7 +1657,7 @@
 
 <p>It fails if the current input object is not a list. Only lists can become input streams.</p>
 
-<p>Otherwise the current input object becomes the topmost input stream and the position is set to 0.</p>
+<p>Otherwise the current input object becomes the current input stream and the position is set to 0.</p>
 
 <h3><a name="87a1eee2cfb94e1a9463a6561c226012"></a>POP_STREAM</h3>
 
@@ -1855,7 +1855,7 @@
 
 </div>
 
-<p>The topmost item is assumed to be a backtrack entry, and not a call entry.</p>
+<p>The popped item is assumed to be a backtrack entry, and not a call entry.</p>
 
 <p>The entry is ignored since the choice succeeded and no backtracking is needed.</p>
 
