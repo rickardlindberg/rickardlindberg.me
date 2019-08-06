@@ -238,12 +238,31 @@
 {
 "fragments":[
 {
-"text":"RLMeta has a fatal flaw in its memoization logic. It only memoizes successful matches.",
+"text":"RLMeta has a flaw in its memoization logic: It only memoizes successful matches. I realized it after reading ",
+"type":"text"
+},
+{
+"text":"Generating a PEG Parser",
+"type":"link",
+"url":"https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9"
+},
+{
+"text":" in which Guido writes this:",
 "type":"text"
 }
 ],
 "id":"3a35c5393d0047a4b172fcce7438ef97",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"It is important to cache negative results too - in fact most calls to parsing methods will be negative results.",
+"type":"text"
+}
+],
+"id":"8ed0d48428924afe8fa356860cdf59b6",
+"type":"quote"
 }
 ],
 "title":"Memoizing failiures in RLMeta"
