@@ -27,14 +27,18 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
         elif name == "CALL":
             key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))
             if key in memo:
-                last_action, stream_pos_stack = memo[key]
-                stream_pos_stack = stream_pos_stack[:]
-                stream, pos = stream_pos_stack.pop()
-                pc += 1
+                if memo[key][0] is None:
+                    fail_message = memo[key][1]
+                else:
+                    last_action, stream_pos_stack = memo[key]
+                    stream_pos_stack = stream_pos_stack[:]
+                    stream, pos = stream_pos_stack.pop()
+                    pc += 1
+                    continue
             else:
                 call_backtrack_stack.append((pc+1, key))
                 pc = labels[arg1]
-            continue
+                continue
         elif name == "MATCH_CHARSEQ":
             for char in arg1:
                 if pos >= len(stream) or stream[pos] != char:
@@ -121,15 +125,19 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
                 fn_name = str(stream[pos])
                 key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))
                 if key in memo:
-                    last_action, stream_pos_stack = memo[key]
-                    stream_pos_stack = stream_pos_stack[:]
-                    stream, pos = stream_pos_stack.pop()
-                    pc += 1
+                    if memo[key][0] is None:
+                        fail_message = memo[key][1]
+                    else:
+                        last_action, stream_pos_stack = memo[key]
+                        stream_pos_stack = stream_pos_stack[:]
+                        stream, pos = stream_pos_stack.pop()
+                        pc += 1
+                        continue
                 else:
                     call_backtrack_stack.append((pc+1, key))
                     pc = labels[fn_name]
                     pos += 1
-                continue
+                    continue
         elif name == "FAIL":
             fail_message = (arg1,)
         elif name == "LABEL":
@@ -156,6 +164,9 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             call_backtrack_entry = call_backtrack_stack.pop()
             if len(call_backtrack_entry) == 4:
                 break
+            else:
+                _, key = call_backtrack_entry
+                memo[key] = (None, fail_message)
         if len(call_backtrack_entry) != 4:
             fail_pos = list(latest_fail_pos)
             fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream
