@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: RLMeta: a VM based approach | Rickard's personal homepage
+      RLMeta: a VM based approach | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,9 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: RLMeta: a VM based approach</h1>
+      <h1>RLMeta: a VM based approach</h1>
 
-<p><em>Published on 2019-08-05.</em></p>
-
-<strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
+<p><em>Published on 2019-08-06.</em></p>
 
 <p>In this article I present an alternative implementation of <a href="../../writing/rlmeta/">RLMeta</a> in which grammars are compiled into instructions for a virtual machine (VM).</p>
 
@@ -1213,9 +1211,9 @@
 
 <li><code>call_backtrack_stack</code> keeps track of what <a href="#8e19cbb2e71c412f95c7e241a69f0901"><em>call</em></a> and <a href="#542906286e124874b2975d0ae23f034f"><em>backtrack</em></a> entries have been made.</li>
 
-<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of the current input stream position. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
+<li><code>stream</code> and <code>pos</code> is the topmost item in <code>stream_pos_stack</code> which keeps track of the current input stream and the position in it. (Input streams can be nested.) The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
 
-<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of current scope. The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
+<li><code>scope</code> is the topmost item in <code>scope_stack</code> which keeps track of the current scope. The topmost item is not stored in the list because it would make it slightly less convenient to modify.</li>
 
 <li><code>fail_message</code> stores the current fail message as a tuple representing arguments to string formatting. The fail message is not formatted immediately to avoid the extra speed cost of formatting if the message is not used. (Most fail messages are never used.)</li>
 
@@ -1822,7 +1820,7 @@
 
 <p>A backtrack entry consists of the following:</p>
 
-<ul><li>The position where to continue execution. The label is given as fist argument to, so its position is looked up in the labels dictionary.</li>
+<ul><li>The position where to continue execution. The label is given as the fist argument to, so its position is looked up in the labels dictionary.</li>
 
 <li>The position in the input stream where to try matching again.</li>
 
@@ -1902,7 +1900,7 @@
 
 </div>
 
-<p>If no backtrack entry is found, matching failed completely and the user is notified with an exception. The latest fail message is passed to the exception along with the position and stream where the failure occurred.</p>
+<p>If no backtrack entry is found, matching failed completely and the user is notified with an exception. The latest fail message is passed to the exception along with the position and input stream where the failure occurred.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li><li><span class="cp">vm</span>
 
