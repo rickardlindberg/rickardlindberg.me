@@ -12,16 +12,8 @@ def add(name, overall, single):
     overalls.append(overall)
     single_grammars.append(single)
 
-add('base', 0.756, 0.476)
-add('avoid slicing', 0.608, 0.415)
-add('faster string\nconcatenation', 0.603, 0.397)
-add('and/or', 0.592, 0.380)
-add('remove\nnewlines', 0.565, 0.343)
-add('match call\nrule', 0.406, 0.220)
-add('optimize\nposition', 0.392, 0.220)
-add('lazy fail\nmessages', 0.370, 0.204)
-add('peek', 0.351, 0.187)
-add('last or\nexception', 0.344, 0.185)
+add('optimized', 0.344, 0.185)
+add('optimized\nfixed memo', 0.333, 0.145)
 add('vm', 0.254, 0.104)
 add('vm\nfixed memo', 0.241, 0.087)
 

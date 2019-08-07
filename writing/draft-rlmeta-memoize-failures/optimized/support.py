@@ -44,12 +44,19 @@ class _Grammar(object):
     def _match_rule(self, rule_name):
         key = (rule_name, self._stream.position())
         if key in self._memo:
-            result, _, self._stream = self._memo[key]
+            if self._memo[key][0] is None:
+                self._stream.fail("")
+            else:
+                result, _, self._stream = self._memo[key]
         else:
-            start = self._stream
-            result = getattr(self, "_rule_{}".format(rule_name))()
-            end = self._stream
-            self._memo[key] = (result, start, end)
+            try:
+                start = self._stream
+                result = getattr(self, "_rule_{}".format(rule_name))()
+                end = self._stream
+                self._memo[key] = (result, start, end)
+            except _MatchError as e:
+                self._memo[key] = (None, None, None)
+                raise
         return result
 
     def _match_range(self, start, end):
