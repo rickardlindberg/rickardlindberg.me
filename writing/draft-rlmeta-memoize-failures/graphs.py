@@ -12,8 +12,10 @@ def add(name, overall, single):
     overalls.append(overall)
     single_grammars.append(single)
 
+add('optimized\nno memo', 1.460, 0.834)
 add('optimized', 0.344, 0.185)
 add('optimized\nfixed memo', 0.333, 0.145)
+add('vm\nno memo', 0.998, 0.502)
 add('vm', 0.254, 0.104)
 add('vm\nfixed memo', 0.241, 0.087)
 
