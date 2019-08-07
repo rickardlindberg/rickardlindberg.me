@@ -1,0 +1,36 @@
+CodeGenerator {
+  Grammar        = .:x ast*:ys     -> { "class " x "(_Grammar):\n" > ys <                       }
+  Rule           = .:x ast:y       -> { "\ndef _rule_" x "(self):\n" > "return " y "()\n" <     }
+  MatchAny       =                 -> { "self._match_any"                                       }
+  MatchCallRule  =                 -> { "self._match_call_rule"                                 }
+  String         = .:x             -> { repr(x)                                                 }
+  List           = astList:x       -> { x                                                       }
+  Builder        = astItems:x      -> { "_Builder.create([" x "])"                              }
+  IndentBuilder  =                 -> { "_IndentBuilder()"                                      }
+  DedentBuilder  =                 -> { "_DedentBuilder()"                                      }
+  FnCall         = .:x astItems:y  -> { x "(" y ")"                                             }
+  VarLookup      = .:x             -> { "_vars.lookup(" repr(x) ").eval()"                      }
+  Or             =
+    | ast:x !.                     -> x
+    | astItems:x                   -> { "(lambda: self._or([" x "]))"                           }
+  Scope          = ast:x           -> { "(lambda: (lambda _vars:\n" > x < "()\n)(_Vars()))"     }
+  And            =
+    | ast:x !.                     -> x
+    | astItems:x                   -> { "(lambda: self._and([" x "]))"                          }
+  Bind           = .:x ast:y       -> { "(lambda: _vars.bind(" repr(x) ", " y "()))"            }
+  Star           = ast:x           -> { "(lambda: self._star(" x "))"                           }
+  Not            = ast:x           -> { "(lambda: self._not(" x "))"                            }
+  SemanticAction = ast:x           -> { "(lambda: _SemanticAction(lambda: " x "))"              }
+  MatchRule      = .:x             -> { "(lambda: self._match_rule(" repr(x) "))"               }
+  MatchRange     = .:x .:y         -> { "(lambda: self._match_range(" repr(x) ", " repr(y) "))" }
+  MatchString    = .:x             -> { "(lambda: self._match_string(" repr(x) "))"             }
+  MatchCharseq   = .:x             -> { "(lambda: self._match_charseq(" repr(x) "))"            }
+  MatchList      = ast:x           -> { "(lambda: self._match_list(" x "))"                     }
+  ast            = [%:x]           -> x
+  astItems       = astItem*:xs     -> { "\n" > xs <                                             }
+  astItem        = ast:x           -> { x ",\n"                                                 }
+  astList        = astListItem*:xs -> { "(" xs "[])"                                            }
+  astListItem    =
+    | ["ListItemSplice" ast:x]     -> {     x  "+"                                              }
+    | ast:x                        -> { "[" x "]+"                                              }
+}
