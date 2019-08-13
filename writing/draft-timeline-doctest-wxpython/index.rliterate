@@ -1,0 +1,125 @@
+{
+"root_page":{
+"children":[],
+"id":"f3a0eb1238eb44b4a57c4c3113d3380a",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"We are working on porting ",
+"type":"text"
+},
+{
+"text":"Timeline",
+"type":"link",
+"url":"/projects/timeline/index.html"
+},
+{
+"text":" to Python 3. We ran into a problem where a [doctest]() failed under certain circumstances. I managed to create a minimal set of tests to reproduce the error.",
+"type":"text"
+}
+],
+"id":"6557bec1f8f141c3bba2fb5ae5a89722",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"First a slimmed version of our testrunner:",
+"type":"text"
+}
+],
+"id":"ab0061213d824e9ca1821707a524f038",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"testrunner.py"
+],
+"fragments":[
+{
+"text":"import doctest\nimport sys\nimport unittest\n\ndef load_test_cases_from_module_name(suite, module_name):\n    __import__(module_name)\n    module = sys.modules[module_name]\n    module_suite = unittest.defaultTestLoader.loadTestsFromModule(module)\n    suite.addTest(module_suite)\n\ndef load_doc_tests_from_module_name(suite, module_name):\n    __import__(module_name)\n    module = sys.modules[module_name]\n    try:\n        module_suite = doctest.DocTestSuite(module)\n    except ValueError:\n        # No tests found\n        pass\n    else:\n        suite.addTest(module_suite)\n\nif __name__ == \"__main__\":\n    suite = unittest.TestSuite()\n    load_test_cases_from_module_name(suite, \"test_wx\")\n    load_doc_tests_from_module_name(suite, \"test_doc\")\n    print(unittest.TextTestRunner().run(suite))\n",
+"type":"code"
+}
+],
+"id":"bf065087c45647c0bfb056787baf37c4",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"It creates a test suite with cases from two modules: one with regular unit tests and one with doctests.",
+"type":"text"
+}
+],
+"id":"21a086543546488c9082f1322d6000cc",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"test_wx.py"
+],
+"fragments":[
+{
+"text":"import contextlib\nimport unittest\n\nimport wx\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        with self.wxapp() as app:\n            # Test something\n            pass\n\n    @contextlib.contextmanager\n    def wxapp(self):\n        app = wx.App()\n        try:\n            yield app\n        finally:\n            app.Destroy()\n",
+"type":"code"
+}
+],
+"id":"4cb7160d0f38482bae856cfd29ae0dc9",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"test_doc.py"
+],
+"fragments":[
+{
+"text":"\"\"\"\n>>> print_fun_stuff()\nThis is fun!\n\"\"\"\n\ndef print_fun_stuff():\n    print(\"This is fun!\")\n",
+"type":"code"
+}
+],
+"id":"29123306f76645439495cc62cc97053b",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ python3 testrunner.py\n.This is fun!\nF\n======================================================================\nFAIL: test_doc ()\nDoctest: test_doc\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/usr/lib64/python3.7/doctest.py\", line 2196, in runTest\n    raise self.failureException(self.format_failure(new.getvalue()))\nAssertionError: Failed doctest test for test_doc\n  File \"/home/rick/rickardlindberg.me/writing/draft-timeline-py3-segfault/test_doc.py\", line 0, in test_doc\n\n----------------------------------------------------------------------\nFile \"/home/rick/rickardlindberg.me/writing/draft-timeline-py3-segfault/test_doc.py\", line 2, in test_doc\nFailed example:\n    print_fun_stuff()\nExpected:\n    This is fun!\nGot nothing\n\n\n----------------------------------------------------------------------\nRan 2 tests in 0.074s\n\nFAILED (failures=1)\n<unittest.runner.TextTestResult run=2 errors=0 failures=1>\n",
+"type":"code"
+}
+],
+"id":"265722fd366e4e3cb64116ed1af8bf0c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"What appears to happen is that the expected string is written to the console and is not correctly captured by doctest.",
+"type":"text"
+}
+],
+"id":"668a7e247d474d748ce1c873d5e0a5f8",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ python3\nPython 3.7.3 (default, Mar 27 2019, 13:36:35)\n[GCC 9.0.1 20190227 (Red Hat 9.0.1-0.8)] on linux\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n>>> import wx\n>>> wx.version()\n'4.0.4 gtk3 (phoenix) wxWidgets 3.0.4'\n",
+"type":"code"
+}
+],
+"id":"affb85e4d19444bc9ea45010206a3d3e",
+"type":"code"
+}
+],
+"title":"Doctest fails with wxPython"
+},
+"variables":{}
+}
