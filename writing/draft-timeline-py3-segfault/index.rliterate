@@ -10,7 +10,7 @@
 ],
 "fragments":[
 {
-"text":"import unittest\n\nimport wx\n\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        app = wx.App()\n        # Some test\n        #app.Destroy()\n",
+"text":"import contextlib\nimport unittest\n\nimport wx\n\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        with self.wxapp() as app:\n            # Test something\n            pass\n\n    @contextlib.contextmanager\n    def wxapp(self):\n        app = wx.App()\n        try:\n            yield app\n        finally:\n            app.Destroy()\n",
 "type":"code"
 }
 ],

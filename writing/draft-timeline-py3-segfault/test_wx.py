@@ -1,3 +1,4 @@
+import contextlib
 import unittest
 
 import wx
@@ -6,6 +7,14 @@ import wx
 class WxTest(unittest.TestCase):
 
     def test_wx(self):
+        with self.wxapp() as app:
+            # Test something
+            pass
+
+    @contextlib.contextmanager
+    def wxapp(self):
         app = wx.App()
-        # Some test
-        #app.Destroy()
+        try:
+            yield app
+        finally:
+            app.Destroy()
