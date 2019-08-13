@@ -2,7 +2,50 @@
 "root_page":{
 "children":[],
 "id":"f3a0eb1238eb44b4a57c4c3113d3380a",
-"paragraphs":[],
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[
+"test_wx.py"
+],
+"fragments":[
+{
+"text":"import unittest\n\nimport wx\n\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        app = wx.App()\n        # Some test\n        #app.Destroy()\n",
+"type":"code"
+}
+],
+"id":"4cb7160d0f38482bae856cfd29ae0dc9",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"test_doc.py"
+],
+"fragments":[
+{
+"text":"\"\"\"\n>>> print_fun_stuff()\nThis is fun!\n\"\"\"\n\n\ndef print_fun_stuff():\n    print(\"This is fun!\")\n",
+"type":"code"
+}
+],
+"id":"29123306f76645439495cc62cc97053b",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"testrunner.py"
+],
+"fragments":[
+{
+"text":"import doctest\nimport sys\nimport unittest\n\n\ndef load_test_cases_from_module_name(suite, module_name):\n    __import__(module_name)\n    module = sys.modules[module_name]\n    module_suite = unittest.defaultTestLoader.loadTestsFromModule(module)\n    suite.addTest(module_suite)\n\n\ndef load_doc_tests_from_module_name(suite, module_name):\n    __import__(module_name)\n    module = sys.modules[module_name]\n    try:\n        module_suite = doctest.DocTestSuite(module)\n    except ValueError:\n        # No tests found\n        pass\n    else:\n        suite.addTest(module_suite)\n\n\nif __name__ == \"__main__\":\n    suite = unittest.TestSuite()\n    load_test_cases_from_module_name(suite, \"test_wx\")\n    load_doc_tests_from_module_name(suite, \"test_doc\")\n    print(unittest.TextTestRunner().run(suite))\n",
+"type":"code"
+}
+],
+"id":"bf065087c45647c0bfb056787baf37c4",
+"type":"code"
+}
+],
 "title":"Timeline segfaults in Python 3"
 },
 "variables":{}
