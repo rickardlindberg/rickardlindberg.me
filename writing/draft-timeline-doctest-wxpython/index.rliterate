@@ -24,7 +24,7 @@
 "url":"https://docs.python.org/3/library/doctest.html"
 },
 {
-"text":" failed under certain circumstances. I managed to create a small example that reproduces the error. I describe the example below and show how we solved the problem.",
+"text":" failed under certain circumstances. I managed to create a small example that reproduced the error. I describe the example below and show how we solved the problem.",
 "type":"text"
 }
 ],
@@ -34,7 +34,7 @@
 {
 "fragments":[
 {
-"text":"The example consist of a test runner and two test cases. The test runner is a slimmed down version of the one we use in Timeline:",
+"text":"The example consists of a test runner and two test cases. The test runner is a slimmed down version of the one we use in Timeline:",
 "type":"text"
 }
 ],
@@ -58,7 +58,7 @@
 {
 "fragments":[
 {
-"text":"It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. The tests in the suite are then run.",
+"text":"It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. It then runs the tests in the suite.",
 "type":"text"
 }
 ],
@@ -134,7 +134,7 @@
 {
 "fragments":[
 {
-"text":"When this example test suite is run, the result is unexpected:",
+"text":"When I run this example, the result is unexpected:",
 "type":"text"
 }
 ],
@@ -166,7 +166,7 @@
 {
 "fragments":[
 {
-"text":"For reference, the machine I ran the test on is running Fedora 31, Python 3.7.3, and wxPython 4.0.4:",
+"text":"The machine I run the example on is running Fedora 31, Python 3.7.3, and wxPython 4.0.4:",
 "type":"text"
 }
 ],
@@ -188,31 +188,11 @@
 {
 "fragments":[
 {
-"text":"This example test suite does not always fail.",
+"text":"But the example does not always fail. On this machine, it fails most of the time, but sometimes it succeeds. When I run the example on a different machine, it always succeeds. That machine is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:",
 "type":"text"
 }
 ],
 "id":"7b62300f8f0649028855ed8828697ee1",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"On this system the example fails most of the time.",
-"type":"text"
-}
-],
-"id":"d70b118a82c94b40996bb0bc0ce8520e",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"I also tried runnin the test on a machine that is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:",
-"type":"text"
-}
-],
-"id":"f90a6b452aa74f9db4eb5c0d3c41d0f7",
 "type":"text"
 },
 {
@@ -230,17 +210,7 @@
 {
 "fragments":[
 {
-"text":"On this system the example never fails.",
-"type":"text"
-}
-],
-"id":"d6aacf78b64f4715bf38d68accc70d13",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Also, when changing the test to this it works:",
+"text":"Also, if I change the test so that it doesn't use a context manager, it always succeeds:",
 "type":"text"
 }
 ],
@@ -263,17 +233,7 @@
 {
 "fragments":[
 {
-"text":"So on one system the example fails most of the time. But why? If the doctest is run in isolation it works. So something in the wx test must interfere with it.",
-"type":"text"
-}
-],
-"id":"09738bb241a940cda975cb8ab57aaedb",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"My guess is that instantiating a ",
+"text":"Also, if I run the doctest in isolation it works. So something in the wx test must interfere with it. My guess is that instantiating a ",
 "type":"text"
 },
 {
@@ -289,7 +249,23 @@
 "type":"code"
 },
 {
-"text":" call reset any such effects? It would seem reasonable. But what if the app is not completely destroyed when the doctest is run? I tried to force a garbage collection after destroying the app like this:",
+"text":" call reset any such effects? It would seem reasonable. But what if the ",
+"type":"text"
+},
+{
+"text":"wx.App",
+"type":"code"
+},
+{
+"text":" is not completely destroyed when the doctest is run? I tried to force a garbage collection after the ",
+"type":"text"
+},
+{
+"text":"app.Destroy()",
+"type":"code"
+},
+{
+"text":" call like this:",
 "type":"text"
 }
 ],
@@ -327,6 +303,16 @@
 }
 ],
 "id":"7251f735711f4af39c62b0b55d7b64da",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"If you have an idea of why this example fails some times, I would be interested to know.",
+"type":"text"
+}
+],
+"id":"e909e3dc94f5477aabc7cb7bee7c9cce",
 "type":"text"
 }
 ],
