@@ -134,7 +134,7 @@
 {
 "fragments":[
 {
-"text":"When I run this example, the result is unexpected:",
+"text":"When the example is run, the result is unexpected:",
 "type":"text"
 }
 ],
@@ -161,6 +161,71 @@
 }
 ],
 "id":"668a7e247d474d748ce1c873d5e0a5f8",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Also, if I run the doctest in isolation it works. So something in the wx test must interfere with it. My guess is that instantiating a ",
+"type":"text"
+},
+{
+"text":"wx.App",
+"type":"code"
+},
+{
+"text":" has some effects on streams and redirection. But shouldn't the ",
+"type":"text"
+},
+{
+"text":"app.Destroy()",
+"type":"code"
+},
+{
+"text":" call reset any such effects? It would seem reasonable. But what if the ",
+"type":"text"
+},
+{
+"text":"wx.App",
+"type":"code"
+},
+{
+"text":" is not completely destroyed when the doctest is run? I tried to force a garbage collection after the ",
+"type":"text"
+},
+{
+"text":"app.Destroy()",
+"type":"code"
+},
+{
+"text":" call like this:",
+"type":"text"
+}
+],
+"id":"ee9fe658b25e4162b579b013d90a57c0",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"import gc; gc.collect()\n",
+"type":"code"
+}
+],
+"id":"341f2ca3bcb8474b8036bd88ab46891e",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This seems to get rid of the error.",
+"type":"text"
+}
+],
+"id":"dd0d788d4478490cabd28a71e7703b2d",
 "type":"text"
 },
 {
@@ -229,71 +294,6 @@
 "id":"26bf92cc34b547c2af3fd02361197601",
 "language":"python",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"Also, if I run the doctest in isolation it works. So something in the wx test must interfere with it. My guess is that instantiating a ",
-"type":"text"
-},
-{
-"text":"wx.App",
-"type":"code"
-},
-{
-"text":" has some effects on streams and redirection. But shouldn't the ",
-"type":"text"
-},
-{
-"text":"app.Destroy()",
-"type":"code"
-},
-{
-"text":" call reset any such effects? It would seem reasonable. But what if the ",
-"type":"text"
-},
-{
-"text":"wx.App",
-"type":"code"
-},
-{
-"text":" is not completely destroyed when the doctest is run? I tried to force a garbage collection after the ",
-"type":"text"
-},
-{
-"text":"app.Destroy()",
-"type":"code"
-},
-{
-"text":" call like this:",
-"type":"text"
-}
-],
-"id":"ee9fe658b25e4162b579b013d90a57c0",
-"type":"text"
-},
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"import gc; gc.collect()\n",
-"type":"code"
-}
-],
-"id":"341f2ca3bcb8474b8036bd88ab46891e",
-"language":"python",
-"type":"code"
-},
-{
-"fragments":[
-{
-"text":"This seems to get rid of the error.",
-"type":"text"
-}
-],
-"id":"dd0d788d4478490cabd28a71e7703b2d",
-"type":"text"
 },
 {
 "fragments":[
