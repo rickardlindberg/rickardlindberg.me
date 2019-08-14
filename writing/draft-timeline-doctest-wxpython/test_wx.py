@@ -7,7 +7,7 @@ class WxTest(unittest.TestCase):
 
     def test_wx(self):
         with self.wxapp() as app:
-            # Test something
+            # Test something that requires a wx.App
             pass
 
     @contextlib.contextmanager

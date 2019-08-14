@@ -15,7 +15,16 @@
 "url":"/projects/timeline/index.html"
 },
 {
-"text":" to Python 3. We ran into a problem where a [doctest]() failed under certain circumstances. I managed to create a minimal set of tests to reproduce the error.",
+"text":" to Python 3 and ran into a problem where a ",
+"type":"text"
+},
+{
+"text":"doctest",
+"type":"link",
+"url":"https://docs.python.org/3/library/doctest.html"
+},
+{
+"text":" failed under certain circumstances. I managed to create a small example that reproduces the error. I describe the example below and show how we solved the problem.",
 "type":"text"
 }
 ],
@@ -25,7 +34,7 @@
 {
 "fragments":[
 {
-"text":"First a slimmed version of our testrunner:",
+"text":"The example consist of a test runner and two test cases. The test runner is a slimmed down version of the one we use in Timeline:",
 "type":"text"
 }
 ],
@@ -49,11 +58,29 @@
 {
 "fragments":[
 {
-"text":"It creates a test suite with cases from two modules: one with regular unit tests and one with doctests.",
+"text":"It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. The tests in the suite are then run.",
 "type":"text"
 }
 ],
 "id":"21a086543546488c9082f1322d6000cc",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The first test is a unit test that needs an instance of ",
+"type":"text"
+},
+{
+"text":"wx.App",
+"type":"code"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"85730395d1494136a4b21e9cd539bf92",
 "type":"text"
 },
 {
@@ -63,12 +90,32 @@
 ],
 "fragments":[
 {
-"text":"import contextlib\nimport unittest\n\nimport wx\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        with self.wxapp() as app:\n            # Test something\n            pass\n\n    @contextlib.contextmanager\n    def wxapp(self):\n        app = wx.App()\n        try:\n            yield app\n        finally:\n            app.Destroy()\n",
+"text":"import contextlib\nimport unittest\n\nimport wx\n\nclass WxTest(unittest.TestCase):\n\n    def test_wx(self):\n        with self.wxapp() as app:\n            # Test something that requires a wx.App\n            pass\n\n    @contextlib.contextmanager\n    def wxapp(self):\n        app = wx.App()\n        try:\n            yield app\n        finally:\n            app.Destroy()\n",
 "type":"code"
 }
 ],
 "id":"4cb7160d0f38482bae856cfd29ae0dc9",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The example doesn't test anything, but this is enough to reproduce the error.",
+"type":"text"
+}
+],
+"id":"cf89e75f72bd4bdba930126082c3e5ba",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The second test is a doctest that asserts that something is printed:",
+"type":"text"
+}
+],
+"id":"80ce53b7173447c69f890c68fac6a67a",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -85,6 +132,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"When this example test suite is run, the result is unexpected:",
+"type":"text"
+}
+],
+"id":"4b8b7bfabb3247ce87d1222178f392ad",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -99,7 +156,7 @@
 {
 "fragments":[
 {
-"text":"What appears to happen is that the expected string is written to the console and is not correctly captured by doctest.",
+"text":"What appears to happen is that the expected string is written to the console (or perhaps stderr) instead of being captured by doctest.",
 "type":"text"
 }
 ],
@@ -107,19 +164,173 @@
 "type":"text"
 },
 {
+"fragments":[
+{
+"text":"For reference, the machine I ran the test on is running Fedora 31, Python 3.7.3, and wxPython 4.0.4:",
+"type":"text"
+}
+],
+"id":"e2fc52aa8e1842bcbde54ae7ac1e49bc",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"$ python3\nPython 3.7.3 (default, Mar 27 2019, 13:36:35)\n[GCC 9.0.1 20190227 (Red Hat 9.0.1-0.8)] on linux\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n>>> import wx\n>>> wx.version()\n'4.0.4 gtk3 (phoenix) wxWidgets 3.0.4'\n",
+"text":"$ uname -a\nLinux localhost.localdomain 5.0.9-301.fc30.x86_64 #1 SMP Tue Apr 23 23:57:35\nUTC 2019 x86_64 x86_64 x86_64 GNU/Linux\n$ python3\nPython 3.7.3 (default, Mar 27 2019, 13:36:35)\n[GCC 9.0.1 20190227 (Red Hat 9.0.1-0.8)] on linux\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n>>> import wx\n>>> wx.version()\n'4.0.4 gtk3 (phoenix) wxWidgets 3.0.4'\n",
 "type":"code"
 }
 ],
 "id":"affb85e4d19444bc9ea45010206a3d3e",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This example test suite does not always fail.",
+"type":"text"
 }
 ],
-"title":"Doctest fails with wxPython"
+"id":"7b62300f8f0649028855ed8828697ee1",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"On this system the example fails most of the time.",
+"type":"text"
+}
+],
+"id":"d70b118a82c94b40996bb0bc0ce8520e",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"I also tried runnin the test on a machine that is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:",
+"type":"text"
+}
+],
+"id":"f90a6b452aa74f9db4eb5c0d3c41d0f7",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"$ uname -a\nLinux x220 4.16.11-100.fc26.x86_64 #1 SMP Tue May 22 20:02:12 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux\nrick@x220 | ~/rickardlindberg.me/writing/draft-timeline-doctest-wxpython\n$ python3\nPython 3.6.5 (default, Apr  4 2018, 15:09:05)\n[GCC 7.3.1 20180130 (Red Hat 7.3.1-2)] on linux\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n>>> import wx\n>>> wx.version()\n'4.0.1 gtk3 (phoenix)'\n",
+"type":"code"
+}
+],
+"id":"cfcf8fc87fd24bedbf49cd3b150944cd",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"On this system the example never fails.",
+"type":"text"
+}
+],
+"id":"d6aacf78b64f4715bf38d68accc70d13",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Also, when changing the test to this it works:",
+"type":"text"
+}
+],
+"id":"937eddb7b4784bcfb43966aa4a12b70d",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def test_wx(self):\n    app = wx.App()\n    try:\n        # Test something that requires a wx.App\n        pass\n    finally:\n        app.Destroy()\n",
+"type":"code"
+}
+],
+"id":"26bf92cc34b547c2af3fd02361197601",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"So on one system the example fails most of the time. But why? If the doctest is run in isolation it works. So something in the wx test must interfere with it.",
+"type":"text"
+}
+],
+"id":"09738bb241a940cda975cb8ab57aaedb",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"My guess is that instantiating a ",
+"type":"text"
+},
+{
+"text":"wx.App",
+"type":"code"
+},
+{
+"text":" has some effects on streams and redirection. But shouldn't the ",
+"type":"text"
+},
+{
+"text":"app.Destroy()",
+"type":"code"
+},
+{
+"text":" call reset any such effects? It would seem reasonable. But what if the app is not completely destroyed when the doctest is run? I tried to force a garbage collection after destroying the app like this:",
+"type":"text"
+}
+],
+"id":"ee9fe658b25e4162b579b013d90a57c0",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"import gc; gc.collect()\n",
+"type":"code"
+}
+],
+"id":"341f2ca3bcb8474b8036bd88ab46891e",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This seems to get rid of the error.",
+"type":"text"
+}
+],
+"id":"dd0d788d4478490cabd28a71e7703b2d",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Perhaps the context manager has some effect on when objects are garbage collected.",
+"type":"text"
+}
+],
+"id":"7251f735711f4af39c62b0b55d7b64da",
+"type":"text"
+}
+],
+"title":"Doctest fails in Python 3 with wxPython"
 },
 "variables":{}
 }
