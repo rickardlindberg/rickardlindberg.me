@@ -24,7 +24,7 @@
 "url":"https://docs.python.org/3/library/doctest.html"
 },
 {
-"text":" failed under certain circumstances. I managed to create a small example that reproduced the error. I describe the example below and show how we solved the problem.",
+"text":" failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the problem.",
 "type":"text"
 }
 ],
@@ -58,7 +58,7 @@
 {
 "fragments":[
 {
-"text":"It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. It then runs the tests in the suite.",
+"text":"It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. It then runs the tests.",
 "type":"text"
 }
 ],
@@ -100,7 +100,7 @@
 {
 "fragments":[
 {
-"text":"The example doesn't test anything, but this is enough to reproduce the error.",
+"text":"This example test doesn't test anything, but is enough to reproduce the error.",
 "type":"text"
 }
 ],
@@ -134,7 +134,7 @@
 {
 "fragments":[
 {
-"text":"When the example is run, the result is unexpected:",
+"text":"When I run this example, the failure appears:",
 "type":"text"
 }
 ],
@@ -156,7 +156,7 @@
 {
 "fragments":[
 {
-"text":"What appears to happen is that the expected string is written to the console (or perhaps stderr) instead of being captured by doctest.",
+"text":"What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself.",
 "type":"text"
 }
 ],
@@ -166,7 +166,7 @@
 {
 "fragments":[
 {
-"text":"Also, if I run the doctest in isolation it works. So something in the wx test must interfere with it. My guess is that instantiating a ",
+"text":"My guess is that something in the wx test interferes with the doctest. Perhaps instantiating a ",
 "type":"text"
 },
 {
@@ -190,7 +190,7 @@
 "type":"code"
 },
 {
-"text":" is not completely destroyed when the doctest is run? I tried to force a garbage collection after the ",
+"text":" is not completely destroyed when the doctest is run? To test this, I try to force a garbage collection after the ",
 "type":"text"
 },
 {
@@ -221,7 +221,7 @@
 {
 "fragments":[
 {
-"text":"This seems to get rid of the error.",
+"text":"This gets rid of the failure and the tests pass consistently. This is also the solution that we adopted for Timeline.",
 "type":"text"
 }
 ],
@@ -253,7 +253,7 @@
 {
 "fragments":[
 {
-"text":"But the example does not always fail. On this machine, it fails most of the time, but sometimes it succeeds. When I run the example on a different machine, it always succeeds. That machine is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:",
+"text":"But the example does not always fail. On the Fedora 31 machine, it fails most of the time, but sometimes it succeeds. When I run the example on a different machine, it always succeeds. That machine is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:",
 "type":"text"
 }
 ],
