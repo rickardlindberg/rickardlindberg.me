@@ -7,17 +7,17 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 14 Aug 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 20 Aug 2019 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Doctest fails in Python 3 with wxPython</title>
     <link>http://rickardlindberg.me/writing/draft-timeline-doctest-wxpython/</link>
     <description><![CDATA[<h1>DRAFT: Doctest fails in Python 3 with wxPython</h1>
 
-<p><em>Published on 2019-08-14.</em></p>
+<p><em>Published on 2019-08-20.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>We are working on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3 and ran into a problem where a <a href="https://docs.python.org/3/library/doctest.html">doctest</a> failed under certain circumstances. I managed to create a small example that reproduced the error. I describe the example below and show how we solved the problem.</p>
+<p>We are working on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3 and ran into a problem where a <a href="https://docs.python.org/3/library/doctest.html">doctest</a> failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the problem.</p>
 
 <p>The example consists of a test runner and two test cases. The test runner is a slimmed down version of the one we use in Timeline:</p>
 
@@ -55,7 +55,7 @@
 
 </div>
 
-<p>It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. It then runs the tests in the suite.</p>
+<p>It creates a test suite with test cases from two modules: one with a unit test and one with a doctests. It then runs the tests.</p>
 
 <p>The first test is a unit test that needs an instance of <code>wx.App</code>:</p>
 
@@ -86,7 +86,7 @@
 
 </div>
 
-<p>The example doesn't test anything, but this is enough to reproduce the error.</p>
+<p>This example test doesn't test anything, but is enough to reproduce the error.</p>
 
 <p>The second test is a doctest that asserts that something is printed:</p>
 
@@ -105,7 +105,7 @@
 
 </div>
 
-<p>When I run this example, the result is unexpected:</p>
+<p>When I run this example, the failure appears:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">p</span><span class="">y</span><span class="">t</span><span class="">h</span><span class="">o</span><span class="">n</span><span class="">3</span><span class=""> </span><span class="">t</span><span class="">e</span><span class="">s</span><span class="">t</span><span class="">r</span><span class="">u</span><span class="">n</span><span class="">n</span><span class="">e</span><span class="">r</span><span class="">.</span><span class="">p</span><span class="">y</span><span class="">
 </span><span class="">.</span><span class="">T</span><span class="">h</span><span class="">i</span><span class="">s</span><span class=""> </span><span class="">i</span><span class="">s</span><span class=""> </span><span class="">f</span><span class="">u</span><span class="">n</span><span class="">!</span><span class="">
@@ -138,7 +138,16 @@
 
 </div>
 
-<p>What appears to happen is that the expected string is written to the console (or perhaps stderr) instead of being captured by doctest.</p>
+<p>What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself.</p>
+
+<p>My guess is that something in the wx test interferes with the doctest. Perhaps instantiating a <code>wx.App</code> has some effects on streams and redirection. But shouldn't the <code>app.Destroy()</code> call reset any such effects? It would seem reasonable. But what if the <code>wx.App</code> is not completely destroyed when the doctest is run? To test this, I try to force a garbage collection after the <code>app.Destroy()</code> call like this:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="kn">i</span><span class="kn">m</span><span class="kn">p</span><span class="kn">o</span><span class="kn">r</span><span class="kn">t</span><span class=""> </span><span class="nn">g</span><span class="nn">c</span><span class="p">;</span><span class=""> </span><span class="n">g</span><span class="n">c</span><span class="o">.</span><span class="n">c</span><span class="n">o</span><span class="n">l</span><span class="n">l</span><span class="n">e</span><span class="n">c</span><span class="n">t</span><span class="p">(</span><span class="p">)</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>This gets rid of the failure and the tests pass consistently. This is also the solution that we adopted for Timeline.</p>
 
 <p>The machine I run the example on is running Fedora 31, Python 3.7.3, and wxPython 4.0.4:</p>
 
@@ -156,7 +165,7 @@
 
 </div>
 
-<p>But the example does not always fail. On this machine, it fails most of the time, but sometimes it succeeds. When I run the example on a different machine, it always succeeds. That machine is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:</p>
+<p>But the example does not always fail. On the Fedora 31 machine, it fails most of the time, but sometimes it succeeds. When I run the example on a different machine, it always succeeds. That machine is running Fedora 26, Python 3.6.5, and wxPython 4.0.1:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">u</span><span class="">n</span><span class="">a</span><span class="">m</span><span class="">e</span><span class=""> </span><span class="">-</span><span class="">a</span><span class="">
 </span><span class="">L</span><span class="">i</span><span class="">n</span><span class="">u</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">2</span><span class="">2</span><span class="">0</span><span class=""> </span><span class="">4</span><span class="">.</span><span class="">1</span><span class="">6</span><span class="">.</span><span class="">1</span><span class="">1</span><span class="">-</span><span class="">1</span><span class="">0</span><span class="">0</span><span class="">.</span><span class="">f</span><span class="">c</span><span class="">2</span><span class="">6</span><span class="">.</span><span class="">x</span><span class="">8</span><span class="">6</span><span class="">_</span><span class="">6</span><span class="">4</span><span class=""> </span><span class="">#</span><span class="">1</span><span class=""> </span><span class="">S</span><span class="">M</span><span class="">P</span><span class=""> </span><span class="">T</span><span class="">u</span><span class="">e</span><span class=""> </span><span class="">M</span><span class="">a</span><span class="">y</span><span class=""> </span><span class="">2</span><span class="">2</span><span class=""> </span><span class="">2</span><span class="">0</span><span class="">:</span><span class="">0</span><span class="">2</span><span class="">:</span><span class="">1</span><span class="">2</span><span class=""> </span><span class="">U</span><span class="">T</span><span class="">C</span><span class=""> </span><span class="">2</span><span class="">0</span><span class="">1</span><span class="">8</span><span class=""> </span><span class="">x</span><span class="">8</span><span class="">6</span><span class="">_</span><span class="">6</span><span class="">4</span><span class=""> </span><span class="">x</span><span class="">8</span><span class="">6</span><span class="">_</span><span class="">6</span><span class="">4</span><span class=""> </span><span class="">x</span><span class="">8</span><span class="">6</span><span class="">_</span><span class="">6</span><span class="">4</span><span class=""> </span><span class="">G</span><span class="">N</span><span class="">U</span><span class="">/</span><span class="">L</span><span class="">i</span><span class="">n</span><span class="">u</span><span class="">x</span><span class="">
@@ -185,21 +194,12 @@
 
 </div>
 
-<p>Also, if I run the doctest in isolation it works. So something in the wx test must interfere with it. My guess is that instantiating a <code>wx.App</code> has some effects on streams and redirection. But shouldn't the <code>app.Destroy()</code> call reset any such effects? It would seem reasonable. But what if the <code>wx.App</code> is not completely destroyed when the doctest is run? I tried to force a garbage collection after the <code>app.Destroy()</code> call like this:</p>
-
-<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="kn">i</span><span class="kn">m</span><span class="kn">p</span><span class="kn">o</span><span class="kn">r</span><span class="kn">t</span><span class=""> </span><span class="nn">g</span><span class="nn">c</span><span class="p">;</span><span class=""> </span><span class="n">g</span><span class="n">c</span><span class="o">.</span><span class="n">c</span><span class="n">o</span><span class="n">l</span><span class="n">l</span><span class="n">e</span><span class="n">c</span><span class="n">t</span><span class="p">(</span><span class="p">)</span><span class="">
-</span></pre></div>
-
-</div>
-
-<p>This seems to get rid of the error.</p>
-
 <p>Perhaps the context manager has some effect on when objects are garbage collected.</p>
 
 <p>If you have an idea of why this example fails some times, I would be interested to know.</p>
 
 ]]></description>
-    <pubDate>Wed, 14 Aug 2019 00:00:00 UT</pubDate>
+    <pubDate>Tue, 20 Aug 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/draft-timeline-doctest-wxpython/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
