@@ -24,7 +24,7 @@
 "url":"https://docs.python.org/3/library/doctest.html"
 },
 {
-"text":" failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the problem.",
+"text":" failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the test failure.",
 "type":"text"
 }
 ],
@@ -100,7 +100,7 @@
 {
 "fragments":[
 {
-"text":"This example test doesn't test anything, but is enough to reproduce the error.",
+"text":"This example doesn't test anything, but is enough to reproduce the failure.",
 "type":"text"
 }
 ],
@@ -110,7 +110,7 @@
 {
 "fragments":[
 {
-"text":"The second test is a doctest that asserts that something is printed:",
+"text":"The second test is a doctest that asserts that a function prints a string:",
 "type":"text"
 }
 ],
@@ -134,7 +134,7 @@
 {
 "fragments":[
 {
-"text":"When I run this example, the failure appears:",
+"text":"When I run this example, I get the failure:",
 "type":"text"
 }
 ],
@@ -156,7 +156,7 @@
 {
 "fragments":[
 {
-"text":"What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself.",
+"text":"What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself. It is the sequence of these two tests that causes the problem.",
 "type":"text"
 }
 ],
@@ -190,7 +190,7 @@
 "type":"code"
 },
 {
-"text":" is not completely destroyed when the doctest is run? To test this, I try to force a garbage collection after the ",
+"text":" is not completely destroyed when the doctest is run? To test this, I modify the example to force a garbage collection after the ",
 "type":"text"
 },
 {
@@ -308,7 +308,7 @@
 {
 "fragments":[
 {
-"text":"If you have an idea of why this example fails some times, I would be interested to know.",
+"text":"If you have an idea of why this example sometimes fails, I would be interested to know. It seems illogical that a forced garbage collection should be needed to get a correct program.",
 "type":"text"
 }
 ],
