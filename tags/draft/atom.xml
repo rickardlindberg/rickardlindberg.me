@@ -8,20 +8,20 @@
         <name>Rickard Lindberg</name>
         <email>ricli85@gmail.com</email>
     </author>
-    <updated>2019-08-20T00:00:00Z</updated>
+    <updated>2019-08-21T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Doctest fails in Python 3 with wxPython</title>
     <link href="http://rickardlindberg.me/writing/draft-timeline-doctest-wxpython/" />
     <id>http://rickardlindberg.me/writing/draft-timeline-doctest-wxpython/</id>
-    <published>2019-08-20T00:00:00Z</published>
-    <updated>2019-08-20T00:00:00Z</updated>
+    <published>2019-08-21T00:00:00Z</published>
+    <updated>2019-08-21T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Doctest fails in Python 3 with wxPython</h1>
 
-<p><em>Published on 2019-08-20.</em></p>
+<p><em>Published on 2019-08-21.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>We are working on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3 and ran into a problem where a <a href="https://docs.python.org/3/library/doctest.html">doctest</a> failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the problem.</p>
+<p>We are working on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3 and ran into a problem where a <a href="https://docs.python.org/3/library/doctest.html">doctest</a> failed under certain circumstances. I managed to create a small example that reproduces the failure. I describe the example below and show how we solved the test failure.</p>
 
 <p>The example consists of a test runner and two test cases. The test runner is a slimmed down version of the one we use in Timeline:</p>
 
@@ -90,9 +90,9 @@
 
 </div>
 
-<p>This example test doesn't test anything, but is enough to reproduce the error.</p>
+<p>This example doesn't test anything, but is enough to reproduce the failure.</p>
 
-<p>The second test is a doctest that asserts that something is printed:</p>
+<p>The second test is a doctest that asserts that a function prints a string:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>test_doc.py</li></ol>
 
@@ -109,7 +109,7 @@
 
 </div>
 
-<p>When I run this example, the failure appears:</p>
+<p>When I run this example, I get the failure:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">$</span><span class=""> </span><span class="">p</span><span class="">y</span><span class="">t</span><span class="">h</span><span class="">o</span><span class="">n</span><span class="">3</span><span class=""> </span><span class="">t</span><span class="">e</span><span class="">s</span><span class="">t</span><span class="">r</span><span class="">u</span><span class="">n</span><span class="">n</span><span class="">e</span><span class="">r</span><span class="">.</span><span class="">p</span><span class="">y</span><span class="">
 </span><span class="">.</span><span class="">T</span><span class="">h</span><span class="">i</span><span class="">s</span><span class=""> </span><span class="">i</span><span class="">s</span><span class=""> </span><span class="">f</span><span class="">u</span><span class="">n</span><span class="">!</span><span class="">
@@ -142,9 +142,9 @@
 
 </div>
 
-<p>What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself.</p>
+<p>What appears to happen is that the expected string in the doctest is written to the console (or perhaps stderr) instead of being captured by doctest. When I run the doctest in isolation, it passes, so there is nothing wrong with the test itself. It is the sequence of these two tests that causes the problem.</p>
 
-<p>My guess is that something in the wx test interferes with the doctest. Perhaps instantiating a <code>wx.App</code> has some effects on streams and redirection. But shouldn't the <code>app.Destroy()</code> call reset any such effects? It would seem reasonable. But what if the <code>wx.App</code> is not completely destroyed when the doctest is run? To test this, I try to force a garbage collection after the <code>app.Destroy()</code> call like this:</p>
+<p>My guess is that something in the wx test interferes with the doctest. Perhaps instantiating a <code>wx.App</code> has some effects on streams and redirection. But shouldn't the <code>app.Destroy()</code> call reset any such effects? It would seem reasonable. But what if the <code>wx.App</code> is not completely destroyed when the doctest is run? To test this, I modify the example to force a garbage collection after the <code>app.Destroy()</code> call like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="kn">i</span><span class="kn">m</span><span class="kn">p</span><span class="kn">o</span><span class="kn">r</span><span class="kn">t</span><span class=""> </span><span class="nn">g</span><span class="nn">c</span><span class="p">;</span><span class=""> </span><span class="n">g</span><span class="n">c</span><span class="o">.</span><span class="n">c</span><span class="n">o</span><span class="n">l</span><span class="n">l</span><span class="n">e</span><span class="n">c</span><span class="n">t</span><span class="p">(</span><span class="p">)</span><span class="">
 </span></pre></div>
@@ -200,7 +200,7 @@
 
 <p>Perhaps the context manager has some effect on when objects are garbage collected.</p>
 
-<p>If you have an idea of why this example fails some times, I would be interested to know.</p>
+<p>If you have an idea of why this example sometimes fails, I would be interested to know. It seems illogical that a forced garbage collection should be needed to get a correct program.</p>
 
 ]]></summary>
 </entry>
