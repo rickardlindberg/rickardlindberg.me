@@ -39,6 +39,36 @@
 ],
 "id":"7a603d032c534d4d840da7d0fc533515",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"test.py"
+],
+"fragments":[
+{
+"text":"def parse():\n    return [\n        1,\n        ['-', 2],\n        ['-', 3],\n    ]\n\ndef left_assoc(items):\n    expr = items.pop(0)\n    while items:\n        op, rhs = items.pop(0)\n        expr = [op, expr, rhs]\n    return expr\n\ndef right_assoc(items):\n    expr = items.pop(0)\n    if items:\n        op, rhs = items.pop(0)\n        return [op, expr, right_assoc([rhs]+items)]\n    return expr\n\ndef eval_expr(expr):\n    if isinstance(expr, list):\n        op, lhs, rhs = expr\n        if op == \"-\":\n            return eval_expr(lhs) - eval_expr(rhs)\n        else:\n            raise Exception(\"unknown operator {!r}\".format(op))\n    else:\n        return expr\n\ndef echo_eval_expr(expr):\n    print(\"{} => {}\".format(expr, eval_expr(expr)))\n\necho_eval_expr(left_assoc(parse()))\necho_eval_expr(right_assoc(parse()))\n",
+"type":"code"
+}
+],
+"id":"1ce6df3de27c471b90c263fe9c07e116",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[],
+"id":"ad93d70b996542dea66889e73497926d",
+"post_process":[
+"python",
+"test.py"
+],
+"type":"code"
+},
+{
+"code_id":"ad93d70b996542dea66889e73497926d",
+"id":"a42fccab8e6b4a01965e94ecfb7e816f",
+"type":"expanded_code"
 }
 ],
 "title":"Parsing left associative operators using RLMeta"
