@@ -47,7 +47,7 @@
 ],
 "fragments":[
 {
-"text":"def parse():\n    return [\n        1,\n        ['-', 2],\n        ['-', 3],\n    ]\n\ndef left_assoc(items):\n    expr = items.pop(0)\n    while items:\n        op, rhs = items.pop(0)\n        expr = [op, expr, rhs]\n    return expr\n\ndef right_assoc(items):\n    expr = items.pop(0)\n    if items:\n        op, rhs = items.pop(0)\n        return [op, expr, right_assoc([rhs]+items)]\n    return expr\n\ndef eval_expr(expr):\n    if isinstance(expr, list):\n        op, lhs, rhs = expr\n        if op == \"-\":\n            return eval_expr(lhs) - eval_expr(rhs)\n        else:\n            raise Exception(\"unknown operator {!r}\".format(op))\n    else:\n        return expr\n\ndef echo_eval_expr(expr):\n    print(\"{} => {}\".format(expr, eval_expr(expr)))\n\necho_eval_expr(left_assoc(parse()))\necho_eval_expr(right_assoc(parse()))\n",
+"text":"def parse():\n    return (1, [\n        ['-', 2],\n        ['-', 3],\n    ])\n\ndef left_assoc(expr, items):\n    while items:\n        op, rhs = items.pop(0)\n        expr = [op, expr, rhs]\n    return expr\n\ndef right_assoc(expr, items):\n    if items:\n        op, rhs = items.pop(0)\n        expr = [op, expr, right_assoc(rhs, items)]\n    return expr\n\ndef eval_expr(expr):\n    if isinstance(expr, list):\n        op, lhs, rhs = expr\n        if op == \"-\":\n            return eval_expr(lhs) - eval_expr(rhs)\n        else:\n            raise Exception(\"unknown operator {!r}\".format(op))\n    else:\n        return expr\n\ndef echo_eval_expr(expr):\n    print(\"{} => {}\".format(expr, eval_expr(expr)))\n\necho_eval_expr(left_assoc(*parse()))\necho_eval_expr(right_assoc(*parse()))\n",
 "type":"code"
 }
 ],
