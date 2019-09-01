@@ -2,8 +2,8 @@ Calculator {
   expr  = expr1
   expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)
   expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)
-  expr3 = expr4:x (op3:y expr4:z -> [y z])*:xs -> rightAssoc(x xs)
-  expr4 = '0'-'9':x                            -> int(x)
+  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)
+  digit = '0'-'9':x                            -> int(x)
   op1 =
     | '+' -> makeAdd()
     | '-' -> makeSub()

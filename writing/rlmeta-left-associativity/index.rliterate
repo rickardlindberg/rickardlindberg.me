@@ -3,8 +3,24 @@
 "children":[
 {
 "children":[],
+"id":"37144d09790c48a3bbdc3485473b5416",
+"paragraphs":[],
+"title":"What is associativity?"
+},
+{
+"children":[],
 "id":"cb24f5d3a7df423e9081889d4a2d3785",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Here is a grammar that works like the calculator but only support the subtraction operator:",
+"type":"text"
+}
+],
+"id":"4d04045b326d456faa9479d9b910971d",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -20,6 +36,10 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"id":"af5a8c4ce42944f0a71a625b04edb239",
+"type":"factory"
 },
 {
 "chunkpath":[],
@@ -48,6 +68,16 @@
 ],
 "id":"b64973599f1c4994933814a893bd3013",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"For an expression with only two numbers, the grammar works as expected. But with more numbers, the expression created is incorrect.",
+"type":"text"
+}
+],
+"id":"bc7fa6229c454ce192058b92cb8b7fe2",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -80,6 +110,39 @@
 "paragraphs":[
 {
 "chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"expr = digit '-' expr | digit\n",
+"type":"code"
+}
+],
+"id":"ccf6f0a1de824f28b6162545d8529afb",
+"language":"rlmeta",
+"post_process":[],
+"type":"code"
+},
+{
+"code_id":"ccf6f0a1de824f28b6162545d8529afb",
+"id":"2bb25c6b8a0440d89510b8defce7e4f1",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"expr = expr '-' digit | digit\n",
+"type":"code"
+}
+],
+"id":"a42d56d2a2b14736958d17bc34b0db7b",
+"language":"rlmeta",
+"post_process":[],
+"type":"code"
+},
+{
+"chunkpath":[],
 "filepath":[
 "left.rlmeta"
 ],
@@ -102,13 +165,32 @@
 "id":"855b50c552e54c0895128e7e86da55e9",
 "paragraphs":[
 {
+"code_id":"ccf6f0a1de824f28b6162545d8529afb",
+"id":"deba845b4d9b4eb3b447bbb9ef5ad93f",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"expr = digit ('-' digit)*\n",
+"type":"code"
+}
+],
+"id":"176c8d5f26e541dbbd0422ae23279b93",
+"language":"rlmeta",
+"post_process":[],
+"type":"code"
+},
+{
 "chunkpath":[],
 "filepath":[
 "left_correct.rlmeta"
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = digit:x ('-' digit:z -> [makeSub() z])*:xs -> leftAssoc(x xs)\n  digit = '0'-'9':x                                  -> int(x)\n}\n",
+"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> leftAssoc(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    = '-'                                 -> makeSub()\n}\n",
 "type":"code"
 }
 ],
@@ -203,7 +285,7 @@
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = expr4:x (op3:y expr4:z -> [y z])*:xs -> rightAssoc(x xs)\n  expr4 = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+' -> makeAdd()\n    | '-' -> makeSub()\n  op2 =\n    | '*' -> makeMul()\n    | '/' -> makeDiv()\n  op3 =\n    | '**' -> makePow()\n}\n",
+"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+' -> makeAdd()\n    | '-' -> makeSub()\n  op2 =\n    | '*' -> makeMul()\n    | '/' -> makeDiv()\n  op3 =\n    | '**' -> makePow()\n}\n",
 "type":"code"
 }
 ],
@@ -273,24 +355,99 @@
 {
 "fragments":[
 {
-"text":"Associativity and precedence. A good resource: ",
-"type":"text"
-},
-{
-"text":"http://beastie.cs.ua.edu/proglan/readings/precedence.pdf",
-"type":"link",
-"url":"http://beastie.cs.ua.edu/proglan/readings/precedence.pdf"
-},
-{
-"text":".",
+"text":"Articles that helped me understand how to handle left associative operators:",
 "type":"text"
 }
 ],
 "id":"f986d87ab25d4d6395d0ec8b21461928",
 "type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Implementing Associativity and Precedence in Recursive Descent Expression Grammars",
+"type":"link",
+"url":"http://beastie.cs.ua.edu/proglan/readings/precedence.pdf"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Recursive descent, LL and predictive parsers",
+"type":"link",
+"url":"https://eli.thegreenplace.net/2008/09/26/recursive-descent-ll-and-predictive-parsers"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Some problems of recursive descent parsers",
+"type":"link",
+"url":"https://eli.thegreenplace.net/2009/03/14/some-problems-of-recursive-descent-parsers"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"A recursive descent parser with an infix expression evaluator",
+"type":"link",
+"url":"https://eli.thegreenplace.net/2009/03/20/a-recursive-descent-parser-with-an-infix-expression-evaluator"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Top-Down operator precedence parsing",
+"type":"link",
+"url":"https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Parsing expressions by precedence climbing",
+"type":"link",
+"url":"https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Pratt Parsers: Expression Parsing Made Easy",
+"type":"link",
+"url":"http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/"
+}
+]
 }
 ],
-"title":"Notes"
+"id":"b1decd09f7664c9982377d6d894e5251",
+"type":"list"
+}
+],
+"title":"Resources"
 },
 {
 "children":[],
@@ -319,7 +476,16 @@
 {
 "fragments":[
 {
-"text":"The parsing algorithm used by RLMeta does not support left associativity. How can it be achieved anyway?",
+"text":"The ",
+"type":"text"
+},
+{
+"text":"first article",
+"type":"link",
+"url":"/writing/rlmeta/index.html"
+},
+{
+"text":" about RLMeta had an example with simple calculator grammar:",
 "type":"text"
 }
 ],
@@ -338,6 +504,16 @@
 "id":"65262f5f1fed4b9ebb4127d3296cef31",
 "language":"rlmeta",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"This grammar has a fault carefully avoided by supporting operators that evaluates the same no matter if left or right.",
+"type":"text"
+}
+],
+"id":"da24fc1fbbcf45148c4ed01db3cb404c",
+"type":"text"
 }
 ],
 "title":"Parsing left associative operators using RLMeta"

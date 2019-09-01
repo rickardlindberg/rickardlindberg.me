@@ -1,4 +1,5 @@
 Calculator {
-  expr  = digit:x ('-' digit:z -> [makeSub() z])*:xs -> leftAssoc(x xs)
-  digit = '0'-'9':x                                  -> int(x)
+  expr  = digit:x (op:y digit:z -> [y z])*:xs -> leftAssoc(x xs)
+  digit = '0'-'9':x                           -> int(x)
+  op    = '-'                                 -> makeSub()
 }
