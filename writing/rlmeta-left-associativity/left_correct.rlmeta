@@ -1,0 +1,4 @@
+Calculator {
+  expr  = digit:x ('-' digit:z -> [makeSub() z])*:xs -> leftAssoc(x xs)
+  digit = '0'-'9':x                                  -> int(x)
+}
