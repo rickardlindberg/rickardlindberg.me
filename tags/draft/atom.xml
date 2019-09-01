@@ -21,7 +21,7 @@
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>The parsing algorithm used by RLMeta does not support left associativity. How can it be achieved anyway?</p>
+<p>The <a href="/writing/rlmeta/index.html">first article</a> about RLMeta had an example with simple calculator grammar:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">C</span><span class="">a</span><span class="">l</span><span class="">c</span><span class="">u</span><span class="">l</span><span class="">a</span><span class="">t</span><span class="">o</span><span class="">r</span><span class=""> </span><span class="">{</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">e</span><span class="">s</span><span class="">s</span><span class="">i</span><span class="">o</span><span class="">n</span><span class=""> </span><span class="nb">=</span><span class="">
@@ -39,7 +39,13 @@
 
 </div>
 
-<ul><li><a href="#cb24f5d3a7df423e9081889d4a2d3785">Right</a>
+<p>This grammar has a fault carefully avoided by supporting operators that evaluates the same no matter if left or right.</p>
+
+<ul><li><a href="#37144d09790c48a3bbdc3485473b5416">What is associativity?</a>
+
+</li>
+
+<li><a href="#cb24f5d3a7df423e9081889d4a2d3785">Right</a>
 
 </li>
 
@@ -59,7 +65,7 @@
 
 </li>
 
-<li><a href="#5cca99df2e2c4c78ab4bfe4cb946d89a">Notes</a>
+<li><a href="#5cca99df2e2c4c78ab4bfe4cb946d89a">Resources</a>
 
 </li>
 
@@ -67,7 +73,11 @@
 
 </li>
 
-</ul><h2><a name="cb24f5d3a7df423e9081889d4a2d3785"></a>Right</h2>
+</ul><h2><a name="37144d09790c48a3bbdc3485473b5416"></a>What is associativity?</h2>
+
+<h2><a name="cb24f5d3a7df423e9081889d4a2d3785"></a>Right</h2>
+
+<p>Here is a grammar that works like the calculator but only support the subtraction operator:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>right.rlmeta</li></ol>
 
@@ -81,6 +91,8 @@
 </span></pre></div>
 
 </div>
+
+<p>Unknown paragraph...</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>ast.py</li></ol>
 
@@ -101,6 +113,8 @@
 </span></pre></div>
 
 </div>
+
+<p>For an expression with only two numbers, the grammar works as expected. But with more numbers, the expression created is incorrect.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">1</span><span class="">-</span><span class="">2</span><span class="">
 </span><span class="">1</span><span class="">-</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">
@@ -123,6 +137,21 @@
 
 <h2><a name="8366ac579e1e4be9930317242abd5dd6"></a>Left</h2>
 
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="">
+</span></pre></div>
+
+</div>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="">
+</span></pre></div>
+
+</div>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="">
+</span></pre></div>
+
+</div>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>left.rlmeta</li></ol>
 
 </div>
@@ -138,13 +167,24 @@
 
 <h2><a name="855b50c552e54c0895128e7e86da55e9"></a>Left correct</h2>
 
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="">
+</span></pre></div>
+
+</div>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="">(</span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="">)</span><span class="nc">*</span><span class="">
+</span></pre></div>
+
+</div>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>left_correct.rlmeta</li></ol>
 
 </div>
 
 <div class="rliterate-code-body"><pre><span class="">C</span><span class="">a</span><span class="">l</span><span class="">c</span><span class="">u</span><span class="">l</span><span class="">a</span><span class="">t</span><span class="">o</span><span class="">r</span><span class=""> </span><span class="">{</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">m</span><span class="">a</span><span class="">k</span><span class="">e</span><span class="">S</span><span class="">u</span><span class="">b</span><span class="">(</span><span class="">)</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">l</span><span class="">e</span><span class="">f</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="sc">'</span><span class="sc">0</span><span class="sc">'</span><span class="nc">-</span><span class="sc">'</span><span class="sc">9</span><span class="sc">'</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">i</span><span class="">n</span><span class="">t</span><span class="">(</span><span class="">x</span><span class="">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="">o</span><span class="">p</span><span class="nb">:</span><span class="">y</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">y</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">l</span><span class="">e</span><span class="">f</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="sc">'</span><span class="sc">0</span><span class="sc">'</span><span class="nc">-</span><span class="sc">'</span><span class="sc">9</span><span class="sc">'</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">i</span><span class="">n</span><span class="">t</span><span class="">(</span><span class="">x</span><span class="">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">o</span><span class="">p</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">m</span><span class="">a</span><span class="">k</span><span class="">e</span><span class="">S</span><span class="">u</span><span class="">b</span><span class="">(</span><span class="">)</span><span class="">
 </span><span class="">}</span><span class="">
 </span></pre></div>
 
@@ -218,8 +258,8 @@
 </span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class=""> </span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">1</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">1</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">2</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="">o</span><span class="">p</span><span class="">1</span><span class="nb">:</span><span class="">y</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">2</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">y</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">l</span><span class="">e</span><span class="">f</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">2</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">3</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="">o</span><span class="">p</span><span class="">2</span><span class="nb">:</span><span class="">y</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">3</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">y</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">l</span><span class="">e</span><span class="">f</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">3</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">4</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="">o</span><span class="">p</span><span class="">3</span><span class="nb">:</span><span class="">y</span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">4</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">y</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">r</span><span class="">i</span><span class="">g</span><span class="">h</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
-</span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">4</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="sc">'</span><span class="sc">0</span><span class="sc">'</span><span class="nc">-</span><span class="sc">'</span><span class="sc">9</span><span class="sc">'</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">i</span><span class="">n</span><span class="">t</span><span class="">(</span><span class="">x</span><span class="">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">e</span><span class="">x</span><span class="">p</span><span class="">r</span><span class="">3</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class="">(</span><span class="">o</span><span class="">p</span><span class="">3</span><span class="nb">:</span><span class="">y</span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class="nb">:</span><span class="">z</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">[</span><span class="">y</span><span class=""> </span><span class="">z</span><span class="">]</span><span class="">)</span><span class="nc">*</span><span class="nb">:</span><span class="">x</span><span class="">s</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">r</span><span class="">i</span><span class="">g</span><span class="">h</span><span class="">t</span><span class="">A</span><span class="">s</span><span class="">s</span><span class="">o</span><span class="">c</span><span class="">(</span><span class="">x</span><span class=""> </span><span class="">x</span><span class="">s</span><span class="">)</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class="">d</span><span class="">i</span><span class="">g</span><span class="">i</span><span class="">t</span><span class=""> </span><span class="nb">=</span><span class=""> </span><span class="sc">'</span><span class="sc">0</span><span class="sc">'</span><span class="nc">-</span><span class="sc">'</span><span class="sc">9</span><span class="sc">'</span><span class="nb">:</span><span class="">x</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">i</span><span class="">n</span><span class="">t</span><span class="">(</span><span class="">x</span><span class="">)</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class="">o</span><span class="">p</span><span class="">1</span><span class=""> </span><span class="nb">=</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="sc">'</span><span class="sc">+</span><span class="sc">'</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">m</span><span class="">a</span><span class="">k</span><span class="">e</span><span class="">A</span><span class="">d</span><span class="">d</span><span class="">(</span><span class="">)</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="nb">|</span><span class=""> </span><span class="sc">'</span><span class="sc">-</span><span class="sc">'</span><span class=""> </span><span class="nb">-</span><span class="nb">&gt;</span><span class=""> </span><span class="">m</span><span class="">a</span><span class="">k</span><span class="">e</span><span class="">S</span><span class="">u</span><span class="">b</span><span class="">(</span><span class="">)</span><span class="">
@@ -289,9 +329,25 @@
 
 </div>
 
-<h2><a name="5cca99df2e2c4c78ab4bfe4cb946d89a"></a>Notes</h2>
+<h2><a name="5cca99df2e2c4c78ab4bfe4cb946d89a"></a>Resources</h2>
 
-<p>Associativity and precedence. A good resource: <a href="http://beastie.cs.ua.edu/proglan/readings/precedence.pdf">http://beastie.cs.ua.edu/proglan/readings/precedence.pdf</a>.</p>
+<p>Articles that helped me understand how to handle left associative operators:</p>
+
+<ul><li><a href="http://beastie.cs.ua.edu/proglan/readings/precedence.pdf">Implementing Associativity and Precedence in Recursive Descent Expression Grammars</a></li>
+
+<li><a href="https://eli.thegreenplace.net/2008/09/26/recursive-descent-ll-and-predictive-parsers">Recursive descent, LL and predictive parsers</a></li>
+
+<li><a href="https://eli.thegreenplace.net/2009/03/14/some-problems-of-recursive-descent-parsers">Some problems of recursive descent parsers</a></li>
+
+<li><a href="https://eli.thegreenplace.net/2009/03/20/a-recursive-descent-parser-with-an-infix-expression-evaluator">A recursive descent parser with an infix expression evaluator</a></li>
+
+<li><a href="https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing">Top-Down operator precedence parsing</a></li>
+
+<li><a href="https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing">Parsing expressions by precedence climbing</a></li>
+
+<li><a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/">Pratt Parsers: Expression Parsing Made Easy</a></li>
+
+</ul>
 
 <h2><a name="c1716e6e63034983a86a1c9f621b2a52"></a>Appendix: Test script</h2>
 
