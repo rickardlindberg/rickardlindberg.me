@@ -1,0 +1,12 @@
+Calculator {
+  expression =
+    | additive
+  additive =
+    | multitive:x '+' additive:y -> add(x y)
+    | multitive
+  multitive =
+    | digit:x '*' multitive:y    -> mul(x y)
+    | digit
+  digit =
+    | '0'-'9':x                  -> int(x)
+}

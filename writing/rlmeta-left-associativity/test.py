@@ -1,19 +1,20 @@
 def parse():
     return (1, [
-        ['-', 2],
-        ['-', 3],
+        [lambda l, r: ['-', l, r], 2],
+        [lambda l, r: ['-', l, r], 3],
+        [lambda l, r: ['-', l, r], 4],
     ])
 
 def left_assoc(expr, items):
     while items:
         op, rhs = items.pop(0)
-        expr = [op, expr, rhs]
+        expr = op(expr, rhs)
     return expr
 
 def right_assoc(expr, items):
     if items:
         op, rhs = items.pop(0)
-        expr = [op, expr, right_assoc(rhs, items)]
+        expr = op(expr, right_assoc(rhs, items))
     return expr
 
 def eval_expr(expr):
