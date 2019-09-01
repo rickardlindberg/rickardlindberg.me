@@ -4,8 +4,85 @@
 {
 "children":[],
 "id":"37144d09790c48a3bbdc3485473b5416",
-"paragraphs":[],
-"title":"What is associativity?"
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"Operator associativity has to do with the order that operators are evaluated. The following expression can be evaluated in two ways:",
+"type":"text"
+}
+],
+"id":"8eee2549451748e58f07508d0a76edf4",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1-2-3\n",
+"type":"code"
+}
+],
+"id":"94a84480e8a042bbafa75fd81dfaef24",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Either as this (if the operator is left associative):",
+"type":"text"
+}
+],
+"id":"379a302b9dcb468fa1f2a4439dc26322",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"(1-2)-3\n",
+"type":"code"
+}
+],
+"id":"140187e907dd4701b557e76ff7734d1c",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Or as this (if the operator is right associative):",
+"type":"text"
+}
+],
+"id":"8977c2bdeaf640939f92bf625950bbe5",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1-(2-3)\n",
+"type":"code"
+}
+],
+"id":"e00ab17f67534191845fa4fdee5e5329",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"Let's see how the calculator evaluates expressions.",
+"type":"text"
+}
+],
+"id":"e5caa4ff5a2843a2b76e37be299d38e9",
+"type":"text"
+}
+],
+"title":"What is operator associativity?"
 },
 {
 "children":[],
@@ -14,7 +91,7 @@
 {
 "fragments":[
 {
-"text":"Here is a grammar that works like the calculator but only support the subtraction operator:",
+"text":"The following grammar works like the calculator but only supports the subtraction operator:",
 "type":"text"
 }
 ],
@@ -38,8 +115,14 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The following support functions either create an AST node or evaluates the expression:",
+"type":"text"
+}
+],
 "id":"af5a8c4ce42944f0a71a625b04edb239",
-"type":"factory"
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -100,14 +183,51 @@
 "code_id":"efe1706fb496425a8f2059574de91b19",
 "id":"d9394f9309714b6cb7388081f7bf781f",
 "type":"expanded_code"
-}
-],
-"title":"Right"
 },
 {
-"children":[],
-"id":"8366ac579e1e4be9930317242abd5dd6",
-"paragraphs":[
+"fragments":[
+{
+"text":"The calculator evaluates ",
+"type":"text"
+},
+{
+"text":"1-2-3",
+"type":"code"
+},
+{
+"text":" as ",
+"type":"text"
+},
+{
+"text":"1-(2-3)",
+"type":"code"
+},
+{
+"text":" which is incorrect because subtraction is left associative. So is addition, but evaluating addition according to a right associative parse gives the same result.",
+"type":"text"
+}
+],
+"id":"2e9a96724875435883f62761cf99bf95",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"If we strip the semantic actions from the ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":" rule it is easier to see what creates this right associative parse:",
+"type":"text"
+}
+],
+"id":"33c100918b6a4ecaa0786f3cfebc81b5",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[],
@@ -121,11 +241,31 @@
 "language":"rlmeta",
 "post_process":[],
 "type":"code"
+}
+],
+"title":"Right"
 },
 {
-"code_id":"ccf6f0a1de824f28b6162545d8529afb",
-"id":"2bb25c6b8a0440d89510b8defce7e4f1",
-"type":"expanded_code"
+"children":[],
+"id":"8366ac579e1e4be9930317242abd5dd6",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"In order to get a left associate parse (that we need for subtraction) we would like to write the ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":" rule like this instead:",
+"type":"text"
+}
+],
+"id":"d911815aac204deeba36404731b7dbaa",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -142,6 +282,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The whole grammar would then look like this:",
+"type":"text"
+}
+],
+"id":"33f28c5d7edb42e5a3e72a438592a13f",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "left.rlmeta"
@@ -156,6 +306,32 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"But this will not work with the parsing algorithm that RLMeta uses. In order to parse an ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":" it first has to parse an ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":" and so on, and it will get stuck in an infinite loop.",
+"type":"text"
+}
+],
+"id":"afc81f5c7fd247298bff843abfee9686",
+"type":"text"
 }
 ],
 "title":"Left"
@@ -165,9 +341,29 @@
 "id":"855b50c552e54c0895128e7e86da55e9",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The right associative parse:",
+"type":"text"
+}
+],
+"id":"276097899a314702802e324f288c1769",
+"type":"text"
+},
+{
 "code_id":"ccf6f0a1de824f28b6162545d8529afb",
 "id":"deba845b4d9b4eb3b447bbb9ef5ad93f",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"Can be expressed with a repetition instead:",
+"type":"text"
+}
+],
+"id":"4aaa9656b1874f98bd1f61d239934e12",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -184,6 +380,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"This parses the same expressions. How to construct a left associate parse from this? The whole grammar looks like this:",
+"type":"text"
+}
+],
+"id":"6fb5de8b93f047889f65a0a61e630e9e",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "left_correct.rlmeta"
@@ -198,6 +404,56 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"In the semantic action for ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"x",
+"type":"code"
+},
+{
+"text":" is bound to a digit, and ",
+"type":"text"
+},
+{
+"text":"xs",
+"type":"code"
+},
+{
+"text":" is bound to a list of pairs consisting of an operator and a digit: ",
+"type":"text"
+},
+{
+"text":"[[op, digit], [op, digit], ...]",
+"type":"code"
+},
+{
+"text":". The function ",
+"type":"text"
+},
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":" turns this into a left associate tree:",
+"type":"text"
+}
+],
+"id":"6c68618de578466e85c21018dc35db42",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -350,6 +606,79 @@
 },
 {
 "children":[],
+"id":"063f23a343574259bf31debb9b8425bf",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[
+"calculator_ops.rlmeta"
+],
+"fragments":[
+{
+"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '**' -> Op(makePow() \"3\" \"right\")\n    | '*'  -> Op(makeMul() \"2\" \"left\")\n    | '/'  -> Op(makeDiv() \"2\" \"left\")\n    | '+'  -> Op(makeAdd() \"1\" \"left\")\n    | '-'  -> Op(makeSub() \"1\" \"left\")\n}\n",
+"type":"code"
+}
+],
+"id":"d3a45ae9dc0345bebfbf390d7247c39b",
+"language":"",
+"post_process":[],
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class Op(object):\n\n    def __init__(self, fn, prec, assoc):\n        self.fn = fn\n        self.prec = int(prec)\n        self.assoc = assoc\n",
+"type":"code"
+}
+],
+"id":"26892d627896439aa7b3080a02ad7ffa",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def parseOps(expr, items, min_level=1):\n    while items and items[0][0].prec >= min_level:\n        op, rhs = items.pop(0)\n        if op.assoc == \"left\":\n            next_level = min_level + 1\n        else:\n            next_level = min_level\n        expr = op.fn(expr, parseOps(rhs, items, next_level))\n    return expr\n",
+"type":"code"
+}
+],
+"id":"0e3c33cbca0f4cb296429066f8a80146",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1+2-3\n1+2-3**2**2-5\n",
+"type":"code"
+}
+],
+"id":"68da398467b04071a836c89e17a74d8c",
+"post_process":[
+"bash",
+"expr.sh",
+"calculator_ops.rlmeta"
+],
+"type":"code"
+},
+{
+"code_id":"68da398467b04071a836c89e17a74d8c",
+"id":"de487e21adda44918c4d52235691dacc",
+"type":"expanded_code"
+}
+],
+"title":"Nicer handling of precedence"
+},
+{
+"children":[],
 "id":"5cca99df2e2c4c78ab4bfe4cb946d89a",
 "paragraphs":[
 {
@@ -485,7 +814,7 @@
 "url":"/writing/rlmeta/index.html"
 },
 {
-"text":" about RLMeta had an example with simple calculator grammar:",
+"text":" about RLMeta has this example grammar for a calculator:",
 "type":"text"
 }
 ],
@@ -508,11 +837,21 @@
 {
 "fragments":[
 {
-"text":"This grammar has a fault carefully avoided by supporting operators that evaluates the same no matter if left or right.",
+"text":"At a first glance, it looks correct, but it has a problem with operator associativity. It is avoided by only supporting operators that evaluate the same no matter if evaluated left or right.",
 "type":"text"
 }
 ],
 "id":"da24fc1fbbcf45148c4ed01db3cb404c",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"In this article I show how to correctly parse any binary operator expression in RLMeta.",
+"type":"text"
+}
+],
+"id":"8f342137f35746f28ee0a72901188feb",
 "type":"text"
 }
 ],

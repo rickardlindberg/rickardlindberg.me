@@ -1,0 +1,10 @@
+Calculator {
+  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)
+  digit = '0'-'9':x                           -> int(x)
+  op    =
+    | '**' -> Op(makePow() "3" "right")
+    | '*'  -> Op(makeMul() "2" "left")
+    | '/'  -> Op(makeDiv() "2" "left")
+    | '+'  -> Op(makeAdd() "1" "left")
+    | '-'  -> Op(makeSub() "1" "left")
+}
