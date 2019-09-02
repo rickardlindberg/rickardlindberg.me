@@ -14,12 +14,12 @@ class Op(object):
         self.fn = fn
         self.prec = int(prec)
         self.assoc = assoc
-def parseOps(expr, items, min_level=1):
+def parseOps(expr, items, min_level=0):
     while items and items[0][0].prec >= min_level:
         op, rhs = items.pop(0)
         if op.assoc == "left":
-            next_level = min_level + 1
+            next_level = op.prec + 1
         else:
-            next_level = min_level
+            next_level = op.prec
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr

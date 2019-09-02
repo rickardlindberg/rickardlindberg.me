@@ -811,7 +811,7 @@
 ],
 "fragments":[
 {
-"text":"def parseOps(expr, items, min_level=1):\n    while items and items[0][0].prec >= min_level:\n        op, rhs = items.pop(0)\n        if op.assoc == \"left\":\n            next_level = min_level + 1\n        else:\n            next_level = min_level\n        expr = op.fn(expr, parseOps(rhs, items, next_level))\n    return expr\n",
+"text":"def parseOps(expr, items, min_level=0):\n    while items and items[0][0].prec >= min_level:\n        op, rhs = items.pop(0)\n        if op.assoc == \"left\":\n            next_level = op.prec + 1\n        else:\n            next_level = op.prec\n        expr = op.fn(expr, parseOps(rhs, items, next_level))\n    return expr\n",
 "type":"code"
 }
 ],
