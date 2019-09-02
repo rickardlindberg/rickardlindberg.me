@@ -5,11 +5,11 @@ Calculator {
   expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)
   digit = '0'-'9':x                            -> int(x)
   op1 =
-    | '+' -> makeAdd()
-    | '-' -> makeSub()
+    | '+'  -> makeAdd()
+    | '-'  -> makeSub()
   op2 =
-    | '*' -> makeMul()
-    | '/' -> makeDiv()
+    | '*'  -> makeMul()
+    | '/'  -> makeDiv()
   op3 =
     | '**' -> makePow()
 }

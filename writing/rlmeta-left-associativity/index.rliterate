@@ -91,7 +91,7 @@
 {
 "fragments":[
 {
-"text":"The following grammar works like the calculator but only supports the subtraction operator:",
+"text":"The following grammar works like the calculator but only supports subtraction:",
 "type":"text"
 }
 ],
@@ -117,7 +117,15 @@
 {
 "fragments":[
 {
-"text":"The following support functions either create an AST node or evaluates the expression:",
+"text":"The ",
+"type":"text"
+},
+{
+"text":"sub",
+"type":"code"
+},
+{
+"text":" function is implemented in two ways. The first creates an AST node representing a subtraction:",
 "type":"text"
 }
 ],
@@ -139,6 +147,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The second evaluates the subtraction expression:",
+"type":"text"
+}
+],
+"id":"28a265ed1f964428b062118089287f52",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "eval.py"
@@ -155,11 +173,11 @@
 {
 "fragments":[
 {
-"text":"For an expression with only two numbers, the grammar works as expected. But with more numbers, the expression created is incorrect.",
+"text":"Let's see how the calculator handles the following two expressions:",
 "type":"text"
 }
 ],
-"id":"bc7fa6229c454ce192058b92cb8b7fe2",
+"id":"34ce0bc7e76b4d1e9ac08cf3b0bd6118",
 "type":"text"
 },
 {
@@ -180,6 +198,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Below are the ASTs and the evaluated results:",
+"type":"text"
+}
+],
+"id":"393a0142b88a400aac9d4577d36a2aef",
+"type":"text"
+},
+{
 "code_id":"efe1706fb496425a8f2059574de91b19",
 "id":"d9394f9309714b6cb7388081f7bf781f",
 "type":"expanded_code"
@@ -187,7 +215,7 @@
 {
 "fragments":[
 {
-"text":"The calculator evaluates ",
+"text":"For an expression with only two numbers, the calculator works as expected. But with more numbers, the parse is incorrect. The calculator parses ",
 "type":"text"
 },
 {
@@ -203,11 +231,29 @@
 "type":"code"
 },
 {
-"text":" which is incorrect because subtraction is left associative. So is addition, but evaluating addition according to a right associative parse gives the same result.",
+"text":" which is incorrect because subtraction is left associative and should thus be parsed as ",
+"type":"text"
+},
+{
+"text":"(1-2)-3",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
 "id":"2e9a96724875435883f62761cf99bf95",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The original calculator does not have this problem because it only supports operators that evaluate the same no matter if parsed as left associative or right associative.",
+"type":"text"
+}
+],
+"id":"c4c8bac02d6043e493243adb27750727",
 "type":"text"
 },
 {
@@ -241,9 +287,37 @@
 "language":"rlmeta",
 "post_process":[],
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The topmost expression will be parsed as a digit followed by an arbitrary complex expression: ",
+"type":"text"
+},
+{
+"text":"(digit - (...))",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
 }
 ],
-"title":"Right"
+"id":"f4fb3f8770ef44ae94694505fe60821a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Let's see if we can get a left associative parse instead.",
+"type":"text"
+}
+],
+"id":"ad4ac88927d444bfbc2225cdbf851ea1",
+"type":"text"
+}
+],
+"title":"Right associative calculator"
 },
 {
 "children":[],
@@ -310,7 +384,7 @@
 {
 "fragments":[
 {
-"text":"But this will not work with the parsing algorithm that RLMeta uses. In order to parse an ",
+"text":"Unfortunately, this will not work with the parsing algorithm that RLMeta uses. In order to parse an ",
 "type":"text"
 },
 {
@@ -326,15 +400,46 @@
 "type":"code"
 },
 {
-"text":" and so on, and it will get stuck in an infinite loop.",
+"text":" and so on, and it will get stuck in an infinite loop. The parsing algorithm is based on recursive descent and the first choice in the ",
+"type":"text"
+},
+{
+"text":"expr",
+"type":"code"
+},
+{
+"text":" rule will thus be translated into something like this:",
 "type":"text"
 }
 ],
 "id":"afc81f5c7fd247298bff843abfee9686",
 "type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"def expr():\n    x = expr()\n    atom(\"-\")\n    y = digit()\n    return sub(x, y)\n",
+"type":"code"
 }
 ],
-"title":"Left"
+"id":"ec73a8d90bde47cfb1ae8a3786bfb8eb",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"We need to handle left associative operators differently.",
+"type":"text"
+}
+],
+"id":"367427ffce19484bbcd42300fda18a50",
+"type":"text"
+}
+],
+"title":"Left associative calculator"
 },
 {
 "children":[],
@@ -492,21 +597,27 @@
 "type":"expanded_code"
 }
 ],
-"title":"Left correct"
+"title":"Corrected calculator"
 },
 {
 "children":[],
 "id":"736626ed0c3c4fea922cc4f14c5cda38",
 "paragraphs":[
 {
+"chunkpath":[],
+"filepath":[
+"right_no_recursion.rlmeta"
+],
 "fragments":[
 {
-"text":"todo: example",
-"type":"strong"
+"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    = '**'                                -> makePow()\n}\n",
+"type":"code"
 }
 ],
-"id":"f9469f2cb5364f10842329b0e9b18a45",
-"type":"text"
+"id":"fb73d7035d83421ba6fefd557fa9e975",
+"language":"",
+"post_process":[],
+"type":"code"
 },
 {
 "chunkpath":[],
@@ -526,14 +637,74 @@
 "code_id":"bdffa34a868143e89b3dcdf0c77eb183",
 "id":"b9d1e57041864b0fb648fbaf8d165fd3",
 "type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"ast.py"
+],
+"fragments":[
+{
+"text":"def pow(left, right):\n    return [\"**\", left, right]\n",
+"type":"code"
 }
 ],
-"title":"Right without recursion in grammar"
+"id":"d447ef7f73c3449a86562dc994bd14aa",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"eval.py"
+],
+"fragments":[
+{
+"text":"def pow(left, right):\n    return left ** right\n",
+"type":"code"
+}
+],
+"id":"09c97c98fa9346f29cde9c1a81f3d2e2",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"3**2\n3**2**2\n",
+"type":"code"
+}
+],
+"id":"c7e4c69cbf6343e382b18b9dc29ec16b",
+"post_process":[
+"bash",
+"expr.sh",
+"right_no_recursion.rlmeta"
+],
+"type":"code"
+},
+{
+"code_id":"c7e4c69cbf6343e382b18b9dc29ec16b",
+"id":"916483f9a62f4e129bb32988c6249210",
+"type":"expanded_code"
+}
+],
+"title":"Right associative calculator without recursion"
 },
 {
 "children":[],
 "id":"ae39c406658e4cd287411ab2c76710f8",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Now that we know how to handle both left and right associative operators, we can extend the calculator:",
+"type":"text"
+}
+],
+"id":"e51ad3194cfb4ae4a0519a7ec4199767",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -541,7 +712,7 @@
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+' -> makeAdd()\n    | '-' -> makeSub()\n  op2 =\n    | '*' -> makeMul()\n    | '/' -> makeDiv()\n  op3 =\n    | '**' -> makePow()\n}\n",
+"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+'  -> makeAdd()\n    | '-'  -> makeSub()\n  op2 =\n    | '*'  -> makeMul()\n    | '/'  -> makeDiv()\n  op3 =\n    | '**' -> makePow()\n}\n",
 "type":"code"
 }
 ],
@@ -557,7 +728,7 @@
 ],
 "fragments":[
 {
-"text":"def add(left, right):\n    return [\"+\", left, right]\n\ndef mul(left, right):\n    return [\"*\", left, right]\n\ndef div(left, right):\n    return [\"/\", left, right]\n\ndef pow(left, right):\n    return [\"**\", left, right]\n",
+"text":"def add(left, right):\n    return [\"+\", left, right]\n\ndef mul(left, right):\n    return [\"*\", left, right]\n\ndef div(left, right):\n    return [\"/\", left, right]\n",
 "type":"code"
 }
 ],
@@ -571,7 +742,7 @@
 ],
 "fragments":[
 {
-"text":"def add(left, right):\n    return left + right\n\ndef mul(left, right):\n    return left * right\n\ndef div(left, right):\n    return left / right\n\ndef pow(left, right):\n    return left ** right\n",
+"text":"def add(left, right):\n    return left + right\n\ndef mul(left, right):\n    return left * right\n\ndef div(left, right):\n    return left / right\n",
 "type":"code"
 }
 ],
@@ -684,7 +855,7 @@
 {
 "fragments":[
 {
-"text":"Articles that helped me understand how to handle left associative operators:",
+"text":"The following articles helped me understand how to handle left associative operators in recursive descent parsers:",
 "type":"text"
 }
 ],
@@ -783,6 +954,16 @@
 "id":"c1716e6e63034983a86a1c9f621b2a52",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The following Bash script was uses to run the examples:",
+"type":"text"
+}
+],
+"id":"be12f36e02b14777abdfece953fb7645",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "expr.sh"
@@ -814,7 +995,7 @@
 "url":"/writing/rlmeta/index.html"
 },
 {
-"text":" about RLMeta has this example grammar for a calculator:",
+"text":" about RLMeta has this example grammar implementing a simple calculator:",
 "type":"text"
 }
 ],
@@ -837,21 +1018,11 @@
 {
 "fragments":[
 {
-"text":"At a first glance, it looks correct, but it has a problem with operator associativity. It is avoided by only supporting operators that evaluate the same no matter if evaluated left or right.",
+"text":"It works, but if we were to add a second case to support subtraction, it would break because subtraction is a left associate operator but the calculator creates a right associative parse. In this article I explain why it would brake and how it can be solved.",
 "type":"text"
 }
 ],
 "id":"da24fc1fbbcf45148c4ed01db3cb404c",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"In this article I show how to correctly parse any binary operator expression in RLMeta.",
-"type":"text"
-}
-],
-"id":"8f342137f35746f28ee0a72901188feb",
 "type":"text"
 }
 ],

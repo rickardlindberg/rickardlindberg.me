@@ -1,0 +1,5 @@
+Calculator {
+  expr  = digit:x (op:y digit:z -> [y z])*:xs -> rightAssoc(x xs)
+  digit = '0'-'9':x                           -> int(x)
+  op    = '**'                                -> makePow()
+}
