@@ -400,7 +400,7 @@
 "type":"code"
 },
 {
-"text":" and so on, and it will get stuck in an infinite loop. The parsing algorithm is based on recursive descent and the first choice in the ",
+"text":" and so on, and it will get stuck in an infinite loop. The parsing algorithm is based on recursive descent parsing and the first choice in the ",
 "type":"text"
 },
 {
@@ -597,7 +597,7 @@
 "type":"expanded_code"
 }
 ],
-"title":"Corrected calculator"
+"title":"Correct left associative calculator"
 },
 {
 "children":[],
@@ -632,11 +632,6 @@
 ],
 "id":"17f2b0dec1ac4958bd79aa568963bdad",
 "type":"code"
-},
-{
-"code_id":"bdffa34a868143e89b3dcdf0c77eb183",
-"id":"b9d1e57041864b0fb648fbaf8d165fd3",
-"type":"expanded_code"
 },
 {
 "chunkpath":[],
@@ -698,7 +693,7 @@
 {
 "fragments":[
 {
-"text":"Now that we know how to handle both left and right associative operators, we can extend the calculator:",
+"text":"Now that we know how to handle both left and right associative operators, we can extend the calculator to handle more operators:",
 "type":"text"
 }
 ],
@@ -773,7 +768,7 @@
 "type":"expanded_code"
 }
 ],
-"title":"More complete calculator"
+"title":"Calculator combining operators"
 },
 {
 "children":[],
@@ -847,6 +842,28 @@
 }
 ],
 "title":"Nicer handling of precedence"
+},
+{
+"children":[],
+"id":"24d9bf94e3b64dfba2841df8b3cf00b1",
+"paragraphs":[
+{
+"code_id":"bdffa34a868143e89b3dcdf0c77eb183",
+"id":"2adde72c67ca479fb454d994d54eb6c5",
+"type":"expanded_code"
+},
+{
+"code_id":"17f2b0dec1ac4958bd79aa568963bdad",
+"id":"555bbefcbb8d4ca6af665198bd2a5135",
+"type":"expanded_code"
+},
+{
+"code_id":"0e3c33cbca0f4cb296429066f8a80146",
+"id":"667bad0aa6964744b921bfaff8ca0762",
+"type":"expanded_code"
+}
+],
+"title":"Comparison of operator parsers"
 },
 {
 "children":[],
@@ -1018,7 +1035,7 @@
 {
 "fragments":[
 {
-"text":"It works, but if we were to add a second case to support subtraction, it would break because subtraction is a left associate operator but the calculator creates a right associative parse. In this article I explain why it would brake and how it can be solved.",
+"text":"It works, but if we were to add a second case to support subtraction, it would break because subtraction is a left associate operator but the calculator creates a right associative parse. In this article I show how it would brake and how it can be solved.",
 "type":"text"
 }
 ],
