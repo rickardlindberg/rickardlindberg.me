@@ -448,7 +448,7 @@
 {
 "fragments":[
 {
-"text":"The right associative parse:",
+"text":"The right associative parse that we saw earlier can be rewritten using a repetition:",
 "type":"text"
 }
 ],
@@ -463,7 +463,7 @@
 {
 "fragments":[
 {
-"text":"Can be expressed with a repetition instead:",
+"text":"It then becomes this:",
 "type":"text"
 }
 ],
@@ -487,7 +487,15 @@
 {
 "fragments":[
 {
-"text":"This parses the same expressions. How to construct a left associate parse from this? The whole grammar looks like this:",
+"text":"It parses the same expressions, but it does not create a right associative parse. What does it create? Something that consist of a digit and a list of something. We can turn this into a parse tree using a function that we call ",
+"type":"text"
+},
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":". Here is the complete grammar:",
 "type":"text"
 }
 ],
@@ -545,7 +553,23 @@
 "type":"code"
 },
 {
-"text":". The function ",
+"text":". The operator is a function that takes two arguments: the left hand side and the right hand side. (",
+"type":"text"
+},
+{
+"text":"makeSub",
+"type":"code"
+},
+{
+"text":" returns the ",
+"type":"text"
+},
+{
+"text":"sub",
+"type":"code"
+},
+{
+"text":" function. It is used because currently global variables can not be referenced from semantic actions. Only global functions.) The function ",
 "type":"text"
 },
 {
@@ -575,6 +599,167 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Here is how the expression ",
+"type":"text"
+},
+{
+"text":"1-2-3",
+"type":"code"
+},
+{
+"text":" is parsed:",
+"type":"text"
+}
+],
+"id":"9e9532ad371d42699d82e731e4240b71",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=1",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"items=[[sub, 2], [sub, 3]]",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=sub",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=sub(1, 2)",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items, the loop is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=sub",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=3",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=sub(sub(1, 2), 3)",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items, the loop is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since there are no more items, ",
+"type":"text"
+},
+{
+"text":"sub(sub(1, 2), 3)",
+"type":"code"
+},
+{
+"text":" is returned",
+"type":"text"
+}
+]
+}
+],
+"id":"b7ed7e1ad4f84ca0be194fee1448b582",
+"type":"list"
+},
+{
+"fragments":[
+{
+"text":"Let's see that the calculator actually handles the following expressions as intended:",
+"type":"text"
+}
+],
+"id":"50f6147212bb4ed3a92879048211aba7",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -592,9 +777,29 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Below are the ASTs and the evaluated results:",
+"type":"text"
+}
+],
+"id":"b5992a08fe204f55b91b09d765ad66a9",
+"type":"text"
+},
+{
 "code_id":"ed936d888481437ca2da5776dfb50232",
 "id":"46366298a2784876957c79f4108715bb",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"And indeed it does. We have now successfully parsed a left associate operator using RLMeta.",
+"type":"text"
+}
+],
+"id":"db845fe20bbb497ba1e5eb4e1ffe0f82",
+"type":"text"
 }
 ],
 "title":"Correct left associative calculator"
@@ -604,13 +809,46 @@
 "id":"736626ed0c3c4fea922cc4f14c5cda38",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"We can handle a right associative parse in RLMeta with a recursive rule as we have seen before:",
+"type":"text"
+}
+],
+"id":"e09e408cf0324cf795d52d61f3d581f6",
+"type":"text"
+},
+{
+"code_id":"ccf6f0a1de824f28b6162545d8529afb",
+"id":"abe720fc96f546f4b1726d3954440421",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"However, we can also obtain a right associative parse by parsing operators as a list and then converting it into an AST with a ",
+"type":"text"
+},
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" function. Here is a grammar that supports only exponentiation which is right associative:",
+"type":"text"
+}
+],
+"id":"cea7d99feec9445abb9e1266307155ed",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "right_no_recursion.rlmeta"
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    = '**'                                -> makePow()\n}\n",
+"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    = '^'                                 -> makePow()\n}\n",
 "type":"code"
 }
 ],
@@ -618,6 +856,32 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It has the exact same structure as the previous calculator, only now a different parse function is called. The ",
+"type":"text"
+},
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" function is also similar in structure to the ",
+"type":"text"
+},
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":" function. But the loop is replaced with an if statement followed by a recursive call:",
+"type":"text"
+}
+],
+"id":"57d6305f4d0a4ae283681c18f41066e1",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -634,13 +898,258 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Here is how the expression ",
+"type":"text"
+},
+{
+"text":"3^2^2",
+"type":"code"
+},
+{
+"text":" is parsed:",
+"type":"text"
+}
+],
+"id":"b277c093cd974c45b779a4788d395d31",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=3",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"items=[[pow, 2], [pow, 2]]",
+"type":"code"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=pow",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=pow(3, rightAssoc(2, [[pow, 2]])",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items, the if statement is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=2",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"items=[[pow, 2]]",
+"type":"code"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=pow",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=pow(2, rightAssoc(2, [])",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items, the if statement is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=2",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"items=[]",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since there are no more items, ",
+"type":"text"
+},
+{
+"text":"2",
+"type":"code"
+},
+{
+"text":" is returned",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The parent call returns ",
+"type":"text"
+},
+{
+"text":"pow(2, 2)",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The parent call returns ",
+"type":"text"
+},
+{
+"text":"pow(3, pow(2, 2))",
+"type":"code"
+}
+]
+}
+],
+"id":"499e75b72c104f3ebc9aad2bc919fa97",
+"type":"list"
+},
+{
+"fragments":[
+{
+"text":"We also define the two ",
+"type":"text"
+},
+{
+"text":"pow",
+"type":"code"
+},
+{
+"text":" functions:",
+"type":"text"
+}
+],
+"id":"f35b2815a2634cb6bf2cabb497c377d4",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "ast.py"
 ],
 "fragments":[
 {
-"text":"def pow(left, right):\n    return [\"**\", left, right]\n",
+"text":"def pow(left, right):\n    return [\"^\", left, right]\n",
 "type":"code"
 }
 ],
@@ -662,11 +1171,21 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Let's see that the calculator actually handles the following expressions as intended:",
+"type":"text"
+}
+],
+"id":"357a1ce9641c45a68d2c2b40b8cfe9e8",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"3**2\n3**2**2\n",
+"text":"3^2\n3^2^2\n",
 "type":"code"
 }
 ],
@@ -679,9 +1198,29 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Below are the ASTs and the evaluated results:",
+"type":"text"
+}
+],
+"id":"57cb312759384c96934dee5166828ae9",
+"type":"text"
+},
+{
 "code_id":"c7e4c69cbf6343e382b18b9dc29ec16b",
 "id":"916483f9a62f4e129bb32988c6249210",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"And indeed it does.",
+"type":"text"
+}
+],
+"id":"aa028297163d492ab9de62121f12b823",
+"type":"text"
 }
 ],
 "title":"Right associative calculator without recursion"
@@ -707,7 +1246,7 @@
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+'  -> makeAdd()\n    | '-'  -> makeSub()\n  op2 =\n    | '*'  -> makeMul()\n    | '/'  -> makeDiv()\n  op3 =\n    | '**' -> makePow()\n}\n",
+"text":"Calculator {\n  expr  = expr1\n  expr1 = expr2:x (op1:y expr2:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr2 = expr3:x (op2:y expr3:z -> [y z])*:xs -> leftAssoc(x xs)\n  expr3 = digit:x (op3:y digit:z -> [y z])*:xs -> rightAssoc(x xs)\n  digit = '0'-'9':x                            -> int(x)\n  op1 =\n    | '+' -> makeAdd()\n    | '-' -> makeSub()\n  op2 =\n    | '*' -> makeMul()\n    | '/' -> makeDiv()\n  op3 =\n    | '^' -> makePow()\n}\n",
 "type":"code"
 }
 ],
@@ -749,7 +1288,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1+2-3**2**2-5\n",
+"text":"1+2-3^2^2-5\n",
 "type":"code"
 }
 ],
@@ -781,7 +1320,7 @@
 ],
 "fragments":[
 {
-"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '**' -> Op(makePow() \"3\" \"right\")\n    | '*'  -> Op(makeMul() \"2\" \"left\")\n    | '/'  -> Op(makeDiv() \"2\" \"left\")\n    | '+'  -> Op(makeAdd() \"1\" \"left\")\n    | '-'  -> Op(makeSub() \"1\" \"left\")\n}\n",
+"text":"Calculator {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '+' -> Op(makeAdd() \"1\" \"left\")\n    | '-' -> Op(makeSub() \"1\" \"left\")\n    | '*' -> Op(makeMul() \"2\" \"left\")\n    | '/' -> Op(makeDiv() \"2\" \"left\")\n    | '^' -> Op(makePow() \"3\" \"right\")\n}\n",
 "type":"code"
 }
 ],
@@ -823,7 +1362,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1+2-3\n1+2-3**2**2-5\n",
+"text":"1+2-3\n1+2-3^2^2-5\n",
 "type":"code"
 }
 ],
@@ -847,6 +1386,16 @@
 "children":[],
 "id":"24d9bf94e3b64dfba2841df8b3cf00b1",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"All three operator parser functions has a similar structure to them. Here they are for comparison:",
+"type":"text"
+}
+],
+"id":"4ff75051f90f4d30aee2cb7d2b8a6959",
+"type":"text"
+},
 {
 "code_id":"bdffa34a868143e89b3dcdf0c77eb183",
 "id":"2adde72c67ca479fb454d994d54eb6c5",
@@ -973,7 +1522,7 @@
 {
 "fragments":[
 {
-"text":"The following Bash script was uses to run the examples:",
+"text":"I used the following Bash script to run the examples:",
 "type":"text"
 }
 ],
@@ -993,6 +1542,16 @@
 ],
 "id":"9ce0445bab6d4f3c91b3a4c157b66bfc",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It reads expressions from stdin one per line. Then it evaluates them both using the AST function and the eval function and prints the result.",
+"type":"text"
+}
+],
+"id":"c15166ac3ef14b0d835e191d130cd682",
+"type":"text"
 }
 ],
 "title":"Appendix: Test script"
