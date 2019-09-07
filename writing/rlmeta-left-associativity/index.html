@@ -49,7 +49,7 @@ tags: rlmeta,draft
 
 </li>
 
-<li><a href="#063f23a343574259bf31debb9b8425bf">Nicer handling of precedence</a>
+<li><a href="#063f23a343574259bf31debb9b8425bf">Cleaner handling of precedence</a>
 
 </li>
 
@@ -276,7 +276,7 @@ tags: rlmeta,draft
 
 </ul>
 
-<p>Let's see that the calculator actually handles the following expressions as intended:</p>
+<p>Let's verify that the calculator handles the following expressions as intended:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">1</span><span class="">-</span><span class="">2</span><span class="">
 </span><span class="">1</span><span class="">-</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">
@@ -372,7 +372,7 @@ tags: rlmeta,draft
 
 </ul>
 
-<p>We also define the two <code>pow</code> functions:</p>
+<p>The two <code>pow</code> functions are defined like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>ast.py</li></ol>
 
@@ -394,7 +394,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>Let's see that the calculator actually handles the following expressions as intended:</p>
+<p>Let's verify that the calculator handles the following expressions as intended:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">3</span><span class="">^</span><span class="">2</span><span class="">
 </span><span class="">3</span><span class="">^</span><span class="">2</span><span class="">^</span><span class="">2</span><span class="">
@@ -448,7 +448,7 @@ tags: rlmeta,draft
 
 <p>Different levels of expressions are used to handle operators having different precedence (multiplication is done before subtraction for example).</p>
 
-<p>We also define the additional support functions:</p>
+<p>The additional arithmetic functions are defined like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>ast.py</li></ol>
 
@@ -512,11 +512,11 @@ tags: rlmeta,draft
 
 </div>
 
-<p>If there are many precedence levels in a grammar, it might get difficult to read. Can we do better?</p>
+<p>We can now parse complicated expressions correctly. However, if there are many precedence levels in a grammar, it might become difficult to read. Can we do better?</p>
 
-<h2><a name="063f23a343574259bf31debb9b8425bf"></a>Nicer handling of precedence</h2>
+<h2><a name="063f23a343574259bf31debb9b8425bf"></a>Cleaner handling of precedence</h2>
 
-<p>Here is the calculator grammar from the previous section rewritten:</p>
+<p>Here is the calculator grammar from the previous section rewritten in a cleaner way:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>calculator_ops.rlmeta</li></ol>
 
@@ -536,7 +536,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>In this version all operators are parsed as a list and then handed over to the <code>parseOps</code> function. The operators also return an <code>Op</code> object instead of just a function to evaluate the operator. The <code>Op</code> object has information about this operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:</p>
+<p>In this version all operators are parsed as a list and then handed over to the <code>parseOps</code> function. The operators also return an <code>Op</code> object instead of just a function to evaluate the operator. The <code>Op</code> object has information about the operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li></ol>
 
@@ -551,8 +551,6 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
-
-<p><strong>todo: must correct min level be set?</strong></p>
 
 <p>The <code>parseOps</code> function uses that information to create a parse tree:</p>
 
@@ -573,7 +571,55 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It combines the functionality of <code>leftAssoc</code> and <code>rightAssoc</code> and additionally also handle precedence.</p>
+<p>It combines the functionality of <code>leftAssoc</code> and <code>rightAssoc</code> and additionally also handles precedence. The increment of level if the operator is left associative ensures that only operators of higher precedence are parsed in the recursive call. If the next operator is of the same precedence, the recursive call will return immediately, and <code>parseOps</code> will behave like <code>leftAssoc</code>.</p>
+
+<p>Here is how the expression 1+2+3*4 is parsed:</p>
+
+<ul><li><code>parseOps</code> is called with <code>expr=1</code>, <code>items=[[OpAdd, 2], [OpAdd, 3], [OpMul, 4]]</code> and <code>min_level=0</code></li>
+
+<li>Since there are still items and the add operator has prec &gt;= 0, the loop is entered<ul><li><code>op=OpAdd</code> and <code>rhs=2</code></li>
+
+<li>Since the add operator is left associative, <code>next_level=2</code></li>
+
+<li><code>expr=add(1, parseOps(2, [[OpAdd, 3], [OpMul, 4]], 2))</code></li>
+
+</ul>
+
+</li>
+
+<li><code>parseOps</code> is called with <code>expr=2</code>, <code>items=[[OpAdd, 3], [OpMul, 4]]</code> and <code>min_level=2</code></li>
+
+<li>Since the add operator has prec &lt; 2, the loop is not entered, and <code>2</code> is returned</li>
+
+<li>The outer loop continues with <code>expr=add(1, 2)</code><ul><li><code>op=OpAdd</code> and <code>rhs=3</code></li>
+
+<li>Since the add operator is left associative, <code>next_level=2</code></li>
+
+<li><code>expr=add(add(1, 2), parseOps(3, [[OpMul, 4]], 2))</code></li>
+
+</ul>
+
+</li>
+
+<li>Since there are still items and the mul operator has prec &gt;= 2, the loop is entered<ul><li><code>op=OpMul</code> and <code>rhs=4</code></li>
+
+<li>Since the mul operator is left associative, <code>next_level=3</code></li>
+
+<li><code>expr=mul(3, parseOps(4, [], 3))</code></li>
+
+</ul>
+
+</li>
+
+<li><code>parseOps</code> is called with <code>expr=4</code>, <code>items=[]</code> and <code>min_level=3</code></li>
+
+<li>Since there are no more items, <code>4</code> is returned</li>
+
+<li>The parent returns <code>mul(3, 4)</code></li>
+
+<li>The parent returns <code>add(add(1, 2), mul(3, 4))</code></li>
+
+</ul>
 
 <p>Let's see how the calculator handles the following expressions:</p>
 

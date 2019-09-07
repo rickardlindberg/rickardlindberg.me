@@ -752,7 +752,7 @@
 {
 "fragments":[
 {
-"text":"Let's see that the calculator actually handles the following expressions as intended:",
+"text":"Let's verify that the calculator handles the following expressions as intended:",
 "type":"text"
 }
 ],
@@ -1127,7 +1127,7 @@
 {
 "fragments":[
 {
-"text":"We also define the two ",
+"text":"The two ",
 "type":"text"
 },
 {
@@ -1135,7 +1135,7 @@
 "type":"code"
 },
 {
-"text":" functions:",
+"text":" functions are defined like this:",
 "type":"text"
 }
 ],
@@ -1173,7 +1173,7 @@
 {
 "fragments":[
 {
-"text":"Let's see that the calculator actually handles the following expressions as intended:",
+"text":"Let's verify that the calculator handles the following expressions as intended:",
 "type":"text"
 }
 ],
@@ -1268,7 +1268,7 @@
 {
 "fragments":[
 {
-"text":"We also define the additional support functions:",
+"text":"The additional arithmetic functions are defined like this:",
 "type":"text"
 }
 ],
@@ -1387,7 +1387,7 @@
 {
 "fragments":[
 {
-"text":"If there are many precedence levels in a grammar, it might get difficult to read. Can we do better?",
+"text":"We can now parse complicated expressions correctly. However, if there are many precedence levels in a grammar, it might become difficult to read. Can we do better?",
 "type":"text"
 }
 ],
@@ -1404,7 +1404,7 @@
 {
 "fragments":[
 {
-"text":"Here is the calculator grammar from the previous section rewritten:",
+"text":"Here is the calculator grammar from the previous section rewritten in a cleaner way:",
 "type":"text"
 }
 ],
@@ -1454,7 +1454,7 @@
 "type":"code"
 },
 {
-"text":" object has information about this operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:",
+"text":" object has information about the operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:",
 "type":"text"
 }
 ],
@@ -1474,16 +1474,6 @@
 ],
 "id":"26892d627896439aa7b3080a02ad7ffa",
 "type":"code"
-},
-{
-"fragments":[
-{
-"text":"todo: must correct min level be set?",
-"type":"strong"
-}
-],
-"id":"ab190410c01048ec92ff7a34d3d5f130",
-"type":"text"
 },
 {
 "fragments":[
@@ -1536,12 +1526,374 @@
 "type":"code"
 },
 {
-"text":" and additionally also handle precedence.",
+"text":" and additionally also handles precedence. The increment of level if the operator is left associative ensures that only operators of higher precedence are parsed in the recursive call. If the next operator is of the same precedence, the recursive call will return immediately, and ",
+"type":"text"
+},
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" will behave like ",
+"type":"text"
+},
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":".",
 "type":"text"
 }
 ],
 "id":"6f431f190dc145ddbed1e9e6eca890ac",
 "type":"text"
+},
+{
+"fragments":[
+{
+"text":"Here is how the expression 1+2+3*4 is parsed:",
+"type":"text"
+}
+],
+"id":"b91fbfa4226d44528db85be02254f6f7",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=1",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"items=[[OpAdd, 2], [OpAdd, 3], [OpMul, 4]]",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"min_level=0",
+"type":"code"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=OpAdd",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since the add operator is left associative, ",
+"type":"text"
+},
+{
+"text":"next_level=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=add(1, parseOps(2, [[OpAdd, 3], [OpMul, 4]], 2))",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items and the add operator has prec >= 0, the loop is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=2",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"items=[[OpAdd, 3], [OpMul, 4]]",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"min_level=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since the add operator has prec < 2, the loop is not entered, and ",
+"type":"text"
+},
+{
+"text":"2",
+"type":"code"
+},
+{
+"text":" is returned",
+"type":"text"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=OpAdd",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=3",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since the add operator is left associative, ",
+"type":"text"
+},
+{
+"text":"next_level=2",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=add(add(1, 2), parseOps(3, [[OpMul, 4]], 2))",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"The outer loop continues with ",
+"type":"text"
+},
+{
+"text":"expr=add(1, 2)",
+"type":"code"
+}
+]
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"op=OpMul",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rhs=4",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since the mul operator is left associative, ",
+"type":"text"
+},
+{
+"text":"next_level=3",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"expr=mul(3, parseOps(4, [], 3))",
+"type":"code"
+}
+]
+}
+],
+"fragments":[
+{
+"text":"Since there are still items and the mul operator has prec >= 2, the loop is entered",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=4",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"items=[]",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"min_level=3",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Since there are no more items, ",
+"type":"text"
+},
+{
+"text":"4",
+"type":"code"
+},
+{
+"text":" is returned",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The parent returns ",
+"type":"text"
+},
+{
+"text":"mul(3, 4)",
+"type":"code"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"The parent returns ",
+"type":"text"
+},
+{
+"text":"add(add(1, 2), mul(3, 4))",
+"type":"code"
+}
+]
+}
+],
+"id":"99f418d226df4975a455a59b839048f0",
+"type":"list"
 },
 {
 "fragments":[
@@ -1596,7 +1948,7 @@
 "type":"text"
 }
 ],
-"title":"Nicer handling of precedence"
+"title":"Cleaner handling of precedence"
 },
 {
 "children":[],
