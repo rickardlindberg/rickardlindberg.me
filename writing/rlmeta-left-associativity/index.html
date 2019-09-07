@@ -237,7 +237,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>In the semantic action for <code>expr</code>, <code>x</code> is bound to a digit, and <code>xs</code> is bound to a list of pairs consisting of an operator and a digit: <code>[[op, digit], [op, digit], ...]</code>. The operator is a function that takes two arguments: the left hand side and the right hand side. (<code>makeSub</code> returns the <code>sub</code> function. It is used because currently global variables can not be referenced from semantic actions. Only global functions.) The function <code>leftAssoc</code> turns this into a left associate tree:</p>
+<p>In the semantic action for <code>expr</code>, <code>x</code> is bound to a digit, and <code>xs</code> is bound to a list of pairs consisting of an operator and a digit: <code>[[op, digit], [op, digit], ...]</code>. The operator is a function that takes two arguments: the left hand side and the right hand side. (<code>makeSub</code> returns the <code>sub</code> function. It is used because currently global variables can not be referenced from semantic actions. Only global functions.) The function <code>leftAssoc</code> turns this into a left associative tree:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li></ol>
 
@@ -310,7 +310,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>However, we can also obtain a right associative parse by parsing operators as a list and then converting it into an AST with a <code>rightAssoc</code> function. Here is a grammar that supports only exponentiation which is right associative:</p>
+<p>However, we can also obtain a right associative parse by parsing operators as a list and then converting them into an AST with a <code>rightAssoc</code> function. Here is a grammar that supports only exponentiation which is right associative:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>right_no_recursion.rlmeta</li></ol>
 
@@ -489,7 +489,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>Below are the AST and the evaluated result:</p>
+<p>Below is the AST and the evaluated result:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">[</span><span class="">'</span><span class="">-</span><span class="">'</span><span class="">,</span><span class="">
 </span><span class=""> </span><span class="">[</span><span class="">'</span><span class="">-</span><span class="">'</span><span class="">,</span><span class="">
@@ -504,7 +504,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>If we enter the same expression in the Python prompt, and replace the <code>^</code> with the <code>**</code> as Python uses, we get the same result:</p>
+<p>If we enter the same expression in the Python prompt, but replace <code>^</code> with <code>**</code> as Python uses, we get the same result:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">&gt;</span><span class="">&gt;</span><span class="">&gt;</span><span class=""> </span><span class="">1</span><span class="">+</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">*</span><span class="">*</span><span class="">2</span><span class="">*</span><span class="">*</span><span class="">2</span><span class="">-</span><span class="">5</span><span class="">
 </span><span class="">-</span><span class="">8</span><span class="">3</span><span class="">
@@ -577,7 +577,7 @@ tags: rlmeta,draft
 
 <ul><li><code>parseOps</code> is called with <code>expr=1</code>, <code>items=[[OpAdd, 2], [OpAdd, 3], [OpMul, 4]]</code> and <code>min_level=0</code></li>
 
-<li>Since there are still items and the add operator has prec &gt;= 0, the loop is entered<ul><li><code>op=OpAdd</code> and <code>rhs=2</code></li>
+<li>Since there are still items and the add operator has <code>prec &gt;= 0</code>, the loop is entered<ul><li><code>op=OpAdd</code> and <code>rhs=2</code></li>
 
 <li>Since the add operator is left associative, <code>next_level=2</code></li>
 
@@ -589,7 +589,7 @@ tags: rlmeta,draft
 
 <li><code>parseOps</code> is called with <code>expr=2</code>, <code>items=[[OpAdd, 3], [OpMul, 4]]</code> and <code>min_level=2</code></li>
 
-<li>Since the add operator has prec &lt; 2, the loop is not entered, and <code>2</code> is returned</li>
+<li>Since the add operator has <code>prec &lt; 2</code>, the loop is not entered, and <code>2</code> is returned</li>
 
 <li>The outer loop continues with <code>expr=add(1, 2)</code><ul><li><code>op=OpAdd</code> and <code>rhs=3</code></li>
 
@@ -601,7 +601,9 @@ tags: rlmeta,draft
 
 </li>
 
-<li>Since there are still items and the mul operator has prec &gt;= 2, the loop is entered<ul><li><code>op=OpMul</code> and <code>rhs=4</code></li>
+<li><code>parseOps</code> is called with <code>expr=3</code>, <code>items=[[OpMul, 4]]</code> and <code>min_level=2</code></li>
+
+<li>Since there are still items and the mul operator has <code>prec &gt;= 2</code>, the loop is entered<ul><li><code>op=OpMul</code> and <code>rhs=4</code></li>
 
 <li>Since the mul operator is left associative, <code>next_level=3</code></li>
 

@@ -577,7 +577,7 @@
 "type":"code"
 },
 {
-"text":" turns this into a left associate tree:",
+"text":" turns this into a left associative tree:",
 "type":"text"
 }
 ],
@@ -826,7 +826,7 @@
 {
 "fragments":[
 {
-"text":"However, we can also obtain a right associative parse by parsing operators as a list and then converting it into an AST with a ",
+"text":"However, we can also obtain a right associative parse by parsing operators as a list and then converting them into an AST with a ",
 "type":"text"
 },
 {
@@ -1334,7 +1334,7 @@
 {
 "fragments":[
 {
-"text":"Below are the AST and the evaluated result:",
+"text":"Below is the AST and the evaluated result:",
 "type":"text"
 }
 ],
@@ -1349,7 +1349,7 @@
 {
 "fragments":[
 {
-"text":"If we enter the same expression in the Python prompt, and replace the ",
+"text":"If we enter the same expression in the Python prompt, but replace ",
 "type":"text"
 },
 {
@@ -1357,7 +1357,7 @@
 "type":"code"
 },
 {
-"text":" with the ",
+"text":" with ",
 "type":"text"
 },
 {
@@ -1644,7 +1644,15 @@
 ],
 "fragments":[
 {
-"text":"Since there are still items and the add operator has prec >= 0, the loop is entered",
+"text":"Since there are still items and the add operator has ",
+"type":"text"
+},
+{
+"text":"prec >= 0",
+"type":"code"
+},
+{
+"text":", the loop is entered",
 "type":"text"
 }
 ]
@@ -1688,7 +1696,15 @@
 "children":[],
 "fragments":[
 {
-"text":"Since the add operator has prec < 2, the loop is not entered, and ",
+"text":"Since the add operator has ",
+"type":"text"
+},
+{
+"text":"prec < 2",
+"type":"code"
+},
+{
+"text":", the loop is not entered, and ",
 "type":"text"
 },
 {
@@ -1759,6 +1775,40 @@
 ]
 },
 {
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" is called with ",
+"type":"text"
+},
+{
+"text":"expr=3",
+"type":"code"
+},
+{
+"text":", ",
+"type":"text"
+},
+{
+"text":"items=[[OpMul, 4]]",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"min_level=2",
+"type":"code"
+}
+]
+},
+{
 "child_type":"unordered",
 "children":[
 {
@@ -1806,7 +1856,15 @@
 ],
 "fragments":[
 {
-"text":"Since there are still items and the mul operator has prec >= 2, the loop is entered",
+"text":"Since there are still items and the mul operator has ",
+"type":"text"
+},
+{
+"text":"prec >= 2",
+"type":"code"
+},
+{
+"text":", the loop is entered",
 "type":"text"
 }
 ]
