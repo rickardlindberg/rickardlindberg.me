@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Parsing left associative operators using RLMeta'
-date: 2019-09-03
+date: 2019-09-07
 tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
@@ -325,7 +325,7 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It has the exact same structure as the previous calculator, only now a different parse function is called. The <code>rightAssoc</code> function is also similar in structure to the <code>leftAssoc</code> function. But the loop is replaced with an if statement followed by a recursive call:</p>
+<p>It has the exact same structure as the previous calculator, only now a different function is called to create the parse tree. The <code>rightAssoc</code> function is also similar in structure to the <code>leftAssoc</code> function, but the loop is replaced with an if statement followed by a recursive call:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li></ol>
 
@@ -446,6 +446,10 @@ tags: rlmeta,draft
 
 </div>
 
+<p>Different levels of expressions are used to handle operators having different precedence (multiplication is done before subtraction for example).</p>
+
+<p>We also define the additional support functions:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>ast.py</li></ol>
 
 </div>
@@ -478,10 +482,14 @@ tags: rlmeta,draft
 
 </div>
 
+<p>Let's see how the calculator handles the following expression:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">1</span><span class="">+</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">^</span><span class="">2</span><span class="">^</span><span class="">2</span><span class="">-</span><span class="">5</span><span class="">
 </span></pre></div>
 
 </div>
+
+<p>Below are the AST and the evaluated result:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">[</span><span class="">'</span><span class="">-</span><span class="">'</span><span class="">,</span><span class="">
 </span><span class=""> </span><span class="">[</span><span class="">'</span><span class="">-</span><span class="">'</span><span class="">,</span><span class="">
@@ -496,7 +504,19 @@ tags: rlmeta,draft
 
 </div>
 
+<p>If we enter the same expression in the Python prompt, and replace the <code>^</code> with the <code>**</code> as Python uses, we get the same result:</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">&gt;</span><span class="">&gt;</span><span class="">&gt;</span><span class=""> </span><span class="">1</span><span class="">+</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">*</span><span class="">*</span><span class="">2</span><span class="">*</span><span class="">*</span><span class="">2</span><span class="">-</span><span class="">5</span><span class="">
+</span><span class="">-</span><span class="">8</span><span class="">3</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>If there are many precedence levels in a grammar, it might get difficult to read. Can we do better?</p>
+
 <h2><a name="063f23a343574259bf31debb9b8425bf"></a>Nicer handling of precedence</h2>
+
+<p>Here is the calculator grammar from the previous section rewritten:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>calculator_ops.rlmeta</li></ol>
 
@@ -516,6 +536,8 @@ tags: rlmeta,draft
 
 </div>
 
+<p>In this version all operators are parsed as a list and then handed over to the <code>parseOps</code> function. The operators also return an <code>Op</code> object instead of just a function to evaluate the operator. The <code>Op</code> object has information about this operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li></ol>
 
 </div>
@@ -529,6 +551,10 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
+
+<p><strong>todo: must correct min level be set?</strong></p>
+
+<p>The <code>parseOps</code> function uses that information to create a parse tree:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>support.py</li></ol>
 
@@ -547,11 +573,17 @@ tags: rlmeta,draft
 
 </div>
 
+<p>It combines the functionality of <code>leftAssoc</code> and <code>rightAssoc</code> and additionally also handle precedence.</p>
+
+<p>Let's see how the calculator handles the following expressions:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">1</span><span class="">+</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">
 </span><span class="">1</span><span class="">+</span><span class="">2</span><span class="">-</span><span class="">3</span><span class="">^</span><span class="">2</span><span class="">^</span><span class="">2</span><span class="">-</span><span class="">5</span><span class="">
 </span></pre></div>
 
 </div>
+
+<p>Below are the ASTs and the evaluated results:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">[</span><span class="">'</span><span class="">-</span><span class="">'</span><span class="">,</span><span class="">
 </span><span class=""> </span><span class="">[</span><span class="">'</span><span class="">+</span><span class="">'</span><span class="">,</span><span class=""> </span><span class="">1</span><span class="">,</span><span class=""> </span><span class="">2</span><span class="">]</span><span class="">,</span><span class="">
@@ -572,9 +604,11 @@ tags: rlmeta,draft
 
 </div>
 
+<p>This looks correct. We now have a calculator whose grammar is more cleanly written and only uses one support function instead of two.</p>
+
 <h2><a name="24d9bf94e3b64dfba2841df8b3cf00b1"></a>Comparison of operator parsers</h2>
 
-<p>All three operator parser functions has a similar structure to them. Here they are for comparison:</p>
+<p>All three operator parser functions have a similar structure to them. Here they are for comparison:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class=""> </span><span class="nf">l</span><span class="nf">e</span><span class="nf">f</span><span class="nf">t</span><span class="nf">A</span><span class="nf">s</span><span class="nf">s</span><span class="nf">o</span><span class="nf">c</span><span class="p">(</span><span class="n">e</span><span class="n">x</span><span class="n">p</span><span class="n">r</span><span class="p">,</span><span class=""> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">)</span><span class="p">:</span><span class="">
 </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="k">w</span><span class="k">h</span><span class="k">i</span><span class="k">l</span><span class="k">e</span><span class=""> </span><span class="n">i</span><span class="n">t</span><span class="n">e</span><span class="n">m</span><span class="n">s</span><span class="p">:</span><span class="">
@@ -666,4 +700,4 @@ tags: rlmeta,draft
 
 </div>
 
-<p>It reads expressions from stdin one per line. Then it evaluates them both using the AST function and the eval function and prints the result.</p>
+<p>It reads expressions from stdin one per line. Then it evaluates them both using the AST function and the eval function and prints the result. The <code>make*</code> functions are also defined here to just return the respective function.</p>

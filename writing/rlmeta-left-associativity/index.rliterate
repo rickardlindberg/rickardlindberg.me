@@ -860,7 +860,7 @@
 {
 "fragments":[
 {
-"text":"It has the exact same structure as the previous calculator, only now a different parse function is called. The ",
+"text":"It has the exact same structure as the previous calculator, only now a different function is called to create the parse tree. The ",
 "type":"text"
 },
 {
@@ -876,7 +876,7 @@
 "type":"code"
 },
 {
-"text":" function. But the loop is replaced with an if statement followed by a recursive call:",
+"text":" function, but the loop is replaced with an if statement followed by a recursive call:",
 "type":"text"
 }
 ],
@@ -1256,6 +1256,26 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Different levels of expressions are used to handle operators having different precedence (multiplication is done before subtraction for example).",
+"type":"text"
+}
+],
+"id":"03a6cbc680ac47d4bc23f41e7abf334a",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"We also define the additional support functions:",
+"type":"text"
+}
+],
+"id":"bf83e08bab14495da0a667ba32b7fbf9",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "ast.py"
@@ -1284,6 +1304,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Let's see how the calculator handles the following expression:",
+"type":"text"
+}
+],
+"id":"c3fa79f49a2e42a0893160629b50bd65",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -1302,9 +1332,67 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Below are the AST and the evaluated result:",
+"type":"text"
+}
+],
+"id":"ee66690750b64bcd875ada0c122230d4",
+"type":"text"
+},
+{
 "code_id":"d8ed162a9514476d9efdab15468e4966",
 "id":"a58288dc1d1d412ead712a5541260e51",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"If we enter the same expression in the Python prompt, and replace the ",
+"type":"text"
+},
+{
+"text":"^",
+"type":"code"
+},
+{
+"text":" with the ",
+"type":"text"
+},
+{
+"text":"**",
+"type":"code"
+},
+{
+"text":" as Python uses, we get the same result:",
+"type":"text"
+}
+],
+"id":"504430af793d437bb078158e825277fc",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":">>> 1+2-3**2**2-5\n-83\n",
+"type":"code"
+}
+],
+"id":"7a958306ae7b4fafb0b6d112bf5b6113",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"If there are many precedence levels in a grammar, it might get difficult to read. Can we do better?",
+"type":"text"
+}
+],
+"id":"f713daff70d8471196a843b1a2730203",
+"type":"text"
 }
 ],
 "title":"Calculator combining operators"
@@ -1313,6 +1401,16 @@
 "children":[],
 "id":"063f23a343574259bf31debb9b8425bf",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Here is the calculator grammar from the previous section rewritten:",
+"type":"text"
+}
+],
+"id":"d3e93c9667b44a7796d4cd936063c813",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -1330,6 +1428,40 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"In this version all operators are parsed as a list and then handed over to the ",
+"type":"text"
+},
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" function. The operators also return an ",
+"type":"text"
+},
+{
+"text":"Op",
+"type":"code"
+},
+{
+"text":" object instead of just a function to evaluate the operator. The ",
+"type":"text"
+},
+{
+"text":"Op",
+"type":"code"
+},
+{
+"text":" object has information about this operator's precedence (given as a string only because RLMeta can not express integers in semantic actions) and associativity:",
+"type":"text"
+}
+],
+"id":"5983e63ef17a4dc59aff3c2d58301aff",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "support.py"
@@ -1344,6 +1476,34 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"todo: must correct min level be set?",
+"type":"strong"
+}
+],
+"id":"ab190410c01048ec92ff7a34d3d5f130",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The ",
+"type":"text"
+},
+{
+"text":"parseOps",
+"type":"code"
+},
+{
+"text":" function uses that information to create a parse tree:",
+"type":"text"
+}
+],
+"id":"1012ff3203f1419b9f682d774267aac9",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "support.py"
@@ -1356,6 +1516,42 @@
 ],
 "id":"0e3c33cbca0f4cb296429066f8a80146",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"It combines the functionality of ",
+"type":"text"
+},
+{
+"text":"leftAssoc",
+"type":"code"
+},
+{
+"text":" and ",
+"type":"text"
+},
+{
+"text":"rightAssoc",
+"type":"code"
+},
+{
+"text":" and additionally also handle precedence.",
+"type":"text"
+}
+],
+"id":"6f431f190dc145ddbed1e9e6eca890ac",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Let's see how the calculator handles the following expressions:",
+"type":"text"
+}
+],
+"id":"04c007bec2014e84b1e56ba08174f9bb",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -1375,9 +1571,29 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Below are the ASTs and the evaluated results:",
+"type":"text"
+}
+],
+"id":"9d57b5be56a14698a160c1a615b90d57",
+"type":"text"
+},
+{
 "code_id":"68da398467b04071a836c89e17a74d8c",
 "id":"de487e21adda44918c4d52235691dacc",
 "type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"This looks correct. We now have a calculator whose grammar is more cleanly written and only uses one support function instead of two.",
+"type":"text"
+}
+],
+"id":"6b472f12f4d6482fa9c15c3deb75c727",
+"type":"text"
 }
 ],
 "title":"Nicer handling of precedence"
@@ -1389,7 +1605,7 @@
 {
 "fragments":[
 {
-"text":"All three operator parser functions has a similar structure to them. Here they are for comparison:",
+"text":"All three operator parser functions have a similar structure to them. Here they are for comparison:",
 "type":"text"
 }
 ],
@@ -1546,7 +1762,15 @@
 {
 "fragments":[
 {
-"text":"It reads expressions from stdin one per line. Then it evaluates them both using the AST function and the eval function and prints the result.",
+"text":"It reads expressions from stdin one per line. Then it evaluates them both using the AST function and the eval function and prints the result. The ",
+"type":"text"
+},
+{
+"text":"make*",
+"type":"code"
+},
+{
+"text":" functions are also defined here to just return the respective function.",
 "type":"text"
 }
 ],
