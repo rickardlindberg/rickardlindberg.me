@@ -4,6 +4,13 @@ date: 2019-09-16
 tags: draft
 ---
 
+Ever since I watched a talk by Alan Kay I've been interested in his ideas. In
+this post I summarize notes and quotes that I've gathered while studying Kay
+and related topics.
+
+Fogus did s similar post to this one called [Soup](http://blog.fogus.me/2018/10/25/soup/).
+
+
 Introduction with video.
 
 ---
@@ -24,7 +31,10 @@ Or rather its size for the functionality it gives.
 
 ---
 
-The STEPS project:
+Then I found out about the STEPS project in which they try to significantly
+reduce the number of lines of code required to implement "personal computing".
+
+The STEPS project at [VPRI](http://vpri.org/):
 
 * [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) (First Year Progress Report, December 2007.)
 
@@ -38,11 +48,14 @@ The STEPS project:
 
 * [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf)
 
-Related:
+A blog post series mentioning the STEPS project and related ideas:
 
-* Nice summary blog post: [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html).
+* [Towards Moore's Law Software: Part 1 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-1-of-3.html)
+* [Towards Moore's Law Software: Part 2 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-2-of-3.html)
+* [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html)
 
-* Read the blog post [Computer Revolution](http://blog.rtens.org/computer-revolution.html).
+The STEPS project has many components. One of them is OMeta that inspired me to
+implement RLMeta.
 
 ---
 
@@ -180,7 +193,3 @@ Interesting posts by Alan Kay:
 ---
 
 Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
-
----
-
-Another post like this: [Soup](http://blog.fogus.me/2018/10/25/soup/)
