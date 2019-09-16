@@ -13,5 +13,6 @@ You can also tweet <a href="http://twitter.com/ricli85">@ricli85</a>.
   <li><a href="https://github.com/rickardlindberg">GitHub</a></li>
   <li><a href="https://gist.github.com/rickardlindberg">GitHub gists</a></li>
   <li><a href="https://twitter.com/ricli85">Twitter</a></li>
+  <li><a href="https://www.linkedin.com/in/rickard-lindberg-6097a015/">LinkedIn</a></li>
 </ul>
 
