@@ -45,7 +45,6 @@ rulesStaticFiles = do
     match
         (
              "avatar.png"
-        .||. "cv-rickard-lindberg.pdf"
         .||. "projects/*.gif"
         .||. "projects/**/*.gif"
         .||. "projects/*.png"
