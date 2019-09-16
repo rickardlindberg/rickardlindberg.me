@@ -74,24 +74,6 @@ and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.
 
 [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/)
 
-Quotes:
-
-> Somewhere in all of this, I realized that the bridge to an object-based
-> system could be in terms of each object as a syntax directed interpreter of
-> messages sent to it. In one fell swoop this would unify object-oriented
-> semantics with the ideal of a completely extensible language. The mental
-> image was one of separate computers sending requests to other computers that
-> had to be accepted and understood by the receivers before anything could
-> happen. In today's terms every object would be a server offering services
-> whose deployment and discretion depended entirely on the server's notion of
-> relationship with the servee.
-
-> Again, the whole point of OOP is not to have to worry about what is inside an
-> object. Objects made on different machines and with different languages
-> should be able to talk to each other—and will have to in the future.
-> Late-binding here involves trapping incompatibilities into recompatibility
-> methods—a good discussion of some of the issues is found in [Popek 1984].
-
 > Staying with the metaphor of late-binding, what further late-binding schemes
 > might we expect to see? One of the nicest late-binding schemes that is being
 > experimented with is the metaobject protocol work at Xerox PARC [Kiczales
@@ -108,7 +90,52 @@ Explore late bound systems. What does late binding mean?
 
 ---
 
-[prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html):
+Explore architecture of
+[B5000](https://en.wikipedia.org/wiki/Burroughs_large_systems) ([emulator
+project](https://github.com/pkimpel/retro-b5500)). How is it related to
+[Nothing](https://github.com/alexwarth/nothing)?
+
+---
+
+Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
+
+---
+
+Interesting posts by Alan Kay:
+
+* [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
+* [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
+
+---
+
+Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
+
+## Object oriented programming
+
+When listening to Kay I get the feeling that object oriented programming today
+is not what he meant it to be. I tried to figure out what he meant it to be.
+
+From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
+
+> Somewhere in all of this, I realized that the bridge to an object-based
+> system could be in terms of each object as a syntax directed interpreter of
+> messages sent to it. In one fell swoop this would unify object-oriented
+> semantics with the ideal of a completely extensible language. The mental
+> image was one of separate computers sending requests to other computers that
+> had to be accepted and understood by the receivers before anything could
+> happen. In today's terms every object would be a server offering services
+> whose deployment and discretion depended entirely on the server's notion of
+> relationship with the servee.
+
+From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
+
+> Again, the whole point of OOP is not to have to worry about what is inside an
+> object. Objects made on different machines and with different languages
+> should be able to talk to each other—and will have to in the future.
+> Late-binding here involves trapping incompatibilities into recompatibility
+> methods—a good discussion of some of the issues is found in [Popek 1984].
+
+From [prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html):
 
 > Just a gentle reminder that I took some pains at the last OOPSLA to try to
 > remind everyone that Smalltalk is not only NOT its syntax or the class
@@ -119,8 +146,6 @@ Explore late bound systems. What does late binding mean?
 > The big idea is "messaging" -- that is what the kernal of Smalltalk/Squeak
 > is all about (and it's something that was never quite completed in our
 > Xerox PARC phase).
-
----
 
 Interesting quotes from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
@@ -171,25 +196,3 @@ discussing the above article. Some interesting quotes:
 > messaging/independent threads of execution part of OO only.
 >
 > Self did OO without inheritance (composition by prototypes).
-
----
-
-Explore architecture of
-[B5000](https://en.wikipedia.org/wiki/Burroughs_large_systems) ([emulator
-project](https://github.com/pkimpel/retro-b5500)). How is it related to
-[Nothing](https://github.com/alexwarth/nothing)?
-
----
-
-Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
-
----
-
-Interesting posts by Alan Kay:
-
-* [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
-* [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
-
----
-
-Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
