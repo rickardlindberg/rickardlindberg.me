@@ -6,14 +6,10 @@ tags: draft
 
 Ever since I watched a talk by Alan Kay I've been interested in his ideas. In
 this post I summarize notes and quotes that I've gathered while studying Kay
-and related topics.
+and related topics. Fogus did a similar post called
+[Soup](http://blog.fogus.me/2018/10/25/soup/).
 
-Fogus did s similar post to this one called [Soup](http://blog.fogus.me/2018/10/25/soup/).
-
-
-Introduction with video.
-
----
+## STEPS project
 
 Led me to this believe which I've had since I read SICP.
 
@@ -28,8 +24,6 @@ The ideal language is found if no accidental complexity is present when the
 problem is solved in that language. That will also make the problem be
 expressed in few lines of code. So a crude metric of good software is its size.
 Or rather its size for the functionality it gives.
-
----
 
 Then I found out about the STEPS project in which they try to significantly
 reduce the number of lines of code required to implement "personal computing".
@@ -57,58 +51,10 @@ A blog post series mentioning the STEPS project and related ideas:
 The STEPS project has many components. One of them is OMeta that inspired me to
 implement RLMeta.
 
----
-
-Direct manipulation.
-[WYSIWYG](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
-
-> In programming, you don’t want to go through a edit in an editor, submit to a
-> compiler, which submits to a loader, which requires your system to
-> intiialize, and so forth. You just want to be able to deal directly and
-> safely with what you are trying to achieve.
-
-PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
-and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
-
----
-
-[The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/)
-
-> Staying with the metaphor of late-binding, what further late-binding schemes
-> might we expect to see? One of the nicest late-binding schemes that is being
-> experimented with is the metaobject protocol work at Xerox PARC [Kiczales
-> 1991]. The notion is that the language designer's choice for the internal
-> representation of instances, variables, etc., may not cover what the
-> implementer needs, so within a fixed semantics they allow the implementer to
-> give the system strategies—for example, using a hashed lookup for slots in an
-> instance instead of direct indexing. These are then efficiently compiled and
-> extend the base implementation of the system.
-
----
-
-Explore late bound systems. What does late binding mean?
-
----
-
 Explore architecture of
 [B5000](https://en.wikipedia.org/wiki/Burroughs_large_systems) ([emulator
 project](https://github.com/pkimpel/retro-b5500)). How is it related to
 [Nothing](https://github.com/alexwarth/nothing)?
-
----
-
-Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
-
----
-
-Interesting posts by Alan Kay:
-
-* [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
-* [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
-
----
-
-Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
 
 ## Object oriented programming
 
@@ -196,3 +142,42 @@ discussing the above article. Some interesting quotes:
 > messaging/independent threads of execution part of OO only.
 >
 > Self did OO without inheritance (composition by prototypes).
+
+## Late binding
+
+[The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/)
+
+> Staying with the metaphor of late-binding, what further late-binding schemes
+> might we expect to see? One of the nicest late-binding schemes that is being
+> experimented with is the metaobject protocol work at Xerox PARC [Kiczales
+> 1991]. The notion is that the language designer's choice for the internal
+> representation of instances, variables, etc., may not cover what the
+> implementer needs, so within a fixed semantics they allow the implementer to
+> give the system strategies—for example, using a hashed lookup for slots in an
+> instance instead of direct indexing. These are then efficiently compiled and
+> extend the base implementation of the system.
+
+Explore late bound systems. What does late binding mean?
+
+## Direct manipulation
+
+Direct manipulation.
+[WYSIWYG](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
+
+> In programming, you don’t want to go through a edit in an editor, submit to a
+> compiler, which submits to a loader, which requires your system to
+> intiialize, and so forth. You just want to be able to deal directly and
+> safely with what you are trying to achieve.
+
+PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
+and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
+
+## Further reading
+
+* [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
+* [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
+
+Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
+
+Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
+
