@@ -308,6 +308,7 @@ patternPostIndexPandoc =
     .||. "writing/bitten-by-python-generators/index.markdown"
     .||. "writing/evolution-recalling-bash-history/index.md"
     .||. "writing/new-home-for-timeline/index.markdown"
+    .||. "writing/alan-kay-notes/index.markdown"
     .||. patternNewsletter
 
 patternPostIndexPandocWithOwnTitle :: Pattern
