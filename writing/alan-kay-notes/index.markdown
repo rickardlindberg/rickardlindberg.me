@@ -4,31 +4,40 @@ date: 2019-09-16
 tags: draft
 ---
 
-Ever since I watched a talk by Alan Kay I've been interested in his ideas. In
-this post I summarize notes and quotes that I've gathered while studying Kay
-and related topics. Fogus did a similar post called
-[Soup](http://blog.fogus.me/2018/10/25/soup/).
+Back in like 2012 I watched a talk by Alan Kay in which he talked about how
+software today has gotten so complex that we can't comprehend it. I can't
+remember exactly which one, but it was probably one of these: ... Ever since
+then I've been interested in his ideas. In this post I summarize notes and
+quotes that I've gathered while studying Kay and related topics. Fogus did a
+similar post to this called [Soup](http://blog.fogus.me/2018/10/25/soup/).
 
-## STEPS project
+## How to tackle complexity?
 
-Led me to this believe which I've had since I read SICP.
+After reading
+[SICP](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)
+in university and watching talks by Kay, I had the following though about how
+to tackle complexity in software:
 
-Different coordinate systems are suited to different problems. Choosing the
-right coordinate system makes the problem easier to solve. The same should be
-true for programming problems. Each problem probably has an ideal programming
-language in which it can be solved. The task for a programmer should be to find
-that language, implement it, and solve the problem in that language. Try to
-find and document examples of this hypothesis.
+Different coordinate systems are suited for different math problems. Choosing
+the right coordinate system makes the problem easier to solve. The same should
+be true for programming problems. Each problem probably has an ideal
+programming language in which it can be solved. The task for a programmer
+should be to find that language, implement it, and solve the problem in that
+language.
 
 The ideal language is found if no accidental complexity is present when the
 problem is solved in that language. That will also make the problem be
-expressed in few lines of code. So a crude metric of good software is its size.
-Or rather its size for the functionality it gives.
+expressed in few lines of code. So a crude metric of well written software is
+its size.  Or rather its size for the functionality it gives.
+
+## STEPS project
 
 Then I found out about the STEPS project in which they try to significantly
 reduce the number of lines of code required to implement "personal computing".
+They do it partly by inventing new languages suited to the problems at hand.
 
-The STEPS project at [VPRI](http://vpri.org/):
+The best overview of the STEPS project (from [VPRI](http://vpri.org/)) I think
+are the progress reports:
 
 * [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) (First Year Progress Report, December 2007.)
 
@@ -42,14 +51,14 @@ The STEPS project at [VPRI](http://vpri.org/):
 
 * [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf)
 
+The STEPS project has many components. One of them is OMeta that inspired me to
+implement [RLMeta](/writing/tags/rlmeta/index.html).
+
 A blog post series mentioning the STEPS project and related ideas:
 
 * [Towards Moore's Law Software: Part 1 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-1-of-3.html)
 * [Towards Moore's Law Software: Part 2 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-2-of-3.html)
 * [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html)
-
-The STEPS project has many components. One of them is OMeta that inspired me to
-implement RLMeta.
 
 Explore architecture of
 [B5000](https://en.wikipedia.org/wiki/Burroughs_large_systems) ([emulator
@@ -60,6 +69,7 @@ project](https://github.com/pkimpel/retro-b5500)). How is it related to
 
 When listening to Kay I get the feeling that object oriented programming today
 is not what he meant it to be. I tried to figure out what he meant it to be.
+Here are some quotes I found relevant:
 
 From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
@@ -93,12 +103,14 @@ From [prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundatio
 > is all about (and it's something that was never quite completed in our
 > Xerox PARC phase).
 
-Interesting quotes from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > I thought of objects being like biological cells and/or individual computers
 > on a network, only able to communicate with messages (so messaging came at
 > the very beginning -- it took a while to see how to do messaging in a
 > programming language efficiently enough to be useful).
+
+From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > I wanted to get rid of data. The B5000 almost did this via its almost
 > unbelievable HW architecture. I realized that the cell/whole-computer
@@ -106,21 +118,28 @@ Interesting quotes from [Dr. Alan Kay on the Meaning of “Object-Oriented Progr
 > token (it took me quite a while to think this out because I really thought of
 > all these symbols as names for functions and procedures.
 
+From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+
 > The original Smalltalk at Xerox PARC came out of the above. The subsequent
 > Smalltalk's are complained about in the end of the History chapter: they
 > backslid towards Simula and did not replace the extension mechanisms with
 > safer ones that were anywhere near as useful.
+
+From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > OOP to me means only messaging, local retention and protection and
 > hiding of state-process, and extreme late-binding of all things. It
 > can be done in Smalltalk and in LISP. There are possibly other
 > systems in which this is possible, but I'm not aware of them.
 
-There is a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
-discussing the above article. Some interesting quotes:
+From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+discussing the above article:
 
 > Containers are a validation of Kay's idea that sharing encapsulated objects
 > is easier than sharing data.
+
+From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+discussing the above article:
 
 > Because a lot of people (including me) have a Simula based view of "object
 > oriented", we tend to think of objects as data structures with functions
@@ -133,6 +152,9 @@ discussing the above article. Some interesting quotes:
 > remember if he does in this specific email exchange, though) is the idea that
 > once the data is inside the object, you can't actually access it any more. It
 > becomes a detail that the programmer doesn't have to worry about.
+
+From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+discussing the above article:
 
 > Smalltalk had to cut corners with messaging due to the limited processing of
 > the time, nevertheless it has fully reified messages; one can express the
@@ -161,8 +183,7 @@ Explore late bound systems. What does late binding mean?
 
 ## Direct manipulation
 
-Direct manipulation.
-[WYSIWYG](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
+From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
 
 > In programming, you don’t want to go through a edit in an editor, submit to a
 > compiler, which submits to a loader, which requires your system to
@@ -171,6 +192,34 @@ Direct manipulation.
 
 PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
 and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
+
+## Random topics
+
+Other random topics that I got from Kay:
+
+* What vs. How Programming: State the problem, then let the computer solve the
+  problem: what programming instead of how programming.
+
+* Living in the Future: University students need powerful machines so that they
+  can code like they live in the future. So that they can code without caring
+  about optimizations.
+
+* "Most people can only see the future through the past"
+
+* Learning to See
+
+    * Drawing without "parsing" the object
+    * Turn it upside down and just draw it like you see it
+    * Measure instead of perceive
+
+* Engineering Vs. Science Vs. Tinkering
+* T-shirt Programming
+* Compiler Compiler
+* Meta Language
+* Computing History
+* Learning To See
+* Inventing Future
+* B5000 first object oriented hardware?
 
 ## Further reading
 
@@ -181,3 +230,6 @@ Interesting project if you want something current to follow: [https://github.com
 
 Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
 
+## TODO
+
+Watch a Kay talk every year and be inspired.
