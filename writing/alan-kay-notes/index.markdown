@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Alan Kay notes'
-date: 2019-09-16
+date: 2019-09-19
 tags: draft
 ---
 
@@ -229,7 +229,3 @@ Other random topics that I got from Kay:
 Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
 
 Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
-
-## TODO
-
-Watch a Kay talk every year and be inspired.
