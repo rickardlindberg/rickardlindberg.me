@@ -1,22 +1,24 @@
 ---
 title: 'DRAFT: Alan Kay notes'
-date: 2019-09-19
+date: 2019-09-22
 tags: draft
 ---
 
-Back in like 2012 I watched a talk by Alan Kay in which he talked about how
-software today has gotten so complex that we can't comprehend it. I can't
-remember exactly which one, but it was probably one of these: ... Ever since
-then I've been interested in his ideas. In this post I summarize notes and
-quotes that I've gathered while studying Kay and related topics. Fogus did a
-similar post to this called [Soup](http://blog.fogus.me/2018/10/25/soup/).
+Back in 2012 I watched a talk by Alan Kay called [Programming and
+Scaling](https://youtu.be/YyIQKBzIuBY) in which he talks about how software
+today has gotten so complex that we can't comprehend it. Ever since then I've
+been interested in his ideas. In this post I summarize notes and quotes that
+I've gathered while studying Kay and related topics. Fogus did a similar post
+to this called [Soup](http://blog.fogus.me/2018/10/25/soup/).
 
 ## How to tackle complexity?
 
-After reading
+In the talk Kay hints at one way to tackle complexity which involves solving
+problems in higher level languages. After listening to his talk and also
+reading
 [SICP](https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html)
-in university and watching talks by Kay, I had the following though about how
-to tackle complexity in software:
+in university, I had the following though about how to tackle complexity in
+software:
 
 Different coordinate systems are suited for different math problems. Choosing
 the right coordinate system makes the problem easier to solve. The same should
@@ -28,16 +30,19 @@ language.
 The ideal language is found if no accidental complexity is present when the
 problem is solved in that language. That will also make the problem be
 expressed in few lines of code. So a crude metric of well written software is
-its size.  Or rather its size for the functionality it gives.
+its size. Or rather its size for the functionality it gives.
 
 ## STEPS project
 
-Then I found out about the STEPS project in which they try to significantly
-reduce the number of lines of code required to implement "personal computing".
-They do it partly by inventing new languages suited to the problems at hand.
+Then I found out about the STEPS project (from [VPRI](http://vpri.org/))
+initiated by Kay in which they try to significantly reduce the number of lines
+of code required to implement "personal computing".  They do it partly by
+inventing new languages suited to the problems at hand.
 
-The best overview of the STEPS project (from [VPRI](http://vpri.org/)) I think
-are the progress reports:
+The best overview of the STEPS project I think are the NSF proposal and
+progress reports:
+
+* [Proposal to NSF – Granted on August 31st 2006](http://www.vpri.org/pdf/rn2006002_nsfprop.pdf)
 
 * [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) (First Year Progress Report, December 2007.)
 
@@ -51,6 +56,17 @@ are the progress reports:
 
 * [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf)
 
+All their writings can be found [here](http://vpri.org/writings.php). Some
+favorites of mine:
+
+* [Experimenting With Programming Languages](http://www.vpri.org/pdf/tr2008003_experimenting.pdf)
+* [Programming and Programming Languages](http://www.vpri.org/pdf/rn2010001_programm.pdf)
+* [Open Reusable Object Models](http://www.vpri.org/pdf/tr2006003a_objmod.pdf)
+* [Active Essays on the Web](http://www.vpri.org/pdf/tr2009002_active_essays.pdf)
+* [Chains of meaning in the STEPS system](http://www.vpri.org/pdf/m2009011_chns_mng.pdf)
+* [Making Applications in KSWorld](http://www.vpri.org/pdf/m2013003_ksapps.pdf)
+* [KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework](http://www.vpri.org/pdf/tr2013002_KSonward.pdf)
+
 The STEPS project has many components. One of them is OMeta that inspired me to
 implement [RLMeta](/writing/tags/rlmeta/index.html).
 
@@ -60,16 +76,11 @@ A blog post series mentioning the STEPS project and related ideas:
 * [Towards Moore's Law Software: Part 2 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-2-of-3.html)
 * [Towards Moore's Law Software: Part 3 of 3](https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html)
 
-Explore architecture of
-[B5000](https://en.wikipedia.org/wiki/Burroughs_large_systems) ([emulator
-project](https://github.com/pkimpel/retro-b5500)). How is it related to
-[Nothing](https://github.com/alexwarth/nothing)?
-
 ## Object oriented programming
 
 When listening to Kay I get the feeling that object oriented programming today
 is not what he meant it to be. I tried to figure out what he meant it to be.
-Here are some quotes I found relevant:
+Here are some quotes that I found relevant:
 
 From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
@@ -132,13 +143,13 @@ From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://w
 > can be done in Smalltalk and in LISP. There are possibly other
 > systems in which this is possible, but I'm not aware of them.
 
-From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Containers are a validation of Kay's idea that sharing encapsulated objects
 > is easier than sharing data.
 
-From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Because a lot of people (including me) have a Simula based view of "object
@@ -153,7 +164,7 @@ discussing the above article:
 > once the data is inside the object, you can't actually access it any more. It
 > becomes a detail that the programmer doesn't have to worry about.
 
-From a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Smalltalk had to cut corners with messaging due to the limited processing of
@@ -167,7 +178,7 @@ discussing the above article:
 
 ## Late binding
 
-[The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/)
+From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
 > Staying with the metaphor of late-binding, what further late-binding schemes
 > might we expect to see? One of the nicest late-binding schemes that is being
@@ -183,7 +194,7 @@ Explore late bound systems. What does late binding mean?
 
 ## Direct manipulation
 
-From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
+From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11)
 
 > In programming, you don’t want to go through a edit in an editor, submit to a
 > compiler, which submits to a loader, which requires your system to
@@ -219,7 +230,6 @@ Other random topics that I got from Kay:
 * Computing History
 * Learning To See
 * Inventing Future
-* B5000 first object oriented hardware?
 
 ## Further reading
 
