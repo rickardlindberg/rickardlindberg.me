@@ -1,7 +1,7 @@
 ---
 title: 'DRAFT: Alan Kay notes'
-date: 2019-09-22
-tags: draft
+date: 2019-09-23
+tags: draft,alankay
 ---
 
 Back in 2012 I watched a talk by Alan Kay called [Programming and
@@ -30,7 +30,7 @@ language.
 The ideal language is found if no accidental complexity is present when the
 problem is solved in that language. That will also make the problem be
 expressed in few lines of code. So a crude metric of well written software is
-its size. Or rather its size for the functionality it gives.
+its size.
 
 ## STEPS project
 
@@ -39,7 +39,7 @@ initiated by Kay in which they try to significantly reduce the number of lines
 of code required to implement "personal computing".  They do it partly by
 inventing new languages suited to the problems at hand.
 
-The best overview of the STEPS project I think are the NSF proposal and
+The best overview of the STEPS project I think is the NSF proposal and the
 progress reports:
 
 * [Proposal to NSF – Granted on August 31st 2006](http://www.vpri.org/pdf/rn2006002_nsfprop.pdf)
@@ -67,8 +67,9 @@ favorites of mine:
 * [Making Applications in KSWorld](http://www.vpri.org/pdf/m2013003_ksapps.pdf)
 * [KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework](http://www.vpri.org/pdf/tr2013002_KSonward.pdf)
 
-The STEPS project has many components. One of them is OMeta that inspired me to
-implement [RLMeta](/writing/tags/rlmeta/index.html).
+The STEPS project has many components. One of them is OMeta (described in
+*Experimenting With Programming Languages*) which inspired me to implement
+[RLMeta](/tags/rlmeta/index.html).
 
 A blog post series mentioning the STEPS project and related ideas:
 
@@ -178,6 +179,9 @@ discussing the above article:
 
 ## Late binding
 
+Late binding is another idea that Kay talks about that I want to understand
+better.
+
 From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
 > Staying with the metaphor of late-binding, what further late-binding schemes
@@ -190,8 +194,6 @@ From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyH
 > instance instead of direct indexing. These are then efficiently compiled and
 > extend the base implementation of the system.
 
-Explore late bound systems. What does late binding mean?
-
 ## Direct manipulation
 
 From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11)
@@ -202,7 +204,7 @@ From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/an
 > safely with what you are trying to achieve.
 
 PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
-and Cut/Copy-Paste ](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
+and Cut/Copy-Paste](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
 
 ## Random topics
 
@@ -210,19 +212,14 @@ Other random topics that I got from Kay:
 
 * What vs. How Programming: State the problem, then let the computer solve the
   problem: what programming instead of how programming.
-
 * Living in the Future: University students need powerful machines so that they
   can code like they live in the future. So that they can code without caring
   about optimizations.
-
 * "Most people can only see the future through the past"
-
 * Learning to See
-
     * Drawing without "parsing" the object
     * Turn it upside down and just draw it like you see it
     * Measure instead of perceive
-
 * Engineering Vs. Science Vs. Tinkering
 * T-shirt Programming
 * Compiler Compiler
@@ -235,7 +232,6 @@ Other random topics that I got from Kay:
 
 * [Ask HN: Relationship between OO and functional programming?](https://news.ycombinator.com/item?id=11808551)
 * [Alan Kay has agreed to do an AMA today](https://news.ycombinator.com/item?id=11939851)
-
-Interesting project if you want something current to follow: [https://github.com/d-cook/SomethingNew](https://github.com/d-cook/SomethingNew).
-
-Read [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm).
+* [The Reactive Engine](http://www.chilton-computing.org.uk/inf/pdfs/kay.htm)
+* [Alan Kay search on Youtube](https://www.youtube.com/results?search_query=alan+kay)
+* [SomethingNew](https://github.com/d-cook/SomethingNew)
