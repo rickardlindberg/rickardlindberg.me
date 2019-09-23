@@ -53,6 +53,7 @@ rulesStaticFiles = do
         .||. "writing/**/*.jpg"
         .||. "writing/**/*.png"
         .||. "writing/**/*.gif"
+        .||. "writing/alan-kay-notes/*.pdf"
         ) $ do
         route idRoute
         compile copyFileCompiler

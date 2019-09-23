@@ -42,30 +42,30 @@ inventing new languages suited to the problems at hand.
 The best overview of the STEPS project I think is the NSF proposal and the
 progress reports:
 
-* [Proposal to NSF – Granted on August 31st 2006](http://www.vpri.org/pdf/rn2006002_nsfprop.pdf)
+* [Proposal to NSF – Granted on August 31st 2006](http://www.vpri.org/pdf/rn2006002_nsfprop.pdf) ([mirror](rn2006002_nsfprop.pdf))
 
-* [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) (First Year Progress Report, December 2007.)
+* [STEPS Toward The Reinvention of Programming](http://www.vpri.org/pdf/tr2007008_steps.pdf) ([mirror](tr2007008_steps.pdf)) (First Year Progress Report, December 2007.)
 
-* [STEPS Toward The Reinvention of Programming, 2008 Progress Report Submitted to the National Science Foundation (NSF), October 2008](http://www.vpri.org/pdf/tr2008004_steps08.pdf)
+* [STEPS Toward The Reinvention of Programming, 2008 Progress Report Submitted to the National Science Foundation (NSF), October 2008](http://www.vpri.org/pdf/tr2008004_steps08.pdf) ([mirror](tr2008004_steps08.pdf))
 
-* [STEPS Toward The Reinvention of Programming, 2009 Progress Report Submitted to the National Science Foundation (NSF) October 2009](http://www.vpri.org/pdf/tr2009016_steps09.pdf)
+* [STEPS Toward The Reinvention of Programming, 2009 Progress Report Submitted to the National Science Foundation (NSF) October 2009](http://www.vpri.org/pdf/tr2009016_steps09.pdf) ([mirror](tr2009016_steps09.pdf))
 
-* [STEPS Toward Expressive Programming Systems, 2010 Progress Report Submitted to the National Science Foundation (NSF) October 2010](http://www.vpri.org/pdf/tr2010004_steps10.pdf)
+* [STEPS Toward Expressive Programming Systems, 2010 Progress Report Submitted to the National Science Foundation (NSF) October 2010](http://www.vpri.org/pdf/tr2010004_steps10.pdf) ([mirror](tr2010004_steps10.pdf))
 
-* [Steps Toward Expressive Programming Systems](http://www.vpri.org/pdf/tr2011004_steps11.pdf) (Annual report to the NSF)
+* [Steps Toward Expressive Programming Systems](http://www.vpri.org/pdf/tr2011004_steps11.pdf) ([mirror](tr2011004_steps11.pdf)) (Annual report to the NSF)
 
-* [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf)
+* [STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012](http://www.vpri.org/pdf/tr2012001_steps.pdf) ([mirror](tr2012001_steps.pdf))
 
 All their writings can be found [here](http://vpri.org/writings.php). Some
 favorites of mine:
 
-* [Experimenting With Programming Languages](http://www.vpri.org/pdf/tr2008003_experimenting.pdf)
-* [Programming and Programming Languages](http://www.vpri.org/pdf/rn2010001_programm.pdf)
-* [Open Reusable Object Models](http://www.vpri.org/pdf/tr2006003a_objmod.pdf)
-* [Active Essays on the Web](http://www.vpri.org/pdf/tr2009002_active_essays.pdf)
-* [Chains of meaning in the STEPS system](http://www.vpri.org/pdf/m2009011_chns_mng.pdf)
-* [Making Applications in KSWorld](http://www.vpri.org/pdf/m2013003_ksapps.pdf)
-* [KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework](http://www.vpri.org/pdf/tr2013002_KSonward.pdf)
+* [Experimenting With Programming Languages](http://www.vpri.org/pdf/tr2008003_experimenting.pdf) ([mirror](tr2008003_experimenting.pdf))
+* [Programming and Programming Languages](http://www.vpri.org/pdf/rn2010001_programm.pdf) ([mirror](rn2010001_programm.pdf))
+* [Open Reusable Object Models](http://www.vpri.org/pdf/tr2006003a_objmod.pdf) ([mirror](tr2006003a_objmod.pdf))
+* [Active Essays on the Web](http://www.vpri.org/pdf/tr2009002_active_essays.pdf) ([mirror](tr2009002_active_essays.pdf))
+* [Chains of meaning in the STEPS system](http://www.vpri.org/pdf/m2009011_chns_mng.pdf) ([mirror](m2009011_chns_mng.pdf))
+* [Making Applications in KSWorld](http://www.vpri.org/pdf/m2013003_ksapps.pdf) ([mirror](m2013003_ksapps.pdf))
+* [KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework](http://www.vpri.org/pdf/tr2013002_KSonward.pdf) ([mirror](tr2013002_KSonward.pdf))
 
 The STEPS project has many components. One of them is OMeta (described in
 *Experimenting With Programming Languages*) which inspired me to implement
