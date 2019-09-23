@@ -7,22 +7,22 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 22 Sep 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 23 Sep 2019 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Alan Kay notes</title>
     <link>http://rickardlindberg.me/writing/alan-kay-notes/</link>
     <description><![CDATA[<h1>DRAFT: Alan Kay notes</h1>
 
-<p><em>Published on 22 September 2019.</em></p>
+<p><em>Published on 23 September 2019.</em></p>
 
 <p>Back in 2012 I watched a talk by Alan Kay called <a href="https://youtu.be/YyIQKBzIuBY">Programming and Scaling</a> in which he talks about how software today has gotten so complex that we can’t comprehend it. Ever since then I’ve been interested in his ideas. In this post I summarize notes and quotes that I’ve gathered while studying Kay and related topics. Fogus did a similar post to this called <a href="http://blog.fogus.me/2018/10/25/soup/">Soup</a>.</p>
 <h2 id="how-to-tackle-complexity">How to tackle complexity?</h2>
 <p>In the talk Kay hints at one way to tackle complexity which involves solving problems in higher level languages. After listening to his talk and also reading <a href="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html">SICP</a> in university, I had the following though about how to tackle complexity in software:</p>
 <p>Different coordinate systems are suited for different math problems. Choosing the right coordinate system makes the problem easier to solve. The same should be true for programming problems. Each problem probably has an ideal programming language in which it can be solved. The task for a programmer should be to find that language, implement it, and solve the problem in that language.</p>
-<p>The ideal language is found if no accidental complexity is present when the problem is solved in that language. That will also make the problem be expressed in few lines of code. So a crude metric of well written software is its size. Or rather its size for the functionality it gives.</p>
+<p>The ideal language is found if no accidental complexity is present when the problem is solved in that language. That will also make the problem be expressed in few lines of code. So a crude metric of well written software is its size.</p>
 <h2 id="steps-project">STEPS project</h2>
 <p>Then I found out about the STEPS project (from <a href="http://vpri.org/">VPRI</a>) initiated by Kay in which they try to significantly reduce the number of lines of code required to implement “personal computing”. They do it partly by inventing new languages suited to the problems at hand.</p>
-<p>The best overview of the STEPS project I think are the NSF proposal and progress reports:</p>
+<p>The best overview of the STEPS project I think is the NSF proposal and the progress reports:</p>
 <ul>
 <li><p><a href="http://www.vpri.org/pdf/rn2006002_nsfprop.pdf">Proposal to NSF – Granted on August 31st 2006</a></p></li>
 <li><p><a href="http://www.vpri.org/pdf/tr2007008_steps.pdf">STEPS Toward The Reinvention of Programming</a> (First Year Progress Report, December 2007.)</p></li>
@@ -42,7 +42,7 @@
 <li><a href="http://www.vpri.org/pdf/m2013003_ksapps.pdf">Making Applications in KSWorld</a></li>
 <li><a href="http://www.vpri.org/pdf/tr2013002_KSonward.pdf">KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework</a></li>
 </ul>
-<p>The STEPS project has many components. One of them is OMeta that inspired me to implement <a href="/writing/tags/rlmeta/index.html">RLMeta</a>.</p>
+<p>The STEPS project has many components. One of them is OMeta (described in <em>Experimenting With Programming Languages</em>) which inspired me to implement <a href="/tags/rlmeta/index.html">RLMeta</a>.</p>
 <p>A blog post series mentioning the STEPS project and related ideas:</p>
 <ul>
 <li><a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-1-of-3.html">Towards Moore’s Law Software: Part 1 of 3</a></li>
@@ -95,11 +95,11 @@
 <p>Self did OO without inheritance (composition by prototypes).</p>
 </blockquote>
 <h2 id="late-binding">Late binding</h2>
+<p>Late binding is another idea that Kay talks about that I want to understand better.</p>
 <p>From <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/">The Early History Of Smalltalk - Bret Victor</a>:</p>
 <blockquote>
 <p>Staying with the metaphor of late-binding, what further late-binding schemes might we expect to see? One of the nicest late-binding schemes that is being experimented with is the metaobject protocol work at Xerox PARC [Kiczales 1991]. The notion is that the language designer’s choice for the internal representation of instances, variables, etc., may not cover what the implementer needs, so within a fixed semantics they allow the implementer to give the system strategies—for example, using a hashed lookup for slots in an instance instead of direct indexing. These are then efficiently compiled and extend the base implementation of the system.</p>
 </blockquote>
-<p>Explore late bound systems. What does late binding mean?</p>
 <h2 id="direct-manipulation">Direct manipulation</h2>
 <p>From <a href="https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11">What exactly is WYSIWYG?</a></p>
 <blockquote>
@@ -109,10 +109,10 @@
 <h2 id="random-topics">Random topics</h2>
 <p>Other random topics that I got from Kay:</p>
 <ul>
-<li><p>What vs. How Programming: State the problem, then let the computer solve the problem: what programming instead of how programming.</p></li>
-<li><p>Living in the Future: University students need powerful machines so that they can code like they live in the future. So that they can code without caring about optimizations.</p></li>
-<li><p>“Most people can only see the future through the past”</p></li>
-<li><p>Learning to See</p>
+<li>What vs. How Programming: State the problem, then let the computer solve the problem: what programming instead of how programming.</li>
+<li>Living in the Future: University students need powerful machines so that they can code like they live in the future. So that they can code without caring about optimizations.</li>
+<li>“Most people can only see the future through the past”</li>
+<li>Learning to See
 <ul>
 <li>Drawing without “parsing” the object</li>
 <li>Turn it upside down and just draw it like you see it</li>
@@ -124,17 +124,18 @@
 <li>Meta Language</li>
 <li>Computing History</li>
 <li>Learning To See</li>
-<li><p>Inventing Future</p></li>
+<li>Inventing Future</li>
 </ul>
 <h2 id="further-reading">Further reading</h2>
 <ul>
 <li><a href="https://news.ycombinator.com/item?id=11808551">Ask HN: Relationship between OO and functional programming?</a></li>
 <li><a href="https://news.ycombinator.com/item?id=11939851">Alan Kay has agreed to do an AMA today</a></li>
+<li><a href="http://www.chilton-computing.org.uk/inf/pdfs/kay.htm">The Reactive Engine</a></li>
+<li><a href="https://www.youtube.com/results?search_query=alan+kay">Alan Kay search on Youtube</a></li>
+<li><a href="https://github.com/d-cook/SomethingNew">SomethingNew</a></li>
 </ul>
-<p>Interesting project if you want something current to follow: <a href="https://github.com/d-cook/SomethingNew" class="uri">https://github.com/d-cook/SomethingNew</a>.</p>
-<p>Read <a href="http://www.chilton-computing.org.uk/inf/pdfs/kay.htm">The Reactive Engine</a>.</p>
 ]]></description>
-    <pubDate>Sun, 22 Sep 2019 00:00:00 UT</pubDate>
+    <pubDate>Mon, 23 Sep 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/alan-kay-notes/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
