@@ -54,11 +54,13 @@
     <div class="container">
       <h1>DRAFT: Segfault with custom events in wxPython</h1>
 
-<p><em>Published on 2019-08-13.</em></p>
+<p><em>Published on 2019-09-24.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>We are working on porting <a href="../../projects/timeline/">Timeline</a> to Python 3. We ran into a problem where a test caused a segfault. I managed to find the offending code, and here is a stripped down example.</p>
+<p>When working on porting <a href="../../projects/timeline/">Timeline</a> to Python 3, I ran into a problem where a test caused a segfault. I managed to create a small example that reproduces the failure. I describe the example below and show how I solved the test failure.</p>
+
+<p>The example consists of a test that stores an instance of a custom wx event in a <a href="https://docs.python.org/3.5/library/unittest.mock.html#the-mock-class">mock</a> object:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>test_wx.py</li></ol>
 
@@ -84,6 +86,8 @@
 
 </div>
 
+<p>When I run this example, I get the following error:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>p</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class>3</span><span class> </span><span class>t</span><span class>e</span><span class>s</span><span class>t</span><span class>_</span><span class>w</span><span class>x</span><span class>.</span><span class>p</span><span class>y</span><span class>
 </span><span class>.</span><span class>
 </span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>-</span><span class>
@@ -94,6 +98,8 @@
 </span></pre></div>
 
 </div>
+
+<p>If I instead run it through gdb, I can see the C stacktrace where the error happens:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>g</span><span class>d</span><span class>b</span><span class> </span><span class>p</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class>3</span><span class>
 </span><span class>G</span><span class>N</span><span class>U</span><span class> </span><span class>g</span><span class>d</span><span class>b</span><span class> </span><span class>(</span><span class>G</span><span class>D</span><span class>B</span><span class>)</span><span class> </span><span class>F</span><span class>e</span><span class>d</span><span class>o</span><span class>r</span><span class>a</span><span class> </span><span class>8</span><span class>.</span><span class>2</span><span class>.</span><span class>9</span><span class>1</span><span class>.</span><span class>2</span><span class>0</span><span class>1</span><span class>9</span><span class>0</span><span class>4</span><span class>0</span><span class>1</span><span class>-</span><span class>2</span><span class>3</span><span class>.</span><span class>f</span><span class>c</span><span class>3</span><span class>0</span><span class>
@@ -148,6 +154,10 @@
 
 </div>
 
+<p>Somewhere in the middle, there is a call to to <code>PyGC_Collect</code> indicating that the error occurs during garbage collection.</p>
+
+<p>The machine I run the example on is running Python 3.7.3, and wxPython 4.0.4:</p>
+
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>$</span><span class> </span><span class>p</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class>3</span><span class>
 </span><span class>P</span><span class>y</span><span class>t</span><span class>h</span><span class>o</span><span class>n</span><span class> </span><span class>3</span><span class>.</span><span class>7</span><span class>.</span><span class>3</span><span class> </span><span class>(</span><span class>d</span><span class>e</span><span class>f</span><span class>a</span><span class>u</span><span class>l</span><span class>t</span><span class>,</span><span class> </span><span class>M</span><span class>a</span><span class>r</span><span class> </span><span class>2</span><span class>7</span><span class> </span><span class>2</span><span class>0</span><span class>1</span><span class>9</span><span class>,</span><span class> </span><span class>1</span><span class>3</span><span class>:</span><span class>3</span><span class>6</span><span class>:</span><span class>3</span><span class>5</span><span class>)</span><span class>
 </span><span class>[</span><span class>G</span><span class>C</span><span class>C</span><span class> </span><span class>9</span><span class>.</span><span class>0</span><span class>.</span><span class>1</span><span class> </span><span class>2</span><span class>0</span><span class>1</span><span class>9</span><span class>0</span><span class>2</span><span class>2</span><span class>7</span><span class> </span><span class>(</span><span class>R</span><span class>e</span><span class>d</span><span class> </span><span class>H</span><span class>a</span><span class>t</span><span class> </span><span class>9</span><span class>.</span><span class>0</span><span class>.</span><span class>1</span><span class>-</span><span class>0</span><span class>.</span><span class>8</span><span class>)</span><span class>]</span><span class> </span><span class>o</span><span class>n</span><span class> </span><span class>l</span><span class>i</span><span class>n</span><span class>u</span><span class>x</span><span class>
@@ -158,6 +168,10 @@
 </span></pre></div>
 
 </div>
+
+<p>In Timeline's case, it was not important to store the custom event in the mock object. To solve the problem, I replaced the mock function <code>PostEvent</code> with one that simply discarded its inputs. That way there is no custom event object to garbage collect.</p>
+
+<p>If you have any idea why this example causes a segfault, I would be interested to know. It feels like an error in the wxPython wrapper.</p>
 
 
       <hr>
