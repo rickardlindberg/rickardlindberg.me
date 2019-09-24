@@ -116,6 +116,6 @@ tags: timeline,draft
 
 </div>
 
-<p>In Timeline's case, it was not important to store the custom event in the mock object. To solve the problem, I replaced the mock function <code>PostEvent</code> with one that simply discarded its inputs. That way there is no custom event object to garbage collect.</p>
+<p>To solve the problem, I replace the mock function <code>PostEvent</code> with one that simply discarded its inputs. That way there is no custom event object to garbage collect. In Timeline's case, it was not important to store the custom event in the mock object anyway.</p>
 
 <p>If you have any idea why this example causes a segfault, I would be interested to know. It feels like an error in the wxPython wrapper.</p>
