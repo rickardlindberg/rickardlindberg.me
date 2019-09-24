@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Alan Kay notes'
-date: 2019-09-23
+date: 2019-09-24
 tags: draft,alankay
 ---
 
@@ -79,11 +79,11 @@ A blog post series mentioning the STEPS project and related ideas:
 
 ## Object oriented programming
 
-When listening to Kay I get the feeling that object oriented programming today
-is not what he meant it to be. I tried to figure out what he meant it to be.
-Here are some quotes that I found relevant:
+Kay invented the term object oriented. But I get the feeling that mainstream
+object oriented programming today is not what he meant it to be. I tried to
+figure out what he meant it to be. Here are some quotes that I found relevant:
 
-From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
+From Kay from [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
 > Somewhere in all of this, I realized that the bridge to an object-based
 > system could be in terms of each object as a syntax directed interpreter of
@@ -95,7 +95,7 @@ From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyH
 > whose deployment and discretion depended entirely on the server's notion of
 > relationship with the servee.
 
-From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
+From Kay from [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
 > Again, the whole point of OOP is not to have to worry about what is inside an
 > object. Objects made on different machines and with different languages
@@ -103,7 +103,7 @@ From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyH
 > Late-binding here involves trapping incompatibilities into recompatibility
 > methods—a good discussion of some of the issues is found in [Popek 1984].
 
-From [prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html):
+From Kay from [prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html):
 
 > Just a gentle reminder that I took some pains at the last OOPSLA to try to
 > remind everyone that Smalltalk is not only NOT its syntax or the class
@@ -115,14 +115,14 @@ From [prototypes vs classes was: Re: Sun's HotSpot](http://lists.squeakfoundatio
 > is all about (and it's something that was never quite completed in our
 > Xerox PARC phase).
 
-From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+From Kay from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > I thought of objects being like biological cells and/or individual computers
 > on a network, only able to communicate with messages (so messaging came at
 > the very beginning -- it took a while to see how to do messaging in a
 > programming language efficiently enough to be useful).
 
-From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+From Kay from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > I wanted to get rid of data. The B5000 almost did this via its almost
 > unbelievable HW architecture. I realized that the cell/whole-computer
@@ -130,27 +130,27 @@ From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://w
 > token (it took me quite a while to think this out because I really thought of
 > all these symbols as names for functions and procedures.
 
-From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+From Kay from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > The original Smalltalk at Xerox PARC came out of the above. The subsequent
 > Smalltalk's are complained about in the end of the History chapter: they
 > backslid towards Simula and did not replace the extension mechanisms with
 > safer ones that were anywhere near as useful.
 
-From [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
+From Kay from [Dr. Alan Kay on the Meaning of “Object-Oriented Programming”](http://www.purl.org/stefan_ram/pub/doc_kay_oop_en):
 
 > OOP to me means only messaging, local retention and protection and
 > hiding of state-process, and extreme late-binding of all things. It
 > can be done in Smalltalk and in LISP. There are possibly other
 > systems in which this is possible, but I'm not aware of them.
 
-From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in the [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Containers are a validation of Kay's idea that sharing encapsulated objects
 > is easier than sharing data.
 
-From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in the [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Because a lot of people (including me) have a Simula based view of "object
@@ -165,7 +165,7 @@ discussing the above article:
 > once the data is inside the object, you can't actually access it any more. It
 > becomes a detail that the programmer doesn't have to worry about.
 
-From a user in a [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
+From a user in the [Hacker News thread](https://news.ycombinator.com/item?id=19415983)
 discussing the above article:
 
 > Smalltalk had to cut corners with messaging due to the limited processing of
@@ -182,7 +182,7 @@ discussing the above article:
 Late binding is another idea that Kay talks about that I want to understand
 better.
 
-From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
+From Kay from [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
 
 > Staying with the metaphor of late-binding, what further late-binding schemes
 > might we expect to see? One of the nicest late-binding schemes that is being
@@ -196,37 +196,36 @@ From [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyH
 
 ## Direct manipulation
 
-From [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11)
+From Kay from [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11)
 
 > In programming, you don’t want to go through a edit in an editor, submit to a
 > compiler, which submits to a loader, which requires your system to
 > intiialize, and so forth. You just want to be able to deal directly and
 > safely with what you are trying to achieve.
 
-PDF by Lary Tesler about modes: [A Personal History of Modeless Text Editing
-and Cut/Copy-Paste](http://delivery.acm.org/10.1145/2220000/2212896/p70-tesler.pdf).
+A related idea about no modes is presented by Larry Tesler in [A Personal
+History of Modeless Text Editing and
+Cut/Copy-Paste](http://worrydream.com/refs/Tesler%20-%20A%20Personal%20History%20of%20Modeless%20Text%20Editing%20and%20Cut-Copy-Paste.pdf).
 
 ## Random topics
 
-Other random topics that I got from Kay:
+Other topics that I got from Kay:
 
 * What vs. How Programming: State the problem, then let the computer solve the
   problem: what programming instead of how programming.
 * Living in the Future: University students need powerful machines so that they
   can code like they live in the future. So that they can code without caring
   about optimizations.
-* "Most people can only see the future through the past"
-* Learning to See
-    * Drawing without "parsing" the object
-    * Turn it upside down and just draw it like you see it
-    * Measure instead of perceive
-* Engineering Vs. Science Vs. Tinkering
-* T-shirt Programming
-* Compiler Compiler
-* Meta Language
-* Computing History
-* Learning To See
-* Inventing Future
+* Most people can only see the future through the past.
+* Learning to See:
+    * Drawing without "parsing" the object.
+    * Turn it upside down and just draw it like you see it.
+    * Measure instead of perceive.
+* Engineering Vs. Science Vs. Tinkering.
+* T-shirt Programming.
+* Meta Language.
+* Computing History.
+* Inventing Future.
 
 ## Further reading
 
