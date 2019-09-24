@@ -6,7 +6,7 @@
 {
 "fragments":[
 {
-"text":"We are working on porting ",
+"text":"When working on porting ",
 "type":"text"
 },
 {
@@ -15,11 +15,30 @@
 "url":"/projects/timeline/index.html"
 },
 {
-"text":" to Python 3. We ran into a problem where a test caused a segfault. I managed to find the offending code, and here is a stripped down example.",
+"text":" to Python 3, I ran into a problem where a test caused a segfault. I managed to create a small example that reproduces the failure. I describe the example below and show how I solved the test failure.",
 "type":"text"
 }
 ],
 "id":"6557bec1f8f141c3bba2fb5ae5a89722",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The example consists of a test that stores an instance of a custom wx event in a ",
+"type":"text"
+},
+{
+"text":"mock",
+"type":"link",
+"url":"https://docs.python.org/3.5/library/unittest.mock.html#the-mock-class"
+},
+{
+"text":" object:",
+"type":"text"
+}
+],
+"id":"cb0eee47a3a8488e94332fbdd460dfa3",
 "type":"text"
 },
 {
@@ -37,6 +56,16 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"When I run this example, I get the following error:",
+"type":"text"
+}
+],
+"id":"2d19cfd36d8347ad969c8c4a2d5527de",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -47,6 +76,16 @@
 ],
 "id":"265722fd366e4e3cb64116ed1af8bf0c",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"If I instead run it through gdb, I can see the C stacktrace where the error happens:",
+"type":"text"
+}
+],
+"id":"e0244141dc1c4a6795d8cdf7c8997fa2",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -62,6 +101,34 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Somewhere in the middle, there is a call to to ",
+"type":"text"
+},
+{
+"text":"PyGC_Collect",
+"type":"code"
+},
+{
+"text":" indicating that the error occurs during garbage collection.",
+"type":"text"
+}
+],
+"id":"36957fc2f2054387a8959d0f405ed0ff",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The machine I run the example on is running Python 3.7.3, and wxPython 4.0.4:",
+"type":"text"
+}
+],
+"id":"877fd602793e4e7d883ec582f627e87d",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
@@ -72,6 +139,34 @@
 ],
 "id":"affb85e4d19444bc9ea45010206a3d3e",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"In Timeline's case, it was not important to store the custom event in the mock object. To solve the problem, I replaced the mock function ",
+"type":"text"
+},
+{
+"text":"PostEvent",
+"type":"code"
+},
+{
+"text":" with one that simply discarded its inputs. That way there is no custom event object to garbage collect.",
+"type":"text"
+}
+],
+"id":"5a95f45555d345dca9023212ea145f90",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"If you have any idea why this example causes a segfault, I would be interested to know. It feels like an error in the wxPython wrapper.",
+"type":"text"
+}
+],
+"id":"4ee00e656d0d4f59a8dbd9cc2afdbad1",
+"type":"text"
 }
 ],
 "title":"Segfault with custom events in wxPython"
