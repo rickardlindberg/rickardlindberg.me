@@ -1,7 +1,7 @@
 ---
-title: 'DRAFT: Alan Kay notes'
-date: 2019-09-24
-tags: draft,alankay
+title: 'Alan Kay notes'
+date: 2019-09-25
+tags: alankay
 ---
 
 Back in 2012 I watched a talk by Alan Kay called [Programming and
@@ -179,7 +179,7 @@ discussing the above article:
 
 ## Late binding
 
-Late binding is another idea that Kay talks about that I want to understand
+Late-binding is another idea that Kay talks about that I want to understand
 better.
 
 From Kay from [The Early History Of Smalltalk - Bret Victor](http://worrydream.com/EarlyHistoryOfSmalltalk/):
@@ -196,7 +196,7 @@ From Kay from [The Early History Of Smalltalk - Bret Victor](http://worrydream.c
 
 ## Direct manipulation
 
-From Kay from [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11)
+From Kay from [What exactly is WYSIWYG?](https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11):
 
 > In programming, you don’t want to go through a edit in an editor, submit to a
 > compiler, which submits to a loader, which requires your system to
