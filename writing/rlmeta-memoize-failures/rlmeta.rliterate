@@ -3,39 +3,30 @@
 "children":[
 {
 "children":[],
-"id":"c8f347fef6ac4f798d0706ee8aecaf81",
-"paragraphs":[
-{
-"fragments":[
-{
-"text":"The memoization table currently only stores results of rule matches. If a rule fails, a new kind of value that indicates a failure must be stored. This value is the fail message.",
-"type":"text"
-}
-],
-"id":"595a2c63b51d4c668382d2aef6c4cfa4",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"Adding these entries in the memoization table only involves modifying the support library. The modifications look different for the different versions, and I will show them.",
-"type":"text"
-}
-],
-"id":"2c927bc7cb654ba98012ecf830f98c23",
-"type":"text"
-}
-],
-"title":"Overview"
-},
-{
-"children":[],
 "id":"a9a4166e943a4d2c974c443cef1da5a9",
 "paragraphs":[
 {
 "fragments":[
 {
-"text":"In the optimized version, the memoization table is both queried and populated in the support library method ",
+"text":"In the optimized version, the memoization table currently stores tuples with result, start position, and end position. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the result be ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":" in case of a failure and have the start position be the lazy fail message.",
+"type":"text"
+}
+],
+"id":"ad62ef2e2f4341a09001b937f4fec507",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The memoization table is both queried and populated in the support library method ",
 "type":"text"
 },
 {
@@ -60,7 +51,7 @@
 ],
 "fragments":[
 {
-"text":"def _match_rule(self, rule_name):\n    key = (rule_name, self._stream.position())\n    if key in self._memo:\n        if self._memo[key][0] is None:\n            self._stream.fail(\"\")\n        else:\n            result, _, self._stream = self._memo[key]\n    else:\n        try:\n            start = self._stream\n            result = getattr(self, \"_rule_{}\".format(rule_name))()\n            end = self._stream\n            self._memo[key] = (result, start, end)\n        except _MatchError as e:\n            self._memo[key] = (None, None, None)\n            raise\n    return result\n",
+"text":"def _match_rule(self, rule_name):\n    key = (rule_name, self._stream.position())\n    if key in self._memo:\n        if self._memo[key][0] is None:\n            self._stream.fail(self._memo[key][1])\n        else:\n            result, _, self._stream = self._memo[key]\n    else:\n        try:\n            start = self._stream\n            result = getattr(self, \"_rule_{}\".format(rule_name))()\n            end = self._stream\n            self._memo[key] = (result, start, end)\n        except _MatchError as e:\n            self._memo[key] = (None, e.lazy_message, None)\n            raise\n    return result\n",
 "type":"code"
 }
 ],
@@ -70,12 +61,54 @@
 {
 "fragments":[
 {
-"text":"todo: fix fail message",
-"type":"strong"
+"text":"The ",
+"type":"text"
+},
+{
+"text":"_MatchError",
+"type":"code"
+},
+{
+"text":" class is also modified to save the lazy message:",
+"type":"text"
 }
 ],
 "id":"a717601e63bf43539cddcfd009cafbba",
 "type":"text"
+},
+{
+"chunkpath":[
+"memo fail"
+],
+"filepath":[
+"optimized",
+"support.py"
+],
+"fragments":[
+{
+"text":"def fail(self, stream, lazy_message):\n    if stream.position() >= self._latest_stream.position():\n        self._latest_stream = stream\n        self._latest_lazy_message = lazy_message\n    raise _MatchError(self, lazy_message)\n",
+"type":"code"
+}
+],
+"id":"9a08cc0615d1433b8da4c5cd550a5892",
+"type":"code"
+},
+{
+"chunkpath":[
+"match error"
+],
+"filepath":[
+"optimized",
+"support.py"
+],
+"fragments":[
+{
+"text":"class _MatchError(Exception):\n\n    def __init__(self, memo, lazy_message):\n        Exception.__init__(self)\n        self._memo = memo\n        self.lazy_message = lazy_message\n\n    def describe(self):\n        return self._memo.describe()\n\n",
+"type":"code"
+}
+],
+"id":"666a02fdacd2475488156dfb764a70e1",
+"type":"code"
 }
 ],
 "title":"Optimized"
@@ -87,7 +120,25 @@
 {
 "fragments":[
 {
-"text":"In the VM based version, the memoization table is queried and populated in different places. The first place it's populated is in the ",
+"text":"In the VM based version, the memoization table currently stores tuples with last action, and stream position stack. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the last action be ",
+"type":"text"
+},
+{
+"text":"None",
+"type":"code"
+},
+{
+"text":" in case of a failure and have the stream position stack be the failure message.",
+"type":"text"
+}
+],
+"id":"dd1699bbf01245788615d6a9ca30b7b7",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"The memoization table is queried and populated in different places. The first place it's populated is in the ",
 "type":"text"
 },
 {
@@ -325,7 +376,31 @@
 "type":"chunk"
 },
 {
-"text":"\n    def _match_range(self, start, end):\n        next_objext = self._stream.peek()\n        if next_objext >= start and next_objext <= end:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: next_objext)\n        else:\n            self._stream.fail(\n                lambda: \"expected range {!r}-{!r} but found {!r}\".format(start, end, next_objext)\n            )\n\n    def _match_string(self, string):\n        next_object = self._stream.peek()\n        if next_object == string:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: string)\n        else:\n            self._stream.fail(\n                lambda: \"expected {!r} but found {!r}\".format(string, next_object)\n            )\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            next_object = self._stream.peek()\n            if next_object != char:\n                self._stream.fail(\n                    lambda: \"expected {!r} but found {!r}\".format(char, next_object)\n                )\n            self._stream = self._stream.advance()\n        return _SemanticAction(lambda: charseq)\n\n    def _match_any(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_call_rule(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return self._match_rule(str(next_object))\n\n    def _match_list(self, matcher):\n        original_stream = self._stream\n        next_object = self._stream.peek()\n        if isinstance(next_object, list):\n            self._stream = self._stream.nested(next_object)\n            matcher()\n            if self._stream.is_at_end():\n                self._stream = original_stream.advance()\n                return _SemanticAction(lambda: next_object)\n        original_stream.fail(lambda: \"list match failed\")\n\n    def run(self, rule_name, input_object):\n        self._memo = _Memo()\n        self._stream = _Stream.from_object(self._memo, input_object)\n        result = self._match_rule(rule_name).eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n\nclass _Memo(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = _ObjectStream(self, [], -1)\n        self._latest_lazy_message = lambda: \"\"\n\n    def describe(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].position(), item[1].position()))\n        message = []\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_lazy_message()\n        ))\n        return \"\".join(message)\n\n    def fail(self, stream, lazy_message):\n        if stream.position() >= self._latest_stream.position():\n            self._latest_stream = stream\n            self._latest_lazy_message = lazy_message\n        raise _MatchError(self)\n\nclass _MatchError(Exception):\n\n    def __init__(self, memo):\n        Exception.__init__(self)\n        self._memo = memo\n\n    def describe(self):\n        return self._memo.describe()\n\nclass _Stream(object):\n\n    @classmethod\n    def from_object(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return _CharStream(memo, input_object, 0)\n        else:\n            return _ObjectStream(memo, [input_object], 0)\n\n    def __init__(self, memo, objects, index):\n        self._memo = memo\n        self._objects = objects\n        self._index = index\n\n    def fail(self, lazy_message):\n        self._memo.fail(self, lazy_message)\n\n    def peek(self):\n        if self.is_at_end():\n            self.fail(lambda: \"not eof\")\n        return self._objects[self._index]\n\n    def is_at_end(self):\n        return self._index >= len(self._objects)\n\nclass _CharStream(_Stream):\n\n    def __init__(self, memo, objects, index, line=1, column=1):\n        _Stream.__init__(self, memo, objects, index)\n        self._line = line\n        self._column = column\n\n    def position(self):\n        return self._index\n\n    def advance(self):\n        if self._objects[self._index] == \"\\n\":\n            line = self._line + 1\n            column = 1\n        else:\n            line = self._line\n            column = self._column + 1\n        return _CharStream(self._memo, self._objects, self._index+1, line, column)\n\n    def __str__(self):\n        return \"L{:03d}:C{:03d}\".format(self._line, self._column)\n\nclass _ObjectStream(_Stream):\n\n    def __init__(self, memo, objects, index, parent=()):\n        _Stream.__init__(self, memo, objects, index)\n        self._parent_position = parent\n        self._position = self._parent_position + (self._index,)\n\n    def position(self):\n        return self._position\n\n    def nested(self, input_object):\n        return _ObjectStream(self._memo, input_object, 0, self._position)\n\n    def advance(self):\n        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)\n\n    def __str__(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.position()))\n",
+"text":"\n    def _match_range(self, start, end):\n        next_objext = self._stream.peek()\n        if next_objext >= start and next_objext <= end:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: next_objext)\n        else:\n            self._stream.fail(\n                lambda: \"expected range {!r}-{!r} but found {!r}\".format(start, end, next_objext)\n            )\n\n    def _match_string(self, string):\n        next_object = self._stream.peek()\n        if next_object == string:\n            self._stream = self._stream.advance()\n            return _SemanticAction(lambda: string)\n        else:\n            self._stream.fail(\n                lambda: \"expected {!r} but found {!r}\".format(string, next_object)\n            )\n\n    def _match_charseq(self, charseq):\n        for char in charseq:\n            next_object = self._stream.peek()\n            if next_object != char:\n                self._stream.fail(\n                    lambda: \"expected {!r} but found {!r}\".format(char, next_object)\n                )\n            self._stream = self._stream.advance()\n        return _SemanticAction(lambda: charseq)\n\n    def _match_any(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return _SemanticAction(lambda: next_object)\n\n    def _match_call_rule(self):\n        next_object = self._stream.peek()\n        self._stream = self._stream.advance()\n        return self._match_rule(str(next_object))\n\n    def _match_list(self, matcher):\n        original_stream = self._stream\n        next_object = self._stream.peek()\n        if isinstance(next_object, list):\n            self._stream = self._stream.nested(next_object)\n            matcher()\n            if self._stream.is_at_end():\n                self._stream = original_stream.advance()\n                return _SemanticAction(lambda: next_object)\n        original_stream.fail(lambda: \"list match failed\")\n\n    def run(self, rule_name, input_object):\n        self._memo = _Memo()\n        self._stream = _Stream.from_object(self._memo, input_object)\n        result = self._match_rule(rule_name).eval()\n        if isinstance(result, _Builder):\n            return result.build_string()\n        else:\n            return result\n\nclass _Vars(dict):\n\n    def bind(self, name, value):\n        self[name] = value\n        return value\n\n    def lookup(self, name):\n        return self[name]\n\nclass _SemanticAction(object):\n\n    def __init__(self, fn):\n        self.fn = fn\n\n    def eval(self):\n        return self.fn()\n\nclass _Builder(object):\n\n    def build_string(self):\n        output = _Output()\n        self.write(output)\n        return output.value\n\n    @classmethod\n    def create(self, item):\n        if isinstance(item, _Builder):\n            return item\n        elif isinstance(item, list):\n            return _ListBuilder([_Builder.create(x) for x in item])\n        else:\n            return _AtomBuilder(item)\n\nclass _Output(object):\n\n    def __init__(self):\n        self.buffer = StringIO()\n        self.indentation = 0\n        self.on_newline = True\n\n    @property\n    def value(self):\n        return self.buffer.getvalue()\n\n    def write(self, value):\n        for ch in value:\n            is_linebreak = ch == \"\\n\"\n            if self.indentation and self.on_newline and not is_linebreak:\n                self.buffer.write(\"    \"*self.indentation)\n            self.buffer.write(ch)\n            self.on_newline = is_linebreak\n\nclass _ListBuilder(_Builder):\n\n    def __init__(self, builders):\n        self.builders = builders\n\n    def write(self, output):\n        for builder in self.builders:\n            builder.write(output)\n\nclass _AtomBuilder(_Builder):\n\n    def __init__(self, atom):\n        self.atom = atom\n\n    def write(self, output):\n        output.write(str(self.atom))\n\nclass _IndentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation += 1\n\nclass _DedentBuilder(_Builder):\n\n    def write(self, output):\n        output.indentation -= 1\n\nclass _Memo(dict):\n\n    def __init__(self):\n        dict.__init__(self)\n        self._latest_stream = _ObjectStream(self, [], -1)\n        self._latest_lazy_message = lambda: \"\"\n\n    def describe(self):\n        items = []\n        for (rule_name, _), (_, start, end) in self.items():\n            if end > start:\n                items.append((rule_name, start, end))\n        items.sort(key=lambda item: (item[2].position(), item[1].position()))\n        message = []\n        for item in items:\n            message.append(\"matched {: <20} {} -> {}\\n\".format(*item))\n        message.append(\"\\n\")\n        message.append(\"ERROR: {}: {}\\n\".format(\n            self._latest_stream,\n            self._latest_lazy_message()\n        ))\n        return \"\".join(message)\n\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"memo fail"
+],
+"prefix":"    ",
+"type":"chunk"
+},
+{
+"text":"\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"match error"
+],
+"prefix":"",
+"type":"chunk"
+},
+{
+"text":"\nclass _Stream(object):\n\n    @classmethod\n    def from_object(cls, memo, input_object):\n        if isinstance(input_object, basestring):\n            return _CharStream(memo, input_object, 0)\n        else:\n            return _ObjectStream(memo, [input_object], 0)\n\n    def __init__(self, memo, objects, index):\n        self._memo = memo\n        self._objects = objects\n        self._index = index\n\n    def fail(self, lazy_message):\n        self._memo.fail(self, lazy_message)\n\n    def peek(self):\n        if self.is_at_end():\n            self.fail(lambda: \"not eof\")\n        return self._objects[self._index]\n\n    def is_at_end(self):\n        return self._index >= len(self._objects)\n\nclass _CharStream(_Stream):\n\n    def __init__(self, memo, objects, index, line=1, column=1):\n        _Stream.__init__(self, memo, objects, index)\n        self._line = line\n        self._column = column\n\n    def position(self):\n        return self._index\n\n    def advance(self):\n        if self._objects[self._index] == \"\\n\":\n            line = self._line + 1\n            column = 1\n        else:\n            line = self._line\n            column = self._column + 1\n        return _CharStream(self._memo, self._objects, self._index+1, line, column)\n\n    def __str__(self):\n        return \"L{:03d}:C{:03d}\".format(self._line, self._column)\n\nclass _ObjectStream(_Stream):\n\n    def __init__(self, memo, objects, index, parent=()):\n        _Stream.__init__(self, memo, objects, index)\n        self._parent_position = parent\n        self._position = self._parent_position + (self._index,)\n\n    def position(self):\n        return self._position\n\n    def nested(self, input_object):\n        return _ObjectStream(self._memo, input_object, 0, self._position)\n\n    def advance(self):\n        return _ObjectStream(self._memo, self._objects, self._index+1, self._parent_position)\n\n    def __str__(self):\n        return \"[{}]\".format(\", \".join(str(x) for x in self.position()))\n",
 "type":"code"
 }
 ],
@@ -435,7 +510,7 @@
 "url":"https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9"
 },
 {
-"text":" I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, it has to try matching again, even though it will fail. In his article, Guido writes",
+"text":" I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, it has to try matching again, even though it will fail. In the article, Guido writes",
 "type":"text"
 }
 ],
@@ -455,7 +530,7 @@
 {
 "fragments":[
 {
-"text":"Besides fixing the flaw in the memoization logic, I was also interested in seeing how it would affect performance.",
+"text":"Besides fixing the flaw in the memoization logic, I am also interested in seeing how it affects performance.",
 "type":"text"
 }
 ],
@@ -465,7 +540,7 @@
 {
 "fragments":[
 {
-"text":"In this article I fix the memoization logic in both the ",
+"text":"In this article I show how I fix the memoization logic in both the ",
 "type":"text"
 },
 {
@@ -483,7 +558,7 @@
 "url":"/writing/rlmeta-vm/index.html"
 },
 {
-"text":" and see how performance is affected.",
+"text":" and show how performance is affected.",
 "type":"text"
 }
 ],

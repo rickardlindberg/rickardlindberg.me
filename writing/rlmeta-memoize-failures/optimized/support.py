@@ -45,7 +45,7 @@ class _Grammar(object):
         key = (rule_name, self._stream.position())
         if key in self._memo:
             if self._memo[key][0] is None:
-                self._stream.fail("")
+                self._stream.fail(self._memo[key][1])
             else:
                 result, _, self._stream = self._memo[key]
         else:
@@ -55,7 +55,7 @@ class _Grammar(object):
                 end = self._stream
                 self._memo[key] = (result, start, end)
             except _MatchError as e:
-                self._memo[key] = (None, None, None)
+                self._memo[key] = (None, e.lazy_message, None)
                 raise
         return result
 
@@ -225,16 +225,18 @@ class _Memo(dict):
         if stream.position() >= self._latest_stream.position():
             self._latest_stream = stream
             self._latest_lazy_message = lazy_message
-        raise _MatchError(self)
+        raise _MatchError(self, lazy_message)
 
 class _MatchError(Exception):
 
-    def __init__(self, memo):
+    def __init__(self, memo, lazy_message):
         Exception.__init__(self)
         self._memo = memo
+        self.lazy_message = lazy_message
 
     def describe(self):
         return self._memo.describe()
+
 
 class _Stream(object):
 
