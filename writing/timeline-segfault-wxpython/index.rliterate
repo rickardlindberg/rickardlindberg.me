@@ -143,7 +143,7 @@
 {
 "fragments":[
 {
-"text":"To solve the problem, I replace the mock function ",
+"text":"To solve this problem, I replaced the mock function ",
 "type":"text"
 },
 {
@@ -151,11 +151,34 @@
 "type":"code"
 },
 {
-"text":" with one that simply discarded its inputs. That way there is no custom event object to garbage collect. In Timeline's case, it was not important to store the custom event in the mock object anyway.",
+"text":" with one that simply discards its inputs like this:",
 "type":"text"
 }
 ],
 "id":"5a95f45555d345dca9023212ea145f90",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"mock.PostEvent = lambda x: None\n",
+"type":"code"
+}
+],
+"id":"e8dc877d13a9484dbc7c734cba6dfb5b",
+"language":"python",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"This way there is no custom event object to garbage collect. In Timeline's case, it was not important to store the event in the mock object anyway.",
+"type":"text"
+}
+],
+"id":"8950dc872a564b80a0f4c59d7241dee9",
 "type":"text"
 },
 {
