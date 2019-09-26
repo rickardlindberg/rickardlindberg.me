@@ -12,6 +12,9 @@ def add(name, overall, single):
     overalls.append(overall)
     single_grammars.append(single)
 
+# 1. time ./compile.sh rlmeta.py > /dev/null
+# 2. python -m cProfile -s tottime rlmeta.py < parser.rlmeta
+
 add('optimized\nno memo', 1.460, 0.834)
 add('optimized', 0.344, 0.185)
 add('optimized\nfixed memo', 0.333, 0.145)

@@ -237,7 +237,6 @@ class _MatchError(Exception):
     def describe(self):
         return self._memo.describe()
 
-
 class _Stream(object):
 
     @classmethod
