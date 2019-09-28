@@ -18,27 +18,31 @@ def parseOps(expr, items, min_level=0):
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr
 def main():
-    grammars = [
-        Parser(),
-        StackMachine(),
-    ]
-    if len(sys.argv) > 1:
-        grammars = grammars[:int(sys.argv[1])]
+    grammars = {
+        "parser": Parser(),
+        "stackmachine": StackMachine(),
+    }
     try:
         for expr in sys.stdin.read().splitlines():
-            for grammar in grammars:
-                pprint.pprint(expr, width=20)
-                box(grammar.__class__.__name__)
+            for grammar_name in sys.argv[1:]:
+                grammar = grammars[grammar_name]
+                print_expr(expr)
+                print_box(grammar.__class__.__name__)
                 expr = grammar.run("expr", expr)
-            pprint.pprint(expr, width=20)
+            print_expr(expr)
             print("")
             print("")
     except _MatchError as e:
         sys.stderr.write(e.describe())
 
-def box(name):
-    print("  {}|".format(" "*(len(name)/2)))
-    print("=={}==".format("="*len(name)))
-    print("  {}".format(name))
-    print("=={}==".format("="*len(name)))
-    print("  {}|".format(" "*(len(name)/2)))
+def print_expr(expr):
+    pprint.pprint(expr, width=20)
+
+def print_box(name):
+    HALF = 10
+    WIDTH = HALF*2+1
+    print("")
+    print("{}V{}".format("="*HALF, "="*HALF))
+    print(name.center(WIDTH))
+    print("{}V{}".format("="*HALF, "="*HALF))
+    print("")

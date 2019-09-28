@@ -76,7 +76,7 @@
 "post_process":[
 "bash",
 "compile.sh",
-"1"
+"parser"
 ],
 "type":"code"
 },
@@ -99,7 +99,7 @@
 ],
 "fragments":[
 {
-"text":"StackMachine {\n  expr =\n    | [.:name expr:left expr:right] -> [~left ~right name]\n    | .:leaf                        -> [leaf]\n}\n",
+"text":"StackMachine {\n  expr =\n    | [.:name expr:left expr:right] -> [~left ~right [name]]\n    | .:leaf                        -> [[\"CONST\" leaf]]\n}\n",
 "type":"code"
 }
 ],
@@ -121,7 +121,8 @@
 "post_process":[
 "bash",
 "compile.sh",
-"2"
+"parser",
+"stackmachine"
 ],
 "type":"code"
 },
@@ -144,7 +145,7 @@
 ],
 "fragments":[
 {
-"text":"def main():\n    grammars = [\n        Parser(),\n        StackMachine(),\n    ]\n    if len(sys.argv) > 1:\n        grammars = grammars[:int(sys.argv[1])]\n    try:\n        for expr in sys.stdin.read().splitlines():\n            for grammar in grammars:\n                pprint.pprint(expr, width=20)\n                box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            pprint.pprint(expr, width=20)\n            print(\"\")\n            print(\"\")\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef box(name):\n    print(\"  {}|\".format(\" \"*(len(name)/2)))\n    print(\"=={}==\".format(\"=\"*len(name)))\n    print(\"  {}\".format(name))\n    print(\"=={}==\".format(\"=\"*len(name)))\n    print(\"  {}|\".format(\" \"*(len(name)/2)))\n",
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"stackmachine\": StackMachine(),\n    }\n    try:\n        for expr in sys.stdin.read().splitlines():\n            for grammar_name in sys.argv[1:]:\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n            print(\"\")\n            print(\"\")\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
 "type":"code"
 }
 ],
@@ -166,7 +167,7 @@
 "type":"code"
 }
 ],
-"title":"Glue"
+"title":"Appendix: Test script"
 }
 ],
 "id":"3dffd837b9ec4ad88b4e7f4c4b3b5aae",
