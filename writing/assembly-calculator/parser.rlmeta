@@ -1,0 +1,10 @@
+Parser {
+  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)
+  digit = '0'-'9':x                           -> int(x)
+  op    =
+    | '+' -> Op(makeNode("ADD") "1" "left")
+    | '-' -> Op(makeNode("SUB") "1" "left")
+    | '*' -> Op(makeNode("MUL") "2" "left")
+    | '/' -> Op(makeNode("DIV") "2" "left")
+    | '^' -> Op(makeNode("POW") "3" "right")
+}
