@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"In the optimized version, the memoization table currently stores tuples with result, start position, and end position. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the result be ",
+"text":"In the optimized version, the memoization table stores tuples with result, start position, and end position. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the result be ",
 "type":"text"
 },
 {
@@ -69,7 +69,7 @@
 "type":"code"
 },
 {
-"text":" class is also modified to save the lazy message:",
+"text":" class is also modified to save the lazy message so that it can be accessed for storage in the memoization table:",
 "type":"text"
 }
 ],
@@ -120,7 +120,7 @@
 {
 "fragments":[
 {
-"text":"In the VM based version, the memoization table currently stores tuples with last action, and stream position stack. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the last action be ",
+"text":"In the VM based version, the memoization table stores tuples with last action, and stream position stack. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the last action be ",
 "type":"text"
 },
 {
@@ -208,7 +208,7 @@
 "type":"code"
 },
 {
-"text":" is stored in the memoization table to indicate a failure, along wit the fail message as second argument.",
+"text":" is stored in the memoization table to indicate a failure, along wit the fail message as second element.",
 "type":"text"
 }
 ],
@@ -336,6 +336,16 @@
 {
 "fragments":[
 {
+"text":"Are the versions that also memoize failures faster? Here are the performance measurements:",
+"type":"text"
+}
+],
+"id":"b4c7dc1608e343cc9cbefb2acd3e6844",
+"type":"text"
+},
+{
+"fragments":[
+{
 "text":"Performance measurements.",
 "type":"text"
 }
@@ -366,7 +376,7 @@
 {
 "fragments":[
 {
-"text":"The rest of the support library:",
+"text":"The rest of the support library for the optimized version:",
 "type":"text"
 }
 ],
@@ -434,7 +444,7 @@
 {
 "fragments":[
 {
-"text":"The rest of the support library:",
+"text":"The rest of the support library for the VM based version:",
 "type":"text"
 }
 ],
