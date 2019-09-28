@@ -1,0 +1,24 @@
+Assembly {
+  expr = [pre:x instr*:ys post:z] -> [~x ~flatten(ys) ~z]
+  pre = -> [
+    ["section" "text"]
+    ["directive" "global _start"]
+    ["label" "_start"]
+  ]
+  instr = [%:op] -> op
+  post = -> [
+    ["mov"      ["addr"  "rsp"]     ["reg" "rdi"]]
+    ["mov"      ["const" int("60")] ["reg" "rax"]]
+    ["syscall"]
+  ]
+  ADD   =     -> [["pop"   ["reg"  "rbx"]]
+                  ["add"   ["reg"  "rbx"] ["addr" "rsp"]]]
+  SUB   =     -> [["pop"   ["reg"  "rbx"]]
+                  ["sub"   ["reg"  "rbx"] ["addr" "rsp"]]]
+  MUL   =     -> [["pop"   ["reg"  "rbx"]]
+                  ["imul"  ["addr" "rsp"] ["reg"  "rbx"]]
+                  ["mov"   ["reg"  "rbx"] ["addr" "rsp"]]]
+  DIV   =     -> [["idiv"  ["addr" "rsp"] ["reg"  "rbx"]]]
+  POW   =     -> [["f2xm1" ["reg"  "rbx"] ["addr" "rsp"]]]
+  CONST = .:x -> [["push"  ["const" x]]]
+}

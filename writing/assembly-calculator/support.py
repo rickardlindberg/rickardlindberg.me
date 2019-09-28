@@ -17,26 +17,40 @@ def parseOps(expr, items, min_level=0):
             next_level = op.prec
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr
+def flatten(xs):
+    result = []
+    for x in xs:
+        result.extend(x)
+    return result
+def pad(text):
+    return text.ljust(7)
 def main():
     grammars = {
         "parser": Parser(),
         "stackmachine": StackMachine(),
+        "assembly": Assembly(),
+        "gnu": GNU(),
     }
     try:
-        for expr in sys.stdin.read().splitlines():
+        for index, expr in enumerate(sys.stdin.read().splitlines()):
+            if index > 0:
+                print("")
+                print("-"*30)
+                print("")
             for grammar_name in sys.argv[1:]:
                 grammar = grammars[grammar_name]
                 print_expr(expr)
                 print_box(grammar.__class__.__name__)
                 expr = grammar.run("expr", expr)
             print_expr(expr)
-            print("")
-            print("")
     except _MatchError as e:
         sys.stderr.write(e.describe())
 
 def print_expr(expr):
-    pprint.pprint(expr, width=20)
+    if isinstance(expr, str):
+        print(expr.strip())
+    else:
+        pprint.pprint(expr, width=20)
 
 def print_box(name):
     HALF = 10

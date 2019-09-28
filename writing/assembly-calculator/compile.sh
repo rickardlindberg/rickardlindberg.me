@@ -7,6 +7,8 @@ compile() {
     cat "support.py"
     rlmeta < parser.rlmeta
     rlmeta < stackmachine.rlmeta
+    rlmeta < assembly.rlmeta
+    rlmeta < gnu.rlmeta
     echo "main()"
 }
 
