@@ -6,7 +6,8 @@ compile() {
     rlmeta --support
     cat "support.py"
     rlmeta < parser.rlmeta
+    rlmeta < stackmachine.rlmeta
     echo "main()"
 }
 
-python <(compile)
+python <(compile) "$@"

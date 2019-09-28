@@ -1,0 +1,5 @@
+StackMachine {
+  expr =
+    | [.:name expr:left expr:right] -> [~left ~right name]
+    | .:leaf                        -> [leaf]
+}

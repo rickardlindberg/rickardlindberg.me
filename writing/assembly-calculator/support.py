@@ -19,15 +19,20 @@ def parseOps(expr, items, min_level=0):
     return expr
 def main():
     grammars = [
-        (Parser(), "expr"),
+        Parser(),
+        StackMachine(),
     ]
+    if len(sys.argv) > 1:
+        grammars = grammars[:int(sys.argv[1])]
     try:
         for expr in sys.stdin.read().splitlines():
-            for (grammar, rule) in grammars:
+            for grammar in grammars:
                 pprint.pprint(expr, width=20)
                 box(grammar.__class__.__name__)
-                expr = grammar.run(rule, expr)
+                expr = grammar.run("expr", expr)
             pprint.pprint(expr, width=20)
+            print("")
+            print("")
     except _MatchError as e:
         sys.stderr.write(e.describe())
 
