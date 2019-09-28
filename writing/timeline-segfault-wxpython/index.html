@@ -1,9 +1,8 @@
 ---
-title: 'DRAFT: Segfault with custom events in wxPython'
-date: 2019-09-26
-tags: timeline,draft
+title: 'Segfault with custom events in wxPython'
+date: 2019-09-28
+tags: timeline
 ---
-<strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
 <p>When working on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3, I ran into a problem where a test caused a segfault. I managed to create a small example that reproduces the failure. I describe the example below and show how I solved the test failure.</p>
 
@@ -101,7 +100,7 @@ tags: timeline,draft
 
 </div>
 
-<p>Somewhere in the middle, there is a call to to <code>PyGC_Collect</code> indicating that the error occurs during garbage collection.</p>
+<p>Somewhere in the middle, there is a call to <code>PyGC_Collect</code> followed, a bit higher up, by a call to <code>release_wxPyEvent</code>. This indicates that the error occurs during garbage collection of the custom wx event.</p>
 
 <p>The machine I run the example on is running Python 3.7.3, and wxPython 4.0.4:</p>
 
@@ -116,13 +115,13 @@ tags: timeline,draft
 
 </div>
 
-<p>To solve this problem, I replaced the mock function <code>PostEvent</code> with one that simply discards its inputs like this:</p>
+<p>To solve this problem, I replaced the mock function <code>PostEvent</code> with one that simply discards its input like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="n">m</span><span class="n">o</span><span class="n">c</span><span class="n">k</span><span class="o">.</span><span class="n">P</span><span class="n">o</span><span class="n">s</span><span class="n">t</span><span class="n">E</span><span class="n">v</span><span class="n">e</span><span class="n">n</span><span class="n">t</span><span class=""> </span><span class="o">=</span><span class=""> </span><span class="k">l</span><span class="k">a</span><span class="k">m</span><span class="k">b</span><span class="k">d</span><span class="k">a</span><span class=""> </span><span class="n">x</span><span class="p">:</span><span class=""> </span><span class="bp">N</span><span class="bp">o</span><span class="bp">n</span><span class="bp">e</span><span class="">
 </span></pre></div>
 
 </div>
 
-<p>This way there is no custom event object to garbage collect. In Timeline's case, it was not important to store the event in the mock object anyway.</p>
+<p>This way there is no custom wx event to garbage collect. In Timeline's case, it was not important to store the event in the mock object anyway.</p>
 
 <p>If you have any idea why this example causes a segfault, I would be interested to know. It feels like an error in the wxPython wrapper.</p>
