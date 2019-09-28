@@ -38,6 +38,10 @@ def main():
                 print("-"*30)
                 print("")
             for grammar_name in sys.argv[1:]:
+                if grammar_name.startswith("@"):
+                    with open(grammar_name[1:], "w") as f:
+                        f.write(str(expr))
+                    continue
                 grammar = grammars[grammar_name]
                 print_expr(expr)
                 print_box(grammar.__class__.__name__)
