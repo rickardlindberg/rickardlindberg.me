@@ -5,7 +5,7 @@ gen() {
     echo "---"
     echo "title: '$(echo "$html" | head -n1 | cut -c52- | cut -d'<' -f1)'"
     echo "date: 2019-08-31"
-    echo "tags: timeline"
+    echo "tags: timeline,python"
     echo "---"
     echo "$html" | tail -n+2
 }
