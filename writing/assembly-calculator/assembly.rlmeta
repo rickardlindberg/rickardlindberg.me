@@ -9,20 +9,32 @@ Assembly {
   post = -> [
     ["mov"      ["addr"  "rsp"] ["reg" "rdi"]]
     ["mov"      ["const" 60   ] ["reg" "rax"]]
-    ["syscall"]
+    ["syscall"                               ]
   ]
-  ADD   =     -> [["pop"   ["reg"  "rax"]]
-                  ["add"   ["reg"  "rax"] ["addr" "rsp"]]]
-  SUB   =     -> [["pop"   ["reg"  "rax"]]
-                  ["sub"   ["reg"  "rax"] ["addr" "rsp"]]]
-  MUL   =     -> [["pop"   ["reg"  "rax"]]
-                  ["imul"  ["addr" "rsp"] ["reg"  "rax"]]
-                  ["mov"   ["reg"  "rax"] ["addr" "rsp"]]]
-  DIV   =     -> [["pop"   ["reg"  "rbx"]]
-                  ["pop"   ["reg"  "rax"]]
-                  ["mov"   ["const" 0   ] ["reg"  "rdx"]]
-                  ["idiv"  ["reg"  "rbx"]]
-                  ["push"  ["reg"  "rax"]]]
-  POW   =     -> [["f2xm1" ["reg"  "rax"] ["addr" "rsp"]]]
-  CONST = .:x -> [["push"  ["const" x   ]]]
+  ADD = -> [
+    ["pop" ["reg"  "rax"]]
+    ["add" ["reg"  "rax"] ["addr" "rsp"]]
+  ]
+  SUB = -> [
+    ["pop" ["reg"  "rax"]               ]
+    ["sub" ["reg"  "rax"] ["addr" "rsp"]]
+  ]
+  MUL = -> [
+    ["pop"  ["reg"  "rax"]               ]
+    ["imul" ["addr" "rsp"] ["reg"  "rax"]]
+    ["mov"  ["reg"  "rax"] ["addr" "rsp"]]
+  ]
+  DIV = -> [
+    ["pop"  ["reg"   "rbx"]              ]
+    ["pop"  ["reg"   "rax"]              ]
+    ["mov"  ["const" 0    ] ["reg" "edx"]]
+    ["idiv" ["reg"   "rbx"]              ]
+    ["push" ["reg"   "rax"]              ]
+  ]
+  POW = -> [
+    ["f2xm1" ["reg"  "eax"] ["addr" "rsp"]]
+  ]
+  CONST = .:x -> [
+    ["push" ["const" x]]
+  ]
 }
