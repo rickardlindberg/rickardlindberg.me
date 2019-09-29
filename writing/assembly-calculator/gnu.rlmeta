@@ -1,15 +1,15 @@
 GNU {
   expr = [instr*:xs] -> { xs }
   instr =
-    | ["section" .:x]              -> { "." x "\n" }
-    | ["directive" .:x]            -> { "." x "\n" }
-    | ["label" .:x]                -> { x ":\n" }
-    | [name:x op:source op:target] -> { x "  " source "," target "\n" }
-    | [name:x op:arg]              -> { x "  " arg "\n" }
-    | [name:x]                     -> { x "\n" }
+    | ["section" .:x]                  -> { "." x "\n" }
+    | ["directive" .:x]                -> { "." x "\n" }
+    | ["label" .:x]                    -> { x ":\n" }
+    | [mnemonic:x op:source op:target] -> { x "  " source "," target "\n" }
+    | [mnemonic:x op:arg]              -> { x "  " arg "\n" }
+    | [mnemonic:x]                     -> { x "\n" }
   op =
-    | ["reg" .:name]    -> { "%" name     }
-    | ["addr" .:name]   -> { "(%" name ")" }
-    | ["const" .:value] -> { "$" value    }
-  name = .:x -> pad(x)
+    | ["reg"    .:name] -> { "%" name      }
+    | ["addr"   .:name] -> { "(%" name ")" }
+    | ["const" .:value] -> { "$" value     }
+  mnemonic = .:x -> pad(x)
 }

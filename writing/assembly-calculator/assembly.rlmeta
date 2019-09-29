@@ -12,8 +12,8 @@ Assembly {
     ["syscall"                               ]
   ]
   ADD = -> [
-    ["pop" ["reg"  "rax"]]
-    ["add" ["reg"  "rax"] ["addr" "rsp"]]
+    ["pop" ["reg" "rax"]               ]
+    ["add" ["reg" "rax"] ["addr" "rsp"]]
   ]
   SUB = -> [
     ["pop" ["reg"  "rax"]               ]
@@ -32,7 +32,7 @@ Assembly {
     ["push" ["reg"   "rax"]              ]
   ]
   POW = -> [
-    ["f2xm1" ["reg"  "eax"] ["addr" "rsp"]]
+    ["f2xm1" ["reg" "eax"] ["addr" "rsp"]]
   ]
   CONST = .:x -> [
     ["push" ["const" x]]

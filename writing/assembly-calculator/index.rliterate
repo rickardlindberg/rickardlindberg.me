@@ -210,7 +210,7 @@
 ],
 "fragments":[
 {
-"text":"ADD = -> [\n  [\"pop\" [\"reg\"  \"rax\"]]\n  [\"add\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]\n]\n",
+"text":"ADD = -> [\n  [\"pop\" [\"reg\" \"rax\"]               ]\n  [\"add\" [\"reg\" \"rax\"] [\"addr\" \"rsp\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -331,7 +331,7 @@
 ],
 "fragments":[
 {
-"text":"POW = -> [\n  [\"f2xm1\" [\"reg\"  \"eax\"] [\"addr\" \"rsp\"]]\n]\n",
+"text":"POW = -> [\n  [\"f2xm1\" [\"reg\" \"eax\"] [\"addr\" \"rsp\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -418,7 +418,7 @@
 ],
 "fragments":[
 {
-"text":"GNU {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]              -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]            -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                -> { x \":\\n\" }\n    | [name:x op:source op:target] -> { x \"  \" source \",\" target \"\\n\" }\n    | [name:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [name:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\" .:name]    -> { \"%\" name     }\n    | [\"addr\" .:name]   -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value    }\n  name = .:x -> pad(x)\n}\n",
+"text":"GNU {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:source op:target] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
 "type":"code"
 }
 ],
@@ -498,7 +498,7 @@
 ],
 "fragments":[
 {
-"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(88 r)]\n  imul = addr:m reg:r    -> [m r]\n  add  = reg:r  addr:m   -> [r m]\n  mov  =\n    | addr:m  reg:r      -> [50 m r]\n    | reg:r   addr:m     -> [50 r m]\n    | const:i reg:r      -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\"  .:m]  -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
+"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(0x58 r)]\n  imul = addr:m reg:r    -> [0x0f 0xaf r m]\n  add  = reg:r  addr:m   -> [r m]\n  mov  =\n    | addr:m  reg:r      -> [50 m r]\n    | reg:r   addr:m     -> [50 r m]\n    | const:i reg:r      -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\" .:m]   -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
 "type":"code"
 }
 ],
