@@ -29,6 +29,7 @@ Parser {
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
   hostExpr =
     | space string:x                           -> ["String" x]
+    | space '0'-'9':x '0'-'9'*:xs              -> ["Integer" int(join([x ~xs]))]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' buildExpr*:xs space '}'        -> ["Builder" ~xs]
     | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
