@@ -29,7 +29,7 @@ Parser {
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
   hostExpr =
     | space string:x                           -> ["String" x]
-    | space base:x '0'-'9':y '0'-'9'*:ys       -> ["Integer" int(join([y ~ys]) x)]
+    | space number:x                           -> ["Integer" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' buildExpr*:xs space '}'        -> ["Builder" ~xs]
     | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
@@ -40,6 +40,9 @@ Parser {
     | space '>'                                -> ["IndentBuilder"]
     | space '<'                                -> ["DedentBuilder"]
     | hostExpr
+  number =
+    | space '0x' hex:y hex*:ys                 -> int(join([y ~ys]) 16)
+    | space digit:y digit*:ys                  -> int(join([y ~ys]))
   string    = '"'  (!'"'  innerChar)*:xs '"'   -> join(xs)
   charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> join(xs)
   char      = '\''  !'\'' innerChar  :x  '\''  -> x
@@ -47,8 +50,9 @@ Parser {
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
   name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
+  hex       = digit | 'a'-'f' | 'A'-'F'
   nameStart = 'a'-'z' | 'A'-'Z'
-  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
+  nameChar  = 'a'-'z' | 'A'-'Z' | digit
+  digit     = '0'-'9'
   space     = (' ' | '\n')*
-  base      = '0x' -> 8 | -> 10
 }
