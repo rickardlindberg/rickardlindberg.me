@@ -6,7 +6,7 @@ class Op(object):
 
     def __init__(self, fn, prec, assoc):
         self.fn = fn
-        self.prec = int(prec)
+        self.prec = prec
         self.assoc = assoc
 def parseOps(expr, items, min_level=0):
     while items and items[0][0].prec >= min_level:
@@ -17,11 +17,6 @@ def parseOps(expr, items, min_level=0):
             next_level = op.prec
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr
-def flatten(xs):
-    result = []
-    for x in xs:
-        result.extend(x)
-    return result
 def pad(text):
     return text.ljust(7)
 def main():

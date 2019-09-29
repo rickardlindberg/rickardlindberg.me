@@ -12,7 +12,7 @@
 ],
 "fragments":[
 {
-"text":"Parser {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '+' -> Op(makeNode(\"ADD\") \"1\" \"left\")\n    | '-' -> Op(makeNode(\"SUB\") \"1\" \"left\")\n    | '*' -> Op(makeNode(\"MUL\") \"2\" \"left\")\n    | '/' -> Op(makeNode(\"DIV\") \"2\" \"left\")\n    | '^' -> Op(makeNode(\"POW\") \"3\" \"right\")\n}\n",
+"text":"Parser {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '+' -> Op(makeNode(\"ADD\") 1 \"left\")\n    | '-' -> Op(makeNode(\"SUB\") 1 \"left\")\n    | '*' -> Op(makeNode(\"MUL\") 2 \"left\")\n    | '/' -> Op(makeNode(\"DIV\") 2 \"left\")\n    | '^' -> Op(makeNode(\"POW\") 3 \"right\")\n}\n",
 "type":"code"
 }
 ],
@@ -42,7 +42,7 @@
 ],
 "fragments":[
 {
-"text":"class Op(object):\n\n    def __init__(self, fn, prec, assoc):\n        self.fn = fn\n        self.prec = int(prec)\n        self.assoc = assoc\n",
+"text":"class Op(object):\n\n    def __init__(self, fn, prec, assoc):\n        self.fn = fn\n        self.prec = prec\n        self.assoc = assoc\n",
 "type":"code"
 }
 ],
@@ -180,27 +180,13 @@
 ],
 "fragments":[
 {
-"text":"Assembly {\n  expr = [pre:x instr*:ys post:z] -> [~x ~flatten(ys) ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"addr\"  \"rsp\"]     [\"reg\" \"rdi\"]]\n    [\"mov\"      [\"const\" int(\"60\")] [\"reg\" \"rax\"]]\n    [\"syscall\"]\n  ]\n  ADD   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"add\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  SUB   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"sub\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  MUL   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"imul\"  [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n                  [\"mov\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  DIV   =     -> [[\"pop\"   [\"reg\"  \"rbx\"]]\n                  [\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"mov\"   [\"const\" int(\"0\")][\"reg\"  \"rdx\"]]\n                  [\"idiv\"  [\"reg\"  \"rbx\"]]\n                  [\"push\"  [\"reg\"  \"rax\"]]]\n  POW   =     -> [[\"f2xm1\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  CONST = .:x -> [[\"push\"  [\"const\" x]]]\n}\n",
+"text":"Assembly {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"addr\"  \"rsp\"] [\"reg\" \"rdi\"]]\n    [\"mov\"      [\"const\" 60   ] [\"reg\" \"rax\"]]\n    [\"syscall\"]\n  ]\n  ADD   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"add\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  SUB   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"sub\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  MUL   =     -> [[\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"imul\"  [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n                  [\"mov\"   [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  DIV   =     -> [[\"pop\"   [\"reg\"  \"rbx\"]]\n                  [\"pop\"   [\"reg\"  \"rax\"]]\n                  [\"mov\"   [\"const\" 0   ] [\"reg\"  \"rdx\"]]\n                  [\"idiv\"  [\"reg\"  \"rbx\"]]\n                  [\"push\"  [\"reg\"  \"rax\"]]]\n  POW   =     -> [[\"f2xm1\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]]\n  CONST = .:x -> [[\"push\"  [\"const\" x   ]]]\n}\n",
 "type":"code"
 }
 ],
 "id":"82c7f0b301fe414daed3ccf01f1a3004",
 "language":"",
 "post_process":[],
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"def flatten(xs):\n    result = []\n    for x in xs:\n        result.extend(x)\n    return result\n",
-"type":"code"
-}
-],
-"id":"15080ee0ed014eb28fae84aa9fc38edc",
 "type":"code"
 },
 {
@@ -309,6 +295,77 @@
 }
 ],
 "title":"GNU"
+},
+{
+"children":[],
+"id":"ff74bacb76bf40f082f88738ebc5d8b0",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"In this article I use a version of RLMeta that builds upon the VM based version from ",
+"type":"text"
+},
+{
+"text":"memoizing failures",
+"type":"link",
+"url":"/writing/rlmeta-memoizing-failures/index.html"
+},
+{
+"text":". I've made the following changes:",
+"type":"text"
+}
+],
+"id":"2908143610b545ef892af4cec6305282",
+"type":"text"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Added support for integers in semantic actions.",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"Support arbitrary many ",
+"type":"text"
+},
+{
+"text":"~",
+"type":"code"
+},
+{
+"text":".",
+"type":"text"
+}
+]
+}
+],
+"id":"81259246ed89412e90d42629b6c1017a",
+"type":"list"
+},
+{
+"fragments":[
+{
+"text":"I will not explain how I made those changes. The full source code is available on [github]().",
+"type":"text"
+}
+],
+"id":"c0afc230562e44a687569508fdc6449d",
+"type":"text"
+}
+],
+"title":"Appendix: RLMeta"
 },
 {
 "children":[],

@@ -1,5 +1,5 @@
 Assembly {
-  expr = [pre:x instr*:ys post:z] -> [~x ~flatten(ys) ~z]
+  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]
   pre = -> [
     ["section" "text"]
     ["directive" "global _start"]
@@ -7,8 +7,8 @@ Assembly {
   ]
   instr = [%:op] -> op
   post = -> [
-    ["mov"      ["addr"  "rsp"]     ["reg" "rdi"]]
-    ["mov"      ["const" int("60")] ["reg" "rax"]]
+    ["mov"      ["addr"  "rsp"] ["reg" "rdi"]]
+    ["mov"      ["const" 60   ] ["reg" "rax"]]
     ["syscall"]
   ]
   ADD   =     -> [["pop"   ["reg"  "rax"]]
@@ -20,9 +20,9 @@ Assembly {
                   ["mov"   ["reg"  "rax"] ["addr" "rsp"]]]
   DIV   =     -> [["pop"   ["reg"  "rbx"]]
                   ["pop"   ["reg"  "rax"]]
-                  ["mov"   ["const" int("0")]["reg"  "rdx"]]
+                  ["mov"   ["const" 0   ] ["reg"  "rdx"]]
                   ["idiv"  ["reg"  "rbx"]]
                   ["push"  ["reg"  "rax"]]]
   POW   =     -> [["f2xm1" ["reg"  "rax"] ["addr" "rsp"]]]
-  CONST = .:x -> [["push"  ["const" x]]]
+  CONST = .:x -> [["push"  ["const" x   ]]]
 }
