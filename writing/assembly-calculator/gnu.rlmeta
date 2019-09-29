@@ -4,7 +4,7 @@ GNU {
     | ["section" .:x]                  -> { "." x "\n" }
     | ["directive" .:x]                -> { "." x "\n" }
     | ["label" .:x]                    -> { x ":\n" }
-    | [mnemonic:x op:source op:target] -> { x "  " source "," target "\n" }
+    | [mnemonic:x op:target op:source] -> { x "  " source "," target "\n" }
     | [mnemonic:x op:arg]              -> { x "  " arg "\n" }
     | [mnemonic:x]                     -> { x "\n" }
   op =

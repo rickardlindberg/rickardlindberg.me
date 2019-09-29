@@ -8,12 +8,12 @@ Assembler {
   syscall =              -> [5]
   push = const:x         -> [0x6a ensureByte(x)]
   pop  = reg:r           -> [add(0x58 r)]
-  imul = addr:m reg:r    -> [0x0f 0xaf r m]
-  add  = reg:r  addr:m   -> [r m]
+  imul = reg:r  addr:m   -> [0x48 0x0f 0xaf r m]
+  add  = addr:m reg:r    -> [r m]
   mov  =
-    | addr:m  reg:r      -> [50 m r]
-    | reg:r   addr:m     -> [50 r m]
-    | const:i reg:r      -> [50 i]
+    | reg:r  addr:m      -> [50 m r]
+    | addr:m reg:r       -> [50 r m]
+    | reg:r  const:i     -> [50 i]
   const = ["const" .:i]  -> i
   addr  = ["addr" .:m]   -> m
   reg   = ["reg" regn:r] -> r

@@ -139,6 +139,76 @@
 "id":"bb76bbbba48d4c23b982e5c90af36d86",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"An assembly instruction is represented as a list with its mnemonic and operands:",
+"type":"text"
+}
+],
+"id":"ecbfb6c880e84024905f6a113e641b50",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"[\"mnemonic\" op1 op2 ..]\n",
+"type":"code"
+}
+],
+"id":"d27ca27fb5c44278ad58a4140a41088b",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"For an instruction performing a binary operation, ",
+"type":"text"
+},
+{
+"text":"op1",
+"type":"code"
+},
+{
+"text":" is the destination and ",
+"type":"text"
+},
+{
+"text":"op2",
+"type":"code"
+},
+{
+"text":" is the source. The binary operation performed is therefore the following:",
+"type":"text"
+}
+],
+"id":"0d5fb26dd6ef41428b551530fb3ad559",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"op1 = op1 `operation` op2\n",
+"type":"code"
+}
+],
+"id":"8deced1c937f4c6ebc8d224acf1ce7fe",
+"type":"code"
+},
+{
+"fragments":[
+{
+"text":"An operand can be either a constant, a register, or a memory location.",
+"type":"text"
+}
+],
+"id":"396333999b874e1b9f935cce78b19ddd",
+"type":"text"
+},
+{
 "child_type":"unordered",
 "children":[
 {
@@ -180,7 +250,7 @@
 ],
 "fragments":[
 {
-"text":"Assembly {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"addr\"  \"rsp\"] [\"reg\" \"rdi\"]]\n    [\"mov\"      [\"const\" 60   ] [\"reg\" \"rax\"]]\n    [\"syscall\"                               ]\n  ]\n",
+"text":"Assembly {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"reg\" \"rdi\"] [\"addr\"  \"rsp\"]]\n    [\"mov\"      [\"reg\" \"rax\"] [\"const\" 0x3c ]]\n    [\"syscall\"                               ]\n  ]\n",
 "type":"code"
 },
 {
@@ -210,7 +280,7 @@
 ],
 "fragments":[
 {
-"text":"ADD = -> [\n  [\"pop\" [\"reg\" \"rax\"]               ]\n  [\"add\" [\"reg\" \"rax\"] [\"addr\" \"rsp\"]]\n]\n",
+"text":"ADD = -> [\n  [\"pop\" [\"reg\" \"rax\"]               ]\n  [\"add\" [\"addr\" \"rsp\"] [\"reg\" \"rax\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -218,55 +288,6 @@
 "language":"",
 "post_process":[],
 "type":"code"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"RHS is popped to ",
-"type":"text"
-},
-{
-"text":"rax",
-"type":"code"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"LHS is on stack",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"add",
-"type":"code"
-},
-{
-"text":" does ",
-"type":"text"
-},
-{
-"text":"SP = SP + RHS",
-"type":"code"
-}
-]
-}
-],
-"id":"a33bf8e247204250a6b0f44ca61d38da",
-"type":"list"
 },
 {
 "chunkpath":[
@@ -277,7 +298,7 @@
 ],
 "fragments":[
 {
-"text":"SUB = -> [\n  [\"pop\" [\"reg\"  \"rax\"]               ]\n  [\"sub\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]\n]\n",
+"text":"SUB = -> [\n  [\"pop\" [\"reg\"  \"rax\"]               ]\n  [\"sub\" [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -295,7 +316,7 @@
 ],
 "fragments":[
 {
-"text":"MUL = -> [\n  [\"pop\"  [\"reg\"  \"rax\"]               ]\n  [\"imul\" [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n  [\"mov\"  [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]\n]\n",
+"text":"MUL = -> [\n  [\"pop\"  [\"reg\"  \"rax\"]               ]\n  [\"imul\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]\n  [\"mov\"  [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -313,7 +334,7 @@
 ],
 "fragments":[
 {
-"text":"DIV = -> [\n  [\"pop\"  [\"reg\"   \"rbx\"]              ]\n  [\"pop\"  [\"reg\"   \"rax\"]              ]\n  [\"mov\"  [\"const\" 0    ] [\"reg\" \"edx\"]]\n  [\"idiv\" [\"reg\"   \"rbx\"]              ]\n  [\"push\" [\"reg\"   \"rax\"]              ]\n]\n",
+"text":"DIV = -> [\n  [\"pop\"  [\"reg\" \"rbx\"]            ]\n  [\"pop\"  [\"reg\" \"rax\"]            ]\n  [\"mov\"  [\"reg\" \"edx\"] [\"const\" 0]]\n  [\"idiv\" [\"reg\" \"rbx\"]            ]\n  [\"push\" [\"reg\" \"rax\"]            ]\n]\n",
 "type":"code"
 }
 ],
@@ -418,7 +439,7 @@
 ],
 "fragments":[
 {
-"text":"GNU {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:source op:target] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
+"text":"GNU {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
 "type":"code"
 }
 ],
@@ -498,7 +519,7 @@
 ],
 "fragments":[
 {
-"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(0x58 r)]\n  imul = addr:m reg:r    -> [0x0f 0xaf r m]\n  add  = reg:r  addr:m   -> [r m]\n  mov  =\n    | addr:m  reg:r      -> [50 m r]\n    | reg:r   addr:m     -> [50 r m]\n    | const:i reg:r      -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\" .:m]   -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
+"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(0x58 r)]\n  imul = reg:r  addr:m   -> [0x48 0x0f 0xaf r m]\n  add  = addr:m reg:r    -> [r m]\n  mov  =\n    | reg:r  addr:m      -> [50 m r]\n    | addr:m reg:r       -> [50 r m]\n    | reg:r  const:i     -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\" .:m]   -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
 "type":"code"
 }
 ],
