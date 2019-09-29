@@ -50,7 +50,8 @@ CodeGenerator {
   SemanticAction = ast:x           -> { "I('ACTION', lambda scope: " x ")\n" }
   String         = py
   Integer        = py
-  List           = astList
+  List           = astItems:x      -> { "_makeList([" x "])"                 }
+  ListItemSplice = py:x ast:y      -> { "(" x ", " y ")"                     }
   Builder        = astItems:x      -> { "_Builder.create([" x "])"           }
   IndentBuilder  =                 -> { "_IndentBuilder()"                   }
   DedentBuilder  =                 -> { "_DedentBuilder()"                   }
@@ -60,10 +61,6 @@ CodeGenerator {
     | ast:x astItem*:xs            -> { x xs                                 }
     |                              -> {                                      }
   astItem        = ast:x           -> { ", " x                               }
-  astList        = astListItem*:xs -> { "(" xs "[])"                         }
-  astListItem    =
-    | ["ListItemSplice" ast:x]     -> {     x  "+"                           }
-    | ast:x                        -> { "[" x "]+"                           }
   MatchRule      = py:x            -> { "I('CALL', " x ")\n"                 }
   MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
   MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"         }

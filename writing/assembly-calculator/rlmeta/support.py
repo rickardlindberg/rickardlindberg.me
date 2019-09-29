@@ -311,3 +311,15 @@ class _MatchError(Exception):
 
     def _arrow(self, lenght):
         return "--{}^\n".format("-"*lenght)
+
+def _makeList(items):
+    def _addItem(depth, item):
+        if depth == 0:
+            result.append(item)
+        else:
+            for subitem in item:
+                _addItem(depth-1, subitem)
+    result = []
+    for depth, item in items:
+        _addItem(depth, item)
+    return result
