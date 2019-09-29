@@ -1,0 +1,23 @@
+Assembler {
+  expr = [instr*:xs]     -> [~~xs]
+  instr =
+    | ["section" .:x]    -> []
+    | ["directive" .:x]  -> []
+    | ["label" .:x]      -> []
+    | [%:x]              -> x
+  syscall =              -> [5]
+  push = const:x         -> [0x6a ensureByte(x)]
+  pop  = reg:r           -> [add(88 r)]
+  imul = addr:m reg:r    -> [m r]
+  add  = reg:r  addr:m   -> [r m]
+  mov  =
+    | addr:m  reg:r      -> [50 m r]
+    | reg:r   addr:m     -> [50 r m]
+    | const:i reg:r      -> [50 i]
+  const = ["const" .:i]  -> i
+  addr  = ["addr"  .:m]  -> m
+  reg   = ["reg" regn:r] -> r
+  regn =
+    | "rax" -> 0
+    | "rdi" -> 3
+}

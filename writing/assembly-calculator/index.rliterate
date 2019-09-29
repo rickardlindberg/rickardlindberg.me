@@ -489,6 +489,82 @@
 },
 {
 "children":[],
+"id":"d3ece5a4ba484033ac47d9190e513acd",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[
+"assembler.rlmeta"
+],
+"fragments":[
+{
+"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(88 r)]\n  imul = addr:m reg:r    -> [m r]\n  add  = reg:r  addr:m   -> [r m]\n  mov  =\n    | addr:m  reg:r      -> [50 m r]\n    | reg:r   addr:m     -> [50 r m]\n    | const:i reg:r      -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\"  .:m]  -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
+"type":"code"
+}
+],
+"id":"e2ea2040aa4f453482e9d850f5205d2f",
+"language":"",
+"post_process":[],
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def ensureByte(number):\n    if number > 0xFF:\n        raise ValueError(\"{} is larger than a byte\".format(number))\n    return number\n",
+"type":"code"
+}
+],
+"id":"4e6f7298b5f14801b348a78fb83ccbac",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def add(x, y):\n    return x + y\n",
+"type":"code"
+}
+],
+"id":"a30abe807d3f445c9d0d442000144030",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1\n1+2*3\n",
+"type":"code"
+}
+],
+"id":"1e52e522c9f34e49a3027204d14e43a7",
+"post_process":[
+"bash",
+"compile.sh",
+"parser",
+"stackmachine",
+"assembly",
+"assembler"
+],
+"type":"code"
+},
+{
+"code_id":"1e52e522c9f34e49a3027204d14e43a7",
+"id":"984c9169bbe74c63b57cadbe6ff58061",
+"type":"expanded_code"
+}
+],
+"title":"Assembler"
+},
+{
+"children":[],
 "id":"ff74bacb76bf40f082f88738ebc5d8b0",
 "paragraphs":[
 {
@@ -569,7 +645,7 @@
 ],
 "fragments":[
 {
-"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"stackmachine\": StackMachine(),\n        \"assembly\": Assembly(),\n        \"gnu\": GNU(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*30)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"stackmachine\": StackMachine(),\n        \"assembly\": Assembly(),\n        \"gnu\": GNU(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*30)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
 "type":"code"
 }
 ],
@@ -583,7 +659,7 @@
 ],
 "fragments":[
 {
-"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    python rlmeta/rlmeta.py --support\n    cat \"support.py\"\n    python rlmeta/rlmeta.py < parser.rlmeta\n    python rlmeta/rlmeta.py < stackmachine.rlmeta\n    python rlmeta/rlmeta.py < assembly.rlmeta\n    python rlmeta/rlmeta.py < gnu.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
+"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    python rlmeta/rlmeta.py --support\n    cat \"support.py\"\n    python rlmeta/rlmeta.py < parser.rlmeta\n    python rlmeta/rlmeta.py < stackmachine.rlmeta\n    python rlmeta/rlmeta.py < assembly.rlmeta\n    python rlmeta/rlmeta.py < gnu.rlmeta\n    python rlmeta/rlmeta.py < assembler.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
 "type":"code"
 }
 ],

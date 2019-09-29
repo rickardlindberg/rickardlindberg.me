@@ -9,6 +9,7 @@ compile() {
     python rlmeta/rlmeta.py < stackmachine.rlmeta
     python rlmeta/rlmeta.py < assembly.rlmeta
     python rlmeta/rlmeta.py < gnu.rlmeta
+    python rlmeta/rlmeta.py < assembler.rlmeta
     echo "main()"
 }
 

@@ -19,12 +19,19 @@ def parseOps(expr, items, min_level=0):
     return expr
 def pad(text):
     return text.ljust(7)
+def ensureByte(number):
+    if number > 0xFF:
+        raise ValueError("{} is larger than a byte".format(number))
+    return number
+def add(x, y):
+    return x + y
 def main():
     grammars = {
         "parser": Parser(),
         "stackmachine": StackMachine(),
         "assembly": Assembly(),
         "gnu": GNU(),
+        "assembler": Assembler(),
     }
     try:
         for index, expr in enumerate(sys.stdin.read().splitlines()):
