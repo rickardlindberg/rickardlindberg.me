@@ -3,12 +3,12 @@ set -e
 compile() {
     echo "import sys"
     echo "import pprint"
-    rlmeta --support
+    python rlmeta/rlmeta.py --support
     cat "support.py"
-    rlmeta < parser.rlmeta
-    rlmeta < stackmachine.rlmeta
-    rlmeta < assembly.rlmeta
-    rlmeta < gnu.rlmeta
+    python rlmeta/rlmeta.py < parser.rlmeta
+    python rlmeta/rlmeta.py < stackmachine.rlmeta
+    python rlmeta/rlmeta.py < assembly.rlmeta
+    python rlmeta/rlmeta.py < gnu.rlmeta
     echo "main()"
 }
 

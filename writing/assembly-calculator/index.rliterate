@@ -335,7 +335,7 @@
 ],
 "fragments":[
 {
-"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    rlmeta --support\n    cat \"support.py\"\n    rlmeta < parser.rlmeta\n    rlmeta < stackmachine.rlmeta\n    rlmeta < assembly.rlmeta\n    rlmeta < gnu.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
+"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    python rlmeta/rlmeta.py --support\n    cat \"support.py\"\n    python rlmeta/rlmeta.py < parser.rlmeta\n    python rlmeta/rlmeta.py < stackmachine.rlmeta\n    python rlmeta/rlmeta.py < assembly.rlmeta\n    python rlmeta/rlmeta.py < gnu.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
 "type":"code"
 }
 ],
