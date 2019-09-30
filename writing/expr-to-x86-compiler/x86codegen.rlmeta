@@ -1,16 +1,14 @@
 X86CodeGen {
-  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]
-  pre = -> [
+  expr = [instruction*:xs] -> [
     ["section" "text"]
     ["directive" "global _start"]
     ["label" "_start"]
+    ~~xs
+    ["mov"     ["reg" "rdi"] ["addr"  "rsp"]]
+    ["mov"     ["reg" "rax"] ["const" 0x3c ]]
+    ["syscall"                              ]
   ]
-  instr = [%:op] -> op
-  post = -> [
-    ["mov"      ["reg" "rdi"] ["addr"  "rsp"]]
-    ["mov"      ["reg" "rax"] ["const" 0x3c ]]
-    ["syscall"                               ]
-  ]
+  instruction = [%:x] -> x
   ADD = -> [
     ["pop" ["reg" "rax"]               ]
     ["add" ["addr" "rsp"] ["reg" "rax"]]

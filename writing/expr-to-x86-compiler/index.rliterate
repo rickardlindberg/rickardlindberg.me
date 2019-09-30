@@ -249,6 +249,76 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[
+"x86codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"X86CodeGen {\n  expr = [instruction*:xs] -> [\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"pre"
+],
+"prefix":"    ",
+"type":"chunk"
+},
+{
+"text":"    ~~xs\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"post"
+],
+"prefix":"    ",
+"type":"chunk"
+},
+{
+"text":"  ]\n  instruction = [%:x] -> x\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"instructions"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"82c7f0b301fe414daed3ccf01f1a3004",
+"language":"",
+"post_process":[],
+"type":"code"
+},
+{
+"chunkpath":[
+"pre"
+],
+"filepath":[
+"x86codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"[\"section\" \"text\"]\n[\"directive\" \"global _start\"]\n[\"label\" \"_start\"]\n",
+"type":"code"
+}
+],
+"id":"3963ee8e165b4fa3afcd1350ff9b7e82",
+"language":"",
+"post_process":[],
+"type":"code"
+},
+{
 "child_type":"unordered",
 "children":[
 {
@@ -282,34 +352,6 @@
 ],
 "id":"b92e18b1c525415e9dc01876f3051269",
 "type":"list"
-},
-{
-"chunkpath":[],
-"filepath":[
-"x86codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"X86CodeGen {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"reg\" \"rdi\"] [\"addr\"  \"rsp\"]]\n    [\"mov\"      [\"reg\" \"rax\"] [\"const\" 0x3c ]]\n    [\"syscall\"                               ]\n  ]\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"instructions"
-],
-"prefix":"  ",
-"type":"chunk"
-},
-{
-"text":"}\n",
-"type":"code"
-}
-],
-"id":"82c7f0b301fe414daed3ccf01f1a3004",
-"language":"",
-"post_process":[],
-"type":"code"
 },
 {
 "chunkpath":[
@@ -348,6 +390,33 @@
 "type":"code"
 },
 {
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"RAX = right (popped)",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"result = left - RAX",
+"type":"text"
+}
+]
+}
+],
+"id":"ad5c306bc1fb405cb330fee171dbe41f",
+"type":"list"
+},
+{
 "chunkpath":[
 "instructions"
 ],
@@ -373,7 +442,7 @@
 "children":[],
 "fragments":[
 {
-"text":"RAX = right",
+"text":"RAX = right (popped)",
 "type":"text"
 }
 ]
@@ -403,7 +472,7 @@
 "children":[],
 "fragments":[
 {
-"text":"stack",
+"text":"result = RBX",
 "type":"text"
 }
 ]
@@ -411,16 +480,6 @@
 ],
 "id":"1308a3777e8245fd8c246e0217c341eb",
 "type":"list"
-},
-{
-"fragments":[
-{
-"text":"Multiplication is done in wrong order.",
-"type":"text"
-}
-],
-"id":"45b9aaeec6d54902868929547b39f8c5",
-"type":"text"
 },
 {
 "chunkpath":[
@@ -472,6 +531,24 @@
 }
 ],
 "id":"290c168cd42d4e5c943426482c99494a",
+"language":"",
+"post_process":[],
+"type":"code"
+},
+{
+"chunkpath":[
+"post"
+],
+"filepath":[
+"x86codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"[\"mov\"     [\"reg\" \"rdi\"] [\"addr\"  \"rsp\"]]\n[\"mov\"     [\"reg\" \"rax\"] [\"const\" 0x3c ]]\n[\"syscall\"                              ]\n",
+"type":"code"
+}
+],
+"id":"17612e8e345e43e5b640516864fc9601",
 "language":"",
 "post_process":[],
 "type":"code"
