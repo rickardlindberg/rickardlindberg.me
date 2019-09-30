@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The parser is the same from the previous article. It turns a subset of mathematical expression into an AST:",
+"text":"The parser is the same as from the previous article. It turns a subset of mathematical expression into an AST:",
 "type":"text"
 }
 ],
@@ -115,7 +115,7 @@
 {
 "fragments":[
 {
-"text":"The abstract code generator will convert the AST into instructions for an imaginary stack machine:",
+"text":"The abstract code generator converts an AST into instructions for an imaginary stack machine:",
 "type":"text"
 }
 ],
@@ -171,7 +171,7 @@
 {
 "fragments":[
 {
-"text":"The X86 code generator will convert instructions for the imaginary stack machine into assembly instructions for the x86 architecture.",
+"text":"The X86 code generator converts instructions for the imaginary stack machine into assembly instructions for the x86 architecture.",
 "type":"text"
 }
 ],
@@ -456,7 +456,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1+2*3\n",
+"text":"8\n1+2*3\n",
 "type":"code"
 }
 ],
@@ -535,7 +535,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1\n1+2*3\n",
+"text":"8\n1+2*3\n",
 "type":"code"
 }
 ],
@@ -660,7 +660,7 @@
 "url":"/writing/rlmeta-memoize-failures/index.html"
 },
 {
-"text":". I've made the following changes:",
+"text":", but has the following changes:",
 "type":"text"
 }
 ],
@@ -675,7 +675,7 @@
 "children":[],
 "fragments":[
 {
-"text":"Added support for integers in semantic actions.",
+"text":"It supports integers in semantic actions.",
 "type":"text"
 }
 ]
@@ -685,7 +685,7 @@
 "children":[],
 "fragments":[
 {
-"text":"Support arbitrary many ",
+"text":"It support arbitrary many ",
 "type":"text"
 },
 {
@@ -693,7 +693,7 @@
 "type":"code"
 },
 {
-"text":".",
+"text":" operators.",
 "type":"text"
 }
 ]
@@ -705,11 +705,11 @@
 {
 "fragments":[
 {
-"text":"I will not explain how I made those changes. The full source code is available on ",
+"text":"I will not explain how I made those changes here. The full source code is available on ",
 "type":"text"
 },
 {
-"text":"github",
+"text":"GitHub",
 "type":"link",
 "url":"https://github.com/rickardlindberg/rickardlindberg.me/tree/master/writing/expr-to-x86-compiler/rlmeta"
 },
@@ -729,18 +729,14 @@
 "id":"7790eca23f484ea7b7430ef607b491c2",
 "paragraphs":[
 {
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
 "fragments":[
 {
-"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*30)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
-"type":"code"
+"text":"I used the following script to run the examples:",
+"type":"text"
 }
 ],
-"id":"f1d6ba61587e43a5878aff3bbdbf8cac",
-"type":"code"
+"id":"0b932564205d4770842eedefaebe91e5",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -754,6 +750,20 @@
 }
 ],
 "id":"3d82622d2bab436ebb7f6d53eefb985f",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*32)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    print(\"\")\n    print(\"=V{}==\".format(\" {} \".format(name).center(28, \"=\")))\n    print(\"\")\n",
+"type":"code"
+}
+],
+"id":"f1d6ba61587e43a5878aff3bbdbf8cac",
 "type":"code"
 }
 ],
@@ -774,7 +784,7 @@
 "url":"/writing/rlmeta-left-associativity/index.html"
 },
 {
-"text":" we looked at how to parse subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code.",
+"text":" we looked at how to parse a subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code.",
 "type":"text"
 }
 ],

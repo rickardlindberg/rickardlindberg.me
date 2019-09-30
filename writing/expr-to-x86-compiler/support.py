@@ -37,7 +37,7 @@ def main():
         for index, expr in enumerate(sys.stdin.read().splitlines()):
             if index > 0:
                 print("")
-                print("-"*30)
+                print("-"*32)
                 print("")
             for grammar_name in sys.argv[1:]:
                 if grammar_name.startswith("@"):
@@ -59,10 +59,6 @@ def print_expr(expr):
         pprint.pprint(expr, width=20)
 
 def print_box(name):
-    HALF = 10
-    WIDTH = HALF*2+1
     print("")
-    print("{}V{}".format("="*HALF, "="*HALF))
-    print(name.center(WIDTH))
-    print("{}V{}".format("="*HALF, "="*HALF))
+    print("=V{}==".format(" {} ".format(name).center(28, "=")))
     print("")
