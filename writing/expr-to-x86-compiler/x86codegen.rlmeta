@@ -21,8 +21,9 @@ X86CodeGen {
   ]
   MUL = -> [
     ["pop"  ["reg"  "rax"]               ]
-    ["imul" ["reg"  "rax"] ["addr" "rsp"]]
-    ["mov"  ["addr" "rsp"] ["reg"  "rax"]]
+    ["mov"  ["reg"  "rbx"] ["addr" "rsp"]]
+    ["imul" ["reg"  "rbx"] ["reg"  "rax"]]
+    ["mov"  ["addr" "rsp"] ["reg"  "rbx"]]
   ]
   DIV = -> [
     ["pop"  ["reg" "rbx"]            ]

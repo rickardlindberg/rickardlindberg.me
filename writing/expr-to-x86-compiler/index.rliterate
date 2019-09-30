@@ -356,7 +356,7 @@
 ],
 "fragments":[
 {
-"text":"MUL = -> [\n  [\"pop\"  [\"reg\"  \"rax\"]               ]\n  [\"imul\" [\"reg\"  \"rax\"] [\"addr\" \"rsp\"]]\n  [\"mov\"  [\"addr\" \"rsp\"] [\"reg\"  \"rax\"]]\n]\n",
+"text":"MUL = -> [\n  [\"pop\"  [\"reg\"  \"rax\"]               ]\n  [\"mov\"  [\"reg\"  \"rbx\"] [\"addr\" \"rsp\"]]\n  [\"imul\" [\"reg\"  \"rbx\"] [\"reg\"  \"rax\"]]\n  [\"mov\"  [\"addr\" \"rsp\"] [\"reg\"  \"rbx\"]]\n]\n",
 "type":"code"
 }
 ],
@@ -364,6 +364,53 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"child_type":"unordered",
+"children":[
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"RAX = right",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"RBX = left",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"RBX = RBX * RAX",
+"type":"text"
+}
+]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"stack",
+"type":"text"
+}
+]
+}
+],
+"id":"1308a3777e8245fd8c246e0217c341eb",
+"type":"list"
 },
 {
 "fragments":[
@@ -579,7 +626,7 @@
 ],
 "fragments":[
 {
-"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(0x58 r)]\n  imul = reg:r  addr:m   -> [0x48 0x0f 0xaf r m]\n  add  = addr:m reg:r    -> [r m]\n  mov  =\n    | reg:r  addr:m      -> [50 m r]\n    | addr:m reg:r       -> [50 r m]\n    | reg:r  const:i     -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\" .:m]   -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rdi\" -> 3\n}\n",
+"text":"Assembler {\n  expr = [instr*:xs]     -> [~~xs]\n  instr =\n    | [\"section\" .:x]    -> []\n    | [\"directive\" .:x]  -> []\n    | [\"label\" .:x]      -> []\n    | [%:x]              -> x\n  syscall =              -> [5]\n  push = const:x         -> [0x6a ensureByte(x)]\n  pop  = reg:r           -> [add(0x58 r)]\n  imul = reg:r1 reg:r2   -> [0x48 0x0f 0xaf r1 r2]\n  add  = addr:m reg:r    -> [r m]\n  mov  =\n    | reg:r  addr:m      -> [50 m r]\n    | addr:m reg:r       -> [50 r m]\n    | reg:r  const:i     -> [50 i]\n  const = [\"const\" .:i]  -> i\n  addr  = [\"addr\" .:m]   -> m\n  reg   = [\"reg\" regn:r] -> r\n  regn =\n    | \"rax\" -> 0\n    | \"rbx\" -> 3\n    | \"rdi\" -> 5\n}\n",
 "type":"code"
 }
 ],
