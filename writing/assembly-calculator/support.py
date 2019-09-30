@@ -1,13 +1,13 @@
-def makeNode(name):
-    def op(left, right):
-        return [name, left, right]
-    return op
 class Op(object):
 
     def __init__(self, fn, prec, assoc):
         self.fn = fn
         self.prec = prec
         self.assoc = assoc
+def makeAstNode(name):
+    def op(left, right):
+        return [name, left, right]
+    return op
 def parseOps(expr, items, min_level=0):
     while items and items[0][0].prec >= min_level:
         op, rhs = items.pop(0)
@@ -28,9 +28,9 @@ def add(x, y):
 def main():
     grammars = {
         "parser": Parser(),
-        "stackmachine": StackMachine(),
-        "assembly": Assembly(),
-        "gnu": GNU(),
+        "acodegen": AbstractCodeGen(),
+        "xcodegen": X86CodeGen(),
+        "gas": GasGen(),
         "assembler": Assembler(),
     }
     try:

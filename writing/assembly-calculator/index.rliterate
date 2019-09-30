@@ -6,33 +6,29 @@
 "id":"a83adf407dbd43929bfbb4ab7f7311e5",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The parser is the same from the previous article. It turns a subset of mathematical expression into an AST:",
+"type":"text"
+}
+],
+"id":"5dba2fad4bdf4e7ebcf37a42a418db8c",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
 "parser.rlmeta"
 ],
 "fragments":[
 {
-"text":"Parser {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '+' -> Op(makeNode(\"ADD\") 1 \"left\")\n    | '-' -> Op(makeNode(\"SUB\") 1 \"left\")\n    | '*' -> Op(makeNode(\"MUL\") 2 \"left\")\n    | '/' -> Op(makeNode(\"DIV\") 2 \"left\")\n    | '^' -> Op(makeNode(\"POW\") 3 \"right\")\n}\n",
+"text":"Parser {\n  expr  = digit:x (op:y digit:z -> [y z])*:xs -> parseOps(x xs)\n  digit = '0'-'9':x                           -> int(x)\n  op    =\n    | '+' -> Op(makeAstNode(\"ADD\") 1 \"left\")\n    | '-' -> Op(makeAstNode(\"SUB\") 1 \"left\")\n    | '*' -> Op(makeAstNode(\"MUL\") 2 \"left\")\n    | '/' -> Op(makeAstNode(\"DIV\") 2 \"left\")\n    | '^' -> Op(makeAstNode(\"POW\") 3 \"right\")\n}\n",
 "type":"code"
 }
 ],
 "id":"d3a45ae9dc0345bebfbf390d7247c39b",
 "language":"",
 "post_process":[],
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"def makeNode(name):\n    def op(left, right):\n        return [name, left, right]\n    return op\n",
-"type":"code"
-}
-],
-"id":"d447ef7f73c3449a86562dc994bd14aa",
 "type":"code"
 },
 {
@@ -56,12 +52,36 @@
 ],
 "fragments":[
 {
+"text":"def makeAstNode(name):\n    def op(left, right):\n        return [name, left, right]\n    return op\n",
+"type":"code"
+}
+],
+"id":"d447ef7f73c3449a86562dc994bd14aa",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
 "text":"def parseOps(expr, items, min_level=0):\n    while items and items[0][0].prec >= min_level:\n        op, rhs = items.pop(0)\n        if op.assoc == \"left\":\n            next_level = op.prec + 1\n        else:\n            next_level = op.prec\n        expr = op.fn(expr, parseOps(rhs, items, next_level))\n    return expr\n",
 "type":"code"
 }
 ],
 "id":"0e3c33cbca0f4cb296429066f8a80146",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"Example:",
+"type":"text"
+}
+],
+"id":"033e3ade955d422eb2f63707200022a7",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -93,13 +113,23 @@
 "id":"0488143f851349bf876169b04770e6bf",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The abstract code generator will convert the AST into instructions for an imaginary stack machine:",
+"type":"text"
+}
+],
+"id":"5b3df405b7ce42dc9e0e172d5785b4b3",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
-"stackmachine.rlmeta"
+"abstractcodegen.rlmeta"
 ],
 "fragments":[
 {
-"text":"StackMachine {\n  expr =\n    | [.:name expr:left expr:right] -> [~left ~right [name]]\n    | .:leaf                        -> [[\"CONST\" leaf]]\n}\n",
+"text":"AbstractCodeGen {\n  expr =\n    | [.:name expr:left expr:right] -> [~left ~right [name]]\n    | .:leaf                        -> [[\"CONST\" leaf]]\n}\n",
 "type":"code"
 }
 ],
@@ -122,7 +152,7 @@
 "bash",
 "compile.sh",
 "parser",
-"stackmachine"
+"acodegen"
 ],
 "type":"code"
 },
@@ -132,12 +162,22 @@
 "type":"expanded_code"
 }
 ],
-"title":"Stack machine"
+"title":"Abstract code generator"
 },
 {
 "children":[],
 "id":"bb76bbbba48d4c23b982e5c90af36d86",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The X86 code generator will convert instructions for the imaginary stack machine into assembly instructions for the x86 architecture.",
+"type":"text"
+}
+],
+"id":"f24adb7c9f584f4fb8b41f6f404323dd",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -246,11 +286,11 @@
 {
 "chunkpath":[],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
-"text":"Assembly {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"reg\" \"rdi\"] [\"addr\"  \"rsp\"]]\n    [\"mov\"      [\"reg\" \"rax\"] [\"const\" 0x3c ]]\n    [\"syscall\"                               ]\n  ]\n",
+"text":"X86CodeGen {\n  expr = [pre:x instr*:ys post:z] -> [~x ~~ys ~z]\n  pre = -> [\n    [\"section\" \"text\"]\n    [\"directive\" \"global _start\"]\n    [\"label\" \"_start\"]\n  ]\n  instr = [%:op] -> op\n  post = -> [\n    [\"mov\"      [\"reg\" \"rdi\"] [\"addr\"  \"rsp\"]]\n    [\"mov\"      [\"reg\" \"rax\"] [\"const\" 0x3c ]]\n    [\"syscall\"                               ]\n  ]\n",
 "type":"code"
 },
 {
@@ -276,7 +316,7 @@
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -294,7 +334,7 @@
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -312,7 +352,7 @@
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -326,11 +366,21 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"Multiplication is done in wrong order.",
+"type":"text"
+}
+],
+"id":"45b9aaeec6d54902868929547b39f8c5",
+"type":"text"
+},
+{
 "chunkpath":[
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -348,7 +398,7 @@
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -366,7 +416,7 @@
 "instructions"
 ],
 "filepath":[
-"assembly.rlmeta"
+"x86codegen.rlmeta"
 ],
 "fragments":[
 {
@@ -415,8 +465,8 @@
 "bash",
 "compile.sh",
 "parser",
-"stackmachine",
-"assembly"
+"acodegen",
+"xcodegen"
 ],
 "type":"code"
 },
@@ -426,20 +476,38 @@
 "type":"expanded_code"
 }
 ],
-"title":"Assembly"
+"title":"X86 code generator"
 },
 {
 "children":[],
 "id":"12e4e39c6b494b30a425f4570e8b8d53",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"The GAS generator converts assembly instructions into a file suitable for compilation with the GNU assembler: ",
+"type":"text"
+},
+{
+"text":"gcc -nostdlib file.s",
+"type":"code"
+},
+{
+"text":":",
+"type":"text"
+}
+],
+"id":"679dddb6aac04f20bdd82e14bab671ec",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[
-"gnu.rlmeta"
+"gas.rlmeta"
 ],
 "fragments":[
 {
-"text":"GNU {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
+"text":"GasGen {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
 "type":"code"
 }
 ],
@@ -476,9 +544,9 @@
 "bash",
 "compile.sh",
 "parser",
-"stackmachine",
-"assembly",
-"gnu"
+"acodegen",
+"xcodegen",
+"gas"
 ],
 "type":"code"
 },
@@ -486,32 +554,24 @@
 "code_id":"04e14524f1b34b6f940d0922a6bfc6f4",
 "id":"7857b19690284563bbdaff9437c5c454",
 "type":"expanded_code"
-},
-{
-"fragments":[
-{
-"text":"Compile with ",
-"type":"text"
-},
-{
-"text":"gcc -nostdlib file.s",
-"type":"code"
-},
-{
-"text":".",
-"type":"text"
 }
 ],
-"id":"679dddb6aac04f20bdd82e14bab671ec",
-"type":"text"
-}
-],
-"title":"GNU"
+"title":"GAS generator"
 },
 {
 "children":[],
 "id":"d3ece5a4ba484033ac47d9190e513acd",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"The assembler converts assembly instructions into machine code:",
+"type":"text"
+}
+],
+"id":"438792dcf3084cd3846b45441a1bae85",
+"type":"text"
+},
 {
 "chunkpath":[],
 "filepath":[
@@ -570,8 +630,8 @@
 "bash",
 "compile.sh",
 "parser",
-"stackmachine",
-"assembly",
+"acodegen",
+"xcodegen",
 "assembler"
 ],
 "type":"code"
@@ -597,7 +657,7 @@
 {
 "text":"memoizing failures",
 "type":"link",
-"url":"/writing/rlmeta-memoizing-failures/index.html"
+"url":"/writing/rlmeta-memoize-failures/index.html"
 },
 {
 "text":". I've made the following changes:",
@@ -666,7 +726,7 @@
 ],
 "fragments":[
 {
-"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"stackmachine\": StackMachine(),\n        \"assembly\": Assembly(),\n        \"gnu\": GNU(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*30)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        for index, expr in enumerate(sys.stdin.read().splitlines()):\n            if index > 0:\n                print(\"\")\n                print(\"-\"*30)\n                print(\"\")\n            for grammar_name in sys.argv[1:]:\n                if grammar_name.startswith(\"@\"):\n                    with open(grammar_name[1:], \"w\") as f:\n                        f.write(str(expr))\n                    continue\n                grammar = grammars[grammar_name]\n                print_expr(expr)\n                print_box(grammar.__class__.__name__)\n                expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    HALF = 10\n    WIDTH = HALF*2+1\n    print(\"\")\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(name.center(WIDTH))\n    print(\"{}V{}\".format(\"=\"*HALF, \"=\"*HALF))\n    print(\"\")\n",
 "type":"code"
 }
 ],
@@ -680,7 +740,7 @@
 ],
 "fragments":[
 {
-"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    python rlmeta/rlmeta.py --support\n    cat \"support.py\"\n    python rlmeta/rlmeta.py < parser.rlmeta\n    python rlmeta/rlmeta.py < stackmachine.rlmeta\n    python rlmeta/rlmeta.py < assembly.rlmeta\n    python rlmeta/rlmeta.py < gnu.rlmeta\n    python rlmeta/rlmeta.py < assembler.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
+"text":"set -e\n\ncompile() {\n    echo \"import sys\"\n    echo \"import pprint\"\n    python rlmeta/rlmeta.py --support\n    cat \"support.py\"\n    python rlmeta/rlmeta.py < parser.rlmeta\n    python rlmeta/rlmeta.py < abstractcodegen.rlmeta\n    python rlmeta/rlmeta.py < x86codegen.rlmeta\n    python rlmeta/rlmeta.py < gas.rlmeta\n    python rlmeta/rlmeta.py < assembler.rlmeta\n    echo \"main()\"\n}\n\npython <(compile) \"$@\"\n",
 "type":"code"
 }
 ],
@@ -692,8 +752,28 @@
 }
 ],
 "id":"3dffd837b9ec4ad88b4e7f4c4b3b5aae",
-"paragraphs":[],
-"title":"Calculator to assembly"
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"In ",
+"type":"text"
+},
+{
+"text":"Parsing left associative operators using RLMeta",
+"type":"link",
+"url":"/writing/rlmeta-left-associativity/index.html"
+},
+{
+"text":" we looked at how to parse subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code.",
+"type":"text"
+}
+],
+"id":"799208205d6444bd8781878d0a7e55a7",
+"type":"text"
+}
+],
+"title":"Compiling expressions to x86 machine code"
 },
 "variables":{}
 }

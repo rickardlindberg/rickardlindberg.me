@@ -1,4 +1,4 @@
-StackMachine {
+AbstractCodeGen {
   expr =
     | [.:name expr:left expr:right] -> [~left ~right [name]]
     | .:leaf                        -> [["CONST" leaf]]
