@@ -7,8 +7,47 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 28 Sep 2019 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 01 Oct 2019 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Newsletter September 2019</title>
+    <link>http://rickardlindberg.me/writing/newsletter/september-2019/</link>
+    <description><![CDATA[<h1>Newsletter September 2019</h1>
+
+<p><em>Published on  1 October 2019.</em></p>
+
+<p>This is what I’ve been up to in September 2019:</p>
+<ul>
+<li><p>I finished the article on <a href="/writing/rlmeta-left-associativity/index.html">parsing left associative operators in RLMeta</a>. I’m pleased with how it turned out.</p></li>
+<li><p>I played with <a href="https://cython.org/">Cython</a> to see if RLMeta VM could be made faster if converted to a C extension module. (It could!) I might write a blog post about it.</p></li>
+<li><p>I learned more about Python C extension modules from <a href="https://thomasnyberg.com/what_are_extension_modules.html">What are (c)python extension modules?</a>.</p></li>
+<li><p>I watched <a href="https://cacm.acm.org/magazines/2018/11/232214-a-look-at-the-design-of-lua/fulltext">A Look at the Design of Lua</a>. I was inspired by the setting in which it seems to have been created. Small office. Whiteboard. Collaboration. I want to implement a minimal OOP-language in order to learn how to do it.</p></li>
+<li><p>I finished porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3.</p>
+<ul>
+<li><p>The most difficult part was to verify that division operations were still working the same. (Python 3 integer division gives float instead of integer as in Python 2.)</p></li>
+<li><p>I concluded that maintaining software is hard work. Even if your program does not change, the external world changes, and you need to change your program accordingly.</p></li>
+<li><p>I finished the article on the <a href="/writing/timeline-segfault-wxpython/index.html">segfault failure</a> that I found during porting.</p></li>
+</ul></li>
+<li><p>I learned about a trick help me get started on a task faster: leave work undone. Leave a test failing. Leave a sentence half written.</p></li>
+<li><p>I learned that your number one priority is not what you write on top of the TODO list, but what you actually do.</p></li>
+<li><p>A finished a post with my <a href="/writing/alan-kay-notes/index.html">notes on Alan Kay</a>. He is a big inspiration to me.</p></li>
+<li><p>I read most parts of <a href="https://paulcavallaro.com/blog/common-systems-programming-optimizations-tricks/">Common Systems Programming Optimizations &amp; Tricks</a>. Low level optimizations are interesting. It reminded me of Bob Nystrom’s <a href="http://gameprogrammingpatterns.com/">game programming book</a> that discusses some <a href="http://gameprogrammingpatterns.com/optimization-patterns.html">similar topics</a>.</p></li>
+<li><p>I continued with the article about <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures in RLMeta</a>. It is almost finished, but because I got distracted by other work, it is not. I hope to finish it next month.</p></li>
+<li><p>I started working on <a href="/writing/expr-to-x86-compiler/index.html">compiling expressions to x86 machine code</a>:</p>
+<ul>
+<li><p>I don’t really know assembly, so I found <a href="https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming">A fundamental introduction to x86 assembly programming</a> useful.</p></li>
+<li><p>I got segafults because of 32/64-bit mixup. It just shows that I don’t really know what I’m doing yet.</p></li>
+<li><p>I learned that <code>add</code> and <code>imul</code> instructions do not work the same. <code>imul</code> can not store result back in memory but must go via register.</p></li>
+<li><p>I learned that I subtracted operands in the wrong order.</p></li>
+<li><p>I read <a href="https://csl.name/post/python-jit/">Writing a basic x86-64 JIT compiler from scratch in stock Python</a>.</p></li>
+<li><p>I read <a href="https://csl.name/post/python-compiler/">JIT compiling a subset of Python to x86-64</a>.</p></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Tue, 01 Oct 2019 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/september-2019/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>Segfault with custom events in wxPython</title>
     <link>http://rickardlindberg.me/writing/timeline-segfault-wxpython/</link>
     <description><![CDATA[<h1>Segfault with custom events in wxPython</h1>
@@ -9295,143 +9334,6 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 ]]></description>
     <pubDate>Sat, 11 Mar 2017 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/bitten-by-python-generators/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Tell, don't ask example</title>
-    <link>http://rickardlindberg.me/writing/tell-dont-ask-example/</link>
-    <description><![CDATA[<h1>Tell, don't ask example</h1>
-
-<p><em>Published on 20 September 2016.</em></p>
-
-<p><em>12 November 2016: Added sentence to introduction giving an overview of the article.</em></p>
-<p>I recently read <em>The Pragmatic Programmer</em>, and in one of the exercises you should write a parser for a DSL that controls a drawing package. Here is the example from the book:</p>
-<pre><code>P 2  # select pen 2
-D    # pen down
-W 2  # draw west 2cm
-N 1  # then north 1
-E 2  # then east 2
-S 1  # then back south
-U    # pen up</code></pre>
-<p>In this article I explore two solutions to this problem where the direction of control differs. Here is the first (in Python):</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Parser(<span class="bu">object</span>):
-
-    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
-        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
-            result <span class="op">=</span> []
-            <span class="cf">for</span> line <span class="kw">in</span> f:
-                result.append(<span class="va">self</span>.parse_line(line))
-            <span class="cf">return</span> result
-
-    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
-        patterns <span class="op">=</span> [
-            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;select_pen&quot;</span>, <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_down&quot;</span>,   <span class="va">None</span>)),
-            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;west&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;north&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;east&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;south&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_up&quot;</span>,     <span class="va">None</span>)),
-        ]
-        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
-            match <span class="op">=</span> re.search(pattern, line)
-            <span class="cf">if</span> match:
-                <span class="cf">return</span> fn(match)</code></pre></div>
-<p>The result of running the parser on the example is the following:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">[
-    (<span class="st">&#39;select_pen&#39;</span>, <span class="dv">2</span>),
-    (<span class="st">&#39;pen_down&#39;</span>, <span class="va">None</span>),
-    (<span class="st">&#39;west&#39;</span>, <span class="dv">2</span>),
-    (<span class="st">&#39;north&#39;</span>, <span class="dv">1</span>),
-    (<span class="st">&#39;east&#39;</span>, <span class="dv">2</span>),
-    (<span class="st">&#39;south&#39;</span>, <span class="dv">1</span>),
-    (<span class="st">&#39;pen_up&#39;</span>, <span class="va">None</span>)
-]</code></pre></div>
-<p>In this solution, each line is converted to a command object (a tuple) and all commands are returned in a list. This list of commands is a kind of parse tree, and it is easier to work with than the plain text. It is up to the consumer of the parse tree what to do next.</p>
-<p>Here is an example showing how the parse tree can be pretty printed (formatted to text again after being parsed):</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> pretty_print(commands):
-    <span class="cf">for</span> (command, argument) <span class="kw">in</span> commands:
-        <span class="cf">if</span> command <span class="op">==</span> <span class="st">&quot;select_pen&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_down&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;west&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;north&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;east&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;south&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))
-        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_up&quot;</span>:
-            <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
-<p>If run on the example, the following output is obtained:</p>
-<pre><code>P 2
-D
-W 2
-N 1
-E 2
-S 1
-U</code></pre>
-<p>The original program is obtained except for all the comments that have been stripped. Notice that the <code>pretty_print</code> function has to know about the structure of the parse tree: it has to know that it is a list of commands and that each command is a tuple with two entries (some of which might be <code>None</code>). The lack of a final else-statement is also unsatisfactory.</p>
-<p>In object oriented terms, the parser is <strong>asked</strong> for a list of commands. How would a solution look like if the <em>Tell, don’t ask</em> principle is applied? Here is one alternative:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> Parser(<span class="bu">object</span>):
-
-    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, interpreter):
-        <span class="va">self</span>._interpreter <span class="op">=</span> interpreter
-
-    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):
-        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:
-            <span class="cf">for</span> line <span class="kw">in</span> f:
-                <span class="va">self</span>.parse_line(line)
-
-    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):
-        patterns <span class="op">=</span> [
-            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.select_pen(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_down()),
-            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.west(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.north(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.east(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.south(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),
-            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_up()),
-        ]
-        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:
-            match <span class="op">=</span> re.search(pattern, line)
-            <span class="cf">if</span> match:
-                fn(match)</code></pre></div>
-<p>This parser returns nothing. Instead it depends on an interpreter that it forwards calls to: It <strong>tells</strong> the interpreter to handle various commands. An interpreter can be any object supporting the command-methods. Here is what the pretty printer from the first example would look like:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> PrettyPrinter(<span class="bu">object</span>):
-
-    <span class="kw">def</span> select_pen(<span class="va">self</span>, number):
-        <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(number))
-
-    <span class="kw">def</span> pen_down(<span class="va">self</span>):
-        <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)
-
-    <span class="kw">def</span> west(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
-
-    <span class="kw">def</span> north(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
-
-    <span class="kw">def</span> east(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
-
-    <span class="kw">def</span> south(<span class="va">self</span>, amount):
-        <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))
-
-    <span class="kw">def</span> pen_up(<span class="va">self</span>):
-        <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</code></pre></div>
-<p>The pretty printer no longer has to do the looping. It doesn’t have to bother with arguments being <code>None</code> either. Instead it just has one method to handle each type of command.</p>
-<p>Try to compare the solutions and think about in what situations one is better than the other. What has to change if a new command is added? What has to change to do some actual drawing instead of pretty printing? What if both drawing and pretty printing must be supported?</p>
-<p>See also:</p>
-<ul>
-<li><a href="http://martinfowler.com/bliki/TellDontAsk.html" class="uri">http://martinfowler.com/bliki/TellDontAsk.html</a></li>
-<li><a href="https://pragprog.com/articles/tell-dont-ask" class="uri">https://pragprog.com/articles/tell-dont-ask</a></li>
-</ul>
-]]></description>
-    <pubDate>Tue, 20 Sep 2016 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/tell-dont-ask-example/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
