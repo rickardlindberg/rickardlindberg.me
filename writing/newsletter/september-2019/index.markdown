@@ -44,7 +44,7 @@ This is what I've been up to in September 2019:
 * I learned that your number one priority is not what you write on top of the
   TODO list, but what you actually do.
 
-* A finished a post with my [notes on Alan
+* I finished a post with my [notes on Alan
   Kay](/writing/alan-kay-notes/index.html). He is a big inspiration to me.
 
 * I read most parts of [Common Systems Programming Optimizations &
