@@ -20,10 +20,6 @@ Also keep RLiterate book up to date.
 
 ---
 
-Implement minimal OOP-language in the same fashion as Lua.
-
----
-
 The goal of a free software community should be to maximize the number of
 contributors. It is first about community, second about the product.
 
