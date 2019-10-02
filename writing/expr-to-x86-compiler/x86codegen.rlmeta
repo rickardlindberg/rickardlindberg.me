@@ -1,27 +1,24 @@
 X86CodeGen {
-  expr = [instruction*:xs] -> [
+  expr = [(%)*:xs] -> [
     ["section" "text"]
     ["directive" "global _start"]
     ["label" "_start"]
     ~~xs
-    ["mov"     ["reg" "rdi"] ["addr"  "rsp"]]
-    ["mov"     ["reg" "rax"] ["const" 0x3c ]]
-    ["syscall"                              ]
+    ["mov"     ["reg" "rdi"] ["reg"  "rax"]]
+    ["mov"     ["reg" "rax"] ["const" 0x3c]]
+    ["syscall"                             ]
   ]
-  instruction = [%:x] -> x
   ADD = -> [
-    ["pop" ["reg" "rax"]               ]
-    ["add" ["addr" "rsp"] ["reg" "rax"]]
+    ["add" ["reg" "rax"] ["addr" "rsp"]]
+    ["add" ["reg" "rsp"] ["const" 8   ]]
   ]
   SUB = -> [
-    ["pop" ["reg"  "rax"]               ]
-    ["sub" ["addr" "rsp"] ["reg"  "rax"]]
+    ["sub" ["reg" "rax"] ["addr" "rsp"]]
+    ["add" ["reg" "rsp"] ["const" 8   ]]
   ]
   MUL = -> [
-    ["pop"  ["reg"  "rax"]               ]
-    ["mov"  ["reg"  "rbx"] ["addr" "rsp"]]
-    ["imul" ["reg"  "rbx"] ["reg"  "rax"]]
-    ["mov"  ["addr" "rsp"] ["reg"  "rbx"]]
+    ["imul" ["reg" "rax"] ["addr" "rsp"]]
+    ["add"  ["reg" "rsp"] ["const" 8   ]]
   ]
   DIV = -> [
     ["pop"  ["reg" "rbx"]            ]
@@ -33,7 +30,11 @@ X86CodeGen {
   POW = -> [
     ["f2xm1" ["reg" "eax"] ["addr" "rsp"]]
   ]
-  CONST = .:x -> [
-    ["push" ["const" x]]
+  LOAD = .:x -> [
+    ["mov" ["reg" "rax"] ["const" x]]
+  ]
+  SAVE = -> [
+    ["sub" ["reg"  "rsp"] ["const" 8    ]]
+    ["mov" ["addr" "rsp"] ["reg"   "rax"]]
   ]
 }
