@@ -21,20 +21,16 @@ X86CodeGen {
     ["add"  ["reg" "rsp"] ["const" 8   ]]
   ]
   DIV = -> [
-    ["pop"  ["reg" "rbx"]            ]
-    ["pop"  ["reg" "rax"]            ]
-    ["mov"  ["reg" "edx"] ["const" 0]]
-    ["idiv" ["reg" "rbx"]            ]
-    ["push" ["reg" "rax"]            ]
+    ["cdq"                             ]
+    ["idivq" ["addr" "rsp"]            ]
+    ["add"   ["reg"  "rsp"] ["const" 8]]
   ]
   POW = -> [
     ["f2xm1" ["reg" "eax"] ["addr" "rsp"]]
   ]
-  LOAD = .:x -> [
-    ["mov" ["reg" "rax"] ["const" x]]
-  ]
-  SAVE = -> [
+  PUSH = .:x -> [
     ["sub" ["reg"  "rsp"] ["const" 8    ]]
     ["mov" ["addr" "rsp"] ["reg"   "rax"]]
+    ["mov" ["reg"  "rax"] ["const" x    ]]
   ]
 }

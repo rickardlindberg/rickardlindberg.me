@@ -1,5 +1,5 @@
 AbstractCodeGen {
   expr =
-    | [.:name expr:left expr:right] -> [~right "SAVE" ~left name]
-    | .:leaf                        -> ["LOAD" leaf]
+    | [.:name expr:left expr:right] -> [~right ~left name]
+    | .:leaf                        -> ["PUSH" leaf]
 }

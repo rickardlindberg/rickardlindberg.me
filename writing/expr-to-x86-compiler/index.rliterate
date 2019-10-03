@@ -129,7 +129,7 @@
 ],
 "fragments":[
 {
-"text":"AbstractCodeGen {\n  expr =\n    | [.:name expr:left expr:right] -> [~right \"SAVE\" ~left name]\n    | .:leaf                        -> [\"LOAD\" leaf]\n}\n",
+"text":"AbstractCodeGen {\n  expr =\n    | [.:name expr:left expr:right] -> [~right ~left name]\n    | .:leaf                        -> [\"PUSH\" leaf]\n}\n",
 "type":"code"
 }
 ],
@@ -160,95 +160,6 @@
 "code_id":"4598cfbceed64836b4c4ee934a90eed6",
 "id":"c17173be18e643c5889acd3b28796ca7",
 "type":"expanded_code"
-},
-{
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"LOAD",
-"type":"code"
-},
-{
-"text":": Load the given constant into the accumulator.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"SAVE",
-"type":"code"
-},
-{
-"text":": Push the value of the accumulator onto the stack.",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"ADD",
-"type":"code"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"text":"SUB",
-"type":"code"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"text":"MUL",
-"type":"code"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"text":"DIV",
-"type":"code"
-},
-{
-"text":", ",
-"type":"text"
-},
-{
-"text":"POW",
-"type":"code"
-},
-{
-"text":": Pop the value off the stack and store the result of accumulator ",
-"type":"text"
-},
-{
-"text":"op",
-"type":"code"
-},
-{
-"text":" top of stack in the accumulator.",
-"type":"text"
-}
-]
-}
-],
-"id":"e3f2e994b0f94f718cc6d02ffe819570",
-"type":"list"
 }
 ],
 "title":"Abstract code generator"
@@ -429,11 +340,11 @@
 "children":[],
 "fragments":[
 {
-"text":"rbx",
+"text":"rax",
 "type":"code"
 },
 {
-"text":" is a temporary register",
+"text":" is a TOS (top of stack) register",
 "type":"text"
 }
 ]
@@ -479,33 +390,6 @@
 "type":"code"
 },
 {
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"RAX = right (popped)",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"result = left - RAX",
-"type":"text"
-}
-]
-}
-],
-"id":"ad5c306bc1fb405cb330fee171dbe41f",
-"type":"list"
-},
-{
 "chunkpath":[
 "instructions"
 ],
@@ -524,53 +408,6 @@
 "type":"code"
 },
 {
-"child_type":"unordered",
-"children":[
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"RAX = right (popped)",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"RBX = left",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"RBX = RBX * RAX",
-"type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"result = RBX",
-"type":"text"
-}
-]
-}
-],
-"id":"1308a3777e8245fd8c246e0217c341eb",
-"type":"list"
-},
-{
 "chunkpath":[
 "instructions"
 ],
@@ -579,7 +416,7 @@
 ],
 "fragments":[
 {
-"text":"DIV = -> [\n  [\"pop\"  [\"reg\" \"rbx\"]            ]\n  [\"pop\"  [\"reg\" \"rax\"]            ]\n  [\"mov\"  [\"reg\" \"edx\"] [\"const\" 0]]\n  [\"idiv\" [\"reg\" \"rbx\"]            ]\n  [\"push\" [\"reg\" \"rax\"]            ]\n]\n",
+"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivq\" [\"addr\" \"rsp\"]            ]\n  [\"add\"   [\"reg\"  \"rsp\"] [\"const\" 8]]\n]\n",
 "type":"code"
 }
 ],
@@ -615,25 +452,7 @@
 ],
 "fragments":[
 {
-"text":"LOAD = .:x -> [\n  [\"mov\" [\"reg\" \"rax\"] [\"const\" x]]\n]\n",
-"type":"code"
-}
-],
-"id":"290c168cd42d4e5c943426482c99494a",
-"language":"",
-"post_process":[],
-"type":"code"
-},
-{
-"chunkpath":[
-"instructions"
-],
-"filepath":[
-"x86codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"SAVE = -> [\n  [\"sub\" [\"reg\"  \"rsp\"] [\"const\" 8    ]]\n  [\"mov\" [\"addr\" \"rsp\"] [\"reg\"   \"rax\"]]\n]\n",
+"text":"PUSH = .:x -> [\n  [\"sub\" [\"reg\"  \"rsp\"] [\"const\" 8    ]]\n  [\"mov\" [\"addr\" \"rsp\"] [\"reg\"   \"rax\"]]\n  [\"mov\" [\"reg\"  \"rax\"] [\"const\" x    ]]\n]\n",
 "type":"code"
 }
 ],
