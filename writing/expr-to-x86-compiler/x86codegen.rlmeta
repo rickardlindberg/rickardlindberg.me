@@ -1,35 +1,27 @@
 X86CodeGen {
-  expr = [%*:xs] -> [
-    ["section" "text"]
-    ["directive" "global _start"]
-    ["label" "_start"]
-    ~~xs
-    ["mov"     ["reg" "rdi"] ["reg"  "rax"]]
-    ["mov"     ["reg" "rax"] ["const" 0x3c]]
-    ["syscall"                             ]
-  ]
+  expr = [%*:xs] -> [~~xs]
   ADD = -> [
-    ["add" ["reg" "rax"] ["addr" "rsp"]]
-    ["add" ["reg" "rsp"] ["const" 8   ]]
+    ["add" ["reg" "rax"] ["addr" "rcx"]]
+    ["sub" ["reg" "rcx"] ["const" 8   ]]
   ]
   SUB = -> [
-    ["sub" ["reg" "rax"] ["addr" "rsp"]]
-    ["add" ["reg" "rsp"] ["const" 8   ]]
+    ["sub" ["reg" "rax"] ["addr" "rcx"]]
+    ["sub" ["reg" "rcx"] ["const" 8   ]]
   ]
   MUL = -> [
-    ["imul" ["reg" "rax"] ["addr" "rsp"]]
-    ["add"  ["reg" "rsp"] ["const" 8   ]]
+    ["imul" ["reg" "rax"] ["addr" "rcx"]]
+    ["sub"  ["reg" "rcx"] ["const" 8   ]]
   ]
   DIV = -> [
     ["cdq"                             ]
-    ["idivq" ["addr" "rsp"]            ]
-    ["add"   ["reg"  "rsp"] ["const" 8]]
+    ["idivq" ["addr" "rcx"]            ]
+    ["sub"   ["reg"  "rcx"] ["const" 8]]
   ]
   POW = -> [
   ]
   PUSH = .:x -> [
-    ["sub" ["reg"  "rsp"] ["const" 8    ]]
-    ["mov" ["addr" "rsp"] ["reg"   "rax"]]
+    ["add" ["reg"  "rcx"] ["const" 8    ]]
+    ["mov" ["addr" "rcx"] ["reg"   "rax"]]
     ["mov" ["reg"  "rax"] ["const" x    ]]
   ]
 }

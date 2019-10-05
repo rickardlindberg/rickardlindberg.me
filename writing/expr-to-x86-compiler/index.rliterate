@@ -255,31 +255,7 @@
 ],
 "fragments":[
 {
-"text":"X86CodeGen {\n  expr = [%*:xs] -> [\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"pre"
-],
-"prefix":"    ",
-"type":"chunk"
-},
-{
-"text":"    ~~xs\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"post"
-],
-"prefix":"    ",
-"type":"chunk"
-},
-{
-"text":"  ]\n",
+"text":"X86CodeGen {\n  expr = [%*:xs] -> [~~xs]\n",
 "type":"code"
 },
 {
@@ -296,24 +272,6 @@
 }
 ],
 "id":"82c7f0b301fe414daed3ccf01f1a3004",
-"language":"",
-"post_process":[],
-"type":"code"
-},
-{
-"chunkpath":[
-"pre"
-],
-"filepath":[
-"x86codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"[\"section\" \"text\"]\n[\"directive\" \"global _start\"]\n[\"label\" \"_start\"]\n",
-"type":"code"
-}
-],
-"id":"3963ee8e165b4fa3afcd1350ff9b7e82",
 "language":"",
 "post_process":[],
 "type":"code"
@@ -362,7 +320,7 @@
 ],
 "fragments":[
 {
-"text":"ADD = -> [\n  [\"add\" [\"reg\" \"rax\"] [\"addr\" \"rsp\"]]\n  [\"add\" [\"reg\" \"rsp\"] [\"const\" 8   ]]\n]\n",
+"text":"ADD = -> [\n  [\"add\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\" [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -380,7 +338,7 @@
 ],
 "fragments":[
 {
-"text":"SUB = -> [\n  [\"sub\" [\"reg\" \"rax\"] [\"addr\" \"rsp\"]]\n  [\"add\" [\"reg\" \"rsp\"] [\"const\" 8   ]]\n]\n",
+"text":"SUB = -> [\n  [\"sub\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\" [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -398,7 +356,7 @@
 ],
 "fragments":[
 {
-"text":"MUL = -> [\n  [\"imul\" [\"reg\" \"rax\"] [\"addr\" \"rsp\"]]\n  [\"add\"  [\"reg\" \"rsp\"] [\"const\" 8   ]]\n]\n",
+"text":"MUL = -> [\n  [\"imul\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\"  [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -416,7 +374,7 @@
 ],
 "fragments":[
 {
-"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivq\" [\"addr\" \"rsp\"]            ]\n  [\"add\"   [\"reg\"  \"rsp\"] [\"const\" 8]]\n]\n",
+"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivq\" [\"addr\" \"rcx\"]            ]\n  [\"sub\"   [\"reg\"  \"rcx\"] [\"const\" 8]]\n]\n",
 "type":"code"
 }
 ],
@@ -452,29 +410,11 @@
 ],
 "fragments":[
 {
-"text":"PUSH = .:x -> [\n  [\"sub\" [\"reg\"  \"rsp\"] [\"const\" 8    ]]\n  [\"mov\" [\"addr\" \"rsp\"] [\"reg\"   \"rax\"]]\n  [\"mov\" [\"reg\"  \"rax\"] [\"const\" x    ]]\n]\n",
+"text":"PUSH = .:x -> [\n  [\"add\" [\"reg\"  \"rcx\"] [\"const\" 8    ]]\n  [\"mov\" [\"addr\" \"rcx\"] [\"reg\"   \"rax\"]]\n  [\"mov\" [\"reg\"  \"rax\"] [\"const\" x    ]]\n]\n",
 "type":"code"
 }
 ],
 "id":"de75b501f61049dfad8182c6c5748b87",
-"language":"",
-"post_process":[],
-"type":"code"
-},
-{
-"chunkpath":[
-"post"
-],
-"filepath":[
-"x86codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"[\"mov\"     [\"reg\" \"rdi\"] [\"reg\"  \"rax\"]]\n[\"mov\"     [\"reg\" \"rax\"] [\"const\" 0x3c]]\n[\"syscall\"                             ]\n",
-"type":"code"
-}
-],
-"id":"17612e8e345e43e5b640516864fc9601",
 "language":"",
 "post_process":[],
 "type":"code"
@@ -535,7 +475,7 @@
 ],
 "fragments":[
 {
-"text":"GasGen {\n  expr = [instr*:xs] -> { xs }\n  instr =\n    | [\"section\" .:x]                  -> { \".\" x \"\\n\" }\n    | [\"directive\" .:x]                -> { \".\" x \"\\n\" }\n    | [\"label\" .:x]                    -> { x \":\\n\" }\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
+"text":"GasGen {\n  expr = [instr*:xs]                   -> { \".global _exp\\n\"\n                                            \"_exp:\\n\"\n                                            xs\n                                            \"ret\\n\" }\n  instr =\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
 "type":"code"
 }
 ],
@@ -556,6 +496,34 @@
 }
 ],
 "id":"42da3457d2a9450bbb21aaccdf8398aa",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"driver.c"
+],
+"fragments":[
+{
+"text":"#include <stdlib.h>\n#include <stdio.h>\n\nlong long _exp(void* mem);\n\nint main() {\n    void * mem = malloc(8*1024);\n    long long result = _exp(mem);\n    printf(\"%d\\n\", result);\n}\n",
+"type":"code"
+}
+],
+"id":"81af165cdf824fc390d506bb88ea3b37",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"gas.sh"
+],
+"fragments":[
+{
+"text":"set -e\n\necho \"$1\" | bash compile.sh parser acodegen xcodegen gas @expr.s\n\ngcc driver.c expr.s -o expr\n\necho \"\"\necho \"=V==============================\"\necho \"\"\n\necho \"$1 = $(./expr)\"\n",
+"type":"code"
+}
+],
+"id":"98d1d6b2aaff4cb9b0498870e82fda8f",
 "type":"code"
 },
 {

@@ -1,9 +1,9 @@
 GasGen {
-  expr = [instr*:xs] -> { xs }
+  expr = [instr*:xs]                   -> { ".global _exp\n"
+                                            "_exp:\n"
+                                            xs
+                                            "ret\n" }
   instr =
-    | ["section" .:x]                  -> { "." x "\n" }
-    | ["directive" .:x]                -> { "." x "\n" }
-    | ["label" .:x]                    -> { x ":\n" }
     | [mnemonic:x op:target op:source] -> { x "  " source "," target "\n" }
     | [mnemonic:x op:arg]              -> { x "  " arg "\n" }
     | [mnemonic:x]                     -> { x "\n" }
