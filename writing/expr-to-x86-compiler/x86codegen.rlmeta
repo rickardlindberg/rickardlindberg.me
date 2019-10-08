@@ -1,27 +1,27 @@
 X86CodeGen {
   expr = [%*:xs] -> [~~xs]
   ADD = -> [
-    ["add" ["reg" "rax"] ["addr" "rcx"]]
-    ["sub" ["reg" "rcx"] ["const" 8   ]]
+    ["add" ["reg" "eax"] ["addr" "rdi"]]
+    ["sub" ["reg" "rdi"] ["const" 4   ]]
   ]
   SUB = -> [
-    ["sub" ["reg" "rax"] ["addr" "rcx"]]
-    ["sub" ["reg" "rcx"] ["const" 8   ]]
+    ["sub" ["reg" "eax"] ["addr" "rdi"]]
+    ["sub" ["reg" "rdi"] ["const" 4   ]]
   ]
   MUL = -> [
-    ["imul" ["reg" "rax"] ["addr" "rcx"]]
-    ["sub"  ["reg" "rcx"] ["const" 8   ]]
+    ["imul" ["reg" "eax"] ["addr" "rdi"]]
+    ["sub"  ["reg" "rdi"] ["const" 4   ]]
   ]
   DIV = -> [
     ["cdq"                             ]
-    ["idivq" ["addr" "rcx"]            ]
-    ["sub"   ["reg"  "rcx"] ["const" 8]]
+    ["idivq" ["addr" "rdi"]            ]
+    ["sub"   ["reg"  "rdi"] ["const" 4]]
   ]
   POW = -> [
   ]
   PUSH = .:x -> [
-    ["add" ["reg"  "rcx"] ["const" 8    ]]
-    ["mov" ["addr" "rcx"] ["reg"   "rax"]]
-    ["mov" ["reg"  "rax"] ["const" x    ]]
+    ["add" ["reg"  "rdi"] ["const" 4    ]]
+    ["mov" ["addr" "rdi"] ["reg"   "eax"]]
+    ["mov" ["reg"  "eax"] ["const" x    ]]
   ]
 }

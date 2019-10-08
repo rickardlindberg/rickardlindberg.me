@@ -284,11 +284,11 @@
 "children":[],
 "fragments":[
 {
-"text":"rsp",
+"text":"rdi",
 "type":"code"
 },
 {
-"text":" is the stack pointer",
+"text":" is the stack pointer where the stack grows downwards (64-bit integer)",
 "type":"text"
 }
 ]
@@ -298,11 +298,11 @@
 "children":[],
 "fragments":[
 {
-"text":"rax",
+"text":"eax",
 "type":"code"
 },
 {
-"text":" is a TOS (top of stack) register",
+"text":" is a TOS (top of stack) register (32-bit signed integer)",
 "type":"text"
 }
 ]
@@ -320,7 +320,7 @@
 ],
 "fragments":[
 {
-"text":"ADD = -> [\n  [\"add\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\" [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
+"text":"ADD = -> [\n  [\"add\" [\"reg\" \"eax\"] [\"addr\" \"rdi\"]]\n  [\"sub\" [\"reg\" \"rdi\"] [\"const\" 4   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -338,7 +338,7 @@
 ],
 "fragments":[
 {
-"text":"SUB = -> [\n  [\"sub\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\" [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
+"text":"SUB = -> [\n  [\"sub\" [\"reg\" \"eax\"] [\"addr\" \"rdi\"]]\n  [\"sub\" [\"reg\" \"rdi\"] [\"const\" 4   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -356,7 +356,7 @@
 ],
 "fragments":[
 {
-"text":"MUL = -> [\n  [\"imul\" [\"reg\" \"rax\"] [\"addr\" \"rcx\"]]\n  [\"sub\"  [\"reg\" \"rcx\"] [\"const\" 8   ]]\n]\n",
+"text":"MUL = -> [\n  [\"imul\" [\"reg\" \"eax\"] [\"addr\" \"rdi\"]]\n  [\"sub\"  [\"reg\" \"rdi\"] [\"const\" 4   ]]\n]\n",
 "type":"code"
 }
 ],
@@ -374,7 +374,7 @@
 ],
 "fragments":[
 {
-"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivq\" [\"addr\" \"rcx\"]            ]\n  [\"sub\"   [\"reg\"  \"rcx\"] [\"const\" 8]]\n]\n",
+"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivq\" [\"addr\" \"rdi\"]            ]\n  [\"sub\"   [\"reg\"  \"rdi\"] [\"const\" 4]]\n]\n",
 "type":"code"
 }
 ],
@@ -410,7 +410,7 @@
 ],
 "fragments":[
 {
-"text":"PUSH = .:x -> [\n  [\"add\" [\"reg\"  \"rcx\"] [\"const\" 8    ]]\n  [\"mov\" [\"addr\" \"rcx\"] [\"reg\"   \"rax\"]]\n  [\"mov\" [\"reg\"  \"rax\"] [\"const\" x    ]]\n]\n",
+"text":"PUSH = .:x -> [\n  [\"add\" [\"reg\"  \"rdi\"] [\"const\" 4    ]]\n  [\"mov\" [\"addr\" \"rdi\"] [\"reg\"   \"eax\"]]\n  [\"mov\" [\"reg\"  \"eax\"] [\"const\" x    ]]\n]\n",
 "type":"code"
 }
 ],
@@ -505,7 +505,7 @@
 ],
 "fragments":[
 {
-"text":"#include <stdlib.h>\n#include <stdio.h>\n\nlong long _exp(void* mem);\n\nint main() {\n    void * mem = malloc(8*1024);\n    long long result = _exp(mem);\n    printf(\"%d\\n\", result);\n}\n",
+"text":"#include <stdlib.h>\n#include <stdio.h>\n\nint _exp(void* mem);\n\nint main() {\n    void* mem = (void*)malloc(32*sizeof(int));\n    int result = _exp(mem);\n    printf(\"%d\\n\", result);\n}\n",
 "type":"code"
 }
 ],
