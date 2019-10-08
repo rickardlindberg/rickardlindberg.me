@@ -374,7 +374,7 @@
 ],
 "fragments":[
 {
-"text":"DIV = -> [\n  [\"cdq\"                             ]\n  [\"idivl\" [\"addr\" \"rdi\"]            ]\n  [\"sub\"   [\"reg\"  \"rdi\"] [\"const\" 4]]\n]\n",
+"text":"DIV = -> [\n  [\"cdq\"                                   ]\n  [\"idiv\" \"long\" [\"addr\" \"rdi\"]            ]\n  [\"sub\"         [\"reg\"  \"rdi\"] [\"const\" 4]]\n]\n",
 "type":"code"
 }
 ],
@@ -475,7 +475,7 @@
 ],
 "fragments":[
 {
-"text":"GasGen {\n  expr = [instr*:xs]                   -> { \".global _exp\\n\"\n                                            \"_exp:\\n\"\n                                            xs\n                                            \"ret\\n\" }\n  instr =\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x -> pad(x)\n}\n",
+"text":"GasGen {\n  expr = [instr*:xs] -> {\n    \".global _exp\\n\"\n    \"_exp:\\n\"\n    xs\n    \"ret\\n\"\n  }\n  instr =\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x size:y -> pad(x y)\n  size = \"long\" -> \"l\" | -> \"\"\n}\n",
 "type":"code"
 }
 ],
@@ -491,7 +491,7 @@
 ],
 "fragments":[
 {
-"text":"def pad(text):\n    return text.ljust(7)\n",
+"text":"def pad(text, suffix):\n    return (text+suffix).ljust(7)\n",
 "type":"code"
 }
 ],
@@ -531,7 +531,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"9\n1+2*3\n",
+"text":"9\n1+2*3\n2/4\n",
 "type":"code"
 }
 ],

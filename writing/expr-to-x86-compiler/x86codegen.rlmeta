@@ -13,9 +13,9 @@ X86CodeGen {
     ["sub"  ["reg" "rdi"] ["const" 4   ]]
   ]
   DIV = -> [
-    ["cdq"                             ]
-    ["idivl" ["addr" "rdi"]            ]
-    ["sub"   ["reg"  "rdi"] ["const" 4]]
+    ["cdq"                                   ]
+    ["idiv" "long" ["addr" "rdi"]            ]
+    ["sub"         ["reg"  "rdi"] ["const" 4]]
   ]
   POW = -> [
   ]

@@ -1,8 +1,10 @@
 GasGen {
-  expr = [instr*:xs]                   -> { ".global _exp\n"
-                                            "_exp:\n"
-                                            xs
-                                            "ret\n" }
+  expr = [instr*:xs] -> {
+    ".global _exp\n"
+    "_exp:\n"
+    xs
+    "ret\n"
+  }
   instr =
     | [mnemonic:x op:target op:source] -> { x "  " source "," target "\n" }
     | [mnemonic:x op:arg]              -> { x "  " arg "\n" }
@@ -11,5 +13,6 @@ GasGen {
     | ["reg"    .:name] -> { "%" name      }
     | ["addr"   .:name] -> { "(%" name ")" }
     | ["const" .:value] -> { "$" value     }
-  mnemonic = .:x -> pad(x)
+  mnemonic = .:x size:y -> pad(x y)
+  size = "long" -> "l" | -> ""
 }

@@ -17,8 +17,8 @@ def parseOps(expr, items, min_level=0):
             next_level = op.prec
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr
-def pad(text):
-    return text.ljust(7)
+def pad(text, suffix):
+    return (text+suffix).ljust(7)
 def ensureByte(number):
     if number > 0xFF:
         raise ValueError("{} is larger than a byte".format(number))
