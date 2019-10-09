@@ -39,21 +39,17 @@ def main():
         "assembler": Assembler(),
     }
     try:
-        for index, expr in enumerate(sys.stdin.read().splitlines()):
-            if index > 0:
-                print("")
-                print("-"*32)
-                print("")
-            for grammar_name in sys.argv[1:]:
-                if grammar_name.startswith("@"):
-                    with open(grammar_name[1:], "w") as f:
-                        f.write(str(expr))
-                    continue
-                grammar = grammars[grammar_name]
-                print_expr(expr)
-                print_box(grammar.__class__.__name__)
-                expr = grammar.run("expr", expr)
+        expr = sys.stdin.read().strip()
+        for grammar_name in sys.argv[1:]:
+            if grammar_name.startswith("@"):
+                with open(grammar_name[1:], "w") as f:
+                    f.write(str(expr))
+                continue
+            grammar = grammars[grammar_name]
             print_expr(expr)
+            print_box(grammar.__class__.__name__)
+            expr = grammar.run("expr", expr)
+        print_expr(expr)
     except _MatchError as e:
         sys.stderr.write(e.describe())
 

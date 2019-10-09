@@ -1,7 +1,7 @@
 GasGen {
   expr = [instr*:xs] -> {
-    ".global _exp\n"
-    "_exp:\n"
+    ".global expr\n"
+    "expr:\n"
     xs
     "ret\n"
   }
