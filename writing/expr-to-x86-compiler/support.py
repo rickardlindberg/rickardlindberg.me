@@ -4,10 +4,12 @@ class Op(object):
         self.fn = fn
         self.prec = prec
         self.assoc = assoc
+
 def makeAstNode(name):
     def op(left, right):
         return [name, left, right]
     return op
+
 def parseOps(expr, items, min_level=0):
     while items and items[0][0].prec >= min_level:
         op, rhs = items.pop(0)
@@ -17,14 +19,17 @@ def parseOps(expr, items, min_level=0):
             next_level = op.prec
         expr = op.fn(expr, parseOps(rhs, items, next_level))
     return expr
+
 def pad(text, suffix):
     return (text+suffix).ljust(7)
+
+def directModRm(register):
+    return 0xc0 | register
+
 def ensureByte(number):
     if number > 0xFF:
         raise ValueError("{} is larger than a byte".format(number))
     return number
-def directModRm(register):
-    return 0xc0 | register
 def main():
     grammars = {
         "parser": Parser(),
