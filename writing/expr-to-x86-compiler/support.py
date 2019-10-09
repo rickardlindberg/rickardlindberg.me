@@ -23,8 +23,8 @@ def ensureByte(number):
     if number > 0xFF:
         raise ValueError("{} is larger than a byte".format(number))
     return number
-def add(x, y):
-    return x + y
+def directModRm(register):
+    return 0xc0 | register
 def main():
     grammars = {
         "parser": Parser(),

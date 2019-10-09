@@ -1,24 +1,26 @@
 Assembler {
-  expr = [instr*:xs]     -> [~~xs]
-  instr =
-    | ["section" .:x]    -> []
-    | ["directive" .:x]  -> []
-    | ["label" .:x]      -> []
-    | [%:x]              -> x
-  syscall =              -> [5]
-  push = const:x         -> [0x6a ensureByte(x)]
-  pop  = reg:r           -> [add(0x58 r)]
-  imul = reg:r1 reg:r2   -> [0x48 0x0f 0xaf r1 r2]
-  add  = addr:m reg:r    -> [r m]
-  mov  =
-    | reg:r  addr:m      -> [50 m r]
-    | addr:m reg:r       -> [50 r m]
-    | reg:r  const:i     -> [50 i]
-  const = ["const" .:i]  -> i
-  addr  = ["addr" .:m]   -> m
-  reg   = ["reg" regn:r] -> r
-  regn =
-    | "rax" -> 0
-    | "rbx" -> 3
-    | "rdi" -> 5
+  expr   = [instr*:xs]       -> [~~xs]
+  instr  = [%:x]             -> x
+  add    =
+    | reg64:r const:i        -> [0x48 0x83 directModRm(r) ensureByte(i)]
+    | reg32:r addr:m         -> []
+  sub    =
+    | reg64:r const:i        -> []
+    | reg32:r addr:m         -> []
+  imul   =
+    | reg32:r addr:m         -> []
+  cdq    =                   -> []
+  idiv   =
+    | "long" addr:m          -> []
+  mov    =
+    | addr:m  reg32:r        -> []
+    | reg32:r const:i        -> []
+  addr   = ["addr" reg64n:n] -> n
+  reg64  = ["reg"  reg64n:n] -> n
+  reg64n =
+    | "rdi" -> 7
+  reg32  = ["reg"  reg32n:n] -> n
+  reg32n =
+    | "eax" -> 0
+  const  = ["const" .:i]     -> i
 }
