@@ -2,7 +2,7 @@ Assembler {
   expr   = [instr*:xs]       -> [~~xs]
   instr  = [%:x]             -> x
   add    =
-    | reg64:r const:i        -> [0x48 0x83 directModRm(r) ensureByte(i)]
+    | reg64:r const:i        -> [0x48 0x83 modRmDirect(r) ensureByte(i)]
     | reg32:r addr:m         -> []
   sub    =
     | reg64:r const:i        -> []
@@ -13,7 +13,7 @@ Assembler {
   idiv   =
     | "long" addr:m          -> []
   mov    =
-    | addr:m  reg32:r        -> []
+    | addr:m  reg32:r        -> [0x89 modRmAddr(m r)]
     | reg32:r const:i        -> []
   addr   = ["addr" reg64n:n] -> n
   reg64  = ["reg"  reg64n:n] -> n

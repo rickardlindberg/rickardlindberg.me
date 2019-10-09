@@ -654,7 +654,23 @@
 ],
 "fragments":[
 {
-"text":"Assembler {\n  expr   = [instr*:xs]       -> [~~xs]\n  instr  = [%:x]             -> x\n  add    =\n    | reg64:r const:i        -> [0x48 0x83 directModRm(r) ensureByte(i)]\n    | reg32:r addr:m         -> []\n  sub    =\n    | reg64:r const:i        -> []\n    | reg32:r addr:m         -> []\n  imul   =\n    | reg32:r addr:m         -> []\n  cdq    =                   -> []\n  idiv   =\n    | \"long\" addr:m          -> []\n  mov    =\n    | addr:m  reg32:r        -> []\n    | reg32:r const:i        -> []\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
+"text":"Assembler {\n  expr   = [instr*:xs]       -> [~~xs]\n  instr  = [%:x]             -> x\n  add    =\n    | reg64:r const:i        -> [0x48 0x83 ",
+"type":"code"
+},
+{
+"id":"b2e94037acf6400ba96eef87193f0d6f",
+"type":"variable"
+},
+{
+"text":"(r) ensureByte(i)]\n    | reg32:r addr:m         -> []\n  sub    =\n    | reg64:r const:i        -> []\n    | reg32:r addr:m         -> []\n  imul   =\n    | reg32:r addr:m         -> []\n  cdq    =                   -> []\n  idiv   =\n    | \"long\" addr:m          -> []\n  mov    =\n    | addr:m  reg32:r        -> [0x89 ",
+"type":"code"
+},
+{
+"id":"857e7bbbcb054c5d86dbafd00b9e520a",
+"type":"variable"
+},
+{
+"text":"(m r)]\n    | reg32:r const:i        -> []\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
 "type":"code"
 }
 ],
@@ -672,11 +688,43 @@
 ],
 "fragments":[
 {
-"text":"def directModRm(register):\n    return 0xc0 | register\n",
+"text":"def ",
+"type":"code"
+},
+{
+"id":"b2e94037acf6400ba96eef87193f0d6f",
+"type":"variable"
+},
+{
+"text":"(register):\n    return 0xc0 | register\n",
 "type":"code"
 }
 ],
 "id":"0b73083d0676456686ca909e554ed52b",
+"type":"code"
+},
+{
+"chunkpath":[
+"function"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def ",
+"type":"code"
+},
+{
+"id":"857e7bbbcb054c5d86dbafd00b9e520a",
+"type":"variable"
+},
+{
+"text":"(addrRegister, desinationRegister):\n    return 0x00 | (desinationRegister << 3) | addrRegister\n",
+"type":"code"
+}
+],
+"id":"6cea87131b6b40998bbee7e4311204f1",
 "type":"code"
 },
 {
@@ -1046,5 +1094,8 @@
 ],
 "title":"Compiling expressions to x86 machine code"
 },
-"variables":{}
+"variables":{
+"857e7bbbcb054c5d86dbafd00b9e520a":"modRmAddr",
+"b2e94037acf6400ba96eef87193f0d6f":"modRmDirect"
+}
 }

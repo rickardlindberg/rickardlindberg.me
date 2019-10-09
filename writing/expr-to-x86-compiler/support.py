@@ -23,8 +23,11 @@ def parseOps(expr, items, min_level=0):
 def pad(text, suffix):
     return (text+suffix).ljust(7)
 
-def directModRm(register):
+def modRmDirect(register):
     return 0xc0 | register
+
+def modRmAddr(addrRegister, desinationRegister):
+    return 0x00 | (desinationRegister << 3) | addrRegister
 
 def ensureByte(number):
     if number > 0xFF:
