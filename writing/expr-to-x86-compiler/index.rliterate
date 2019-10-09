@@ -670,7 +670,7 @@
 "type":"variable"
 },
 {
-"text":"(m r)]\n    | reg32:r const:i        -> []\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
+"text":"(m r)]\n    | reg32:r const:i        -> [add(0xb8 r) ~littleEndian32(i)]\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
 "type":"code"
 }
 ],
@@ -725,6 +725,38 @@
 }
 ],
 "id":"6cea87131b6b40998bbee7e4311204f1",
+"type":"code"
+},
+{
+"chunkpath":[
+"function"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def add(x, y):\n    return x + y\n",
+"type":"code"
+}
+],
+"id":"62d32fc9f97f4b2c8a449ed2e0358d51",
+"type":"code"
+},
+{
+"chunkpath":[
+"function"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def littleEndian32(number):\n    values = []\n    for i in range(4):\n        values.append(number & 0xff)\n        number >>= 8\n    return values\n",
+"type":"code"
+}
+],
+"id":"0c8aefdef69c4e9d81a126902052116a",
 "type":"code"
 },
 {

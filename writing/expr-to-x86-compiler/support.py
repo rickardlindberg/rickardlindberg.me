@@ -29,6 +29,16 @@ def modRmDirect(register):
 def modRmAddr(addrRegister, desinationRegister):
     return 0x00 | (desinationRegister << 3) | addrRegister
 
+def add(x, y):
+    return x + y
+
+def littleEndian32(number):
+    values = []
+    for i in range(4):
+        values.append(number & 0xff)
+        number >>= 8
+    return values
+
 def ensureByte(number):
     if number > 0xFF:
         raise ValueError("{} is larger than a byte".format(number))
