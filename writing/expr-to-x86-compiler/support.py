@@ -32,17 +32,14 @@ def modRmAddr(addrRegister, desinationRegister):
 def add(x, y):
     return x + y
 
-def littleEndian32(number):
+def littleEndian(number, numBytes):
+    if number < 0 or number >= 2**(8*numBytes):
+        raise ValueError("{} is not in range [0, max]".format(number))
     values = []
-    for i in range(4):
+    for i in range(numBytes):
         values.append(number & 0xff)
         number >>= 8
     return values
-
-def ensureByte(number):
-    if number > 0xFF:
-        raise ValueError("{} is larger than a byte".format(number))
-    return number
 def main():
     grammars = {
         "parser": Parser(),

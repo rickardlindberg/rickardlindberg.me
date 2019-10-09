@@ -662,7 +662,7 @@
 "type":"variable"
 },
 {
-"text":"(r) ensureByte(i)]\n    | reg32:r addr:m         -> []\n  sub    =\n    | reg64:r const:i        -> []\n    | reg32:r addr:m         -> []\n  imul   =\n    | reg32:r addr:m         -> []\n  cdq    =                   -> []\n  idiv   =\n    | \"long\" addr:m          -> []\n  mov    =\n    | addr:m  reg32:r        -> [0x89 ",
+"text":"(r) ~littleEndian(i 1)]\n    | reg32:r addr:m         -> []\n  sub    =\n    | reg64:r const:i        -> []\n    | reg32:r addr:m         -> []\n  imul   =\n    | reg32:r addr:m         -> []\n  cdq    =                   -> []\n  idiv   =\n    | \"long\" addr:m          -> []\n  mov    =\n    | addr:m  reg32:r        -> [0x89 ",
 "type":"code"
 },
 {
@@ -670,7 +670,7 @@
 "type":"variable"
 },
 {
-"text":"(m r)]\n    | reg32:r const:i        -> [add(0xb8 r) ~littleEndian32(i)]\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
+"text":"(m r)]\n    | reg32:r const:i        -> [add(0xb8 r) ~littleEndian(i 4)]\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
 "type":"code"
 }
 ],
@@ -752,27 +752,11 @@
 ],
 "fragments":[
 {
-"text":"def littleEndian32(number):\n    values = []\n    for i in range(4):\n        values.append(number & 0xff)\n        number >>= 8\n    return values\n",
+"text":"def littleEndian(number, numBytes):\n    if number < 0 or number >= 2**(8*numBytes):\n        raise ValueError(\"{} is not in range [0, max]\".format(number))\n    values = []\n    for i in range(numBytes):\n        values.append(number & 0xff)\n        number >>= 8\n    return values\n",
 "type":"code"
 }
 ],
 "id":"0c8aefdef69c4e9d81a126902052116a",
-"type":"code"
-},
-{
-"chunkpath":[
-"function"
-],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"def ensureByte(number):\n    if number > 0xFF:\n        raise ValueError(\"{} is larger than a byte\".format(number))\n    return number\n",
-"type":"code"
-}
-],
-"id":"4e6f7298b5f14801b348a78fb83ccbac",
 "type":"code"
 },
 {
