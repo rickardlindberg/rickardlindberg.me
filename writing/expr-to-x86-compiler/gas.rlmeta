@@ -3,7 +3,6 @@ GasGen {
     ".global expr\n"
     "expr:\n"
     xs
-    "ret\n"
   }
   instr =
     | [mnemonic:x op:target op:source] -> { x "  " source "," target "\n" }

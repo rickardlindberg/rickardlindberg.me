@@ -283,7 +283,7 @@
 ],
 "fragments":[
 {
-"text":"X86CodeGen {\n  expr = [%*:xs] -> [~~xs]\n",
+"text":"X86CodeGen {\n  expr = [%*:xs] -> [~~xs [\"ret\"]]\n",
 "type":"code"
 },
 {
@@ -527,7 +527,7 @@
 ],
 "fragments":[
 {
-"text":"GasGen {\n  expr = [instr*:xs] -> {\n    \".global expr\\n\"\n    \"expr:\\n\"\n    xs\n    \"ret\\n\"\n  }\n  instr =\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x size:y -> pad(x y)\n  size = \"long\" -> \"l\" | -> \"\"\n}\n",
+"text":"GasGen {\n  expr = [instr*:xs] -> {\n    \".global expr\\n\"\n    \"expr:\\n\"\n    xs\n  }\n  instr =\n    | [mnemonic:x op:target op:source] -> { x \"  \" source \",\" target \"\\n\" }\n    | [mnemonic:x op:arg]              -> { x \"  \" arg \"\\n\" }\n    | [mnemonic:x]                     -> { x \"\\n\" }\n  op =\n    | [\"reg\"    .:name] -> { \"%\" name      }\n    | [\"addr\"   .:name] -> { \"(%\" name \")\" }\n    | [\"const\" .:value] -> { \"$\" value     }\n  mnemonic = .:x size:y -> pad(x y)\n  size = \"long\" -> \"l\" | -> \"\"\n}\n",
 "type":"code"
 }
 ],
@@ -568,20 +568,6 @@
 },
 {
 "chunkpath":[],
-"filepath":[
-"gas.sh"
-],
-"fragments":[
-{
-"text":"set -e\n\necho \"$1\" | bash compile.sh parser acodegen xcodegen gas @expr.s\n\ngcc driver.c expr.s -o expr\n\necho \"\"\necho \"=V==============================\"\necho \"\"\n\necho \"$1 = $(./expr)\"\n",
-"type":"code"
-}
-],
-"id":"98d1d6b2aaff4cb9b0498870e82fda8f",
-"type":"code"
-},
-{
-"chunkpath":[],
 "filepath":[],
 "fragments":[
 {
@@ -592,11 +578,7 @@
 "id":"04e14524f1b34b6f940d0922a6bfc6f4",
 "post_process":[
 "bash",
-"compile.sh",
-"parser",
-"acodegen",
-"xcodegen",
-"gas"
+"gas.sh"
 ],
 "type":"code"
 },
@@ -614,20 +596,16 @@
 "type":"code"
 }
 ],
-"id":"2e82d76819b4491083d800d7f30579d7",
+"id":"49cc38b88b884065a8d2de10d161c99b",
 "post_process":[
 "bash",
-"compile.sh",
-"parser",
-"acodegen",
-"xcodegen",
-"gas"
+"gas.sh"
 ],
 "type":"code"
 },
 {
-"code_id":"2e82d76819b4491083d800d7f30579d7",
-"id":"eb8b5287d1424564a67559ea9e07abc3",
+"code_id":"49cc38b88b884065a8d2de10d161c99b",
+"id":"4bd775d0b8d94a0b8f4712a5baa94dea",
 "type":"expanded_code"
 }
 ],
@@ -670,7 +648,7 @@
 "type":"variable"
 },
 {
-"text":"(m r)]\n    | reg32:r const:i        -> [add(0xb8 r) ~littleEndian(i 4)]\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
+"text":"(m r)]\n    | reg32:r const:i        -> [add(0xb8 r) ~littleEndian(i 4)]\n  ret    =                   -> [0xc3]\n  addr   = [\"addr\" reg64n:n] -> n\n  reg64  = [\"reg\"  reg64n:n] -> n\n  reg64n =\n    | \"rdi\" -> 7\n  reg32  = [\"reg\"  reg32n:n] -> n\n  reg32n =\n    | \"eax\" -> 0\n  const  = [\"const\" .:i]     -> i\n}\n",
 "type":"code"
 }
 ],
@@ -760,28 +738,25 @@
 "type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[],
+"chunkpath":[
+"function",
+"run instructions"
+],
+"filepath":[
+"support.py"
+],
 "fragments":[
 {
-"text":"1\n",
+"text":"import ctypes\nimport mmap\nlibc = ctypes.cdll.LoadLibrary(None)\nfn_mmap = libc.mmap\nfn_mmap.restype = ctypes.c_void_p\nfn_mmap.argtypes = (\n    ctypes.c_void_p,\n    ctypes.c_size_t,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_size_t,\n)\ncode = \"\".join([chr(x) for x in instructions])\ncode_address = fn_mmap(\n    None,\n    len(code),\n    mmap.PROT_READ|mmap.PROT_WRITE|mmap.PROT_EXEC,\n    mmap.MAP_PRIVATE|mmap.MAP_ANONYMOUS,\n    -1,\n    0\n)\nctypes.memmove(code_address, code, len(code))\nfn_malloc = libc.malloc\nfn_malloc.restype = ctypes.c_void_p\nfn_malloc.argtypes = (ctypes.c_size_t,)\nstack_address = fn_malloc(1024)\nexpr_fn_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)\nexpr_fn = ctypes.cast(code_address, expr_fn_type)\nreturn expr_fn(stack_address)\n",
 "type":"code"
 }
 ],
-"id":"1e52e522c9f34e49a3027204d14e43a7",
-"post_process":[
-"bash",
-"compile.sh",
-"parser",
-"acodegen",
-"xcodegen",
-"assembler"
-],
+"id":"526784265fb447e5a378ad13423f9da7",
 "type":"code"
 },
 {
-"code_id":"1e52e522c9f34e49a3027204d14e43a7",
-"id":"984c9169bbe74c63b57cadbe6ff58061",
+"code_id":"2c1d91e0762a46cc8ec052236069caad",
+"id":"a0cd2d0a0baf4d559b379020c3688e69",
 "type":"expanded_code"
 },
 {
@@ -793,20 +768,16 @@
 "type":"code"
 }
 ],
-"id":"ff816c9ee43446ea85d6a2802ad24f65",
+"id":"69367bb0e5c04c0a8656f66d11cf3671",
 "post_process":[
 "bash",
-"compile.sh",
-"parser",
-"acodegen",
-"xcodegen",
-"assembler"
+"native.sh"
 ],
 "type":"code"
 },
 {
-"code_id":"ff816c9ee43446ea85d6a2802ad24f65",
-"id":"8a350bca8c1b4b7f847f5c4cd102bf92",
+"code_id":"69367bb0e5c04c0a8656f66d11cf3671",
+"id":"fd5110dca5ba4453aa453ae2e4264df0",
 "type":"expanded_code"
 }
 ],
@@ -1024,6 +995,34 @@
 },
 {
 "children":[],
+"id":"92829f8f4d6c44c3a14cce1ac6bc9fed",
+"paragraphs":[
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1 = 1\n1+2 = 3\n2+1 = 3\n",
+"type":"code"
+}
+],
+"id":"3a4d6133576c4e7bbc8f9172ed540e1c",
+"post_process":[
+"python",
+"test.py"
+],
+"type":"code"
+},
+{
+"code_id":"3a4d6133576c4e7bbc8f9172ed540e1c",
+"id":"0245e37a605a4d44b04f00c6a4f1af21",
+"type":"expanded_code"
+}
+],
+"title":"Appendix: Tests"
+},
+{
+"children":[],
 "id":"7790eca23f484ea7b7430ef607b491c2",
 "paragraphs":[
 {
@@ -1053,6 +1052,72 @@
 {
 "chunkpath":[],
 "filepath":[
+"gas.sh"
+],
+"fragments":[
+{
+"text":"set -e\n\ncat | bash compile.sh parser acodegen xcodegen gas @expr.s\n\ngcc driver.c expr.s -o expr\n\necho \"\"\necho \"=V======= Compile & run ========\"\necho \"\"\n\n./expr\n",
+"type":"code"
+}
+],
+"id":"98d1d6b2aaff4cb9b0498870e82fda8f",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"native.sh"
+],
+"fragments":[
+{
+"text":"set -e\n\nbash compile.sh parser acodegen xcodegen assembler xrunner\n",
+"type":"code"
+}
+],
+"id":"58052bf4175b4998bcbcf098aae090a4",
+"type":"code"
+},
+{
+"chunkpath":[
+"function"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"class X86Runner(object):\n\n    def run(self, name, instructions):\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"run instructions"
+],
+"prefix":"        ",
+"type":"chunk"
+}
+],
+"id":"21ca1a5580a44533bae138d104cbb202",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"test.py"
+],
+"fragments":[
+{
+"text":"import subprocess\nimport sys\n\ndef eval_py(expr):\n    return eval(expr)\n\ndef eval_gas(expr):\n    return _eval_script(expr, \"gas.sh\")\n\ndef eval_native(expr):\n    return _eval_script(expr, \"native.sh\")\n\ndef _eval_script(expr, script):\n    p = subprocess.Popen(\n        [\"bash\", script],\n        stdin=subprocess.PIPE,\n        stdout=subprocess.PIPE\n    )\n    (stdout, stderr) = p.communicate(expr)\n    return int(stdout.splitlines()[-1].strip())\n\ndef run_test(expr, expected_result):\n    print(\"{} = {}\".format(expr, expected_result))\n    for name, fn in [(\"py\", eval_py), (\"gas\", eval_gas), (\"native\", eval_native)]:\n        actual = fn(expr)\n        if actual == expected_result:\n            print(\"  {} ok\".format(name.ljust(6)))\n        else:\n            print(\"  {} fail (actual {})\".format(name.ljust(6), actual))\n\nfor test_spec in sys.stdin.read().splitlines():\n    expr, expected_result = test_spec.split(\"=\")\n    run_test(expr.strip(), int(expected_result.strip()))\n",
+"type":"code"
+}
+],
+"id":"4979ed2e0ae64101b630abba09732e76",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
 "support.py"
 ],
 "fragments":[
@@ -1075,7 +1140,7 @@
 ],
 "fragments":[
 {
-"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n    }\n    try:\n        expr = sys.stdin.read().strip()\n        for grammar_name in sys.argv[1:]:\n            if grammar_name.startswith(\"@\"):\n                with open(grammar_name[1:], \"w\") as f:\n                    f.write(str(expr))\n                continue\n            grammar = grammars[grammar_name]\n            print_expr(expr)\n            print_box(grammar.__class__.__name__)\n            expr = grammar.run(\"expr\", expr)\n        print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    print(\"\")\n    print(\"=V{}==\".format(\" {} \".format(name).center(28, \"=\")))\n    print(\"\")\n",
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n        \"xrunner\": X86Runner(),\n    }\n    try:\n        expr = sys.stdin.read().strip()\n        for grammar_name in sys.argv[1:]:\n            if grammar_name.startswith(\"@\"):\n                with open(grammar_name[1:], \"w\") as f:\n                    f.write(str(expr))\n                continue\n            grammar = grammars[grammar_name]\n            print_expr(expr)\n            print_box(grammar.__class__.__name__)\n            expr = grammar.run(\"expr\", expr)\n        print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    print(\"\")\n    print(\"=V{}==\".format(\" {} \".format(name).center(28, \"=\")))\n    print(\"\")\n",
 "type":"code"
 }
 ],

@@ -40,6 +40,40 @@ def littleEndian(number, numBytes):
         values.append(number & 0xff)
         number >>= 8
     return values
+
+class X86Runner(object):
+
+    def run(self, name, instructions):
+        import ctypes
+        import mmap
+        libc = ctypes.cdll.LoadLibrary(None)
+        fn_mmap = libc.mmap
+        fn_mmap.restype = ctypes.c_void_p
+        fn_mmap.argtypes = (
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_size_t,
+        )
+        code = "".join([chr(x) for x in instructions])
+        code_address = fn_mmap(
+            None,
+            len(code),
+            mmap.PROT_READ|mmap.PROT_WRITE|mmap.PROT_EXEC,
+            mmap.MAP_PRIVATE|mmap.MAP_ANONYMOUS,
+            -1,
+            0
+        )
+        ctypes.memmove(code_address, code, len(code))
+        fn_malloc = libc.malloc
+        fn_malloc.restype = ctypes.c_void_p
+        fn_malloc.argtypes = (ctypes.c_size_t,)
+        stack_address = fn_malloc(1024)
+        expr_fn_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+        expr_fn = ctypes.cast(code_address, expr_fn_type)
+        return expr_fn(stack_address)
 def main():
     grammars = {
         "parser": Parser(),
@@ -47,6 +81,7 @@ def main():
         "xcodegen": X86CodeGen(),
         "gas": GasGen(),
         "assembler": Assembler(),
+        "xrunner": X86Runner(),
     }
     try:
         expr = sys.stdin.read().strip()

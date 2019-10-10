@@ -1,5 +1,5 @@
 X86CodeGen {
-  expr = [%*:xs] -> [~~xs]
+  expr = [%*:xs] -> [~~xs ["ret"]]
   ADD = -> [
     ["add" ["reg" "eax"] ["addr" "rdi"]]
     ["sub" ["reg" "rdi"] ["const" 4   ]]
