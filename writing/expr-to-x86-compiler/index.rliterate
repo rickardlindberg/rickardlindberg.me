@@ -32,8 +32,18 @@
 "type":"code"
 },
 {
+"fragments":[
+{
+"text":"The support functions are also defined similarly:",
+"type":"text"
+}
+],
+"id":"7c8484cb289346fca19248e7543d7ea5",
+"type":"text"
+},
+{
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -49,7 +59,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -65,7 +75,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -82,7 +92,7 @@
 {
 "fragments":[
 {
-"text":"Example:",
+"text":"Example of simplest expression:",
 "type":"text"
 }
 ],
@@ -94,7 +104,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1+2*3\n",
+"text":"3\n",
 "type":"code"
 }
 ],
@@ -112,11 +122,21 @@
 "type":"expanded_code"
 },
 {
+"fragments":[
+{
+"text":"Example of slightly more complicated expression:",
+"type":"text"
+}
+],
+"id":"ccee015604564c8691d7d634292ddeb7",
+"type":"text"
+},
+{
 "chunkpath":[],
 "filepath":[],
 "fragments":[
 {
-"text":"9^5^3\n",
+"text":"1+2*3\n",
 "type":"code"
 }
 ],
@@ -171,7 +191,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"1+2*3\n",
+"text":"3\n",
 "type":"code"
 }
 ],
@@ -187,6 +207,29 @@
 {
 "code_id":"4598cfbceed64836b4c4ee934a90eed6",
 "id":"c17173be18e643c5889acd3b28796ca7",
+"type":"expanded_code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"1+2*3\n",
+"type":"code"
+}
+],
+"id":"0607c70458904b4492b906db8d6f7f39",
+"post_process":[
+"bash",
+"compile.sh",
+"parser",
+"acodegen"
+],
+"type":"code"
+},
+{
+"code_id":"0607c70458904b4492b906db8d6f7f39",
+"id":"a229aebd58814f24b738518cad20deec",
 "type":"expanded_code"
 }
 ],
@@ -334,6 +377,16 @@
 "type":"text"
 }
 ]
+},
+{
+"child_type":null,
+"children":[],
+"fragments":[
+{
+"text":"We are generating a function according to x64 calling conventions.",
+"type":"text"
+}
+]
 }
 ],
 "id":"b92e18b1c525415e9dc01876f3051269",
@@ -452,7 +505,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"8\n",
+"text":"3\n",
 "type":"code"
 }
 ],
@@ -537,9 +590,7 @@
 "type":"code"
 },
 {
-"chunkpath":[
-"function"
-],
+"chunkpath":[],
 "filepath":[
 "support.py"
 ],
@@ -571,7 +622,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"9\n",
+"text":"3\n",
 "type":"code"
 }
 ],
@@ -659,7 +710,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -683,7 +734,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -707,7 +758,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -723,7 +774,7 @@
 },
 {
 "chunkpath":[
-"function"
+"compiler"
 ],
 "filepath":[
 "support.py"
@@ -739,15 +790,14 @@
 },
 {
 "chunkpath":[
-"function",
-"run instructions"
+"run machine code"
 ],
 "filepath":[
 "support.py"
 ],
 "fragments":[
 {
-"text":"import ctypes\nimport mmap\nlibc = ctypes.cdll.LoadLibrary(None)\nfn_mmap = libc.mmap\nfn_mmap.restype = ctypes.c_void_p\nfn_mmap.argtypes = (\n    ctypes.c_void_p,\n    ctypes.c_size_t,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_size_t,\n)\ncode = \"\".join([chr(x) for x in instructions])\ncode_address = fn_mmap(\n    None,\n    len(code),\n    mmap.PROT_READ|mmap.PROT_WRITE|mmap.PROT_EXEC,\n    mmap.MAP_PRIVATE|mmap.MAP_ANONYMOUS,\n    -1,\n    0\n)\nctypes.memmove(code_address, code, len(code))\nfn_malloc = libc.malloc\nfn_malloc.restype = ctypes.c_void_p\nfn_malloc.argtypes = (ctypes.c_size_t,)\nstack_address = fn_malloc(1024)\nexpr_fn_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)\nexpr_fn = ctypes.cast(code_address, expr_fn_type)\nreturn expr_fn(stack_address)\n",
+"text":"import ctypes\nimport mmap\n",
 "type":"code"
 }
 ],
@@ -755,8 +805,120 @@
 "type":"code"
 },
 {
-"code_id":"2c1d91e0762a46cc8ec052236069caad",
-"id":"a0cd2d0a0baf4d559b379020c3688e69",
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"libc = ctypes.cdll.LoadLibrary(None)\n",
+"type":"code"
+}
+],
+"id":"08f17ed2d52048b7ad6cf952bd80d1cc",
+"type":"code"
+},
+{
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"fn_mmap = libc.mmap\nfn_mmap.restype = ctypes.c_void_p\nfn_mmap.argtypes = (\n    ctypes.c_void_p,\n    ctypes.c_size_t,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_int,\n    ctypes.c_size_t,\n)\n",
+"type":"code"
+}
+],
+"id":"357f7678b85d446397f95c095da5d559",
+"type":"code"
+},
+{
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"code = \"\".join([chr(x) for x in machine_code])\ncode_address = fn_mmap(\n    None,\n    len(code),\n    mmap.PROT_READ|mmap.PROT_WRITE|mmap.PROT_EXEC,\n    mmap.MAP_PRIVATE|mmap.MAP_ANONYMOUS,\n    -1,\n    0\n)\nctypes.memmove(code_address, code, len(code))\n",
+"type":"code"
+}
+],
+"id":"0df5aa3de2e34a92845e812b149e441b",
+"type":"code"
+},
+{
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"fn_malloc = libc.malloc\nfn_malloc.restype = ctypes.c_void_p\nfn_malloc.argtypes = (ctypes.c_size_t,)\n",
+"type":"code"
+}
+],
+"id":"28bee11199834eef894a350c366d7352",
+"type":"code"
+},
+{
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"expr_fn_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)\nexpr_fn = ctypes.cast(code_address, expr_fn_type)\n",
+"type":"code"
+}
+],
+"id":"82409882362d4be582352b7dcbf23405",
+"type":"code"
+},
+{
+"chunkpath":[
+"run machine code"
+],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"result = expr_fn(fn_malloc(1024))\n",
+"type":"code"
+}
+],
+"id":"832f0b1ef1d34faf93ea31159671253e",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[],
+"fragments":[
+{
+"text":"3\n",
+"type":"code"
+}
+],
+"id":"4243b8c2e3a0498dbe18a4171a0d0c4a",
+"post_process":[
+"bash",
+"native.sh"
+],
+"type":"code"
+},
+{
+"code_id":"4243b8c2e3a0498dbe18a4171a0d0c4a",
+"id":"ff5c3f049d5e4083aaf3dcc3945c2f9b",
 "type":"expanded_code"
 },
 {
@@ -787,6 +949,16 @@
 "children":[],
 "id":"a047c1b417bc42799170c0e3632cc3f9",
 "paragraphs":[
+{
+"fragments":[
+{
+"text":"Here is all source code needed to turn expressions into x86 machine code. Code to run this code is dependent on situation, so it is not included here.",
+"type":"text"
+}
+],
+"id":"5550a1f7fdc74df7893020d50c931f94",
+"type":"text"
+},
 {
 "fragments":[
 {
@@ -830,36 +1002,6 @@
 {
 "code_id":"82c7f0b301fe414daed3ccf01f1a3004",
 "id":"7596bd4ebee24df48dc325774efb01c9",
-"type":"expanded_code"
-},
-{
-"fragments":[
-{
-"text":"GAS generator:",
-"type":"text"
-}
-],
-"id":"9497306bebb74420b1987d011a3a871a",
-"type":"text"
-},
-{
-"code_id":"a3c752a8e4fc42cfbd6cfdf5bb8c2674",
-"id":"48bb8953fc9f4d7e968dad7c7427a8c5",
-"type":"expanded_code"
-},
-{
-"fragments":[
-{
-"text":"C driver:",
-"type":"text"
-}
-],
-"id":"fa20aa762d6442c0ba57595a1fe03ffa",
-"type":"text"
-},
-{
-"code_id":"81af165cdf824fc390d506bb88ea3b37",
-"id":"1e4275c4f2d047e3a54ebf237c541499",
 "type":"expanded_code"
 },
 {
@@ -995,34 +1137,6 @@
 },
 {
 "children":[],
-"id":"92829f8f4d6c44c3a14cce1ac6bc9fed",
-"paragraphs":[
-{
-"chunkpath":[],
-"filepath":[],
-"fragments":[
-{
-"text":"1 = 1\n1+2 = 3\n2+1 = 3\n",
-"type":"code"
-}
-],
-"id":"3a4d6133576c4e7bbc8f9172ed540e1c",
-"post_process":[
-"python",
-"test.py"
-],
-"type":"code"
-},
-{
-"code_id":"3a4d6133576c4e7bbc8f9172ed540e1c",
-"id":"0245e37a605a4d44b04f00c6a4f1af21",
-"type":"expanded_code"
-}
-],
-"title":"Appendix: Tests"
-},
-{
-"children":[],
 "id":"7790eca23f484ea7b7430ef607b491c2",
 "paragraphs":[
 {
@@ -1052,11 +1166,53 @@
 {
 "chunkpath":[],
 "filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n        \"xrunner\": X86Runner(),\n    }\n    try:\n        expr = sys.stdin.read().strip()\n        for grammar_name in sys.argv[1:]:\n            if grammar_name.startswith(\"@\"):\n                with open(grammar_name[1:], \"w\") as f:\n                    f.write(str(expr))\n                continue\n            grammar = grammars[grammar_name]\n            print_box(grammar.__class__.__name__)\n            expr = grammar.run(\"expr\", expr)\n            print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n",
+"type":"code"
+}
+],
+"id":"f1d6ba61587e43a5878aff3bbdbf8cac",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n",
+"type":"code"
+}
+],
+"id":"0ae362b36ddd4fb0897b496ffda0fc70",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
+"support.py"
+],
+"fragments":[
+{
+"text":"def print_box(name):\n    print(\"\")\n    print(\"=V{}==\".format(\" {} \".format(name).center(28, \"=\")))\n    print(\"\")\n",
+"type":"code"
+}
+],
+"id":"fc141db230a844d6801f0dfa65316339",
+"type":"code"
+},
+{
+"chunkpath":[],
+"filepath":[
 "gas.sh"
 ],
 "fragments":[
 {
-"text":"set -e\n\ncat | bash compile.sh parser acodegen xcodegen gas @expr.s\n\ngcc driver.c expr.s -o expr\n\necho \"\"\necho \"=V======= Compile & run ========\"\necho \"\"\n\n./expr\n",
+"text":"set -e\n\ncat | bash compile.sh parser acodegen xcodegen gas @expr.s\n\ngcc driver.c expr.s -o expr\n\necho \"\"\necho \"=V===== GccCompileAndRun =======\"\necho \"\"\n\n./expr\n",
 "type":"code"
 }
 ],
@@ -1078,41 +1234,29 @@
 "type":"code"
 },
 {
-"chunkpath":[
-"function"
-],
+"chunkpath":[],
 "filepath":[
 "support.py"
 ],
 "fragments":[
 {
-"text":"class X86Runner(object):\n\n    def run(self, name, instructions):\n",
+"text":"class X86Runner(object):\n\n    def run(self, name, machine_code):\n",
 "type":"code"
 },
 {
 "blank_lines_before":0,
 "path":[
-"run instructions"
+"run machine code"
 ],
 "prefix":"        ",
 "type":"chunk"
-}
-],
-"id":"21ca1a5580a44533bae138d104cbb202",
-"type":"code"
 },
 {
-"chunkpath":[],
-"filepath":[
-"test.py"
-],
-"fragments":[
-{
-"text":"import subprocess\nimport sys\n\ndef eval_py(expr):\n    return eval(expr)\n\ndef eval_gas(expr):\n    return _eval_script(expr, \"gas.sh\")\n\ndef eval_native(expr):\n    return _eval_script(expr, \"native.sh\")\n\ndef _eval_script(expr, script):\n    p = subprocess.Popen(\n        [\"bash\", script],\n        stdin=subprocess.PIPE,\n        stdout=subprocess.PIPE\n    )\n    (stdout, stderr) = p.communicate(expr)\n    return int(stdout.splitlines()[-1].strip())\n\ndef run_test(expr, expected_result):\n    print(\"{} = {}\".format(expr, expected_result))\n    for name, fn in [(\"py\", eval_py), (\"gas\", eval_gas), (\"native\", eval_native)]:\n        actual = fn(expr)\n        if actual == expected_result:\n            print(\"  {} ok\".format(name.ljust(6)))\n        else:\n            print(\"  {} fail (actual {})\".format(name.ljust(6), actual))\n\nfor test_spec in sys.stdin.read().splitlines():\n    expr, expected_result = test_spec.split(\"=\")\n    run_test(expr.strip(), int(expected_result.strip()))\n",
+"text":"        return result\n",
 "type":"code"
 }
 ],
-"id":"4979ed2e0ae64101b630abba09732e76",
+"id":"11d16ba1bb0a42d0be10b4f5c914f447",
 "type":"code"
 },
 {
@@ -1124,27 +1268,13 @@
 {
 "blank_lines_before":1,
 "path":[
-"function"
+"compiler"
 ],
 "prefix":"",
 "type":"chunk"
 }
 ],
 "id":"26892d627896439aa7b3080a02ad7ffa",
-"type":"code"
-},
-{
-"chunkpath":[],
-"filepath":[
-"support.py"
-],
-"fragments":[
-{
-"text":"def main():\n    grammars = {\n        \"parser\": Parser(),\n        \"acodegen\": AbstractCodeGen(),\n        \"xcodegen\": X86CodeGen(),\n        \"gas\": GasGen(),\n        \"assembler\": Assembler(),\n        \"xrunner\": X86Runner(),\n    }\n    try:\n        expr = sys.stdin.read().strip()\n        for grammar_name in sys.argv[1:]:\n            if grammar_name.startswith(\"@\"):\n                with open(grammar_name[1:], \"w\") as f:\n                    f.write(str(expr))\n                continue\n            grammar = grammars[grammar_name]\n            print_expr(expr)\n            print_box(grammar.__class__.__name__)\n            expr = grammar.run(\"expr\", expr)\n        print_expr(expr)\n    except _MatchError as e:\n        sys.stderr.write(e.describe())\n\ndef print_expr(expr):\n    if isinstance(expr, str):\n        print(expr.strip())\n    else:\n        pprint.pprint(expr, width=20)\n\ndef print_box(name):\n    print(\"\")\n    print(\"=V{}==\".format(\" {} \".format(name).center(28, \"=\")))\n    print(\"\")\n",
-"type":"code"
-}
-],
-"id":"f1d6ba61587e43a5878aff3bbdbf8cac",
 "type":"code"
 }
 ],
