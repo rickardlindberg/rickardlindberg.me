@@ -29,7 +29,7 @@ clone_rliterate() {
 
 import_rliterate() {
     cd $book_folder
-    echo_book > index.html
+    (cd $rliterate_dir && echo_book) > index.html
     git add index.html
 }
 
@@ -38,7 +38,7 @@ echo_book() {
     echo "title: RLiterate"
     echo "---"
     echo ""
-    python $rliterate_dir/rliterate.py $rliterate_dir/rliterate.rliterate --html
+    python rliterate.py rliterate.rliterate --html
     echo "<hr>"
     echo "<p><i>Generated from <a href=\"https://github.com/rickardlindberg/rliterate/commit/$git_hash\">$git_hash</a>.</i></p>"
 }
