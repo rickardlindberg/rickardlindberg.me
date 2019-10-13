@@ -133,6 +133,8 @@ rulesPageIndexHtml :: Bool -> Rules ()
 rulesPageIndexHtml isBuildTargetWebserver = do
     match "projects/rliterate/book/index.html" $
         process $ contextRecentPosts isBuildTargetWebserver
+    match "projects/rliterate/book2/index.html" $
+        process $ contextRecentPosts isBuildTargetWebserver
     where
         process context = do
             route idRoute

@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -e
+
+main() {
+    setup_dirs
+    clone_rliterate
+    import_rliterate
+}
+
+setup_dirs() {
+    src_repo_dir=$(cd $(dirname $0)/.. > /dev/null && pwd)
+    book_folder=$src_repo_dir/projects/rliterate/book2
+    tmp_dir=$(mktemp -d)
+    trap remove_tmp_dir EXIT
+    rliterate_dir=$tmp_dir/rliterate2
+}
+
+remove_tmp_dir() {
+    rm -rf $tmp_dir
+}
+
+clone_rliterate() {
+    cd $tmp_dir
+    git clone git@github.com:rickardlindberg/rliterate2.git
+    cd rliterate2
+    git_hash=$(git rev-parse HEAD)
+}
+
+import_rliterate() {
+    cd $book_folder
+    (cd $rliterate_dir && echo_book) > index.html
+    git add index.html
+}
+
+echo_book() {
+    echo "---"
+    echo "title: RLiterate 2"
+    echo "---"
+    echo ""
+    rliterate rliterate2.rliterate --html
+    echo "<hr>"
+    echo "<p><i>Generated from <a href=\"https://github.com/rickardlindberg/rliterate/commit/$git_hash\">$git_hash</a>.</i></p>"
+}
+
+main
