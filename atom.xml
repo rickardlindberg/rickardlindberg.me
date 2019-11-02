@@ -8,8 +8,29 @@
         <name>Rickard Lindberg</name>
         <email>ricli85@gmail.com</email>
     </author>
-    <updated>2019-10-01T00:00:00Z</updated>
+    <updated>2019-11-02T00:00:00Z</updated>
     <entry>
+    <title>Newsletter October 2019</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/october-2019/" />
+    <id>http://rickardlindberg.me/writing/newsletter/october-2019/</id>
+    <published>2019-11-02T00:00:00Z</published>
+    <updated>2019-11-02T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Newsletter October 2019</h1>
+
+<p><em>Published on  2 November 2019.</em></p>
+
+<p>This is what I’ve been up to in October 2019:</p>
+<ul>
+<li><p>I read <a href="http://users.ece.cmu.edu/~koopman/stack_computers/">Stack Computers: the new wave</a> by Philip J. Koopman, Jr. I did not dig into details about the different computers, but the rest of the book gave me a good understanding stack computers.</p></li>
+<li><p>I thought about how stack computers could support programming language features. In particular, I though about how they could support local variables. A calling convention could be used where function parameters are always put on the stack. If a function wants to, it can store those in a frame for later reference. But it does not have to. The compiler might also optimize away local variables in favor of pure stack operations.</p></li>
+<li><p>I continued working on <a href="/writing/expr-to-x86-compiler/index.html">compiling expressions to x86 machine code</a>. I did debugging with gdb and learned some useful commands. I managed to compile a subset of expressions down to x86 machine code. It was satisfying. I was helped by <a href="https://eli.thegreenplace.net/2017/adventures-in-jit-compilation-part-4-in-python/">Adventures in JIT compilation: Part 4 - in Python</a>.</p></li>
+<li><p>I got an urge to do a rewrite of <a href="/projects/rliterate/index.html">RLiterate</a> to improve performance and fix bugs that make it annoying to use. I use RLiterate to write articles for my blog. I really like the features of it, but the poor performance makes it annoying to use. I had though of a slightly different architecture that would mitigate those problems. But it would require a complete rewrite. I have now successfully validated that the new architecture works better and I will continue to build the next version. You can see it <a href="/projects/rliterate/book2/index.html">here</a>.</p></li>
+<li><p>I worked on RLiterate in small chunks. First I did some work and published that version on my homepage. Then at a later time I did review of what I had done. Then I went through and fixed comments from review. This workflow has worked quite well. Having time between the two activities has allowed me to rest and reflect.</p></li>
+<li><p>Because I got distracted with RLiterate, I did not make progress on the article about <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures in RLMeta</a> that I said I would hoped have finished by now. I have not abandoned my drafts though. Something more interesting got in between. I will get back to writing at some point.</p></li>
+</ul>
+]]></summary>
+</entry>
+<entry>
     <title>Newsletter September 2019</title>
     <link href="http://rickardlindberg.me/writing/newsletter/september-2019/" />
     <id>http://rickardlindberg.me/writing/newsletter/september-2019/</id>
@@ -9272,69 +9293,6 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 <p><a href="/projects/rlselect/index.html"><img src="/writing/evolution-recalling-bash-history/rlselect_history_demo.gif" alt="Demo of rlselect" /></a></p>
 <p>There are some differences between hstr and <code>rlselect-history</code>. I took only the parts I personally wanted from hstr and put them into <code>rlselect-history</code>.</p>
 <p>If you want to improve your Bash usage, I suggest taking a look at <a href="https://github.com/dvorka/hstr">hstr</a> or <a href="/projects/rlselect/index.html">rlselect</a>.</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Bitten by Python generators</title>
-    <link href="http://rickardlindberg.me/writing/bitten-by-python-generators/" />
-    <id>http://rickardlindberg.me/writing/bitten-by-python-generators/</id>
-    <published>2017-03-11T00:00:00Z</published>
-    <updated>2017-03-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Bitten by Python generators</h1>
-
-<p><em>Published on 11 March 2017.</em></p>
-
-<p>Today I found a bug in a piece of Python code that I had written. The buggy code was the result of not taking into consideration how generators in Python work. It looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
-    <span class="cf">try</span>:
-        logging.info(<span class="st">&quot;Processing items&quot;</span>)
-        items <span class="op">=</span> get_the_items()
-    <span class="cf">except</span>:
-        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)
-    <span class="cf">else</span>:
-        <span class="cf">for</span> item <span class="kw">in</span> items:
-            process_item(item)</code></pre></div>
-<p>Can you spot the error? What could possible go wrong with this code?</p>
-<p>When I was debugging it, it was printing the info message, but did not log an exception. Execution continued in the else-clause, but suddenly an exception was raised when looping over the items (outside of <code>process_item</code>). How can that happen? The except-clause should catch all exceptions. And just iterating over a collection should not raise an exception.</p>
-<p>The answer is that <code>get_the_items</code> returned a generator. It looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
-        <span class="cf">if</span> item.is_good():
-            <span class="cf">yield</span> item</code></pre></div>
-<p>The exception actually came from <code>read_items_from_disk</code>, but since this code creates a generator, it is not executed until the collection is accessed (which happened in the else-clause). So the exception was actually raised when starting looping over items.</p>
-<h2 id="what-about-skipping-the-else-clause">What about skipping the else-clause?</h2>
-<p>To ensure that an exception from the generator is caught, the <code>main</code> function could be written like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
-    <span class="cf">try</span>:
-        logging.info(<span class="st">&quot;Processing items&quot;</span>)
-        <span class="cf">for</span> item <span class="kw">in</span> get_the_items():
-            process_item(item)
-    <span class="cf">except</span>:
-        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</code></pre></div>
-<p>I don’t like this version because it also catches exceptions from <code>process_item</code>. I like the try-except-else syntax because it allows narrower exception regions in a nice looking way.</p>
-<h2 id="why-did-i-use-a-generator">Why did I use a generator?</h2>
-<p>I made <code>get_the_items</code> return a generator mainly because I thought it read better. The alternative I came up with looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    items <span class="op">=</span> []
-    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
-        <span class="cf">if</span> item.is_good():
-            items.append(item)
-    <span class="cf">return</span> items</code></pre></div>
-<p>I didn’t like the temporary <code>items</code> variable. And it is two lines longer than the generator version.</p>
-<h2 id="what-about-list-comprehensions">What about list comprehensions?</h2>
-<p>Another way to write <code>get_the_items</code>, avoiding the temporary variable, is to use list comprehensions. It would look like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    <span class="cf">return</span> [
-        item
-        <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk()
-        <span class="cf">if</span> item.is_good()
-    ]</code></pre></div>
-<p>I find this code reads as good as the generator version (even though it is two lines longer). This is what I ended up using. But <code>get_the_items</code> was a bit more complicated than in the example, so I had to divide it into two list comprehensions.</p>
-<h2 id="what-about-memory-consumption">What about memory consumption?</h2>
-<p>One argument for using generators is that they consume less memory. The whole collection of items do not have to fit in memory at once, only the one currently being processed.</p>
-<p>In my case I had already read all items into memory in a previous step. The <code>get_the_items</code> function was mainly used to transform and filter the items. So I would not have used much less memory by using generators. Also, my collections were small, so having them in memory was not a problem.</p>
-<h2 id="conclusion">Conclusion</h2>
-<p>Generators have some nice properties that can be useful. However, after being bitten by them I now think they should only be used if those properties are absolutely needed. I will favor list comprehensions over generators if I can afford to keep the whole collection in memory.</p>
 ]]></summary>
 </entry>
 
