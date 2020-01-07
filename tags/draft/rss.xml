@@ -821,13 +821,17 @@
     <link>http://rickardlindberg.me/writing/expr-to-x86-compiler/</link>
     <description><![CDATA[<h1>DRAFT: Compiling expressions to x86 machine code</h1>
 
-<p><em>Published on 2019-10-11.</em></p>
+<p><em>Published on 2020-01-07.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
 <p>In <a href="/writing/rlmeta-left-associativity/index.html">Parsing left associative operators using RLMeta</a> we looked at how to parse a subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code.</p>
 
-<ul><li><a href="#a83adf407dbd43929bfbb4ab7f7311e5">Parser</a>
+<ul><li><a href="#969c195716e94c05ad23bd50f7dc061a">Overview</a>
+
+</li>
+
+<li><a href="#a83adf407dbd43929bfbb4ab7f7311e5">Parser</a>
 
 </li>
 
@@ -859,7 +863,19 @@
 
 </li>
 
-</ul><h2><a name="a83adf407dbd43929bfbb4ab7f7311e5"></a>Parser</h2>
+</ul><h2><a name="969c195716e94c05ad23bd50f7dc061a"></a>Overview</h2>
+
+<p>The compiler is implemented by transforming the source code in different passes.</p>
+
+<div class="rliterate-code"><div class="rliterate-code-body"><pre><span class="">P</span><span class="">a</span><span class="">r</span><span class="">s</span><span class="">e</span><span class="">r</span><span class=""> </span><span class="">-</span><span class="">&gt;</span><span class=""> </span><span class="">A</span><span class="">b</span><span class="">s</span><span class="">t</span><span class="">r</span><span class="">a</span><span class="">c</span><span class="">t</span><span class=""> </span><span class="">c</span><span class="">o</span><span class="">d</span><span class="">e</span><span class="">g</span><span class="">e</span><span class="">n</span><span class=""> </span><span class="">-</span><span class="">&gt;</span><span class=""> </span><span class="">x</span><span class="">8</span><span class="">6</span><span class=""> </span><span class="">c</span><span class="">o</span><span class="">d</span><span class="">e</span><span class="">g</span><span class="">e</span><span class="">n</span><span class=""> </span><span class="">-</span><span class="">&gt;</span><span class=""> </span><span class="">G</span><span class="">A</span><span class="">S</span><span class="">
+</span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class=""> </span><span class="">-</span><span class="">&gt;</span><span class=""> </span><span class="">B</span><span class="">i</span><span class="">n</span><span class="">a</span><span class="">r</span><span class="">y</span><span class="">
+</span></pre></div>
+
+</div>
+
+<p>The style of this article is inspired by <a href="http://www.vpri.org/pdf/m2009011_chns_mng.pdf">Chains of meaning in the STEPS system</a> (<a href="http://rickardlindberg.me/writing/alan-kay-notes/m2009011_chns_mng.pdf">mirror</a>) where a compiler is explained by explaining all passes in it.</p>
+
+<h2><a name="a83adf407dbd43929bfbb4ab7f7311e5"></a>Parser</h2>
 
 <p>The parser is the same as from the previous article. It turns a subset of mathematical expression into an AST:</p>
 
@@ -2082,7 +2098,7 @@
 </div>
 
 ]]></description>
-    <pubDate>Fri, 11 Oct 2019 00:00:00 UT</pubDate>
+    <pubDate>Tue, 07 Jan 2020 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/expr-to-x86-compiler/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
