@@ -1,17 +1,17 @@
 ---
 title: 'DRAFT: Memoizing failures in RLMeta'
-date: 2019-10-01
+date: 2020-01-07
 tags: rlmeta,draft
 ---
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>After reading <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a> I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, it has to try matching again, even though it will fail. In the article, Guido writes</p>
+<p>After reading <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a> I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, matching has to be tried again, even though it will fail. In the article, Guido writes</p>
 
 <blockquote>It is important to cache negative results too - in fact most calls to parsing methods will be negative results.</blockquote>
 
 <p>Besides fixing the flaw in the memoization logic, I am also interested in seeing how it affects performance.</p>
 
-<p>In this article I show how I fix the memoization logic in both the <a href="/writing/optimizing-rlmeta/index.html">optimized version</a> and the <a href="/writing/rlmeta-vm/index.html">vm based version</a> and show how performance is affected.</p>
+<p>In this article I show how to fix the memoization logic in both the <a href="/writing/optimizing-rlmeta/index.html">optimized version</a> and the <a href="/writing/rlmeta-vm/index.html">vm based version</a> and show how performance is affected.</p>
 
 <ul><li><a href="#a9a4166e943a4d2c974c443cef1da5a9">Optimized version</a>
 
@@ -39,7 +39,7 @@ tags: rlmeta,draft
 
 </ul><h2><a name="a9a4166e943a4d2c974c443cef1da5a9"></a>Optimized version</h2>
 
-<p>In the optimized version, the memoization table stores tuples with result, start position, and end position. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the result be <code>None</code> in case of a failure and have the start position be the lazy fail message.</p>
+<p>In the optimized version, the memoization table stores tuples with result, start position, and end position. If a rule fails, a new kind of value that indicates a failure must be stored. We reuse the same tuple, but have the result be <code>None</code> in case of a failure and have the start position be the lazy fail message.</p>
 
 <p>The memoization table is both queried and populated in the support library method <code>_match_rule</code>. The fixed version looks like this:</p>
 
@@ -69,6 +69,10 @@ tags: rlmeta,draft
 </span></pre></div>
 
 </div>
+
+<p>If a memoization entry exists and the result part is <code>None</code>, the match fails immediately with the fail message stored in the entry. If the result part is not <code>None</code> the result is used as before.</p>
+
+<p>If a memoization entry does not exist and the match fails, the failure is recorded in the memoization table before propagating the exception. If the match succeeds the result is recorded as before.</p>
 
 <p>The <code>_MatchError</code> class is also modified to save the lazy message so that it can be accessed for storage in the memoization table:</p>
 
@@ -108,7 +112,7 @@ tags: rlmeta,draft
 
 <h2><a name="fe17638693e344ad9e521e55bf0676f3"></a>VM based version</h2>
 
-<p>In the VM based version, the memoization table stores tuples with last action, and stream position stack. If a rule fails, a new kind of value that indicates a failure must be stored. We will reuse the same tuple, but have the last action be <code>None</code> in case of a failure and have the stream position stack be the failure message.</p>
+<p>In the VM based version, the memoization table stores tuples with last action, and stream position stack. If a rule fails, a new kind of value that indicates a failure must be stored. We reuse the same tuple, but have the last action be <code>None</code> in case of a failure and have the stream position stack be the failure message.</p>
 
 <p>The memoization table is queried and populated in different places. The first place it's populated is in the <code>RETURN</code> instruction:</p>
 
@@ -147,9 +151,9 @@ tags: rlmeta,draft
 
 </div>
 
-<p>If the popped item is not a backtrack entry, it must be a call entry. It means that the given rule has been called, and it has failed. In that case, <code>None</code> is stored in the memoization table to indicate a failure, along wit the fail message as second element.</p>
+<p>If the popped item is not a backtrack entry, it must be a call entry. It means that the given rule has been called, and it has failed. In that case, <code>None</code> is stored in the memoization table to indicate a failure, along with the fail message as second element.</p>
 
-<p>Next code that queries the memoization table need to be updated. It happens in the two call instructions <code>CALL</code> and <code>MATCH_CALL_RULE</code>. They are changed to look at the first argument in the memoized entry. If it is <code>None</code>, it indicates a failure. The <code>fail_message</code> is then set and the <code>continue</code> statement is skipped:</p>
+<p>Next code that queries the memoization table need to be updated. It happens in the two call instructions <code>CALL</code> and <code>MATCH_CALL_RULE</code>:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>vm</li><li>support.py</li><li><span class="cp">CALL</span>
 
@@ -204,6 +208,8 @@ tags: rlmeta,draft
 
 </div>
 
+<p>They are changed to look at the first argument in the memoized entry. If it is <code>None</code>, it indicates a failure. The <code>fail_message</code> is then set and the <code>continue</code> statement is skipped:</p>
+
 <h2><a name="42ae6babf74d427880f831bd14109002"></a>Performance measurements</h2>
 
 <p>Are the versions that also memoize failures faster? Here are the performance measurements:</p>
@@ -215,6 +221,8 @@ tags: rlmeta,draft
 <div class="rliterate-image-text"><p>Performance measurements.</p>
 
 </div>
+
+<p>To measure the performance without memoization I commented out the code that populates the memoization table.</p>
 
 <p>Memoizing failures seems to be much less important than memoizing matches. But it still improves performance.</p>
 
