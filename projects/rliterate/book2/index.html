@@ -54,19 +54,9 @@
     <div class="container">
       <h1><a name="46533f3be0674d1cae08ff281edbc37d"></a>RLiterate 2</h1>
 
-<p>RLiterate is a graphical tool for doing literate programming. Literate programming is a style of programming in which you don't write source code directly. Instead you write a document which have code snippets interspersed with regular text. It shifts the mindset of the programmer from writing code to writing a document in which the program is presented piece by piece.</p>
+<p>RLiterate is a graphical tool for doing literate programming. Literate programming is a style of programming in which you don't write source code directly. Instead you write a document which has code snippets interspersed with regular text. It shifts the mindset of the programmer from writing code to writing a document in which the program is presented in small pieces.</p>
 
-<p>The second version of RLiterate is a complete rewrite of the first version with the following goals:</p>
-
-<ul><li>Improve performance so that it is not annoying to use.</li>
-
-<li>Fix bugs that make it annoying to use.</li>
-
-<li>Clean up the code base and remove old cruft.</li>
-
-</ul>
-
-<p>This book describes RLiterate and its history and also includes the complete implementation of the second version presented in small pieces.</p>
+<p>This book describes RLiterate, its history, and also includes the complete implementation of the second version.</p>
 
 <ul><li><a href="#6324f147c07240a2b02789be46478e90">Showcase</a>
 
@@ -82,7 +72,7 @@
 
 </li>
 
-<li><a href="#48f01b615cea4ab8a229f1cb1c9b89a3">Main</a>
+<li><a href="#48f01b615cea4ab8a229f1cb1c9b89a3">Main function</a>
 
 </li>
 
@@ -138,7 +128,7 @@
 
 </li>
 
-<li><a href="#f4c7873224fb4dfcbe73180d7afdfd72">GUI language</a>
+<li><a href="#f4c7873224fb4dfcbe73180d7afdfd72">GUI framework</a>
 
 <ul><li><a href="#fa9c9667abb14d34b60ec36cc4188b99">Compiler</a>
 
@@ -186,7 +176,11 @@
 
 </li>
 
-<li><a href="#e7933f62b6c244fbbed916e00d06d1c6">Rewrite proof of concept (V1 Oct 2019)</a>
+<li><a href="#38a84460a00e451eb88dbddb9c449827">2nd version rewrite (Oct 2019)</a>
+
+</li>
+
+<li><a href="#e7933f62b6c244fbbed916e00d06d1c6">Proof of concept (V1 Oct 2019)</a>
 
 </li>
 
@@ -206,19 +200,19 @@
 
 </ul><h2><a name="6324f147c07240a2b02789be46478e90"></a>Showcase</h2>
 
-<p><strong>TODO:</strong> Show example how literate programming is done in RLiterate.</p>
+<p><strong>TODO:</strong> Show an example how literate programming is done in RLiterate.</p>
 
 <h2><a name="38e9db8b872940be849298f11e50b8e7"></a>Concepts</h2>
 
-<p><strong>TODO:</strong> Explain concepts in greater detail.</p>
+<p><strong>TODO:</strong> Explain concepts and features in greater detail.</p>
 
 <h2><a name="b0b789cd397842fa83da264c639d9b7a"></a>Implementation</h2>
 
-<p>This chapter gives a complete description of the implementation of RLiterate presented in small pieces.</p>
+<p>This chapter contains the complete implementation of the <a href="#38a84460a00e451eb88dbddb9c449827"><em>second version</em></a> of RLiterate.</p>
 
 <h3><a name="165a1189e30f4ce5b22001ea8091aa9c"></a>Files</h3>
 
-<p>RLiterate is written in a single Python file. It looks like this:</p>
+<p>RLiterate is written in a single Python file that looks like this:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rliterate2.py</li></ol>
 
@@ -281,7 +275,7 @@
 
 <p>The remainder of this chapter will fill in the sections in those files to create the complete implementation.</p>
 
-<h3><a name="48f01b615cea4ab8a229f1cb1c9b89a3"></a>Main</h3>
+<h3><a name="48f01b615cea4ab8a229f1cb1c9b89a3"></a>Main function</h3>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>rliterate2.py</li><li><span class="cp">functions</span>
 
@@ -323,12 +317,13 @@
 
 <div class="rliterate-code-body"><pre><span class="k">d</span><span class="k">e</span><span class="k">f</span><span class> </span><span class="nf">m</span><span class="nf">a</span><span class="nf">i</span><span class="nf">n</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">a</span><span class="n">r</span><span class="n">g</span><span class="n">s</span><span class> </span><span class="o">=</span><span class> </span><span class="n">p</span><span class="n">a</span><span class="n">r</span><span class="n">s</span><span class="n">e</span><span class="n">_</span><span class="n">a</span><span class="n">r</span><span class="n">g</span><span class="n">s</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">d</span><span class="n">o</span><span class="n">c</span><span class="n">u</span><span class="n">m</span><span class="n">e</span><span class="n">n</span><span class="n">t</span><span class> </span><span class="o">=</span><span class> </span><span class="n">D</span><span class="n">o</span><span class="n">c</span><span class="n">u</span><span class="n">m</span><span class="n">e</span><span class="n">n</span><span class="n">t</span><span class="p">(</span><span class="n">a</span><span class="n">r</span><span class="n">g</span><span class="n">s</span><span class="p">[</span><span class="s2">"</span><span class="s2">p</span><span class="s2">a</span><span class="s2">t</span><span class="s2">h</span><span class="s2">"</span><span class="p">]</span><span class="p">)</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">s</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="n">i</span><span class="n">o</span><span class="n">n</span><span class> </span><span class="o">=</span><span class> </span><span class="n">S</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="n">i</span><span class="n">o</span><span class="n">n</span><span class="p">(</span><span class="p">)</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">t</span><span class="n">h</span><span class="n">e</span><span class="n">m</span><span class="n">e</span><span class> </span><span class="o">=</span><span class> </span><span class="n">T</span><span class="n">h</span><span class="n">e</span><span class="n">m</span><span class="n">e</span><span class="p">(</span><span class="p">)</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">s</span><span class="n">t</span><span class="n">a</span><span class="n">r</span><span class="n">t</span><span class="n">_</span><span class="n">a</span><span class="n">p</span><span class="n">p</span><span class="p">(</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">M</span><span class="n">a</span><span class="n">i</span><span class="n">n</span><span class="n">F</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="p">,</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">M</span><span class="n">a</span><span class="n">i</span><span class="n">n</span><span class="n">F</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="n">P</span><span class="n">r</span><span class="n">o</span><span class="n">p</span><span class="n">s</span><span class="p">(</span><span class="n">d</span><span class="n">o</span><span class="n">c</span><span class="n">u</span><span class="n">m</span><span class="n">e</span><span class="n">n</span><span class="n">t</span><span class="p">,</span><span class> </span><span class="n">s</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="n">i</span><span class="n">o</span><span class="n">n</span><span class="p">,</span><span class> </span><span class="n">t</span><span class="n">h</span><span class="n">e</span><span class="n">m</span><span class="n">e</span><span class="p">)</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">M</span><span class="n">a</span><span class="n">i</span><span class="n">n</span><span class="n">F</span><span class="n">r</span><span class="n">a</span><span class="n">m</span><span class="n">e</span><span class="n">P</span><span class="n">r</span><span class="n">o</span><span class="n">p</span><span class="n">s</span><span class="p">(</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">D</span><span class="n">o</span><span class="n">c</span><span class="n">u</span><span class="n">m</span><span class="n">e</span><span class="n">n</span><span class="n">t</span><span class="p">(</span><span class="n">a</span><span class="n">r</span><span class="n">g</span><span class="n">s</span><span class="p">[</span><span class="s2">"</span><span class="s2">p</span><span class="s2">a</span><span class="s2">t</span><span class="s2">h</span><span class="s2">"</span><span class="p">]</span><span class="p">)</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">S</span><span class="n">e</span><span class="n">s</span><span class="n">s</span><span class="n">i</span><span class="n">o</span><span class="n">n</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="n">T</span><span class="n">h</span><span class="n">e</span><span class="n">m</span><span class="n">e</span><span class="p">(</span><span class="p">)</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">)</span><span class>
 </span><span class> </span><span class> </span><span class> </span><span class> </span><span class="p">)</span><span class>
 </span></pre></div>
 
@@ -2453,7 +2448,7 @@
 
 </div>
 
-<h3><a name="f4c7873224fb4dfcbe73180d7afdfd72"></a>GUI language</h3>
+<h3><a name="f4c7873224fb4dfcbe73180d7afdfd72"></a>GUI framework</h3>
 
 <h4><a name="fa9c9667abb14d34b60ec36cc4188b99"></a>Compiler</h4>
 
@@ -4372,11 +4367,27 @@
 
 <h3><a name="b9235c3cea5d4222ad93b17a19c310db"></a>TODO: Include history from first version</h3>
 
-<h3><a name="e7933f62b6c244fbbed916e00d06d1c6"></a>Rewrite proof of concept (V1 Oct 2019)</h3>
+<h3><a name="38a84460a00e451eb88dbddb9c449827"></a>2nd version rewrite (Oct 2019)</h3>
 
-<p>One of the goals with the rewrite was to improve performance. One thing that makes the first version of RLiterate slow is that the GUI is re-rendered even though nothing has changed. To solve this, I though using an architecture inspired by <a href="https://reactjs.org/">React</a> might work.</p>
+<p>I had been using RLiterate to write blog posts and really liked its features. However, it had some performance issues that made it annoying to use as well as some recurring bugs. I concluded that in order to fix these issues and also continue to improve RLiterate, a complete rewrite was necessary.</p>
 
-<p>React works by passing props, which is a JSON document, to a component that then renders the GUI. The props are immutable which makes it easy to see if it is exactly the same as the previous render. The first version of RLiterate had a similar architecture, but the props passed to the component was a Python class which had methods to get the different parts of the data. So even if nothing changed, the component had to call those methods and re-render because it could not know if something changed. With a pure Python dictionary as props instead, comparing to values is easy.</p>
+<p>I decided to try doing a rewrite with the following initial goals:</p>
+
+<ul><li>Improve performance so that it is not annoying to use.</li>
+
+<li>Fix bugs that make it annoying to use.</li>
+
+<li>Clean up the code base and remove old cruft.</li>
+
+</ul>
+
+<p>I also thought that the features in the second version should be roughly the same as in the first version.</p>
+
+<h3><a name="e7933f62b6c244fbbed916e00d06d1c6"></a>Proof of concept (V1 Oct 2019)</h3>
+
+<p>One of the goals with the rewrite was to improve performance. One thing that made the first version of RLiterate slow was that the GUI was re-rendered even though nothing had changed. To solve this, I though using an architecture inspired by <a href="https://reactjs.org/">React</a> might work.</p>
+
+<p>React works by passing props, which is a JSON document, to a component that then renders the GUI from that data. The props is immutable which makes it easy for the component to see if it is exactly the same as in the previous render or if something changed. The first version of RLiterate had a similar architecture, but the props passed to the component was a Python class which had methods to get the different parts of the data. So even if nothing had changed, the component had to call those methods and re-render because it could not know if something changed. With an immutable Python dictionary as props instead, comparing to values would be easy.</p>
 
 <p>So I decided to try this architecture out. The first thing I implemented was the main layout of RLiterate where the table of contents could be resized by dragging.</p>
 
@@ -4388,11 +4399,11 @@
 
 </div>
 
-<p>It works as follows:</p>
+<p>It worked as follows:</p>
 
-<ul><li>The component in this case is the main frame.</li>
+<ul><li>The component in this case was the main frame.</li>
 
-<li>The main frame is passed a dictionary as props which looks like this:</li>
+<li>The main frame was passed a dictionary as props which looked like this:</li>
 
 </ul>
 
@@ -4422,23 +4433,25 @@
 
 </div>
 
-<ul><li>The main frame has logic to create the GUI from the props.</li>
+<ul><li>The main frame had logic to render the GUI from the props.</li>
 
-<li>When the mouse drags the border, the <code>set_width</code> method passed in the props is called.</li>
+<li>When the mouse dragged the border, the <code>set_width</code> method passed in the props was called.</li>
 
-<li>It will set a new with of the table of contents and create a completely new props dictionary where the new width is set.</li>
+<li>It would set a new with of the table of contents and a completely new props dictionary would be created with the new width set.</li>
 
-<li>The props is re-constructed smartly, so that parts that did not change are re-used as is.</li>
+<li>The props was re-constructed smartly, so that parts that did not change were re-used as is.</li>
 
-<li>The new props are passe to main frame which re-renders itself. Since the props are immutable dictionaries, it can compare them with the previous values to figure out what has actually changed and only re-render what is needed.</li>
+<li>The new props were passed to main frame which re-renders itself. Since the props are immutable dictionaries, it can compare them with the previous values to figure out what has actually changed and only re-render what is needed.</li>
 
 </ul>
 
+<p>Since performance was the main focus with this proof of concept, I added profiling early to see what parts of a render took time. I concluded that if a render is done in less that 10ms (100 frames per second) then that is good enough. 20ms (50 frames per second) starts to feel significantly slower.</p>
+
 <p>From a performance perspective, this architecture seemed to work pretty well. So this gave me confidence to move forward with it and see if it would scale for what RLiterate needs.</p>
 
-<p>This also improved RLiterate by allowing the table of contents to be resized, something which was not possible in the first version.</p>
+<p>This proof of concept also improved RLiterate by allowing the table of contents to be resized, something which was not possible in the first version.</p>
 
-<p>Another goal with the rewrite was to clean up old cruft. One such thing which was on the TODO list for the first version was to completely separate wx GUI code from the RLiterate code. RLiterate has a GUI framework so that it does not depend directly on the underlying GUI framework. In the first version this was not 100% completed. RLiterate code still has a direct dependency on wxPython. In the second version this is now fixed. Since it was started from scratch, this was easier to just ensure.</p>
+<p>Another goal with the rewrite was to clean up old cruft. One such thing which was on the TODO list for the first version was to completely separate wx GUI code from the RLiterate code. RLiterate had a GUI framework so that it did not depend directly on the underlying GUI framework. In the first version this was not 100% completed. RLiterate code still had a direct dependency on wxPython. In the second version this was fixed. Since it was started from scratch, this was easier to just ensure.</p>
 
 <h3><a name="7e3461f1f12642af80ba94d79323267c"></a>Fleshing out table of contens (V2 Oct-Nov 2019)</h3>
 
@@ -4564,7 +4577,7 @@
 
 </div>
 
-<p>Had to introduce cacheing in GUI layer to make things fast.</p>
+<p>Had to introduce caching in GUI layer to make expand/collapse fast.</p>
 
 <h3><a name="bdeda63252d440c3b3394c34671a9107"></a>Fleshing out workspace (V3 Nov- 2019)</h3>
 
@@ -4610,7 +4623,7 @@
 
 </div>
 
-<p>Had to introduce cacheing in props generation because it became slow.</p>
+<p>Had to introduce caching in props generation for paragraphs to make unrelated prop changes fast. At this point, generating props for a code paragraph includes syntax highlighting which is slow.</p>
 
 <h2><a name="6d92bc9005724ecdad6856ba67ec2121"></a>Ideas for new features</h2>
 
@@ -4623,7 +4636,7 @@
 <p>Support altering a code paragraph in a later page to allow incremental tutorial style writing. (As <a href="https://viewsourcecode.org/snaptoken/kilo/index.html">snaptoken's kilo</a>).</p>
 
 <hr>
-<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate2/commit/e3fd553c4b7107db697116af173602d1f58fabd5">e3fd553c4b7107db697116af173602d1f58fabd5</a>.</i></p>
+<p><i>Generated from <a href="https://github.com/rickardlindberg/rliterate2/commit/60577ad9d8fcf7eb41d11713ae25145b59fabfb2">60577ad9d8fcf7eb41d11713ae25145b59fabfb2</a>.</i></p>
 
       <hr>
       <center>
