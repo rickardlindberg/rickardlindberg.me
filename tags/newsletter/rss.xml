@@ -7,8 +7,40 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged newsletter]]></description>
         <atom:link href="http://rickardlindberg.me/tags/newsletter/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 02 Mar 2020 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 01 Apr 2020 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Newsletter March 2020</title>
+    <link>http://rickardlindberg.me/writing/newsletter/march-2020/</link>
+    <description><![CDATA[<h1>Newsletter March 2020</h1>
+
+<p><em>Published on  1 April 2020.</em></p>
+
+<p>This is what I’ve been up to in March 2020:</p>
+<ul>
+<li><p>I continued with <a href="/projects/rliterate/book2/index.html">RLiterate</a>:</p>
+<ul>
+<li><p>I tried <a href="https://pavelfatin.com/typometer/">Typometer</a> to measure the time it takes from a kepress to a character appearing on the screen.</p></li>
+<li><p>My first approach to speed up drawing was to draw immediately with <code>Layout</code>/<code>Update</code>. That turned out to not work so well. I documented the problem in a <a href="/writing/wx-layout-update/index.html">blog post</a>.</p></li>
+<li><p>I concluded that to draw fast in RLiterate, an approach that works quite well is to only draw the part where the cursor is first, and draw everything else a few milliseconds later if there are no additional input events. For example, if a title is edited in the workspace, the table of contents might have to be redrawn as well. But it can wait, since the focus is not on it right now. I documented this behavior quite well <a href="/projects/rliterate/book2/index.html#5fb3048d154d4f50af92d4cbe63db75a">here</a>.</p></li>
+<li><p>I think RLiterate’s true potential has not yet been explored. I think more paragraph types could add much value. It is something that I hope to explore after I finish RLiterate 2. But I don’t want to rush it. I want to write RLiterate 2 as clean as possible while still being capable of roughly what RLiterate (1) is.</p></li>
+<li><p>I’m also thinking that RLiterate must be a multi process program. There is only so much you can do in GUI thread without it being sluggish. And using threads in Python does not help much since they are not truly run in parallell. So I’m thinking a multi process worker architecture is needed for heavy tasks. Like syntax highlighting, spell checking, generating files, etc. Then a little worker icon in toolbar to let the user know that stuff is happening in the background.</p></li>
+</ul></li>
+<li><p>I read <a href="https://medium.com/s/story/lets-pretend-this-never-happened-8abf0bc9648c">The Flawed History of Graphical User Interfaces</a>. Computers don’t have to be what they are. We can make them to do anything. Including alternative user interfaces.</p></li>
+<li><p>I read <a href="https://hackernoon.com/some-tentative-guidelines-for-gui-composability-2900abead1d9">Some tentative guidelines for GUI composability</a>. Isolated applications that can’t be composed is a bad idea. Yet the default.</p></li>
+<li><p>I watched <a href="https://www.youtube.com/watch?v=Pot9GnHFOVU&amp;t=1026s">Tudor Gîrba - Moldable development</a>. It is an interesting project that I want to explore more.</p></li>
+<li><p>I read <a href="https://medium.com/feenk/one-rendering-tree-918eae49bcff">One rendering tree</a>.</p>
+<blockquote>
+<p>Well, the user interface framework has a tree, and somewhere in that tree, there is a canvas, and in that canvas … well, there is another world, with another tree. That these are different worlds, and different worlds means we cannot combine them easily. We do not want different worlds. We want just one. A seamless one.</p>
+</blockquote>
+<p>This is something that might be useful for RLiterate. But that would require yet another complete rewrite. I should finish RLiterate 2 and learn from it. Then study one rendering tree. Then see if a third rewrite is suitable or not. But it is far away in the future.</p></li>
+<li><p>I read <a href="https://www.hillelwayne.com/post/influential-dead-languages/">10 Most(ly dead) Influential Programming Languages</a>. I would like to learn more APL. Perhaps implement my own APL to learn more.</p></li>
+</ul>
+]]></description>
+    <pubDate>Wed, 01 Apr 2020 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/march-2020/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>Newsletter February 2020</title>
     <link>http://rickardlindberg.me/writing/newsletter/february-2020/</link>
     <description><![CDATA[<h1>Newsletter February 2020</h1>
