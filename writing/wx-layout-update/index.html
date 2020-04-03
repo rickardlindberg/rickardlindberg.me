@@ -1,15 +1,14 @@
 ---
-title: 'DRAFT: Test Layout'
-date: 2020-04-02
-tags: wxpython,rliterate,draft
+title: 'Layout/Update problem in wxPython'
+date: 2020-04-03
+tags: wxpython,rliterate
 ---
-<strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
-<p>I have a problem updating a widget immediately with <code>Layout</code> and <code>Update</code>. I present a test program that demonstrates the problem.</p>
+<p>When working on <a href="/projects/rliterate/index.html">RLiterate</a> I wanted to speed up drawing to make characters appear faster on the screen after a key press. The <a href="https://docs.wxpython.org/wx.Window.html#wx.Window.Update">Update</a> method seemed to be what I wanted:</p>
 
-<p><a href="https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update">https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update</a></p>
+<blockquote>Calling this method immediately repaints the invalidated area of the window and all of its children recursively (this normally only happens when the flow of control returns to the event loop).</blockquote>
 
-<p><a href="https://wiki.wxpython.org/WhenAndHowToCallLayout">https://wiki.wxpython.org/WhenAndHowToCallLayout</a>.</p>
+<p>However, using it turned out to be problematic. In this post I present a test program that demonstrates the problem and then discuss a solution.</p>
 
 <ul><li><a href="#d72b284e97a449ed9a66e227cd8c3a57">Overview</a>
 
@@ -20,6 +19,10 @@ tags: wxpython,rliterate,draft
 </li>
 
 <li><a href="#7bc0a753f4b74abca1ce3667a620d138">Results</a>
+
+</li>
+
+<li><a href="#82457fb8605149e6a5e1b079971cbf9e">Discussion</a>
 
 </li>
 
@@ -231,11 +234,25 @@ tags: wxpython,rliterate,draft
 
 </ul>
 
-<p>So in practice, nothing is shown on the screen until after the sleep call.</p>
+<p>So in practice, nothing is changed on the screen until after the sleep call.</p>
 
 <p>It seems to me that the <code>Layout</code> call depends on something happening by following events. Adding a <code>Refresh</code> call immediately after <code>Layout</code> does not seem to have any effect.</p>
 
 <p><strong>Why does the immediate repaint don't get the correct size?</strong></p>
+
+<h2><a name="82457fb8605149e6a5e1b079971cbf9e"></a>Discussion</h2>
+
+<p>I asked about this problem in the <a href="https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update">wxPython discussion forum</a> and got the following response from Robin Dunn:</p>
+
+<blockquote>Almost all of time using <code>Update</code> is not needed, and sometimes it can be a little detrimental. For example, on OSX there is a pipeline of operations to move display details from all of the running applications to the screen. This is highly optimized and works to keep the screen updated and appearing very smooth and crisp and keeping the applications efficient. When an application does something like drawing to a DC without a paint event, or forcing a paint event at the wrong moment, then that pipeline is interrupted to do that drawing and then has to be restarted again to redo processing what was interrupted before.</blockquote>
+
+<blockquote>So, in other words, in almost all cases using <code>Refresh</code> or <code>RefreshRect</code> when needed, and letting the drawing happen in naturally occurring paint events is usually the best choice. The platforms are already highly optimized for this and have been fine tuned for decades to make it the best it can be.</blockquote>
+
+<p>So it seems like <code>Update</code> is platform dependant and it's best to just don't use it.</p>
+
+<p>My solution for a faster redraw instead became to only draw the part where the cursor is first, and draw everything else a few milliseconds later if there are no additional input events. For example, if a title is edited in the workspace, the table of contents might have to be redrawn as well. But it can wait, since the focus is not on it right now.</p>
+
+<p>As a bonus, I found this wiki page that was quite useful: <a href="https://wiki.wxpython.org/WhenAndHowToCallLayout">WhenAndHowToCallLayout</a>.</p>
 
 <h2><a name="3e79fd9904854dc2bd273d633931b05d"></a>Complete test program</h2>
 

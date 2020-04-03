@@ -419,7 +419,7 @@
 {
 "fragments":[
 {
-"text":"So in practice, nothing is shown on the screen until after the sleep call.",
+"text":"So in practice, nothing is changed on the screen until after the sleep call.",
 "type":"text"
 }
 ],
@@ -475,6 +475,123 @@
 },
 {
 "children":[],
+"id":"82457fb8605149e6a5e1b079971cbf9e",
+"paragraphs":[
+{
+"fragments":[
+{
+"text":"I asked about this problem in the ",
+"type":"text"
+},
+{
+"text":"wxPython discussion forum",
+"type":"link",
+"url":"https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update"
+},
+{
+"text":" and got the following response from Robin Dunn:",
+"type":"text"
+}
+],
+"id":"22c7b352335a49d885b4e75f5dfe12a6",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Almost all of time using ",
+"type":"text"
+},
+{
+"text":"Update",
+"type":"code"
+},
+{
+"text":" is not needed, and sometimes it can be a little detrimental. For example, on OSX there is a pipeline of operations to move display details from all of the running applications to the screen. This is highly optimized and works to keep the screen updated and appearing very smooth and crisp and keeping the applications efficient. When an application does something like drawing to a DC without a paint event, or forcing a paint event at the wrong moment, then that pipeline is interrupted to do that drawing and then has to be restarted again to redo processing what was interrupted before.",
+"type":"text"
+}
+],
+"id":"b7f8424995d14fad994750a5d9548ebe",
+"type":"quote"
+},
+{
+"fragments":[
+{
+"text":"So, in other words, in almost all cases using ",
+"type":"text"
+},
+{
+"text":"Refresh",
+"type":"code"
+},
+{
+"text":" or ",
+"type":"text"
+},
+{
+"text":"RefreshRect",
+"type":"code"
+},
+{
+"text":" when needed, and letting the drawing happen in naturally occurring paint events is usually the best choice. The platforms are already highly optimized for this and have been fine tuned for decades to make it the best it can be.",
+"type":"text"
+}
+],
+"id":"924f9ca3967946db829d47a6d1af8ee1",
+"type":"quote"
+},
+{
+"fragments":[
+{
+"text":"So it seems like ",
+"type":"text"
+},
+{
+"text":"Update",
+"type":"code"
+},
+{
+"text":" is platform dependant and it's best to just don't use it.",
+"type":"text"
+}
+],
+"id":"1d375f8d98604e4e900b1fcbb7d32c4b",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"My solution for a faster redraw instead became to only draw the part where the cursor is first, and draw everything else a few milliseconds later if there are no additional input events. For example, if a title is edited in the workspace, the table of contents might have to be redrawn as well. But it can wait, since the focus is not on it right now.",
+"type":"text"
+}
+],
+"id":"1d44454a4c854e3fb361ab4813853023",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"As a bonus, I found this wiki page that was quite useful: ",
+"type":"text"
+},
+{
+"text":"WhenAndHowToCallLayout",
+"type":"link",
+"url":"https://wiki.wxpython.org/WhenAndHowToCallLayout"
+},
+{
+"text":".",
+"type":"text"
+}
+],
+"id":"c0455e35831447d2a595f5286ecb8b65",
+"type":"text"
+}
+],
+"title":"Discussion"
+},
+{
+"children":[],
 "id":"3e79fd9904854dc2bd273d633931b05d",
 "paragraphs":[
 {
@@ -491,57 +608,53 @@
 {
 "fragments":[
 {
-"text":"I have a problem updating a widget immediately with ",
+"text":"When working on ",
 "type":"text"
 },
 {
-"text":"Layout",
-"type":"code"
+"text":"RLiterate",
+"type":"link",
+"url":"/projects/rliterate/index.html"
 },
 {
-"text":" and ",
+"text":" I wanted to speed up drawing to make characters appear faster on the screen after a key press. The ",
 "type":"text"
 },
 {
 "text":"Update",
-"type":"code"
+"type":"link",
+"url":"https://docs.wxpython.org/wx.Window.html#wx.Window.Update"
 },
 {
-"text":". I present a test program that demonstrates the problem.",
+"text":" method seemed to be what I wanted:",
+"type":"text"
+}
+],
+"id":"e953e0cadec14353a11154dc93ee3105",
+"type":"text"
+},
+{
+"fragments":[
+{
+"text":"Calling this method immediately repaints the invalidated area of the window and all of its children recursively (this normally only happens when the flow of control returns to the event loop).",
+"type":"text"
+}
+],
+"id":"e72e4717edbc4221ab03965d05b8bc3b",
+"type":"quote"
+},
+{
+"fragments":[
+{
+"text":"However, using it turned out to be problematic. In this post I present a test program that demonstrates the problem and then discuss a solution.",
 "type":"text"
 }
 ],
 "id":"9e24fdd9e58e41e384dd7875b2713b8a",
 "type":"text"
-},
-{
-"fragments":[
-{
-"text":"https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update",
-"type":"link",
-"url":"https://discuss.wxpython.org/t/problem-updating-widget-immediately-with-layout-and-update"
 }
 ],
-"id":"49b6e4cfe1f54c5880915cbcd6cc25f1",
-"type":"text"
-},
-{
-"fragments":[
-{
-"text":"https://wiki.wxpython.org/WhenAndHowToCallLayout",
-"type":"link",
-"url":"https://wiki.wxpython.org/WhenAndHowToCallLayout"
-},
-{
-"text":".",
-"type":"text"
-}
-],
-"id":"c0455e35831447d2a595f5286ecb8b65",
-"type":"text"
-}
-],
-"title":"Test Layout"
+"title":"Layout/Update problem in wxPython"
 },
 "variables":{}
 }
