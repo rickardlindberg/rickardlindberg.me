@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The compiler is implemented by transforming the source code in different passes.",
+"text":"The compiler is implemented by transforming an expression in different passes.",
 "type":"text"
 }
 ],
@@ -20,12 +20,22 @@
 "filepath":[],
 "fragments":[
 {
-"text":"Parser -> Abstract codegen -> x86 codegen -> GAS\n                                          -> Binary\n",
+"text":"Parser -> Abstract codegen -> X86 codegen -> GAS\n                                          -> Binary\n",
 "type":"code"
 }
 ],
 "id":"04eb62473bde4c928921c46e23d1c6b2",
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The parser turns an expression into an AST, which the abstract code generator turns it into instructions for an imaginary stack machine, which the X86 code generator turns into assembly instructions for the x86 architecture. The final pass either turns those instructions into textual assembly instructions suitable for compilation with the GNU assembler or straight into binary.",
+"type":"text"
+}
+],
+"id":"aa78dbbb120b4794a0c0078643b67291",
+"type":"text"
 },
 {
 "fragments":[
@@ -48,7 +58,7 @@
 "url":"http://rickardlindberg.me/writing/alan-kay-notes/m2009011_chns_mng.pdf"
 },
 {
-"text":") where a compiler is explained by explaining all passes in it.",
+"text":") where a compiler is explained by explaining all passes in it. Examples are shown throughout what the input and output of the different stages are.",
 "type":"text"
 }
 ],
@@ -65,7 +75,7 @@
 {
 "fragments":[
 {
-"text":"The parser is the same as from the previous article. It turns a subset of mathematical expression into an AST:",
+"text":"The parser is the same as in the previous article. It turns a mathematical expression into an AST:",
 "type":"text"
 }
 ],
@@ -242,6 +252,16 @@
 "language":"",
 "post_process":[],
 "type":"code"
+},
+{
+"fragments":[
+{
+"text":"The right hand side of an expression is calculated before the left hand side. This order does not matter, but it turns out that it's a bit easier to generate x86 instructions if the right hand side comes first.",
+"type":"text"
+}
+],
+"id":"2198a52b068e478ba24304ea0a445b93",
+"type":"text"
 },
 {
 "chunkpath":[],
@@ -1009,7 +1029,7 @@
 {
 "fragments":[
 {
-"text":"Here is all source code needed to turn expressions into x86 machine code. Code to run this code is dependent on situation, so it is not included here.",
+"text":"Here is all source code needed to turn expressions into x86 machine code. Code to run machine code is dependent on situation, so it is not included here.",
 "type":"text"
 }
 ],
@@ -1352,7 +1372,7 @@
 "url":"/writing/rlmeta-left-associativity/index.html"
 },
 {
-"text":" we looked at how to parse a subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code.",
+"text":" we looked at how to parse a subset of mathematical expressions. In this article we will take it further and compile such expressions to x86 machine code. Thus creating a real compiler for expressions.",
 "type":"text"
 }
 ],
