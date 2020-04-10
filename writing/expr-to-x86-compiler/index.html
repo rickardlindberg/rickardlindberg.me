@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: Compiling expressions to x86 machine code</h1>
 
-<p><em>Published on 2020-04-04.</em></p>
+<p><em>Published on 2020-04-10.</em></p>
 
 <strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong>
 
@@ -98,17 +98,17 @@
 
 </ul><h2><a name="969c195716e94c05ad23bd50f7dc061a"></a>Overview</h2>
 
-<p>The compiler is implemented by transforming an expression in different passes.</p>
+<p>The compiler is implemented by transforming an expression in different stages.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>P</span><span class>a</span><span class>r</span><span class>s</span><span class>e</span><span class>r</span><span class> </span><span class>-</span><span class>&gt;</span><span class> </span><span class>A</span><span class>b</span><span class>s</span><span class>t</span><span class>r</span><span class>a</span><span class>c</span><span class>t</span><span class> </span><span class>c</span><span class>o</span><span class>d</span><span class>e</span><span class>g</span><span class>e</span><span class>n</span><span class> </span><span class>-</span><span class>&gt;</span><span class> </span><span class>X</span><span class>8</span><span class>6</span><span class> </span><span class>c</span><span class>o</span><span class>d</span><span class>e</span><span class>g</span><span class>e</span><span class>n</span><span class> </span><span class>-</span><span class>&gt;</span><span class> </span><span class>G</span><span class>A</span><span class>S</span><span class>
-</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class>-</span><span class>&gt;</span><span class> </span><span class>B</span><span class>i</span><span class>n</span><span class>a</span><span class>r</span><span class>y</span><span class>
+</span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class> </span><span class>-</span><span class>&gt;</span><span class> </span><span class>A</span><span class>s</span><span class>s</span><span class>e</span><span class>m</span><span class>b</span><span class>l</span><span class>e</span><span class>r</span><span class>
 </span></pre></div>
 
 </div>
 
-<p>The parser turns an expression into an AST, which the abstract code generator turns it into instructions for an imaginary stack machine, which the X86 code generator turns into assembly instructions for the x86 architecture. The final pass either turns those instructions into textual assembly instructions suitable for compilation with the GNU assembler or straight into binary.</p>
+<p>The parser turns an expression into an AST, which the abstract code generator turns it into instructions for an imaginary stack machine, which the X86 code generator turns into assembly instructions for the x86 architecture. The final stage either turns those instructions into textual assembly instructions suitable for compilation with the GNU assembler (GAS) or assembles them straight into machine code.</p>
 
-<p>The style of this article is inspired by <a href="http://www.vpri.org/pdf/m2009011_chns_mng.pdf">Chains of meaning in the STEPS system</a> (<a href="http://rickardlindberg.me/writing/alan-kay-notes/m2009011_chns_mng.pdf">mirror</a>) where a compiler is explained by explaining all passes in it. Examples are shown throughout what the input and output of the different stages are.</p>
+<p>The style of this article is inspired by <a href="http://www.vpri.org/pdf/m2009011_chns_mng.pdf">Chains of meaning in the STEPS system</a> (<a href="http://rickardlindberg.me/writing/alan-kay-notes/m2009011_chns_mng.pdf">mirror</a>) where a compiler is explained by explaining all stages in it. Examples are shown throughout what the input and output of the different stages are.</p>
 
 <h2><a name="a83adf407dbd43929bfbb4ab7f7311e5"></a>Parser</h2>
 
@@ -217,7 +217,7 @@
 
 <h2><a name="0488143f851349bf876169b04770e6bf"></a>Abstract code generator</h2>
 
-<p>The abstract code generator converts an AST into instructions for an imaginary stack machine:</p>
+<p>The abstract code generator turns an AST into instructions for an imaginary stack machine:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>abstractcodegen.rlmeta</li></ol>
 
@@ -232,7 +232,7 @@
 
 </div>
 
-<p>The right hand side of an expression is calculated before the left hand side. This order does not matter, but it turns out that it's a bit easier to generate x86 instructions if the right hand side comes first.</p>
+<p>The right hand side of an expression is generated before the left hand side. This order does not matter, but it turns out that it's a bit easier to generate x86 instructions if the right hand side comes first.</p>
 
 <div class="rliterate-code"><div class="rliterate-code-body"><pre><span class>3</span><span class>
 </span></pre></div>
@@ -279,7 +279,7 @@
 
 <h2><a name="bb76bbbba48d4c23b982e5c90af36d86"></a>X86 code generator</h2>
 
-<p>The X86 code generator converts instructions for the imaginary stack machine into assembly instructions for the x86 architecture.</p>
+<p>The X86 code generator turns instructions for the imaginary stack machine into assembly instructions for the x86 architecture.</p>
 
 <p>An assembly instruction is represented as a list with its mnemonic and operands:</p>
 
@@ -297,6 +297,16 @@
 
 <p>An operand can be either a constant, a register, or a memory location.</p>
 
+<ul><li><code>rdi</code> is the stack pointer where the stack grows downwards (64-bit integer)</li>
+
+<li><code>eax</code> is a TOS (top of stack) register (32-bit signed integer)</li>
+
+<li>We are generating a function according to x64 calling conventions.</li>
+
+</ul>
+
+<p><strong>TODO: explain what registers and so on that we use</strong></p>
+
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>x86codegen.rlmeta</li></ol>
 
 </div>
@@ -308,14 +318,6 @@
 </span></pre></div>
 
 </div>
-
-<ul><li><code>rdi</code> is the stack pointer where the stack grows downwards (64-bit integer)</li>
-
-<li><code>eax</code> is a TOS (top of stack) register (32-bit signed integer)</li>
-
-<li>We are generating a function according to x64 calling conventions.</li>
-
-</ul>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>x86codegen.rlmeta</li><li><span class="cp">instructions</span>
 
@@ -502,7 +504,7 @@
 
 <h2><a name="12e4e39c6b494b30a425f4570e8b8d53"></a>GAS generator</h2>
 
-<p>The GAS generator converts assembly instructions into a file suitable for compilation with the GNU assembler: <code>gcc -nostdlib file.s</code>:</p>
+<p>The GAS generator turns assembly instructions into textual assembly instructions suitable for compilation with the GNU assembler: <code>gcc -nostdlib file.s</code>:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>gas.rlmeta</li></ol>
 
@@ -694,7 +696,7 @@
 
 <h2><a name="d3ece5a4ba484033ac47d9190e513acd"></a>Assembler</h2>
 
-<p>The assembler converts assembly instructions into machine code:</p>
+<p>The assembler turns assembly instructions into machine code:</p>
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>assembler.rlmeta</li></ol>
 
