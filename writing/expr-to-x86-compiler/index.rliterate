@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The compiler is implemented by transforming an expression in different passes.",
+"text":"The compiler is implemented by transforming an expression in different stages.",
 "type":"text"
 }
 ],
@@ -20,7 +20,7 @@
 "filepath":[],
 "fragments":[
 {
-"text":"Parser -> Abstract codegen -> X86 codegen -> GAS\n                                          -> Binary\n",
+"text":"Parser -> Abstract codegen -> X86 codegen -> GAS\n                                          -> Assembler\n",
 "type":"code"
 }
 ],
@@ -30,7 +30,7 @@
 {
 "fragments":[
 {
-"text":"The parser turns an expression into an AST, which the abstract code generator turns it into instructions for an imaginary stack machine, which the X86 code generator turns into assembly instructions for the x86 architecture. The final pass either turns those instructions into textual assembly instructions suitable for compilation with the GNU assembler or straight into binary.",
+"text":"The parser turns an expression into an AST, which the abstract code generator turns it into instructions for an imaginary stack machine, which the X86 code generator turns into assembly instructions for the x86 architecture. The final stage either turns those instructions into textual assembly instructions suitable for compilation with the GNU assembler (GAS) or assembles them straight into machine code.",
 "type":"text"
 }
 ],
@@ -58,7 +58,7 @@
 "url":"http://rickardlindberg.me/writing/alan-kay-notes/m2009011_chns_mng.pdf"
 },
 {
-"text":") where a compiler is explained by explaining all passes in it. Examples are shown throughout what the input and output of the different stages are.",
+"text":") where a compiler is explained by explaining all stages in it. Examples are shown throughout what the input and output of the different stages are.",
 "type":"text"
 }
 ],
@@ -230,7 +230,7 @@
 {
 "fragments":[
 {
-"text":"The abstract code generator converts an AST into instructions for an imaginary stack machine:",
+"text":"The abstract code generator turns an AST into instructions for an imaginary stack machine:",
 "type":"text"
 }
 ],
@@ -256,7 +256,7 @@
 {
 "fragments":[
 {
-"text":"The right hand side of an expression is calculated before the left hand side. This order does not matter, but it turns out that it's a bit easier to generate x86 instructions if the right hand side comes first.",
+"text":"The right hand side of an expression is generated before the left hand side. This order does not matter, but it turns out that it's a bit easier to generate x86 instructions if the right hand side comes first.",
 "type":"text"
 }
 ],
@@ -319,7 +319,7 @@
 {
 "fragments":[
 {
-"text":"The X86 code generator converts instructions for the imaginary stack machine into assembly instructions for the x86 architecture.",
+"text":"The X86 code generator turns instructions for the imaginary stack machine into assembly instructions for the x86 architecture.",
 "type":"text"
 }
 ],
@@ -397,34 +397,6 @@
 "type":"text"
 },
 {
-"chunkpath":[],
-"filepath":[
-"x86codegen.rlmeta"
-],
-"fragments":[
-{
-"text":"X86CodeGen {\n  expr = [%*:xs] -> [~~xs [\"ret\"]]\n",
-"type":"code"
-},
-{
-"blank_lines_before":0,
-"path":[
-"instructions"
-],
-"prefix":"  ",
-"type":"chunk"
-},
-{
-"text":"}\n",
-"type":"code"
-}
-],
-"id":"82c7f0b301fe414daed3ccf01f1a3004",
-"language":"",
-"post_process":[],
-"type":"code"
-},
-{
 "child_type":"unordered",
 "children":[
 {
@@ -468,6 +440,44 @@
 ],
 "id":"b92e18b1c525415e9dc01876f3051269",
 "type":"list"
+},
+{
+"fragments":[
+{
+"text":"TODO: explain what registers and so on that we use",
+"type":"strong"
+}
+],
+"id":"82dfcd56147d44138f0633aacf05ddc9",
+"type":"text"
+},
+{
+"chunkpath":[],
+"filepath":[
+"x86codegen.rlmeta"
+],
+"fragments":[
+{
+"text":"X86CodeGen {\n  expr = [%*:xs] -> [~~xs [\"ret\"]]\n",
+"type":"code"
+},
+{
+"blank_lines_before":0,
+"path":[
+"instructions"
+],
+"prefix":"  ",
+"type":"chunk"
+},
+{
+"text":"}\n",
+"type":"code"
+}
+],
+"id":"82c7f0b301fe414daed3ccf01f1a3004",
+"language":"",
+"post_process":[],
+"type":"code"
 },
 {
 "chunkpath":[
@@ -635,7 +645,7 @@
 {
 "fragments":[
 {
-"text":"The GAS generator converts assembly instructions into a file suitable for compilation with the GNU assembler: ",
+"text":"The GAS generator turns assembly instructions into textual assembly instructions suitable for compilation with the GNU assembler: ",
 "type":"text"
 },
 {
@@ -746,7 +756,7 @@
 {
 "fragments":[
 {
-"text":"The assembler converts assembly instructions into machine code:",
+"text":"The assembler turns assembly instructions into machine code:",
 "type":"text"
 }
 ],
