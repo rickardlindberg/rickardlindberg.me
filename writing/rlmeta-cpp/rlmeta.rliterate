@@ -8,7 +8,7 @@
 {
 "fragments":[
 {
-"text":"The first thing I think about is how to represent the data that RLMeta needs. In particular I think about how to store the mapping between rule names and their location in the program. The map in the standard library looks like a dict in Python. But there is also something about an allocation strategy. I need to learn more about how memory is handled in C++.",
+"text":"The first thing I think about is how to represent the data that RLMeta needs. In particular I think about how to store the mapping between rule names and their location in the program. The map in the C++ standard library looks like a dict in Python. But there is also something about an allocation strategy. I need to learn more about how memory is handled in C++.",
 "type":"text"
 }
 ],
@@ -70,7 +70,7 @@
 {
 "fragments":[
 {
-"text":"I go back to the map and make a small example to learn more:",
+"text":"I go back to the map and make a small example to learn how to use it:",
 "type":"text"
 }
 ],
@@ -180,7 +180,7 @@
 {
 "fragments":[
 {
-"text":"Needed virtual destructor to make proper destruction using smart pointer.",
+"text":"Since C++ containers can not store objects of arbitrary type, I introduce a base class. I also experiment with smart pointers. I find out that a virtual destructor is needed to make proper destruction. That really confused me.",
 "type":"text"
 }
 ],
@@ -206,13 +206,35 @@
 "type":"text"
 },
 {
+"chunkpath":[],
+"filepath":[],
 "fragments":[
 {
-"text":"Smart pointers.",
+"text":"#include <iostream>\n#include <list>\n#include <memory>\n\nclass RLMetaObject {\n    virtual bool matches(const RLMetaObject &other) {\n        return false;\n    }\n};\n\nclass RLMetaInteger : public RLMetaObject {\n    private:\n        int value;\n    public:\n        RLMetaInteger(int value) : value(value) {\n        }\n        bool matches(const RLMetaObject &other) {\n            try {\n                const RLMetaInteger &otherInt = dynamic_cast<const RLMetaInteger&>(other);\n                return otherInt.value == value;\n            } catch (std::bad_cast) {}\n            return false;\n        }\n};\n\nint main() {\n    RLMetaObject obj;\n    RLMetaInteger int5(5);\n    RLMetaInteger int6(6);\n    std::cout << \"Integer(5) matches Object?     \" << int5.matches(obj)  << \"\\n\";\n    std::cout << \"Integer(5) matches Integer(6)? \" << int5.matches(int6)  << \"\\n\";\n    std::cout << \"Integer(6) matches Integer(6)? \" << int6.matches(int6)  << \"\\n\";\n    return 0;\n}\n",
+"type":"code"
+}
+],
+"id":"f0210e46ff6c43639a1c2c782e45650c",
+"language":"cpp",
+"post_process":[
+"bash",
+"runcpp.sh"
+],
+"type":"code"
+},
+{
+"code_id":"f0210e46ff6c43639a1c2c782e45650c",
+"id":"c10bacd9e2d241e098737224c4b4bf1f",
+"type":"expanded_code"
+},
+{
+"fragments":[
+{
+"text":"For this to work, there has to be some virtual member in the base class.",
 "type":"text"
 }
 ],
-"id":"c1335d75aafc4b8888474cf5ffe08dad",
+"id":"e3cfddc8e7644a6c9ffe30b9c608305b",
 "type":"text"
 }
 ],
@@ -245,7 +267,7 @@
 {
 "fragments":[
 {
-"text":"In this article I will port RLMeta to C++. The main reason for doing it is to learn C++. I have the impression that C++ is a large and complex language, but I think I should be able to grasp the basics pretty quickly because I know C quite well and am also familiar with object oriented programming. This article will describe my learning journey as well as the port. Another reason for doing the port is to see how RLMeta looks like when C++ is the target language. Will it fit well? Will performance increase?",
+"text":"In this article I will port RLMeta to C++. The main reason for doing it is to learn C++. I have the impression that C++ is a large and complex language, but I think I should be able to grasp the basics pretty quickly because I know C quite well and I am also familiar with object oriented programming. This article will describe my learning journey as well as the port. Another reason for doing the port is to see how RLMeta looks like when C++ is the target language. Will it fit well? Will performance increase?",
 "type":"text"
 }
 ],
