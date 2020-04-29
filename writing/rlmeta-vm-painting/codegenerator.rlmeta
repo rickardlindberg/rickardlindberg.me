@@ -1,0 +1,73 @@
+CodeGenerator {
+  ast            = [%:x]           -> x
+  py             = .:x             -> repr(x)
+  Grammar        = .:x ast*:ys     -> { "class " x "(_Grammar):\n\n" >
+                                          "def __init__(self):\n" >
+                                            "self._instructions = i = []\n"
+                                            "self._labels = l = {}\n"
+                                            "def I(name, x=None, y=None):\n" >
+                                              "i.append((name, x, y))\n"
+                                            <
+                                            "def LABEL(name):\n" >
+                                              "l[name] = len(i)\n"
+                                            <
+                                            ys
+                                          <
+                                        <                                    }
+  Rule           = py:x ast:y      -> { "LABEL(" x ")\n"
+                                        y
+                                        "I('RETURN')\n"                      }
+  Or             =
+    | ast:x Or:y #:a #:b           -> { "I('BACKTRACK', " a ")\n"
+                                        x
+                                        "I('COMMIT', " b ")\n"
+                                        "LABEL(" a ")\n"
+                                        y
+                                        "LABEL(" b ")\n"                     }
+    | ast
+  Scope          = ast:x           -> { "I('PUSH_SCOPE')\n"
+                                        x
+                                        "I('POP_SCOPE')\n"                   }
+  And            = ast*
+  Bind           = py:x ast:y      -> { y
+                                        "I('BIND', " x ")\n"                 }
+  Star           = ast:x #:a #:b   -> { "I('LIST_START')\n"
+                                        "LABEL(" a ")\n"
+                                        "I('BACKTRACK', " b ")\n"
+                                        x
+                                        "I('LIST_APPEND')\n"
+                                        "I('COMMIT', " a ")\n"
+                                        "LABEL(" b ")\n"
+                                        "I('LIST_END')\n"                    }
+  Not            = ast:x #:a #:b   -> { "I('BACKTRACK', " b ")\n"
+                                        x
+                                        "I('COMMIT', " a ")\n"
+                                        "LABEL(" a ")\n"
+                                        "I('FAIL', 'no match expected')\n"
+                                        "LABEL(" b ")\n"                     }
+  MatchCallRule  =                 -> { "I('MATCH_CALL_RULE')\n"             }
+  Label          =                 -> { "I('LABEL')\n"                       }
+  SemanticAction = ast:x           -> { "I('ACTION', lambda scope: " x ")\n" }
+  String         = py
+  List           = astList
+  Format         = astItems:x      -> { "join([" x "])"                      }
+  Indent         = ast:x           -> { "indent(" x ")"                      }
+  FnCall         = .:x astItems:y  -> { x "(" y ")"                          }
+  VarLookup      = py:x            -> { "scope[" x "].eval()"                }
+  astItems       =
+    | ast:x astItem*:xs            -> { x xs                                 }
+    |                              -> {                                      }
+  astItem        = ast:x           -> { ", " x                               }
+  astList        = astListItem*:xs -> { "(" xs "[])"                         }
+  astListItem    =
+    | ["ListItemSplice" ast:x]     -> {     x  "+"                           }
+    | ast:x                        -> { "[" x "]+"                           }
+  MatchRule      = py:x            -> { "I('CALL', " x ")\n"                 }
+  MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
+  MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"         }
+  MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"        }
+  MatchAny       =                 -> { "I('MATCH_ANY')\n"                   }
+  MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
+                                        x
+                                        "I('POP_STREAM')\n"                  }
+}
