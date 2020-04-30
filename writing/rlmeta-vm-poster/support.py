@@ -1,4 +1,4 @@
-def rlmeta_vm(instructions, labels, start_rule, stream):
+def _vm(instructions, labels, start_rule, stream):
     label_counter = 0
     last_action = _ConstantSemanticAction(None)
     pc = labels[start_rule]
@@ -156,7 +156,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
             fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream
             while len(fail_pos) > 1:
                 fail_stream = fail_stream[fail_pos.pop(0)]
-            raise _MatchError(latest_fail_message, fail_pos[0], fail_stream)
+            raise MatchError(latest_fail_message, fail_pos[0], fail_stream)
         (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -168,7 +168,7 @@ def rlmeta_vm(instructions, labels, start_rule, stream):
 class _Grammar(object):
 
     def run(self, rule_name, stream):
-        return rlmeta_vm(self._instructions, self._labels, rule_name, stream)
+        return _vm(self._instructions, self._labels, rule_name, stream)
 
 class _ConstantSemanticAction(object):
 
@@ -187,7 +187,7 @@ class _UserSemanticAction(object):
     def eval(self):
         return self.fn(self.scope)
 
-class _MatchError(Exception):
+class MatchError(Exception):
 
     def __init__(self, message, pos, stream):
         Exception.__init__(self)

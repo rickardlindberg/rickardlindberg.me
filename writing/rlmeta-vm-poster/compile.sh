@@ -38,13 +38,13 @@ if __name__ == "__main__":
                     [Parser().run("grammar", sys.stdin.read())]
                 )
             )
-        except _MatchError as e:
-            MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
+        except MatchError as e:
+            MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"
             if isinstance(e.stream, basestring):
                 stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]
             else:
                 stream_string = pprint.pformat(e.stream)
-            sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
+            sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(
               e.message,
               e.pos,
               indent(stream_string)
