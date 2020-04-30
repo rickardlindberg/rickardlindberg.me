@@ -1,6 +1,6 @@
-def _vm(instructions, labels, start_rule, stream):
+def vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    last_action = _ConstantSemanticAction(None)
+    last_action = ConstantSemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
@@ -37,7 +37,7 @@ def _vm(instructions, labels, start_rule, stream):
                     break
                 pos += 1
             else:
-                last_action = _ConstantSemanticAction(arg1)
+                last_action = ConstantSemanticAction(arg1)
                 pc += 1
                 continue
         elif name == "COMMIT":
@@ -63,14 +63,14 @@ def _vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = _UserSemanticAction(arg1, scope)
+            last_action = FnSemanticAction(arg1, scope)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
             if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
                 fail_message = ("expected range {!r}-{!r}", arg1, arg2)
             else:
-                last_action = _ConstantSemanticAction(stream[pos])
+                last_action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -80,7 +80,7 @@ def _vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = _UserSemanticAction(lambda xs: [x.eval() for x in xs], scope)
+            last_action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)
             scope = scope_stack.pop()
             pc += 1
             continue
@@ -88,7 +88,7 @@ def _vm(instructions, labels, start_rule, stream):
             if pos >= len(stream):
                 fail_message = ("expected any",)
             else:
-                last_action = _ConstantSemanticAction(stream[pos])
+                last_action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -128,7 +128,7 @@ def _vm(instructions, labels, start_rule, stream):
         elif name == "FAIL":
             fail_message = (arg1,)
         elif name == "LABEL":
-            last_action = _ConstantSemanticAction(label_counter)
+            last_action = ConstantSemanticAction(label_counter)
             label_counter += 1
             pc += 1
             continue
@@ -136,7 +136,7 @@ def _vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or stream[pos] != arg1:
                 fail_message = ("expected {!r}", arg1)
             else:
-                last_action = _ConstantSemanticAction(arg1)
+                last_action = ConstantSemanticAction(arg1)
                 pos += 1
                 pc += 1
                 continue
@@ -165,12 +165,12 @@ def _vm(instructions, labels, start_rule, stream):
             scope = scope_stack[scope_stack_len]
         scope_stack = scope_stack[:scope_stack_len]
 
-class _Grammar(object):
+class Grammar(object):
 
     def run(self, rule_name, stream):
-        return _vm(self._instructions, self._labels, rule_name, stream)
+        return vm(self._instructions, self._labels, rule_name, stream)
 
-class _ConstantSemanticAction(object):
+class ConstantSemanticAction(object):
 
     def __init__(self, value):
         self.value = value
@@ -178,7 +178,7 @@ class _ConstantSemanticAction(object):
     def eval(self):
         return self.value
 
-class _UserSemanticAction(object):
+class FnSemanticAction(object):
 
     def __init__(self, fn, scope):
         self.fn = fn
@@ -202,4 +202,4 @@ def join(items):
     )
 
 def indent(text):
-    return join(join(["    ", x]) for x in text.splitlines(True))
+    return join(join(["    ", line]) for line in text.splitlines(True))

@@ -39,13 +39,13 @@ Parser {
   formatExpr =
     | space '>' formatExpr*:xs space '<'       -> ["Indent" ["Format" ~xs]]
     | hostExpr
-  string    = '"'  (!'"'  innerChar)*:xs '"'   -> join(xs)
-  charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> join(xs)
+  string    = '"'  (!'"'  innerChar)*:xs '"'   -> { xs }
+  charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> { xs }
   char      = '\''  !'\'' innerChar  :x  '\''  -> x
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
-  name      = space nameStart:x nameChar*:xs   -> join([x ~xs])
+  name      = space nameStart:x nameChar*:xs   -> { x xs }
   nameStart = 'a'-'z' | 'A'-'Z'
   nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
   space     = (' ' | '\n')*
