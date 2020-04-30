@@ -191,40 +191,9 @@ class _MatchError(Exception):
 
     def __init__(self, message, pos, stream):
         Exception.__init__(self)
-        self.message = message
+        self.message = message[0].format(*message[1:])
         self.pos = pos
         self.stream = stream
-
-    def describe(self):
-        message = ""
-        if isinstance(self.stream, basestring):
-            before = self.stream[:self.pos].splitlines()
-            after = self.stream[self.pos:].splitlines()
-            for context_before in before[-4:-1]:
-                message += self._context(context_before)
-            message += self._context(before[-1], after[0])
-            message += self._arrow(len(before[-1]))
-            for context_after in after[1:4]:
-                message += self._context(context_after)
-        else:
-            message += self._context("[")
-            for context_before in self.stream[:self.pos]:
-                message += self._context("  ", repr(context_before), ",")
-            message += self._context("  ", repr(self.stream[self.pos]), ",")
-            message += self._arrow(2)
-            for context_after in self.stream[self.pos+1:]:
-                message += self._context("  ", repr(context_after), ",")
-            message += self._context("]")
-        message += "Error: "
-        message += self.message[0].format(*self.message[1:])
-        message += "\n"
-        return message
-
-    def _context(self, *args):
-        return "> {}\n".format("".join(args))
-
-    def _arrow(self, lenght):
-        return "--{}^\n".format("-"*lenght)
 
 def join(items):
     return "".join(
