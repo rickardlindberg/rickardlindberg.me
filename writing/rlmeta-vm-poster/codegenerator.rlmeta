@@ -2,15 +2,7 @@ CodeGenerator {
   ast            = [%:x]           -> x
   py             = .:x             -> repr(x)
   Grammar        = .:x ast*:ys     -> { "class " x "(Grammar):\n\n" >
-                                          "def __init__(self):\n" >
-                                            "self._instructions = i = []\n"
-                                            "self._labels = l = {}\n"
-                                            "def I(name, x=None, y=None):\n" >
-                                              "i.append((name, x, y))\n"
-                                            <
-                                            "def LABEL(name):\n" >
-                                              "l[name] = len(i)\n"
-                                            <
+                                          "def assemble(self, I, LABEL):\n" >
                                             ys
                                           <
                                         <                                    }

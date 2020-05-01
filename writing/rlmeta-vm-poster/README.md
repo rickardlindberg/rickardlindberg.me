@@ -36,3 +36,9 @@ Getting closer to t-shirt programming.
 Diff:
 
     meld . ../rlmeta-vm
+
+Annoys me:
+
+* Message formatting in exception (should be done at call point)
+* Assembly hard to read (not sure how to improve it)
+* Counter is incremented at match time, not at eval time

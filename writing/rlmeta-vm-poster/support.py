@@ -168,7 +168,14 @@ def vm(instructions, labels, start_rule, stream):
 class Grammar(object):
 
     def run(self, rule_name, stream):
-        return vm(self._instructions, self._labels, rule_name, stream)
+        instructions = []
+        labels = {}
+        def I(name, arg1=None, arg2=None):
+            instructions.append((name, arg1, arg2))
+        def LABEL(name):
+            labels[name] = len(instructions)
+        self.assemble(I, LABEL)
+        return vm(instructions, labels, rule_name, stream)
 
 class ConstantSemanticAction(object):
 
