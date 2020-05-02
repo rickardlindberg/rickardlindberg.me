@@ -16,7 +16,9 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "BACKTRACK":
-            call_backtrack_stack.append((labels[arg1], pos, len(stream_pos_stack), len(scope_stack)))
+            call_backtrack_stack.append((
+                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)
+            ))
             pc += 1
             continue
         elif name == "CALL":
@@ -84,7 +86,9 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)
+            last_action = FnSemanticAction(
+                lambda xs: [x.eval() for x in xs], scope
+            )
             scope = scope_stack.pop()
             pc += 1
             continue
