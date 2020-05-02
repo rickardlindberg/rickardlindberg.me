@@ -176,18 +176,6 @@ def vm(instructions, labels, start_rule, stream):
             scope = scope_stack[scope_stack_len]
         scope_stack = scope_stack[:scope_stack_len]
 
-class Grammar(object):
-
-    def run(self, rule_name, stream):
-        instructions = []
-        labels = {}
-        def I(name, arg1=None, arg2=None):
-            instructions.append((name, arg1, arg2))
-        def LABEL(name):
-            labels[name] = len(instructions)
-        self.assemble(I, LABEL)
-        return vm(instructions, labels, rule_name, stream)
-
 class ConstantSemanticAction(object):
 
     def __init__(self, value):
@@ -212,6 +200,18 @@ class MatchError(Exception):
         self.message = message[0].format(*message[1:])
         self.pos = pos
         self.stream = stream
+
+class Grammar(object):
+
+    def run(self, rule_name, stream):
+        instructions = []
+        labels = {}
+        def I(name, arg1=None, arg2=None):
+            instructions.append((name, arg1, arg2))
+        def LABEL(name):
+            labels[name] = len(instructions)
+        self.assemble(I, LABEL)
+        return vm(instructions, labels, rule_name, stream)
 
 def join(items):
     return "".join(
