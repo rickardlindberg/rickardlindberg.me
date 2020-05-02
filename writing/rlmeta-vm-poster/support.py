@@ -1,6 +1,6 @@
 def vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    last_action = ConstantSemanticAction(None)
+    action = ConstantSemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
@@ -27,7 +27,7 @@ def vm(instructions, labels, start_rule, stream):
                 if memo[key][0] is None:
                     fail_message = memo[key][1]
                 else:
-                    last_action, stream_pos_stack = memo[key]
+                    action, stream_pos_stack = memo[key]
                     stream_pos_stack = stream_pos_stack[:]
                     stream, pos = stream_pos_stack.pop()
                     pc += 1
@@ -43,7 +43,7 @@ def vm(instructions, labels, start_rule, stream):
                     break
                 pos += 1
             else:
-                last_action = ConstantSemanticAction(arg1)
+                action = ConstantSemanticAction(arg1)
                 pc += 1
                 continue
         elif name == "COMMIT":
@@ -56,27 +56,27 @@ def vm(instructions, labels, start_rule, stream):
             continue
         elif name == "RETURN":
             if len(call_backtrack_stack) == 0:
-                return last_action.eval()
+                return action.eval()
             pc, key = call_backtrack_stack.pop()
-            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
+            memo[key] = (action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
-            scope.append(last_action)
+            scope.append(action)
             pc += 1
             continue
         elif name == "BIND":
-            scope[arg1] = last_action
+            scope[arg1] = action
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = FnSemanticAction(arg1, scope)
+            action = FnSemanticAction(arg1, scope)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
             if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
                 fail_message = ("expected range {!r}-{!r}", arg1, arg2)
             else:
-                last_action = ConstantSemanticAction(stream[pos])
+                action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -86,9 +86,7 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = FnSemanticAction(
-                lambda xs: [x.eval() for x in xs], scope
-            )
+            action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)
             scope = scope_stack.pop()
             pc += 1
             continue
@@ -96,7 +94,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream):
                 fail_message = ("expected any",)
             else:
-                last_action = ConstantSemanticAction(stream[pos])
+                action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -127,7 +125,7 @@ def vm(instructions, labels, start_rule, stream):
                     if memo[key][0] is None:
                         fail_message = memo[key][1]
                     else:
-                        last_action, stream_pos_stack = memo[key]
+                        action, stream_pos_stack = memo[key]
                         stream_pos_stack = stream_pos_stack[:]
                         stream, pos = stream_pos_stack.pop()
                         pc += 1
@@ -140,7 +138,7 @@ def vm(instructions, labels, start_rule, stream):
         elif name == "FAIL":
             fail_message = (arg1,)
         elif name == "LABEL":
-            last_action = ConstantSemanticAction(label_counter)
+            action = ConstantSemanticAction(label_counter)
             label_counter += 1
             pc += 1
             continue
@@ -148,7 +146,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or stream[pos] != arg1:
                 fail_message = ("expected {!r}", arg1)
             else:
-                last_action = ConstantSemanticAction(arg1)
+                action = ConstantSemanticAction(arg1)
                 pos += 1
                 pc += 1
                 continue

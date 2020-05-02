@@ -1,11 +1,11 @@
 import sys
 import pprint
 
-SUPPORT = 'def vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    last_action = ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    scope, scope_stack = (None, [])\n    fail_message = None\n    latest_fail_message, latest_fail_pos = (None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == "PUSH_SCOPE":\n            scope_stack.append(scope)\n            scope = {}\n            pc += 1\n            continue\n        elif name == "BACKTRACK":\n            call_backtrack_stack.append((\n                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)\n            ))\n            pc += 1\n            continue\n        elif name == "CALL":\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                if memo[key][0] is None:\n                    fail_message = memo[key][1]\n                else:\n                    last_action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n                    continue\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n                continue\n        elif name == "MATCH_CHARSEQ":\n            for char in arg1:\n                if pos >= len(stream) or stream[pos] != char:\n                    fail_message = ("expected {!r}", char)\n                    break\n                pos += 1\n            else:\n                last_action = ConstantSemanticAction(arg1)\n                pc += 1\n                continue\n        elif name == "COMMIT":\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n            continue\n        elif name == "POP_SCOPE":\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "RETURN":\n            if len(call_backtrack_stack) == 0:\n                return last_action.eval()\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])\n            continue\n        elif name == "LIST_APPEND":\n            scope.append(last_action)\n            pc += 1\n            continue\n        elif name == "BIND":\n            scope[arg1] = last_action\n            pc += 1\n            continue\n        elif name == "ACTION":\n            last_action = FnSemanticAction(arg1, scope)\n            pc += 1\n            continue\n        elif name == "MATCH_RANGE":\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n            else:\n                last_action = ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "LIST_START":\n            scope_stack.append(scope)\n            scope = []\n            pc += 1\n            continue\n        elif name == "LIST_END":\n            last_action = FnSemanticAction(\n                lambda xs: [x.eval() for x in xs], scope\n            )\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_ANY":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                last_action = ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "PUSH_STREAM":\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n            else:\n                stream_pos_stack.append((stream, pos))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n                continue\n        elif name == "POP_STREAM":\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pos += 1\n                pc += 1\n                continue\n        elif name == "MATCH_CALL_RULE":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    if memo[key][0] is None:\n                        fail_message = memo[key][1]\n                    else:\n                        last_action, stream_pos_stack = memo[key]\n                        stream_pos_stack = stream_pos_stack[:]\n                        stream, pos = stream_pos_stack.pop()\n                        pc += 1\n                        continue\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n                    continue\n        elif name == "FAIL":\n            fail_message = (arg1,)\n        elif name == "LABEL":\n            last_action = ConstantSemanticAction(label_counter)\n            label_counter += 1\n            pc += 1\n            continue\n        elif name == "MATCH_STRING":\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n            else:\n                last_action = ConstantSemanticAction(arg1)\n                pos += 1\n                pc += 1\n                continue\n        else:\n            raise Exception("unknown instruction {}".format(name))\n        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n        if fail_pos >= latest_fail_pos:\n            latest_fail_message = fail_message\n            latest_fail_pos = fail_pos\n        call_backtrack_entry = tuple()\n        while call_backtrack_stack:\n            call_backtrack_entry = call_backtrack_stack.pop()\n            if len(call_backtrack_entry) == 4:\n                break\n            else:\n                _, key = call_backtrack_entry\n                memo[key] = (None, fail_message)\n        if len(call_backtrack_entry) != 4:\n            fail_pos = list(latest_fail_pos)\n            fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream\n            while len(fail_pos) > 1:\n                fail_stream = fail_stream[fail_pos.pop(0)]\n            raise MatchError(latest_fail_message, fail_pos[0], fail_stream)\n        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n        if len(stream_pos_stack) > stream_stack_len:\n            stream = stream_pos_stack[stream_stack_len][0]\n        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n        if len(scope_stack) > scope_stack_len:\n            scope = scope_stack[scope_stack_len]\n        scope_stack = scope_stack[:scope_stack_len]\n\nclass ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass FnSemanticAction(object):\n\n    def __init__(self, fn, scope):\n        self.fn = fn\n        self.scope = scope\n\n    def eval(self):\n        return self.fn(self.scope)\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message[0].format(*message[1:])\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def run(self, rule_name, stream):\n        instructions = []\n        labels = {}\n        def I(name, arg1=None, arg2=None):\n            instructions.append((name, arg1, arg2))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        self.assemble(I, LABEL)\n        return vm(instructions, labels, rule_name, stream)\n\ndef join(items):\n    return "".join(\n        join(item) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text):\n    return join(join(["    ", line]) for line in text.splitlines(True))\n'
+SUPPORT = 'def vm(instructions, labels, start_rule, stream):\n    label_counter = 0\n    action = ConstantSemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    scope, scope_stack = (None, [])\n    fail_message = None\n    latest_fail_message, latest_fail_pos = (None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == "PUSH_SCOPE":\n            scope_stack.append(scope)\n            scope = {}\n            pc += 1\n            continue\n        elif name == "BACKTRACK":\n            call_backtrack_stack.append((\n                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)\n            ))\n            pc += 1\n            continue\n        elif name == "CALL":\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                if memo[key][0] is None:\n                    fail_message = memo[key][1]\n                else:\n                    action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n                    continue\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n                continue\n        elif name == "MATCH_CHARSEQ":\n            for char in arg1:\n                if pos >= len(stream) or stream[pos] != char:\n                    fail_message = ("expected {!r}", char)\n                    break\n                pos += 1\n            else:\n                action = ConstantSemanticAction(arg1)\n                pc += 1\n                continue\n        elif name == "COMMIT":\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n            continue\n        elif name == "POP_SCOPE":\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "RETURN":\n            if len(call_backtrack_stack) == 0:\n                return action.eval()\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (action, stream_pos_stack+[(stream, pos)])\n            continue\n        elif name == "LIST_APPEND":\n            scope.append(action)\n            pc += 1\n            continue\n        elif name == "BIND":\n            scope[arg1] = action\n            pc += 1\n            continue\n        elif name == "ACTION":\n            action = FnSemanticAction(arg1, scope)\n            pc += 1\n            continue\n        elif name == "MATCH_RANGE":\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n            else:\n                action = ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "LIST_START":\n            scope_stack.append(scope)\n            scope = []\n            pc += 1\n            continue\n        elif name == "LIST_END":\n            action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_ANY":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                action = ConstantSemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "PUSH_STREAM":\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n            else:\n                stream_pos_stack.append((stream, pos))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n                continue\n        elif name == "POP_STREAM":\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pos += 1\n                pc += 1\n                continue\n        elif name == "MATCH_CALL_RULE":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    if memo[key][0] is None:\n                        fail_message = memo[key][1]\n                    else:\n                        action, stream_pos_stack = memo[key]\n                        stream_pos_stack = stream_pos_stack[:]\n                        stream, pos = stream_pos_stack.pop()\n                        pc += 1\n                        continue\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n                    continue\n        elif name == "FAIL":\n            fail_message = (arg1,)\n        elif name == "LABEL":\n            action = ConstantSemanticAction(label_counter)\n            label_counter += 1\n            pc += 1\n            continue\n        elif name == "MATCH_STRING":\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n            else:\n                action = ConstantSemanticAction(arg1)\n                pos += 1\n                pc += 1\n                continue\n        else:\n            raise Exception("unknown instruction {}".format(name))\n        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n        if fail_pos >= latest_fail_pos:\n            latest_fail_message = fail_message\n            latest_fail_pos = fail_pos\n        call_backtrack_entry = tuple()\n        while call_backtrack_stack:\n            call_backtrack_entry = call_backtrack_stack.pop()\n            if len(call_backtrack_entry) == 4:\n                break\n            else:\n                _, key = call_backtrack_entry\n                memo[key] = (None, fail_message)\n        if len(call_backtrack_entry) != 4:\n            fail_pos = list(latest_fail_pos)\n            fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream\n            while len(fail_pos) > 1:\n                fail_stream = fail_stream[fail_pos.pop(0)]\n            raise MatchError(latest_fail_message, fail_pos[0], fail_stream)\n        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n        if len(stream_pos_stack) > stream_stack_len:\n            stream = stream_pos_stack[stream_stack_len][0]\n        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n        if len(scope_stack) > scope_stack_len:\n            scope = scope_stack[scope_stack_len]\n        scope_stack = scope_stack[:scope_stack_len]\n\nclass ConstantSemanticAction(object):\n\n    def __init__(self, value):\n        self.value = value\n\n    def eval(self):\n        return self.value\n\nclass FnSemanticAction(object):\n\n    def __init__(self, fn, scope):\n        self.fn = fn\n        self.scope = scope\n\n    def eval(self):\n        return self.fn(self.scope)\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message[0].format(*message[1:])\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def run(self, rule_name, stream):\n        instructions = []\n        labels = {}\n        def I(name, arg1=None, arg2=None):\n            instructions.append((name, arg1, arg2))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        self.assemble(I, LABEL)\n        return vm(instructions, labels, rule_name, stream)\n\ndef join(items):\n    return "".join(\n        join(item) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text):\n    return join(join(["    ", line]) for line in text.splitlines(True))\n'
 
 def vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    last_action = ConstantSemanticAction(None)
+    action = ConstantSemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
@@ -32,7 +32,7 @@ def vm(instructions, labels, start_rule, stream):
                 if memo[key][0] is None:
                     fail_message = memo[key][1]
                 else:
-                    last_action, stream_pos_stack = memo[key]
+                    action, stream_pos_stack = memo[key]
                     stream_pos_stack = stream_pos_stack[:]
                     stream, pos = stream_pos_stack.pop()
                     pc += 1
@@ -48,7 +48,7 @@ def vm(instructions, labels, start_rule, stream):
                     break
                 pos += 1
             else:
-                last_action = ConstantSemanticAction(arg1)
+                action = ConstantSemanticAction(arg1)
                 pc += 1
                 continue
         elif name == "COMMIT":
@@ -61,27 +61,27 @@ def vm(instructions, labels, start_rule, stream):
             continue
         elif name == "RETURN":
             if len(call_backtrack_stack) == 0:
-                return last_action.eval()
+                return action.eval()
             pc, key = call_backtrack_stack.pop()
-            memo[key] = (last_action, stream_pos_stack+[(stream, pos)])
+            memo[key] = (action, stream_pos_stack+[(stream, pos)])
             continue
         elif name == "LIST_APPEND":
-            scope.append(last_action)
+            scope.append(action)
             pc += 1
             continue
         elif name == "BIND":
-            scope[arg1] = last_action
+            scope[arg1] = action
             pc += 1
             continue
         elif name == "ACTION":
-            last_action = FnSemanticAction(arg1, scope)
+            action = FnSemanticAction(arg1, scope)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
             if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
                 fail_message = ("expected range {!r}-{!r}", arg1, arg2)
             else:
-                last_action = ConstantSemanticAction(stream[pos])
+                action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -91,9 +91,7 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            last_action = FnSemanticAction(
-                lambda xs: [x.eval() for x in xs], scope
-            )
+            action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)
             scope = scope_stack.pop()
             pc += 1
             continue
@@ -101,7 +99,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream):
                 fail_message = ("expected any",)
             else:
-                last_action = ConstantSemanticAction(stream[pos])
+                action = ConstantSemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -132,7 +130,7 @@ def vm(instructions, labels, start_rule, stream):
                     if memo[key][0] is None:
                         fail_message = memo[key][1]
                     else:
-                        last_action, stream_pos_stack = memo[key]
+                        action, stream_pos_stack = memo[key]
                         stream_pos_stack = stream_pos_stack[:]
                         stream, pos = stream_pos_stack.pop()
                         pc += 1
@@ -145,7 +143,7 @@ def vm(instructions, labels, start_rule, stream):
         elif name == "FAIL":
             fail_message = (arg1,)
         elif name == "LABEL":
-            last_action = ConstantSemanticAction(label_counter)
+            action = ConstantSemanticAction(label_counter)
             label_counter += 1
             pc += 1
             continue
@@ -153,7 +151,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or stream[pos] != arg1:
                 fail_message = ("expected {!r}", arg1)
             else:
-                last_action = ConstantSemanticAction(arg1)
+                action = ConstantSemanticAction(arg1)
                 pos += 1
                 pc += 1
                 continue
