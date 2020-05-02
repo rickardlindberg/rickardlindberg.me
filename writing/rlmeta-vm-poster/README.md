@@ -1,44 +1,52 @@
 Old:
 
-    $ time ./meta_compile.sh 
-    OK
+  rick@x220 | ~/rickardlindberg.me/writing/rlmeta-memoize-failures/vm
+  $ time ./meta_compile.sh 
+  OK
 
-    real	0m0.782s
-    user	0m0.677s
-    sys	0m0.106s
+  real	0m0.732s
+  user	0m0.613s
+  sys	0m0.119s
 
-    rick@x220 | ~/rickardlindberg.me/writing/rlmeta-vm
-    $ wc -l parser.rlmeta codegenerator.rlmeta support.py compile.sh 
-       53 parser.rlmeta
-       74 codegenerator.rlmeta
-      302 support.py
-       45 compile.sh
-      474 total
+  rick@x220 | ~/rickardlindberg.me/writing/rlmeta-memoize-failures/vm
+  $ wc -l parser.rlmeta codegenerator.rlmeta support.py compile.sh 
+     53 parser.rlmeta
+     74 codegenerator.rlmeta
+    313 support.py
+     45 compile.sh
+    485 total
 
 New:
 
-    $ time ./meta_compile.sh 
-    OK
+  rick@x220 | ~/rickardlindberg.me/writing/rlmeta-vm-poster
+  $ time ./meta_compile.sh 
+  OK
 
-    real	0m0.729s
-    user	0m0.633s
-    sys	0m0.096s
+  real	0m0.682s
+  user	0m0.582s
+  sys	0m0.100s
 
-    $ wc -l parser.rlmeta codegenerator.rlmeta support.py compile.sh 
-       52 parser.rlmeta
-       73 codegenerator.rlmeta
-      236 support.py
-       42 compile.sh
-      403 total
+  rick@x220 | ~/rickardlindberg.me/writing/rlmeta-vm-poster
+  $ wc -l parser.rlmeta codegenerator.rlmeta support.py compile.sh 
+     52 parser.rlmeta
+     65 codegenerator.rlmeta
+    223 support.py
+     52 compile.sh
+    392 total
 
 Getting closer to t-shirt programming.
-
-Diff:
-
-    meld . ../rlmeta-vm
 
 Annoys me:
 
 * Message formatting in exception (should be done at call point)
 * Assembly hard to read (not sure how to improve it)
 * Counter is incremented at match time, not at eval time
+
+Diff from memoizing:
+
+    meld ../rlmeta-memoize-failures/vm/ .
+
+    * Assemble function in support
+    * Replace builder with join/indent
+    * Let compile.sh do error reporting (support only gives information)
+    * Compact and modify formatting to better suit poster
