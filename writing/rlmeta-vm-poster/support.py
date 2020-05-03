@@ -165,11 +165,11 @@ def vm(instructions, labels, start_rule, stream):
                 _, key = call_backtrack_entry
                 memo[key] = (None, fail_message)
         if len(call_backtrack_entry) != 4:
-            fail_pos = list(latest_fail_pos)
-            fail_stream = stream_pos_stack[0][0] if stream_pos_stack else stream
-            while len(fail_pos) > 1:
-                fail_stream = fail_stream[fail_pos.pop(0)]
-            raise MatchError(latest_fail_message, fail_pos[0], fail_stream)
+            raise MatchError(
+                latest_fail_message[0].format(*latest_fail_message[1:]),
+                latest_fail_pos,
+                stream_pos_stack[0][0] if stream_pos_stack else stream
+            )
         (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry
         if len(stream_pos_stack) > stream_stack_len:
             stream = stream_pos_stack[stream_stack_len][0]
@@ -191,7 +191,7 @@ class MatchError(Exception):
 
     def __init__(self, message, pos, stream):
         Exception.__init__(self)
-        self.message = message[0].format(*message[1:])
+        self.message = message
         self.pos = pos
         self.stream = stream
 

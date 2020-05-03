@@ -39,14 +39,18 @@ if __name__ == "__main__":
                 )
             )
         except MatchError as e:
+            stream = e.stream
+            for pos in e.pos[:-1]:
+                stream = stream[pos]
+            pos = e.pos[-1]
             MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"
-            if isinstance(e.stream, basestring):
-                stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]
+            if isinstance(stream, basestring):
+                stream_string = stream[:pos] + MARKER + stream[pos:]
             else:
-                stream_string = pprint.pformat(e.stream)
+                stream_string = pprint.pformat(stream)
             sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(
               e.message,
-              e.pos,
+              pos,
               indent(stream_string)
             ))
 EOF
