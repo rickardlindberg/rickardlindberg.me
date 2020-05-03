@@ -1,6 +1,6 @@
 def vm(instructions, labels, start_rule, stream):
     label_counter = 0
-    action = ConstantSemanticAction(None)
+    action = SemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
@@ -43,7 +43,7 @@ def vm(instructions, labels, start_rule, stream):
                     break
                 pos += 1
             else:
-                action = ConstantSemanticAction(arg1)
+                action = SemanticAction(arg1)
                 pc += 1
                 continue
         elif name == "COMMIT":
@@ -69,14 +69,14 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "ACTION":
-            action = FnSemanticAction(arg1, scope)
+            action = SemanticAction(scope, arg1)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
             if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):
                 fail_message = ("expected range {!r}-{!r}", arg1, arg2)
             else:
-                action = ConstantSemanticAction(stream[pos])
+                action = SemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -86,7 +86,7 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "LIST_END":
-            action = FnSemanticAction(lambda xs: [x.eval() for x in xs], scope)
+            action = SemanticAction(scope, lambda xs: [x.eval() for x in xs])
             scope = scope_stack.pop()
             pc += 1
             continue
@@ -94,7 +94,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream):
                 fail_message = ("expected any",)
             else:
-                action = ConstantSemanticAction(stream[pos])
+                action = SemanticAction(stream[pos])
                 pos += 1
                 pc += 1
                 continue
@@ -138,7 +138,7 @@ def vm(instructions, labels, start_rule, stream):
         elif name == "FAIL":
             fail_message = (arg1,)
         elif name == "LABEL":
-            action = ConstantSemanticAction(label_counter)
+            action = SemanticAction(label_counter)
             label_counter += 1
             pc += 1
             continue
@@ -146,7 +146,7 @@ def vm(instructions, labels, start_rule, stream):
             if pos >= len(stream) or stream[pos] != arg1:
                 fail_message = ("expected {!r}", arg1)
             else:
-                action = ConstantSemanticAction(arg1)
+                action = SemanticAction(arg1)
                 pos += 1
                 pc += 1
                 continue
@@ -178,19 +178,11 @@ def vm(instructions, labels, start_rule, stream):
             scope = scope_stack[scope_stack_len]
         scope_stack = scope_stack[:scope_stack_len]
 
-class ConstantSemanticAction(object):
+class SemanticAction(object):
 
-    def __init__(self, value):
-        self.value = value
-
-    def eval(self):
-        return self.value
-
-class FnSemanticAction(object):
-
-    def __init__(self, fn, scope):
-        self.fn = fn
+    def __init__(self, scope, fn=lambda value: value):
         self.scope = scope
+        self.fn = fn
 
     def eval(self):
         return self.fn(self.scope)

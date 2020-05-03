@@ -50,3 +50,4 @@ Diff from memoizing:
     * Replace builder with join/indent
     * Let compile.sh do error reporting (support only gives information)
     * Compact and modify formatting to better suit poster
+    * Only one semantic action class
