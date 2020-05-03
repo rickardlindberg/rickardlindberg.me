@@ -180,12 +180,12 @@ def vm(instructions, labels, start_rule, stream):
 
 class SemanticAction(object):
 
-    def __init__(self, scope, fn=lambda value: value):
-        self.scope = scope
+    def __init__(self, value, fn=lambda value: value):
+        self.value = value
         self.fn = fn
 
     def eval(self):
-        return self.fn(self.scope)
+        return self.fn(self.value)
 
 class MatchError(Exception):
 
