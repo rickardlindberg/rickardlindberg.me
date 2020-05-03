@@ -43,6 +43,7 @@ Annoys me:
 * No test suite for basic correctness (error reporting not tested for example)
 * Can concat/splice be even shorter?
     * Splice into a list?
+* cd/pwd behavior in compile.sh
 
 Diff from memoizing:
 
