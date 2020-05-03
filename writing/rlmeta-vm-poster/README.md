@@ -41,6 +41,7 @@ Annoys me:
 * Message formatting in exception (should be done at call point)
 * Assembly hard to read (not sure how to improve it)
 * Counter is incremented at match time, not at eval time
+* No test suite for basic correctness (error reporting not tested for example)
 
 Diff from memoizing:
 
