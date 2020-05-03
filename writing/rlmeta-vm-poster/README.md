@@ -44,6 +44,7 @@ Annoys me:
 * Can concat/splice be even shorter?
     * Splice into a list?
 * cd/pwd behavior in compile.sh
+* New frequency analysis after instructions change
 
 Diff from memoizing:
 
