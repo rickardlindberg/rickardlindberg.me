@@ -207,6 +207,15 @@ class Grammar(object):
         self.assemble(I, LABEL)
         return vm(instructions, labels, rule_name, stream)
 
+def splice(depth, item):
+    if depth == 0:
+        return [item]
+    else:
+        return concat([splice(depth-1, subitem) for subitem in item])
+
+def concat(lists):
+    return [x for xs in lists for x in xs]
+
 def join(items):
     return "".join(
         join(item) if isinstance(item, list) else str(item)

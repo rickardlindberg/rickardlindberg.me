@@ -47,7 +47,8 @@ CodeGenerator {
                                         x
                                         "I('POP_STREAM')\n"                  }
   String         = py
-  List           = astListItem*:xs -> { "(" xs "[])"                         }
+  List           = astItems:x      -> { "concat([" x "])"                    }
+  ListItem       = py:x ast:y      -> { "splice(" x ", " y ")"               }
   Format         = astItems:x      -> { "join([" x "])"                      }
   Indent         = ast:x           -> { "indent(" x ")"                      }
   FnCall         = .:x astItems:y  -> { x "(" y ")"                          }
@@ -57,8 +58,5 @@ CodeGenerator {
     | ast:x astItem*:xs            -> { x xs                                 }
     |                              -> {                                      }
   astItem        = ast:x           -> { ", " x                               }
-  astListItem    =
-    | ["ListItemSplice" ast:x]     -> {     x  "+"                           }
-    | ast:x                        -> { "[" x "]+"                           }
   py             = .:x             -> repr(x)
 }

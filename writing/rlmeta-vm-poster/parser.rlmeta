@@ -34,8 +34,7 @@ Parser {
     | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
     | name:x                                   -> ["VarLookup" x]
   hostExprListItem =
-    | space '~' hostExpr:x                     -> ["ListItemSplice" x]
-    | hostExpr
+    | space '~'*:ys hostExpr:x                 -> ["ListItem" len(ys) x]
   formatExpr =
     | space '>' formatExpr*:xs space '<'       -> ["Indent" ["Format" ~xs]]
     | hostExpr
