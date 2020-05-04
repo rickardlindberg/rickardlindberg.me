@@ -2,9 +2,7 @@
 
 set -e
 
-rlmeta_compiler="$(pwd)/$1"
-
-cd "$(dirname "$0")"
+rlmeta_compiler="$1"
 
 to_python_string() {
     python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'
