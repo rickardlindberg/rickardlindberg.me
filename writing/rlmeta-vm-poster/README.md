@@ -55,3 +55,5 @@ Diff from memoizing:
     * Let compile.sh do error reporting (support only gives information)
     * Compact and modify formatting to better suit poster
     * Only one semantic action class
+    * charseq -> and + match object
+    * Remove string matching

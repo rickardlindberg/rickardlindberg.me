@@ -40,8 +40,7 @@ CodeGenerator {
   SemanticAction = ast:x           -> { "I('ACTION', lambda scope: " x ")\n" }
   MatchRule      = py:x            -> { "I('CALL', " x ")\n"                 }
   MatchRange     = py:x py:y       -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
-  MatchString    = py:x            -> { "I('MATCH_STRING', " x ")\n"         }
-  MatchCharseq   = py:x            -> { "I('MATCH_CHARSEQ', " x ")\n"        }
+  MatchObject    = py:x            -> { "I('MATCH_OBJECT', " x ")\n"         }
   MatchAny       =                 -> { "I('MATCH_ANY')\n"                   }
   MatchList      = ast:x           -> { "I('PUSH_STREAM')\n"
                                         x

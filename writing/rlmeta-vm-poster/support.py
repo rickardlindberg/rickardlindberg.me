@@ -36,14 +36,12 @@ def vm(instructions, labels, start_rule, stream):
                 call_backtrack_stack.append((pc+1, key))
                 pc = labels[arg1]
                 continue
-        elif name == "MATCH_CHARSEQ":
-            for char in arg1:
-                if pos >= len(stream) or stream[pos] != char:
-                    fail_message = ("expected {!r}", char)
-                    break
-                pos += 1
+        elif name == "MATCH_OBJECT":
+            if pos >= len(stream) or stream[pos] != arg1:
+                fail_message = ("expected {!r}", arg1)
             else:
                 action = SemanticAction(arg1)
+                pos += 1
                 pc += 1
                 continue
         elif name == "COMMIT":
@@ -142,14 +140,6 @@ def vm(instructions, labels, start_rule, stream):
             label_counter += 1
             pc += 1
             continue
-        elif name == "MATCH_STRING":
-            if pos >= len(stream) or stream[pos] != arg1:
-                fail_message = ("expected {!r}", arg1)
-            else:
-                action = SemanticAction(arg1)
-                pos += 1
-                pc += 1
-                continue
         else:
             raise Exception("unknown instruction {}".format(name))
         fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])

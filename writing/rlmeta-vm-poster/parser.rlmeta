@@ -22,8 +22,7 @@ Parser {
     | space '->' hostExpr:x                    -> ["SemanticAction" x]
     | name:x !(space '=')                      -> ["MatchRule" x]
     | space char:x '-' char:y                  -> ["MatchRange" x y]
-    | space string:x                           -> ["MatchString" x]
-    | space charseq:x                          -> ["MatchCharseq" x]
+    | space charseq
     | space '.'                                -> ["MatchAny"]
     | space '(' choice:x space ')'             -> x
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
@@ -38,8 +37,9 @@ Parser {
   formatExpr =
     | space '>' formatExpr*:xs space '<'       -> ["Indent" ["Format" ~xs]]
     | hostExpr
+  charseq   = '\'' (!'\'' matchChar)*:xs '\''  -> ["And" ~xs]
+  matchChar = innerChar:x                      -> ["MatchObject" x]
   string    = '"'  (!'"'  innerChar)*:xs '"'   -> { xs }
-  charseq   = '\'' (!'\'' innerChar)*:xs '\''  -> { xs }
   char      = '\''  !'\'' innerChar  :x  '\''  -> x
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
