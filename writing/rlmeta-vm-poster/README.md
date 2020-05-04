@@ -40,8 +40,6 @@ Annoys me:
 
 * Assembly hard to read (not sure how to improve it)
 * Counter is incremented at match time, not at eval time
-* Can concat/splice be even shorter?
-    * Splice into a list?
 * New frequency analysis after instructions change
 
 Diff from memoizing:
