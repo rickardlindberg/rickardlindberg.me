@@ -1,4 +1,5 @@
 CodeGenerator {
+  ast            = [%:x]           -> x
   Grammar        = .:x ast*:ys     -> { "class " x "(Grammar):\n\n" >
                                           "def assemble(self, I, LABEL):\n" >
                                             ys
@@ -52,7 +53,6 @@ CodeGenerator {
   Indent         = ast:x           -> { "indent(" x ")"                      }
   FnCall         = .:x astItems:y  -> { x "(" y ")"                          }
   VarLookup      = py:x            -> { "scope[" x "].eval()"                }
-  ast            = [%:x]           -> x
   astItems       =
     | ast:x astItem*:xs            -> { x xs                                 }
     |                              -> {                                      }
