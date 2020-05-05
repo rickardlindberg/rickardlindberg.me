@@ -18,6 +18,8 @@ class RLMetaLexer(RegexLexer):
             (r'[~]', Name.Class),
             (r'[!]', Name.Class),
             (r'[*]', Name.Class),
+            (r'[#]', Name.Class),
+            (r'[%]', Name.Class),
             (r'[-]', Name.Class),
             (r'[?]', Name.Class),
             (r'[.]', Name.Class),
