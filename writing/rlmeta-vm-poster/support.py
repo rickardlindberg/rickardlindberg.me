@@ -36,6 +36,10 @@ def vm(instructions, labels, start_rule, stream):
                 call_backtrack_stack.append((pc+1, key))
                 pc = labels[arg1]
                 continue
+        elif name == "POP_SCOPE":
+            scope = scope_stack.pop()
+            pc += 1
+            continue
         elif name == "MATCH_OBJECT":
             if pos >= len(stream) or stream[pos] != arg1:
                 fail_message = ("expected {!r}", arg1)
@@ -47,10 +51,6 @@ def vm(instructions, labels, start_rule, stream):
         elif name == "COMMIT":
             call_backtrack_stack.pop()
             pc = labels[arg1]
-            continue
-        elif name == "POP_SCOPE":
-            scope = scope_stack.pop()
-            pc += 1
             continue
         elif name == "RETURN":
             if len(call_backtrack_stack) == 0:
