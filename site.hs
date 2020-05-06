@@ -120,6 +120,8 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
         process $ contextRelatedPosts isBuildTargetWebserver "rlselect"
     match "projects/rliterate/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "rliterate"
+    match "projects/rlmeta/index.html" $
+        process $ contextRelatedPosts isBuildTargetWebserver "rlmeta"
     where
         process context = do
             route idRoute
