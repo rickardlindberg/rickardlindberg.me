@@ -14,3 +14,6 @@ Diff from memoizing:
     * Only one semantic action class
     * charseq -> and + match object
     * Remove string matching
+
+$ (cat support.py; G='Counter { count = .*:xs -> { "count = " len(xs) } }'; echo "$G" | python rlmeta.py) > g.py && python -c 'from g import *; print(Counter().run("count", "Hello"))'
+count = 5
