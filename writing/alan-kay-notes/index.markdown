@@ -1,7 +1,7 @@
 ---
 title: 'Alan Kay notes'
 date: 2019-09-25
-tags: alankay
+tags: alankay,favourite
 ---
 
 Back in 2012 I watched a talk by Alan Kay called [Programming and

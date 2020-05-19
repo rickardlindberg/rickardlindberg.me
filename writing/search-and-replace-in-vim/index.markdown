@@ -1,7 +1,7 @@
 ---
 title: Search and replace in Vim
 date: 2015-03-28
-tags: vim
+tags: vim,favourite
 ---
 
 *24 September 2017: Fixed broken link to "Vim: Find and replace text across files."*

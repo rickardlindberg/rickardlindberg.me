@@ -1,7 +1,7 @@
 ---
 title: Evolution of recalling Bash history
 date: 2017-05-19
-tags: rlselect
+tags: rlselect,favourite
 ---
 
 This article is about how I've become more efficient at using Bash, the
