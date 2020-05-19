@@ -377,7 +377,7 @@ feedConfiguration text = FeedConfiguration
     { feedTitle       = "Rickard's personal homepage: " ++ text
     , feedDescription = "Rickard's personal homepage: " ++ text
     , feedAuthorName  = "Rickard Lindberg"
-    , feedAuthorEmail = "ricli85@gmail.com"
+    , feedAuthorEmail = "rickard@rickardlindberg.me"
     , feedRoot        = "http://rickardlindberg.me"
     }
 
