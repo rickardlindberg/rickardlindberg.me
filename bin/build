@@ -6,7 +6,7 @@ build_dir=_build
 
 mkdir -p $build_dir
 
-ghc --make site.hs -outputdir $build_dir -o $build_dir/site
+ghc -O2 --make site.hs -outputdir $build_dir -o $build_dir/site
 
 $build_dir/site rebuild
 
