@@ -11,26 +11,28 @@ def main():
     }
     try:
         expr = sys.stdin.read().strip()
+        first = True
         for grammar_name in sys.argv[1:]:
             if grammar_name.startswith("@"):
                 with open(grammar_name[1:], "w") as f:
                     f.write(str(expr))
                 continue
             grammar = grammars[grammar_name]
+            print_expr(expr)
             print_box(grammar.__class__.__name__)
             expr = grammar.run("expr", expr)
-            print_expr(expr)
+        print_expr(expr)
     except _MatchError as e:
         sys.stderr.write(e.describe())
+def print_box(name):
+    print("")
+    print("=V{}==".format(" {} ".format(name).center(28, "=")))
+    print("")
 def print_expr(expr):
     if isinstance(expr, str):
         print(expr.strip())
     else:
         pprint.pprint(expr, width=20)
-def print_box(name):
-    print("")
-    print("=V{}==".format(" {} ".format(name).center(28, "=")))
-    print("")
 class X86Runner(object):
 
     def run(self, name, machine_code):
