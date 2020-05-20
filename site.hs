@@ -31,6 +31,7 @@ rules isBuildTargetWebserver = do
     rulesPageIndexPandocTemplate           isBuildTargetWebserver tags
     rulesPostIndexHtml                     isBuildTargetWebserver
     rulesPostIndexPandoc                   isBuildTargetWebserver
+    rulesPostIndexPandocNewsletter         isBuildTargetWebserver
     rulesPostIndexPandocWithOwnTitle       isBuildTargetWebserver
     rulesPostIndexUpOneUpPandoc            isBuildTargetWebserver
     rulesPostNamePandoc                    isBuildTargetWebserver
@@ -227,6 +228,19 @@ rulesPostIndexPandoc isBuildTargetWebserver = do
     where
         context = contextPost isBuildTargetWebserver
 
+rulesPostIndexPandocNewsletter :: Bool -> Rules ()
+rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
+    match patternPostIndexPandocNewsletter $ do
+        route $ setExtension "html"
+        compile $ myPandocCompiler
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= saveSnapshot "postContentOnly"
+            >>= loadAndApplyTemplate "templates/footer_newsletter.html" context
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextPost isBuildTargetWebserver
+
 rulesPostIndexPandocWithOwnTitle :: Bool -> Rules ()
 rulesPostIndexPandocWithOwnTitle isBuildTargetWebserver = do
     match patternPostIndexPandocWithOwnTitle $ do
@@ -281,6 +295,7 @@ patternAllPosts =
     .||. patternReflectionsOnProgramming
     .||. patternPostIndexHtml
     .||. patternPostIndexPandoc
+    .||. patternPostIndexPandocNewsletter
     .||. patternPostIndexPandocWithOwnTitle
 
 patternNewsletter :: Pattern
@@ -314,7 +329,10 @@ patternPostIndexPandoc =
     .||. "writing/evolution-recalling-bash-history/index.md"
     .||. "writing/new-home-for-timeline/index.markdown"
     .||. "writing/alan-kay-notes/index.markdown"
-    .||. patternNewsletter
+
+patternPostIndexPandocNewsletter :: Pattern
+patternPostIndexPandocNewsletter =
+         patternNewsletter
 
 patternPostIndexPandocWithOwnTitle :: Pattern
 patternPostIndexPandocWithOwnTitle =
