@@ -26,6 +26,7 @@ rules isBuildTargetWebserver = do
     rulesFeeds                             isBuildTargetWebserver
     rulesPageIndexHtmlTemplate             isBuildTargetWebserver
     rulesPageIndexHtml                     isBuildTargetWebserver
+    rulesStandalonePageIndexHtml           isBuildTargetWebserver
     rulesPageIndexHtmlTemplateWithoutTitle isBuildTargetWebserver
     rulesPageIndexPandoc                   isBuildTargetWebserver
     rulesPageIndexPandocTemplate           isBuildTargetWebserver tags
@@ -50,6 +51,7 @@ rulesStaticFiles = do
         .||. "projects/**/*.gif"
         .||. "projects/*.png"
         .||. "projects/**/*.png"
+        .||. "pages/**/*.png"
         .||. "static/**"
         .||. "writing/**/*.jpg"
         .||. "writing/**/*.png"
@@ -143,6 +145,17 @@ rulesPageIndexHtml isBuildTargetWebserver = do
             route idRoute
             compile $ getResourceBody
                 >>= loadAndApplyTemplate "templates/default.html" context
+                >>= processUrls isBuildTargetWebserver
+
+rulesStandalonePageIndexHtml :: Bool -> Rules ()
+rulesStandalonePageIndexHtml isBuildTargetWebserver = do
+    match "pages/*/index.html" $
+        process $ contextRecentPosts isBuildTargetWebserver
+    where
+        process context = do
+            route idRoute
+            compile $ getResourceBody
+                >>= loadAndApplyTemplate "templates/standalone.html" context
                 >>= processUrls isBuildTargetWebserver
 
 rulesPageIndexHtmlTemplateWithoutTitle :: Bool -> Rules ()
