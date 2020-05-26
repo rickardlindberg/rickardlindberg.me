@@ -32,7 +32,7 @@ Parser {
     | space string:x                           -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' formatExpr*:xs space '}'       -> ["Format" ~xs]
-    | var:x space '(' hostExpr*:ys space ')'   -> ["FnCall" x ~ys]
+    | var:x space '(' hostExpr*:ys space ')'   -> ["Call" x ~ys]
     | var:x
   var =
     | space '#' name:x                         -> ["Native" x]
