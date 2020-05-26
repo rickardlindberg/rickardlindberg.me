@@ -102,6 +102,7 @@ EOF
 measure_on_commit "c5d035acedfa3485d178a453ef2c887954478e44" "writing/rlmeta-vm" "vm original"
 measure_on_commit "6b933e64e4d92809fd4464b8f9f6d2d6db6b65ad" "writing/rlmeta-memoize-failures/vm" "vm memoizing"
 measure_on_commit "1db522231ae28add05ee22d1273b6d9a27933505" "writing/rlmeta-poster2" "poster v1"
+measure_on_commit "5154583e9d98c123630fb41664aa6906d4801d05" "writing/rlmeta-poster2" "label action"
 measure_all "tip"
 cat <<EOF >> "$GRAPH_FILE"
 ind = np.arange(len(overalls_avg))  # the x locations for the groups
