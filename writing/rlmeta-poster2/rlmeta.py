@@ -964,7 +964,7 @@ class CodeGenerator(Grammar):
         I('COMMIT', 7)
         LABEL(6)
         I('PUSH_SCOPE')
-        I('CALL', 'py')
+        I('MATCH_ANY')
         I('CALL', 'ast')
         I('POP_SCOPE')
         LABEL(7)

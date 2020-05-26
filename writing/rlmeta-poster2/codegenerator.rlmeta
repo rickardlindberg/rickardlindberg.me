@@ -44,7 +44,7 @@ CodeGenerator {
   actionExpr    =
     | py:x ast:y actionExpr :z -> { "scope.bind("
                                     x ", " y ", lambda: " z ")"          }
-    | py   ast
+    | .    ast
   MatchRule     = py:x         -> { "I('CALL', " x ")\n"                 }
   MatchRange    = py:x py:y    -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
   MatchObject   = py:x         -> { "I('MATCH_OBJECT', " x ")\n"         }
