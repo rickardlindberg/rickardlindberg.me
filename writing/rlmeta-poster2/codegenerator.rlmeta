@@ -9,7 +9,8 @@ CodeGenerator {
                                        y
                                        "I('RETURN')\n"                      }
   Or             =
-    | ast:x Or:y #:a #:b          -> { "I('BACKTRACK', " a ")\n"
+    | ast:x Or:y                  -> label():a -> label():b
+                                  -> { "I('BACKTRACK', " a ")\n"
                                        x
                                        "I('COMMIT', " b ")\n"
                                        "LABEL(" a ")\n"
@@ -22,7 +23,8 @@ CodeGenerator {
   And            = ast*
   Bind           = py:x ast:y     -> { y
                                        "I('BIND', " x ")\n"                 }
-  Star           = ast:x #:a #:b  -> { "I('LIST_START')\n"
+  Star           = ast:x          -> label():a -> label():b
+                                  -> { "I('LIST_START')\n"
                                        "LABEL(" a ")\n"
                                        "I('BACKTRACK', " b ")\n"
                                        x
@@ -30,15 +32,19 @@ CodeGenerator {
                                        "I('COMMIT', " a ")\n"
                                        "LABEL(" b ")\n"
                                        "I('LIST_END')\n"                    }
-  Not            = ast:x #:a #:b  -> { "I('BACKTRACK', " b ")\n"
+  Not            = ast:x          -> label():a -> label():b
+                                  -> { "I('BACKTRACK', " b ")\n"
                                        x
                                        "I('COMMIT', " a ")\n"
                                        "LABEL(" a ")\n"
                                        "I('FAIL', 'no match expected')\n"
                                        "LABEL(" b ")\n"                     }
   MatchCallRule  =                -> { "I('MATCH_CALL_RULE')\n"             }
-  Label          =                -> { "I('LABEL')\n"                       }
-  SemanticAction = ast:x          -> { "I('ACTION', lambda scope: " x ")\n" }
+  Actions        = actions:x      -> { "I('ACTION', lambda scope: " x ")\n" }
+  actions        =
+    | py:x ast:y actions:z        -> { "scope.bind("
+                                        x ", " y ", lambda: " z ")"         }
+    | py   ast
   MatchRule      = py:x           -> { "I('CALL', " x ")\n"                 }
   MatchRange     = py:x py:y      -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
   MatchObject    = py:x           -> { "I('MATCH_OBJECT', " x ")\n"         }
@@ -51,11 +57,12 @@ CodeGenerator {
   ListItem       = py:x ast:y     -> { "splice(" x ", " y ")"               }
   Format         = astItems:x     -> { "join([" x "])"                      }
   Indent         = ast:x          -> { "indent(" x ")"                      }
-  FnCall         = .:x astItems:y -> { x "(" y ")"                          }
-  VarLookup      = py:x           -> { "scope[" x "].eval()"                }
+  FnCall         = ast:x astItems:y -> { x "(" y ")"                        }
+  Native         = .
+  Lookup         = py:x           -> { "scope.lookup(" x ")"                }
   astItems       =
     | ast:x astItem*:xs           -> { x xs                                 }
     |                             -> {                                      }
   astItem        = ast:x          -> { ", " x                               }
-  py             = .:x            -> repr(x)
+  py             = .:x            -> #repr(x)
 }

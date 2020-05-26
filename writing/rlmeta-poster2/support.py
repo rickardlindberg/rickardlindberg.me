@@ -1,5 +1,4 @@
 def vm(instructions, labels, start_rule, stream):
-    label_counter = 0
     action = SemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
@@ -8,6 +7,9 @@ def vm(instructions, labels, start_rule, stream):
     fail_message = None
     latest_fail_message, latest_fail_pos = (None, tuple())
     memo = {}
+    runtime = {
+        "label": Counter().next,
+    }
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
@@ -67,7 +69,7 @@ def vm(instructions, labels, start_rule, stream):
             pc += 1
             continue
         elif name == "ACTION":
-            action = SemanticAction(scope, arg1)
+            action = SemanticAction(Scope(scope, runtime), arg1)
             pc += 1
             continue
         elif name == "MATCH_RANGE":
@@ -135,11 +137,6 @@ def vm(instructions, labels, start_rule, stream):
                     continue
         elif name == "FAIL":
             fail_message = (arg1,)
-        elif name == "LABEL":
-            action = SemanticAction(label_counter)
-            label_counter += 1
-            pc += 1
-            continue
         else:
             raise Exception("unknown instruction {}".format(name))
         fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
@@ -167,6 +164,36 @@ def vm(instructions, labels, start_rule, stream):
         if len(scope_stack) > scope_stack_len:
             scope = scope_stack[scope_stack_len]
         scope_stack = scope_stack[:scope_stack_len]
+
+class Counter(object):
+
+    def __init__(self):
+        self.count = 0
+
+    def next(self):
+        result = self.count
+        self.count += 1
+        return result
+
+class Scope(object):
+
+    def __init__(self, match, runtime):
+        self.match = match
+        self.runtime = runtime
+
+    def bind(self, name, value, continuation):
+        old = self.runtime.get(name, None)
+        self.runtime[name] = value
+        try:
+            return continuation()
+        finally:
+            self.runtime[name] = old
+
+    def lookup(self, name):
+        if name in self.match:
+            return self.match[name].eval()
+        else:
+            return self.runtime.get(name, None)
 
 class SemanticAction(object):
 

@@ -16,24 +16,29 @@ Parser {
     | expr2:x space '?'                        -> ["Or" x ["And"]]
     | space '!' expr2:x                        -> ["Not" x]
     | space '%'                                -> ["MatchCallRule"]
-    | space '#'                                -> ["Label"]
     | expr2
   expr2 =
-    | space '->' hostExpr:x                    -> ["SemanticAction" x]
+    | action:x action*:xs                      -> ["Actions" ~x ~~xs]
     | name:x !(space '=')                      -> ["MatchRule" x]
     | space char:x '-' char:y                  -> ["MatchRange" x y]
     | space charseq
     | space '.'                                -> ["MatchAny"]
     | space '(' choice:x space ')'             -> x
     | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
+  action =
+    | space '->' hostExpr:x
+      (space ':' name | -> ""):y               -> [y  x]
   hostExpr =
     | space string:x                           -> ["String" x]
     | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
     | space '{' formatExpr*:xs space '}'       -> ["Format" ~xs]
-    | name:x space '(' hostExpr*:ys space ')'  -> ["FnCall" x ~ys]
-    | name:x                                   -> ["VarLookup" x]
+    | var:x space '(' hostExpr*:ys space ')'   -> ["FnCall" x ~ys]
+    | var:x
+  var =
+    | space '#' name:x                         -> ["Native" x]
+    | name:x !(space '=')                      -> ["Lookup" x]
   hostExprListItem =
-    | space '~'*:ys hostExpr:x                 -> ["ListItem" len(ys) x]
+    | space '~'*:ys hostExpr:x                 -> ["ListItem" #len(ys) x]
   formatExpr =
     | space '>' formatExpr*:xs space '<'       -> ["Indent" ["Format" ~xs]]
     | hostExpr

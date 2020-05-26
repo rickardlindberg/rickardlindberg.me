@@ -1,0 +1,11 @@
+ExampleBuffers {
+  program  = ast:x  -> #Buffer():header
+                    -> { "# HEADER\n"
+                         header
+                         "# BODY\n"
+                         x            }
+  ast      = [%:x]  -> x
+  Program  = ast*
+  Function = .:name -> header({ "def " name "\n" })
+                    -> { name "()\n" }
+}
