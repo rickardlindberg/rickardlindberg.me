@@ -20,10 +20,12 @@ Parser {
   expr2 =
     | name:x !(space '=')                     -> ["MatchRule" x]
     | space char:x '-' char:y                 -> ["MatchRange" x y]
-    | space charseq
+    | space '\'' (!'\'' matchChar)*:xs '\''   -> ["And" ~xs]
     | space '.'                               -> ["MatchAny"]
     | space '(' choice:x space ')'            -> x
     | space '[' expr*:xs space ']'            -> ["MatchList" ["And" ~xs]]
+  matchChar =
+    | innerChar:x                             -> ["MatchObject" x]
   maybeAction =
     | actionExpr:x actionExpr*:xs             -> [["Action" ~x ~~xs]]
     |                                         -> []
@@ -44,8 +46,6 @@ Parser {
   var =
     | space '#' name:x                        -> ["Native" x]
     | name:x !(space '=')                     -> ["Lookup" x]
-  charseq   = '\'' (!'\'' matchChar)*:xs '\'' -> ["And" ~xs]
-  matchChar = innerChar:x                     -> ["MatchObject" x]
   string    = '"'  (!'"'  innerChar)*:xs '"'  -> { xs }
   char      = '\''  !'\'' innerChar  :x  '\'' -> x
   innerChar = '\\' escape | .

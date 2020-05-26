@@ -40,18 +40,18 @@ CodeGenerator {
                                     "I('FAIL', 'no match expected')\n"
                                     "LABEL(" b ")\n"                     }
   MatchCallRule =              -> { "I('MATCH_CALL_RULE')\n"             }
+  MatchRule     = py:x         -> { "I('CALL', " x ")\n"                 }
+  MatchRange    = py:x py:y    -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
+  MatchAny      =              -> { "I('MATCH_ANY')\n"                   }
+  MatchList     = ast:x        -> { "I('PUSH_STREAM')\n"
+                                    x
+                                    "I('POP_STREAM')\n"                  }
+  MatchObject   = py:x         -> { "I('MATCH_OBJECT', " x ")\n"         }
   Action        = actionExpr:x -> { "I('ACTION', lambda scope: " x ")\n" }
   actionExpr    =
     | py:x ast:y actionExpr :z -> { "scope.bind("
                                     x ", " y ", lambda: " z ")"          }
     | .    ast
-  MatchRule     = py:x         -> { "I('CALL', " x ")\n"                 }
-  MatchRange    = py:x py:y    -> { "I('MATCH_RANGE', " x ", " y ")\n"   }
-  MatchObject   = py:x         -> { "I('MATCH_OBJECT', " x ")\n"         }
-  MatchAny      =              -> { "I('MATCH_ANY')\n"                   }
-  MatchList     = ast:x        -> { "I('PUSH_STREAM')\n"
-                                    x
-                                    "I('POP_STREAM')\n"                  }
   String        = py
   List          = asts:x       -> { "concat([" x "])"                    }
   ListItem      = py:x ast:y   -> { "splice(" x ", " y ")"               }
