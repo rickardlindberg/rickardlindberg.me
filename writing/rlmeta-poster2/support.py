@@ -233,9 +233,9 @@ def splice(depth, item):
 def concat(lists):
     return [x for xs in lists for x in xs]
 
-def join(items):
-    return "".join(
-        join(item) if isinstance(item, list) else str(item)
+def join(items, delimiter=""):
+    return delimiter.join(
+        join(item, delimiter) if isinstance(item, list) else str(item)
         for item in items
     )
 

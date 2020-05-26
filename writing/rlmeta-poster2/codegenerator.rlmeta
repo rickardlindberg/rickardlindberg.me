@@ -60,9 +60,6 @@ CodeGenerator {
   FnCall         = ast:x astItems:y -> { x "(" y ")"                        }
   Native         = .
   Lookup         = py:x           -> { "scope.lookup(" x ")"                }
-  astItems       =
-    | ast:x astItem*:xs           -> { x xs                                 }
-    |                             -> {                                      }
-  astItem        = ast:x          -> { ", " x                               }
+  astItems       = ast*:xs        -> #join(xs ", ")
   py             = .:x            -> #repr(x)
 }
