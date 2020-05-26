@@ -1101,7 +1101,7 @@ if __name__ == "__main__":
             else:
                 stream_string = pprint.pformat(stream)
             sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
-              e.message,
-              pos,
-              indent(stream_string)
+                e.message,
+                pos,
+                indent(stream_string)
             ))

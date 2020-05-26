@@ -696,6 +696,16 @@
 "id":"70d7264832894ca3ae30a493cb170783",
 "paragraphs":[
 {
+"fragments":[
+{
+"text":"Various changes to improve readability. They do not affect size or performance.",
+"type":"text"
+}
+],
+"id":"eb51b2bb604a406a9915cd12dc42969b",
+"type":"text"
+},
+{
 "child_type":"unordered",
 "children":[
 {
@@ -780,20 +790,6 @@
 {
 "text":" rename of grammar method",
 "type":"text"
-}
-]
-},
-{
-"child_type":null,
-"children":[],
-"fragments":[
-{
-"text":"Fix indentation in ",
-"type":"text"
-},
-{
-"text":"sys.exit",
-"type":"code"
 }
 ]
 }
@@ -883,7 +879,7 @@
 ],
 "fragments":[
 {
-"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$1\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\nimport pprint\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(\n                CodeGenerator().run(\n                    \"ast\",\n                    [Parser().run(\"grammar\", sys.stdin.read())]\n                )\n            )\n        except MatchError as e:\n            stream = e.stream\n            for pos in e.pos[:-1]:\n                stream = stream[pos]\n            pos = e.pos[-1]\n            MARKER = \"\\\\033[0;31m<ERROR POSITION>\\\\033[0m\"\n            if isinstance(stream, basestring):\n                stream_string = stream[:pos] + MARKER + stream[pos:]\n            else:\n                stream_string = pprint.pformat(stream)\n            sys.exit(\"ERROR: {}\\\\nPOSITION: {}\\\\nSTREAM:\\\\n{}\".format(\n              e.message,\n              pos,\n              indent(stream_string)\n            ))\nEOF\n",
+"text":"#!/bin/bash\n\nset -e\n\nrlmeta_compiler=\"$1\"\n\nto_python_string() {\n    python -c 'import sys; sys.stdout.write(repr(sys.stdin.read()))'\n}\n\nsupport_py_string=$(to_python_string < support.py)\nsupport_py=$(python \"$rlmeta_compiler\" --support)\nparser_py=$(python \"$rlmeta_compiler\" < parser.rlmeta)\ncodegenerator_py=$(python \"$rlmeta_compiler\" < codegenerator.rlmeta)\n\ncat <<EOF\nimport sys\nimport pprint\n\nSUPPORT = $support_py_string\n\n$support_py\n\n$parser_py\n\n$codegenerator_py\n\nif __name__ == \"__main__\":\n    if \"--support\" in sys.argv:\n        sys.stdout.write(SUPPORT)\n    else:\n        try:\n            sys.stdout.write(\n                CodeGenerator().run(\n                    \"ast\",\n                    [Parser().run(\"grammar\", sys.stdin.read())]\n                )\n            )\n        except MatchError as e:\n            stream = e.stream\n            for pos in e.pos[:-1]:\n                stream = stream[pos]\n            pos = e.pos[-1]\n            MARKER = \"\\\\033[0;31m<ERROR POSITION>\\\\033[0m\"\n            if isinstance(stream, basestring):\n                stream_string = stream[:pos] + MARKER + stream[pos:]\n            else:\n                stream_string = pprint.pformat(stream)\n            sys.exit(\"ERROR: {}\\\\nPOSITION: {}\\\\nSTREAM:\\\\n{}\".format(\n                e.message,\n                pos,\n                indent(stream_string)\n            ))\nEOF\n",
 "type":"code"
 }
 ],
