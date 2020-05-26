@@ -1,4 +1,4 @@
-def vm(instructions, labels, start_rule, stream):
+def vm(instructions, labels, start_rule, stream, runtime):
     action = SemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
@@ -7,10 +7,6 @@ def vm(instructions, labels, start_rule, stream):
     fail_message = None
     latest_fail_message, latest_fail_pos = (None, tuple())
     memo = {}
-    runtime = {
-        "label": Counter().next,
-        "indentprefix": "    ",
-    }
     while True:
         name, arg1, arg2 = instructions[pc]
         if name == "PUSH_SCOPE":
@@ -166,16 +162,6 @@ def vm(instructions, labels, start_rule, stream):
             scope = scope_stack[scope_stack_len]
         scope_stack = scope_stack[:scope_stack_len]
 
-class Counter(object):
-
-    def __init__(self):
-        self.count = 0
-
-    def next(self):
-        result = self.count
-        self.count += 1
-        return result
-
 class Scope(object):
 
     def __init__(self, match, runtime):
@@ -215,15 +201,26 @@ class MatchError(Exception):
 
 class Grammar(object):
 
-    def run(self, rule_name, stream):
-        instructions = []
-        labels = {}
+    def __init__(self):
+        self.instructions = instructions = []
+        self.labels = labels = {}
         def I(name, arg1=None, arg2=None):
             instructions.append((name, arg1, arg2))
         def LABEL(name):
             labels[name] = len(instructions)
         self.assemble(I, LABEL)
-        return vm(instructions, labels, rule_name, stream)
+
+    def run(self, rule_name, stream):
+        self.label_counter = 0
+        return vm(self.instructions, self.labels, rule_name, stream, {
+            "label": self.next_label,
+            "indentprefix": "    ",
+        })
+
+    def next_label(self):
+        result = self.label_counter
+        self.label_counter += 1
+        return result
 
 def splice(depth, item):
     if depth == 0:
