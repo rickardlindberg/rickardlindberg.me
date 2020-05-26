@@ -56,7 +56,8 @@ CodeGenerator {
   List          = asts:x       -> { "concat([" x "])"                    }
   ListItem      = py:x ast:y   -> { "splice(" x ", " y ")"               }
   Format        = asts:x       -> { "join([" x "])"                      }
-  Indent        = ast:x        -> { "indent(" x ")"                      }
+  Indent        = ast:x        -> { "indent(" x ", "
+                                    "scope.lookup('indentprefix'))"      }
   Call          = ast:x asts:y -> { x "(" y ")"                          }
   Native        = .
   Lookup        = py:x         -> { "scope.lookup(" x ")"                }

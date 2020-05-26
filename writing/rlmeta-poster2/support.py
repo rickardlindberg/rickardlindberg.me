@@ -9,6 +9,7 @@ def vm(instructions, labels, start_rule, stream):
     memo = {}
     runtime = {
         "label": Counter().next,
+        "indentprefix": "    ",
     }
     while True:
         name, arg1, arg2 = instructions[pc]
@@ -239,5 +240,5 @@ def join(items, delimiter=""):
         for item in items
     )
 
-def indent(text):
-    return join(join(["    ", line]) for line in text.splitlines(True))
+def indent(text, prefix="    "):
+    return "".join(prefix + line for line in text.splitlines(True))
