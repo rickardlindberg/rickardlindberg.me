@@ -105,6 +105,7 @@ measure_on_commit "1db522231ae28add05ee22d1273b6d9a27933505" "writing/rlmeta-pos
 measure_on_commit "5154583e9d98c123630fb41664aa6906d4801d05" "writing/rlmeta-poster2" "label action"
 measure_on_commit "c7cde4ef64db9c871ee25ea7ec39d26a1adb6d7d" "writing/rlmeta-poster2" "join support"
 measure_on_commit "4934b9105ec609de2d59fce955d41879ef57fcea" "writing/rlmeta-poster2" "no action middle"
+measure_on_commit "ac6126b7ea6a8d38967d7cb5bcfe6784332f587a" "writing/rlmeta-poster2" "indent prefix"
 measure_all "tip"
 cat <<EOF >> "$GRAPH_FILE"
 ind = np.arange(len(overalls_avg))  # the x locations for the groups
