@@ -40,9 +40,9 @@ CodeGenerator {
                                     "I('FAIL', 'no match expected')\n"
                                     "LABEL(" b ")\n"                     }
   MatchCallRule =              -> { "I('MATCH_CALL_RULE')\n"             }
-  Actions       = actions:x    -> { "I('ACTION', lambda scope: " x ")\n" }
-  actions       =
-    | py:x ast:y actions:z     -> { "scope.bind("
+  Action        = actionExpr:x -> { "I('ACTION', lambda scope: " x ")\n" }
+  actionExpr    =
+    | py:x ast:y actionExpr :z -> { "scope.bind("
                                     x ", " y ", lambda: " z ")"          }
     | py   ast
   MatchRule     = py:x         -> { "I('CALL', " x ")\n"                 }

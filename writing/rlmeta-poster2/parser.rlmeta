@@ -7,7 +7,7 @@ Parser {
     | (space '|')?
       sequence:x (space '|' sequence)*:xs     -> ["Or" x ~xs]
   sequence =
-    | expr:x expr*:xs                         -> ["Scope" ["And" x ~xs]]
+    | expr*:xs maybeAction:ys                 -> ["Scope" ["And" ~xs ~ys]]
   expr =
     | expr1:x space ':' name:y                -> ["Bind" y x]
     | expr1
@@ -18,14 +18,16 @@ Parser {
     | space '%'                               -> ["MatchCallRule"]
     | expr2
   expr2 =
-    | action:x action*:xs                     -> ["Actions" ~x ~~xs]
     | name:x !(space '=')                     -> ["MatchRule" x]
     | space char:x '-' char:y                 -> ["MatchRange" x y]
     | space charseq
     | space '.'                               -> ["MatchAny"]
     | space '(' choice:x space ')'            -> x
     | space '[' expr*:xs space ']'            -> ["MatchList" ["And" ~xs]]
-  action =
+  maybeAction =
+    | actionExpr:x actionExpr*:xs             -> [["Action" ~x ~~xs]]
+    |                                         -> []
+  actionExpr =
     | space '->' hostExpr:x
       (space ':' name | -> ""):y              -> [y  x]
   hostExpr =
