@@ -1,55 +1,55 @@
 Parser {
   grammar =
-    | name:x space '{' rule*:ys space '}'      -> ["Grammar" x ~ys]
+    | name:x space '{' rule*:ys space '}'     -> ["Grammar" x ~ys]
   rule =
-    | name:x space '=' choice:y                -> ["Rule" x y]
+    | name:x space '=' choice:y               -> ["Rule" x y]
   choice =
     | (space '|')?
-      sequence:x (space '|' sequence)*:xs      -> ["Or" x ~xs]
+      sequence:x (space '|' sequence)*:xs     -> ["Or" x ~xs]
   sequence =
-    | expr:x expr*:xs                          -> ["Scope" ["And" x ~xs]]
+    | expr:x expr*:xs                         -> ["Scope" ["And" x ~xs]]
   expr =
-    | expr1:x space ':' name:y                 -> ["Bind" y x]
+    | expr1:x space ':' name:y                -> ["Bind" y x]
     | expr1
   expr1 =
-    | expr2:x space '*'                        -> ["Star" x]
-    | expr2:x space '?'                        -> ["Or" x ["And"]]
-    | space '!' expr2:x                        -> ["Not" x]
-    | space '%'                                -> ["MatchCallRule"]
+    | expr2:x space '*'                       -> ["Star" x]
+    | expr2:x space '?'                       -> ["Or" x ["And"]]
+    | space '!' expr2:x                       -> ["Not" x]
+    | space '%'                               -> ["MatchCallRule"]
     | expr2
   expr2 =
-    | action:x action*:xs                      -> ["Actions" ~x ~~xs]
-    | name:x !(space '=')                      -> ["MatchRule" x]
-    | space char:x '-' char:y                  -> ["MatchRange" x y]
+    | action:x action*:xs                     -> ["Actions" ~x ~~xs]
+    | name:x !(space '=')                     -> ["MatchRule" x]
+    | space char:x '-' char:y                 -> ["MatchRange" x y]
     | space charseq
-    | space '.'                                -> ["MatchAny"]
-    | space '(' choice:x space ')'             -> x
-    | space '[' expr*:xs space ']'             -> ["MatchList" ["And" ~xs]]
+    | space '.'                               -> ["MatchAny"]
+    | space '(' choice:x space ')'            -> x
+    | space '[' expr*:xs space ']'            -> ["MatchList" ["And" ~xs]]
   action =
     | space '->' hostExpr:x
-      (space ':' name | -> ""):y               -> [y  x]
+      (space ':' name | -> ""):y              -> [y  x]
   hostExpr =
-    | space string:x                           -> ["String" x]
-    | space '[' hostExprListItem*:xs space ']' -> ["List" ~xs]
-    | space '{' formatExpr*:xs space '}'       -> ["Format" ~xs]
-    | var:x space '(' hostExpr*:ys space ')'   -> ["FnCall" x ~ys]
+    | space string:x                          -> ["String" x]
+    | space '[' hostListItem*:xs space ']'    -> ["List" ~xs]
+    | space '{' formatExpr*:xs space '}'      -> ["Format" ~xs]
+    | var:x space '(' hostExpr*:ys space ')'  -> ["Call" x ~ys]
     | var:x
-  var =
-    | space '#' name:x                         -> ["Native" x]
-    | name:x !(space '=')                      -> ["Lookup" x]
-  hostExprListItem =
-    | space '~'*:ys hostExpr:x                 -> ["ListItem" #len(ys) x]
+  hostListItem =
+    | space '~'*:ys hostExpr:x                -> ["ListItem" #len(ys) x]
   formatExpr =
-    | space '>' formatExpr*:xs space '<'       -> ["Indent" ["Format" ~xs]]
+    | space '>' formatExpr*:xs space '<'      -> ["Indent" ["Format" ~xs]]
     | hostExpr
-  charseq   = '\'' (!'\'' matchChar)*:xs '\''  -> ["And" ~xs]
-  matchChar = innerChar:x                      -> ["MatchObject" x]
-  string    = '"'  (!'"'  innerChar)*:xs '"'   -> { xs }
-  char      = '\''  !'\'' innerChar  :x  '\''  -> x
+  var =
+    | space '#' name:x                        -> ["Native" x]
+    | name:x !(space '=')                     -> ["Lookup" x]
+  charseq   = '\'' (!'\'' matchChar)*:xs '\'' -> ["And" ~xs]
+  matchChar = innerChar:x                     -> ["MatchObject" x]
+  string    = '"'  (!'"'  innerChar)*:xs '"'  -> { xs }
+  char      = '\''  !'\'' innerChar  :x  '\'' -> x
   innerChar = '\\' escape | .
   escape    = '\\' -> "\\" | '\'' -> "'"
             | '"'  -> "\"" | 'n'  -> "\n"
-  name      = space nameStart:x nameChar*:xs   -> { x xs }
+  name      = space nameStart:x nameChar*:xs  -> { x xs }
   nameStart = 'a'-'z' | 'A'-'Z'
   nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
   space     = (' ' | '\n')*
