@@ -1,8 +1,4 @@
-import sys
-import pprint
-
 SUPPORT = 'def vm(instructions, labels, start_rule, stream, runtime):\n    action = SemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    scope, scope_stack = (None, [])\n    fail_message = None\n    latest_fail_message, latest_fail_pos = (None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == "PUSH_SCOPE":\n            scope_stack.append(scope)\n            scope = {}\n            pc += 1\n            continue\n        elif name == "BACKTRACK":\n            call_backtrack_stack.append((\n                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)\n            ))\n            pc += 1\n            continue\n        elif name == "CALL":\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                if memo[key][0] is None:\n                    fail_message = memo[key][1]\n                else:\n                    action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n                    continue\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n                continue\n        elif name == "POP_SCOPE":\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_OBJECT":\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n            else:\n                action = SemanticAction(arg1)\n                pos += 1\n                pc += 1\n                continue\n        elif name == "COMMIT":\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n            continue\n        elif name == "RETURN":\n            if len(call_backtrack_stack) == 0:\n                return action.eval()\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (action, stream_pos_stack+[(stream, pos)])\n            continue\n        elif name == "LIST_APPEND":\n            scope.append(action)\n            pc += 1\n            continue\n        elif name == "BIND":\n            scope[arg1] = action\n            pc += 1\n            continue\n        elif name == "ACTION":\n            action = SemanticAction(Scope(scope, runtime), arg1)\n            pc += 1\n            continue\n        elif name == "MATCH_RANGE":\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "LIST_START":\n            scope_stack.append(scope)\n            scope = []\n            pc += 1\n            continue\n        elif name == "LIST_END":\n            action = SemanticAction(scope, lambda xs: [x.eval() for x in xs])\n            scope = scope_stack.pop()\n            pc += 1\n            continue\n        elif name == "MATCH_ANY":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n                continue\n        elif name == "PUSH_STREAM":\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n            else:\n                stream_pos_stack.append((stream, pos))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n                continue\n        elif name == "POP_STREAM":\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pos += 1\n                pc += 1\n                continue\n        elif name == "MATCH_CALL_RULE":\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    if memo[key][0] is None:\n                        fail_message = memo[key][1]\n                    else:\n                        action, stream_pos_stack = memo[key]\n                        stream_pos_stack = stream_pos_stack[:]\n                        stream, pos = stream_pos_stack.pop()\n                        pc += 1\n                        continue\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n                    continue\n        elif name == "FAIL":\n            fail_message = (arg1,)\n        else:\n            raise Exception("unknown instruction {}".format(name))\n        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n        if fail_pos >= latest_fail_pos:\n            latest_fail_message = fail_message\n            latest_fail_pos = fail_pos\n        call_backtrack_entry = tuple()\n        while call_backtrack_stack:\n            call_backtrack_entry = call_backtrack_stack.pop()\n            if len(call_backtrack_entry) == 4:\n                break\n            else:\n                _, key = call_backtrack_entry\n                memo[key] = (None, fail_message)\n        if len(call_backtrack_entry) != 4:\n            raise MatchError(\n                latest_fail_message[0].format(*latest_fail_message[1:]),\n                latest_fail_pos,\n                stream_pos_stack[0][0] if stream_pos_stack else stream\n            )\n        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n        if len(stream_pos_stack) > stream_stack_len:\n            stream = stream_pos_stack[stream_stack_len][0]\n        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n        if len(scope_stack) > scope_stack_len:\n            scope = scope_stack[scope_stack_len]\n        scope_stack = scope_stack[:scope_stack_len]\n\nclass Scope(object):\n\n    def __init__(self, match, runtime):\n        self.match = match\n        self.runtime = runtime\n\n    def bind(self, name, value, continuation):\n        old = self.runtime.get(name, None)\n        self.runtime[name] = value\n        try:\n            return continuation()\n        finally:\n            self.runtime[name] = old\n\n    def lookup(self, name):\n        if name in self.match:\n            return self.match[name].eval()\n        else:\n            return self.runtime.get(name, None)\n\nclass SemanticAction(object):\n\n    def __init__(self, value, fn=lambda value: value):\n        self.value = value\n        self.fn = fn\n\n    def eval(self):\n        return self.fn(self.value)\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def __init__(self):\n        self.instructions = instructions = []\n        self.labels = labels = {}\n        def I(name, arg1=None, arg2=None):\n            instructions.append((name, arg1, arg2))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        self.assemble(I, LABEL)\n\n    def run(self, rule_name, stream):\n        self.label_counter = 0\n        return vm(self.instructions, self.labels, rule_name, stream, {\n            "label": self.next_label,\n            "indentprefix": "    ",\n        })\n\n    def next_label(self):\n        result = self.label_counter\n        self.label_counter += 1\n        return result\n\ndef splice(depth, item):\n    if depth == 0:\n        return [item]\n    else:\n        return concat([splice(depth-1, subitem) for subitem in item])\n\ndef concat(lists):\n    return [x for xs in lists for x in xs]\n\ndef join(items, delimiter=""):\n    return delimiter.join(\n        join(item, delimiter) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text, prefix="    "):\n    return "".join(prefix + line for line in text.splitlines(True))\n'
-
 def vm(instructions, labels, start_rule, stream, runtime):
     action = SemanticAction(None)
     pc = labels[start_rule]
@@ -244,7 +240,6 @@ def join(items, delimiter=""):
 
 def indent(text, prefix="    "):
     return "".join(prefix + line for line in text.splitlines(True))
-
 class Parser(Grammar):
 
     def assemble(self, I, LABEL):
@@ -837,7 +832,6 @@ class Parser(Grammar):
         I('LIST_END')
         I('POP_SCOPE')
         I('RETURN')
-
 class CodeGenerator(Grammar):
 
     def assemble(self, I, LABEL):
@@ -1076,30 +1070,49 @@ class CodeGenerator(Grammar):
         I('ACTION', lambda scope: repr(scope.lookup('x')))
         I('POP_SCOPE')
         I('RETURN')
+def compile_grammar(grammar):
+    return CodeGenerator().run(
+        "ast",
+        [Parser().run("grammar", grammar)]
+    )
 
 if __name__ == "__main__":
-    if "--support" in sys.argv:
-        sys.stdout.write(SUPPORT)
-    else:
-        try:
-            sys.stdout.write(
-                CodeGenerator().run(
-                    "ast",
-                    [Parser().run("grammar", sys.stdin.read())]
-                )
-            )
-        except MatchError as e:
-            stream = e.stream
-            for pos in e.pos[:-1]:
-                stream = stream[pos]
-            pos = e.pos[-1]
-            MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
-            if isinstance(stream, basestring):
-                stream_string = stream[:pos] + MARKER + stream[pos:]
-            else:
-                stream_string = pprint.pformat(stream)
-            sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
-                e.message,
-                pos,
-                indent(stream_string)
+    import sys
+    import pprint
+    def read(path):
+        if path == "-":
+            return sys.stdin.read()
+        with open(path) as f:
+            return f.read()
+    args = sys.argv[1:] or ["--compile", "-"]
+    while args:
+        command = args.pop(0)
+        if command == "--support":
+            sys.stdout.write(SUPPORT)
+        elif command == "--copy":
+            sys.stdout.write(read(args.pop(0)))
+        elif command == "--embed":
+            sys.stdout.write("{} = {}\n".format(
+                args.pop(0),
+                repr(read(args.pop(0)))
             ))
+        elif command == "--compile":
+            try:
+                sys.stdout.write(compile_grammar(read(args.pop(0))))
+            except MatchError as e:
+                stream = e.stream
+                for pos in e.pos[:-1]:
+                    stream = stream[pos]
+                pos = e.pos[-1]
+                MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
+                if isinstance(stream, basestring):
+                    stream_string = stream[:pos] + MARKER + stream[pos:]
+                else:
+                    stream_string = pprint.pformat(stream)
+                sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
+                    e.message,
+                    pos,
+                    indent(stream_string)
+                ))
+        else:
+            sys.exit("ERROR: Unknown command '{}'".format(command))
