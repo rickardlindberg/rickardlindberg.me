@@ -83,4 +83,7 @@ def fail(message):
     sys.exit("\033[0;31mERROR: {}\033[0m".format(message))
 
 if __name__ == "__main__":
-    make_next_version()
+    if sys.argv[1:] == ["compile"]:
+        sys.stdout.write(compile_rlmeta("rlmeta.py"))
+    else:
+        make_next_version()

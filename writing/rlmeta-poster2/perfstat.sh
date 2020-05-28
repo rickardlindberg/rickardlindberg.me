@@ -6,7 +6,11 @@ CLONE_PATH=/tmp/rlmeta-perf
 GRAPH_FILE=/tmp/rlmeta-perf.py
 
 measure_overall() {
-    (time ./compile.sh rlmeta.py > /dev/null) 2>&1 | ack --output='$1' 'real.*0m(.*)s$'
+    if [ -e ./compile.sh ]; then
+        (time ./compile.sh rlmeta.py > /dev/null) 2>&1 | ack --output='$1' 'real.*0m(.*)s$'
+    else
+        (time ./make.py compile > /dev/null) 2>&1 | ack --output='$1' 'real.*0m(.*)s$'
+    fi
 }
 
 measure_single_grammar() {
