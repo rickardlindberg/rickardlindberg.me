@@ -13,12 +13,6 @@ def make_next_version():
         rm(compiler)
     log("OK!")
 
-def test(rlmeta):
-    log("Test: Has its own support library")
-    assert run_rlmeta(rlmeta, ["--support"]) == read("support.py")
-    log("Test: Disallow semantic action in the middle")
-    run_rlmeta(rlmeta, [], "Grammar { x = . -> [] . }", expect_failure=True)
-
 def meta_compile_rlmeta():
     compiler = "rlmeta.py"
     content = read(compiler)
@@ -43,6 +37,12 @@ def compile_rlmeta(rlmeta):
         "--compile", "codegenerator.rlmeta",
         "--copy", "main.py",
     ])
+
+def test(rlmeta):
+    log("Test: Has its own support library")
+    assert run_rlmeta(rlmeta, ["--support"]) == read("support.py")
+    log("Test: Disallow semantic action in the middle")
+    run_rlmeta(rlmeta, [], "Grammar { x = . -> [] . }", expect_failure=True)
 
 def run_rlmeta(rlmeta, args, stdin="", expect_failure=False):
     process = subprocess.Popen(

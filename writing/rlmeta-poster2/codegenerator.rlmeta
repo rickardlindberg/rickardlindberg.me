@@ -49,7 +49,7 @@ CodeGenerator {
   MatchObject   = py:x         -> { "I('MATCH_OBJECT', " x ")\n"         }
   Action        = actionExpr:x -> { "I('ACTION', lambda scope: " x ")\n" }
   actionExpr    =
-    | py:x ast:y actionExpr :z -> { "scope.bind("
+    | py:x ast:y actionExpr:z  -> { "scope.bind("
                                     x ", " y ", lambda: " z ")"          }
     | .    ast
   String        = py

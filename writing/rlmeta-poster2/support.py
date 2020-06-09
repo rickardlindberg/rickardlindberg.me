@@ -238,4 +238,4 @@ def join(items, delimiter=""):
     )
 
 def indent(text, prefix="    "):
-    return "".join(prefix + line for line in text.splitlines(True))
+    return "".join(prefix+line for line in text.splitlines(True))
