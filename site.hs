@@ -10,12 +10,17 @@ import System.FilePath
 import Text.Pandoc.Options
 
 main :: IO ()
-main = hasHakyllBuildTarget "webserver" >>= hakyll . rules
+main = hasHakyllBuildTarget "webserver" >>= hakyllWith config . rules
     where
         hasHakyllBuildTarget :: String -> IO Bool
         hasHakyllBuildTarget target =
             fmap (elem ("HAKYLL_BUILD_TARGET", target))
             getEnvironment
+
+config :: Configuration
+config = defaultConfiguration
+    { inMemoryCache = False
+    }
 
 rules :: Bool -> Rules ()
 rules isBuildTargetWebserver = do
