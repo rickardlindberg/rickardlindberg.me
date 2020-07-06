@@ -7,8 +7,38 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged newsletter]]></description>
         <atom:link href="http://rickardlindberg.me/tags/newsletter/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 13 Jun 2020 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 06 Jul 2020 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Newsletter June 2020</title>
+    <link>http://rickardlindberg.me/writing/newsletter/june-2020/</link>
+    <description><![CDATA[<h1>Newsletter June 2020</h1>
+
+<p><em>Published on  6 July 2020.</em></p>
+
+<p>This is what I’ve been up to in June 2020:</p>
+<ul>
+<li><p>I read parts of <a href="https://compilers.iecc.com/crenshaw/">Let’s Build a Compiler, by Jack Crenshaw</a>. It was interesting and it would be fun to try to implement the described language using <a href="/projects/rlmeta/index.html">RLMeta</a>.</p></li>
+<li><p>I read a few articles from Julia Evans that I found interesting:</p>
+<ul>
+<li><p><a href="https://jvns.ca/blog/2017/02/17/mystery-swap/">Swapping, memory limits, and cgroups</a></p></li>
+<li><p><a href="https://jvns.ca/blog/2016/12/03/how-much-memory-is-my-process-using-/">How much memory is my process using?</a></p></li>
+<li><p><a href="https://jvns.ca/blog/2016/10/10/what-even-is-a-container/">What even is a container: namespaces and cgroups</a></p></li>
+</ul></li>
+<li><p>I decided to have a look at <a href="/projects/rliterate/index.html">RLiterate</a> again.</p>
+<ul>
+<li><p>I continued work on direct manipulation of text. Text in RLiterate is represented as a list of text segements with different styles. That structure has to be projected to the screen and edits have to go into the correct segement. Segments might be projected with some additional markup text that is not present in the text itself. So the problem is a little bit more involved than plain text editing. I’m struggling to solve this problem in an elegant way.</p></li>
+<li><p>I have read about two so called projectional editors to get inspiration for how to solve these problems: <a href="https://github.com/projectured/projectured/wiki/Overview">ProjecturEd</a> and <a href="https://projectit-org.github.io/ProjectIt/projectit-component/0.0.4/index.html">ProjectIt</a>.</p></li>
+<li><p>One particular problem I’m working on is how to represent selections. Today, a selection is both in the GUI domain and the document domain. If the selection is only in the document domain, then two selection markers can appear in GUI since the same page can be projected more than once onto the workspace. When I click a title for example, I want exactly that title to be selected, not the same underlying title on another projected page. What is a good representation of selections that take this into account?</p></li>
+<li><p>I streamlined how props are generated. I wrote about the problem and my prefered pattern <a href="/projects/rliterate/book2/index.html#742ebf5ff2d8457ab8c01b3721052425">here</a>.</p></li>
+<li><p>I improved the performance of the text widget. When calculating where all characters will appear on the screen, you have to take <a href="https://en.wikipedia.org/wiki/Kerning">kerning</a> into account. Previously that was done by calculating the bounding rectangle for consequtively longer substrings. For example: bounding rectangle for “H”, then bounding rectangle for “He”, and so on until “Hello”. Now only bounding rectangles for pairs of characters are calculated. So “He”, and “el”, “ll”, and “lo”. My guess (which seems to hold for now) is that kerning only affects two consecutive characters, in which case this optimization works. Since the number of pairs are limited by the alphabet, these calculations can also be cached.</p></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Mon, 06 Jul 2020 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/june-2020/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>Newsletter May 2020</title>
     <link>http://rickardlindberg.me/writing/newsletter/may-2020/</link>
     <description><![CDATA[<h1>Newsletter May 2020</h1>
