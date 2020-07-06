@@ -6,8 +6,10 @@ build_dir=_build
 
 mkdir -p $build_dir
 
+echo "Compile site.hs"
 ghc -O2 --make site.hs -outputdir $build_dir -o $build_dir/site
 
+echo "Rebuild site"
 $build_dir/site rebuild
 
 echo "Copy files for url-compatibility"
@@ -28,4 +30,5 @@ cp _site/writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop
 cp _site/writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/failure.png _site/images
 cp _site/writing/reflections-on-programming/2011-10-10-learning-haskell/fp_oop_structure.png _site/images
 cp -r _site/projects/rlselect _site/projects/select
-echo DONE
+
+echo "DONE"
