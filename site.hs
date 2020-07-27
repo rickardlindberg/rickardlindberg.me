@@ -347,6 +347,7 @@ patternPostIndexPandoc =
     .||. "writing/evolution-recalling-bash-history/index.md"
     .||. "writing/new-home-for-timeline/index.markdown"
     .||. "writing/alan-kay-notes/index.markdown"
+    .||. "writing/atomic-habits-two-minute-rule/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
