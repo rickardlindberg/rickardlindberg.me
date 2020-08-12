@@ -4,7 +4,7 @@ date: 2020-07-27
 tags: books
 ---
 
-I recently read Atomic Habits by James Clear. In this post I will write about
+I recently read *Atomic Habits* by James Clear. In this post I will write about
 the key takeaway that I got from reading it. There were many interesting
 topics, but I will focus on the one that had the biggest impact on me. If you
 want a full book review, you can for sure find it somewhere else online.
