@@ -348,6 +348,7 @@ patternPostIndexPandoc =
     .||. "writing/new-home-for-timeline/index.markdown"
     .||. "writing/alan-kay-notes/index.markdown"
     .||. "writing/atomic-habits-two-minute-rule/index.markdown"
+    .||. "writing/bullet-journal-method-migration-as-review/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
