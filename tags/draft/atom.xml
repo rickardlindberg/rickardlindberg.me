@@ -8,8 +8,114 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2020-06-13T00:00:00Z</updated>
+    <updated>2020-10-03T00:00:00Z</updated>
     <entry>
+    <title>DRAFT: Kinesis Advantage 2 Setup</title>
+    <link href="http://rickardlindberg.me/writing/kinesis-advantage-2-setup/" />
+    <id>http://rickardlindberg.me/writing/kinesis-advantage-2-setup/</id>
+    <published>2020-10-03T00:00:00Z</published>
+    <updated>2020-10-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DRAFT: Kinesis Advantage 2 Setup</h1>
+
+<p><em>Published on  3 October 2020.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<ul>
+<li>Do I want to describe my whole setup or just Swedish characters</li>
+</ul>
+<h1 id="typing-swedish-characters-on-a-us-version-of-kinesis-advantage-2">Typing Swedish characters on a US version of Kinesis Advantage 2</h1>
+<p>I’ve been using a Kinesis Advantage 2 keyboard for a few years. I’ve recently had to change its configuration, and it this article I explain what the setup looks like now and why it is that way.</p>
+<p>I have the US version, and I prefer the US keyboard layout because may characters that are common in programming are easier to type on a US keyboard compared to a Swedish keyboard.</p>
+<p>However, I sometimes need to type Swedish characters. Previously I have solved that by <a href="/writing/xmodmap-on-fedora/index.html">remapping keys in Xmodmap</a> to produce the Swedish characters.</p>
+<p>Recently I have had to use a Windows computer where Xmodmap is obviously not available. Instead of figuring out how to remap keys in Windows, I started to think if I could configure my Advantage keyboard with macros to produce the Swedish characters.</p>
+<p>On both Linux and Windows it is possible to enter any unicode character by entering its code. Wikipedia <a href="https://en.wikipedia.org/wiki/Unicode_input#In_X11_(Linux_and_other_Unix_variants_including_Chrome_OS)">describes how</a>.</p>
+<p>So to type the Swedish character “å” you have to do the following sequence:</p>
+<ul>
+<li>Linux: Press and hold Ctrl+Shift, press ‘u’, press ‘0’, press ‘0’, press ‘e’, press ‘5’, release Ctrl+Shift.</li>
+<li>Windows: Press and hold Alt, press, Keypad_0, press Keypad_2, press Keypad_2, press Keypad_9, release Alt.</li>
+</ul>
+<p><code>00e5</code> is the hexadecimal number for the unicode character ‘å’ which is used by Linux. <code>0229</code> is the same decimal number used by Windows. The numbers can be found on <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">this Wikipedia page</a>.</p>
+<h2 id="how-i-typed-å-before">How I typed ‘å’ before</h2>
+<h2 id="problems">Problems</h2>
+<h3 id="numlock-on-windows">Numlock on Windows</h3>
+<p>NumLock important on Windows.</p>
+<h3 id="underscores-in-hangouts">Underscores in Hangouts</h3>
+<h3 id="inserting-0-after-åäö">Inserting 0 after åäö</h3>
+<h1 id="updrage-process">Updrage process</h1>
+<p>I upgraded Kinesis Advantage 2 keyboard and made mappings for Windows and Linux.</p>
+<p>Before:</p>
+<pre><code>Model name&gt; Advantage2 Keyboard
+Firmware version&gt; 1.0.0.us (2MB), 06/29/2016
+Current keyboard config file&gt; w_qwerty.txt
+Current thumb keys mode&gt; pc
+Macro playback status&gt; active
+Macro playback speed&gt; slow=1, normal=3, fast=9&gt; 3
+Keyclick status&gt; clicks off
+Toggle action tone status&gt; tones on
+Number of stored macros&gt; 9
+Number of keys remapped&gt; 5
+Power user mode&gt; on</code></pre>
+<p>After:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.521.us (2MB), 06/25/2020
+Active layout file&gt; w_qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 9
+Keys remapped&gt; 5
+Power user mode&gt; on</code></pre>
+<p>Mappings Windows:</p>
+<pre><code>[caps]&gt;[lctrl]
+[lalt]&gt;[kpshift]
+[kp-lalt]&gt;[kpshift]
+[lctrl]&gt;[lalt]
+[rctrl]&gt;[enter]
+
+{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+{kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+{lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+
+{kp-&#39;}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp8}{+lalt}
+{kp-lshift}{kp-&#39;}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+{lshift}{kp-&#39;}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+
+{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp4}{kp6}{+lalt}
+{kp-lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
+{lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}</code></pre>
+<h2 id="installation">Installation</h2>
+<p>https://kinesis-ergo.com/wp-content/uploads/Adv2-Users-Manual-fw1.0.517-4-24-20.pdf</p>
+<p>How to know which keyboard model I should use?</p>
+<p>Landet keyboard. Before:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.431.us (4MB), 11/14/2017
+Active layout file&gt; qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 0
+Keys remapped&gt; 5</code></pre>
+<p>After:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.521.us (4MB), 06/25/2020
+Active layout file&gt; l_qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 9
+Keys remapped&gt; 5</code></pre>
+<p>Had to unmount v-drive for update to take effect. Step 6.5 in this https://kinesis-ergo.com/wp-content/uploads/Adv2-Firmware-Update-Instructions-4-2-19.pdf.</p>
+<h2 id="furure">Furure</h2>
+<p>Experiment with more symbols in the embedded layer? Put braces in there?</p>
+]]></summary>
+</entry>
+<entry>
     <title>DRAFT: RLMeta poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>

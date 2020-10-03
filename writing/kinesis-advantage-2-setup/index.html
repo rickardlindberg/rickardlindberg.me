@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DRAFT: Kinesis Advantage 2 Setup | Rickard's personal homepage
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DRAFT: Kinesis Advantage 2 Setup</h1>
+
+<p><em>Published on  3 October 2020.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<ul>
+<li>Do I want to describe my whole setup or just Swedish characters</li>
+</ul>
+<h1 id="typing-swedish-characters-on-a-us-version-of-kinesis-advantage-2">Typing Swedish characters on a US version of Kinesis Advantage 2</h1>
+<p>I’ve been using a Kinesis Advantage 2 keyboard for a few years. I’ve recently had to change its configuration, and it this article I explain what the setup looks like now and why it is that way.</p>
+<p>I have the US version, and I prefer the US keyboard layout because may characters that are common in programming are easier to type on a US keyboard compared to a Swedish keyboard.</p>
+<p>However, I sometimes need to type Swedish characters. Previously I have solved that by <a href="../../writing/xmodmap-on-fedora/">remapping keys in Xmodmap</a> to produce the Swedish characters.</p>
+<p>Recently I have had to use a Windows computer where Xmodmap is obviously not available. Instead of figuring out how to remap keys in Windows, I started to think if I could configure my Advantage keyboard with macros to produce the Swedish characters.</p>
+<p>On both Linux and Windows it is possible to enter any unicode character by entering its code. Wikipedia <a href="https://en.wikipedia.org/wiki/Unicode_input#In_X11_(Linux_and_other_Unix_variants_including_Chrome_OS)">describes how</a>.</p>
+<p>So to type the Swedish character “å” you have to do the following sequence:</p>
+<ul>
+<li>Linux: Press and hold Ctrl+Shift, press ‘u’, press ‘0’, press ‘0’, press ‘e’, press ‘5’, release Ctrl+Shift.</li>
+<li>Windows: Press and hold Alt, press, Keypad_0, press Keypad_2, press Keypad_2, press Keypad_9, release Alt.</li>
+</ul>
+<p><code>00e5</code> is the hexadecimal number for the unicode character ‘å’ which is used by Linux. <code>0229</code> is the same decimal number used by Windows. The numbers can be found on <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">this Wikipedia page</a>.</p>
+<h2 id="how-i-typed-å-before">How I typed ‘å’ before</h2>
+<h2 id="problems">Problems</h2>
+<h3 id="numlock-on-windows">Numlock on Windows</h3>
+<p>NumLock important on Windows.</p>
+<h3 id="underscores-in-hangouts">Underscores in Hangouts</h3>
+<h3 id="inserting-0-after-åäö">Inserting 0 after åäö</h3>
+<h1 id="updrage-process">Updrage process</h1>
+<p>I upgraded Kinesis Advantage 2 keyboard and made mappings for Windows and Linux.</p>
+<p>Before:</p>
+<pre><code>Model name&gt; Advantage2 Keyboard
+Firmware version&gt; 1.0.0.us (2MB), 06/29/2016
+Current keyboard config file&gt; w_qwerty.txt
+Current thumb keys mode&gt; pc
+Macro playback status&gt; active
+Macro playback speed&gt; slow=1, normal=3, fast=9&gt; 3
+Keyclick status&gt; clicks off
+Toggle action tone status&gt; tones on
+Number of stored macros&gt; 9
+Number of keys remapped&gt; 5
+Power user mode&gt; on</code></pre>
+<p>After:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.521.us (2MB), 06/25/2020
+Active layout file&gt; w_qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 9
+Keys remapped&gt; 5
+Power user mode&gt; on</code></pre>
+<p>Mappings Windows:</p>
+<pre><code>[caps]&gt;[lctrl]
+[lalt]&gt;[kpshift]
+[kp-lalt]&gt;[kpshift]
+[lctrl]&gt;[lalt]
+[rctrl]&gt;[enter]
+
+{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+{kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+{lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+
+{kp-'}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp8}{+lalt}
+{kp-lshift}{kp-'}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+{lshift}{kp-'}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+
+{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp4}{kp6}{+lalt}
+{kp-lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
+{lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}</code></pre>
+<h2 id="installation">Installation</h2>
+<p>https://kinesis-ergo.com/wp-content/uploads/Adv2-Users-Manual-fw1.0.517-4-24-20.pdf</p>
+<p>How to know which keyboard model I should use?</p>
+<p>Landet keyboard. Before:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.431.us (4MB), 11/14/2017
+Active layout file&gt; qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 0
+Keys remapped&gt; 5</code></pre>
+<p>After:</p>
+<pre><code>Model&gt; Advantage2
+Firmware&gt; 1.0.521.us (4MB), 06/25/2020
+Active layout file&gt; l_qwerty.txt
+Thumb keys mode&gt; none
+Macro play speed&gt; off=0, slow=1, normal=3, fast=9&gt; 3
+Status report play speed&gt; off=0, slow=1, normal=3, fast=4&gt; 3
+Keyclick status&gt; off
+Toggle tone status&gt; on
+Stored macros&gt; 9
+Keys remapped&gt; 5</code></pre>
+<p>Had to unmount v-drive for update to take effect. Step 6.5 in this https://kinesis-ergo.com/wp-content/uploads/Adv2-Firmware-Update-Instructions-4-2-19.pdf.</p>
+<h2 id="furure">Furure</h2>
+<p>Experiment with more symbols in the embedded layer? Put braces in there?</p>
+
+      <hr>
+      <center>
+      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </center>
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
