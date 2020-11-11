@@ -8,8 +8,37 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2020-10-03T00:00:00Z</updated>
+    <updated>2020-11-11T00:00:00Z</updated>
     <entry>
+    <title>Newsletter October 2020</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/october-2020/" />
+    <id>http://rickardlindberg.me/writing/newsletter/october-2020/</id>
+    <published>2020-11-11T00:00:00Z</published>
+    <updated>2020-11-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Newsletter October 2020</h1>
+
+<p><em>Published on 11 November 2020.</em></p>
+
+<p>This is what I’ve been up to in October 2020:</p>
+<ul>
+<li><p>I continued work on the prototype of note taking application.</p>
+<ul>
+<li><p>I made the lines between notes look nicer:</p>
+<div class="figure">
+<img src="smart-notes-curved.png" />
+
+</div></li>
+<li><p>I started experimenting with variable sized notes depending on mouse cursor position:</p>
+<div class="figure">
+<img src="smart-notes-variable-size.png" />
+
+</div></li>
+</ul></li>
+<li><p>I read <a href="https://thorstenball.com/blog/2020/09/15/the-context-in-which-we-build-software/">The context in which we build software</a>. I reflected that one programmer’s advice might not be applicable to another programmer.</p></li>
+</ul>
+]]></summary>
+</entry>
+<entry>
     <title>Newsletter September 2020</title>
     <link href="http://rickardlindberg.me/writing/newsletter/september-2020/" />
     <id>http://rickardlindberg.me/writing/newsletter/september-2020/</id>
@@ -387,55 +416,6 @@
 <li><p>One of them led me to read Bob Nystrom’s article <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/">Pratt Parsers: Expression Parsing Made Easy</a>.</p></li>
 <li><p>I want to learn more about JIT compilation. As I read <a href="http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html">Hello, JIT World: The Joy of Simple JITs</a> describing a JIT compiler for Brainfuck I thought: Is JIT-ing byte code just getting rid of the interpreter loop? I’m not completely sure of the big picture yet. And how does a tracing JIT compiler differ from a regular JIT compiler. Brainfuck seems to be a popular example in JIT articles.</p></li>
 <li><p>I read about Cython and though that I should try it for RLMeta VM. Should be quite easy to port it to C and make incremental performance improvements.</p></li>
-</ul>
-]]></summary>
-</entry>
-<entry>
-    <title>Newsletter July 2019</title>
-    <link href="http://rickardlindberg.me/writing/newsletter/july-2019/" />
-    <id>http://rickardlindberg.me/writing/newsletter/july-2019/</id>
-    <published>2019-07-31T00:00:00Z</published>
-    <updated>2019-07-31T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Newsletter July 2019</h1>
-
-<p><em>Published on 31 July 2019.</em></p>
-
-<p>This is what I’ve been up to in July 2019:</p>
-<ul>
-<li><p>I continued work on the RLMeta VM post.</p></li>
-<li><p>I watched <a href="https://www.youtube.com/watch?v=oww7oB9rjgw">Steal Like An Artist: Austin Kleon at TEDxKC</a>. Main takeway was that every work is a mashup. Steal from others and show your mashup so that we can steal from you.</p></li>
-<li><p>I reread parts of <em>The Art of Explanation</em> by Lee LeFever. He presents a way to explain things so that people understand. I will try to be inspired by this way when writing.</p></li>
-<li><p>I thought about converting all posts on this site to “blog posts” and putting them under <code>rickardlindberg.me/blog/</code> and using tags for categories. Then allowing tags to also have explanations. Not sure if this structure is better or not.</p></li>
-<li><p>I read parts of <em>Hackers and Painters</em> by Paul Graham. A few quotes that I liked:</p>
-<blockquote>
-<p>Programming languages are what programmers think in. Naturally, this has a big effect on the kind of thoughts they have.</p>
-</blockquote>
-<p>I fully agree with this, and this is one of the reasons I want to learn more about language design so that I can design ideal languages for problems.</p>
-<blockquote>
-<p>After a certain age, programmers rarely switch languages voluntarily. Whatever language people happen to be used to, they tend to consider just good enough.</p>
-</blockquote>
-<p>I don’t want to get stuck in a language. How can I avoid it?</p></li>
-<li><p>I watched <a href="https://www.youtube.com/watch?v=ymiBDged-eQ">How to Start a Business or Podcast From Scratch | Tim Ferriss</a>. Main takeway was that it is easier to create a new category by finding a niche market to fill. Filling demand (in a new category) is easier than creating demand (in an existing category).</p></li>
-<li><p>I started reading <em>The 22 Immutable Laws of Marketing</em> by Al Ries because it was recommended by Tim in the above video. Some quotes:</p>
-<blockquote>
-<p>The easy answer is to make sure your programs are in tune with the laws of marketing.</p>
-</blockquote>
-<blockquote>
-<p>There are laws of nature, so why shouldn’t there be laws of marketing? You can build a great-looking airplane, but it’s not going to get off the ground unless it adheres to the laws of physics, especially the law of gravity. You can build an architectural masterpiece on a sand dune, but the first hurricane will undermine your creation. So it follows that you can build a brilliant marketing program only to have one of the immutable laws knock you flat if you don’t know what they are.</p>
-</blockquote></li>
-<li><p>I read about an incremental approach to compiler construction <a href="http://scheme2006.cs.uchicago.edu/11-ghuloum.pdf">here</a>, <a href="https://generalproblem.net/">here</a>, and <a href="https://blog.sigplan.org/2019/07/09/my-first-fifteen-compilers/">here</a>. The incremental approach starts with a small language (just integers) and builds upon that. At each stage, there is a working compiler. I want to explore this approach more. Can such a compiler be written with <a href="/tags/rlmeta/index.html">RLMeta</a>?</p></li>
-<li><p>I write articles about RLMeta in a literate programming style. Sometimes I think: Why is all this text needed? The code speaks for itself, right? Probably it doesn’t, but it is interesting to try to find the right balance.</p></li>
-<li><p>I read <a href="https://medium.com/@gvanrossum_83706/peg-parsers-7ed72462f97c">PEG Parsers</a> by Guido van Rossum. He is experimenting with replacing Python’s parser with a PEG-version.</p></li>
-<li><p>I found <a href="https://www.rascal-mpl.org/">Rascal - Metaprogramming Language</a>. I want to read more about it, but here is a good summary:</p>
-<blockquote>
-<p>You want to use the best tool for the job when analyzing, transforming or generating source code, so normally you will end up with many different tools, possibly even written in different languages. Now the problem is to integrate these tools again. Rascal solves this problem by integrating source code analysis, transformation, and generation primitives on the language level. Use it for any kind of metaprogramming task: to construct parsers for programming languages, to analyze and transform source code, or to define new DSLs with full IDE support.</p>
-</blockquote></li>
-<li><p>I read <a href="http://www.bbc.com/future/story/20190722-the-apple-software-that-inspired-the-internet">The forgotten software that inspired our modern world</a>. A quote I liked:</p>
-<blockquote>
-<p>But even more than that, HyperCard didn’t compromise between the easily usable and the creatively powerful.</p>
-</blockquote>
-<p>Something in that reminds me of what Alan Kay said. Something about simplifying but not dumbing down when teaching children.</p></li>
-<li><p>I read <a href="https://technicalblogging.com/blogging-income-how-bloggers-make-money/">The Inverted Pyramid of Blogging Income: How Pro Bloggers Make Money</a>. Main takeaway was that if you want to make money blogging, you should convert readers into customers and you must therefore also have another product to sell.</p></li>
 </ul>
 ]]></summary>
 </entry>
