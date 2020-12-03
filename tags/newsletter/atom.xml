@@ -8,8 +8,34 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2020-11-11T00:00:00Z</updated>
+    <updated>2020-12-03T00:00:00Z</updated>
     <entry>
+    <title>Newsletter November 2020</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/november-2020/" />
+    <id>http://rickardlindberg.me/writing/newsletter/november-2020/</id>
+    <published>2020-12-03T00:00:00Z</published>
+    <updated>2020-12-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Newsletter November 2020</h1>
+
+<p><em>Published on  3 December 2020.</em></p>
+
+<p>This is what I’ve been up to in November 2020:</p>
+<ul>
+<li><p>I continued work on the prototype of the note taking application.</p>
+<ul>
+<li><p>I added navigation support and worked on the animations:</p>
+<div class="figure">
+<img src="smart-notes-navigation-animations.gif" />
+
+</div></li>
+<li><p>I added basic editing capabilities via an external editor. Now you can add a new note, add a new child note, and edit an existing note. Basic editing capabilities left to implement is linking two arbitrary notes and deleting links.</p></li>
+<li><p>In addition to visual aspects, I also fleshed out the data model so that notes are read and written to file.</p></li>
+</ul></li>
+<li><p>I read <a href="https://buttondown.email/hillelwayne/archive/why-i-still-use-vim/">Why I Still Use Vim</a>. The point being made is that that development tools must be easily customizable.</p></li>
+</ul>
+]]></summary>
+</entry>
+<entry>
     <title>Newsletter October 2020</title>
     <link href="http://rickardlindberg.me/writing/newsletter/october-2020/" />
     <id>http://rickardlindberg.me/writing/newsletter/october-2020/</id>
@@ -364,58 +390,6 @@
 <li><p>I read <a href="https://csl.name/post/python-jit/">Writing a basic x86-64 JIT compiler from scratch in stock Python</a>.</p></li>
 <li><p>I read <a href="https://csl.name/post/python-compiler/">JIT compiling a subset of Python to x86-64</a>.</p></li>
 </ul></li>
-</ul>
-]]></summary>
-</entry>
-<entry>
-    <title>Newsletter August 2019</title>
-    <link href="http://rickardlindberg.me/writing/newsletter/august-2019/" />
-    <id>http://rickardlindberg.me/writing/newsletter/august-2019/</id>
-    <published>2019-08-31T00:00:00Z</published>
-    <updated>2019-08-31T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Newsletter August 2019</h1>
-
-<p><em>Published on 31 August 2019.</em></p>
-
-<p>This is what I’ve been up to in August 2019:</p>
-<ul>
-<li><p>I finished the <a href="/writing/rlmeta-vm/index.html">RLMeta VM</a> article. When working on it, I noticed that error handling has not gotten much love. I want to improve it and write about it in another article.</p></li>
-<li><p>I found <a href="https://viewsourcecode.org/snaptoken/kilo/index.html">Build Your Own Text Editor</a> that explains how to build a text editor by showing and explaining incremental patches. I found the approach interesting.</p>
-<ul>
-<li><p>This approach feels similar to what is described in <a href="http://akkartik.name/post/literate-programming">Literate programming: Knuth is doing it wrong</a> and <a href="http://akkartik.name/post/wart-layers">A new way to organize programs</a>.</p></li>
-<li><p>The above made me think about if programs could be organized in features without the use of literate programming. That would require some kind of plugin architechture where features could be plugged in independent of eachother.</p></li>
-</ul></li>
-<li><p>I read Guido van Rossum’s article on <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a>. This made me realize that RLMeta does not memoize correctly. I’m working on an <a href="/writing/rlmeta-memoize-failures/index.html">article</a> where I fix it.</p></li>
-<li><p>I worked on porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3. It is a work in progress, but the application now starts. I have a few items left on my TODO list that I want to complete before considering the port done. I ran into a problem that I <a href="/writing/timeline-doctest-wxpython/index.html">blogged about</a>. An another one <a href="/writing/timeline-segfault-wxpython/index.html">in progress</a>.</p></li>
-<li><p>I found <a href="https://twitter.com/mfeathers/status/1159495761714769921">this tweet</a> by Michael Feathers interesting:</p>
-<blockquote>
-<p>Fred Brooks said that software is best when it looks like it was designed by one mind.</p>
-<p>Mob programming is an attempt to create one mind of many.</p>
-<p>Quality goes down as the number of people touching code independently goes up.</p>
-<p>Interesting constraint problem.</p>
-</blockquote>
-<p>And a <a href="https://twitter.com/raganwald/status/1159498133635850240">follow up</a>:</p>
-<blockquote>
-<p>Interesting parallel to Alan Kay’s bifurcation of languages into “Agglutination of features” vs. “Crystallization of style.”</p>
-<p>The former are almost always defined by committee, the latter by solo designers or very small, tight teams.</p>
-</blockquote>
-<p>And another <a href="https://twitter.com/jit_j/status/1159501352243998720">follow up</a>:</p>
-<blockquote>
-<p>There are quality OSS projects that are made up of individual contributors and a distributed review process. It’s possible for independent workers to maintain and extend a codebase, as long as they buy into a shared style and a shared philosophy. Process matters though.</p>
-</blockquote>
-<p>How can we build software so that it appears to be desgined by a single mind?</p></li>
-<li><p>I wrote some code for an <a href="/writing/rlmeta-left-associativity/index.html">upcoming article</a> on parsing left associative operators in RLMeta.</p></li>
-<li><p>I read some of Eli Bendersky’s articles on parsing:</p>
-<ul>
-<li><p><a href="https://eli.thegreenplace.net/2008/09/26/recursive-descent-ll-and-predictive-parsers">Recursive descent, LL and predictive parsers</a></p></li>
-<li><p><a href="https://eli.thegreenplace.net/2009/03/14/some-problems-of-recursive-descent-parsers">Some problems of recursive descent parsers</a></p></li>
-<li><p><a href="https://eli.thegreenplace.net/2009/03/20/a-recursive-descent-parser-with-an-infix-expression-evaluator">A recursive descent parser with an infix expression evaluator</a></p></li>
-<li><p><a href="https://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing">Top-Down operator precedence parsing</a></p></li>
-<li><p><a href="https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing">Parsing expressions by precedence climbing</a></p></li>
-</ul></li>
-<li><p>One of them led me to read Bob Nystrom’s article <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/">Pratt Parsers: Expression Parsing Made Easy</a>.</p></li>
-<li><p>I want to learn more about JIT compilation. As I read <a href="http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html">Hello, JIT World: The Joy of Simple JITs</a> describing a JIT compiler for Brainfuck I thought: Is JIT-ing byte code just getting rid of the interpreter loop? I’m not completely sure of the big picture yet. And how does a tracing JIT compiler differ from a regular JIT compiler. Brainfuck seems to be a popular example in JIT articles.</p></li>
-<li><p>I read about Cython and though that I should try it for RLMeta VM. Should be quite easy to port it to C and make incremental performance improvements.</p></li>
 </ul>
 ]]></summary>
 </entry>
