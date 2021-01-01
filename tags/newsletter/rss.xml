@@ -7,8 +7,29 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged newsletter]]></description>
         <atom:link href="http://rickardlindberg.me/tags/newsletter/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 03 Dec 2020 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 01 Jan 2021 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Newsletter December 2020</title>
+    <link>http://rickardlindberg.me/writing/newsletter/december-2020/</link>
+    <description><![CDATA[<h1>Newsletter December 2020</h1>
+
+<p><em>Published on  1 January 2021.</em></p>
+
+<p>This is what I’ve been up to in December 2020:</p>
+<ul>
+<li><p>I continued work on the note taking application.</p>
+<ul>
+<li><p>I added the remaining editing capabilities and also added a search feature so that any note could be found and opened. I am particularly happy with how the linking feature turned out. The application is now feature complete to the point where it is usable for me. I plan to do a video demo of it, so stay tuned for that.</p></li>
+<li><p>I figured out how to properly use pygame and Pycairo together. I was mislead by the example in the Pycairo documentation, but eventually figured out how to do it for my particular use case. I might write about it in a blog post. Let me know if you would be interested in that.</p></li>
+</ul></li>
+<li><p>I discovered <a href="https://www.youtube.com/channel/UC3ts8coMP645hZw9JSD3pqQ">Andreas Kling’s videos</a> where he hacks on his SerenityOS operating system. I have only watched a few, but I find them quite interesting.</p></li>
+</ul>
+]]></description>
+    <pubDate>Fri, 01 Jan 2021 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/december-2020/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>Newsletter November 2020</title>
     <link>http://rickardlindberg.me/writing/newsletter/november-2020/</link>
     <description><![CDATA[<h1>Newsletter November 2020</h1>
@@ -351,45 +372,6 @@
 ]]></description>
     <pubDate>Sat, 02 Nov 2019 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/october-2019/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Newsletter September 2019</title>
-    <link>http://rickardlindberg.me/writing/newsletter/september-2019/</link>
-    <description><![CDATA[<h1>Newsletter September 2019</h1>
-
-<p><em>Published on  1 October 2019.</em></p>
-
-<p>This is what I’ve been up to in September 2019:</p>
-<ul>
-<li><p>I finished the article on <a href="/writing/rlmeta-left-associativity/index.html">parsing left associative operators in RLMeta</a>. I’m pleased with how it turned out.</p></li>
-<li><p>I played with <a href="https://cython.org/">Cython</a> to see if RLMeta VM could be made faster if converted to a C extension module. (It could!) I might write a blog post about it.</p></li>
-<li><p>I learned more about Python C extension modules from <a href="https://thomasnyberg.com/what_are_extension_modules.html">What are (c)python extension modules?</a>.</p></li>
-<li><p>I watched <a href="https://cacm.acm.org/magazines/2018/11/232214-a-look-at-the-design-of-lua/fulltext">A Look at the Design of Lua</a>. I was inspired by the setting in which it seems to have been created. Small office. Whiteboard. Collaboration. I want to implement a minimal OOP-language in order to learn how to do it.</p></li>
-<li><p>I finished porting <a href="/projects/timeline/index.html">Timeline</a> to Python 3.</p>
-<ul>
-<li><p>The most difficult part was to verify that division operations were still working the same. (Python 3 integer division gives float instead of integer as in Python 2.)</p></li>
-<li><p>I concluded that maintaining software is hard work. Even if your program does not change, the external world changes, and you need to change your program accordingly.</p></li>
-<li><p>I finished the article on the <a href="/writing/timeline-segfault-wxpython/index.html">segfault failure</a> that I found during porting.</p></li>
-</ul></li>
-<li><p>I learned about a trick help me get started on a task faster: leave work undone. Leave a test failing. Leave a sentence half written.</p></li>
-<li><p>I learned that your number one priority is not what you write on top of the TODO list, but what you actually do.</p></li>
-<li><p>I finished a post with my <a href="/writing/alan-kay-notes/index.html">notes on Alan Kay</a>. He is a big inspiration to me.</p></li>
-<li><p>I read most parts of <a href="https://paulcavallaro.com/blog/common-systems-programming-optimizations-tricks/">Common Systems Programming Optimizations &amp; Tricks</a>. Low level optimizations are interesting. It reminded me of Bob Nystrom’s <a href="http://gameprogrammingpatterns.com/">game programming book</a> that discusses some <a href="http://gameprogrammingpatterns.com/optimization-patterns.html">similar topics</a>.</p></li>
-<li><p>I continued with the article about <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures in RLMeta</a>. It is almost finished, but because I got distracted by other work, it is not. I hope to finish it next month.</p></li>
-<li><p>I started working on <a href="/writing/expr-to-x86-compiler/index.html">compiling expressions to x86 machine code</a>:</p>
-<ul>
-<li><p>I don’t really know assembly, so I found <a href="https://www.nayuki.io/page/a-fundamental-introduction-to-x86-assembly-programming">A fundamental introduction to x86 assembly programming</a> useful.</p></li>
-<li><p>I got segafults because of 32/64-bit mixup. It just shows that I don’t really know what I’m doing yet.</p></li>
-<li><p>I learned that <code>add</code> and <code>imul</code> instructions do not work the same. <code>imul</code> can not store result back in memory but must go via register.</p></li>
-<li><p>I learned that I subtracted operands in the wrong order.</p></li>
-<li><p>I read <a href="https://csl.name/post/python-jit/">Writing a basic x86-64 JIT compiler from scratch in stock Python</a>.</p></li>
-<li><p>I read <a href="https://csl.name/post/python-compiler/">JIT compiling a subset of Python to x86-64</a>.</p></li>
-</ul></li>
-</ul>
-]]></description>
-    <pubDate>Tue, 01 Oct 2019 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/newsletter/september-2019/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
