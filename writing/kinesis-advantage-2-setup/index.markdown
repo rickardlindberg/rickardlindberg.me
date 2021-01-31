@@ -12,9 +12,42 @@ In this article I explain how I have configured my Kinesis Advantage 2 keyboard
 
 # TL;DR
 
-I have the following macros for Windows/Linux:
+I have the following mappings and macros for Linux:
 
-    tada
+    [lalt]>[kpshift]
+    [kp-lalt]>[kpshift]
+
+    {kp-\}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{e}{5}{+lshift}{+lctrl}
+    {kp-lshift}{kp-\}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{5}{+lshift}{+lctrl}
+    {lshift}{kp-\}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{5}{+lshift}{+lctrl}
+
+    {kp-'}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{e}{4}{+lshift}{+lctrl}
+    {kp-lshift}{kp-'}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{4}{+lshift}{+lctrl}
+    {lshift}{kp-'}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{4}{+lshift}{+lctrl}
+
+    {kpplus}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{f}{6}{+lshift}{+lctrl}
+    {kp-lshift}{kpplus}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{d}{6}{+lshift}{+lctrl}
+    {lshift}{kpplus}>{speed9}{-lctrl}{-lshift}{u}{0}{0}{d}{6}{+lshift}{+lctrl}
+
+I have the following mappings and macros for Windows:
+
+    [lalt]>[kpshift]
+    [kp-lalt]>[kpshift]
+
+    {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+    {kp-lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+    {lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+
+    {kp-'}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp8}{+lalt}
+    {kp-lshift}{kp-'}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+    {lshift}{kp-'}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+
+    {kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp4}{kp6}{+lalt}
+    {kp-lshift}{kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
+    {lshift}{kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
+
+Read on to learn how these mappings and macros work and the reasoning behind
+them.
 
 # Background
 
@@ -35,8 +68,8 @@ keys](/writing/xmodmap-on-fedora/index.html) in software like this:
 
 Basically, I use the modifier `Alt_GR` plus the key where the character is
 located on a Swedish keyboard. For example, on a Swedish keyboard, the key
-for 'Å' is located in the same position as the key for '[' on a US keyboard (to
-the right of 'P').
+for `å` is located in the same position as the key for `[` on a US keyboard (to
+the right of `p`).
 
 My solution only works on Linux, which was fine up until I had to use Windows
 on a regular basis.
@@ -52,7 +85,7 @@ there is. The Wikipedia page [Unicode
 input](https://en.wikipedia.org/wiki/Unicode_input) describes it well.
 
 On Linux, the universal way to enter a unicode character is to hold
-`Ctrl+Shift`, then type 'u', then type the unicode character hex code, then
+`Ctrl+Shift`, then press `u`, then type the unicode character hex code, then
 release `Ctrl+Shift`.
 
 To type 'å' on Linux, you use the key combination `Ctrl+Shift+u+00e5`.
@@ -84,7 +117,7 @@ This is known as macros.
 
 Here is an example of a macro for producing an 'å' on Windows:
 
-    {the key to trigger the macro}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+    {key to trigger the macro}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
 
 This instruct the keyboard to press and hold left alt, then press keypad 0,
 keypad 2, keypad 2, keypad 9, and then release left alt. And this at speed 9
@@ -129,6 +162,12 @@ This is what macros look like to
 
     {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
     {kp-lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+    {lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+
+I created two macros for the shifted uppercase letters. That is because I
+wanted to be sure to trigger it no matter if I activated the keypad layer
+before or after pressing left shift. I'm not sure if it matters, but I
+suspect it might.
 
 New way to enter Swedish characters:
 
@@ -142,9 +181,9 @@ New way to enter Swedish characters:
 These are the same mappings as I had previously, but with a different modifier
 key.
 
-On a Swedish keyboard, the 'Å' key is located to the right of the 'P' key. On a
-standard US keyboard, that is the '[' key. But on the Kinesis Advantage 2, that
-is the '\' key.
+On a Swedish keyboard, the `å` key is located to the right of the `p` key. On a
+standard US keyboard, that is the `[` key. But on the Kinesis Advantage 2, that
+is the `\` key.
 
 How to know which macro to trigger, the Linux version or the Windows version?
 
@@ -161,32 +200,6 @@ characters.
 To switch between the layouts, I press `progm+L` for Linux and `progm+W` for
 Windows. Every time I switch operating system, I switch hotkey layout.
 
-## Mapping summary
-
-Linux:
-
-Windows:
-
-    [lalt]>[kpshift]
-    [kp-lalt]>[kpshift]
-
-    {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
-    {kp-lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
-    {lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
-
-    {kp-'}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp8}{+lalt}
-    {kp-lshift}{kp-'}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
-    {lshift}{kp-'}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
-
-    {kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp4}{kp6}{+lalt}
-    {kp-lshift}{kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
-    {lshift}{kpplus}>{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
-
-I created two macros for the shifted uppercase letters. That is because I
-wanted to be sure to trigger it no matter if I activated the keypad layer
-before or after pressing left shift. I'm not sure if it matters, but I
-suspected it might.
-
 ## General problem with universal input method
 
 On Linux, not all text entry fields support the universal input method. This is
@@ -202,8 +215,8 @@ is going on there.
 On Windows, the universal input method have worked for me everywhere I've
 tried, but it is important to have the NumLock switched on. Otherwise the
 macros will not work. Sometimes NumLock gets turned off without me doing it, so
-sometimes the macros didn't work, and I thought it was a problem in a certain
-text field. But it always turned out to be NumLock.
+sometimes the macros don't work. I thought it was a problem in a certain text
+field, but it always turned out to be NumLock.
 
 ## Problems with the keypad layer
 
@@ -219,16 +232,21 @@ produce a space instead.
 The problem should arise with other characters as well, but the '0' is the only
 one I have encountered.
 
-## Furure
-
-Experiment with more symbols in the embedded layer? Put braces in there?
-
 ## Appendix: Kinesis Commands
 
 This is how to create a new hotkey layout:
 
-    ...
+    progm + Shift + Esc          (Enter Power User Mode)
+    progm + F2
+    <press hot key>
+    progm + Shift + Esc          (Exit Power User Mode)
 
-Once that is done, the files can be edited with v-drive:
+Once that is done, the files can be edited with v-Drive:
 
-    ...
+    progm + Shift + Esc          (Enter Power User Mode)
+    progm + F1                   (Mount v-Drive)
+    <edit active/l_qwerty.txt>
+    <edit active/w_qwerty.txt>
+    <eject>
+    progm + F1                   (Unmount v-Drive)
+    progm + Shift + Esc          (Exit Power User Mode)
