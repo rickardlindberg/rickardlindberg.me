@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: Kinesis Advantage 2 Setup"
-date: 2021-01-30
+date: 2021-02-10
 tags: draft
 ---
 
@@ -10,7 +10,7 @@ know by sending me an email.**
 In this article I explain how I have configured my Kinesis Advantage 2 keyboard
 (US version) to also type Swedish characters.
 
-# TL;DR
+## TL;DR
 
 I have the following mappings and macros for Linux:
 
@@ -49,7 +49,7 @@ I have the following mappings and macros for Windows:
 Read on to learn how these mappings and macros work and the reasoning behind
 them.
 
-# Background
+## Background
 
 Even though I am a Swede, I am a long time user of the US keyboard layout. The
 reason that I switched was that many keys common when programming are more
@@ -71,11 +71,13 @@ located on a Swedish keyboard. For example, on a Swedish keyboard, the key
 for `å` is located in the same position as the key for `[` on a US keyboard (to
 the right of `p`).
 
+    TODO: image comparison
+
 My solution only works on Linux, which was fine up until I had to use Windows
 on a regular basis.
 
 Since I'm not that familiar with Windows, figuring out how to remap keys seemed
-difficult, so I started to think of other solutions.
+difficult, so I started thinking of other solutions.
 
 ## Universal unicode input
 
@@ -84,7 +86,7 @@ in Linux. Perhaps there is something similar for Windows as well? It turns out
 there is. The Wikipedia page [Unicode
 input](https://en.wikipedia.org/wiki/Unicode_input) describes it well.
 
-On Linux, the universal way to enter a unicode character is to hold
+On Linux, the universal way to enter a unicode character is to press and hold
 `Ctrl+Shift`, then press `u`, then type the unicode character hex code, then
 release `Ctrl+Shift`.
 
@@ -119,10 +121,9 @@ Here is an example of a macro for producing an 'å' on Windows:
 
     {key to trigger the macro}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
 
-This instruct the keyboard to press and hold left alt, then press keypad 0,
-keypad 2, keypad 2, keypad 9, and then release left alt. And this at speed 9
-which is the fastest speed. This macro can be triggered by any key at my
-choosing.
+This instruct the keyboard to press and hold `LeftAlt`, then press keypad 0,
+keypad 2, keypad 2, keypad 9, and then release `LeftAlt`. And this at speed 9
+which is the fastest speed. This macro can be triggered by any key of choice.
 
 In total I will need 12 macros. First 3 macros for the lowercase 'å', 'ä', and
 'ö'. Then 3 more for the uppercase versions. And all those 6 are different on
@@ -136,12 +137,12 @@ character is located on a Swedish keyboard.
 
 ## Keypad layer
 
-The Kinesis Advantage 2 also has another feature knows as the keypad layer.
+The Kinesis Advantage 2 also has another feature known as the keypad layer.
 The keypad layer is a second layer with keys. It is toggled permanently with
 the `keyp` button. But it can also be made active during the press and hold of
 a single button.
 
-I designated the left alt key to the button that, while pressed, would activate
+I designated the `LeftAlt` key to the button that, while pressed, would activate
 the keypad layer. It looks like this:
 
     [lalt]>[kpshift]
@@ -151,10 +152,10 @@ the keypad layer. It looks like this:
 the button needs to be remapped in both layers to be able to have a shift-like
 behavior.)
 
-When I have left alt pressed, the keypad layer is active, and all the keys on
-the keyboard now perform different functions. By default the keypad layer has
-some mappings for digits. I don't use them, so I can override them to mean
-something else.
+When I have `LeftAlt` pressed, the keypad layer is active, and all the keys on
+the keyboard perform different functions. By default, the keypad layer has some
+mappings for digits. I don't use them, so I can override them to mean something
+else.
 
 TODO: expand this section
 
@@ -166,17 +167,17 @@ This is what macros look like to
 
 I created two macros for the shifted uppercase letters. That is because I
 wanted to be sure to trigger it no matter if I activated the keypad layer
-before or after pressing left shift. I'm not sure if it matters, but I
+before or after pressing `LeftShift`. I'm not sure if it matters, but I
 suspect it might.
 
 New way to enter Swedish characters:
 
-          LeftAlt+\  =>  'å'
-          LeftAlt+'  =>  'ä'
-          LeftAlt+;  =>  'ö'
-    Shift+LeftAlt+\  =>  'Å'
-    Shift+LeftAlt+'  =>  'Ä'
-    Shift+LeftAlt+;  =>  'Ö'
+              LeftAlt+\  =>  'å'
+              LeftAlt+'  =>  'ä'
+              LeftAlt+;  =>  'ö'
+    LeftShift+LeftAlt+\  =>  'Å'
+    LeftShift+LeftAlt+'  =>  'Ä'
+    LeftShift+LeftAlt+;  =>  'Ö'
 
 These are the same mappings as I had previously, but with a different modifier
 key.
@@ -184,6 +185,8 @@ key.
 On a Swedish keyboard, the `å` key is located to the right of the `p` key. On a
 standard US keyboard, that is the `[` key. But on the Kinesis Advantage 2, that
 is the `\` key.
+
+    TODO: image comparison
 
 How to know which macro to trigger, the Linux version or the Windows version?
 
@@ -223,7 +226,7 @@ field, but it always turned out to be NumLock.
 When typing a Swedish character followed by a space, a '0' is sometimes
 inserted instead. That is because the space key is mapped to the '0' key in the
 keypad layer. I suspect that it happens if space is pressed quickly after
-triggering the macro so that the release of the LeftAlt key has not happened
+triggering the macro so that the release of the `LeftAlt` key has not happened
 when the space is pressed.
 
 This happens sometimes, and one solution would be to remap the keypad '0' to
