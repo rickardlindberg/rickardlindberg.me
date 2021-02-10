@@ -8,20 +8,20 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-01-30T00:00:00Z</updated>
+    <updated>2021-02-10T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Kinesis Advantage 2 Setup</title>
     <link href="http://rickardlindberg.me/writing/kinesis-advantage-2-setup/" />
     <id>http://rickardlindberg.me/writing/kinesis-advantage-2-setup/</id>
-    <published>2021-01-30T00:00:00Z</published>
-    <updated>2021-01-30T00:00:00Z</updated>
+    <published>2021-02-10T00:00:00Z</published>
+    <updated>2021-02-10T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Kinesis Advantage 2 Setup</h1>
 
-<p><em>Published on 30 January 2021.</em></p>
+<p><em>Published on 10 February 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this article I explain how I have configured my Kinesis Advantage 2 keyboard (US version) to also type Swedish characters.</p>
-<h1 id="tldr">TL;DR</h1>
+<h2 id="tldr">TL;DR</h2>
 <p>I have the following mappings and macros for Linux:</p>
 <pre><code>[lalt]&gt;[kpshift]
 [kp-lalt]&gt;[kpshift]
@@ -53,7 +53,7 @@
 {kp-lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
 {lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}</code></pre>
 <p>Read on to learn how these mappings and macros work and the reasoning behind them.</p>
-<h1 id="background">Background</h1>
+<h2 id="background">Background</h2>
 <p>Even though I am a Swede, I am a long time user of the US keyboard layout. The reason that I switched was that many keys common when programming are more convenient to type on a US keyboard.</p>
 <p>Because I am a Swede, I also have the need to type Swedish characters which are not available on a US keyboard. I have solved that problem by <a href="/writing/xmodmap-on-fedora/index.html">remapping keys</a> in software like this:</p>
 <pre><code>      Alt_GR+[  =&gt;  &#39;å&#39;
@@ -63,11 +63,12 @@ Shift+Alt_GR+[  =&gt;  &#39;Å&#39;
 Shift+Alt_GR+&#39;  =&gt;  &#39;Ä&#39;
 Shift+Alt_GR+;  =&gt;  &#39;Ö&#39;</code></pre>
 <p>Basically, I use the modifier <code>Alt_GR</code> plus the key where the character is located on a Swedish keyboard. For example, on a Swedish keyboard, the key for <code>å</code> is located in the same position as the key for <code>[</code> on a US keyboard (to the right of <code>p</code>).</p>
+<pre><code>TODO: image comparison</code></pre>
 <p>My solution only works on Linux, which was fine up until I had to use Windows on a regular basis.</p>
-<p>Since I’m not that familiar with Windows, figuring out how to remap keys seemed difficult, so I started to think of other solutions.</p>
+<p>Since I’m not that familiar with Windows, figuring out how to remap keys seemed difficult, so I started thinking of other solutions.</p>
 <h2 id="universal-unicode-input">Universal unicode input</h2>
 <p>Then I remembered that there is a universal way to enter any unicode character in Linux. Perhaps there is something similar for Windows as well? It turns out there is. The Wikipedia page <a href="https://en.wikipedia.org/wiki/Unicode_input">Unicode input</a> describes it well.</p>
-<p>On Linux, the universal way to enter a unicode character is to hold <code>Ctrl+Shift</code>, then press <code>u</code>, then type the unicode character hex code, then release <code>Ctrl+Shift</code>.</p>
+<p>On Linux, the universal way to enter a unicode character is to press and hold <code>Ctrl+Shift</code>, then press <code>u</code>, then type the unicode character hex code, then release <code>Ctrl+Shift</code>.</p>
 <p>To type ‘å’ on Linux, you use the key combination <code>Ctrl+Shift+u+00e5</code>.</p>
 <p>On Windows, the universal way to enter a unicode character is to press and hold <code>Alt</code>, then type the unicode character decimal number on the <em>keypad</em>, then release <code>Alt</code>.</p>
 <p>To type ‘å’ on Windows, you use the key combination <code>Alt+0229</code>.</p>
@@ -78,32 +79,33 @@ Shift+Alt_GR+;  =&gt;  &#39;Ö&#39;</code></pre>
 <p>Luckily for me, I am also a long time user of the Kinesis Advantage 2 keyboard. One of its features is that it is programmable. You can make one keypress on the physical keyboard produce multiple key presses as seen by the computer. This is known as macros.</p>
 <p>Here is an example of a macro for producing an ‘å’ on Windows:</p>
 <pre><code>{key to trigger the macro}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}</code></pre>
-<p>This instruct the keyboard to press and hold left alt, then press keypad 0, keypad 2, keypad 2, keypad 9, and then release left alt. And this at speed 9 which is the fastest speed. This macro can be triggered by any key at my choosing.</p>
+<p>This instruct the keyboard to press and hold <code>LeftAlt</code>, then press keypad 0, keypad 2, keypad 2, keypad 9, and then release <code>LeftAlt</code>. And this at speed 9 which is the fastest speed. This macro can be triggered by any key of choice.</p>
 <p>In total I will need 12 macros. First 3 macros for the lowercase ‘å’, ‘ä’, and ‘ö’. Then 3 more for the uppercase versions. And all those 6 are different on Linux and Windows, yielding in total 12 versions.</p>
 <p>Now to the next question: How should I trigger these macros? How do I want to enter the characters?</p>
 <p>I would like to enter them as I am used to. A modifier key + the key where the character is located on a Swedish keyboard.</p>
 <h2 id="keypad-layer">Keypad layer</h2>
-<p>The Kinesis Advantage 2 also has another feature knows as the keypad layer. The keypad layer is a second layer with keys. It is toggled permanently with the <code>keyp</code> button. But it can also be made active during the press and hold of a single button.</p>
-<p>I designated the left alt key to the button that, while pressed, would activate the keypad layer. It looks like this:</p>
+<p>The Kinesis Advantage 2 also has another feature known as the keypad layer. The keypad layer is a second layer with keys. It is toggled permanently with the <code>keyp</code> button. But it can also be made active during the press and hold of a single button.</p>
+<p>I designated the <code>LeftAlt</code> key to the button that, while pressed, would activate the keypad layer. It looks like this:</p>
 <pre><code>[lalt]&gt;[kpshift]
 [kp-lalt]&gt;[kpshift]</code></pre>
 <p>(As the <a href="https://kinesis-ergo.com/support/advantage2/#manuals">manual</a> says, the button needs to be remapped in both layers to be able to have a shift-like behavior.)</p>
-<p>When I have left alt pressed, the keypad layer is active, and all the keys on the keyboard now perform different functions. By default the keypad layer has some mappings for digits. I don’t use them, so I can override them to mean something else.</p>
+<p>When I have <code>LeftAlt</code> pressed, the keypad layer is active, and all the keys on the keyboard perform different functions. By default, the keypad layer has some mappings for digits. I don’t use them, so I can override them to mean something else.</p>
 <p>TODO: expand this section</p>
 <p>This is what macros look like to</p>
 <pre><code>{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
 {kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
 {lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}</code></pre>
-<p>I created two macros for the shifted uppercase letters. That is because I wanted to be sure to trigger it no matter if I activated the keypad layer before or after pressing left shift. I’m not sure if it matters, but I suspect it might.</p>
+<p>I created two macros for the shifted uppercase letters. That is because I wanted to be sure to trigger it no matter if I activated the keypad layer before or after pressing <code>LeftShift</code>. I’m not sure if it matters, but I suspect it might.</p>
 <p>New way to enter Swedish characters:</p>
-<pre><code>      LeftAlt+\  =&gt;  &#39;å&#39;
-      LeftAlt+&#39;  =&gt;  &#39;ä&#39;
-      LeftAlt+;  =&gt;  &#39;ö&#39;
-Shift+LeftAlt+\  =&gt;  &#39;Å&#39;
-Shift+LeftAlt+&#39;  =&gt;  &#39;Ä&#39;
-Shift+LeftAlt+;  =&gt;  &#39;Ö&#39;</code></pre>
+<pre><code>          LeftAlt+\  =&gt;  &#39;å&#39;
+          LeftAlt+&#39;  =&gt;  &#39;ä&#39;
+          LeftAlt+;  =&gt;  &#39;ö&#39;
+LeftShift+LeftAlt+\  =&gt;  &#39;Å&#39;
+LeftShift+LeftAlt+&#39;  =&gt;  &#39;Ä&#39;
+LeftShift+LeftAlt+;  =&gt;  &#39;Ö&#39;</code></pre>
 <p>These are the same mappings as I had previously, but with a different modifier key.</p>
 <p>On a Swedish keyboard, the <code>å</code> key is located to the right of the <code>p</code> key. On a standard US keyboard, that is the <code>[</code> key. But on the Kinesis Advantage 2, that is the <code>\</code> key.</p>
+<pre><code>TODO: image comparison</code></pre>
 <p>How to know which macro to trigger, the Linux version or the Windows version?</p>
 <h2 id="hotkey-layouts">Hotkey layouts</h2>
 <p>Another feature of the Kinesis Advantage 2 keyboard is hotkey layouts. These are custom layouts that can be activated with a hotkey (<code>progm+&lt;key&gt;</code>).</p>
@@ -114,7 +116,7 @@ Shift+LeftAlt+;  =&gt;  &#39;Ö&#39;</code></pre>
 <p>One place where it works but produces weird text is in Google Hangouts chat. When entering a unicode character, the text turns into underlined for some reason. I’m not sure if there is a problem with my version of Firefox or what is going on there.</p>
 <p>On Windows, the universal input method have worked for me everywhere I’ve tried, but it is important to have the NumLock switched on. Otherwise the macros will not work. Sometimes NumLock gets turned off without me doing it, so sometimes the macros don’t work. I thought it was a problem in a certain text field, but it always turned out to be NumLock.</p>
 <h2 id="problems-with-the-keypad-layer">Problems with the keypad layer</h2>
-<p>When typing a Swedish character followed by a space, a ‘0’ is sometimes inserted instead. That is because the space key is mapped to the ‘0’ key in the keypad layer. I suspect that it happens if space is pressed quickly after triggering the macro so that the release of the LeftAlt key has not happened when the space is pressed.</p>
+<p>When typing a Swedish character followed by a space, a ‘0’ is sometimes inserted instead. That is because the space key is mapped to the ‘0’ key in the keypad layer. I suspect that it happens if space is pressed quickly after triggering the macro so that the release of the <code>LeftAlt</code> key has not happened when the space is pressed.</p>
 <p>This happens sometimes, and one solution would be to remap the keypad ‘0’ to produce a space instead.</p>
 <p>The problem should arise with other characters as well, but the ‘0’ is the only one I have encountered.</p>
 <h2 id="appendix-kinesis-commands">Appendix: Kinesis Commands</h2>
