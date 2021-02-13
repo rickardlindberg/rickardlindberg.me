@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: Kinesis Advantage 2 Setup"
-date: 2021-02-10
+date: 2021-02-13
 tags: draft
 ---
 
@@ -71,7 +71,15 @@ located on a Swedish keyboard. For example, on a Swedish keyboard, the key
 for `å` is located in the same position as the key for `[` on a US keyboard (to
 the right of `p`).
 
-    TODO: image comparison
+<center>
+<p><a href="https://en.wikipedia.org/wiki/File:KB_United_States.svg"><img src="us.png"></a></p>
+<p><i>US layout with Swedish keys highlighted.</i><p>
+</center>
+
+<center>
+<p><a href="https://en.wikipedia.org/wiki/File:KB_Sweden.svg"><img src="se.png"></a></p>
+<p><i>Swedish layout with Swedish keys and Alt Gr highlighted.</i><p>
+</center>
 
 My solution only works on Linux, which was fine up until I had to use Windows
 on a regular basis.
