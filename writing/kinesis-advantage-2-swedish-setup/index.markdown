@@ -183,10 +183,14 @@ the standard layer and the keypad layer:
 <p><i>Kinesis US layout with Swedish keys and modifier highlighted.</i><p>
 </center>
 
-This is what a macro for producing 'å' on Windows with the key combination
+This is what a macro for producing an 'å' on Windows with the key combination
 `LeftAtl+\` looks like:
 
     {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+
+This is what macros for producing an 'Å' on Windows with the key combination
+`Shift+LeftAtl+\` looks like:
+
     {kp-lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
     {lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
 
