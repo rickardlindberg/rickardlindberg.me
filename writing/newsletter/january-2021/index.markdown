@@ -27,5 +27,5 @@ This is what I've been up to in January 2021:
   At least it can be a playground for trying out new ideas.
 
 * I continued work on the [blog
-  post](/writing/kinesis-advantage-2-setup/index.html) about the configuration
+  post](/writing/kinesis-advantage-2-swedish-setup/index.html) about the configuration
   of my Kinesis Advantage 2 keyboard.

@@ -1,5 +1,5 @@
 ---
-title: "DRAFT: Kinesis Advantage 2 Setup"
+title: "DRAFT: Kinesis Advantage 2 Swedish Setup"
 date: 2021-02-14
 tags: draft
 ---

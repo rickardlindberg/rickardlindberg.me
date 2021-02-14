@@ -8,7 +8,7 @@ This is what I've been up to in September 2020:
 
 * I upgraded the configuration for my Kinesis Advantage 2 keyboard. I am
   planning on writing a [blog
-  post](/writing/kinesis-advantage-2-setup/index.html) about it.
+  post](/writing/kinesis-advantage-2-swedish-setup/index.html) about it.
 
 * I read [Back when software was a
   craft](https://jessitron.com/2020/08/04/back-when-software-was-a-craft/). I
