@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: Kinesis Advantage 2 Setup"
-date: 2021-02-13
+date: 2021-02-14
 tags: draft
 ---
 
@@ -56,7 +56,7 @@ reason that I switched was that many keys common when programming are more
 convenient to type on a US keyboard.
 
 Because I am a Swede, I also have the need to type Swedish characters which are
-not available on a US keyboard. I have solved that problem by [remapping
+not available on a US keyboard. I have solved that by [remapping
 keys](/writing/xmodmap-on-fedora/index.html) in software like this:
 
           Alt_GR+[  =>  'å'
@@ -66,10 +66,10 @@ keys](/writing/xmodmap-on-fedora/index.html) in software like this:
     Shift+Alt_GR+'  =>  'Ä'
     Shift+Alt_GR+;  =>  'Ö'
 
-Basically, I use the modifier `Alt_GR` plus the key where the character is
-located on a Swedish keyboard. For example, on a Swedish keyboard, the key
-for `å` is located in the same position as the key for `[` on a US keyboard (to
-the right of `p`).
+I use the modifier `Alt_GR` plus the key where the character is located on a
+Swedish keyboard. For example, on a Swedish keyboard, the key for `å` is
+located in the same position as the key for `[` on a US keyboard (to the right
+of `p`).
 
 <center>
 <p><a href="https://en.wikipedia.org/wiki/File:KB_United_States.svg"><img src="us.png"></a></p>
@@ -78,7 +78,7 @@ the right of `p`).
 
 <center>
 <p><a href="https://en.wikipedia.org/wiki/File:KB_Sweden.svg"><img src="se.png"></a></p>
-<p><i>Swedish layout with Swedish keys and Alt Gr highlighted.</i><p>
+<p><i>Swedish layout with Swedish keys and modifier highlighted.</i><p>
 </center>
 
 My solution only works on Linux, which was fine up until I had to use Windows
@@ -147,8 +147,8 @@ character is located on a Swedish keyboard.
 
 The Kinesis Advantage 2 also has another feature known as the keypad layer.
 The keypad layer is a second layer with keys. It is toggled permanently with
-the `keyp` button. But it can also be made active during the press and hold of
-a single button.
+the `keyp` button. It can also be made active during the press and hold of a
+single button.
 
 I designated the `LeftAlt` key to the button that, while pressed, would activate
 the keypad layer. It looks like this:
@@ -165,9 +165,26 @@ the keyboard perform different functions. By default, the keypad layer has some
 mappings for digits. I don't use them, so I can override them to mean something
 else.
 
-TODO: expand this section
+The buttons corresponding to the Swedish characters have the following names in
+the standard layer and the keypad layer:
 
-This is what macros look like to
+           standard  keypad
+    å  =>     \       kp-\
+    ä  =>     '       kp-'
+    ö  =>     ;       kpplus
+
+<center>
+<p><a href="https://en.wikipedia.org/wiki/File:KB_Sweden.svg"><img src="se.png"></a></p>
+<p><i>Swedish layout with Swedish keys and modifier highlighted.</i><p>
+</center>
+
+<center>
+<p><a href="https://kinesis-ergo.com/wp-content/uploads/Adv2-Users-Manual-fw1.0.521.us-9-16-20.pdf"><img src="kinesis-us.png"></a></p>
+<p><i>Kinesis US layout with Swedish keys and modifier highlighted.</i><p>
+</center>
+
+This is what a macro for producing 'å' on Windows with the key combination
+`LeftAtl+\` looks like:
 
     {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
     {kp-lshift}{kp-\}>{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
@@ -189,12 +206,6 @@ New way to enter Swedish characters:
 
 These are the same mappings as I had previously, but with a different modifier
 key.
-
-On a Swedish keyboard, the `å` key is located to the right of the `p` key. On a
-standard US keyboard, that is the `[` key. But on the Kinesis Advantage 2, that
-is the `\` key.
-
-    TODO: image comparison
 
 How to know which macro to trigger, the Linux version or the Windows version?
 
