@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Kinesis Advantage 2 Swedish Setup | Rickard's personal homepage
+      Kinesis Advantage 2 Swedish Setup | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -52,11 +52,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Kinesis Advantage 2 Swedish Setup</h1>
+      <h1>Kinesis Advantage 2 Swedish Setup</h1>
 
-<p><em>Published on 14 February 2021.</em></p>
+<p><em>Published on 15 February 2021.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this article I explain how I have configured my Kinesis Advantage 2 keyboard (US version) to also type Swedish characters.</p>
 <h2 id="tldr">TL;DR</h2>
 <p>I have the following mappings and macros for Linux:</p>
@@ -128,11 +127,11 @@ Shift+Alt_GR+;  =&gt;  'Ö'</code></pre>
 <p>Now I had figured out a way to enter all the Swedish characters on a US keyboard in both operating systems.</p>
 <p>But typing the key combinations and remembering the unicode numbers was not very convenient.</p>
 <h2 id="macros">Macros</h2>
-<p>Luckily for me, I am also a long time user of the Kinesis Advantage 2 keyboard. One of its features is that it is programmable. You can make one keypress on the physical keyboard produce multiple key presses as seen by the computer. This is known as macros.</p>
+<p>Luckily for me, I am also a long time user of the Kinesis Advantage 2 keyboard. One of its features is that it is programmable. You can make one key press on the physical keyboard produce multiple key presses as seen by the computer. This is known as macros.</p>
 <p>Here is an example of a macro for producing an ‘å’ on Windows:</p>
 <pre><code>{key to trigger the macro}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}</code></pre>
 <p>This instruct the keyboard to press and hold <code>LeftAlt</code>, then press keypad 0, keypad 2, keypad 2, keypad 9, and then release <code>LeftAlt</code>. And this at speed 9 which is the fastest speed. This macro can be triggered by any key of choice.</p>
-<p>In total I will need 12 macros. First 3 macros for the lowercase ‘å’, ‘ä’, and ‘ö’. Then 3 more for the uppercase versions. And all those 6 are different on Linux and Windows, yielding in total 12 versions.</p>
+<p>In total need 12 macros. First 3 macros for the lowercase ‘å’, ‘ä’, and ‘ö’. Then 3 more for the uppercase versions. And all those 6 are different on Linux and Windows, yielding in total 12 versions.</p>
 <p>Now to the next question: How should I trigger these macros? How do I want to enter the characters?</p>
 <p>I would like to enter them as I am used to. A modifier key + the key where the character is located on a Swedish keyboard.</p>
 <h2 id="keypad-layer">Keypad layer</h2>
@@ -165,6 +164,7 @@ Shift+Alt_GR+;  =&gt;  'Ö'</code></pre>
 </center>
 <p>This is what a macro for producing an ‘å’ on Windows with the key combination <code>LeftAtl+\</code> looks like:</p>
 <pre><code>{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}</code></pre>
+<p>First, <code>LeftAlt</code> toggles the keypad layer on. Then, <code>kp-\</code>, the key for ‘å’ in the keypad layer, triggers the macro.</p>
 <p>This is what macros for producing an ‘Å’ on Windows with the key combination <code>Shift+LeftAtl+\</code> looks like:</p>
 <pre><code>{kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
 {lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}</code></pre>
@@ -182,7 +182,7 @@ LeftShift+LeftAlt+;  =&gt;  'Ö'</code></pre>
 <p>Another feature of the Kinesis Advantage 2 keyboard is hotkey layouts. These are custom layouts that can be activated with a hotkey (<code>progm+&lt;key&gt;</code>).</p>
 <p>I created two separate hotkey layouts: one for Linux and one for Windows. They have some remappings in common, but have specific macros for producing Swedish characters.</p>
 <p>To switch between the layouts, I press <code>progm+L</code> for Linux and <code>progm+W</code> for Windows. Every time I switch operating system, I switch hotkey layout.</p>
-<h2 id="general-problem-with-universal-input-method">General problem with universal input method</h2>
+<h2 id="general-problems-with-universal-input-method">General problems with universal input method</h2>
 <p>On Linux, not all text entry fields support the universal input method. This is a bit annoying. Then I have to enter the text in another text field and copy paste the value. For the applications I use, it works most of the time, so I have tolerated it.</p>
 <p>One place where it works but produces weird text is in Google Hangouts chat. When entering a unicode character, the text turns into underlined for some reason. I’m not sure if there is a problem with my version of Firefox or what is going on there.</p>
 <p>On Windows, the universal input method have worked for me everywhere I’ve tried, but it is important to have the NumLock switched on. Otherwise the macros will not work. Sometimes NumLock gets turned off without me doing it, so sometimes the macros don’t work. I thought it was a problem in a certain text field, but it always turned out to be NumLock.</p>
