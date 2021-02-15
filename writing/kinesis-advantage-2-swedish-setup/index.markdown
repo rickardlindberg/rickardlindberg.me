@@ -1,11 +1,7 @@
 ---
-title: "DRAFT: Kinesis Advantage 2 Swedish Setup"
-date: 2021-02-14
-tags: draft
+title: "Kinesis Advantage 2 Swedish Setup"
+date: 2021-02-15
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me
-know by sending me an email.**
 
 In this article I explain how I have configured my Kinesis Advantage 2 keyboard
 (US version) to also type Swedish characters.
@@ -121,7 +117,7 @@ very convenient.
 ## Macros
 
 Luckily for me, I am also a long time user of the Kinesis Advantage 2 keyboard.
-One of its features is that it is programmable. You can make one keypress on
+One of its features is that it is programmable. You can make one key press on
 the physical keyboard produce multiple key presses as seen by the computer.
 This is known as macros.
 
@@ -133,9 +129,9 @@ This instruct the keyboard to press and hold `LeftAlt`, then press keypad 0,
 keypad 2, keypad 2, keypad 9, and then release `LeftAlt`. And this at speed 9
 which is the fastest speed. This macro can be triggered by any key of choice.
 
-In total I will need 12 macros. First 3 macros for the lowercase 'å', 'ä', and
-'ö'. Then 3 more for the uppercase versions. And all those 6 are different on
-Linux and Windows, yielding in total 12 versions.
+In total need 12 macros. First 3 macros for the lowercase 'å', 'ä', and 'ö'.
+Then 3 more for the uppercase versions. And all those 6 are different on Linux
+and Windows, yielding in total 12 versions.
 
 Now to the next question: How should I trigger these macros? How do I want to
 enter the characters?
@@ -188,6 +184,9 @@ This is what a macro for producing an 'å' on Windows with the key combination
 
     {kp-\}>{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
 
+First, `LeftAlt` toggles the keypad layer on. Then, `kp-\`, the key for 'å' in
+the keypad layer, triggers the macro.
+
 This is what macros for producing an 'Å' on Windows with the key combination
 `Shift+LeftAtl+\` looks like:
 
@@ -226,7 +225,7 @@ characters.
 To switch between the layouts, I press `progm+L` for Linux and `progm+W` for
 Windows. Every time I switch operating system, I switch hotkey layout.
 
-## General problem with universal input method
+## General problems with universal input method
 
 On Linux, not all text entry fields support the universal input method. This is
 a bit annoying. Then I have to enter the text in another text field and copy
