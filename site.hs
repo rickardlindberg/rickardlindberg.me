@@ -253,7 +253,6 @@ rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
         compile $ myPandocCompiler
             >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/footer_newsletter.html" context
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
     where
