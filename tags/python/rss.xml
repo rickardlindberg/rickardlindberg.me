@@ -343,50 +343,50 @@
 <p><em>Published on 11 March 2017.</em></p>
 
 <p>Today I found a bug in a piece of Python code that I had written. The buggy code was the result of not taking into consideration how generators in Python work. It looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
-    <span class="cf">try</span>:
-        logging.info(<span class="st">&quot;Processing items&quot;</span>)
-        items <span class="op">=</span> get_the_items()
-    <span class="cf">except</span>:
-        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)
-    <span class="cf">else</span>:
-        <span class="cf">for</span> item <span class="kw">in</span> items:
-            process_item(item)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> main():</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">try</span>:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        logging.info(<span class="st">&quot;Processing items&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        items <span class="op">=</span> get_the_items()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="cf">except</span>:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> items:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>            process_item(item)</span></code></pre></div>
 <p>Can you spot the error? What could possible go wrong with this code?</p>
 <p>When I was debugging it, it was printing the info message, but did not log an exception. Execution continued in the else-clause, but suddenly an exception was raised when looping over the items (outside of <code>process_item</code>). How can that happen? The except-clause should catch all exceptions. And just iterating over a collection should not raise an exception.</p>
 <p>The answer is that <code>get_the_items</code> returned a generator. It looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
-        <span class="cf">if</span> item.is_good():
-            <span class="cf">yield</span> item</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good():</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>            <span class="cf">yield</span> item</span></code></pre></div>
 <p>The exception actually came from <code>read_items_from_disk</code>, but since this code creates a generator, it is not executed until the collection is accessed (which happened in the else-clause). So the exception was actually raised when starting looping over items.</p>
 <h2 id="what-about-skipping-the-else-clause">What about skipping the else-clause?</h2>
 <p>To ensure that an exception from the generator is caught, the <code>main</code> function could be written like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> main():
-    <span class="cf">try</span>:
-        logging.info(<span class="st">&quot;Processing items&quot;</span>)
-        <span class="cf">for</span> item <span class="kw">in</span> get_the_items():
-            process_item(item)
-    <span class="cf">except</span>:
-        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> main():</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">try</span>:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        logging.info(<span class="st">&quot;Processing items&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> get_the_items():</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>            process_item(item)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="cf">except</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</span></code></pre></div>
 <p>I don’t like this version because it also catches exceptions from <code>process_item</code>. I like the try-except-else syntax because it allows narrower exception regions in a nice looking way.</p>
 <h2 id="why-did-i-use-a-generator">Why did I use a generator?</h2>
 <p>I made <code>get_the_items</code> return a generator mainly because I thought it read better. The alternative I came up with looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    items <span class="op">=</span> []
-    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():
-        <span class="cf">if</span> item.is_good():
-            items.append(item)
-    <span class="cf">return</span> items</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    items <span class="op">=</span> []</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good():</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>            items.append(item)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="cf">return</span> items</span></code></pre></div>
 <p>I didn’t like the temporary <code>items</code> variable. And it is two lines longer than the generator version.</p>
 <h2 id="what-about-list-comprehensions">What about list comprehensions?</h2>
 <p>Another way to write <code>get_the_items</code>, avoiding the temporary variable, is to use list comprehensions. It would look like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> get_the_items():
-    <span class="cf">return</span> [
-        item
-        <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk()
-        <span class="cf">if</span> item.is_good()
-    ]</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    <span class="cf">return</span> [</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>        item</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    ]</span></code></pre></div>
 <p>I find this code reads as good as the generator version (even though it is two lines longer). This is what I ended up using. But <code>get_the_items</code> was a bit more complicated than in the example, so I had to divide it into two list comprehensions.</p>
 <h2 id="what-about-memory-consumption">What about memory consumption?</h2>
 <p>One argument for using generators is that they consume less memory. The whole collection of items do not have to fit in memory at once, only the one currently being processed.</p>
@@ -735,14 +735,14 @@ if a_list:
 <p>The expression will evaluate to either true or false. Some examples of expressions that will evaluate to false:</p>
 <ul>
 <li><code>[]</code> (empty list)</li>
-<li><code>&quot;&quot;</code> (empty string)</li>
+<li><code>""</code> (empty string)</li>
 <li><code>0</code> (the number 0)</li>
 <li><code>None</code> (the null value)</li>
 </ul>
 <p>Some examples of expressions that will evaluate to true:</p>
 <ul>
 <li><code>[1, 2]</code> (non-empty list)</li>
-<li><code>&quot;hello&quot;</code> (non-empty string)</li>
+<li><code>"hello"</code> (non-empty string)</li>
 <li><code>88</code> (the number 88)</li>
 </ul>
 <p>So if we are only interested in knowing if a value is truthy, we do not need to make an explicit comparison in the if statement. The above example with an explicit comparison would look like this:</p>

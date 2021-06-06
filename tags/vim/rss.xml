@@ -31,7 +31,7 @@
 </ul>
 <p>Now I will explain how I have built this workflow. Let me start with the mapping:</p>
 <pre><code>map ,rw :call SubstituteInFile(expand(&quot;&lt;cword&gt;&quot;))&lt;CR&gt;</code></pre>
-<p>The first thing that happens when I hit <code>,rw</code> is that <code>expand(&quot;&lt;cword&gt;&quot;)</code> is evaluated. It returns the word that is under the cursor. That word gets passed to <code>SubstituteInFile</code>:</p>
+<p>The first thing that happens when I hit <code>,rw</code> is that <code>expand("&lt;cword&gt;")</code> is evaluated. It returns the word that is under the cursor. That word gets passed to <code>SubstituteInFile</code>:</p>
 <pre><code>function! SubstituteInFile(text)
     execute GetSubstituteCommand(&quot;%&quot;, a:text)
 endfunction</code></pre>
@@ -39,7 +39,7 @@ endfunction</code></pre>
 <pre><code>function! GetSubstituteCommand(range, term)
   return a:range . &quot;s&quot; . input(&quot;:s&quot;, &quot;/\\&lt;&quot; . a:term . &quot;\\&gt;/&quot; . a:term . &quot;/gc\&lt;C-f&gt;F/F/l&quot;)
 endfunction</code></pre>
-<p>The call to <code>input</code> makes it possible for me to edit the substitute command before I proceed. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand(&quot;%&quot;, &quot;getCategory&quot;)</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
+<p>The call to <code>input</code> makes it possible for me to edit the substitute command before I proceed. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand("%", "getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
 <pre><code>/\&lt;getCategory\&gt;/getCategory/gc</code></pre>
 <p>Say I type <code>cwfetchCategory&lt;CR&gt;</code> (change word, type <code>fetchCategory</code>, hit enter). The return value is the following:</p>
 <pre><code>%s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
@@ -77,7 +77,7 @@ endfunction</code></pre>
 <pre><code>function! GetGrepCommand(term)
   return &quot;grep &quot; . input(&quot;:grep &quot;, &quot;-w &#39;&quot; . a:term . &quot;&#39;\&lt;C-f&gt;F&#39;F&#39;l&quot;)
 endfunction</code></pre>
-<p>Similar to <code>GetSubstituteCommand</code> it drops me into command-line window so that I can customize the grep command. Say I make the following call: <code>GetGrepCommand(&quot;getCategory&quot;)</code>. The command-line window shows the following with the cursor placed over <code>g</code>:</p>
+<p>Similar to <code>GetSubstituteCommand</code> it drops me into command-line window so that I can customize the grep command. Say I make the following call: <code>GetGrepCommand("getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code>:</p>
 <pre><code>-w &#39;getCategory&#39;</code></pre>
 <p>Say I just hit enter here. The return value is then the following:</p>
 <pre><code>grep -w &#39;getCategory&#39;</code></pre>

@@ -7,8 +7,45 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 04 May 2021 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 06 Jun 2021 00:00:00 UT</lastBuildDate>
         <item>
+    <title>May 2021 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/may-2021/</link>
+    <description><![CDATA[<h1>May 2021 Update</h1>
+
+<p><em>Published on  6 June 2021.</em></p>
+
+<p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/cMqtkyMyr-w" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</center>
+</p>
+<p>This is what I’ve been up to in May 2021:</p>
+<ul>
+<li><p>I published a new video where I hack on Smart Notes: <a href="https://youtu.be/95l_XFtx-JQ">Smart Notes Hacking Session #13: Improve Search Bar Test</a>.</p></li>
+<li><p>A consequence of trying to record hacking videos was that I ended up not doing any programming because I felt the barrier was too big. I felt pressure to record interesting sessions so instead I put it off and did no programming at all.</p></li>
+<li><p>I still think video is an interesting format. So instead of more hacking sessions, this month, I tried to make a video version of this update where I also show what I’ve been working on. Let me know what you think.</p></li>
+<li><p>I actually did program on Smart Notes, and the first version of the table view is now working. (<a href="https://youtu.be/cMqtkyMyr-w?t=68">Demo at 1:08</a>)</p></li>
+<li><p>I had a few ideas for new features for Smart Notes:</p>
+<ul>
+<li><p>The possibility to pin notes so that they are easily accessible and linkable when navigating to other notes. (<a href="https://youtu.be/cMqtkyMyr-w?t=206">Explanation at 3:26</a>)</p></li>
+<li><p>The possibility to go to a random note for leisure browsing. It might remind you of interesting things that you wouldn’t have otherwise looked at.</p></li>
+<li><p>Add support for some kind of literate programming. I read (<a href="https://twitter.com/mpeytonjones/status/1379500747751092226">here</a>, <a href="https://twitter.com/khinsen/status/1379762605837983746">here</a>, and <a href="https://twitter.com/rob_rix/status/1379593489344819204">here</a>) about the idea that literate programming has focused more on a pedagogical presentation order and that that style is in conflict with what maintainers of software need. So I am thinking along the lines of having Smart Notes annotate code in some way. The focus should not be on a linear presentation style (as in <a href="/projects/rliterate/index.html">RLiterate</a>) that has to be carefully maintaned, but rather on annotating code and making useful connections. Imagine that every unit of a code base (function, class, etc) is represented as a note, and that there are links between notes to represent execution paths or related code. When working on a specific problem, you can gather the notes (parts of the code) that needs changing and you have all in one place. Another crucial feature to support maintainers (and working with others) is that it should be possible to edit code “as usual” without the need to use a literate programming tool. (<a href="https://youtu.be/cMqtkyMyr-w?t=310">Explanation at 5:10</a>)</p></li>
+</ul></li>
+<li><p>I learned more about video editing.</p>
+<ul>
+<li><p>I bought a new camera, a Sony A6400 with a Sigma lens, that I’ve been playing around with.</p></li>
+<li><p>I learned about concepts such as exposure, shadows, midtones, highlights, RGB parade, white balance, and color correction through <a href="https://www.youtube.com/watch?v=Sy3ROPPRGXQ">numerous</a> <a href="https://www.youtube.com/watch?v=Gz_QzBdHDYc">videos</a> <a href="https://www.youtube.com/watch?v=w98TAEcNNLw">on</a> <a href="https://www.youtube.com/watch?v=B29lwatn9hs">You</a> <a href="https://www.youtube.com/watch?v=Rfx7wfFVO-E">Tube</a>.</p></li>
+<li><p>I switched video editor to <a href="https://kdenlive.org/">Kdenlive</a> from <a href="https://shotcut.org/">Shotcut</a> that I was using before. Compared to Shotcut, it feels more professional and intuitive for me to use.</p></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Sun, 06 Jun 2021 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/may-2021/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>Newsletter April 2021</title>
     <link>http://rickardlindberg.me/writing/newsletter/april-2021/</link>
     <description><![CDATA[<h1>Newsletter April 2021</h1>
@@ -291,10 +328,7 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 <li><p>I continued work on the prototype of the note taking application.</p>
 <ul>
 <li><p>I added navigation support and worked on the animations:</p>
-<div class="figure">
-<img src="smart-notes-navigation-animations.gif" />
-
-</div></li>
+<p><img src="smart-notes-navigation-animations.gif" /></p></li>
 <li><p>I added basic editing capabilities via an external editor. Now you can add a new note, add a new child note, and edit an existing note. Basic editing capabilities left to implement is linking two arbitrary notes and deleting links.</p></li>
 <li><p>In addition to visual aspects, I also fleshed out the data model so that notes are read and written to file.</p></li>
 </ul></li>
@@ -317,15 +351,9 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 <li><p>I continued work on the prototype of note taking application.</p>
 <ul>
 <li><p>I made the lines between notes look nicer:</p>
-<div class="figure">
-<img src="smart-notes-curved.png" />
-
-</div></li>
+<p><img src="smart-notes-curved.png" /></p></li>
 <li><p>I started experimenting with variable sized notes depending on mouse cursor position:</p>
-<div class="figure">
-<img src="smart-notes-variable-size.png" />
-
-</div></li>
+<p><img src="smart-notes-variable-size.png" /></p></li>
 </ul></li>
 <li><p>I read <a href="https://thorstenball.com/blog/2020/09/15/the-context-in-which-we-build-software/">The context in which we build software</a>. I reflected that one programmer’s advice might not be applicable to another programmer.</p></li>
 </ul>
@@ -348,10 +376,7 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 <li><p>I read the book <a href="https://takesmartnotes.com/">How to Take Smart Notes</a> by Sönke Ahrens. I found it very interesting and I am inspired to take better notes.</p></li>
 <li><p>I read about <a href="https://en.wikipedia.org/wiki/Project_Xanadu">Xanadu</a> since smart notes reminded me of it. Some ideas feel a bit similar.</p></li>
 <li><p>I started prototyping a note taking application that follows some principles from the book. Here is a screenshot:</p>
-<div class="figure">
-<img src="smart-notes-app-prototype.png" />
-
-</div></li>
+<p><img src="smart-notes-app-prototype.png" /></p></li>
 <li><p>I made no progress on RLiterate 2 this month.</p></li>
 </ul>
 ]]></description>
@@ -374,15 +399,9 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 <li><p>I continued with <a href="/projects/rliterate/book2/index.html">RLiterate 2</a>:</p>
 <ul>
 <li><p>I worked on adding toolbar actions for text editing:</p>
-<div class="figure">
-<img src="text-editing-toolbar.png" />
-
-</div></li>
+<p><img src="text-editing-toolbar.png" /></p></li>
 <li><p>I implemented splitting and joining a paragraphs with <code>Enter</code> and <code>Del</code>:</p>
-<div class="figure">
-<img src="split-join.gif" />
-
-</div></li>
+<p><img src="split-join.gif" /></p></li>
 </ul></li>
 <li><p>I migrated my personal email from Gmail to <a href="https://www.fastmail.com">Fastmail</a>. The migration process was easy and so far I’m quite happy with my new email client.</p></li>
 </ul>
@@ -484,25 +503,6 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 ]]></description>
     <pubDate>Mon, 06 Jul 2020 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/june-2020/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Newsletter May 2020</title>
-    <link>http://rickardlindberg.me/writing/newsletter/may-2020/</link>
-    <description><![CDATA[<h1>Newsletter May 2020</h1>
-
-<p><em>Published on 13 June 2020.</em></p>
-
-<p>This is what I’ve been up to in May 2020:</p>
-<ul>
-<li><p>I created a <a href="/pages/rlmeta-poster/index.html">poster</a> showcasing RLMeta and <a href="/writing/creating-rlmeta-poster/index.html">wrote</a> about it in a blog post. I am happy that I was able to improve both clarity and speed of RLMeta.</p></li>
-<li><p>I started working on a <a href="/writing/rlmeta-poster2/index.html">second version</a> of the RLMeta poster. So far I’ve been able to resolve some of the issue from the first version (generate labels in actions, remove dependency on Bash) as well as other improvements.</p></li>
-<li><p>Back in 2012 I <a href="/writing/reflections-on-programming/2012-08-30-learn-how-to-implement-languages/index.html">wrote</a> that it might be interesting to learn about techniques for creating programming languages. With RLMeta I have studied some of the suggested topics. It only took me like 8 years, but I’m happy to have finally done it.</p></li>
-<li><p>I read <a href="http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/">Baby’s First Garbage Collector</a>. After reading it I had the feeling that I could easily implement a garbage collector myself. I haven’t done it, but when I do, I will refer back to this blog post.</p></li>
-</ul>
-]]></description>
-    <pubDate>Sat, 13 Jun 2020 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/newsletter/may-2020/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 

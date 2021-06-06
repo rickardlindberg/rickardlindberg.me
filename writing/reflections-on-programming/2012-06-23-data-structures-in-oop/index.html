@@ -76,29 +76,29 @@
 <p>The interface for working with this data structure looks like this:</p>
 <p><img src="../../../writing/reflections-on-programming/2012-06-23-data-structures-in-oop/events-interface.png" alt /></p>
 <p>A typical session looks like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)
-firstEvent <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]
-firstEvent.text <span class="op">=</span> <span class="st">&quot;a new text&quot;</span>
-events.saveEvent(firstEvent)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>firstEvent <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>firstEvent.text <span class="op">=</span> <span class="st">&quot;a new text&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>events.saveEvent(firstEvent)</span></code></pre></div>
 <p>Or like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)
-firstEvent <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]
-events.deleteCategory(firstEvent.category)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>firstEvent <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>events.deleteCategory(firstEvent.category)</span></code></pre></div>
 <p>The <code>Events</code> object knows about the rules of the data structure and ensures that they are followed.</p>
 <h2 id="the-issue-with-mutable-objects">The issue with mutable objects</h2>
 <p>Consider the following session:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)
-firstCategory <span class="op">=</span> events.getAllCategories()[<span class="dv">0</span>]
-firstCategory.name <span class="op">=</span> <span class="st">&quot;new name&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>firstCategory <span class="op">=</span> events.getAllCategories()[<span class="dv">0</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>firstCategory.name <span class="op">=</span> <span class="st">&quot;new name&quot;</span></span></code></pre></div>
 <p>At first, it looks like it doesn’t do much. But consider the case when <code>firstCategory</code> is a mutable object. When we change the name, the data structure will also be aware of this new name since <code>firstCategory</code> refers to the same object that the data structure knows about and that was sent in return to <code>getAllCategories()</code>.</p>
 <p>So we might actually corrupt the data structure if we assign a new name to the category that is already in use by another category. Most likely it is the <code>saveCategory</code> method that performs this check. But since that method was never called (and the data structure was still modified), we end up with a corrupt data structure.</p>
 <h2 id="lets-make-them-immutable">Let’s make them immutable</h2>
 <p>One solution is to make our objects immutable. In order to change a property in an event or a category, we have to create a new object with our desired values. This way, the objects returned from <code>getAllEvents()</code> and <code>getAllCategories()</code> can never be changed.</p>
 <p>We could write helper methods like <code>setName</code> that returns a new <code>Event</code> that has all the values from the previous one but the name different:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)
-firstCategory <span class="op">=</span> events.getAllCategories()[<span class="dv">0</span>]
-firstCategoryEdited <span class="op">=</span> firstCategory.setName(<span class="st">&quot;new name&quot;</span>)
-events.saveCategory(firstCategoryEdited)</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>firstCategory <span class="op">=</span> events.getAllCategories()[<span class="dv">0</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>firstCategoryEdited <span class="op">=</span> firstCategory.setName(<span class="st">&quot;new name&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>events.saveCategory(firstCategoryEdited)</span></code></pre></div>
 <p>Here a call to <code>saveCategory</code> is necessary for the data structure to find out about the edited category.</p>
 <h2 id="what-about-updates">What about updates?</h2>
 <p>All save methods in <code>Events</code> are supposed to add a new object if the object passed in does not already exist in the data structure. Otherwise they are supposed to update the individual object in the data structure.</p>
@@ -108,11 +108,11 @@ events.saveCategory(firstCategoryEdited)</code></pre></div>
 <h2 id="the-issue-with-object-identity">The issue with object identity</h2>
 <p>Now that we have immutable objects, the only way to distinguish one object from another is to look at the individual fields. Two categories are for example considered to be the same if both the name and the color are equal.</p>
 <p>This causes a problem with events. One rule was that we could have two events with the exact same fields. But when we edit one, the other should not be changed:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)
-events.saveEvent(Event(<span class="st">&quot;July 5&quot;</span>, <span class="st">&quot;my birthday&quot;</span>), original<span class="op">=</span><span class="va">None</span>)
-events.saveEvent(Event(<span class="st">&quot;July 5&quot;</span>, <span class="st">&quot;my birthday&quot;</span>), original<span class="op">=</span><span class="va">None</span>)
-birthday <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]
-event.saveEvent(birthday.setTime(<span class="st">&quot;July 6&quot;</span>), original<span class="op">=</span>birthday)</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>events <span class="op">=</span> Events(<span class="st">&quot;path/to/events.txt&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>events.saveEvent(Event(<span class="st">&quot;July 5&quot;</span>, <span class="st">&quot;my birthday&quot;</span>), original<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>events.saveEvent(Event(<span class="st">&quot;July 5&quot;</span>, <span class="st">&quot;my birthday&quot;</span>), original<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>birthday <span class="op">=</span> events.getAllEvents()[<span class="dv">0</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>event.saveEvent(birthday.setTime(<span class="st">&quot;July 6&quot;</span>), original<span class="op">=</span>birthday)</span></code></pre></div>
 <p>After this session we should have two events: one on July 5 and one on July 6. But when we save (assuming the save now also takes the original so it knows what to replace) we can not know that only the first event should be updated. So we end up with two events on both July 6.</p>
 <p>The solution is to introduce an id field in the <code>Event</code> object so that we can distinguish two events that has the exact same properties.</p>
 <h2 id="id-fields-dont-feel-very-oo">Id fields don’t feel very OO</h2>

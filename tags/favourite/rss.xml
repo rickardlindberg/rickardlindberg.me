@@ -2864,7 +2864,7 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 <h2 id="frustrations-with-ctrl-r">Frustrations with Ctrl-R</h2>
 <p>The interactive search worked great for me when I knew what I was looking for. It did not work so great when I was more uncertain or when I mistyped the name of a command.</p>
 <p>The interactive search works by having a pointer to en entry in the history. When I typed a command it would move that pointer to the next item in the history that matched. But if I mistyped, the search might still match something further back in history. But when I erased a few characters to correct my mistake, the search would continue from there. Say this was my history:</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li><code>tac ~/.bash_history</code></li>
 <li><code>echo frustration</code></li>
 <li><code>echo with</code></li>
@@ -2915,7 +2915,7 @@ Wed May 10 08:14:59 CEST 2017</code></pre>
 </ul>
 <p>Now I will explain how I have built this workflow. Let me start with the mapping:</p>
 <pre><code>map ,rw :call SubstituteInFile(expand(&quot;&lt;cword&gt;&quot;))&lt;CR&gt;</code></pre>
-<p>The first thing that happens when I hit <code>,rw</code> is that <code>expand(&quot;&lt;cword&gt;&quot;)</code> is evaluated. It returns the word that is under the cursor. That word gets passed to <code>SubstituteInFile</code>:</p>
+<p>The first thing that happens when I hit <code>,rw</code> is that <code>expand("&lt;cword&gt;")</code> is evaluated. It returns the word that is under the cursor. That word gets passed to <code>SubstituteInFile</code>:</p>
 <pre><code>function! SubstituteInFile(text)
     execute GetSubstituteCommand(&quot;%&quot;, a:text)
 endfunction</code></pre>
@@ -2923,7 +2923,7 @@ endfunction</code></pre>
 <pre><code>function! GetSubstituteCommand(range, term)
   return a:range . &quot;s&quot; . input(&quot;:s&quot;, &quot;/\\&lt;&quot; . a:term . &quot;\\&gt;/&quot; . a:term . &quot;/gc\&lt;C-f&gt;F/F/l&quot;)
 endfunction</code></pre>
-<p>The call to <code>input</code> makes it possible for me to edit the substitute command before I proceed. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand(&quot;%&quot;, &quot;getCategory&quot;)</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
+<p>The call to <code>input</code> makes it possible for me to edit the substitute command before I proceed. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand("%", "getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
 <pre><code>/\&lt;getCategory\&gt;/getCategory/gc</code></pre>
 <p>Say I type <code>cwfetchCategory&lt;CR&gt;</code> (change word, type <code>fetchCategory</code>, hit enter). The return value is the following:</p>
 <pre><code>%s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
@@ -2961,7 +2961,7 @@ endfunction</code></pre>
 <pre><code>function! GetGrepCommand(term)
   return &quot;grep &quot; . input(&quot;:grep &quot;, &quot;-w &#39;&quot; . a:term . &quot;&#39;\&lt;C-f&gt;F&#39;F&#39;l&quot;)
 endfunction</code></pre>
-<p>Similar to <code>GetSubstituteCommand</code> it drops me into command-line window so that I can customize the grep command. Say I make the following call: <code>GetGrepCommand(&quot;getCategory&quot;)</code>. The command-line window shows the following with the cursor placed over <code>g</code>:</p>
+<p>Similar to <code>GetSubstituteCommand</code> it drops me into command-line window so that I can customize the grep command. Say I make the following call: <code>GetGrepCommand("getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code>:</p>
 <pre><code>-w &#39;getCategory&#39;</code></pre>
 <p>Say I just hit enter here. The return value is then the following:</p>
 <pre><code>grep -w &#39;getCategory&#39;</code></pre>
@@ -3025,28 +3025,28 @@ endfunction</code></pre>
 <h3 id="tests-and-implementation">Tests and implementation</h3>
 <p>Why don’t we write tests next to the implementation?</p>
 <p>Sometimes we do: In Python, there is a module called <a href="http://docs.python.org/3.3/library/doctest.html">doctest</a> that allows us to embed test code in comments right next to functions. It looks like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> factorial(n):
-    <span class="co">&quot;&quot;&quot;</span>
-<span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span>
-<span class="co">    [1, 1, 2, 6, 24, 120]</span>
-<span class="co">    &quot;&quot;&quot;</span>
-    result <span class="op">=</span> <span class="dv">1</span>
-    factor <span class="op">=</span> <span class="dv">2</span>
-    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:
-        result <span class="op">*=</span> factor
-        factor <span class="op">+=</span> <span class="dv">1</span>
-    <span class="cf">return</span> result</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> factorial(n):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">    [1, 1, 2, 6, 24, 120]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    result <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    factor <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>        result <span class="op">*=</span> factor</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        factor <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>    <span class="cf">return</span> result</span></code></pre></div>
 <p>But most of the time, we don’t write our tests like this. Why?</p>
 <p>Some tests are not suitable as doctests: They might involve multiple functions so it is not obvious under which function to place them for example.</p>
 <p>But I believe the biggest reason why we don’t mix test code and source code is that we don’t want to mix different things at the same level in the same source file. In the example above, it is pretty obvious that the test belongs to the factorial function because of the indentation, but consider this example:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> implementation(...):
-    ...
-
-<span class="kw">def</span> test_implementation(...):
-    ...
-
-<span class="kw">def</span> another_implementation(...):
-    ...</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    ...</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>In this example, the invisible organization is this:</p>
 <pre><code>unit 1
     implementation
@@ -3056,18 +3056,18 @@ unit 2
 <p>We don’t immediately see which parts of the file are related. We can only guess this organization from the formatting of the text and the naming. But guessing is the best we can do.</p>
 <p>Unless we put a single unit of code in a file, the source file will have different things mixed together at the same level. We never know when the tests for one function ends and the implementation for the next begins.</p>
 <p>One solution to this problem is to put section comments in our files:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Unit 1</span>
-
-<span class="kw">def</span> implementation(...):
-    ...
-
-<span class="kw">def</span> test_implementation(...):
-    ...
-
-<span class="co"># Unit 2</span>
-
-<span class="kw">def</span> another_implementation(...):
-    ...</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co"># Unit 1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    ...</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    ...</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co"># Unit 2</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>It might make it easier to know where a section begins and ends, but when scrolling through the file, it is still just a wall of text with no obvious structure. It is not an ideal way to show organization.</p>
 <h3 id="documentation-and-implementation">Documentation and implementation</h3>
 <p>Why don’t we write documentation next to the implementation?</p>

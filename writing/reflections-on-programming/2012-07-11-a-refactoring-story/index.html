@@ -73,20 +73,20 @@
 <p>The first four fields are static and describe the job. Match expression is a regular expression that is applied to a filename to determine if this job should run when a file changes.</p>
 <p>The three last fields are dynamic and change values as a job run. A job has different status depending on if it is running or if it has finished running and failed for example.</p>
 <p>Whenever a file changes on disk, we go through the list of jobs and update the ones for which the regular expression match. Pseudo code for a file change looks like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> fileChanged(fileName):
-    <span class="cf">for</span> job <span class="kw">in</span> jobList:
-        <span class="cf">if</span> job.matchExpr matches fileName:
-            thredId <span class="op">=</span> runExternalProcess(job.name, job.args)
-            job.status <span class="op">=</span> working
-            job.output <span class="op">=</span> <span class="st">&quot;&quot;</span>
-            job.thread <span class="op">=</span> threadId</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> fileChanged(fileName):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">for</span> job <span class="kw">in</span> jobList:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        <span class="cf">if</span> job.matchExpr matches fileName:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            thredId <span class="op">=</span> runExternalProcess(job.name, job.args)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>            job.status <span class="op">=</span> working</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>            job.output <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>            job.thread <span class="op">=</span> threadId</span></code></pre></div>
 <p>Corey thought it would be better to split the job list into two parts: one that contained the static information about jobs, and one that contained the dynamic information about jobs. With this separation, when a file changes on disk we can first filter out the jobs for which the regular expression match, and then pass them to a function which run them. In pseudo code it looks like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> fileChanged(fileName):
-    jobsToRun <span class="op">=</span> filterJobsMatching(fileName)
-    <span class="cf">for</span> job <span class="kw">in</span> jobsToRun:
-        thredId <span class="op">=</span> runExternalProcess(job.name, job.args)
-        runningJob <span class="op">=</span> RunningJob(status<span class="op">=</span>working, output<span class="op">=</span><span class="st">&quot;&quot;</span>, thread<span class="op">=</span>threadId)
-        updateRunningJobList(runningJob, job.<span class="bu">id</span>)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> fileChanged(fileName):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    jobsToRun <span class="op">=</span> filterJobsMatching(fileName)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="cf">for</span> job <span class="kw">in</span> jobsToRun:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        thredId <span class="op">=</span> runExternalProcess(job.name, job.args)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        runningJob <span class="op">=</span> RunningJob(status<span class="op">=</span>working, output<span class="op">=</span><span class="st">&quot;&quot;</span>, thread<span class="op">=</span>threadId)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        updateRunningJobList(runningJob, job.<span class="bu">id</span>)</span></code></pre></div>
 <h2 id="the-refactoring-process">The refactoring process</h2>
 <p>We had codemonitor running on itself at all times while doing this refactoring. As soon as we made a change that broke the code (either so it did not compile or so that the tests didn’t pass) we got notified with a big red screen and an error message.</p>
 <h2 id="the-initial-attempt">The initial attempt</h2>

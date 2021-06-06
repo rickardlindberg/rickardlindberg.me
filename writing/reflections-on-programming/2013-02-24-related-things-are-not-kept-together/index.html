@@ -74,28 +74,28 @@
 <h3 id="tests-and-implementation">Tests and implementation</h3>
 <p>Why don’t we write tests next to the implementation?</p>
 <p>Sometimes we do: In Python, there is a module called <a href="http://docs.python.org/3.3/library/doctest.html">doctest</a> that allows us to embed test code in comments right next to functions. It looks like this:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> factorial(n):
-    <span class="co">&quot;&quot;&quot;</span>
-<span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span>
-<span class="co">    [1, 1, 2, 6, 24, 120]</span>
-<span class="co">    &quot;&quot;&quot;</span>
-    result <span class="op">=</span> <span class="dv">1</span>
-    factor <span class="op">=</span> <span class="dv">2</span>
-    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:
-        result <span class="op">*=</span> factor
-        factor <span class="op">+=</span> <span class="dv">1</span>
-    <span class="cf">return</span> result</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> factorial(n):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">    [1, 1, 2, 6, 24, 120]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    result <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    factor <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>        result <span class="op">*=</span> factor</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        factor <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>    <span class="cf">return</span> result</span></code></pre></div>
 <p>But most of the time, we don’t write our tests like this. Why?</p>
 <p>Some tests are not suitable as doctests: They might involve multiple functions so it is not obvious under which function to place them for example.</p>
 <p>But I believe the biggest reason why we don’t mix test code and source code is that we don’t want to mix different things at the same level in the same source file. In the example above, it is pretty obvious that the test belongs to the factorial function because of the indentation, but consider this example:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> implementation(...):
-    ...
-
-<span class="kw">def</span> test_implementation(...):
-    ...
-
-<span class="kw">def</span> another_implementation(...):
-    ...</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    ...</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>In this example, the invisible organization is this:</p>
 <pre><code>unit 1
     implementation
@@ -105,18 +105,18 @@ unit 2
 <p>We don’t immediately see which parts of the file are related. We can only guess this organization from the formatting of the text and the naming. But guessing is the best we can do.</p>
 <p>Unless we put a single unit of code in a file, the source file will have different things mixed together at the same level. We never know when the tests for one function ends and the implementation for the next begins.</p>
 <p>One solution to this problem is to put section comments in our files:</p>
-<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Unit 1</span>
-
-<span class="kw">def</span> implementation(...):
-    ...
-
-<span class="kw">def</span> test_implementation(...):
-    ...
-
-<span class="co"># Unit 2</span>
-
-<span class="kw">def</span> another_implementation(...):
-    ...</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co"># Unit 1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    ...</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    ...</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co"># Unit 2</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>It might make it easier to know where a section begins and ends, but when scrolling through the file, it is still just a wall of text with no obvious structure. It is not an ideal way to show organization.</p>
 <h3 id="documentation-and-implementation">Documentation and implementation</h3>
 <p>Why don’t we write documentation next to the implementation?</p>

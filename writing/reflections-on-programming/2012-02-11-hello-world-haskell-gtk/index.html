@@ -61,56 +61,56 @@
 <p>Since I was unfamiliar with the technologies that I had chosen, my first goal was to get a hello world program working. If I can get that working, I gain confidence that I can use the technologies together.</p>
 <p>In this case, the technologies were Haskell and GTK (with Haskell bindings). I had played with Haskell before but was completely new to GTK (although not to event-driven GUI programming).</p>
 <p>I copied a hello world example from the <a href="http://projects.haskell.org/gtk2hs/">Gtk2Hs</a> website and pasted into a source file. It looked like this:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
-
-main <span class="fu">=</span> <span class="kw">do</span>
-    initGUI
-    window <span class="ot">&lt;-</span> windowNew
-    button <span class="ot">&lt;-</span> buttonNew
-    set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
-    set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]
-    onClicked button (putStrLn <span class="st">&quot;Hello World&quot;</span>)
-    onDestroy window mainQuit
-    widgetShowAll window
-    mainGUI</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Graphics.UI.Gtk</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>    initGUI</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    window <span class="ot">&lt;-</span> windowNew</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    button <span class="ot">&lt;-</span> buttonNew</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    set window [ containerBorderWidth <span class="op">:=</span> <span class="dv">10</span>, containerChild <span class="op">:=</span> button ]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>    set button [ buttonLabel <span class="op">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>    onClicked button (<span class="fu">putStrLn</span> <span class="st">&quot;Hello World&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>    onDestroy window mainQuit</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>    widgetShowAll window</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>    mainGUI</span></code></pre></div>
 <p>Compiling was easy once I had downloaded the required libraries. They were all available through the package management system on my GNU/Linux system. I made a script for compiling so that I wouldn’t have to remember how to do it:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">ghc</span> --make Main.hs -o org-app</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ex">ghc</span> --make Main.hs -o org-app</span></code></pre></div>
 <p>(The make flag tells <code>ghc</code> to figure out all dependencies so you only need to specify the top level program you want to compile. When you compile your project multiple times, <code>ghc</code> will only recompile files that have changed.)</p>
 <p>And that was the first commit: a working skeleton on which to build. I could now easily explore features of GTK and GUI programming in Haskell by playing around with the hello world program.</p>
 <h2 id="using-glade-to-design-the-gui">Using Glade to design the GUI</h2>
 <p>The hello world program constructs the GUI in code by creating widgets and manually placing them on a window:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
-button <span class="ot">&lt;-</span> buttonNew
-set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
-set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>window <span class="ot">&lt;-</span> windowNew</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>button <span class="ot">&lt;-</span> buttonNew</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>set window [ containerBorderWidth <span class="op">:=</span> <span class="dv">10</span>, containerChild <span class="op">:=</span> button ]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>set button [ buttonLabel <span class="op">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</span></code></pre></div>
 <p>I’ve had experiences designing GUIs like this and it’s quite tedious. It takes a long time to get all parameters right so that your windows look the way you imagined. The code also becomes rather long and messy.</p>
 <p>For GTK, there is a tool called <a href="http://glade.gnome.org/">Glade</a> which lets you design your widgets visually and then load them from an XML file in code.</p>
 <p>I wanted to try this approach. I decided to see if I could transform the hello world example from the first commit using Glade. I came up with this:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.UI.Gtk</span>
-<span class="kw">import </span><span class="dt">Graphics.UI.Gtk.Builder</span>
-
-main <span class="fu">=</span> <span class="kw">do</span>
-    initGUI
-
-    builder <span class="ot">&lt;-</span> builderNew
-    builderAddFromFile builder <span class="st">&quot;interface.glade&quot;</span>
-
-    mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
-    onDestroy mainWindow mainQuit
-
-    helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span>
-    onClicked helloWorldButton (putStrLn <span class="st">&quot;Hello World&quot;</span>)
-
-    widgetShowAll mainWindow
-    mainGUI</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Graphics.UI.Gtk</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Graphics.UI.Gtk.Builder</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    initGUI</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>    builder <span class="ot">&lt;-</span> builderNew</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>    builderAddFromFile builder <span class="st">&quot;interface.glade&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>    mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>    onDestroy mainWindow mainQuit</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>    helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>    onClicked helloWorldButton (<span class="fu">putStrLn</span> <span class="st">&quot;Hello World&quot;</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>    widgetShowAll mainWindow</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>    mainGUI</span></code></pre></div>
 <p>Now the widgets are loaded from the XML file <code>interface.glade</code> and we only have to hook up the event handlers. The text and position of the hello world button is stored in the glade file. Instead of this:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">window <span class="ot">&lt;-</span> windowNew
-button <span class="ot">&lt;-</span> buttonNew
-set window [ containerBorderWidth <span class="fu">:=</span> <span class="dv">10</span>, containerChild <span class="fu">:=</span> button ]
-set button [ buttonLabel <span class="fu">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>window <span class="ot">&lt;-</span> windowNew</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>button <span class="ot">&lt;-</span> buttonNew</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>set window [ containerBorderWidth <span class="op">:=</span> <span class="dv">10</span>, containerChild <span class="op">:=</span> button ]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>set button [ buttonLabel <span class="op">:=</span> <span class="st">&quot;Hello World&quot;</span> ]</span></code></pre></div>
 <p>We have this:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span>
-helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>mainWindow <span class="ot">&lt;-</span> builderGetObject builder castToWindow <span class="st">&quot;main_window&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>helloWorldButton <span class="ot">&lt;-</span> builderGetObject builder castToButton <span class="st">&quot;hello_world_button&quot;</span></span></code></pre></div>
 <p>This doesn’t look like less code (it’s actually the exact same number of lines in total), but when the GUI gets more complex, I think this will pay off.</p>
 <p>And that was the second commit.</p>
 <h2 id="confident-to-move-forward">Confident to move forward</h2>

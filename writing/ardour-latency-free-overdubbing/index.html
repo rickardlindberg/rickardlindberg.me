@@ -86,7 +86,7 @@ recording |                |                |
 <p>We connect headphones to the headphone line out and put them close to the built in microphones on the H4n.</p>
 <h3 id="process">Process</h3>
 <p>Now that we have the loop set up in hardware, this is the process to measure the I/O latency:</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li><p><strong>Start JACK with the given settings</strong></p>
 <p>From QjackCtl, click “Setup…”:</p>
 <p><img src="../../writing/ardour-latency-free-overdubbing/jack_setup.png" alt="image" /></p>
@@ -122,22 +122,14 @@ recording |                |                |
 </thead>
 <tbody>
 <tr class="odd">
-<td>44.1</td>
-<td>1024</td>
-<td>2</td>
-<td>Direct</td>
+<td><p>44.1 44.1</p></td>
+<td><p>1024 1323 (44.1*30)</p></td>
+<td><p>2 2</p></td>
+<td><p>Direct Direct</p></td>
 <td></td>
-<td>~1100 (increasing)</td>
+<td><p>~1100 (increasing) ~1000 (increasing)</p></td>
 </tr>
 <tr class="even">
-<td>44.1</td>
-<td>1323 (44.1*30)</td>
-<td>2</td>
-<td>Direct</td>
-<td></td>
-<td>~1000 (increasing)</td>
-</tr>
-<tr class="odd">
 <td>48</td>
 <td>1024</td>
 <td>2</td>
@@ -145,7 +137,7 @@ recording |                |                |
 <td>101.5</td>
 <td>~897</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>48</td>
 <td>1024</td>
 <td>2</td>
@@ -153,7 +145,7 @@ recording |                |                |
 <td>122.4</td>
 <td>~895</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>48</td>
 <td>1024</td>
 <td>3</td>
@@ -161,7 +153,7 @@ recording |                |                |
 <td>122.8</td>
 <td>~899</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>48</td>
 <td>1024</td>
 <td>3</td>
@@ -169,7 +161,7 @@ recording |                |                |
 <td>122.4</td>
 <td>~889</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>48</td>
 <td>1056 (48*22)</td>
 <td>2</td>
