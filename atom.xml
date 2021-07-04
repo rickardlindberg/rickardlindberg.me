@@ -8,8 +8,62 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-06-06T00:00:00Z</updated>
+    <updated>2021-07-04T00:00:00Z</updated>
     <entry>
+    <title>Dogfooding Literate Programming Support in Smart Notes (June 2021 Update)</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/june-2021/" />
+    <id>http://rickardlindberg.me/writing/newsletter/june-2021/</id>
+    <published>2021-07-04T00:00:00Z</published>
+    <updated>2021-07-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Dogfooding Literate Programming Support in Smart Notes (June 2021 Update)</h1>
+
+<p><em>Published on  4 July 2021.</em></p>
+
+<p>This is what I’ve been up to in June 2021.</p>
+<p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yhMm1q3Na1Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</center>
+</p>
+<h2 id="laptop-upgrade">Laptop Upgrade</h2>
+<p>I switched my main laptop and also upgraded it to use the latest version of Fedora.</p>
+<p>That led me to revisited and tweak my <a href="https://github.com/rickardlindberg/dotfiles/">dotfiles</a> for the new setup.</p>
+<p>One tool that I rely on heavily is <a href="/projects/rlselect/index.html">rlselect</a>, and it only works with Python 2. The new version of Fedora doesn’t ship Python 2 with all the libraries that rlselect needs. And Python 2 is deprecated anyway. That gave me the urge to port rlselect to Python 3. But I also wanted to write the port using a literate programming tool. I had previously thought about trying to use <a href="https://github.com/rickardlindberg/smartnotes">Smart Notes</a> as a literate programming tool, but it lacked support now.</p>
+<h2 id="literate-programming-support-in-smart-notes">Literate Programming Support in Smart Notes</h2>
+<p>Because of my laptop upgrade, I had a new top priority for Smart Notes: implement some kind of literate programming support.</p>
+<p>I started by adding a script to convert <a href="/projects/rliterate/index.html">RLiterate</a> (my previous attempt at a literate programming tool) documents to Smart Notes documents. That way I could convert my projects that use RLiterate to Smart Notes so that I could continue editing them from within Smart Notes.</p>
+<p>I converted the Smart Notes RLiterate document to a Smart Notes document. Smart Notes was now written in itself. But there was no way to edit the code notes created by the convert script from within Smart Notes. The only way to edit the code was by editing the generated files. But if I did that, the code in the Smart Notes document and the generated files would be out of sync. So I decided to write a script that would examine changes in the external files and merge them back into the Smart Notes document. I got the idea that this was possible by reading about a similar approach used in <a href="https://leoeditor.com/appendices.html#the-mulder-ream-update-algorithm">Leo</a>.</p>
+<p>I got the merge script working well enough. I was able to edit <code>smartnotes.py</code> and merge the changes back into <code>smartnotes.notes</code>. So that when <code>smartnotes.py</code> was generated from <code>smartnotes.notes</code> it would include the changes.</p>
+<p>I used this workflow to add support to Smart Notes to create and edit code notes. At this point I was no longer in need of the merge script. I could do all the editing from within Smart Notes. However, as I talked about in the <a href="/writing/newsletter/may-2021/index.html">previous update</a>, such a merge script would be crucial for working with others not using Smart Notes. And I believe it will also come in handy to make editing external files from within Smart Notes more convenient. For example, it would allow a whole class to be edited even though that class is split into multiple code notes. When the whole class is saved, the merge script will merge changes back into the corresponding code notes.</p>
+<h2 id="port-of-rlselect-to-python-3">Port of rlselect to Python 3</h2>
+<p>At this point I could use Smart Notes as a literate programming tool to create a new version of rlselect that worked with Python 3.</p>
+<p>I started by importing all the existing code into a new Smart Notes document. I did that by creating a minimal set of code notes. At this point, the code notes were large and didn’t really benefit from the literate approach.</p>
+<p>Then I started making changes to make rlselect work with Python 3 and got it working quite easily.</p>
+<p>The next step was to split the code notes into smaller chunks to be able to annotate and document smaller portions of the code. For that, Smart Notes needed some additional features. At least to make the process convenient.</p>
+<h2 id="literate-programming-improvements">Literate Programming Improvements</h2>
+<p>I added support in Smart Notes for splitting code notes and tried it on the Smart Notes document itself. I didn’t have time to use this feature to improve the rlselect document, but I plan to.</p>
+<p>I also added virtual links so that code notes that are related are automatically linked.</p>
+<p>This process of <a href="https://en.wikipedia.org/wiki/Eating_your_own_dog_food">dogfooding</a> is really useful and fun. It answers the question very clearly what to work on next.</p>
+<h2 id="demo">Demo</h2>
+<p>To see a demo of the literate programming features in Smart Notes, have a look at <a href="https://youtu.be/yhMm1q3Na1Q?t=314">5:14</a>.</p>
+<h2 id="reflections-on-literate-programming">Reflections on Literate Programming</h2>
+<p>I thought about how the literate programming in Smart Notes feels different from the literate programming in RLiterate. In Smart Notes you don’t create a single linear document. You connect pieces of information that are related to each other. It will therefore also be difficult to extract a single linear document from Smart Notes. So this kind of literate programming will not result in “a book” that is the whole application with source code explained. It will rather be annotated source code. Linear documents might help with understanding sometimes. So I’m not quite sure how it fits into the Smart Notes literate programming approach. One possibility is to generate documentation files using regular code notes. For example, a <code>README.md</code> could be generated by assembling code notes from Smart Notes. But that <code>README.md</code> would not contain the whole program with documentation. Just a small part. Perhaps that is ok. By using Smart Notes as my main literate programming tool, I will experiment and see what it feels like.</p>
+<p>I am really happy with the progress I made on the literate programming support in Smart Notes. The script to convert RLiterate documents to Smart Notes documents and the script to merge changes from external files back into Smart Notes documents were killer features that allowed me to progress very fast.</p>
+<h2 id="videography">Videography</h2>
+<p>Aside from programming, I also continued to learn about my new hobby of videography:</p>
+<ul>
+<li><p>I learned more about how to properly use my camera when it comes to white balance and exposure. I also ordered white balance cards to help me with that.</p></li>
+<li><p>I tried to figure out how to use different frame rates and shutter speeds to eliminate flicker from light sources. I found a good tool from RED to list good combinations: <a href="https://www.red.com/flicker-free-video">flicker free video</a>. I don’t fully understand the logic behind it, but at least I can now get rid of some flicker in practice.</p></li>
+<li><p>I tested what happens to sound clips when cut in Kdenlive vs. in Ardour. Ardour adds short fade ins and fade outs, but Kdenlive doesn’t. So probably cuts in Kdenlive can create unwanted sounds if they don’t match up.</p></li>
+<li><p>I thought that my Rode Vide Mic NTG sounded noisy. I tried a firmware update, but it didn’t help. I tried various methods of recording, and all the results were similar. Perhaps I just need to be closer to the microphone so that the main audio is much louder than the background noise. The other option would be to reduce background noise in post.</p></li>
+</ul>
+<h2 id="reflections-on-last-year">Reflections on Last Year</h2>
+<p>This time <a href="/writing/newsletter/june-2020/index.html">last year</a> I was working on projectional editing support for RLiterate. I am no longer convinced that projectional editing is a good idea. It might just be that I am very comfortable with my current tools (Vim + command line tools) that I feel frustrated when I can’t use them. Or it might be that I haven’t used any good enough projectional editing system. My focus has at least shifted to build tools that are more practical and comfortable for <em>me</em> to use.</p>
+<p>This time last year I also read about compilers. It is a topic that I am still interested in, and I hope to work more and write more about compiler related stuff in the future.</p>
+]]></summary>
+</entry>
+<entry>
     <title>May 2021 Update</title>
     <link href="http://rickardlindberg.me/writing/newsletter/may-2021/" />
     <id>http://rickardlindberg.me/writing/newsletter/may-2021/</id>
@@ -474,36 +528,6 @@ progm + Shift + Esc          (Exit Power User Mode)</code></pre>
 <p>I find this rule helpful in many situations where I have trouble starting. I might have a big project that I don’t really know how to make progress on or want to work on. Then it helps me to think about something small that I can do to make progress. Instead of having a goal of completing the project I just have the goal of showing up and making progress somehow for two minutes.</p>
 <p>I have tried this in practice and it really works. Sometimes I have ended up working in very short bursts. Perhaps a little longer than two minutes, but still not long. I for sure didn’t complete the project. But I kept doing it. Working in small chunks. Making small progress. And eventually the project got completed. I like this focus on the process of making progress instead of the end goal itself. If you improve the process, the results will take care of themselves.</p>
 <p>One example where I applied this technique is when writing this blog post. I put it off for a while because it felt like a too big project to tackle and I thought I would wait for enough energy to magically appear. Eventually I told myself that I could make some progress by just collecting a few notes. I told myself that was the only thing I had to do. It would take perhaps 10 minutes. And after I had done it, I felt like doing some writing on the post as well. So I did. And then all of a sudden I had made some progress on something that felt difficult. Just by focusing on the first two minutes.</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Newsletter June 2020</title>
-    <link href="http://rickardlindberg.me/writing/newsletter/june-2020/" />
-    <id>http://rickardlindberg.me/writing/newsletter/june-2020/</id>
-    <published>2020-07-06T00:00:00Z</published>
-    <updated>2020-07-06T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Newsletter June 2020</h1>
-
-<p><em>Published on  6 July 2020.</em></p>
-
-<p>This is what I’ve been up to in June 2020:</p>
-<ul>
-<li><p>I read parts of <a href="https://compilers.iecc.com/crenshaw/">Let’s Build a Compiler, by Jack Crenshaw</a>. It was interesting and it would be fun to try to implement the described language using <a href="/projects/rlmeta/index.html">RLMeta</a>.</p></li>
-<li><p>I read a few articles from Julia Evans that I found interesting:</p>
-<ul>
-<li><p><a href="https://jvns.ca/blog/2017/02/17/mystery-swap/">Swapping, memory limits, and cgroups</a></p></li>
-<li><p><a href="https://jvns.ca/blog/2016/12/03/how-much-memory-is-my-process-using-/">How much memory is my process using?</a></p></li>
-<li><p><a href="https://jvns.ca/blog/2016/10/10/what-even-is-a-container/">What even is a container: namespaces and cgroups</a></p></li>
-</ul></li>
-<li><p>I decided to have a look at <a href="/projects/rliterate/index.html">RLiterate</a> again.</p>
-<ul>
-<li><p>I continued work on direct manipulation of text. Text in RLiterate is represented as a list of text segements with different styles. That structure has to be projected to the screen and edits have to go into the correct segement. Segments might be projected with some additional markup text that is not present in the text itself. So the problem is a little bit more involved than plain text editing. I’m struggling to solve this problem in an elegant way.</p></li>
-<li><p>I have read about two so called projectional editors to get inspiration for how to solve these problems: <a href="https://github.com/projectured/projectured/wiki/Overview">ProjecturEd</a> and <a href="https://projectit-org.github.io/ProjectIt/projectit-component/0.0.4/index.html">ProjectIt</a>.</p></li>
-<li><p>One particular problem I’m working on is how to represent selections. Today, a selection is both in the GUI domain and the document domain. If the selection is only in the document domain, then two selection markers can appear in GUI since the same page can be projected more than once onto the workspace. When I click a title for example, I want exactly that title to be selected, not the same underlying title on another projected page. What is a good representation of selections that take this into account?</p></li>
-<li><p>I streamlined how props are generated. I wrote about the problem and my prefered pattern <a href="/projects/rliterate/book2/index.html#742ebf5ff2d8457ab8c01b3721052425">here</a>.</p></li>
-<li><p>I improved the performance of the text widget. When calculating where all characters will appear on the screen, you have to take <a href="https://en.wikipedia.org/wiki/Kerning">kerning</a> into account. Previously that was done by calculating the bounding rectangle for consequtively longer substrings. For example: bounding rectangle for “H”, then bounding rectangle for “He”, and so on until “Hello”. Now only bounding rectangles for pairs of characters are calculated. So “He”, and “el”, “ll”, and “lo”. My guess (which seems to hold for now) is that kerning only affects two consecutive characters, in which case this optimization works. Since the number of pairs are limited by the alphabet, these calculations can also be cached.</p></li>
-</ul></li>
-</ul>
 ]]></summary>
 </entry>
 
