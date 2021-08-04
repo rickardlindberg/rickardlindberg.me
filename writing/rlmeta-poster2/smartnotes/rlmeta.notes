@@ -1,0 +1,2071 @@
+{
+    "links": {},
+    "notes": {
+        "1d4185d42f6f47b4aced0d831251c2db": {
+            "chunkpath": [],
+            "filepath": [
+                "codegenerator.rlmeta"
+            ],
+            "fragments": [
+                {
+                    "text": "CodeGenerator {",
+                    "type": "line"
+                },
+                {
+                    "text": "  ast           = [%:x]        -> x",
+                    "type": "line"
+                },
+                {
+                    "text": "  Grammar       = .:x ast*:ys  -> { \"class \" x \"(Grammar):\\n\\n\" >",
+                    "type": "line"
+                },
+                {
+                    "text": "                                      \"def assemble(self, I, LABEL):\\n\" >",
+                    "type": "line"
+                },
+                {
+                    "text": "                                        ys",
+                    "type": "line"
+                },
+                {
+                    "text": "                                      <",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    <                                    }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Rule          = py:x ast:y   -> { \"LABEL(\" x \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    y",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('RETURN')\\n\"                      }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Or            =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | ast:x Or:y               -> label():a -> label():b",
+                    "type": "line"
+                },
+                {
+                    "text": "                               -> { \"I('BACKTRACK', \" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('COMMIT', \" b \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    y",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" b \")\\n\"                     }",
+                    "type": "line"
+                },
+                {
+                    "text": "    | ast",
+                    "type": "line"
+                },
+                {
+                    "text": "  Scope         = ast:x        -> { \"I('PUSH_SCOPE')\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('POP_SCOPE')\\n\"                   }",
+                    "type": "line"
+                },
+                {
+                    "text": "  And           = ast*",
+                    "type": "line"
+                },
+                {
+                    "text": "  Bind          = py:x ast:y   -> { y",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('BIND', \" x \")\\n\"                 }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Star          = ast:x        -> label():a -> label():b",
+                    "type": "line"
+                },
+                {
+                    "text": "                               -> { \"I('LIST_START')\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('BACKTRACK', \" b \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('LIST_APPEND')\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('COMMIT', \" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" b \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('LIST_END')\\n\"                    }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Not           = ast:x        -> label():a -> label():b",
+                    "type": "line"
+                },
+                {
+                    "text": "                               -> { \"I('BACKTRACK', \" b \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('COMMIT', \" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" a \")\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('FAIL', 'no match expected')\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"LABEL(\" b \")\\n\"                     }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchCallRule =              -> { \"I('MATCH_CALL_RULE')\\n\"             }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchRule     = py:x         -> { \"I('CALL', \" x \")\\n\"                 }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchRange    = py:x py:y    -> { \"I('MATCH_RANGE', \" x \", \" y \")\\n\"   }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchAny      =              -> { \"I('MATCH_ANY')\\n\"                   }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchList     = ast:x        -> { \"I('PUSH_STREAM')\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"I('POP_STREAM')\\n\"                  }",
+                    "type": "line"
+                },
+                {
+                    "text": "  MatchObject   = py:x         -> { \"I('MATCH_OBJECT', \" x \")\\n\"         }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Action        = actionExpr:x -> { \"I('ACTION', lambda scope: \" x \")\\n\" }",
+                    "type": "line"
+                },
+                {
+                    "text": "  actionExpr    =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | py:x ast:y actionExpr:z  -> { \"scope.bind(\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    x \", \" y \", lambda: \" z \")\"          }",
+                    "type": "line"
+                },
+                {
+                    "text": "    | .    ast",
+                    "type": "line"
+                },
+                {
+                    "text": "  String        = py",
+                    "type": "line"
+                },
+                {
+                    "text": "  List          = asts:x       -> { \"concat([\" x \"])\"                    }",
+                    "type": "line"
+                },
+                {
+                    "text": "  ListItem      = py:x ast:y   -> { \"splice(\" x \", \" y \")\"               }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Format        = asts:x       -> { \"join([\" x \"])\"                      }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Indent        = ast:x        -> { \"indent(\" x \", \"",
+                    "type": "line"
+                },
+                {
+                    "text": "                                    \"scope.lookup('indentprefix'))\"      }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Call          = ast:x asts:y -> { x \"(\" y \")\"                          }",
+                    "type": "line"
+                },
+                {
+                    "text": "  Native        = .",
+                    "type": "line"
+                },
+                {
+                    "text": "  Lookup        = py:x         -> { \"scope.lookup(\" x \")\"                }",
+                    "type": "line"
+                },
+                {
+                    "text": "  asts          = ast*:xs      -> #join(xs \", \")",
+                    "type": "line"
+                },
+                {
+                    "text": "  py            = .:x          -> #repr(x)",
+                    "type": "line"
+                },
+                {
+                    "text": "}",
+                    "type": "line"
+                }
+            ],
+            "links": [],
+            "tags": [],
+            "text": "Enter note text...\n",
+            "timestamp_created": "2021-08-04T18:29:21.046867",
+            "type": "code"
+        },
+        "50735ef2cfa441f5822cfba1ac97f94a": {
+            "chunkpath": [],
+            "filepath": [
+                "support.py"
+            ],
+            "fragments": [
+                {
+                    "text": "def vm(instructions, labels, start_rule, stream, runtime):",
+                    "type": "line"
+                },
+                {
+                    "text": "    action = SemanticAction(None)",
+                    "type": "line"
+                },
+                {
+                    "text": "    pc = labels[start_rule]",
+                    "type": "line"
+                },
+                {
+                    "text": "    call_backtrack_stack = []",
+                    "type": "line"
+                },
+                {
+                    "text": "    stream, pos, stream_pos_stack = (stream, 0, [])",
+                    "type": "line"
+                },
+                {
+                    "text": "    scope, scope_stack = (None, [])",
+                    "type": "line"
+                },
+                {
+                    "text": "    fail_message = None",
+                    "type": "line"
+                },
+                {
+                    "text": "    latest_fail_message, latest_fail_pos = (None, tuple())",
+                    "type": "line"
+                },
+                {
+                    "text": "    memo = {}",
+                    "type": "line"
+                },
+                {
+                    "text": "    while True:",
+                    "type": "line"
+                },
+                {
+                    "text": "        name, arg1, arg2 = instructions[pc]",
+                    "type": "line"
+                },
+                {
+                    "text": "        if name == \"PUSH_SCOPE\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope_stack.append(scope)",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope = {}",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"BACKTRACK\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            call_backtrack_stack.append((",
+                    "type": "line"
+                },
+                {
+                    "text": "                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)",
+                    "type": "line"
+                },
+                {
+                    "text": "            ))",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"CALL\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))",
+                    "type": "line"
+                },
+                {
+                    "text": "            if key in memo:",
+                    "type": "line"
+                },
+                {
+                    "text": "                if memo[key][0] is None:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    fail_message = memo[key][1]",
+                    "type": "line"
+                },
+                {
+                    "text": "                else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    action, stream_pos_stack = memo[key]",
+                    "type": "line"
+                },
+                {
+                    "text": "                    stream_pos_stack = stream_pos_stack[:]",
+                    "type": "line"
+                },
+                {
+                    "text": "                    stream, pos = stream_pos_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "                    pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                    continue",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                call_backtrack_stack.append((pc+1, key))",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc = labels[arg1]",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"POP_SCOPE\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope = scope_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"MATCH_OBJECT\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos >= len(stream) or stream[pos] != arg1:",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected {!r}\", arg1)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                action = SemanticAction(arg1)",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"COMMIT\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            call_backtrack_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc = labels[arg1]",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"RETURN\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if len(call_backtrack_stack) == 0:",
+                    "type": "line"
+                },
+                {
+                    "text": "                return action.eval()",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc, key = call_backtrack_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "            memo[key] = (action, stream_pos_stack+[(stream, pos)])",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"LIST_APPEND\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope.append(action)",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"BIND\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope[arg1] = action",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"ACTION\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            action = SemanticAction(Scope(scope, runtime), arg1)",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"MATCH_RANGE\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected range {!r}-{!r}\", arg1, arg2)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                action = SemanticAction(stream[pos])",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"LIST_START\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope_stack.append(scope)",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope = []",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"LIST_END\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            action = SemanticAction(scope, lambda xs: [x.eval() for x in xs])",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope = scope_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "            pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "            continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"MATCH_ANY\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos >= len(stream):",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected any\",)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                action = SemanticAction(stream[pos])",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"PUSH_STREAM\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos >= len(stream) or not isinstance(stream[pos], list):",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected list\",)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                stream_pos_stack.append((stream, pos))",
+                    "type": "line"
+                },
+                {
+                    "text": "                stream = stream[pos]",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos = 0",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"POP_STREAM\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos < len(stream):",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected end of list\",)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                stream, pos = stream_pos_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"MATCH_CALL_RULE\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            if pos >= len(stream):",
+                    "type": "line"
+                },
+                {
+                    "text": "                fail_message = (\"expected any\",)",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                fn_name = str(stream[pos])",
+                    "type": "line"
+                },
+                {
+                    "text": "                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))",
+                    "type": "line"
+                },
+                {
+                    "text": "                if key in memo:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    if memo[key][0] is None:",
+                    "type": "line"
+                },
+                {
+                    "text": "                        fail_message = memo[key][1]",
+                    "type": "line"
+                },
+                {
+                    "text": "                    else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                        action, stream_pos_stack = memo[key]",
+                    "type": "line"
+                },
+                {
+                    "text": "                        stream_pos_stack = stream_pos_stack[:]",
+                    "type": "line"
+                },
+                {
+                    "text": "                        stream, pos = stream_pos_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "                        pc += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                        continue",
+                    "type": "line"
+                },
+                {
+                    "text": "                else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    call_backtrack_stack.append((pc+1, key))",
+                    "type": "line"
+                },
+                {
+                    "text": "                    pc = labels[fn_name]",
+                    "type": "line"
+                },
+                {
+                    "text": "                    pos += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "                    continue",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif name == \"FAIL\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            fail_message = (arg1,)",
+                    "type": "line"
+                },
+                {
+                    "text": "        else:",
+                    "type": "line"
+                },
+                {
+                    "text": "            raise Exception(\"unknown instruction {}\".format(name))",
+                    "type": "line"
+                },
+                {
+                    "text": "        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])",
+                    "type": "line"
+                },
+                {
+                    "text": "        if fail_pos >= latest_fail_pos:",
+                    "type": "line"
+                },
+                {
+                    "text": "            latest_fail_message = fail_message",
+                    "type": "line"
+                },
+                {
+                    "text": "            latest_fail_pos = fail_pos",
+                    "type": "line"
+                },
+                {
+                    "text": "        call_backtrack_entry = tuple()",
+                    "type": "line"
+                },
+                {
+                    "text": "        while call_backtrack_stack:",
+                    "type": "line"
+                },
+                {
+                    "text": "            call_backtrack_entry = call_backtrack_stack.pop()",
+                    "type": "line"
+                },
+                {
+                    "text": "            if len(call_backtrack_entry) == 4:",
+                    "type": "line"
+                },
+                {
+                    "text": "                break",
+                    "type": "line"
+                },
+                {
+                    "text": "            else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                _, key = call_backtrack_entry",
+                    "type": "line"
+                },
+                {
+                    "text": "                memo[key] = (None, fail_message)",
+                    "type": "line"
+                },
+                {
+                    "text": "        if len(call_backtrack_entry) != 4:",
+                    "type": "line"
+                },
+                {
+                    "text": "            raise MatchError(",
+                    "type": "line"
+                },
+                {
+                    "text": "                latest_fail_message[0].format(*latest_fail_message[1:]),",
+                    "type": "line"
+                },
+                {
+                    "text": "                latest_fail_pos,",
+                    "type": "line"
+                },
+                {
+                    "text": "                stream_pos_stack[0][0] if stream_pos_stack else stream",
+                    "type": "line"
+                },
+                {
+                    "text": "            )",
+                    "type": "line"
+                },
+                {
+                    "text": "        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry",
+                    "type": "line"
+                },
+                {
+                    "text": "        if len(stream_pos_stack) > stream_stack_len:",
+                    "type": "line"
+                },
+                {
+                    "text": "            stream = stream_pos_stack[stream_stack_len][0]",
+                    "type": "line"
+                },
+                {
+                    "text": "        stream_pos_stack = stream_pos_stack[:stream_stack_len]",
+                    "type": "line"
+                },
+                {
+                    "text": "        if len(scope_stack) > scope_stack_len:",
+                    "type": "line"
+                },
+                {
+                    "text": "            scope = scope_stack[scope_stack_len]",
+                    "type": "line"
+                },
+                {
+                    "text": "        scope_stack = scope_stack[:scope_stack_len]",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "class Scope(object):",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def __init__(self, match, runtime):",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.match = match",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.runtime = runtime",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def bind(self, name, value, continuation):",
+                    "type": "line"
+                },
+                {
+                    "text": "        old = self.runtime.get(name, None)",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.runtime[name] = value",
+                    "type": "line"
+                },
+                {
+                    "text": "        try:",
+                    "type": "line"
+                },
+                {
+                    "text": "            return continuation()",
+                    "type": "line"
+                },
+                {
+                    "text": "        finally:",
+                    "type": "line"
+                },
+                {
+                    "text": "            self.runtime[name] = old",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def lookup(self, name):",
+                    "type": "line"
+                },
+                {
+                    "text": "        if name in self.match:",
+                    "type": "line"
+                },
+                {
+                    "text": "            return self.match[name].eval()",
+                    "type": "line"
+                },
+                {
+                    "text": "        else:",
+                    "type": "line"
+                },
+                {
+                    "text": "            return self.runtime.get(name, None)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "class SemanticAction(object):",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def __init__(self, value, fn=lambda value: value):",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.value = value",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.fn = fn",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def eval(self):",
+                    "type": "line"
+                },
+                {
+                    "text": "        return self.fn(self.value)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "class MatchError(Exception):",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def __init__(self, message, pos, stream):",
+                    "type": "line"
+                },
+                {
+                    "text": "        Exception.__init__(self)",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.message = message",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.pos = pos",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.stream = stream",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "class Grammar(object):",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def __init__(self):",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.instructions = instructions = []",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.labels = labels = {}",
+                    "type": "line"
+                },
+                {
+                    "text": "        def I(name, arg1=None, arg2=None):",
+                    "type": "line"
+                },
+                {
+                    "text": "            instructions.append((name, arg1, arg2))",
+                    "type": "line"
+                },
+                {
+                    "text": "        def LABEL(name):",
+                    "type": "line"
+                },
+                {
+                    "text": "            labels[name] = len(instructions)",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.assemble(I, LABEL)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def run(self, rule_name, stream):",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.label_counter = 0",
+                    "type": "line"
+                },
+                {
+                    "text": "        return vm(self.instructions, self.labels, rule_name, stream, {",
+                    "type": "line"
+                },
+                {
+                    "text": "            \"label\": self.next_label,",
+                    "type": "line"
+                },
+                {
+                    "text": "            \"indentprefix\": \"    \",",
+                    "type": "line"
+                },
+                {
+                    "text": "        })",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "    def next_label(self):",
+                    "type": "line"
+                },
+                {
+                    "text": "        result = self.label_counter",
+                    "type": "line"
+                },
+                {
+                    "text": "        self.label_counter += 1",
+                    "type": "line"
+                },
+                {
+                    "text": "        return result",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def splice(depth, item):",
+                    "type": "line"
+                },
+                {
+                    "text": "    if depth == 0:",
+                    "type": "line"
+                },
+                {
+                    "text": "        return [item]",
+                    "type": "line"
+                },
+                {
+                    "text": "    else:",
+                    "type": "line"
+                },
+                {
+                    "text": "        return concat([splice(depth-1, subitem) for subitem in item])",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def concat(lists):",
+                    "type": "line"
+                },
+                {
+                    "text": "    return [x for xs in lists for x in xs]",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def join(items, delimiter=\"\"):",
+                    "type": "line"
+                },
+                {
+                    "text": "    return delimiter.join(",
+                    "type": "line"
+                },
+                {
+                    "text": "        join(item, delimiter) if isinstance(item, list) else str(item)",
+                    "type": "line"
+                },
+                {
+                    "text": "        for item in items",
+                    "type": "line"
+                },
+                {
+                    "text": "    )",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def indent(text, prefix=\"    \"):",
+                    "type": "line"
+                },
+                {
+                    "text": "    return \"\".join(prefix+line for line in text.splitlines(True))",
+                    "type": "line"
+                }
+            ],
+            "links": [],
+            "tags": [],
+            "text": "Enter note text...\n",
+            "timestamp_created": "2021-08-04T18:31:01.032776",
+            "type": "code"
+        },
+        "9a1d3575d6264b51b63c60b741df8d2e": {
+            "chunkpath": [],
+            "filepath": [
+                "make.py"
+            ],
+            "fragments": [
+                {
+                    "text": "#!/usr/bin/env python",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "import os",
+                    "type": "line"
+                },
+                {
+                    "text": "import subprocess",
+                    "type": "line"
+                },
+                {
+                    "text": "import sys",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def make_next_version():",
+                    "type": "line"
+                },
+                {
+                    "text": "    intermediate_compilers = meta_compile_rlmeta()",
+                    "type": "line"
+                },
+                {
+                    "text": "    final_compiler = intermediate_compilers.pop(-1)",
+                    "type": "line"
+                },
+                {
+                    "text": "    test(final_compiler)",
+                    "type": "line"
+                },
+                {
+                    "text": "    mv(final_compiler, \"rlmeta.py\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    for compiler in intermediate_compilers:",
+                    "type": "line"
+                },
+                {
+                    "text": "        rm(compiler)",
+                    "type": "line"
+                },
+                {
+                    "text": "    log(\"OK!\")",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def meta_compile_rlmeta():",
+                    "type": "line"
+                },
+                {
+                    "text": "    compiler = \"rlmeta.py\"",
+                    "type": "line"
+                },
+                {
+                    "text": "    content = read(compiler)",
+                    "type": "line"
+                },
+                {
+                    "text": "    intermediate_compilers = []",
+                    "type": "line"
+                },
+                {
+                    "text": "    for i in range(4):",
+                    "type": "line"
+                },
+                {
+                    "text": "        next_compiler = \"rlmeta{}.py\".format(i+1)",
+                    "type": "line"
+                },
+                {
+                    "text": "        log(\"Compiling {} -> {}\".format(compiler, next_compiler))",
+                    "type": "line"
+                },
+                {
+                    "text": "        next_content = compile_rlmeta(compiler)",
+                    "type": "line"
+                },
+                {
+                    "text": "        write(next_compiler, next_content)",
+                    "type": "line"
+                },
+                {
+                    "text": "        intermediate_compilers.append(next_compiler)",
+                    "type": "line"
+                },
+                {
+                    "text": "        if next_content == content:",
+                    "type": "line"
+                },
+                {
+                    "text": "            return intermediate_compilers",
+                    "type": "line"
+                },
+                {
+                    "text": "        compiler = next_compiler",
+                    "type": "line"
+                },
+                {
+                    "text": "        content = next_content",
+                    "type": "line"
+                },
+                {
+                    "text": "    fail(\"Unable to produce metacompiler.\")",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def compile_rlmeta(rlmeta):",
+                    "type": "line"
+                },
+                {
+                    "text": "    return run_rlmeta(rlmeta, [",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"--embed\", \"SUPPORT\", \"support.py\",",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"--support\",",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"--compile\", \"parser.rlmeta\",",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"--compile\", \"codegenerator.rlmeta\",",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"--copy\", \"main.py\",",
+                    "type": "line"
+                },
+                {
+                    "text": "    ])",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def test(rlmeta):",
+                    "type": "line"
+                },
+                {
+                    "text": "    log(\"Test: Has its own support library\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    assert run_rlmeta(rlmeta, [\"--support\"]) == read(\"support.py\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    log(\"Test: Disallow semantic action in the middle\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    run_rlmeta(rlmeta, [], \"Grammar { x = . -> [] . }\", expect_failure=True)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def run_rlmeta(rlmeta, args, stdin=\"\", expect_failure=False):",
+                    "type": "line"
+                },
+                {
+                    "text": "    process = subprocess.Popen(",
+                    "type": "line"
+                },
+                {
+                    "text": "        [\"python\", rlmeta]+args,",
+                    "type": "line"
+                },
+                {
+                    "text": "        stdin=subprocess.PIPE,",
+                    "type": "line"
+                },
+                {
+                    "text": "        stdout=subprocess.PIPE",
+                    "type": "line"
+                },
+                {
+                    "text": "    )",
+                    "type": "line"
+                },
+                {
+                    "text": "    stdout, _ = process.communicate(stdin)",
+                    "type": "line"
+                },
+                {
+                    "text": "    if expect_failure:",
+                    "type": "line"
+                },
+                {
+                    "text": "        if process.returncode == 0:",
+                    "type": "line"
+                },
+                {
+                    "text": "            fail(\"Expected failure\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    else:",
+                    "type": "line"
+                },
+                {
+                    "text": "        if process.returncode != 0:",
+                    "type": "line"
+                },
+                {
+                    "text": "            fail(\"Expected success\")",
+                    "type": "line"
+                },
+                {
+                    "text": "    return stdout",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def mv(src, dest):",
+                    "type": "line"
+                },
+                {
+                    "text": "    log(\"Move {} -> {}\".format(src, dest))",
+                    "type": "line"
+                },
+                {
+                    "text": "    os.remove(dest)",
+                    "type": "line"
+                },
+                {
+                    "text": "    os.rename(src, dest)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def rm(path):",
+                    "type": "line"
+                },
+                {
+                    "text": "    log(\"Delete {}\".format(path))",
+                    "type": "line"
+                },
+                {
+                    "text": "    os.remove(path)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def read(path):",
+                    "type": "line"
+                },
+                {
+                    "text": "    with open(path) as f:",
+                    "type": "line"
+                },
+                {
+                    "text": "        return f.read()",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def write(path, content):",
+                    "type": "line"
+                },
+                {
+                    "text": "    with open(path, \"w\") as f:",
+                    "type": "line"
+                },
+                {
+                    "text": "        return f.write(content)",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def log(message):",
+                    "type": "line"
+                },
+                {
+                    "text": "    sys.stdout.write(\"\\033[0;33m{}\\033[0m\\n\".format(message))",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "def fail(message):",
+                    "type": "line"
+                },
+                {
+                    "text": "    sys.exit(\"\\033[0;31mERROR: {}\\033[0m\".format(message))",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "if __name__ == \"__main__\":",
+                    "type": "line"
+                },
+                {
+                    "text": "    if sys.argv[1:] == [\"compile\"]:",
+                    "type": "line"
+                },
+                {
+                    "text": "        sys.stdout.write(compile_rlmeta(\"rlmeta.py\"))",
+                    "type": "line"
+                },
+                {
+                    "text": "    else:",
+                    "type": "line"
+                },
+                {
+                    "text": "        make_next_version()",
+                    "type": "line"
+                }
+            ],
+            "links": [],
+            "tags": [],
+            "text": "Enter note text...\n",
+            "timestamp_created": "2021-08-04T18:30:28.916920",
+            "type": "code"
+        },
+        "9f8d4a04f39a441881a398895b391232": {
+            "chunkpath": [],
+            "filepath": [
+                "parser.rlmeta"
+            ],
+            "fragments": [
+                {
+                    "text": "Parser {",
+                    "type": "line"
+                },
+                {
+                    "text": "  grammar =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | name:x space '{' rule*:ys space '}'     -> [\"Grammar\" x ~ys]",
+                    "type": "line"
+                },
+                {
+                    "text": "  rule =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | name:x space '=' choice:y               -> [\"Rule\" x y]",
+                    "type": "line"
+                },
+                {
+                    "text": "  choice =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | (space '|')?",
+                    "type": "line"
+                },
+                {
+                    "text": "      sequence:x (space '|' sequence)*:xs     -> [\"Or\" x ~xs]",
+                    "type": "line"
+                },
+                {
+                    "text": "  sequence =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr*:xs maybeAction:ys                 -> [\"Scope\" [\"And\" ~xs ~ys]]",
+                    "type": "line"
+                },
+                {
+                    "text": "  expr =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr1:x space ':' name:y                -> [\"Bind\" y x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr1",
+                    "type": "line"
+                },
+                {
+                    "text": "  expr1 =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr2:x space '*'                       -> [\"Star\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr2:x space '?'                       -> [\"Or\" x [\"And\"]]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '!' expr2:x                       -> [\"Not\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '%'                               -> [\"MatchCallRule\"]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | expr2",
+                    "type": "line"
+                },
+                {
+                    "text": "  expr2 =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | name:x !(space '=')                     -> [\"MatchRule\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space char:x '-' char:y                 -> [\"MatchRange\" x y]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '\\'' (!'\\'' matchChar)*:xs '\\''   -> [\"And\" ~xs]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '.'                               -> [\"MatchAny\"]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '(' choice:x space ')'            -> x",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '[' expr*:xs space ']'            -> [\"MatchList\" [\"And\" ~xs]]",
+                    "type": "line"
+                },
+                {
+                    "text": "  matchChar =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | innerChar:x                             -> [\"MatchObject\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "  maybeAction =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | actionExpr:x actionExpr*:xs             -> [[\"Action\" ~x ~~xs]]",
+                    "type": "line"
+                },
+                {
+                    "text": "    |                                         -> []",
+                    "type": "line"
+                },
+                {
+                    "text": "  actionExpr =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '->' hostExpr:x",
+                    "type": "line"
+                },
+                {
+                    "text": "      (space ':' name | -> \"\"):y              -> [y  x]",
+                    "type": "line"
+                },
+                {
+                    "text": "  hostExpr =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space string:x                          -> [\"String\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '[' hostListItem*:xs space ']'    -> [\"List\" ~xs]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '{' formatExpr*:xs space '}'      -> [\"Format\" ~xs]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | var:x space '(' hostExpr*:ys space ')'  -> [\"Call\" x ~ys]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | var:x",
+                    "type": "line"
+                },
+                {
+                    "text": "  hostListItem =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '~'*:ys hostExpr:x                -> [\"ListItem\" #len(ys) x]",
+                    "type": "line"
+                },
+                {
+                    "text": "  formatExpr =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '>' formatExpr*:xs space '<'      -> [\"Indent\" [\"Format\" ~xs]]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | hostExpr",
+                    "type": "line"
+                },
+                {
+                    "text": "  var =",
+                    "type": "line"
+                },
+                {
+                    "text": "    | space '#' name:x                        -> [\"Native\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "    | name:x !(space '=')                     -> [\"Lookup\" x]",
+                    "type": "line"
+                },
+                {
+                    "text": "  string    = '\"'  (!'\"'  innerChar)*:xs '\"'  -> { xs }",
+                    "type": "line"
+                },
+                {
+                    "text": "  char      = '\\''  !'\\'' innerChar  :x  '\\'' -> x",
+                    "type": "line"
+                },
+                {
+                    "text": "  innerChar = '\\\\' escape | .",
+                    "type": "line"
+                },
+                {
+                    "text": "  escape    = '\\\\' -> \"\\\\\" | '\\'' -> \"'\"",
+                    "type": "line"
+                },
+                {
+                    "text": "            | '\"'  -> \"\\\"\" | 'n'  -> \"\\n\"",
+                    "type": "line"
+                },
+                {
+                    "text": "  name      = space nameStart:x nameChar*:xs  -> { x xs }",
+                    "type": "line"
+                },
+                {
+                    "text": "  nameStart = 'a'-'z' | 'A'-'Z'",
+                    "type": "line"
+                },
+                {
+                    "text": "  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'",
+                    "type": "line"
+                },
+                {
+                    "text": "  space     = (' ' | '\\n')*",
+                    "type": "line"
+                },
+                {
+                    "text": "}",
+                    "type": "line"
+                }
+            ],
+            "links": [],
+            "tags": [],
+            "text": "Enter note text...\n",
+            "timestamp_created": "2021-08-04T18:30:44.307259",
+            "type": "code"
+        },
+        "f6b2a3ed97194c46bfd7e28f38abcd54": {
+            "chunkpath": [],
+            "filepath": [
+                "main.py"
+            ],
+            "fragments": [
+                {
+                    "text": "def compile_grammar(grammar):",
+                    "type": "line"
+                },
+                {
+                    "text": "    return CodeGenerator().run(",
+                    "type": "line"
+                },
+                {
+                    "text": "        \"ast\",",
+                    "type": "line"
+                },
+                {
+                    "text": "        [Parser().run(\"grammar\", grammar)]",
+                    "type": "line"
+                },
+                {
+                    "text": "    )",
+                    "type": "line"
+                },
+                {
+                    "text": "",
+                    "type": "line"
+                },
+                {
+                    "text": "if __name__ == \"__main__\":",
+                    "type": "line"
+                },
+                {
+                    "text": "    import sys",
+                    "type": "line"
+                },
+                {
+                    "text": "    import pprint",
+                    "type": "line"
+                },
+                {
+                    "text": "    def read(path):",
+                    "type": "line"
+                },
+                {
+                    "text": "        if path == \"-\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            return sys.stdin.read()",
+                    "type": "line"
+                },
+                {
+                    "text": "        with open(path) as f:",
+                    "type": "line"
+                },
+                {
+                    "text": "            return f.read()",
+                    "type": "line"
+                },
+                {
+                    "text": "    args = sys.argv[1:] or [\"--compile\", \"-\"]",
+                    "type": "line"
+                },
+                {
+                    "text": "    while args:",
+                    "type": "line"
+                },
+                {
+                    "text": "        command = args.pop(0)",
+                    "type": "line"
+                },
+                {
+                    "text": "        if command == \"--support\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            sys.stdout.write(SUPPORT)",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif command == \"--copy\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            sys.stdout.write(read(args.pop(0)))",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif command == \"--embed\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            sys.stdout.write(\"{} = {}\\n\".format(",
+                    "type": "line"
+                },
+                {
+                    "text": "                args.pop(0),",
+                    "type": "line"
+                },
+                {
+                    "text": "                repr(read(args.pop(0)))",
+                    "type": "line"
+                },
+                {
+                    "text": "            ))",
+                    "type": "line"
+                },
+                {
+                    "text": "        elif command == \"--compile\":",
+                    "type": "line"
+                },
+                {
+                    "text": "            try:",
+                    "type": "line"
+                },
+                {
+                    "text": "                sys.stdout.write(compile_grammar(read(args.pop(0))))",
+                    "type": "line"
+                },
+                {
+                    "text": "            except MatchError as e:",
+                    "type": "line"
+                },
+                {
+                    "text": "                stream = e.stream",
+                    "type": "line"
+                },
+                {
+                    "text": "                for pos in e.pos[:-1]:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    stream = stream[pos]",
+                    "type": "line"
+                },
+                {
+                    "text": "                pos = e.pos[-1]",
+                    "type": "line"
+                },
+                {
+                    "text": "                MARKER = \"\\033[0;31m<ERROR POSITION>\\033[0m\"",
+                    "type": "line"
+                },
+                {
+                    "text": "                if isinstance(stream, basestring):",
+                    "type": "line"
+                },
+                {
+                    "text": "                    stream_string = stream[:pos] + MARKER + stream[pos:]",
+                    "type": "line"
+                },
+                {
+                    "text": "                else:",
+                    "type": "line"
+                },
+                {
+                    "text": "                    stream_string = pprint.pformat(stream)",
+                    "type": "line"
+                },
+                {
+                    "text": "                sys.exit(\"ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}\".format(",
+                    "type": "line"
+                },
+                {
+                    "text": "                    e.message,",
+                    "type": "line"
+                },
+                {
+                    "text": "                    pos,",
+                    "type": "line"
+                },
+                {
+                    "text": "                    indent(stream_string)",
+                    "type": "line"
+                },
+                {
+                    "text": "                ))",
+                    "type": "line"
+                },
+                {
+                    "text": "        else:",
+                    "type": "line"
+                },
+                {
+                    "text": "            sys.exit(\"ERROR: Unknown command '{}'\".format(command))",
+                    "type": "line"
+                }
+            ],
+            "links": [],
+            "tags": [],
+            "text": "Enter note text...\n",
+            "timestamp_created": "2021-08-04T18:29:59.535310",
+            "type": "code"
+        }
+    },
+    "version": 1
+}
