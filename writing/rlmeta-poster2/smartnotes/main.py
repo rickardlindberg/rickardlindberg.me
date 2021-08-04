@@ -33,7 +33,7 @@ if __name__ == "__main__":
                     stream = stream[pos]
                 pos = e.pos[-1]
                 MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
-                if isinstance(stream, basestring):
+                if isinstance(stream, str):
                     stream_string = stream[:pos] + MARKER + stream[pos:]
                 else:
                     stream_string = pprint.pformat(stream)

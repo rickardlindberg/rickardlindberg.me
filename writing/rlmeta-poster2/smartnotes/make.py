@@ -57,7 +57,7 @@ def run_rlmeta(rlmeta, args, stdin="", expect_failure=False):
     else:
         if process.returncode != 0:
             fail("Expected success")
-    return stdout
+    return stdout.decode("utf-8")
 
 def mv(src, dest):
     log("Move {} -> {}".format(src, dest))
