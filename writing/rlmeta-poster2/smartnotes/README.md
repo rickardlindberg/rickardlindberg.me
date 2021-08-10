@@ -46,6 +46,8 @@ CHANGES:
       35 pyvm/support.py
       76 total
 
+[x] Generate instruction "enum" so that strings don't have to be used
+
 TODO:
 
 [ ] Put compile + error reporting function in support lib.
