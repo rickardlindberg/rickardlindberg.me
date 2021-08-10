@@ -1,31 +1,22 @@
-class Scope(object):
-
-    def __init__(self, matches, runtime):
-        self.matches = matches
-        self.runtime = runtime
-
-    def bind(self, name, value, continuation):
-        old = self.runtime.get(name, None)
-        self.runtime[name] = value
-        try:
-            return continuation()
-        finally:
-            self.runtime[name] = old
-
-    def lookup(self, name):
-        if name in self.matches:
-            return self.matches[name].eval()
-        else:
-            return self.runtime.get(name, None)
-
 class SemanticAction(object):
 
-    def __init__(self, value, fn=lambda value: value):
+    def __init__(self, value, fn=lambda self: self.value):
         self.value = value
         self.fn = fn
 
-    def eval(self):
-        return self.fn(self.value)
+    def eval(self, runtime):
+        self.runtime = runtime
+        return self.fn(self)
+
+    def bind(self, name, value, continuation):
+        self.runtime = dict(self.runtime, **{name: value})
+        return continuation()
+
+    def lookup(self, name):
+        if name in self.value:
+            return self.value[name].eval(self.runtime)
+        else:
+            return self.runtime[name]
 
 class MatchError(Exception):
 

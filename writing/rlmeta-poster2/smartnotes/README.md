@@ -28,14 +28,24 @@ CHANGES:
       35 pyvm/support.py
       76 total
 
-* Rename match -> matches in Scope
+[x] Better error message than None if runtime/scope is not found.
+
+    * Rename match -> matches in Scope
+    * Immutable scope instead and fail if entry does not exist?
+
+    $ wc -l rlmeta/*; echo; wc -l pyvm/*
+       66 rlmeta/codegenerator.rlmeta
+       46 rlmeta/main.py
+       58 rlmeta/parser.rlmeta
+       68 rlmeta/support.py
+      169 rlmeta/vm.pyvm
+      407 total
+
+      22 pyvm/codegenerator.rlmeta
+      19 pyvm/parser.rlmeta
+      35 pyvm/support.py
+      76 total
 
 TODO:
 
-[ ] Better error message than None if runtime/scope is not found.
-
-    * Immutable scope instead and fail if entry does not exist?
-
 [ ] Put compile + error reporting function in support lib.
-
-[ ] First parameter to Scope should really be "matches"

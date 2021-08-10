@@ -47,9 +47,9 @@ CodeGenerator {
                                     x
                                     "I('POP_STREAM')\n"                  }
   MatchObject   = py:x         -> { "I('MATCH_OBJECT', " x ")\n"         }
-  Action        = actionExpr:x -> { "I('ACTION', lambda scope: " x ")\n" }
+  Action        = actionExpr:x -> { "I('ACTION', lambda self: " x ")\n"  }
   actionExpr    =
-    | py:x ast:y actionExpr:z  -> { "scope.bind("
+    | py:x ast:y actionExpr:z  -> { "self.bind("
                                     x ", " y ", lambda: " z ")"          }
     | .    ast
   String        = py
@@ -57,10 +57,10 @@ CodeGenerator {
   ListItem      = py:x ast:y   -> { "splice(" x ", " y ")"               }
   Format        = asts:x       -> { "join([" x "])"                      }
   Indent        = ast:x        -> { "indent(" x ", "
-                                    "scope.lookup('indentprefix'))"      }
+                                    "self.lookup('indentprefix'))"       }
   Call          = ast:x asts:y -> { x "(" y ")"                          }
   Native        = .
-  Lookup        = py:x         -> { "scope.lookup(" x ")"                }
+  Lookup        = py:x         -> { "self.lookup(" x ")"                 }
   asts          = ast*:xs      -> #join(xs ", ")
   py            = .:x          -> #repr(x)
 }

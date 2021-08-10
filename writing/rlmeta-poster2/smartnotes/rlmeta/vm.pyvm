@@ -53,7 +53,7 @@ definstruction COMMIT:
 
 definstruction RETURN:
     if len(call_backtrack_stack) == 0:
-        return action.eval()
+        return action.eval(runtime)
     pc, key = call_backtrack_stack.pop()
     memo[key] = (action, stream_pos_stack+[(stream, pos)])
 
@@ -66,7 +66,7 @@ definstruction BIND:
     pc += 1
 
 definstruction ACTION:
-    action = SemanticAction(Scope(scope, runtime), arg1)
+    action = SemanticAction(scope, arg1)
     pc += 1
 
 definstruction MATCH_RANGE:
@@ -84,7 +84,7 @@ definstruction LIST_START:
     pc += 1
 
 definstruction LIST_END:
-    action = SemanticAction(scope, lambda xs: [x.eval() for x in xs])
+    action = SemanticAction(scope, lambda self: [x.eval(self.runtime) for x in self.value])
     scope = scope_stack.pop()
     pc += 1
 
