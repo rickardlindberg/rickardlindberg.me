@@ -37,22 +37,22 @@ def test(rlmeta):
     log("Test: Has its own support library")
     assert run_rlmeta(rlmeta, ["--support"]) == read("rlmeta/support.py")
     log("Test: Disallow semantic action in the middle")
-    run_rlmeta(rlmeta, [], "Grammar { x = . -> [] . }", expect_failure=True)
+    run_rlmeta(rlmeta, [], b"Grammar { x = . -> [] . }", expect_failure=True)
 
-def run_rlmeta(rlmeta, args, stdin="", expect_failure=False):
+def run_rlmeta(rlmeta, args, stdin=b"", expect_failure=False):
     process = subprocess.Popen(
         ["python", rlmeta]+args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE
     )
-    stdout, _ = process.communicate(stdin.encode("utf-8"))
+    stdout, _ = process.communicate(stdin)
     if expect_failure:
         if process.returncode == 0:
             fail("Expected failure")
     else:
         if process.returncode != 0:
             fail("Expected success")
-    return stdout.decode("utf-8")
+    return stdout
 
 def mv(src, dest):
     log("Move {} -> {}".format(src, dest))
@@ -66,11 +66,11 @@ def cleanup():
             os.remove(path)
 
 def read(path):
-    with open(path) as f:
+    with open(path, "rb") as f:
         return f.read()
 
 def write(path, content):
-    with open(path, "w") as f:
+    with open(path, "wb") as f:
         return f.write(content)
 
 def log(message):
