@@ -4,6 +4,8 @@ import os
 import subprocess
 import sys
 
+RLMETA_COMBINED_SUPPORT = "rlmeta_combined_support.py"
+
 def make_next_version():
     final_compiler = meta_compile_rlmeta()
     test(final_compiler)
@@ -24,8 +26,20 @@ def meta_compile_rlmeta():
     fail("Unable to produce metacompiler.")
 
 def compile_rlmeta(rlmeta):
+    log("Compiling pyvm")
+    write("pyvm.py", run_rlmeta(rlmeta, [
+        "--support",
+        "--compile", "pyvm/parser.rlmeta",
+        "--compile", "pyvm/codegenerator.rlmeta",
+        "--copy", "pyvm/support.py",
+    ]))
+    log("Compiling vm and combined support library")
+    write(
+        RLMETA_COMBINED_SUPPORT,
+        run_rlmeta("pyvm.py", ["rlmeta/vm.pyvm"])+read("rlmeta/support.py")
+    )
     return run_rlmeta(rlmeta, [
-        "--embed", "SUPPORT", "rlmeta/support.py",
+        "--embed", "SUPPORT", RLMETA_COMBINED_SUPPORT,
         "--support",
         "--compile", "rlmeta/parser.rlmeta",
         "--compile", "rlmeta/codegenerator.rlmeta",
@@ -34,7 +48,7 @@ def compile_rlmeta(rlmeta):
 
 def test(rlmeta):
     log("Test: Has its own support library")
-    assert run_rlmeta(rlmeta, ["--support"]) == read("rlmeta/support.py")
+    assert run_rlmeta(rlmeta, ["--support"]) == read(RLMETA_COMBINED_SUPPORT)
     log("Test: Disallow semantic action in the middle")
     run_rlmeta(rlmeta, [], b"Grammar { x = . -> [] . }", expect_failure=True)
 
@@ -59,7 +73,14 @@ def mv(src, dest):
     os.rename(src, dest)
 
 def cleanup():
-    for path in ["rlmeta1.py", "rlmeta2.py", "rlmeta3.py", "rlmeta4.py"]:
+    for path in [
+        "rlmeta1.py",
+        "rlmeta2.py",
+        "rlmeta3.py",
+        "rlmeta4.py",
+        "pyvm.py",
+        RLMETA_COMBINED_SUPPORT,
+    ]:
         if os.path.exists(path):
             log("Delete {}".format(path))
             os.remove(path)

@@ -1,0 +1,19 @@
+Parser {
+  vm             = def*:xs !. -> #List():defs
+                              -> #List():instructions
+                              -> #Dict():macros
+                              -> xs
+                              -> ["VM" defs instructions macros]
+  def            = defvm | definstruction | defmacro | blankline
+  defvm          = 'def ' name:x restline:y       block:z -> defs(["Def" x y z])
+  definstruction = 'definstruction ' name:x ':\n' block:y -> instructions(["Instruction" x y])
+  defmacro       = 'defmacro '       name:x ':\n' ('    ' restline)*:y -> macros(x {y})
+  block          = blockline*
+  blockline      =
+    | '    ' ('    ' -> "    ")*:xs '#' name:y '\n' -> ["Macro" y { xs }]
+    | '    ' restline:x                 -> ["Line" x]
+  restline       = (!'\n'.)*:xs '\n' -> { xs "\n" }
+  name           = char:x char*:xs   -> { x xs }
+  char           = 'a'-'z' | 'A'-'Z' | '_'
+  blankline      = '\n'
+}
