@@ -1,7 +1,7 @@
 class Scope(object):
 
-    def __init__(self, match, runtime):
-        self.match = match
+    def __init__(self, matches, runtime):
+        self.matches = matches
         self.runtime = runtime
 
     def bind(self, name, value, continuation):
@@ -13,8 +13,8 @@ class Scope(object):
             self.runtime[name] = old
 
     def lookup(self, name):
-        if name in self.match:
-            return self.match[name].eval()
+        if name in self.matches:
+            return self.matches[name].eval()
         else:
             return self.runtime.get(name, None)
 

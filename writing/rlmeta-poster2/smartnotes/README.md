@@ -28,6 +28,8 @@ CHANGES:
       35 pyvm/support.py
       76 total
 
+* Rename match -> matches in Scope
+
 TODO:
 
 [ ] Better error message than None if runtime/scope is not found.
@@ -35,3 +37,5 @@ TODO:
     * Immutable scope instead and fail if entry does not exist?
 
 [ ] Put compile + error reporting function in support lib.
+
+[ ] First parameter to Scope should really be "matches"
