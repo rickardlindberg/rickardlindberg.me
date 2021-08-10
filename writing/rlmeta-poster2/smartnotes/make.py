@@ -8,7 +8,6 @@ def make_next_version():
     final_compiler = meta_compile_rlmeta()
     test(final_compiler)
     mv(final_compiler, "rlmeta.py")
-    log("OK!")
 
 def meta_compile_rlmeta():
     compiler = "rlmeta.py"
@@ -86,3 +85,4 @@ if __name__ == "__main__":
     else:
         make_next_version()
     cleanup()
+    log("OK!")
