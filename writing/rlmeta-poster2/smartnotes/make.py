@@ -5,26 +5,21 @@ import subprocess
 import sys
 
 def make_next_version():
-    intermediate_compilers = meta_compile_rlmeta()
-    final_compiler = intermediate_compilers.pop(-1)
+    final_compiler = meta_compile_rlmeta()
     test(final_compiler)
     mv(final_compiler, "rlmeta.py")
-    for compiler in intermediate_compilers:
-        rm(compiler)
     log("OK!")
 
 def meta_compile_rlmeta():
     compiler = "rlmeta.py"
     content = read(compiler)
-    intermediate_compilers = []
     for i in range(4):
         next_compiler = "rlmeta{}.py".format(i+1)
         log("Compiling {} -> {}".format(compiler, next_compiler))
         next_content = compile_rlmeta(compiler)
         write(next_compiler, next_content)
-        intermediate_compilers.append(next_compiler)
         if next_content == content:
-            return intermediate_compilers
+            return next_compiler
         compiler = next_compiler
         content = next_content
     fail("Unable to produce metacompiler.")
@@ -64,9 +59,11 @@ def mv(src, dest):
     os.remove(dest)
     os.rename(src, dest)
 
-def rm(path):
-    log("Delete {}".format(path))
-    os.remove(path)
+def cleanup():
+    for path in ["rlmeta1.py", "rlmeta2.py", "rlmeta3.py", "rlmeta4.py"]:
+        if os.path.exists(path):
+            log("Delete {}".format(path))
+            os.remove(path)
 
 def read(path):
     with open(path) as f:
@@ -83,7 +80,9 @@ def fail(message):
     sys.exit("\033[0;31mERROR: {}\033[0m".format(message))
 
 if __name__ == "__main__":
+    cleanup()
     if sys.argv[1:] == ["compile"]:
         sys.stdout.write(compile_rlmeta("rlmeta.py"))
     else:
         make_next_version()
+    cleanup()
