@@ -50,7 +50,7 @@ def run_rlmeta(rlmeta, args, stdin="", expect_failure=False):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE
     )
-    stdout, _ = process.communicate(stdin)
+    stdout, _ = process.communicate(stdin.encode("utf-8"))
     if expect_failure:
         if process.returncode == 0:
             fail("Expected failure")
