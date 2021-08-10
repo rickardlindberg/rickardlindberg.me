@@ -31,16 +31,16 @@ def meta_compile_rlmeta():
 
 def compile_rlmeta(rlmeta):
     return run_rlmeta(rlmeta, [
-        "--embed", "SUPPORT", "support.py",
+        "--embed", "SUPPORT", "rlmeta/support.py",
         "--support",
-        "--compile", "parser.rlmeta",
-        "--compile", "codegenerator.rlmeta",
-        "--copy", "main.py",
+        "--compile", "rlmeta/parser.rlmeta",
+        "--compile", "rlmeta/codegenerator.rlmeta",
+        "--copy", "rlmeta/main.py",
     ])
 
 def test(rlmeta):
     log("Test: Has its own support library")
-    assert run_rlmeta(rlmeta, ["--support"]) == read("support.py")
+    assert run_rlmeta(rlmeta, ["--support"]) == read("rlmeta/support.py")
     log("Test: Disallow semantic action in the middle")
     run_rlmeta(rlmeta, [], "Grammar { x = . -> [] . }", expect_failure=True)
 
