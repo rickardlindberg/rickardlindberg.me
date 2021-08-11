@@ -51,3 +51,9 @@ CHANGES:
 TODO:
 
 [ ] Put compile + error reporting function in support lib.
+
+[ ] Support recursive macros?
+
+    * Probably requires function to run grammar against an object
+
+[ ] You can put any crap at end of file, and parsers don't care. Fix it!
