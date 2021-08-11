@@ -38,15 +38,19 @@ class Grammar(object):
         self.assemble(I, LABEL)
 
     def run(self, rule_name, stream):
-        self.label_counter = 0
         return vm(self.instructions, self.labels, rule_name, stream, {
-            "label": self.next_label,
+            "label": Counter(),
             "indentprefix": "    ",
         })
 
-    def next_label(self):
-        result = self.label_counter
-        self.label_counter += 1
+class Counter(object):
+
+    def __init__(self):
+        self.value = 0
+
+    def __call__(self):
+        result = self.value
+        self.value += 1
         return result
 
 def splice(depth, item):

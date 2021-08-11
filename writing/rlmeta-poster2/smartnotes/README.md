@@ -48,6 +48,21 @@ CHANGES:
 
 [x] Generate instruction "enum" so that strings don't have to be used
 
+[x] Counter class is more clean
+
+    $ wc -l rlmeta/*; echo; wc -l pyvm/*
+       66 rlmeta/codegenerator.rlmeta
+       46 rlmeta/main.py
+       58 rlmeta/parser.rlmeta
+       72 rlmeta/support.py
+      169 rlmeta/vm.pyvm
+      411 total
+
+      22 pyvm/codegenerator.rlmeta
+      19 pyvm/parser.rlmeta
+      35 pyvm/support.py
+      76 total
+
 TODO:
 
 [ ] Put compile + error reporting function in support lib.
