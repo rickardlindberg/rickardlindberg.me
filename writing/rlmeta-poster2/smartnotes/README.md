@@ -69,10 +69,10 @@ CHANGES:
 
 [x] No need to wrap parser output in list for codegenerator in PyVM
 
+[x] You can put any crap at end of file, and parsers don't care. Fix it!
+
 TODO:
 
 [ ] Support recursive macros?
 
     * Probably requires function to run grammar against an object
-
-[ ] You can put any crap at end of file, and parsers don't care. Fix it!
