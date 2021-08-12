@@ -1,9 +1,9 @@
 Parser {
-  vm             = def*:xs !. -> #List():defs
+  file          = def*:xs !. -> #List():defs
                               -> #List():instructions
                               -> #Dict():macros
                               -> xs
-                              -> ["VM" defs instructions macros]
+                              -> [["VM" defs instructions macros]]
   def            = defvm | definstruction | defmacro | blankline
   defvm          = 'def ' name:x restline:y       block:z -> defs(["Def" x y z])
   definstruction = 'definstruction ' name:x ':\n' block:y -> instructions(["Instruction" x y])

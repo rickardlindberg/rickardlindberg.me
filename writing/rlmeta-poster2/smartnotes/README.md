@@ -67,9 +67,9 @@ CHANGES:
 
 [x] Put compile + error reporting function in support lib.
 
-TODO:
+[x] No need to wrap parser output in list for codegenerator in PyVM
 
-[ ] No need to wrap parser output in list for codegenerator in PyVM
+TODO:
 
 [ ] Support recursive macros?
 

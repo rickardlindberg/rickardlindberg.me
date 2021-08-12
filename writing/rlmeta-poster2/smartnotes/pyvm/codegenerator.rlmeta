@@ -1,9 +1,4 @@
 CodeGenerator {
-  ast          = [%:x] -> x
-  instructions = [first:x rest*:xs] -> { x xs }
-  first        = ast:x              -> { "if "   x }
-  rest         = ast:x              -> { "elif " x }
-
   VM           = [ast:x] instructions:y .:z -> z:macros -> #List():enum -> {
                    enum x >
                      "while True:\n" >
@@ -15,8 +10,13 @@ CodeGenerator {
                      <
                    <
                  }
-  Def          = .:name .:rest [ast*:body] -> { "def " name rest > body < }
-  Instruction  = .:name [ast*:body] -> enum({name " = " #len(enum) "\n"}) -> { "name == " name ":\n" > body < }
+  instructions = [first:x rest*:xs] -> { x xs }
+  first        = ast:x              -> { "if "   x }
+  rest         = ast:x              -> { "elif " x }
+  Def          = .:name .:rest [asts:body] -> { "def " name rest > body < }
+  Instruction  = .:name [asts:body] -> enum({name " = " #len(enum) "\n"}) -> { "name == " name ":\n" > body < }
   Line         = .:line
   Macro        = .:name .:indentprefix -> { > macros(name) < }
+  asts         = ast*:xs            -> { xs }
+  ast          = [%:x] -> x
 }

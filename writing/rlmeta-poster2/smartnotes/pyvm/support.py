@@ -11,25 +11,9 @@ class Dict(dict):
 
 if __name__ == "__main__":
     import sys
-    import pprint
     for path in sys.argv[1:]:
         with open(path) as f:
-            try:
-                ast = Parser().run("vm", f.read())
-                code = CodeGenerator().run("ast", [ast])
-                sys.stdout.write(code)
-            except MatchError as e:
-                stream = e.stream
-                for pos in e.pos[:-1]:
-                    stream = stream[pos]
-                pos = e.pos[-1]
-                MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
-                if isinstance(stream, str):
-                    stream_string = stream[:pos] + MARKER + stream[pos:]
-                else:
-                    stream_string = pprint.pformat(stream)
-                sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
-                    e.message,
-                    pos,
-                    indent(stream_string)
-                ))
+            sys.stdout.write(compile_chain(
+                [(Parser, "file"), (CodeGenerator, "asts")],
+                f.read()
+            ))
