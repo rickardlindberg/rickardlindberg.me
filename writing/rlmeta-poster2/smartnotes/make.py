@@ -102,7 +102,7 @@ def fail(message):
 if __name__ == "__main__":
     cleanup()
     if sys.argv[1:] == ["compile"]:
-        sys.stdout.write(compile_rlmeta("rlmeta.py"))
+        sys.stdout.buffer.write(compile_rlmeta("rlmeta.py"))
     else:
         make_next_version()
     cleanup()
