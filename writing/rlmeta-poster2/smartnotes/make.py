@@ -109,4 +109,7 @@ if __name__ == "__main__":
     else:
         make_next_version()
     cleanup()
-    success("OK!")
+    success("  O-----------------O")
+    success("  | RLMeta compiled |")
+    success("~~|     itself!     |")
+    success("  O-----------------O")
