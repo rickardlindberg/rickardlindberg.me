@@ -65,9 +65,11 @@ CHANGES:
 
 * No need to wrap parser output in list for codegenerator in RLMeta
 
+[x] Put compile + error reporting function in support lib.
+
 TODO:
 
-[ ] Put compile + error reporting function in support lib.
+[ ] No need to wrap parser output in list for codegenerator in PyVM
 
 [ ] Support recursive macros?
 

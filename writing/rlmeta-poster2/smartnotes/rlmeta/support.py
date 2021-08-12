@@ -70,3 +70,26 @@ def join(items, delimiter=""):
 
 def indent(text, prefix="    "):
     return "".join(prefix+line for line in text.splitlines(True))
+
+def compile_chain(grammars, source):
+    import sys
+    import pprint
+    for grammar, rule in grammars:
+        try:
+            source = grammar().run(rule, source)
+        except MatchError as e:
+            stream = e.stream
+            for pos in e.pos[:-1]:
+                stream = stream[pos]
+            pos = e.pos[-1]
+            MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
+            if isinstance(stream, str):
+                stream_string = stream[:pos] + MARKER + stream[pos:]
+            else:
+                stream_string = pprint.pformat(stream)
+            sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
+                e.message,
+                pos,
+                indent(stream_string)
+            ))
+    return source
