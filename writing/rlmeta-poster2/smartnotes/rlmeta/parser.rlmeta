@@ -1,4 +1,6 @@
 Parser {
+  file =
+    | (space grammar)*:xs space !.            -> xs
   grammar =
     | name:x space '{' rule*:ys space '}'     -> ["Grammar" x ~ys]
   rule =

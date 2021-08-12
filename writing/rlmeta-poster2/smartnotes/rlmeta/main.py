@@ -1,7 +1,7 @@
 def compile_grammar(grammar):
     return CodeGenerator().run(
-        "ast",
-        [Parser().run("grammar", grammar)]
+        "asts",
+        Parser().run("file", grammar)
     )
 
 if __name__ == "__main__":

@@ -63,6 +63,8 @@ CHANGES:
       35 pyvm/support.py
       76 total
 
+* No need to wrap parser output in list for codegenerator in RLMeta
+
 TODO:
 
 [ ] Put compile + error reporting function in support lib.
