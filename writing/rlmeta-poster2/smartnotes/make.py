@@ -16,8 +16,8 @@ def meta_compile_rlmeta():
     content = read(compiler)
     for i in range(4):
         next_compiler = "rlmeta{}.py".format(i+1)
-        log("Compiling {} -> {}".format(compiler, next_compiler))
         next_content = compile_rlmeta(compiler)
+        log("Writing {}".format(next_compiler))
         write(next_compiler, next_content)
         if next_content == content:
             return next_compiler
@@ -33,11 +33,11 @@ def compile_rlmeta(rlmeta):
         "--compile", "pyvm/codegenerator.rlmeta",
         "--copy", "pyvm/support.py",
     ]))
-    log("Compiling vm and combined support library")
-    write(
-        RLMETA_COMBINED_SUPPORT,
-        run_rlmeta("pyvm.py", ["rlmeta/vm.pyvm"])+read("rlmeta/support.py")
-    )
+    log("Compiling vm")
+    vm = run_rlmeta("pyvm.py", ["rlmeta/vm.pyvm"])
+    log("Writing combined support library")
+    write(RLMETA_COMBINED_SUPPORT, vm+read("rlmeta/support.py"))
+    log("Compiling rlmeta using {}".format(rlmeta))
     return run_rlmeta(rlmeta, [
         "--embed", "SUPPORT", RLMETA_COMBINED_SUPPORT,
         "--support",
@@ -68,7 +68,7 @@ def run_rlmeta(rlmeta, args, stdin=b"", expect_failure=False):
     return stdout
 
 def mv(src, dest):
-    log("Move {} -> {}".format(src, dest))
+    log("Moving {} -> {}".format(src, dest))
     os.remove(dest)
     os.rename(src, dest)
 
@@ -82,7 +82,7 @@ def cleanup():
         RLMETA_COMBINED_SUPPORT,
     ]:
         if os.path.exists(path):
-            log("Delete {}".format(path))
+            log("Deleting {}".format(path))
             os.remove(path)
 
 def read(path):
@@ -96,6 +96,9 @@ def write(path, content):
 def log(message):
     sys.stdout.write("\033[0;33m{}\033[0m\n".format(message))
 
+def success(message):
+    sys.stdout.write("\033[0;32m{}\033[0m\n".format(message))
+
 def fail(message):
     sys.exit("\033[0;31mERROR: {}\033[0m".format(message))
 
@@ -106,4 +109,4 @@ if __name__ == "__main__":
     else:
         make_next_version()
     cleanup()
-    log("OK!")
+    success("OK!")
