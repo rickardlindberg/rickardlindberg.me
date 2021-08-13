@@ -81,3 +81,5 @@ TODO:
 [ ] Support recursive macros?
 
     * Probably requires function to run grammar against an object
+
+[ ] No failure if VM-compilation fails? (Swap Instruction arguments.)
