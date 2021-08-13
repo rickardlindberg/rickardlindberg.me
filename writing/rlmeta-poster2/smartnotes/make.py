@@ -31,7 +31,7 @@ def compile_rlmeta(rlmeta):
         "--support",
         "--compile", "pyvm/parser.rlmeta",
         "--compile", "pyvm/codegenerator.rlmeta",
-        "--copy", "pyvm/support.py",
+        "--copy", "pyvm/main.py",
     ]))
     log("Compiling vm")
     vm = run_rlmeta("pyvm.py", ["rlmeta/vm.pyvm"])
