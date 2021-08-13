@@ -6,7 +6,10 @@ Parser {
                               -> [["VM" defs instructions macros]]
   def            = defvm | definstruction | defmacro | blankline
   defvm          = 'def ' name:x restline:y       block:z -> defs(["Def" x y z])
-  definstruction = 'definstruction ' name:x ':\n' block:y -> instructions(["Instruction" x y])
+  definstruction = 'definstruction ' name:x args:y ':\n' block:z ->
+  instructions(["Instruction" x y z])
+  args           = '(' arg*:xs  ')' -> xs
+  arg            = name:x (','|->"") ' '* -> ["Arg" x]
   defmacro       = 'defmacro '       name:x ':\n' ('    ' restline)*:y -> macros(x {y})
   block          = blockline*
   blockline      =

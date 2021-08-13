@@ -3,10 +3,6 @@ CodeGenerator {
                    enum x >
                      "while True:\n" >
                        "name = instructions[pc]\n"
-                       "pc += 1\n"
-                       "arg1 = instructions[pc]\n"
-                       "pc += 1\n"
-                       "arg2 = instructions[pc]\n"
                        y
                        "else:\n" >
                          "raise Exception(\"unknown instruction {}\".format(name))\n"
@@ -18,9 +14,10 @@ CodeGenerator {
   first        = ast:x              -> { "if "   x }
   rest         = ast:x              -> { "elif " x }
   Def          = .:name .:rest [asts:body] -> { "def " name rest > body < }
-  Instruction  = .:name [asts:body] -> enum({name " = " #len(enum) "\n"}) -> { "name == " name ":\n" > body < }
+  Instruction  = .:name [asts:args] [asts:body] -> enum({name " = " #len(enum) "\n"}) -> { "name == " name ":\n" > args body < }
   Line         = .:line
   Macro        = .:name .:indentprefix -> { > macros(name) < }
+  Arg          = .:name -> { "pc += 1\n" name " = instructions[pc]\n" }
   asts         = ast*:xs            -> { xs }
   ast          = [%:x] -> x
 }

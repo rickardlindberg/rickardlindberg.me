@@ -9,90 +9,59 @@ CodeGenerator {
   Rule          = .:x ast:y       -> LABEL(x #len(I))
                                   -> y
                                   -> I("RETURN")
-                                  -> I("None")
-                                  -> I("None")
   Or            =
     | ast:x Or:y                  -> label():a -> label():b
                                   -> I("BACKTRACK")
                                   -> I(a)
-                                  -> I("None")
                                   -> x
                                   -> I("COMMIT")
                                   -> I(b)
-                                  -> I("None")
                                   -> LABEL(a #len(I))
                                   -> y
                                   -> LABEL(b #len(I))
     | ast
   Scope         = ast:x           -> I("PUSH_SCOPE")
-                                  -> I("None")
-                                  -> I("None")
                                   -> x
                                   -> I("POP_SCOPE")
-                                  -> I("None")
-                                  -> I("None")
   And           = ast*
   Bind          = py:x ast:y      -> y
                                   -> I("BIND")
                                   -> I(x)
-                                  -> I("None")
   Star          = ast:x           -> label():a -> label():b
                                   -> I("LIST_START")
-                                  -> I("None")
-                                  -> I("None")
                                   -> LABEL(a #len(I))
                                   -> I("BACKTRACK")
                                   -> I(b)
-                                  -> I("None")
                                   -> x
                                   -> I("LIST_APPEND")
-                                  -> I("None")
-                                  -> I("None")
                                   -> I("COMMIT")
                                   -> I(a)
-                                  -> I("None")
                                   -> LABEL(b #len(I))
                                   -> I("LIST_END")
-                                  -> I("None")
-                                  -> I("None")
   Not           = ast:x           -> label():a -> label():b
                                   -> I("BACKTRACK")
                                   -> I(b)
-                                  -> I("None")
                                   -> x
                                   -> I("COMMIT")
                                   -> I(a)
-                                  -> I("None")
                                   -> LABEL(a #len(I))
                                   -> I("FAIL")
                                   -> I("'no match expected'")
-                                  -> I("None")
                                   -> LABEL(b #len(I))
   MatchCallRule =                 -> I("MATCH_CALL_RULE")
-                                  -> I("None")
-                                  -> I("None")
   MatchRule     = py:x            -> I("CALL")
                                   -> I(x)
-                                  -> I("None")
   MatchRange    = py:x py:y       -> I("MATCH_RANGE")
                                   -> I(x)
                                   -> I(y)
   MatchAny      =                 -> I("MATCH_ANY")
-                                  -> I("None")
-                                  -> I("None")
   MatchList     = ast:x           -> I("PUSH_STREAM")
-                                  -> I("None")
-                                  -> I("None")
                                   -> x
                                   -> I("POP_STREAM")
-                                  -> I("None")
-                                  -> I("None")
   MatchObject   = py:x            -> I("MATCH_OBJECT")
                                   -> I(x)
-                                  -> I("None")
   Action        = actionExpr:x    -> I("ACTION")
                                   -> I({"lambda self: " x})
-                                  -> I("None")
   actionExpr    =
     | py:x ast:y actionExpr:z     -> { "self.bind("
                                        x ", " y ", lambda: " z ")" }
