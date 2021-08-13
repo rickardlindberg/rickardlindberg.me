@@ -2,7 +2,11 @@ CodeGenerator {
   VM           = [ast:x] instructions:y .:z -> z:macros -> #List():enum -> {
                    enum x >
                      "while True:\n" >
-                       "name, arg1, arg2 = instructions[pc]\n"
+                       "name = instructions[pc]\n"
+                       "pc += 1\n"
+                       "arg1 = instructions[pc]\n"
+                       "pc += 1\n"
+                       "arg2 = instructions[pc]\n"
                        y
                        "else:\n" >
                          "raise Exception(\"unknown instruction {}\".format(name))\n"
