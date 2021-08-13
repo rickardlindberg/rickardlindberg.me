@@ -19,6 +19,6 @@ CodeGenerator {
   Line         = .:line
   Macro        = .:name .:indentprefix -> { > macros(name) < }
   Arg          = .:name -> { name " = instructions[pc]\npc += 1\n" }
-  asts         = ast*:xs            -> { xs }
+  asts         = ast*:xs !.         -> { xs }
   ast          = [%:x] -> x
 }

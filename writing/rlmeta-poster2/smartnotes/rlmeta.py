@@ -1296,7 +1296,7 @@ class Parser(Grammar):
     ]
 class CodeGenerator(Grammar):
 
-    labels = {'Grammar': 0, 0: 5, 1: 12, 'Rule': 19, 'Or': 31, 2: 47, 3: 51, 'Scope': 52, 'And': 61, 4: 63, 5: 70, 'Bind': 73, 'Star': 86, 'Not': 95, 'MatchCallRule': 104, 'MatchRule': 109, 'MatchRange': 118, 'MatchAny': 131, 'MatchList': 136, 'MatchObject': 145, 'Action': 154, 'actionExpr': 163, 6: 183, 7: 188, 'String': 189, 'List': 194, 'ListItem': 203, 'Format': 216, 'Indent': 225, 'Call': 234, 'Native': 247, 'Lookup': 251, 'asts': 260, 8: 262, 9: 269, 'ast': 276, 'astList': 286, 10: 288, 11: 295, 'py': 302}
+    labels = {'Grammar': 0, 0: 5, 1: 12, 'Rule': 19, 'Or': 31, 2: 47, 3: 51, 'Scope': 52, 'And': 61, 4: 63, 5: 70, 'Bind': 73, 'Star': 86, 'Not': 95, 'MatchCallRule': 104, 'MatchRule': 109, 'MatchRange': 118, 'MatchAny': 131, 'MatchList': 136, 'MatchObject': 145, 'Action': 154, 'actionExpr': 163, 6: 183, 7: 188, 'String': 189, 'List': 194, 'ListItem': 203, 'Format': 216, 'Indent': 225, 'Call': 234, 'Native': 247, 'Lookup': 251, 'asts': 260, 8: 262, 9: 269, 10: 277, 11: 279, 'ast': 283, 'astList': 293, 12: 295, 13: 302, 'py': 309}
     instructions = [
         PUSH_SCOPE,
         MATCH_ANY,
@@ -1570,6 +1570,13 @@ class CodeGenerator(Grammar):
         LIST_END,
         BIND,
         'xs',
+        BACKTRACK,
+        11,
+        MATCH_ANY,
+        COMMIT,
+        10,
+        FAIL,
+        'no match expected',
         ACTION,
         lambda self: join([self.lookup('xs')]),
         POP_SCOPE,
@@ -1587,12 +1594,12 @@ class CodeGenerator(Grammar):
         PUSH_SCOPE,
         LIST_START,
         BACKTRACK,
-        11,
+        13,
         CALL,
         'ast',
         LIST_APPEND,
         COMMIT,
-        10,
+        12,
         LIST_END,
         BIND,
         'xs',

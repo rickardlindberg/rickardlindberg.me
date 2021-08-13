@@ -75,7 +75,7 @@ CodeGenerator {
   Call          = ast:x astList:y -> { x "(" y ")" }
   Native        = .
   Lookup        = py:x            -> { "self.lookup(" x ")" }
-  asts          = ast*:xs         -> { xs }
+  asts          = ast*:xs !.      -> { xs }
   ast           = [%:x]           -> x
   astList       = ast*:xs         -> #join(xs ", ")
   py            = .:x             -> #repr(x)

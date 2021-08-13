@@ -76,10 +76,10 @@ CHANGES:
 [x] Move "assembly" out of support library. Grammar should generate
     labels/instructions.
 
+[x] No failure if VM-compilation fails? (Swap Instruction arguments.)
+
 TODO:
 
 [ ] Support recursive macros?
 
     * Probably requires function to run grammar against an object
-
-[ ] No failure if VM-compilation fails? (Swap Instruction arguments.)
