@@ -82,4 +82,6 @@ TODO:
 
 [ ] Support recursive macros?
 
-    * Probably requires function to run grammar against an object
+    * Probably requires function to run grammar against an object.
+
+    * Needed to get rid of duplicated call code.
