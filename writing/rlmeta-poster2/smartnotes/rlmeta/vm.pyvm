@@ -11,13 +11,11 @@ def vm(instructions, labels, start_rule, stream):
 definstruction PUSH_SCOPE():
     scope_stack.append(scope)
     scope = {}
-    pc += 1
 
 definstruction BACKTRACK(argLabel):
     call_backtrack_stack.append((
         labels[argLabel], pos, len(stream_pos_stack), len(scope_stack)
     ))
-    pc += 1
 
 definstruction CALL(argLabel):
     key = (argLabel, tuple([x[1] for x in stream_pos_stack]+[pos]))
@@ -29,14 +27,12 @@ definstruction CALL(argLabel):
             action, stream_pos_stack = memo[key]
             stream_pos_stack = stream_pos_stack[:]
             stream, pos = stream_pos_stack.pop()
-            pc += 1
     else:
-        call_backtrack_stack.append((pc+1, key))
+        call_backtrack_stack.append((pc, key))
         pc = labels[argLabel]
 
 definstruction POP_SCOPE():
     scope = scope_stack.pop()
-    pc += 1
 
 definstruction MATCH_OBJECT(argObject):
     if pos >= len(stream) or stream[pos] != argObject:
@@ -45,7 +41,6 @@ definstruction MATCH_OBJECT(argObject):
     else:
         action = SemanticAction(argObject)
         pos += 1
-        pc += 1
 
 definstruction COMMIT(argLabel):
     call_backtrack_stack.pop()
@@ -59,15 +54,12 @@ definstruction RETURN():
 
 definstruction LIST_APPEND():
     scope.append(action)
-    pc += 1
 
 definstruction BIND(argName):
     scope[argName] = action
-    pc += 1
 
 definstruction ACTION(argFn):
     action = SemanticAction(scope, argFn)
-    pc += 1
 
 definstruction MATCH_RANGE(argStart, argEnd):
     if pos >= len(stream) or not (argStart <= stream[pos] <= argEnd):
@@ -76,17 +68,14 @@ definstruction MATCH_RANGE(argStart, argEnd):
     else:
         action = SemanticAction(stream[pos])
         pos += 1
-        pc += 1
 
 definstruction LIST_START():
     scope_stack.append(scope)
     scope = []
-    pc += 1
 
 definstruction LIST_END():
     action = SemanticAction(scope, lambda self: [x.eval(self.runtime) for x in self.value])
     scope = scope_stack.pop()
-    pc += 1
 
 definstruction MATCH_ANY():
     if pos >= len(stream):
@@ -95,7 +84,6 @@ definstruction MATCH_ANY():
     else:
         action = SemanticAction(stream[pos])
         pos += 1
-        pc += 1
 
 definstruction PUSH_STREAM():
     if pos >= len(stream) or not isinstance(stream[pos], list):
@@ -105,7 +93,6 @@ definstruction PUSH_STREAM():
         stream_pos_stack.append((stream, pos))
         stream = stream[pos]
         pos = 0
-        pc += 1
 
 definstruction POP_STREAM():
     if pos < len(stream):
@@ -114,7 +101,6 @@ definstruction POP_STREAM():
     else:
         stream, pos = stream_pos_stack.pop()
         pos += 1
-        pc += 1
 
 definstruction MATCH_CALL_RULE():
     if pos >= len(stream):
@@ -131,9 +117,8 @@ definstruction MATCH_CALL_RULE():
                 action, stream_pos_stack = memo[key]
                 stream_pos_stack = stream_pos_stack[:]
                 stream, pos = stream_pos_stack.pop()
-                pc += 1
         else:
-            call_backtrack_stack.append((pc+1, key))
+            call_backtrack_stack.append((pc, key))
             pc = labels[fn_name]
             pos += 1
 
