@@ -76,3 +76,8 @@ TODO:
 [ ] Support recursive macros?
 
     * Probably requires function to run grammar against an object
+
+[ ] Move "assembly" out of support library. Grammar should generate
+    labels/instructions.
+
+[ ] VM should not know about runtime.
