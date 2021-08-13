@@ -73,11 +73,11 @@ CHANGES:
 
 [x] VM should not know about runtime.
 
+[x] Move "assembly" out of support library. Grammar should generate
+    labels/instructions.
+
 TODO:
 
 [ ] Support recursive macros?
 
     * Probably requires function to run grammar against an object
-
-[ ] Move "assembly" out of support library. Grammar should generate
-    labels/instructions.

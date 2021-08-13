@@ -28,15 +28,6 @@ class MatchError(Exception):
 
 class Grammar(object):
 
-    def __init__(self):
-        self.instructions = instructions = []
-        self.labels = labels = {}
-        def I(name, arg1=None, arg2=None):
-            instructions.append((name, arg1, arg2))
-        def LABEL(name):
-            labels[name] = len(instructions)
-        self.assemble(I, LABEL)
-
     def run(self, rule_name, stream):
         return vm(self.instructions, self.labels, rule_name, stream).eval({
             "label": Counter(),
@@ -52,6 +43,19 @@ class Counter(object):
         result = self.value
         self.value += 1
         return result
+
+class List(list):
+
+    def __call__(self, item):
+        self.append(item)
+
+class Dict(dict):
+
+    def __call__(self, *args):
+        if len(args) == 1:
+            return self[args[0]]
+        else:
+            self[args[0]] = args[1]
 
 def splice(depth, item):
     if depth == 0:

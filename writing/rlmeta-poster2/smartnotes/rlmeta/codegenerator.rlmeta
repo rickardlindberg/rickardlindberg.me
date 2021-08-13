@@ -1,65 +1,67 @@
 CodeGenerator {
-  Grammar       = .:x ast*:ys     -> { "class " x "(Grammar):\n\n" >
-                                         "def assemble(self, I, LABEL):\n" >
-                                           ys
-                                         <
-                                       <                                 }
-  Rule          = py:x ast:y      -> { "LABEL(" x ")\n"
-                                       y
-                                       "I(RETURN)\n"                     }
+  Grammar       = .:x ast*:ys     -> #List():I -> #Dict():LABEL -> ys
+                                  -> { "class " x "(Grammar):\n\n" >
+                                         "labels = " #repr(LABEL) "\n"
+                                         "instructions = [\n" >
+                                           #join(I ",\n")
+                                         < "\n]\n"
+                                       < }
+  Rule          = .:x ast:y       -> LABEL(x #len(I))
+                                  -> y
+                                  -> I("(RETURN, None, None)")
   Or            =
     | ast:x Or:y                  -> label():a -> label():b
-                                  -> { "I(BACKTRACK, " a ")\n"
-                                       x
-                                       "I(COMMIT, " b ")\n"
-                                       "LABEL(" a ")\n"
-                                       y
-                                       "LABEL(" b ")\n"                  }
+                                  -> I({"(BACKTRACK, " a ", None)"})
+                                  -> x
+                                  -> I({"(COMMIT, " b ", None)"})
+                                  -> LABEL(a #len(I))
+                                  -> y
+                                  -> LABEL(b #len(I))
     | ast
-  Scope         = ast:x           -> { "I(PUSH_SCOPE)\n"
-                                       x
-                                       "I(POP_SCOPE)\n"                  }
+  Scope         = ast:x           -> I("(PUSH_SCOPE, None, None)")
+                                  -> x
+                                  -> I("(POP_SCOPE, None, None)")
   And           = ast*
-  Bind          = py:x ast:y      -> { y
-                                       "I(BIND, " x ")\n"                }
+  Bind          = py:x ast:y      -> y
+                                  -> I({"(BIND, " x ", None)"})
   Star          = ast:x           -> label():a -> label():b
-                                  -> { "I(LIST_START)\n"
-                                       "LABEL(" a ")\n"
-                                       "I(BACKTRACK, " b ")\n"
-                                       x
-                                       "I(LIST_APPEND)\n"
-                                       "I(COMMIT, " a ")\n"
-                                       "LABEL(" b ")\n"
-                                       "I(LIST_END)\n"                   }
+                                  -> I("(LIST_START, None, None)")
+                                  -> LABEL(a #len(I))
+                                  -> I({"(BACKTRACK, " b ", None)"})
+                                  -> x
+                                  -> I("(LIST_APPEND, None, None)")
+                                  -> I({"(COMMIT, " a ", None)"})
+                                  -> LABEL(b #len(I))
+                                  -> I("(LIST_END, None, None)")
   Not           = ast:x           -> label():a -> label():b
-                                  -> { "I(BACKTRACK, " b ")\n"
-                                       x
-                                       "I(COMMIT, " a ")\n"
-                                       "LABEL(" a ")\n"
-                                       "I(FAIL, 'no match expected')\n"
-                                       "LABEL(" b ")\n"                  }
-  MatchCallRule =                 -> { "I(MATCH_CALL_RULE)\n"            }
-  MatchRule     = py:x            -> { "I(CALL, " x ")\n"                }
-  MatchRange    = py:x py:y       -> { "I(MATCH_RANGE, " x ", " y ")\n"  }
-  MatchAny      =                 -> { "I(MATCH_ANY)\n"                  }
-  MatchList     = ast:x           -> { "I(PUSH_STREAM)\n"
-                                       x
-                                       "I(POP_STREAM)\n"                 }
-  MatchObject   = py:x            -> { "I(MATCH_OBJECT, " x ")\n"        }
-  Action        = actionExpr:x    -> { "I(ACTION, lambda self: " x ")\n" }
+                                  -> I({"(BACKTRACK, " b ", None)"})
+                                  -> x
+                                  -> I({"(COMMIT, " a ", None)"})
+                                  -> LABEL(a #len(I))
+                                  -> I("(FAIL, 'no match expected', None)")
+                                  -> LABEL(b #len(I))
+  MatchCallRule =                 -> I("(MATCH_CALL_RULE, None, None)")
+  MatchRule     = py:x            -> I({"(CALL, " x ", None)"})
+  MatchRange    = py:x py:y       -> I({"(MATCH_RANGE, " x ", " y ")"})
+  MatchAny      =                 -> I("(MATCH_ANY, None, None)")
+  MatchList     = ast:x           -> I("(PUSH_STREAM, None, None)")
+                                  -> x
+                                  -> I("(POP_STREAM, None, None)")
+  MatchObject   = py:x            -> I({"(MATCH_OBJECT, " x ", None)"})
+  Action        = actionExpr:x    -> I({"(ACTION, lambda self: " x ", None)"})
   actionExpr    =
     | py:x ast:y actionExpr:z     -> { "self.bind("
-                                       x ", " y ", lambda: " z ")"       }
+                                       x ", " y ", lambda: " z ")" }
     | .    ast
   String        = py
-  List          = astList:x       -> { "concat([" x "])"                 }
-  ListItem      = py:x ast:y      -> { "splice(" x ", " y ")"            }
-  Format        = astList:x       -> { "join([" x "])"                   }
+  List          = astList:x       -> { "concat([" x "])" }
+  ListItem      = py:x ast:y      -> { "splice(" x ", " y ")" }
+  Format        = astList:x       -> { "join([" x "])" }
   Indent        = ast:x           -> { "indent(" x ", "
-                                       "self.lookup('indentprefix'))"    }
-  Call          = ast:x astList:y -> { x "(" y ")"                       }
+                                       "self.lookup('indentprefix'))" }
+  Call          = ast:x astList:y -> { x "(" y ")" }
   Native        = .
-  Lookup        = py:x            -> { "self.lookup(" x ")"              }
+  Lookup        = py:x            -> { "self.lookup(" x ")" }
   asts          = ast*:xs         -> { xs }
   ast           = [%:x]           -> x
   astList       = ast*:xs         -> #join(xs ", ")

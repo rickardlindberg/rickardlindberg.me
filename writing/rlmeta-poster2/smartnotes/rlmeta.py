@@ -1,4 +1,4 @@
-SUPPORT = 'PUSH_SCOPE = 0\nBACKTRACK = 1\nCALL = 2\nPOP_SCOPE = 3\nMATCH_OBJECT = 4\nCOMMIT = 5\nRETURN = 6\nLIST_APPEND = 7\nBIND = 8\nACTION = 9\nMATCH_RANGE = 10\nLIST_START = 11\nLIST_END = 12\nMATCH_ANY = 13\nPUSH_STREAM = 14\nPOP_STREAM = 15\nMATCH_CALL_RULE = 16\nFAIL = 17\ndef vm(instructions, labels, start_rule, stream):\n    action = SemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    scope, scope_stack = (None, [])\n    fail_message = None\n    latest_fail_message, latest_fail_pos = (None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == PUSH_SCOPE:\n            scope_stack.append(scope)\n            scope = {}\n            pc += 1\n        elif name == BACKTRACK:\n            call_backtrack_stack.append((\n                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)\n            ))\n            pc += 1\n        elif name == CALL:\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                if memo[key][0] is None:\n                    fail_message = memo[key][1]\n                    fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                    if fail_pos >= latest_fail_pos:\n                        latest_fail_message = fail_message\n                        latest_fail_pos = fail_pos\n                    call_backtrack_entry = tuple()\n                    while call_backtrack_stack:\n                        call_backtrack_entry = call_backtrack_stack.pop()\n                        if len(call_backtrack_entry) == 4:\n                            break\n                        else:\n                            _, key = call_backtrack_entry\n                            memo[key] = (None, fail_message)\n                    if len(call_backtrack_entry) != 4:\n                        raise MatchError(\n                            latest_fail_message[0].format(*latest_fail_message[1:]),\n                            latest_fail_pos,\n                            stream_pos_stack[0][0] if stream_pos_stack else stream\n                        )\n                    (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                    if len(stream_pos_stack) > stream_stack_len:\n                        stream = stream_pos_stack[stream_stack_len][0]\n                    stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                    if len(scope_stack) > scope_stack_len:\n                        scope = scope_stack[scope_stack_len]\n                    scope_stack = scope_stack[:scope_stack_len]\n                else:\n                    action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n        elif name == POP_SCOPE:\n            scope = scope_stack.pop()\n            pc += 1\n        elif name == MATCH_OBJECT:\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(arg1)\n                pos += 1\n                pc += 1\n        elif name == COMMIT:\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n        elif name == RETURN:\n            if len(call_backtrack_stack) == 0:\n                return action\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (action, stream_pos_stack+[(stream, pos)])\n        elif name == LIST_APPEND:\n            scope.append(action)\n            pc += 1\n        elif name == BIND:\n            scope[arg1] = action\n            pc += 1\n        elif name == ACTION:\n            action = SemanticAction(scope, arg1)\n            pc += 1\n        elif name == MATCH_RANGE:\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n        elif name == LIST_START:\n            scope_stack.append(scope)\n            scope = []\n            pc += 1\n        elif name == LIST_END:\n            action = SemanticAction(scope, lambda self: [x.eval(self.runtime) for x in self.value])\n            scope = scope_stack.pop()\n            pc += 1\n        elif name == MATCH_ANY:\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n        elif name == PUSH_STREAM:\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                stream_pos_stack.append((stream, pos))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n        elif name == POP_STREAM:\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pos += 1\n                pc += 1\n        elif name == MATCH_CALL_RULE:\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    if memo[key][0] is None:\n                        fail_message = memo[key][1]\n                        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                        if fail_pos >= latest_fail_pos:\n                            latest_fail_message = fail_message\n                            latest_fail_pos = fail_pos\n                        call_backtrack_entry = tuple()\n                        while call_backtrack_stack:\n                            call_backtrack_entry = call_backtrack_stack.pop()\n                            if len(call_backtrack_entry) == 4:\n                                break\n                            else:\n                                _, key = call_backtrack_entry\n                                memo[key] = (None, fail_message)\n                        if len(call_backtrack_entry) != 4:\n                            raise MatchError(\n                                latest_fail_message[0].format(*latest_fail_message[1:]),\n                                latest_fail_pos,\n                                stream_pos_stack[0][0] if stream_pos_stack else stream\n                            )\n                        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                        if len(stream_pos_stack) > stream_stack_len:\n                            stream = stream_pos_stack[stream_stack_len][0]\n                        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                        if len(scope_stack) > scope_stack_len:\n                            scope = scope_stack[scope_stack_len]\n                        scope_stack = scope_stack[:scope_stack_len]\n                    else:\n                        action, stream_pos_stack = memo[key]\n                        stream_pos_stack = stream_pos_stack[:]\n                        stream, pos = stream_pos_stack.pop()\n                        pc += 1\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n        elif name == FAIL:\n            fail_message = (arg1,)\n            fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n            if fail_pos >= latest_fail_pos:\n                latest_fail_message = fail_message\n                latest_fail_pos = fail_pos\n            call_backtrack_entry = tuple()\n            while call_backtrack_stack:\n                call_backtrack_entry = call_backtrack_stack.pop()\n                if len(call_backtrack_entry) == 4:\n                    break\n                else:\n                    _, key = call_backtrack_entry\n                    memo[key] = (None, fail_message)\n            if len(call_backtrack_entry) != 4:\n                raise MatchError(\n                    latest_fail_message[0].format(*latest_fail_message[1:]),\n                    latest_fail_pos,\n                    stream_pos_stack[0][0] if stream_pos_stack else stream\n                )\n            (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n            if len(stream_pos_stack) > stream_stack_len:\n                stream = stream_pos_stack[stream_stack_len][0]\n            stream_pos_stack = stream_pos_stack[:stream_stack_len]\n            if len(scope_stack) > scope_stack_len:\n                scope = scope_stack[scope_stack_len]\n            scope_stack = scope_stack[:scope_stack_len]\n        else:\n            raise Exception("unknown instruction {}".format(name))\nclass SemanticAction(object):\n\n    def __init__(self, value, fn=lambda self: self.value):\n        self.value = value\n        self.fn = fn\n\n    def eval(self, runtime):\n        self.runtime = runtime\n        return self.fn(self)\n\n    def bind(self, name, value, continuation):\n        self.runtime = dict(self.runtime, **{name: value})\n        return continuation()\n\n    def lookup(self, name):\n        if name in self.value:\n            return self.value[name].eval(self.runtime)\n        else:\n            return self.runtime[name]\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def __init__(self):\n        self.instructions = instructions = []\n        self.labels = labels = {}\n        def I(name, arg1=None, arg2=None):\n            instructions.append((name, arg1, arg2))\n        def LABEL(name):\n            labels[name] = len(instructions)\n        self.assemble(I, LABEL)\n\n    def run(self, rule_name, stream):\n        return vm(self.instructions, self.labels, rule_name, stream).eval({\n            "label": Counter(),\n            "indentprefix": "    ",\n        })\n\nclass Counter(object):\n\n    def __init__(self):\n        self.value = 0\n\n    def __call__(self):\n        result = self.value\n        self.value += 1\n        return result\n\ndef splice(depth, item):\n    if depth == 0:\n        return [item]\n    else:\n        return concat([splice(depth-1, subitem) for subitem in item])\n\ndef concat(lists):\n    return [x for xs in lists for x in xs]\n\ndef join(items, delimiter=""):\n    return delimiter.join(\n        join(item, delimiter) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text, prefix="    "):\n    return "".join(prefix+line for line in text.splitlines(True))\n\ndef compile_chain(grammars, source):\n    import sys\n    import pprint\n    for grammar, rule in grammars:\n        try:\n            source = grammar().run(rule, source)\n        except MatchError as e:\n            stream = e.stream\n            for pos in e.pos[:-1]:\n                stream = stream[pos]\n            pos = e.pos[-1]\n            MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"\n            if isinstance(stream, str):\n                stream_string = stream[:pos] + MARKER + stream[pos:]\n            else:\n                stream_string = pprint.pformat(stream)\n            sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(\n                e.message,\n                pos,\n                indent(stream_string)\n            ))\n    return source\n'
+SUPPORT = 'PUSH_SCOPE = 0\nBACKTRACK = 1\nCALL = 2\nPOP_SCOPE = 3\nMATCH_OBJECT = 4\nCOMMIT = 5\nRETURN = 6\nLIST_APPEND = 7\nBIND = 8\nACTION = 9\nMATCH_RANGE = 10\nLIST_START = 11\nLIST_END = 12\nMATCH_ANY = 13\nPUSH_STREAM = 14\nPOP_STREAM = 15\nMATCH_CALL_RULE = 16\nFAIL = 17\ndef vm(instructions, labels, start_rule, stream):\n    action = SemanticAction(None)\n    pc = labels[start_rule]\n    call_backtrack_stack = []\n    stream, pos, stream_pos_stack = (stream, 0, [])\n    scope, scope_stack = (None, [])\n    fail_message = None\n    latest_fail_message, latest_fail_pos = (None, tuple())\n    memo = {}\n    while True:\n        name, arg1, arg2 = instructions[pc]\n        if name == PUSH_SCOPE:\n            scope_stack.append(scope)\n            scope = {}\n            pc += 1\n        elif name == BACKTRACK:\n            call_backtrack_stack.append((\n                labels[arg1], pos, len(stream_pos_stack), len(scope_stack)\n            ))\n            pc += 1\n        elif name == CALL:\n            key = (arg1, tuple([x[1] for x in stream_pos_stack]+[pos]))\n            if key in memo:\n                if memo[key][0] is None:\n                    fail_message = memo[key][1]\n                    fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                    if fail_pos >= latest_fail_pos:\n                        latest_fail_message = fail_message\n                        latest_fail_pos = fail_pos\n                    call_backtrack_entry = tuple()\n                    while call_backtrack_stack:\n                        call_backtrack_entry = call_backtrack_stack.pop()\n                        if len(call_backtrack_entry) == 4:\n                            break\n                        else:\n                            _, key = call_backtrack_entry\n                            memo[key] = (None, fail_message)\n                    if len(call_backtrack_entry) != 4:\n                        raise MatchError(\n                            latest_fail_message[0].format(*latest_fail_message[1:]),\n                            latest_fail_pos,\n                            stream_pos_stack[0][0] if stream_pos_stack else stream\n                        )\n                    (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                    if len(stream_pos_stack) > stream_stack_len:\n                        stream = stream_pos_stack[stream_stack_len][0]\n                    stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                    if len(scope_stack) > scope_stack_len:\n                        scope = scope_stack[scope_stack_len]\n                    scope_stack = scope_stack[:scope_stack_len]\n                else:\n                    action, stream_pos_stack = memo[key]\n                    stream_pos_stack = stream_pos_stack[:]\n                    stream, pos = stream_pos_stack.pop()\n                    pc += 1\n            else:\n                call_backtrack_stack.append((pc+1, key))\n                pc = labels[arg1]\n        elif name == POP_SCOPE:\n            scope = scope_stack.pop()\n            pc += 1\n        elif name == MATCH_OBJECT:\n            if pos >= len(stream) or stream[pos] != arg1:\n                fail_message = ("expected {!r}", arg1)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(arg1)\n                pos += 1\n                pc += 1\n        elif name == COMMIT:\n            call_backtrack_stack.pop()\n            pc = labels[arg1]\n        elif name == RETURN:\n            if len(call_backtrack_stack) == 0:\n                return action\n            pc, key = call_backtrack_stack.pop()\n            memo[key] = (action, stream_pos_stack+[(stream, pos)])\n        elif name == LIST_APPEND:\n            scope.append(action)\n            pc += 1\n        elif name == BIND:\n            scope[arg1] = action\n            pc += 1\n        elif name == ACTION:\n            action = SemanticAction(scope, arg1)\n            pc += 1\n        elif name == MATCH_RANGE:\n            if pos >= len(stream) or not (arg1 <= stream[pos] <= arg2):\n                fail_message = ("expected range {!r}-{!r}", arg1, arg2)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n        elif name == LIST_START:\n            scope_stack.append(scope)\n            scope = []\n            pc += 1\n        elif name == LIST_END:\n            action = SemanticAction(scope, lambda self: [x.eval(self.runtime) for x in self.value])\n            scope = scope_stack.pop()\n            pc += 1\n        elif name == MATCH_ANY:\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                action = SemanticAction(stream[pos])\n                pos += 1\n                pc += 1\n        elif name == PUSH_STREAM:\n            if pos >= len(stream) or not isinstance(stream[pos], list):\n                fail_message = ("expected list",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                stream_pos_stack.append((stream, pos))\n                stream = stream[pos]\n                pos = 0\n                pc += 1\n        elif name == POP_STREAM:\n            if pos < len(stream):\n                fail_message = ("expected end of list",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                stream, pos = stream_pos_stack.pop()\n                pos += 1\n                pc += 1\n        elif name == MATCH_CALL_RULE:\n            if pos >= len(stream):\n                fail_message = ("expected any",)\n                fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                if fail_pos >= latest_fail_pos:\n                    latest_fail_message = fail_message\n                    latest_fail_pos = fail_pos\n                call_backtrack_entry = tuple()\n                while call_backtrack_stack:\n                    call_backtrack_entry = call_backtrack_stack.pop()\n                    if len(call_backtrack_entry) == 4:\n                        break\n                    else:\n                        _, key = call_backtrack_entry\n                        memo[key] = (None, fail_message)\n                if len(call_backtrack_entry) != 4:\n                    raise MatchError(\n                        latest_fail_message[0].format(*latest_fail_message[1:]),\n                        latest_fail_pos,\n                        stream_pos_stack[0][0] if stream_pos_stack else stream\n                    )\n                (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                if len(stream_pos_stack) > stream_stack_len:\n                    stream = stream_pos_stack[stream_stack_len][0]\n                stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                if len(scope_stack) > scope_stack_len:\n                    scope = scope_stack[scope_stack_len]\n                scope_stack = scope_stack[:scope_stack_len]\n            else:\n                fn_name = str(stream[pos])\n                key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))\n                if key in memo:\n                    if memo[key][0] is None:\n                        fail_message = memo[key][1]\n                        fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n                        if fail_pos >= latest_fail_pos:\n                            latest_fail_message = fail_message\n                            latest_fail_pos = fail_pos\n                        call_backtrack_entry = tuple()\n                        while call_backtrack_stack:\n                            call_backtrack_entry = call_backtrack_stack.pop()\n                            if len(call_backtrack_entry) == 4:\n                                break\n                            else:\n                                _, key = call_backtrack_entry\n                                memo[key] = (None, fail_message)\n                        if len(call_backtrack_entry) != 4:\n                            raise MatchError(\n                                latest_fail_message[0].format(*latest_fail_message[1:]),\n                                latest_fail_pos,\n                                stream_pos_stack[0][0] if stream_pos_stack else stream\n                            )\n                        (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n                        if len(stream_pos_stack) > stream_stack_len:\n                            stream = stream_pos_stack[stream_stack_len][0]\n                        stream_pos_stack = stream_pos_stack[:stream_stack_len]\n                        if len(scope_stack) > scope_stack_len:\n                            scope = scope_stack[scope_stack_len]\n                        scope_stack = scope_stack[:scope_stack_len]\n                    else:\n                        action, stream_pos_stack = memo[key]\n                        stream_pos_stack = stream_pos_stack[:]\n                        stream, pos = stream_pos_stack.pop()\n                        pc += 1\n                else:\n                    call_backtrack_stack.append((pc+1, key))\n                    pc = labels[fn_name]\n                    pos += 1\n        elif name == FAIL:\n            fail_message = (arg1,)\n            fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])\n            if fail_pos >= latest_fail_pos:\n                latest_fail_message = fail_message\n                latest_fail_pos = fail_pos\n            call_backtrack_entry = tuple()\n            while call_backtrack_stack:\n                call_backtrack_entry = call_backtrack_stack.pop()\n                if len(call_backtrack_entry) == 4:\n                    break\n                else:\n                    _, key = call_backtrack_entry\n                    memo[key] = (None, fail_message)\n            if len(call_backtrack_entry) != 4:\n                raise MatchError(\n                    latest_fail_message[0].format(*latest_fail_message[1:]),\n                    latest_fail_pos,\n                    stream_pos_stack[0][0] if stream_pos_stack else stream\n                )\n            (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry\n            if len(stream_pos_stack) > stream_stack_len:\n                stream = stream_pos_stack[stream_stack_len][0]\n            stream_pos_stack = stream_pos_stack[:stream_stack_len]\n            if len(scope_stack) > scope_stack_len:\n                scope = scope_stack[scope_stack_len]\n            scope_stack = scope_stack[:scope_stack_len]\n        else:\n            raise Exception("unknown instruction {}".format(name))\nclass SemanticAction(object):\n\n    def __init__(self, value, fn=lambda self: self.value):\n        self.value = value\n        self.fn = fn\n\n    def eval(self, runtime):\n        self.runtime = runtime\n        return self.fn(self)\n\n    def bind(self, name, value, continuation):\n        self.runtime = dict(self.runtime, **{name: value})\n        return continuation()\n\n    def lookup(self, name):\n        if name in self.value:\n            return self.value[name].eval(self.runtime)\n        else:\n            return self.runtime[name]\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def run(self, rule_name, stream):\n        return vm(self.instructions, self.labels, rule_name, stream).eval({\n            "label": Counter(),\n            "indentprefix": "    ",\n        })\n\nclass Counter(object):\n\n    def __init__(self):\n        self.value = 0\n\n    def __call__(self):\n        result = self.value\n        self.value += 1\n        return result\n\nclass List(list):\n\n    def __call__(self, item):\n        self.append(item)\n\nclass Dict(dict):\n\n    def __call__(self, *args):\n        if len(args) == 1:\n            return self[args[0]]\n        else:\n            self[args[0]] = args[1]\n\ndef splice(depth, item):\n    if depth == 0:\n        return [item]\n    else:\n        return concat([splice(depth-1, subitem) for subitem in item])\n\ndef concat(lists):\n    return [x for xs in lists for x in xs]\n\ndef join(items, delimiter=""):\n    return delimiter.join(\n        join(item, delimiter) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text, prefix="    "):\n    return "".join(prefix+line for line in text.splitlines(True))\n\ndef compile_chain(grammars, source):\n    import sys\n    import pprint\n    for grammar, rule in grammars:\n        try:\n            source = grammar().run(rule, source)\n        except MatchError as e:\n            stream = e.stream\n            for pos in e.pos[:-1]:\n                stream = stream[pos]\n            pos = e.pos[-1]\n            MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"\n            if isinstance(stream, str):\n                stream_string = stream[:pos] + MARKER + stream[pos:]\n            else:\n                stream_string = pprint.pformat(stream)\n            sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(\n                e.message,\n                pos,\n                indent(stream_string)\n            ))\n    return source\n'
 PUSH_SCOPE = 0
 BACKTRACK = 1
 CALL = 2
@@ -391,15 +391,6 @@ class MatchError(Exception):
 
 class Grammar(object):
 
-    def __init__(self):
-        self.instructions = instructions = []
-        self.labels = labels = {}
-        def I(name, arg1=None, arg2=None):
-            instructions.append((name, arg1, arg2))
-        def LABEL(name):
-            labels[name] = len(instructions)
-        self.assemble(I, LABEL)
-
     def run(self, rule_name, stream):
         return vm(self.instructions, self.labels, rule_name, stream).eval({
             "label": Counter(),
@@ -415,6 +406,19 @@ class Counter(object):
         result = self.value
         self.value += 1
         return result
+
+class List(list):
+
+    def __call__(self, item):
+        self.append(item)
+
+class Dict(dict):
+
+    def __call__(self, *args):
+        if len(args) == 1:
+            return self[args[0]]
+        else:
+            self[args[0]] = args[1]
 
 def splice(depth, item):
     if depth == 0:
@@ -458,872 +462,717 @@ def compile_chain(grammars, source):
     return source
 class Parser(Grammar):
 
-    def assemble(self, I, LABEL):
-        LABEL('file')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(0)
-        I(BACKTRACK, 1)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(CALL, 'grammar')
-        I(POP_SCOPE)
-        I(LIST_APPEND)
-        I(COMMIT, 0)
-        LABEL(1)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'space')
-        I(BACKTRACK, 3)
-        I(MATCH_ANY)
-        I(COMMIT, 2)
-        LABEL(2)
-        I(FAIL, 'no match expected')
-        LABEL(3)
-        I(ACTION, lambda self: self.lookup('xs'))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('grammar')
-        I(PUSH_SCOPE)
-        I(CALL, 'name')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '{')
-        I(LIST_START)
-        LABEL(4)
-        I(BACKTRACK, 5)
-        I(CALL, 'rule')
-        I(LIST_APPEND)
-        I(COMMIT, 4)
-        LABEL(5)
-        I(LIST_END)
-        I(BIND, 'ys')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '}')
-        I(ACTION, lambda self: concat([splice(0, 'Grammar'), splice(0, self.lookup('x')), splice(1, self.lookup('ys'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('rule')
-        I(PUSH_SCOPE)
-        I(CALL, 'name')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '=')
-        I(CALL, 'choice')
-        I(BIND, 'y')
-        I(ACTION, lambda self: concat([splice(0, 'Rule'), splice(0, self.lookup('x')), splice(0, self.lookup('y'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('choice')
-        I(PUSH_SCOPE)
-        I(BACKTRACK, 6)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '|')
-        I(POP_SCOPE)
-        I(COMMIT, 7)
-        LABEL(6)
-        LABEL(7)
-        I(CALL, 'sequence')
-        I(BIND, 'x')
-        I(LIST_START)
-        LABEL(8)
-        I(BACKTRACK, 9)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '|')
-        I(CALL, 'sequence')
-        I(POP_SCOPE)
-        I(LIST_APPEND)
-        I(COMMIT, 8)
-        LABEL(9)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(ACTION, lambda self: concat([splice(0, 'Or'), splice(0, self.lookup('x')), splice(1, self.lookup('xs'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('sequence')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(10)
-        I(BACKTRACK, 11)
-        I(CALL, 'expr')
-        I(LIST_APPEND)
-        I(COMMIT, 10)
-        LABEL(11)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'maybeAction')
-        I(BIND, 'ys')
-        I(ACTION, lambda self: concat([splice(0, 'Scope'), splice(0, concat([splice(0, 'And'), splice(1, self.lookup('xs')), splice(1, self.lookup('ys'))]))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('expr')
-        I(BACKTRACK, 12)
-        I(PUSH_SCOPE)
-        I(CALL, 'expr1')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ':')
-        I(CALL, 'name')
-        I(BIND, 'y')
-        I(ACTION, lambda self: concat([splice(0, 'Bind'), splice(0, self.lookup('y')), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 13)
-        LABEL(12)
-        I(PUSH_SCOPE)
-        I(CALL, 'expr1')
-        I(POP_SCOPE)
-        LABEL(13)
-        I(RETURN)
-        LABEL('expr1')
-        I(BACKTRACK, 14)
-        I(PUSH_SCOPE)
-        I(CALL, 'expr2')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '*')
-        I(ACTION, lambda self: concat([splice(0, 'Star'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 15)
-        LABEL(14)
-        I(BACKTRACK, 16)
-        I(PUSH_SCOPE)
-        I(CALL, 'expr2')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '?')
-        I(ACTION, lambda self: concat([splice(0, 'Or'), splice(0, self.lookup('x')), splice(0, concat([splice(0, 'And')]))]))
-        I(POP_SCOPE)
-        I(COMMIT, 17)
-        LABEL(16)
-        I(BACKTRACK, 18)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '!')
-        I(CALL, 'expr2')
-        I(BIND, 'x')
-        I(ACTION, lambda self: concat([splice(0, 'Not'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 19)
-        LABEL(18)
-        I(BACKTRACK, 20)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '%')
-        I(ACTION, lambda self: concat([splice(0, 'MatchCallRule')]))
-        I(POP_SCOPE)
-        I(COMMIT, 21)
-        LABEL(20)
-        I(PUSH_SCOPE)
-        I(CALL, 'expr2')
-        I(POP_SCOPE)
-        LABEL(21)
-        LABEL(19)
-        LABEL(17)
-        LABEL(15)
-        I(RETURN)
-        LABEL('expr2')
-        I(BACKTRACK, 22)
-        I(PUSH_SCOPE)
-        I(CALL, 'name')
-        I(BIND, 'x')
-        I(BACKTRACK, 25)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '=')
-        I(POP_SCOPE)
-        I(COMMIT, 24)
-        LABEL(24)
-        I(FAIL, 'no match expected')
-        LABEL(25)
-        I(ACTION, lambda self: concat([splice(0, 'MatchRule'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 23)
-        LABEL(22)
-        I(BACKTRACK, 26)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(CALL, 'char')
-        I(BIND, 'x')
-        I(MATCH_OBJECT, '-')
-        I(CALL, 'char')
-        I(BIND, 'y')
-        I(ACTION, lambda self: concat([splice(0, 'MatchRange'), splice(0, self.lookup('x')), splice(0, self.lookup('y'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 27)
-        LABEL(26)
-        I(BACKTRACK, 28)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, "'")
-        I(LIST_START)
-        LABEL(30)
-        I(BACKTRACK, 31)
-        I(PUSH_SCOPE)
-        I(BACKTRACK, 33)
-        I(MATCH_OBJECT, "'")
-        I(COMMIT, 32)
-        LABEL(32)
-        I(FAIL, 'no match expected')
-        LABEL(33)
-        I(CALL, 'matchChar')
-        I(POP_SCOPE)
-        I(LIST_APPEND)
-        I(COMMIT, 30)
-        LABEL(31)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(MATCH_OBJECT, "'")
-        I(ACTION, lambda self: concat([splice(0, 'And'), splice(1, self.lookup('xs'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 29)
-        LABEL(28)
-        I(BACKTRACK, 34)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '.')
-        I(ACTION, lambda self: concat([splice(0, 'MatchAny')]))
-        I(POP_SCOPE)
-        I(COMMIT, 35)
-        LABEL(34)
-        I(BACKTRACK, 36)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '(')
-        I(CALL, 'choice')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ')')
-        I(ACTION, lambda self: self.lookup('x'))
-        I(POP_SCOPE)
-        I(COMMIT, 37)
-        LABEL(36)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '[')
-        I(LIST_START)
-        LABEL(38)
-        I(BACKTRACK, 39)
-        I(CALL, 'expr')
-        I(LIST_APPEND)
-        I(COMMIT, 38)
-        LABEL(39)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ']')
-        I(ACTION, lambda self: concat([splice(0, 'MatchList'), splice(0, concat([splice(0, 'And'), splice(1, self.lookup('xs'))]))]))
-        I(POP_SCOPE)
-        LABEL(37)
-        LABEL(35)
-        LABEL(29)
-        LABEL(27)
-        LABEL(23)
-        I(RETURN)
-        LABEL('matchChar')
-        I(PUSH_SCOPE)
-        I(CALL, 'innerChar')
-        I(BIND, 'x')
-        I(ACTION, lambda self: concat([splice(0, 'MatchObject'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('maybeAction')
-        I(BACKTRACK, 40)
-        I(PUSH_SCOPE)
-        I(CALL, 'actionExpr')
-        I(BIND, 'x')
-        I(LIST_START)
-        LABEL(42)
-        I(BACKTRACK, 43)
-        I(CALL, 'actionExpr')
-        I(LIST_APPEND)
-        I(COMMIT, 42)
-        LABEL(43)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(ACTION, lambda self: concat([splice(0, concat([splice(0, 'Action'), splice(1, self.lookup('x')), splice(2, self.lookup('xs'))]))]))
-        I(POP_SCOPE)
-        I(COMMIT, 41)
-        LABEL(40)
-        I(PUSH_SCOPE)
-        I(ACTION, lambda self: concat([]))
-        I(POP_SCOPE)
-        LABEL(41)
-        I(RETURN)
-        LABEL('actionExpr')
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '-')
-        I(MATCH_OBJECT, '>')
-        I(CALL, 'hostExpr')
-        I(BIND, 'x')
-        I(BACKTRACK, 44)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ':')
-        I(CALL, 'name')
-        I(POP_SCOPE)
-        I(COMMIT, 45)
-        LABEL(44)
-        I(PUSH_SCOPE)
-        I(ACTION, lambda self: '')
-        I(POP_SCOPE)
-        LABEL(45)
-        I(BIND, 'y')
-        I(ACTION, lambda self: concat([splice(0, self.lookup('y')), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('hostExpr')
-        I(BACKTRACK, 46)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(CALL, 'string')
-        I(BIND, 'x')
-        I(ACTION, lambda self: concat([splice(0, 'String'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 47)
-        LABEL(46)
-        I(BACKTRACK, 48)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '[')
-        I(LIST_START)
-        LABEL(50)
-        I(BACKTRACK, 51)
-        I(CALL, 'hostListItem')
-        I(LIST_APPEND)
-        I(COMMIT, 50)
-        LABEL(51)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ']')
-        I(ACTION, lambda self: concat([splice(0, 'List'), splice(1, self.lookup('xs'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 49)
-        LABEL(48)
-        I(BACKTRACK, 52)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '{')
-        I(LIST_START)
-        LABEL(54)
-        I(BACKTRACK, 55)
-        I(CALL, 'formatExpr')
-        I(LIST_APPEND)
-        I(COMMIT, 54)
-        LABEL(55)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '}')
-        I(ACTION, lambda self: concat([splice(0, 'Format'), splice(1, self.lookup('xs'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 53)
-        LABEL(52)
-        I(BACKTRACK, 56)
-        I(PUSH_SCOPE)
-        I(CALL, 'var')
-        I(BIND, 'x')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '(')
-        I(LIST_START)
-        LABEL(58)
-        I(BACKTRACK, 59)
-        I(CALL, 'hostExpr')
-        I(LIST_APPEND)
-        I(COMMIT, 58)
-        LABEL(59)
-        I(LIST_END)
-        I(BIND, 'ys')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, ')')
-        I(ACTION, lambda self: concat([splice(0, 'Call'), splice(0, self.lookup('x')), splice(1, self.lookup('ys'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 57)
-        LABEL(56)
-        I(PUSH_SCOPE)
-        I(CALL, 'var')
-        I(BIND, 'x')
-        I(POP_SCOPE)
-        LABEL(57)
-        LABEL(53)
-        LABEL(49)
-        LABEL(47)
-        I(RETURN)
-        LABEL('hostListItem')
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(LIST_START)
-        LABEL(60)
-        I(BACKTRACK, 61)
-        I(MATCH_OBJECT, '~')
-        I(LIST_APPEND)
-        I(COMMIT, 60)
-        LABEL(61)
-        I(LIST_END)
-        I(BIND, 'ys')
-        I(CALL, 'hostExpr')
-        I(BIND, 'x')
-        I(ACTION, lambda self: concat([splice(0, 'ListItem'), splice(0, len(self.lookup('ys'))), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('formatExpr')
-        I(BACKTRACK, 62)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '>')
-        I(LIST_START)
-        LABEL(64)
-        I(BACKTRACK, 65)
-        I(CALL, 'formatExpr')
-        I(LIST_APPEND)
-        I(COMMIT, 64)
-        LABEL(65)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '<')
-        I(ACTION, lambda self: concat([splice(0, 'Indent'), splice(0, concat([splice(0, 'Format'), splice(1, self.lookup('xs'))]))]))
-        I(POP_SCOPE)
-        I(COMMIT, 63)
-        LABEL(62)
-        I(PUSH_SCOPE)
-        I(CALL, 'hostExpr')
-        I(POP_SCOPE)
-        LABEL(63)
-        I(RETURN)
-        LABEL('var')
-        I(BACKTRACK, 66)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '#')
-        I(CALL, 'name')
-        I(BIND, 'x')
-        I(ACTION, lambda self: concat([splice(0, 'Native'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        I(COMMIT, 67)
-        LABEL(66)
-        I(PUSH_SCOPE)
-        I(CALL, 'name')
-        I(BIND, 'x')
-        I(BACKTRACK, 69)
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(MATCH_OBJECT, '=')
-        I(POP_SCOPE)
-        I(COMMIT, 68)
-        LABEL(68)
-        I(FAIL, 'no match expected')
-        LABEL(69)
-        I(ACTION, lambda self: concat([splice(0, 'Lookup'), splice(0, self.lookup('x'))]))
-        I(POP_SCOPE)
-        LABEL(67)
-        I(RETURN)
-        LABEL('string')
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, '"')
-        I(LIST_START)
-        LABEL(70)
-        I(BACKTRACK, 71)
-        I(PUSH_SCOPE)
-        I(BACKTRACK, 73)
-        I(MATCH_OBJECT, '"')
-        I(COMMIT, 72)
-        LABEL(72)
-        I(FAIL, 'no match expected')
-        LABEL(73)
-        I(CALL, 'innerChar')
-        I(POP_SCOPE)
-        I(LIST_APPEND)
-        I(COMMIT, 70)
-        LABEL(71)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(MATCH_OBJECT, '"')
-        I(ACTION, lambda self: join([self.lookup('xs')]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('char')
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, "'")
-        I(BACKTRACK, 75)
-        I(MATCH_OBJECT, "'")
-        I(COMMIT, 74)
-        LABEL(74)
-        I(FAIL, 'no match expected')
-        LABEL(75)
-        I(CALL, 'innerChar')
-        I(BIND, 'x')
-        I(MATCH_OBJECT, "'")
-        I(ACTION, lambda self: self.lookup('x'))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('innerChar')
-        I(BACKTRACK, 76)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, '\\')
-        I(CALL, 'escape')
-        I(POP_SCOPE)
-        I(COMMIT, 77)
-        LABEL(76)
-        I(PUSH_SCOPE)
-        I(MATCH_ANY)
-        I(POP_SCOPE)
-        LABEL(77)
-        I(RETURN)
-        LABEL('escape')
-        I(BACKTRACK, 78)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, '\\')
-        I(ACTION, lambda self: '\\')
-        I(POP_SCOPE)
-        I(COMMIT, 79)
-        LABEL(78)
-        I(BACKTRACK, 80)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, "'")
-        I(ACTION, lambda self: "'")
-        I(POP_SCOPE)
-        I(COMMIT, 81)
-        LABEL(80)
-        I(BACKTRACK, 82)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, '"')
-        I(ACTION, lambda self: '"')
-        I(POP_SCOPE)
-        I(COMMIT, 83)
-        LABEL(82)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, 'n')
-        I(ACTION, lambda self: '\n')
-        I(POP_SCOPE)
-        LABEL(83)
-        LABEL(81)
-        LABEL(79)
-        I(RETURN)
-        LABEL('name')
-        I(PUSH_SCOPE)
-        I(CALL, 'space')
-        I(CALL, 'nameStart')
-        I(BIND, 'x')
-        I(LIST_START)
-        LABEL(84)
-        I(BACKTRACK, 85)
-        I(CALL, 'nameChar')
-        I(LIST_APPEND)
-        I(COMMIT, 84)
-        LABEL(85)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(ACTION, lambda self: join([self.lookup('x'), self.lookup('xs')]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('nameStart')
-        I(BACKTRACK, 86)
-        I(PUSH_SCOPE)
-        I(MATCH_RANGE, 'a', 'z')
-        I(POP_SCOPE)
-        I(COMMIT, 87)
-        LABEL(86)
-        I(PUSH_SCOPE)
-        I(MATCH_RANGE, 'A', 'Z')
-        I(POP_SCOPE)
-        LABEL(87)
-        I(RETURN)
-        LABEL('nameChar')
-        I(BACKTRACK, 88)
-        I(PUSH_SCOPE)
-        I(MATCH_RANGE, 'a', 'z')
-        I(POP_SCOPE)
-        I(COMMIT, 89)
-        LABEL(88)
-        I(BACKTRACK, 90)
-        I(PUSH_SCOPE)
-        I(MATCH_RANGE, 'A', 'Z')
-        I(POP_SCOPE)
-        I(COMMIT, 91)
-        LABEL(90)
-        I(PUSH_SCOPE)
-        I(MATCH_RANGE, '0', '9')
-        I(POP_SCOPE)
-        LABEL(91)
-        LABEL(89)
-        I(RETURN)
-        LABEL('space')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(92)
-        I(BACKTRACK, 93)
-        I(BACKTRACK, 94)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, ' ')
-        I(POP_SCOPE)
-        I(COMMIT, 95)
-        LABEL(94)
-        I(PUSH_SCOPE)
-        I(MATCH_OBJECT, '\n')
-        I(POP_SCOPE)
-        LABEL(95)
-        I(LIST_APPEND)
-        I(COMMIT, 92)
-        LABEL(93)
-        I(LIST_END)
-        I(POP_SCOPE)
-        I(RETURN)
+    labels = {'file': 0, 0: 2, 1: 9, 2: 15, 3: 16, 'grammar': 19, 4: 25, 5: 29, 'rule': 36, 'choice': 46, 6: 53, 7: 53, 8: 56, 9: 64, 'sequence': 69, 10: 71, 11: 75, 'expr': 82, 12: 93, 13: 96, 'expr1': 97, 14: 106, 16: 115, 18: 124, 20: 131, 21: 134, 19: 134, 17: 134, 15: 134, 'expr2': 135, 24: 145, 25: 146, 22: 149, 26: 160, 30: 165, 32: 170, 33: 171, 31: 175, 28: 181, 34: 188, 36: 199, 38: 203, 39: 207, 37: 213, 35: 213, 29: 213, 27: 213, 23: 213, 'matchChar': 214, 'maybeAction': 220, 42: 225, 43: 229, 40: 234, 41: 237, 'actionExpr': 238, 44: 251, 45: 254, 'hostExpr': 258, 46: 266, 50: 271, 51: 275, 48: 282, 54: 287, 55: 291, 52: 298, 58: 305, 59: 309, 56: 316, 57: 320, 53: 320, 49: 320, 47: 320, 'hostListItem': 321, 60: 324, 61: 328, 'formatExpr': 335, 64: 340, 65: 344, 62: 351, 63: 354, 'var': 355, 66: 364, 68: 373, 69: 374, 67: 376, 'string': 377, 70: 380, 72: 385, 73: 386, 71: 390, 'char': 396, 74: 401, 75: 402, 'innerChar': 408, 76: 414, 77: 417, 'escape': 418, 78: 424, 80: 430, 82: 436, 83: 440, 81: 440, 79: 440, 'name': 441, 84: 446, 85: 450, 'nameStart': 455, 86: 460, 87: 463, 'nameChar': 464, 88: 469, 90: 474, 91: 477, 89: 477, 'space': 478, 92: 480, 94: 486, 95: 489, 93: 491}
+    instructions = [
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 1, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (CALL, 'grammar', None),
+        (POP_SCOPE, None, None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 0, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'space', None),
+        (BACKTRACK, 3, None),
+        (MATCH_ANY, None, None),
+        (COMMIT, 2, None),
+        (FAIL, 'no match expected', None),
+        (ACTION, lambda self: self.lookup('xs'), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'name', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '{', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 5, None),
+        (CALL, 'rule', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 4, None),
+        (LIST_END, None, None),
+        (BIND, 'ys', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '}', None),
+        (ACTION, lambda self: concat([splice(0, 'Grammar'), splice(0, self.lookup('x')), splice(1, self.lookup('ys'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'name', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '=', None),
+        (CALL, 'choice', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: concat([splice(0, 'Rule'), splice(0, self.lookup('x')), splice(0, self.lookup('y'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (BACKTRACK, 6, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '|', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 7, None),
+        (CALL, 'sequence', None),
+        (BIND, 'x', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 9, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '|', None),
+        (CALL, 'sequence', None),
+        (POP_SCOPE, None, None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 8, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (ACTION, lambda self: concat([splice(0, 'Or'), splice(0, self.lookup('x')), splice(1, self.lookup('xs'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 11, None),
+        (CALL, 'expr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 10, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'maybeAction', None),
+        (BIND, 'ys', None),
+        (ACTION, lambda self: concat([splice(0, 'Scope'), splice(0, concat([splice(0, 'And'), splice(1, self.lookup('xs')), splice(1, self.lookup('ys'))]))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 12, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'expr1', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ':', None),
+        (CALL, 'name', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: concat([splice(0, 'Bind'), splice(0, self.lookup('y')), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 13, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'expr1', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 14, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'expr2', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '*', None),
+        (ACTION, lambda self: concat([splice(0, 'Star'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 15, None),
+        (BACKTRACK, 16, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'expr2', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '?', None),
+        (ACTION, lambda self: concat([splice(0, 'Or'), splice(0, self.lookup('x')), splice(0, concat([splice(0, 'And')]))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 17, None),
+        (BACKTRACK, 18, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '!', None),
+        (CALL, 'expr2', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: concat([splice(0, 'Not'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 19, None),
+        (BACKTRACK, 20, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '%', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchCallRule')]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 21, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'expr2', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 22, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'name', None),
+        (BIND, 'x', None),
+        (BACKTRACK, 25, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '=', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 24, None),
+        (FAIL, 'no match expected', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchRule'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 23, None),
+        (BACKTRACK, 26, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (CALL, 'char', None),
+        (BIND, 'x', None),
+        (MATCH_OBJECT, '-', None),
+        (CALL, 'char', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchRange'), splice(0, self.lookup('x')), splice(0, self.lookup('y'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 27, None),
+        (BACKTRACK, 28, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, "'", None),
+        (LIST_START, None, None),
+        (BACKTRACK, 31, None),
+        (PUSH_SCOPE, None, None),
+        (BACKTRACK, 33, None),
+        (MATCH_OBJECT, "'", None),
+        (COMMIT, 32, None),
+        (FAIL, 'no match expected', None),
+        (CALL, 'matchChar', None),
+        (POP_SCOPE, None, None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 30, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (MATCH_OBJECT, "'", None),
+        (ACTION, lambda self: concat([splice(0, 'And'), splice(1, self.lookup('xs'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 29, None),
+        (BACKTRACK, 34, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '.', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchAny')]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 35, None),
+        (BACKTRACK, 36, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '(', None),
+        (CALL, 'choice', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ')', None),
+        (ACTION, lambda self: self.lookup('x'), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 37, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '[', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 39, None),
+        (CALL, 'expr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 38, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ']', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchList'), splice(0, concat([splice(0, 'And'), splice(1, self.lookup('xs'))]))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'innerChar', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: concat([splice(0, 'MatchObject'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 40, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'actionExpr', None),
+        (BIND, 'x', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 43, None),
+        (CALL, 'actionExpr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 42, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (ACTION, lambda self: concat([splice(0, concat([splice(0, 'Action'), splice(1, self.lookup('x')), splice(2, self.lookup('xs'))]))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 41, None),
+        (PUSH_SCOPE, None, None),
+        (ACTION, lambda self: concat([]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '-', None),
+        (MATCH_OBJECT, '>', None),
+        (CALL, 'hostExpr', None),
+        (BIND, 'x', None),
+        (BACKTRACK, 44, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ':', None),
+        (CALL, 'name', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 45, None),
+        (PUSH_SCOPE, None, None),
+        (ACTION, lambda self: '', None),
+        (POP_SCOPE, None, None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: concat([splice(0, self.lookup('y')), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 46, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (CALL, 'string', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: concat([splice(0, 'String'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 47, None),
+        (BACKTRACK, 48, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '[', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 51, None),
+        (CALL, 'hostListItem', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 50, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ']', None),
+        (ACTION, lambda self: concat([splice(0, 'List'), splice(1, self.lookup('xs'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 49, None),
+        (BACKTRACK, 52, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '{', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 55, None),
+        (CALL, 'formatExpr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 54, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '}', None),
+        (ACTION, lambda self: concat([splice(0, 'Format'), splice(1, self.lookup('xs'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 53, None),
+        (BACKTRACK, 56, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'var', None),
+        (BIND, 'x', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '(', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 59, None),
+        (CALL, 'hostExpr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 58, None),
+        (LIST_END, None, None),
+        (BIND, 'ys', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, ')', None),
+        (ACTION, lambda self: concat([splice(0, 'Call'), splice(0, self.lookup('x')), splice(1, self.lookup('ys'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 57, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'var', None),
+        (BIND, 'x', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 61, None),
+        (MATCH_OBJECT, '~', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 60, None),
+        (LIST_END, None, None),
+        (BIND, 'ys', None),
+        (CALL, 'hostExpr', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: concat([splice(0, 'ListItem'), splice(0, len(self.lookup('ys'))), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 62, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '>', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 65, None),
+        (CALL, 'formatExpr', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 64, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '<', None),
+        (ACTION, lambda self: concat([splice(0, 'Indent'), splice(0, concat([splice(0, 'Format'), splice(1, self.lookup('xs'))]))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 63, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'hostExpr', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 66, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '#', None),
+        (CALL, 'name', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: concat([splice(0, 'Native'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 67, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'name', None),
+        (BIND, 'x', None),
+        (BACKTRACK, 69, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (MATCH_OBJECT, '=', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 68, None),
+        (FAIL, 'no match expected', None),
+        (ACTION, lambda self: concat([splice(0, 'Lookup'), splice(0, self.lookup('x'))]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, '"', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 71, None),
+        (PUSH_SCOPE, None, None),
+        (BACKTRACK, 73, None),
+        (MATCH_OBJECT, '"', None),
+        (COMMIT, 72, None),
+        (FAIL, 'no match expected', None),
+        (CALL, 'innerChar', None),
+        (POP_SCOPE, None, None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 70, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (MATCH_OBJECT, '"', None),
+        (ACTION, lambda self: join([self.lookup('xs')]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, "'", None),
+        (BACKTRACK, 75, None),
+        (MATCH_OBJECT, "'", None),
+        (COMMIT, 74, None),
+        (FAIL, 'no match expected', None),
+        (CALL, 'innerChar', None),
+        (BIND, 'x', None),
+        (MATCH_OBJECT, "'", None),
+        (ACTION, lambda self: self.lookup('x'), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 76, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, '\\', None),
+        (CALL, 'escape', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 77, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 78, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, '\\', None),
+        (ACTION, lambda self: '\\', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 79, None),
+        (BACKTRACK, 80, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, "'", None),
+        (ACTION, lambda self: "'", None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 81, None),
+        (BACKTRACK, 82, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, '"', None),
+        (ACTION, lambda self: '"', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 83, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, 'n', None),
+        (ACTION, lambda self: '\n', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'space', None),
+        (CALL, 'nameStart', None),
+        (BIND, 'x', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 85, None),
+        (CALL, 'nameChar', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 84, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (ACTION, lambda self: join([self.lookup('x'), self.lookup('xs')]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 86, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_RANGE, 'a', 'z'),
+        (POP_SCOPE, None, None),
+        (COMMIT, 87, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_RANGE, 'A', 'Z'),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 88, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_RANGE, 'a', 'z'),
+        (POP_SCOPE, None, None),
+        (COMMIT, 89, None),
+        (BACKTRACK, 90, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_RANGE, 'A', 'Z'),
+        (POP_SCOPE, None, None),
+        (COMMIT, 91, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_RANGE, '0', '9'),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 93, None),
+        (BACKTRACK, 94, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, ' ', None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 95, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_OBJECT, '\n', None),
+        (POP_SCOPE, None, None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 92, None),
+        (LIST_END, None, None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None)
+    ]
 class CodeGenerator(Grammar):
 
-    def assemble(self, I, LABEL):
-        LABEL('Grammar')
-        I(PUSH_SCOPE)
-        I(MATCH_ANY)
-        I(BIND, 'x')
-        I(LIST_START)
-        LABEL(0)
-        I(BACKTRACK, 1)
-        I(CALL, 'ast')
-        I(LIST_APPEND)
-        I(COMMIT, 0)
-        LABEL(1)
-        I(LIST_END)
-        I(BIND, 'ys')
-        I(ACTION, lambda self: join(['class ', self.lookup('x'), '(Grammar):\n\n', indent(join(['def assemble(self, I, LABEL):\n', indent(join([self.lookup('ys')]), self.lookup('indentprefix'))]), self.lookup('indentprefix'))]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Rule')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(CALL, 'ast')
-        I(BIND, 'y')
-        I(ACTION, lambda self: join(['LABEL(', self.lookup('x'), ')\n', self.lookup('y'), 'I(RETURN)\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Or')
-        I(BACKTRACK, 2)
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(CALL, 'Or')
-        I(BIND, 'y')
-        I(ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: join(['I(BACKTRACK, ', self.lookup('a'), ')\n', self.lookup('x'), 'I(COMMIT, ', self.lookup('b'), ')\n', 'LABEL(', self.lookup('a'), ')\n', self.lookup('y'), 'LABEL(', self.lookup('b'), ')\n']))))
-        I(POP_SCOPE)
-        I(COMMIT, 3)
-        LABEL(2)
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(POP_SCOPE)
-        LABEL(3)
-        I(RETURN)
-        LABEL('Scope')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['I(PUSH_SCOPE)\n', self.lookup('x'), 'I(POP_SCOPE)\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('And')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(4)
-        I(BACKTRACK, 5)
-        I(CALL, 'ast')
-        I(LIST_APPEND)
-        I(COMMIT, 4)
-        LABEL(5)
-        I(LIST_END)
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Bind')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(CALL, 'ast')
-        I(BIND, 'y')
-        I(ACTION, lambda self: join([self.lookup('y'), 'I(BIND, ', self.lookup('x'), ')\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Star')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: join(['I(LIST_START)\n', 'LABEL(', self.lookup('a'), ')\n', 'I(BACKTRACK, ', self.lookup('b'), ')\n', self.lookup('x'), 'I(LIST_APPEND)\n', 'I(COMMIT, ', self.lookup('a'), ')\n', 'LABEL(', self.lookup('b'), ')\n', 'I(LIST_END)\n']))))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Not')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: join(['I(BACKTRACK, ', self.lookup('b'), ')\n', self.lookup('x'), 'I(COMMIT, ', self.lookup('a'), ')\n', 'LABEL(', self.lookup('a'), ')\n', "I(FAIL, 'no match expected')\n", 'LABEL(', self.lookup('b'), ')\n']))))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchCallRule')
-        I(PUSH_SCOPE)
-        I(ACTION, lambda self: join(['I(MATCH_CALL_RULE)\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchRule')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['I(CALL, ', self.lookup('x'), ')\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchRange')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(CALL, 'py')
-        I(BIND, 'y')
-        I(ACTION, lambda self: join(['I(MATCH_RANGE, ', self.lookup('x'), ', ', self.lookup('y'), ')\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchAny')
-        I(PUSH_SCOPE)
-        I(ACTION, lambda self: join(['I(MATCH_ANY)\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchList')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['I(PUSH_STREAM)\n', self.lookup('x'), 'I(POP_STREAM)\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('MatchObject')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['I(MATCH_OBJECT, ', self.lookup('x'), ')\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Action')
-        I(PUSH_SCOPE)
-        I(CALL, 'actionExpr')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['I(ACTION, lambda self: ', self.lookup('x'), ')\n']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('actionExpr')
-        I(BACKTRACK, 6)
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(CALL, 'ast')
-        I(BIND, 'y')
-        I(CALL, 'actionExpr')
-        I(BIND, 'z')
-        I(ACTION, lambda self: join(['self.bind(', self.lookup('x'), ', ', self.lookup('y'), ', lambda: ', self.lookup('z'), ')']))
-        I(POP_SCOPE)
-        I(COMMIT, 7)
-        LABEL(6)
-        I(PUSH_SCOPE)
-        I(MATCH_ANY)
-        I(CALL, 'ast')
-        I(POP_SCOPE)
-        LABEL(7)
-        I(RETURN)
-        LABEL('String')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('List')
-        I(PUSH_SCOPE)
-        I(CALL, 'astList')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['concat([', self.lookup('x'), '])']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('ListItem')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(CALL, 'ast')
-        I(BIND, 'y')
-        I(ACTION, lambda self: join(['splice(', self.lookup('x'), ', ', self.lookup('y'), ')']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Format')
-        I(PUSH_SCOPE)
-        I(CALL, 'astList')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['join([', self.lookup('x'), '])']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Indent')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['indent(', self.lookup('x'), ', ', "self.lookup('indentprefix'))"]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Call')
-        I(PUSH_SCOPE)
-        I(CALL, 'ast')
-        I(BIND, 'x')
-        I(CALL, 'astList')
-        I(BIND, 'y')
-        I(ACTION, lambda self: join([self.lookup('x'), '(', self.lookup('y'), ')']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Native')
-        I(PUSH_SCOPE)
-        I(MATCH_ANY)
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('Lookup')
-        I(PUSH_SCOPE)
-        I(CALL, 'py')
-        I(BIND, 'x')
-        I(ACTION, lambda self: join(['self.lookup(', self.lookup('x'), ')']))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('asts')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(8)
-        I(BACKTRACK, 9)
-        I(CALL, 'ast')
-        I(LIST_APPEND)
-        I(COMMIT, 8)
-        LABEL(9)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(ACTION, lambda self: join([self.lookup('xs')]))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('ast')
-        I(PUSH_SCOPE)
-        I(PUSH_STREAM)
-        I(MATCH_CALL_RULE)
-        I(BIND, 'x')
-        I(POP_STREAM)
-        I(ACTION, lambda self: self.lookup('x'))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('astList')
-        I(PUSH_SCOPE)
-        I(LIST_START)
-        LABEL(10)
-        I(BACKTRACK, 11)
-        I(CALL, 'ast')
-        I(LIST_APPEND)
-        I(COMMIT, 10)
-        LABEL(11)
-        I(LIST_END)
-        I(BIND, 'xs')
-        I(ACTION, lambda self: join(self.lookup('xs'), ', '))
-        I(POP_SCOPE)
-        I(RETURN)
-        LABEL('py')
-        I(PUSH_SCOPE)
-        I(MATCH_ANY)
-        I(BIND, 'x')
-        I(ACTION, lambda self: repr(self.lookup('x')))
-        I(POP_SCOPE)
-        I(RETURN)
+    labels = {'Grammar': 0, 0: 4, 1: 8, 'Rule': 13, 'Or': 21, 2: 30, 3: 33, 'Scope': 34, 'And': 40, 4: 42, 5: 46, 'Bind': 49, 'Star': 57, 'Not': 63, 'MatchCallRule': 69, 'MatchRule': 73, 'MatchRange': 79, 'MatchAny': 87, 'MatchList': 91, 'MatchObject': 97, 'Action': 103, 'actionExpr': 109, 6: 120, 7: 124, 'String': 125, 'List': 129, 'ListItem': 135, 'Format': 143, 'Indent': 149, 'Call': 155, 'Native': 163, 'Lookup': 167, 'asts': 173, 8: 175, 9: 179, 'ast': 184, 'astList': 192, 10: 194, 11: 198, 'py': 203}
+    instructions = [
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (BIND, 'x', None),
+        (LIST_START, None, None),
+        (BACKTRACK, 1, None),
+        (CALL, 'ast', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 0, None),
+        (LIST_END, None, None),
+        (BIND, 'ys', None),
+        (ACTION, lambda self: self.bind('I', List(), lambda: self.bind('LABEL', Dict(), lambda: self.bind('', self.lookup('ys'), lambda: join(['class ', self.lookup('x'), '(Grammar):\n\n', indent(join(['labels = ', repr(self.lookup('LABEL')), '\n', 'instructions = [\n', indent(join([join(self.lookup('I'), ',\n')]), self.lookup('indentprefix')), '\n]\n']), self.lookup('indentprefix'))])))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (BIND, 'x', None),
+        (CALL, 'ast', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: self.bind('', self.lookup('LABEL')(self.lookup('x'), len(self.lookup('I'))), lambda: self.bind('', self.lookup('y'), lambda: self.lookup('I')('(RETURN, None, None)'))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 2, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (CALL, 'Or', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: self.bind('', self.lookup('I')(join(['(BACKTRACK, ', self.lookup('a'), ', None)'])), lambda: self.bind('', self.lookup('x'), lambda: self.bind('', self.lookup('I')(join(['(COMMIT, ', self.lookup('b'), ', None)'])), lambda: self.bind('', self.lookup('LABEL')(self.lookup('a'), len(self.lookup('I'))), lambda: self.bind('', self.lookup('y'), lambda: self.lookup('LABEL')(self.lookup('b'), len(self.lookup('I')))))))))), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 3, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.bind('', self.lookup('I')('(PUSH_SCOPE, None, None)'), lambda: self.bind('', self.lookup('x'), lambda: self.lookup('I')('(POP_SCOPE, None, None)'))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 5, None),
+        (CALL, 'ast', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 4, None),
+        (LIST_END, None, None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (CALL, 'ast', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: self.bind('', self.lookup('y'), lambda: self.lookup('I')(join(['(BIND, ', self.lookup('x'), ', None)']))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: self.bind('', self.lookup('I')('(LIST_START, None, None)'), lambda: self.bind('', self.lookup('LABEL')(self.lookup('a'), len(self.lookup('I'))), lambda: self.bind('', self.lookup('I')(join(['(BACKTRACK, ', self.lookup('b'), ', None)'])), lambda: self.bind('', self.lookup('x'), lambda: self.bind('', self.lookup('I')('(LIST_APPEND, None, None)'), lambda: self.bind('', self.lookup('I')(join(['(COMMIT, ', self.lookup('a'), ', None)'])), lambda: self.bind('', self.lookup('LABEL')(self.lookup('b'), len(self.lookup('I'))), lambda: self.lookup('I')('(LIST_END, None, None)')))))))))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.bind('a', self.lookup('label')(), lambda: self.bind('b', self.lookup('label')(), lambda: self.bind('', self.lookup('I')(join(['(BACKTRACK, ', self.lookup('b'), ', None)'])), lambda: self.bind('', self.lookup('x'), lambda: self.bind('', self.lookup('I')(join(['(COMMIT, ', self.lookup('a'), ', None)'])), lambda: self.bind('', self.lookup('LABEL')(self.lookup('a'), len(self.lookup('I'))), lambda: self.bind('', self.lookup('I')("(FAIL, 'no match expected', None)"), lambda: self.lookup('LABEL')(self.lookup('b'), len(self.lookup('I')))))))))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (ACTION, lambda self: self.lookup('I')('(MATCH_CALL_RULE, None, None)'), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.lookup('I')(join(['(CALL, ', self.lookup('x'), ', None)'])), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (CALL, 'py', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: self.lookup('I')(join(['(MATCH_RANGE, ', self.lookup('x'), ', ', self.lookup('y'), ')'])), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (ACTION, lambda self: self.lookup('I')('(MATCH_ANY, None, None)'), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.bind('', self.lookup('I')('(PUSH_STREAM, None, None)'), lambda: self.bind('', self.lookup('x'), lambda: self.lookup('I')('(POP_STREAM, None, None)'))), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.lookup('I')(join(['(MATCH_OBJECT, ', self.lookup('x'), ', None)'])), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'actionExpr', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: self.lookup('I')(join(['(ACTION, lambda self: ', self.lookup('x'), ', None)'])), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (BACKTRACK, 6, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (CALL, 'ast', None),
+        (BIND, 'y', None),
+        (CALL, 'actionExpr', None),
+        (BIND, 'z', None),
+        (ACTION, lambda self: join(['self.bind(', self.lookup('x'), ', ', self.lookup('y'), ', lambda: ', self.lookup('z'), ')']), None),
+        (POP_SCOPE, None, None),
+        (COMMIT, 7, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (CALL, 'ast', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'astList', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: join(['concat([', self.lookup('x'), '])']), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (CALL, 'ast', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: join(['splice(', self.lookup('x'), ', ', self.lookup('y'), ')']), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'astList', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: join(['join([', self.lookup('x'), '])']), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: join(['indent(', self.lookup('x'), ', ', "self.lookup('indentprefix'))"]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'ast', None),
+        (BIND, 'x', None),
+        (CALL, 'astList', None),
+        (BIND, 'y', None),
+        (ACTION, lambda self: join([self.lookup('x'), '(', self.lookup('y'), ')']), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (CALL, 'py', None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: join(['self.lookup(', self.lookup('x'), ')']), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 9, None),
+        (CALL, 'ast', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 8, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (ACTION, lambda self: join([self.lookup('xs')]), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (PUSH_STREAM, None, None),
+        (MATCH_CALL_RULE, None, None),
+        (BIND, 'x', None),
+        (POP_STREAM, None, None),
+        (ACTION, lambda self: self.lookup('x'), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (LIST_START, None, None),
+        (BACKTRACK, 11, None),
+        (CALL, 'ast', None),
+        (LIST_APPEND, None, None),
+        (COMMIT, 10, None),
+        (LIST_END, None, None),
+        (BIND, 'xs', None),
+        (ACTION, lambda self: join(self.lookup('xs'), ', '), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None),
+        (PUSH_SCOPE, None, None),
+        (MATCH_ANY, None, None),
+        (BIND, 'x', None),
+        (ACTION, lambda self: repr(self.lookup('x')), None),
+        (POP_SCOPE, None, None),
+        (RETURN, None, None)
+    ]
 if __name__ == "__main__":
     import sys
     def read(path):
