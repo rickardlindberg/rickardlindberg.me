@@ -1,4 +1,4 @@
-def vm(instructions, labels, start_rule, stream, runtime):
+def vm(instructions, labels, start_rule, stream):
     action = SemanticAction(None)
     pc = labels[start_rule]
     call_backtrack_stack = []
@@ -53,7 +53,7 @@ definstruction COMMIT:
 
 definstruction RETURN:
     if len(call_backtrack_stack) == 0:
-        return action.eval(runtime)
+        return action
     pc, key = call_backtrack_stack.pop()
     memo[key] = (action, stream_pos_stack+[(stream, pos)])
 

@@ -38,7 +38,7 @@ class Grammar(object):
         self.assemble(I, LABEL)
 
     def run(self, rule_name, stream):
-        return vm(self.instructions, self.labels, rule_name, stream, {
+        return vm(self.instructions, self.labels, rule_name, stream).eval({
             "label": Counter(),
             "indentprefix": "    ",
         })

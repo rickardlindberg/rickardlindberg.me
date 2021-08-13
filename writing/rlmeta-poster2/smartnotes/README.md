@@ -71,6 +71,8 @@ CHANGES:
 
 [x] You can put any crap at end of file, and parsers don't care. Fix it!
 
+[x] VM should not know about runtime.
+
 TODO:
 
 [ ] Support recursive macros?
@@ -79,5 +81,3 @@ TODO:
 
 [ ] Move "assembly" out of support library. Grammar should generate
     labels/instructions.
-
-[ ] VM should not know about runtime.
