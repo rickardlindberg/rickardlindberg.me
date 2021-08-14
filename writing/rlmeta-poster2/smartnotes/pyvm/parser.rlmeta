@@ -10,7 +10,7 @@ Parser {
   instructions(["Instruction" x y z])
   args           = '(' arg*:xs  ')' -> xs
   arg            = name:x (','|->"") ' '* -> ["Arg" x]
-  defmacro       = 'defmacro '       name:x ':\n' ('    ' restline)*:y -> macros(x {y})
+  defmacro       = 'defmacro '       name:x ':\n' block:y -> macros(x y)
   block          = blockline*
   blockline      =
     | '    ' ('    ' -> "    ")*:xs '#' name:y '\n' -> ["Macro" y { xs }]

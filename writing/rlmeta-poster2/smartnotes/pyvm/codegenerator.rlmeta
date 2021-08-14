@@ -17,7 +17,7 @@ CodeGenerator {
   Def          = .:name .:rest [asts:body] -> { "def " name rest > body < }
   Instruction  = .:name [asts:args] [asts:body] -> enum({name " = " #len(enum) "\n"}) -> { "name == " name ":\n" > args body "continue\n" < }
   Line         = .:line
-  Macro        = .:name .:indentprefix -> { > macros(name) < }
+  Macro        = .:name .:indentprefix -> { > run("asts" macros(name)) < }
   Arg          = .:name -> { name " = instructions[pc]\npc += 1\n" }
   asts         = ast*:xs !.         -> { xs }
   ast          = [%:x] -> x

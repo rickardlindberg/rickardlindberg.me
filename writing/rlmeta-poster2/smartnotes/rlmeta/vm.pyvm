@@ -17,19 +17,8 @@ definstruction BACKTRACK(argLabel):
         labels[argLabel], pos, len(stream_pos_stack), len(scope_stack)
     ))
 
-definstruction CALL(argLabel):
-    key = (argLabel, tuple([x[1] for x in stream_pos_stack]+[pos]))
-    if key in memo:
-        if memo[key][0] is None:
-            fail_message = memo[key][1]
-            #FAIL
-        else:
-            action, stream_pos_stack = memo[key]
-            stream_pos_stack = stream_pos_stack[:]
-            stream, pos = stream_pos_stack.pop()
-    else:
-        call_backtrack_stack.append((pc, key))
-        pc = labels[argLabel]
+definstruction CALL(argFnName):
+    #CALL
 
 definstruction POP_SCOPE():
     scope = scope_stack.pop()
@@ -107,24 +96,27 @@ definstruction MATCH_CALL_RULE():
         fail_message = ("expected any",)
         #FAIL
     else:
-        fn_name = str(stream[pos])
-        key = (fn_name, tuple([x[1] for x in stream_pos_stack]+[pos]))
-        if key in memo:
-            if memo[key][0] is None:
-                fail_message = memo[key][1]
-                #FAIL
-            else:
-                action, stream_pos_stack = memo[key]
-                stream_pos_stack = stream_pos_stack[:]
-                stream, pos = stream_pos_stack.pop()
-        else:
-            call_backtrack_stack.append((pc, key))
-            pc = labels[fn_name]
-            pos += 1
+        argFnName = str(stream[pos])
+        pos += 1
+        #CALL
 
 definstruction FAIL(argMessage):
     fail_message = (argMessage,)
     #FAIL
+
+defmacro CALL:
+    key = (argFnName, tuple([x[1] for x in stream_pos_stack]+[pos]))
+    if key in memo:
+        if memo[key][0] is None:
+            fail_message = memo[key][1]
+            #FAIL
+        else:
+            action, stream_pos_stack = memo[key]
+            stream_pos_stack = stream_pos_stack[:]
+            stream, pos = stream_pos_stack.pop()
+    else:
+        call_backtrack_stack.append((pc, key))
+        pc = labels[argFnName]
 
 defmacro FAIL:
     fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])

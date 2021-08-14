@@ -78,10 +78,10 @@ CHANGES:
 
 [x] No failure if VM-compilation fails? (Swap Instruction arguments.)
 
-TODO:
-
-[ ] Support recursive macros?
+[x] Support recursive macros?
 
     * Probably requires function to run grammar against an object.
 
     * Needed to get rid of duplicated call code.
+
+TODO:

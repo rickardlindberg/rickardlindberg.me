@@ -9,7 +9,7 @@ class SemanticAction(object):
         return self.fn(self)
 
     def bind(self, name, value, continuation):
-        self.runtime = dict(self.runtime, **{name: value})
+        self.runtime = self.runtime.set(name, value)
         return continuation()
 
     def lookup(self, name):
@@ -29,10 +29,22 @@ class MatchError(Exception):
 class Grammar(object):
 
     def run(self, rule_name, stream):
-        return vm(self.instructions, self.labels, rule_name, stream).eval({
+        def inner_run(rule_name, stream, runtime):
+            return vm(self.instructions, self.labels, rule_name, stream).eval(runtime)
+        return inner_run(rule_name, stream, Runtime(inner_run, {
             "label": Counter(),
             "indentprefix": "    ",
-        })
+        }))
+
+class Runtime(dict):
+
+    def __init__(self, inner_run, runtime, **kwargs):
+        dict.__init__(self, runtime, **kwargs)
+        self.inner_run = inner_run
+        self["run"] = lambda rule_name, stream: self.inner_run(rule_name, stream, self)
+
+    def set(self, key, value):
+        return Runtime(self.inner_run, self, **{key: value})
 
 class Counter(object):
 
