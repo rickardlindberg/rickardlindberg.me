@@ -85,3 +85,9 @@ CHANGES:
     * Needed to get rid of duplicated call code.
 
 TODO:
+
+[ ] Clean up PyVM grammars
+
+[ ] Can support library (and new Runtime) become smaller?
+
+[ ] Can "native" calls be removed by adding binding in runtime?
