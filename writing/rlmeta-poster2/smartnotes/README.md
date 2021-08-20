@@ -91,3 +91,16 @@ TODO:
 [ ] Can support library (and new Runtime) become smaller?
 
 [ ] Can "native" calls be removed by adding binding in runtime?
+
+[ ] Should memo be removed since it is an optimization?
+
+[ ] Compilation was further complicated now when VM has to be generated and a
+    combined support library created.
+
+[ ] Try to port to JS to see how flexible it is?
+
+[ ] Split code generator into code generator and python assembler. That makes
+    each phase more clear and allows for optimizations.
+
+[ ] Write VM as clean as possible in Python. Then write a separate optimized
+    VM.
