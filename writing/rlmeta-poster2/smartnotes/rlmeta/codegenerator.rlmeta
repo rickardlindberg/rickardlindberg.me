@@ -1,82 +1,61 @@
 CodeGenerator {
-  Grammar       = .:x ast*:ys     -> #List():I -> #Dict():LABEL -> ys
-                                  -> { "class " x "(Grammar):\n\n" >
-                                         "labels = " #repr(LABEL) "\n"
-                                         "instructions = [\n" >
-                                           #join(I ",\n")
-                                         < "\n]\n"
-                                       < }
-  Rule          = .:x ast:y       -> LABEL(x #len(I))
-                                  -> y
-                                  -> I("RETURN")
+  Grammar       = .:x ast*:ys -> ["Grammar" x ~~ys]
+  Rule          = .:x ast:y   -> [["Rule" x]
+                                  ~y
+                                  ["I" "RETURN"]]
   Or            =
-    | ast:x Or:y                  -> label():a -> label():b
-                                  -> I("BACKTRACK")
-                                  -> I(a)
-                                  -> x
-                                  -> I("COMMIT")
-                                  -> I(b)
-                                  -> LABEL(a #len(I))
-                                  -> y
-                                  -> LABEL(b #len(I))
+    | ast:x Or:y              -> label():a -> label():b
+                              -> [["I" "BACKTRACK"]
+                                  ["Target" a]
+                                  ~x
+                                  ["I" "COMMIT"]
+                                  ["Target" b]
+                                  ["Label" a]
+                                  ~y
+                                  ["Label" b]]
     | ast
-  Scope         = ast:x           -> I("PUSH_SCOPE")
-                                  -> x
-                                  -> I("POP_SCOPE")
-  And           = ast*
-  Bind          = py:x ast:y      -> y
-                                  -> I("BIND")
-                                  -> I(x)
-  Star          = ast:x           -> label():a -> label():b
-                                  -> I("LIST_START")
-                                  -> LABEL(a #len(I))
-                                  -> I("BACKTRACK")
-                                  -> I(b)
-                                  -> x
-                                  -> I("LIST_APPEND")
-                                  -> I("COMMIT")
-                                  -> I(a)
-                                  -> LABEL(b #len(I))
-                                  -> I("LIST_END")
-  Not           = ast:x           -> label():a -> label():b
-                                  -> I("BACKTRACK")
-                                  -> I(b)
-                                  -> x
-                                  -> I("COMMIT")
-                                  -> I(a)
-                                  -> LABEL(a #len(I))
-                                  -> I("FAIL")
-                                  -> I("'no match expected'")
-                                  -> LABEL(b #len(I))
-  MatchCallRule =                 -> I("MATCH_CALL_RULE")
-  MatchRule     = py:x            -> I("CALL")
-                                  -> I(x)
-  MatchRange    = py:x py:y       -> I("MATCH_RANGE")
-                                  -> I(x)
-                                  -> I(y)
-  MatchAny      =                 -> I("MATCH_ANY")
-  MatchList     = ast:x           -> I("PUSH_STREAM")
-                                  -> x
-                                  -> I("POP_STREAM")
-  MatchObject   = py:x            -> I("MATCH_OBJECT")
-                                  -> I(x)
-  Action        = actionExpr:x    -> I("ACTION")
-                                  -> I({"lambda self: " x})
-  actionExpr    =
-    | py:x ast:y actionExpr:z     -> { "self.bind("
-                                       x ", " y ", lambda: " z ")" }
-    | .    ast
-  String        = py
-  List          = astList:x       -> { "concat([" x "])" }
-  ListItem      = py:x ast:y      -> { "splice(" x ", " y ")" }
-  Format        = astList:x       -> { "join([" x "])" }
-  Indent        = ast:x           -> { "indent(" x ", "
-                                       "self.lookup('indentprefix'))" }
-  Call          = ast:x astList:y -> { x "(" y ")" }
-  Native        = .
-  Lookup        = py:x            -> { "self.lookup(" x ")" }
-  asts          = ast*:xs !.      -> { xs }
-  ast           = [%:x]           -> x
-  astList       = ast*:xs         -> #join(xs ", ")
-  py            = .:x             -> #repr(x)
+  Scope         = ast:x       -> [["I" "PUSH_SCOPE"]
+                                  ~x
+                                  ["I" "POP_SCOPE"]]
+  And           = ast*:xs     -> [~~xs]
+  Bind          = .:x ast:y   -> [~y
+                                  ["I" "BIND"]
+                                  ["Expr" x]]
+  Star          = ast:x       -> label():a -> label():b
+                              -> [["I" "LIST_START"]
+                                  ["Label" a]
+                                  ["I" "BACKTRACK"]
+                                  ["Target" b]
+                                  ~x
+                                  ["I" "LIST_APPEND"]
+                                  ["I" "COMMIT"]
+                                  ["Target" a]
+                                  ["Label" b]
+                                  ["I" "LIST_END"]]
+  Not           = ast:x       -> label():a -> label():b
+                              -> [["I" "BACKTRACK"]
+                                  ["Target" b]
+                                  ~x
+                                  ["I" "COMMIT"]
+                                  ["Target" a]
+                                  ["Label" a]
+                                  ["I" "FAIL"]
+                                  ["Expr" "no match expected"]
+                                  ["Label" b]]
+  MatchCallRule =             -> [["I" "MATCH_CALL_RULE"]]
+  MatchRule     = .:x         -> [["I" "CALL"]
+                                  ["Target" x]]
+  MatchRange    = .:x .:y     -> [["I" "MATCH_RANGE"]
+                                  ["Expr" x]
+                                  ["Expr" y]]
+  MatchAny      =             -> [["I" "MATCH_ANY"]]
+  MatchList     = ast:x       -> [["I" "PUSH_STREAM"]
+                                  ~x
+                                  ["I" "POP_STREAM"]]
+  MatchObject   = .:x         -> [["I" "MATCH_OBJECT"]
+                                  ["Expr" x]]
+  Action        = .*:xs       -> [["I" "ACTION"]
+                                  ["Action" xs]]
+  asts          = ast*:xs !.  -> xs
+  ast           = [%:x]       -> x
 }

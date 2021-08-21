@@ -84,6 +84,9 @@ CHANGES:
 
     * Needed to get rid of duplicated call code.
 
+[x] Split code generator into code generator and python assembler. That makes
+    each phase more clear and allows for optimizations.
+
 TODO:
 
 [ ] Clean up PyVM grammars
@@ -99,8 +102,14 @@ TODO:
 
 [ ] Try to port to JS to see how flexible it is?
 
-[ ] Split code generator into code generator and python assembler. That makes
-    each phase more clear and allows for optimizations.
-
 [ ] Write VM as clean as possible in Python. Then write a separate optimized
     VM.
+
+[ ] Add DEBUG flag that outputs source between passes.
+
+[ ] Better AST for action expressions.
+
+[ ] Why not better error message when action wrong? Why index wrong?
+
+      Action        = .:xs
+      Action        = .*:xs
