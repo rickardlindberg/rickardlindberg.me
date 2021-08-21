@@ -113,3 +113,7 @@ TODO:
 
       Action        = .:xs
       Action        = .*:xs
+
+    [ ] Wrong pos is reported for "Not" instruction.
+
+[ ] Resolve labels in assembler.
