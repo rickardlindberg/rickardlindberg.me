@@ -103,11 +103,9 @@ TODO:
 [ ] Try to port to JS to see how flexible it is?
 
 [ ] Write VM as clean as possible in Python. Then write a separate optimized
-    VM.
+    VM?
 
 [ ] Add DEBUG flag that outputs source between passes.
-
-[ ] Better AST for action expressions.
 
 [ ] Why not better error message when action wrong? Why index wrong?
 
@@ -115,5 +113,8 @@ TODO:
       Action        = .*:xs
 
     [ ] Wrong pos is reported for "Not" instruction.
+
+    -   "Not" messes up latest_fail_pos in general. It should perhaps be
+        disabled during a "Not"?
 
 [ ] Resolve labels in assembler.
