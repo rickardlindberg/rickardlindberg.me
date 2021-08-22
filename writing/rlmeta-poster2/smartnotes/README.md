@@ -87,6 +87,8 @@ CHANGES:
 [x] Split code generator into code generator and python assembler. That makes
     each phase more clear and allows for optimizations.
 
+[x] Better AST for action expressions.
+
 TODO:
 
 [ ] Clean up PyVM grammars

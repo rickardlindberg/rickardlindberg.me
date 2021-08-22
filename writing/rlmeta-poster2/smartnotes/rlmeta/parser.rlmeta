@@ -29,11 +29,12 @@ Parser {
   matchChar =
     | innerChar:x                             -> ["MatchObject" x]
   maybeAction =
-    | actionExpr:x actionExpr*:xs             -> [["Action" ~x ~~xs]]
+    | actionExpr:x                            -> [["Action" x]]
     |                                         -> []
   actionExpr =
     | space '->' hostExpr:x
-      (space ':' name | -> ""):y              -> [y  x]
+      (space ':' name | -> ""):y actionExpr:z -> ["Set" y x z]
+    | space '->' hostExpr:x                   -> x
   hostExpr =
     | space string:x                          -> ["String" x]
     | space '[' hostListItem*:xs space ']'    -> ["List" ~xs]

@@ -54,8 +54,8 @@ CodeGenerator {
                                   ["I" "POP_STREAM"]]
   MatchObject   = .:x         -> [["I" "MATCH_OBJECT"]
                                   ["Expr" x]]
-  Action        = .*:xs       -> [["I" "ACTION"]
-                                  ["Action" xs]]
+  Action        = .:x         -> [["I" "ACTION"]
+                                  ["Action" x]]
   asts          = ast*:xs !.  -> xs
   ast           = [%:x]       -> x
 }
