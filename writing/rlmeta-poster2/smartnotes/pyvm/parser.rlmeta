@@ -1,16 +1,16 @@
 Parser {
-  file        = def*:xs !.                -> List():defs
-                                          -> List():instructions
-                                          -> Dict():macros
+  file        = def*:xs !.                -> list():defs
+                                          -> list():instructions
+                                          -> dict():macros
                                           -> xs
                                           -> [["VM" defs instructions macros]]
   def         = instruction | blankline | macro | vm
   vm          = 'def ' name:x
-                restline:y block:z        -> defs(["Def" x y ~z])
+                restline:y block:z        -> append(defs ["Def" x y ~z])
   instruction = 'definstruction ' name:x
-                args:y ':\n' block:z      -> instructions(["Instruction" x ~y ~z])
+                args:y ':\n' block:z      -> append(instructions ["Instruction" x ~y ~z])
   macro       = 'defmacro ' name:x
-                ':\n' block:y             -> macros(x y)
+                ':\n' block:y             -> set(macros x y)
   args        = '(' arg*:xs ')'           -> xs
   arg         = name:x (',' | -> "") ' '* -> ["Arg" x]
   block       = blockline*

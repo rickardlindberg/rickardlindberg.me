@@ -32,11 +32,14 @@ class Grammar(object):
         return Runtime(self, dict(runtime, **{
             "label": Counter(),
             "indentprefix": "    ",
-            "List": List,
-            "Dict": Dict,
-            "join": join,
+            "list": list,
+            "dict": dict,
+            "append": lambda x, y: x.append(y),
+            "get": lambda x, y: x[y],
+            "set": lambda x, y, z: x.__setitem__(y, z),
             "len": len,
             "repr": repr,
+            "join": join,
         })).run(rule, stream)
 
 class Runtime(dict):
@@ -60,19 +63,6 @@ class Counter(object):
         result = self.value
         self.value += 1
         return result
-
-class List(list):
-
-    def __call__(self, item):
-        self.append(item)
-
-class Dict(dict):
-
-    def __call__(self, *args):
-        if len(args) == 1:
-            return self[args[0]]
-        else:
-            self[args[0]] = args[1]
 
 def splice(depth, item):
     if depth == 0:

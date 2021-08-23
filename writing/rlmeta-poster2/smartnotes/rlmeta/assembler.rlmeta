@@ -1,17 +1,17 @@
 Assembler {
-  Grammar       = .:x ast*:ys      -> List():I -> Dict():LABEL -> ys
+  Grammar       = .:x ast*:ys      -> list():I -> dict():LABEL -> ys
                                    -> { "class " x "(Grammar):\n\n" >
                                           "labels = " repr(LABEL) "\n"
                                           "instructions = [\n" >
                                             join(I ",\n")
                                           < "\n]\n"
                                         < }
-  Rule          = .:x              -> LABEL(x len(I))
-  Target        = .:x              -> I(repr(x))
-  Label         = .:x              -> LABEL(x len(I))
-  I             = .:x              -> I(x)
-  Expr          = py:x             -> I(x)
-  Action        = ast:x            -> I({"lambda self: " x})
+  Rule          = .:x              -> set(LABEL x len(I))
+  Target        = .:x              -> append(I repr(x))
+  Label         = .:x              -> set(LABEL x len(I))
+  I             = .:x              -> append(I x)
+  Expr          = py:x             -> append(I x)
+  Action        = ast:x            -> append(I {"lambda self: " x})
   Set           = py:x ast:y ast:z -> { "self.bind("
                                         x ", " y ", lambda: " z ")" }
   String        = py
