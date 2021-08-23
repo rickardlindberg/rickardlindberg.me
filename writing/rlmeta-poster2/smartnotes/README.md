@@ -122,3 +122,5 @@ TODO:
 [ ] Resolve labels in assembler.
 
 [ ] Poster with intermediate versions shown.
+
+[ ] Review VM and see if clarity can be improved.
