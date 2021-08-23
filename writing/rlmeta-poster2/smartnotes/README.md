@@ -124,3 +124,9 @@ TODO:
 [ ] Poster with intermediate versions shown.
 
 [ ] Review VM and see if clarity can be improved.
+
+[ ] Rename ast to tree?
+
+[ ] Lists can be repeaded and xs refers to last match?
+
+    echo 'G{x=[.:xs]*}' | python rlmeta.py
