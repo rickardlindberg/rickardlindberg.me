@@ -1,14 +1,14 @@
 Assembler {
-  Grammar       = .:x ast*:ys      -> #List():I -> #Dict():LABEL -> ys
+  Grammar       = .:x ast*:ys      -> List():I -> Dict():LABEL -> ys
                                    -> { "class " x "(Grammar):\n\n" >
-                                          "labels = " #repr(LABEL) "\n"
+                                          "labels = " repr(LABEL) "\n"
                                           "instructions = [\n" >
-                                            #join(I ",\n")
+                                            join(I ",\n")
                                           < "\n]\n"
                                         < }
-  Rule          = .:x              -> LABEL(x #len(I))
-  Target        = .:x              -> I(#repr(x))
-  Label         = .:x              -> LABEL(x #len(I))
+  Rule          = .:x              -> LABEL(x len(I))
+  Target        = .:x              -> I(repr(x))
+  Label         = .:x              -> LABEL(x len(I))
   I             = .:x              -> I(x)
   Expr          = py:x             -> I(x)
   Action        = ast:x            -> I({"lambda self: " x})
@@ -21,10 +21,9 @@ Assembler {
   Indent        = ast:x            -> { "indent(" x ", "
                                         "self.lookup('indentprefix'))" }
   Call          = ast:x astList:y  -> { x "(" y ")" }
-  Native        = .
   Lookup        = py:x             -> { "self.lookup(" x ")" }
   asts          = ast*:xs !.       -> { xs }
-  astList       = ast*:xs          -> #join(xs ", ")
+  astList       = ast*:xs          -> join(xs ", ")
   ast           = [%:x]            -> x
-  py            = .:x              -> #repr(x)
+  py            = .:x              -> repr(x)
 }

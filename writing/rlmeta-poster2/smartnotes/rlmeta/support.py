@@ -28,11 +28,16 @@ class MatchError(Exception):
 
 class Grammar(object):
 
-    def run(self, rule, stream):
-        return Runtime(self, {
+    def run(self, rule, stream, runtime={}):
+        return Runtime(self, dict(runtime, **{
             "label": Counter(),
             "indentprefix": "    ",
-        }).run(rule, stream)
+            "List": List,
+            "Dict": Dict,
+            "join": join,
+            "len": len,
+            "repr": repr,
+        })).run(rule, stream)
 
 class Runtime(dict):
 

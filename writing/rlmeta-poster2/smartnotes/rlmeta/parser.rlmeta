@@ -42,12 +42,11 @@ Parser {
     | var:x space '(' hostExpr*:ys space ')'  -> ["Call" x ~ys]
     | var:x
   hostListItem =
-    | space '~'*:ys hostExpr:x                -> ["ListItem" #len(ys) x]
+    | space '~'*:ys hostExpr:x                -> ["ListItem" len(ys) x]
   formatExpr =
     | space '>' formatExpr*:xs space '<'      -> ["Indent" ["Format" ~xs]]
     | hostExpr
   var =
-    | space '#' name:x                        -> ["Native" x]
     | name:x !(space '=')                     -> ["Lookup" x]
   string    = '"'  (!'"'  innerChar)*:xs '"'  -> { xs }
   char      = '\''  !'\'' innerChar  :x  '\'' -> x

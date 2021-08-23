@@ -1,5 +1,5 @@
 CodeGenerator {
-  VM           = [ast:x] instructions:y .:z -> z:macros -> #List():enum -> {
+  VM           = [ast:x] instructions:y .:z -> z:macros -> List():enum -> {
                    enum
                    x >
                      "while True:\n" >
@@ -13,7 +13,7 @@ CodeGenerator {
                    <
                  }
   Def          = .:name .:rest asts:x  -> { "def " name rest > x < }
-  Instruction  = .:name asts:y         -> enum({name " = " #len(enum) "\n"})
+  Instruction  = .:name asts:y         -> enum({name " = " len(enum) "\n"})
                                        -> { "name == " name ":\n" >
                                               y
                                               "continue\n"

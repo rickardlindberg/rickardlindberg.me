@@ -89,13 +89,13 @@ CHANGES:
 
 [x] Better AST for action expressions.
 
+[x] Can "native" calls be removed by adding binding in runtime?
+
 TODO:
 
 [ ] Clean up PyVM grammars
 
 [ ] Can support library (and new Runtime) become smaller?
-
-[ ] Can "native" calls be removed by adding binding in runtime?
 
 [ ] Should memo be removed since it is an optimization?
 

@@ -1,7 +1,7 @@
 Parser {
-  file        = def*:xs !.                -> #List():defs
-                                          -> #List():instructions
-                                          -> #Dict():macros
+  file        = def*:xs !.                -> List():defs
+                                          -> List():instructions
+                                          -> Dict():macros
                                           -> xs
                                           -> [["VM" defs instructions macros]]
   def         = instruction | blankline | macro | vm
