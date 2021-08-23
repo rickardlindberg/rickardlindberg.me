@@ -120,3 +120,5 @@ TODO:
         disabled during a "Not"?
 
 [ ] Resolve labels in assembler.
+
+[ ] Poster with intermediate versions shown.
