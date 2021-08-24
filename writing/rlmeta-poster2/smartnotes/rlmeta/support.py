@@ -52,7 +52,7 @@ class Runtime(dict):
         return Runtime(self.grammar, dict(self, **{key: value}))
 
     def run(self, rule, stream):
-        return vm(self.grammar.instructions, self.grammar.labels, rule, stream).eval(self)
+        return vm(self.grammar.code, self.grammar.rules, rule, stream).eval(self)
 
 class Counter(object):
 

@@ -1,6 +1,6 @@
-def vm(instructions, labels, start_rule, stream):
+def vm(code, rules, start_rule, stream):
     action = SemanticAction(None)
-    pc = labels[start_rule]
+    pc = rules[start_rule]
     call_backtrack_stack = []
     stream, pos, stream_pos_stack = (stream, 0, [])
     scope, scope_stack = (None, [])
@@ -12,13 +12,12 @@ definstruction PUSH_SCOPE():
     scope_stack.append(scope)
     scope = {}
 
-definstruction BACKTRACK(arg_label):
+definstruction BACKTRACK(arg_pc):
     call_backtrack_stack.append((
-        labels[arg_label], pos, len(stream_pos_stack), len(scope_stack)
+        arg_pc, pos, len(stream_pos_stack), len(scope_stack)
     ))
 
-definstruction CALL(arg_fn_name):
-    arg_fn_pc = labels[arg_fn_name]
+definstruction CALL(arg_fn_pc):
     #CALL
 
 definstruction POP_SCOPE():
@@ -32,9 +31,9 @@ definstruction MATCH_OBJECT(arg_object):
         action = SemanticAction(arg_object)
         pos += 1
 
-definstruction COMMIT(arg_label):
+definstruction COMMIT(arg_pc):
     call_backtrack_stack.pop()
-    pc = labels[arg_label]
+    pc = arg_pc
 
 definstruction RETURN():
     if len(call_backtrack_stack) == 0:
@@ -97,7 +96,7 @@ definstruction MATCH_CALL_RULE():
         fail_message = ("expected any",)
         #FAIL
     else:
-        arg_fn_pc = labels[str(stream[pos])]
+        arg_fn_pc = rules[str(stream[pos])]
         pos += 1
         #CALL
 

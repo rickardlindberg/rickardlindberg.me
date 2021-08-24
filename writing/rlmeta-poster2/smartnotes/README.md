@@ -91,6 +91,8 @@ CHANGES:
 
 [x] Can "native" calls be removed by adding binding in runtime?
 
+[x] Resolve labels in assembler.
+
 TODO:
 
 [ ] Clean up PyVM grammars
@@ -119,8 +121,6 @@ TODO:
     -   "Not" messes up latest_fail_pos in general. It should perhaps be
         disabled during a "Not"?
 
-[ ] Resolve labels in assembler.
-
 [ ] Poster with intermediate versions shown.
 
 [ ] Review VM and see if clarity can be improved.
@@ -130,3 +130,5 @@ TODO:
 [ ] Lists can be repeaded and xs refers to last match?
 
     echo 'G{x=[.:xs]*}' | python rlmeta.py
+
+[ ] Lookup concat/splice/join/indent?

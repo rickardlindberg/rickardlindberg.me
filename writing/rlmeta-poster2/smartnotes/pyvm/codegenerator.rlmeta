@@ -3,24 +3,24 @@ CodeGenerator {
                    enum
                    x >
                      "while True:\n" >
-                       "name = instructions[pc]\n"
+                       "opcode = code[pc]\n"
                        "pc += 1\n"
                        y
                        "else:\n" >
-                         "raise Exception(\"unknown instruction {}\".format(name))\n"
+                         "raise Exception(\"unknown opcode {}\".format(opcode))\n"
                        <
                      <
                    <
                  }
   Def          = .:name .:rest asts:x  -> { "def " name rest > x < }
   Instruction  = .:name asts:y         -> append(enum {name " = " len(enum) "\n"})
-                                       -> { "name == " name ":\n" >
+                                       -> { "opcode == " name ":\n" >
                                               y
                                               "continue\n"
                                             < }
   Line         = .:line
   Macro        = .:name .:indentprefix -> { > run("asts" get(macros name)) < }
-  Arg          = .:name                -> { name " = instructions[pc]\n"
+  Arg          = .:name                -> { name " = code[pc]\n"
                                             "pc += 1\n" }
   asts         = ast*:xs !.            -> { xs }
   ast          = [%:x]                 -> x
