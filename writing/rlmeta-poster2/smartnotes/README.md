@@ -104,10 +104,14 @@ TODO:
 [ ] Compilation was further complicated now when VM has to be generated and a
     combined support library created.
 
-[ ] Try to port to JS to see how flexible it is?
+    [ ] Write VM as clean as possible in Python. Then write a separate
+        optimized VM?
 
-[ ] Write VM as clean as possible in Python. Then write a separate optimized
-    VM?
+    [ ] Review VM and see if clarity can be improved.
+
+        [ ] Can it be written with less optimizations in mind?
+
+[ ] Try to port to JS to see how flexible it is?
 
 [ ] Add DEBUG flag that outputs source between passes.
 
@@ -123,11 +127,9 @@ TODO:
 
 [ ] Poster with intermediate versions shown.
 
-[ ] Review VM and see if clarity can be improved.
-
 [ ] Rename ast to tree?
 
-[ ] Lists can be repeaded and xs refers to last match?
+[ ] Lists can be repeated and xs refers to last match?
 
     echo 'G{x=[.:xs]*}' | python rlmeta.py
 
