@@ -113,6 +113,10 @@ TODO:
 
         [ ] Can it be written with less optimizations in mind?
 
+    [ ] Can fail_pos be handled better?
+
+    [ ] MatchError probably has wrong stream if error occurs deep down
+
 [ ] Try to port to JS to see how flexible it is?
 
 [ ] Add DEBUG flag that outputs source between passes.
