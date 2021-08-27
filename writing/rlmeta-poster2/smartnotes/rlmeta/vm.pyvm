@@ -2,7 +2,7 @@ def vm(code, rules, start_rule, stream):
     action = SemanticAction(None)
     pc = rules[start_rule]
     call_backtrack_stack = []
-    stream, stream_rest = (stream, tuple())
+    stream, stream_rest = (stream, None)
     pos, pos_rest = (0, tuple())
     scope, scope_rest = (None, None)
     fail_message = None
@@ -80,7 +80,7 @@ definstruction PUSH_STREAM():
         fail_message = ("expected list",)
         #FAIL
     else:
-        stream_rest = stream_rest + (stream,)
+        stream_rest = (stream, stream_rest)
         pos_rest = pos_rest + (pos,)
         stream = stream[pos]
         pos = 0
@@ -90,7 +90,7 @@ definstruction POP_STREAM():
         fail_message = ("expected end of list",)
         #FAIL
     else:
-        stream, stream_rest = stream_rest[-1], stream_rest[:-1]
+        stream, stream_rest = stream_rest
         pos, pos_rest = pos_rest[-1], pos_rest[:-1]
         pos += 1
 
