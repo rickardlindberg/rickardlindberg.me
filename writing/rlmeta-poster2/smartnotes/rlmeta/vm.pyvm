@@ -2,26 +2,27 @@ def vm(code, rules, start_rule, stream):
     action = SemanticAction(None)
     pc = rules[start_rule]
     call_backtrack_stack = []
-    stream, pos, stream_pos_stack = (stream, 0, [])
-    scope, scope_stack = (None, [])
+    stream, stream_rest = (stream, tuple())
+    pos, pos_rest = (0, tuple())
+    scope, scope_rest = (None, None)
     fail_message = None
     latest_fail_message, latest_fail_pos = (None, tuple())
     memo = {}
 
 definstruction PUSH_SCOPE():
-    scope_stack.append(scope)
+    scope_rest = (scope, scope_rest)
     scope = {}
 
 definstruction BACKTRACK(arg_pc):
     call_backtrack_stack.append((
-        arg_pc, pos, len(stream_pos_stack), len(scope_stack)
+        arg_pc, stream, stream_rest, pos, pos_rest, scope, scope_rest
     ))
 
 definstruction CALL(arg_fn_pc):
     #CALL
 
 definstruction POP_SCOPE():
-    scope = scope_stack.pop()
+    scope, scope_rest = scope_rest
 
 definstruction MATCH_OBJECT(arg_object):
     if pos >= len(stream) or stream[pos] != arg_object:
@@ -36,10 +37,10 @@ definstruction COMMIT(arg_pc):
     pc = arg_pc
 
 definstruction RETURN():
-    if len(call_backtrack_stack) == 0:
+    if not call_backtrack_stack:
         return action
     pc, key = call_backtrack_stack.pop()
-    memo[key] = (action, stream_pos_stack+[(stream, pos)])
+    memo[key] = (action, stream, stream_rest, pos, pos_rest)
 
 definstruction LIST_APPEND():
     scope.append(action)
@@ -59,12 +60,12 @@ definstruction MATCH_RANGE(arg_start, arg_end):
         pos += 1
 
 definstruction LIST_START():
-    scope_stack.append(scope)
+    scope_rest = (scope, scope_rest)
     scope = []
 
 definstruction LIST_END():
     action = SemanticAction(scope, lambda self: [x.eval(self.runtime) for x in self.value])
-    scope = scope_stack.pop()
+    scope, scope_rest = scope_rest
 
 definstruction MATCH_ANY():
     if pos >= len(stream):
@@ -79,7 +80,8 @@ definstruction PUSH_STREAM():
         fail_message = ("expected list",)
         #FAIL
     else:
-        stream_pos_stack.append((stream, pos))
+        stream_rest = stream_rest + (stream,)
+        pos_rest = pos_rest + (pos,)
         stream = stream[pos]
         pos = 0
 
@@ -88,7 +90,8 @@ definstruction POP_STREAM():
         fail_message = ("expected end of list",)
         #FAIL
     else:
-        stream, pos = stream_pos_stack.pop()
+        stream, stream_rest = stream_rest[-1], stream_rest[:-1]
+        pos, pos_rest = pos_rest[-1], pos_rest[:-1]
         pos += 1
 
 definstruction MATCH_CALL_RULE():
@@ -105,42 +108,34 @@ definstruction FAIL(arg_message):
     #FAIL
 
 defmacro CALL:
-    key = (arg_fn_pc, tuple([x[1] for x in stream_pos_stack]+[pos]))
+    key = (arg_fn_pc, pos_rest+(pos,))
     if key in memo:
         if memo[key][0] is None:
             fail_message = memo[key][1]
             #FAIL
         else:
-            action, stream_pos_stack = memo[key]
-            stream_pos_stack = stream_pos_stack[:]
-            stream, pos = stream_pos_stack.pop()
+            action, stream, stream_rest, pos, pos_rest = memo[key]
     else:
         call_backtrack_stack.append((pc, key))
         pc = arg_fn_pc
 
 defmacro FAIL:
-    fail_pos = tuple([x[1] for x in stream_pos_stack]+[pos])
+    fail_pos = pos_rest+(pos,)
     if fail_pos >= latest_fail_pos:
         latest_fail_message = fail_message
         latest_fail_pos = fail_pos
     call_backtrack_entry = tuple()
     while call_backtrack_stack:
         call_backtrack_entry = call_backtrack_stack.pop()
-        if len(call_backtrack_entry) == 4:
+        if len(call_backtrack_entry) == 7:
             break
         else:
             _, key = call_backtrack_entry
             memo[key] = (None, fail_message)
-    if len(call_backtrack_entry) != 4:
+    if len(call_backtrack_entry) != 7:
         raise MatchError(
             latest_fail_message[0].format(*latest_fail_message[1:]),
             latest_fail_pos,
-            stream_pos_stack[0][0] if stream_pos_stack else stream
+            stream_rest[0] if stream_rest else stream
         )
-    (pc, pos, stream_stack_len, scope_stack_len) = call_backtrack_entry
-    if len(stream_pos_stack) > stream_stack_len:
-        stream = stream_pos_stack[stream_stack_len][0]
-    stream_pos_stack = stream_pos_stack[:stream_stack_len]
-    if len(scope_stack) > scope_stack_len:
-        scope = scope_stack[scope_stack_len]
-    scope_stack = scope_stack[:scope_stack_len]
+    (pc, stream, stream_rest, pos, pos_rest, scope, scope_rest) = call_backtrack_entry
