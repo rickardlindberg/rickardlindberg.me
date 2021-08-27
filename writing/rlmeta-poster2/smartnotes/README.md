@@ -95,14 +95,16 @@ CHANGES:
 
 TODO:
 
-[ ] Clean up PyVM grammars
-
 [ ] Can support library (and new Runtime) become smaller?
 
 [ ] Should memo be removed since it is an optimization?
 
-[ ] Compilation was further complicated now when VM has to be generated and a
-    combined support library created.
+[ ] VM
+
+    [ ] Clean up PyVM grammars
+
+    [ ] Compilation was further complicated now when VM has to be generated and
+        a combined support library created.
 
     [ ] Write VM as clean as possible in Python. Then write a separate
         optimized VM?
