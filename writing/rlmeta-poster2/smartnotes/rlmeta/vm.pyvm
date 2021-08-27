@@ -130,8 +130,7 @@ defmacro FAIL:
         if len(call_backtrack_entry) == 7:
             break
         else:
-            _, key = call_backtrack_entry
-            memo[key] = (None, fail_message)
+            memo[call_backtrack_entry[1]] = (None, fail_message)
     if len(call_backtrack_entry) != 7:
         raise MatchError(
             latest_fail_message[0].format(*latest_fail_message[1:]),
