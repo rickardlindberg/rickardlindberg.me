@@ -135,7 +135,7 @@ defmacro FAIL:
     if len(call_backtrack_entry) != 7:
         raise MatchError(
             latest_fail_message[0].format(*latest_fail_message[1:]),
-            latest_fail_pos,
-            stream_rest[0] if stream_rest else stream
+            latest_fail_pos[-1],
+            stream
         )
     (pc, stream, stream_rest, pos, pos_rest, scope, scope_rest) = call_backtrack_entry

@@ -89,18 +89,14 @@ def compile_chain(grammars, source):
         try:
             source = grammar().run(rule, source)
         except MatchError as e:
-            stream = e.stream
-            for pos in e.pos[:-1]:
-                stream = stream[pos]
-            pos = e.pos[-1]
             MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
-            if isinstance(stream, str):
-                stream_string = stream[:pos] + MARKER + stream[pos:]
+            if isinstance(e.stream, str):
+                stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]
             else:
-                stream_string = pprint.pformat(stream)
+                stream_string = pprint.pformat(e.stream)
             sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
                 e.message,
-                pos,
+                e.pos,
                 indent(stream_string)
             ))
     return source
