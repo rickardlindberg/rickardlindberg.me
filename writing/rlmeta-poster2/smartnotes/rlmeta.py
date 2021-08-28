@@ -1,4 +1,4 @@
-SUPPORT = 'class VM:\n\n    def __init__(self, code, rules):\n        self.code = code\n        self.rules = rules\n\n    def run(self, start_rule, stream):\n        self.action = SemanticAction(None)\n        self.pc = self.rules[start_rule]\n        self.call_backtrack_stack = []\n        self.stream, self.stream_rest = (stream, None)\n        self.pos, self.pos_rest = (0, tuple())\n        self.scope, self.scope_rest = (None, None)\n        self.fail_message = None\n        self.latest_fail_message, self.latest_fail_pos = (None, tuple())\n        self.memo = {}\n        while True:\n            result = self.pop_code()(self)\n            if result:\n                return result\n\n    def pop_code(self):\n        code = self.code[self.pc]\n        self.pc += 1\n        return code\n\ndef PUSH_SCOPE(vm):\n    vm.scope_rest = (vm.scope, vm.scope_rest)\n    vm.scope = {}\n\ndef POP_SCOPE(vm):\n    vm.scope, vm.scope_rest = vm.scope_rest\n\ndef BACKTRACK(vm):\n    vm.call_backtrack_stack.append((\n        vm.pop_code(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest\n    ))\n\ndef COMMIT(vm):\n    vm.call_backtrack_stack.pop()\n    vm.pc = vm.pop_code()\n\ndef CALL(vm):\n    CALL_(vm, vm.pop_code())\n\ndef MATCH_CALL_RULE(vm):\n    if vm.pos >= len(vm.stream):\n        vm.fail_message = ("expected any",)\n        FAIL(vm)\n    else:\n        x = str(vm.stream[vm.pos])\n        vm.pos += 1\n        CALL_(vm, vm.rules[x])\n\ndef CALL_(vm, pc):\n    key = (pc, vm.pos_rest+(vm.pos,))\n    if key in vm.memo:\n        if vm.memo[key][0] is None:\n            vm.fail_message = vm.memo[key][1]\n            FAIL(vm)\n        else:\n            vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest = vm.memo[key]\n    else:\n        vm.call_backtrack_stack.append((vm.pc, key))\n        vm.pc = pc\n\ndef MATCH_OBJECT(vm):\n    arg_object = vm.pop_code()\n    if vm.pos >= len(vm.stream) or vm.stream[vm.pos] != arg_object:\n        vm.fail_message = ("expected {!r}", arg_object)\n        FAIL(vm)\n    else:\n        vm.action = SemanticAction(arg_object)\n        vm.pos += 1\n\ndef RETURN(vm):\n    if not vm.call_backtrack_stack:\n        return vm.action\n    vm.pc, key = vm.call_backtrack_stack.pop()\n    vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)\n\ndef LIST_APPEND(vm):\n    vm.scope.append(vm.action)\n\ndef BIND(vm):\n    vm.scope[vm.pop_code()] = vm.action\n\ndef ACTION(vm):\n    vm.action = SemanticAction(vm.scope, vm.pop_code())\n\ndef MATCH_RANGE(vm):\n    arg_start = vm.pop_code()\n    arg_end = vm.pop_code()\n    if vm.pos >= len(vm.stream) or not (arg_start <= vm.stream[vm.pos] <= arg_end):\n        vm.fail_message = ("expected range {!r}-{!r}", arg_start, arg_end)\n        FAIL(vm)\n    else:\n        vm.action = SemanticAction(vm.stream[vm.pos])\n        vm.pos += 1\n\ndef LIST_START(vm):\n    vm.scope_rest = (vm.scope, vm.scope_rest)\n    vm.scope = []\n\ndef LIST_END(vm):\n    vm.action = SemanticAction(vm.scope, lambda self: [x.eval(self.runtime) for x in self.value])\n    vm.scope, vm.scope_rest = vm.scope_rest\n\ndef MATCH_ANY(vm):\n    if vm.pos >= len(vm.stream):\n        vm.fail_message = ("expected any",)\n        FAIL(vm)\n    else:\n        vm.action = SemanticAction(vm.stream[vm.pos])\n        vm.pos += 1\n\ndef PUSH_STREAM(vm):\n    if vm.pos >= len(vm.stream) or not isinstance(vm.stream[vm.pos], list):\n        vm.fail_message = ("expected list",)\n        FAIL(vm)\n    else:\n        vm.stream_rest = (vm.stream, vm.stream_rest)\n        vm.pos_rest = vm.pos_rest + (vm.pos,)\n        vm.stream = vm.stream[vm.pos]\n        vm.pos = 0\n\ndef POP_STREAM(vm):\n    if vm.pos < len(vm.stream):\n        vm.fail_message = ("expected end of list",)\n        FAIL(vm)\n    else:\n        vm.stream, vm.stream_rest = vm.stream_rest\n        vm.pos, vm.pos_rest = vm.pos_rest[-1], vm.pos_rest[:-1]\n        vm.pos += 1\n\ndef FAIL(vm):\n    vm.fail_message = (vm.pop_code(),)\n    FAIL(vm)\n\ndef FAIL(vm):\n    fail_pos = vm.pos_rest+(vm.pos,)\n    if fail_pos >= vm.latest_fail_pos:\n        vm.latest_fail_message = vm.fail_message\n        vm.latest_fail_pos = fail_pos\n    call_backtrack_entry = tuple()\n    while vm.call_backtrack_stack:\n        call_backtrack_entry = vm.call_backtrack_stack.pop()\n        if len(call_backtrack_entry) == 7:\n            break\n        else:\n            vm.memo[call_backtrack_entry[1]] = (None, vm.fail_message)\n    if len(call_backtrack_entry) != 7:\n        raise MatchError(\n            vm.latest_fail_message[0].format(*vm.latest_fail_message[1:]),\n            vm.latest_fail_pos[-1],\n            vm.stream\n        )\n    (vm.pc, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest) = call_backtrack_entry\n\nclass SemanticAction(object):\n\n    def __init__(self, value, fn=lambda self: self.value):\n        self.value = value\n        self.fn = fn\n\n    def eval(self, runtime):\n        self.runtime = runtime\n        return self.fn(self)\n\n    def bind(self, name, value, continuation):\n        self.runtime = self.runtime.set(name, value)\n        return continuation()\n\n    def lookup(self, name):\n        if name in self.value:\n            return self.value[name].eval(self.runtime)\n        else:\n            return self.runtime[name]\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def run(self, rule, stream, runtime={}):\n        return Runtime(self, dict(runtime, **{\n            "label": Counter(),\n            "indentprefix": "    ",\n            "list": list,\n            "dict": dict,\n            "append": lambda x, y: x.append(y),\n            "get": lambda x, y: x[y],\n            "set": lambda x, y, z: x.__setitem__(y, z),\n            "len": len,\n            "repr": repr,\n            "join": join,\n        })).run(rule, stream)\n\nclass Runtime(dict):\n\n    def __init__(self, grammar, values):\n        dict.__init__(self, dict(values, run=self.run))\n        self.grammar = grammar\n\n    def set(self, key, value):\n        return Runtime(self.grammar, dict(self, **{key: value}))\n\n    def run(self, rule, stream):\n        return VM(self.grammar.code, self.grammar.rules).run(rule, stream).eval(self)\n        return vm(self.grammar.code, self.grammar.rules, rule, stream).eval(self)\n\nclass Counter(object):\n\n    def __init__(self):\n        self.value = 0\n\n    def __call__(self):\n        result = self.value\n        self.value += 1\n        return result\n\ndef splice(depth, item):\n    if depth == 0:\n        return [item]\n    else:\n        return concat([splice(depth-1, subitem) for subitem in item])\n\ndef concat(lists):\n    return [x for xs in lists for x in xs]\n\ndef join(items, delimiter=""):\n    return delimiter.join(\n        join(item, delimiter) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text, prefix="    "):\n    return "".join(prefix+line for line in text.splitlines(True))\n\ndef compile_chain(grammars, source):\n    import sys\n    import pprint\n    for grammar, rule in grammars:\n        try:\n            source = grammar().run(rule, source)\n        except MatchError as e:\n            MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"\n            if isinstance(e.stream, str):\n                stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]\n            else:\n                stream_string = pprint.pformat(e.stream)\n            sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(\n                e.message,\n                e.pos,\n                indent(stream_string)\n            ))\n    return source\n'
+SUPPORT = 'class VM:\n\n    def __init__(self, code, rules):\n        self.code = code\n        self.rules = rules\n\n    def run(self, start_rule, stream):\n        self.action = SemanticAction(None)\n        self.pc = self.rules[start_rule]\n        self.call_backtrack_stack = []\n        self.stream, self.stream_rest = (stream, None)\n        self.pos, self.pos_rest = (0, tuple())\n        self.scope, self.scope_rest = (None, None)\n        self.latest_fail_message, self.latest_fail_pos = (None, tuple())\n        self.memo = {}\n        while True:\n            result = self.pop_arg()(self)\n            if result:\n                return result\n\n    def pop_arg(self):\n        code = self.code[self.pc]\n        self.pc += 1\n        return code\n\ndef PUSH_SCOPE(vm):\n    vm.scope_rest = (vm.scope, vm.scope_rest)\n    vm.scope = {}\n\ndef POP_SCOPE(vm):\n    vm.scope, vm.scope_rest = vm.scope_rest\n\ndef BACKTRACK(vm):\n    vm.call_backtrack_stack.append((\n        vm.pop_arg(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest\n    ))\n\ndef COMMIT(vm):\n    vm.call_backtrack_stack.pop()\n    vm.pc = vm.pop_arg()\n\ndef CALL(vm):\n    CALL_(vm, vm.pop_arg())\n\ndef MATCH_CALL_RULE(vm):\n    CALL_(vm, vm.rules[MATCH_(vm, lambda x: True, ("expected any",))])\n\ndef CALL_(vm, pc):\n    key = (pc, vm.pos_rest+(vm.pos,))\n    if key in vm.memo:\n        if vm.memo[key][0] is None:\n            FAIL_(vm, vm.memo[key][1])\n        else:\n            vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest = vm.memo[key]\n    else:\n        vm.call_backtrack_stack.append((vm.pc, key))\n        vm.pc = pc\n\ndef RETURN(vm):\n    if not vm.call_backtrack_stack:\n        return vm.action\n    vm.pc, key = vm.call_backtrack_stack.pop()\n    vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)\n\ndef MATCH_ANY(vm):\n    MATCH_(vm, lambda x: True, ("expected any",))\n\ndef MATCH_OBJECT(vm):\n    arg_object = vm.pop_arg()\n    MATCH_(vm, lambda x: x == arg_object, ("expected {!r}", arg_object))\n\ndef MATCH_RANGE(vm):\n    arg_start = vm.pop_arg()\n    arg_end = vm.pop_arg()\n    MATCH_(vm, lambda x: arg_start <= x <= arg_end, ("expected range {!r}-{!r}", arg_start, arg_end))\n\ndef MATCH_(vm, fn, message):\n    if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):\n        FAIL_(vm, message)\n    else:\n        match = vm.stream[vm.pos]\n        vm.action = SemanticAction(match)\n        vm.pos += 1\n        return match\n\ndef LIST_START(vm):\n    vm.scope_rest = (vm.scope, vm.scope_rest)\n    vm.scope = []\n\ndef LIST_APPEND(vm):\n    vm.scope.append(vm.action)\n\ndef LIST_END(vm):\n    vm.action = SemanticAction(vm.scope, lambda self: [x.eval(self.runtime) for x in self.value])\n    vm.scope, vm.scope_rest = vm.scope_rest\n\ndef BIND(vm):\n    vm.scope[vm.pop_arg()] = vm.action\n\ndef ACTION(vm):\n    vm.action = SemanticAction(vm.scope, vm.pop_arg())\n\ndef PUSH_STREAM(vm):\n    if vm.pos >= len(vm.stream) or not isinstance(vm.stream[vm.pos], list):\n        FAIL_(vm, ("expected list",))\n    else:\n        vm.stream_rest = (vm.stream, vm.stream_rest)\n        vm.pos_rest = vm.pos_rest + (vm.pos,)\n        vm.stream = vm.stream[vm.pos]\n        vm.pos = 0\n\ndef POP_STREAM(vm):\n    if vm.pos < len(vm.stream):\n        FAIL_(vm, ("expected end of list",))\n    else:\n        vm.stream, vm.stream_rest = vm.stream_rest\n        vm.pos, vm.pos_rest = vm.pos_rest[-1], vm.pos_rest[:-1]\n        vm.pos += 1\n\ndef FAIL(vm):\n    FAIL_(vm, (vm.pop_arg(),))\n\ndef FAIL_(vm, fail_message):\n    fail_pos = vm.pos_rest+(vm.pos,)\n    if fail_pos >= vm.latest_fail_pos:\n        vm.latest_fail_message = fail_message\n        vm.latest_fail_pos = fail_pos\n    call_backtrack_entry = tuple()\n    while vm.call_backtrack_stack:\n        call_backtrack_entry = vm.call_backtrack_stack.pop()\n        if len(call_backtrack_entry) == 7:\n            break\n        else:\n            vm.memo[call_backtrack_entry[1]] = (None, fail_message)\n    if len(call_backtrack_entry) != 7:\n        raise MatchError(\n            vm.latest_fail_message[0].format(*vm.latest_fail_message[1:]),\n            vm.latest_fail_pos[-1],\n            vm.stream\n        )\n    (vm.pc, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest) = call_backtrack_entry\n\nclass SemanticAction(object):\n\n    def __init__(self, value, fn=lambda self: self.value):\n        self.value = value\n        self.fn = fn\n\n    def eval(self, runtime):\n        self.runtime = runtime\n        return self.fn(self)\n\n    def bind(self, name, value, continuation):\n        self.runtime = self.runtime.set(name, value)\n        return continuation()\n\n    def lookup(self, name):\n        if name in self.value:\n            return self.value[name].eval(self.runtime)\n        else:\n            return self.runtime[name]\n\nclass MatchError(Exception):\n\n    def __init__(self, message, pos, stream):\n        Exception.__init__(self)\n        self.message = message\n        self.pos = pos\n        self.stream = stream\n\nclass Grammar(object):\n\n    def run(self, rule, stream, runtime={}):\n        return Runtime(self, dict(runtime, **{\n            "label": Counter(),\n            "indentprefix": "    ",\n            "list": list,\n            "dict": dict,\n            "append": lambda x, y: x.append(y),\n            "get": lambda x, y: x[y],\n            "set": lambda x, y, z: x.__setitem__(y, z),\n            "len": len,\n            "repr": repr,\n            "join": join,\n        })).run(rule, stream)\n\nclass Runtime(dict):\n\n    def __init__(self, grammar, values):\n        dict.__init__(self, dict(values, run=self.run))\n        self.grammar = grammar\n\n    def set(self, key, value):\n        return Runtime(self.grammar, dict(self, **{key: value}))\n\n    def run(self, rule, stream):\n        return VM(self.grammar.code, self.grammar.rules).run(rule, stream).eval(self)\n\nclass Counter(object):\n\n    def __init__(self):\n        self.value = 0\n\n    def __call__(self):\n        result = self.value\n        self.value += 1\n        return result\n\ndef splice(depth, item):\n    if depth == 0:\n        return [item]\n    else:\n        return concat([splice(depth-1, subitem) for subitem in item])\n\ndef concat(lists):\n    return [x for xs in lists for x in xs]\n\ndef join(items, delimiter=""):\n    return delimiter.join(\n        join(item, delimiter) if isinstance(item, list) else str(item)\n        for item in items\n    )\n\ndef indent(text, prefix="    "):\n    return "".join(prefix+line for line in text.splitlines(True))\n\ndef compile_chain(grammars, source):\n    import sys\n    import pprint\n    for grammar, rule in grammars:\n        try:\n            source = grammar().run(rule, source)\n        except MatchError as e:\n            MARKER = "\\033[0;31m<ERROR POSITION>\\033[0m"\n            if isinstance(e.stream, str):\n                stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]\n            else:\n                stream_string = pprint.pformat(e.stream)\n            sys.exit("ERROR: {}\\nPOSITION: {}\\nSTREAM:\\n{}".format(\n                e.message,\n                e.pos,\n                indent(stream_string)\n            ))\n    return source\n'
 class VM:
 
     def __init__(self, code, rules):
@@ -12,15 +12,14 @@ class VM:
         self.stream, self.stream_rest = (stream, None)
         self.pos, self.pos_rest = (0, tuple())
         self.scope, self.scope_rest = (None, None)
-        self.fail_message = None
         self.latest_fail_message, self.latest_fail_pos = (None, tuple())
         self.memo = {}
         while True:
-            result = self.pop_code()(self)
+            result = self.pop_arg()(self)
             if result:
                 return result
 
-    def pop_code(self):
+    def pop_arg(self):
         code = self.code[self.pc]
         self.pc += 1
         return code
@@ -34,45 +33,29 @@ def POP_SCOPE(vm):
 
 def BACKTRACK(vm):
     vm.call_backtrack_stack.append((
-        vm.pop_code(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest
+        vm.pop_arg(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest
     ))
 
 def COMMIT(vm):
     vm.call_backtrack_stack.pop()
-    vm.pc = vm.pop_code()
+    vm.pc = vm.pop_arg()
 
 def CALL(vm):
-    CALL_(vm, vm.pop_code())
+    CALL_(vm, vm.pop_arg())
 
 def MATCH_CALL_RULE(vm):
-    if vm.pos >= len(vm.stream):
-        vm.fail_message = ("expected any",)
-        FAIL(vm)
-    else:
-        x = str(vm.stream[vm.pos])
-        vm.pos += 1
-        CALL_(vm, vm.rules[x])
+    CALL_(vm, vm.rules[MATCH_(vm, lambda x: True, ("expected any",))])
 
 def CALL_(vm, pc):
     key = (pc, vm.pos_rest+(vm.pos,))
     if key in vm.memo:
         if vm.memo[key][0] is None:
-            vm.fail_message = vm.memo[key][1]
-            FAIL(vm)
+            FAIL_(vm, vm.memo[key][1])
         else:
             vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest = vm.memo[key]
     else:
         vm.call_backtrack_stack.append((vm.pc, key))
         vm.pc = pc
-
-def MATCH_OBJECT(vm):
-    arg_object = vm.pop_code()
-    if vm.pos >= len(vm.stream) or vm.stream[vm.pos] != arg_object:
-        vm.fail_message = ("expected {!r}", arg_object)
-        FAIL(vm)
-    else:
-        vm.action = SemanticAction(arg_object)
-        vm.pos += 1
 
 def RETURN(vm):
     if not vm.call_backtrack_stack:
@@ -80,45 +63,47 @@ def RETURN(vm):
     vm.pc, key = vm.call_backtrack_stack.pop()
     vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)
 
-def LIST_APPEND(vm):
-    vm.scope.append(vm.action)
+def MATCH_ANY(vm):
+    MATCH_(vm, lambda x: True, ("expected any",))
 
-def BIND(vm):
-    vm.scope[vm.pop_code()] = vm.action
-
-def ACTION(vm):
-    vm.action = SemanticAction(vm.scope, vm.pop_code())
+def MATCH_OBJECT(vm):
+    arg_object = vm.pop_arg()
+    MATCH_(vm, lambda x: x == arg_object, ("expected {!r}", arg_object))
 
 def MATCH_RANGE(vm):
-    arg_start = vm.pop_code()
-    arg_end = vm.pop_code()
-    if vm.pos >= len(vm.stream) or not (arg_start <= vm.stream[vm.pos] <= arg_end):
-        vm.fail_message = ("expected range {!r}-{!r}", arg_start, arg_end)
-        FAIL(vm)
+    arg_start = vm.pop_arg()
+    arg_end = vm.pop_arg()
+    MATCH_(vm, lambda x: arg_start <= x <= arg_end, ("expected range {!r}-{!r}", arg_start, arg_end))
+
+def MATCH_(vm, fn, message):
+    if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):
+        FAIL_(vm, message)
     else:
-        vm.action = SemanticAction(vm.stream[vm.pos])
+        match = vm.stream[vm.pos]
+        vm.action = SemanticAction(match)
         vm.pos += 1
+        return match
 
 def LIST_START(vm):
     vm.scope_rest = (vm.scope, vm.scope_rest)
     vm.scope = []
 
+def LIST_APPEND(vm):
+    vm.scope.append(vm.action)
+
 def LIST_END(vm):
     vm.action = SemanticAction(vm.scope, lambda self: [x.eval(self.runtime) for x in self.value])
     vm.scope, vm.scope_rest = vm.scope_rest
 
-def MATCH_ANY(vm):
-    if vm.pos >= len(vm.stream):
-        vm.fail_message = ("expected any",)
-        FAIL(vm)
-    else:
-        vm.action = SemanticAction(vm.stream[vm.pos])
-        vm.pos += 1
+def BIND(vm):
+    vm.scope[vm.pop_arg()] = vm.action
+
+def ACTION(vm):
+    vm.action = SemanticAction(vm.scope, vm.pop_arg())
 
 def PUSH_STREAM(vm):
     if vm.pos >= len(vm.stream) or not isinstance(vm.stream[vm.pos], list):
-        vm.fail_message = ("expected list",)
-        FAIL(vm)
+        FAIL_(vm, ("expected list",))
     else:
         vm.stream_rest = (vm.stream, vm.stream_rest)
         vm.pos_rest = vm.pos_rest + (vm.pos,)
@@ -127,21 +112,19 @@ def PUSH_STREAM(vm):
 
 def POP_STREAM(vm):
     if vm.pos < len(vm.stream):
-        vm.fail_message = ("expected end of list",)
-        FAIL(vm)
+        FAIL_(vm, ("expected end of list",))
     else:
         vm.stream, vm.stream_rest = vm.stream_rest
         vm.pos, vm.pos_rest = vm.pos_rest[-1], vm.pos_rest[:-1]
         vm.pos += 1
 
 def FAIL(vm):
-    vm.fail_message = (vm.pop_code(),)
-    FAIL(vm)
+    FAIL_(vm, (vm.pop_arg(),))
 
-def FAIL(vm):
+def FAIL_(vm, fail_message):
     fail_pos = vm.pos_rest+(vm.pos,)
     if fail_pos >= vm.latest_fail_pos:
-        vm.latest_fail_message = vm.fail_message
+        vm.latest_fail_message = fail_message
         vm.latest_fail_pos = fail_pos
     call_backtrack_entry = tuple()
     while vm.call_backtrack_stack:
@@ -149,7 +132,7 @@ def FAIL(vm):
         if len(call_backtrack_entry) == 7:
             break
         else:
-            vm.memo[call_backtrack_entry[1]] = (None, vm.fail_message)
+            vm.memo[call_backtrack_entry[1]] = (None, fail_message)
     if len(call_backtrack_entry) != 7:
         raise MatchError(
             vm.latest_fail_message[0].format(*vm.latest_fail_message[1:]),
@@ -213,7 +196,6 @@ class Runtime(dict):
 
     def run(self, rule, stream):
         return VM(self.grammar.code, self.grammar.rules).run(rule, stream).eval(self)
-        return vm(self.grammar.code, self.grammar.rules, rule, stream).eval(self)
 
 class Counter(object):
 

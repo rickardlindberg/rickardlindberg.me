@@ -11,15 +11,14 @@ class VM:
         self.stream, self.stream_rest = (stream, None)
         self.pos, self.pos_rest = (0, tuple())
         self.scope, self.scope_rest = (None, None)
-        self.fail_message = None
         self.latest_fail_message, self.latest_fail_pos = (None, tuple())
         self.memo = {}
         while True:
-            result = self.pop_code()(self)
+            result = self.pop_arg()(self)
             if result:
                 return result
 
-    def pop_code(self):
+    def pop_arg(self):
         code = self.code[self.pc]
         self.pc += 1
         return code
@@ -33,45 +32,29 @@ def POP_SCOPE(vm):
 
 def BACKTRACK(vm):
     vm.call_backtrack_stack.append((
-        vm.pop_code(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest
+        vm.pop_arg(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest
     ))
 
 def COMMIT(vm):
     vm.call_backtrack_stack.pop()
-    vm.pc = vm.pop_code()
+    vm.pc = vm.pop_arg()
 
 def CALL(vm):
-    CALL_(vm, vm.pop_code())
+    CALL_(vm, vm.pop_arg())
 
 def MATCH_CALL_RULE(vm):
-    if vm.pos >= len(vm.stream):
-        vm.fail_message = ("expected any",)
-        FAIL(vm)
-    else:
-        x = str(vm.stream[vm.pos])
-        vm.pos += 1
-        CALL_(vm, vm.rules[x])
+    CALL_(vm, vm.rules[MATCH_(vm, lambda x: True, ("expected any",))])
 
 def CALL_(vm, pc):
     key = (pc, vm.pos_rest+(vm.pos,))
     if key in vm.memo:
         if vm.memo[key][0] is None:
-            vm.fail_message = vm.memo[key][1]
-            FAIL(vm)
+            FAIL_(vm, vm.memo[key][1])
         else:
             vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest = vm.memo[key]
     else:
         vm.call_backtrack_stack.append((vm.pc, key))
         vm.pc = pc
-
-def MATCH_OBJECT(vm):
-    arg_object = vm.pop_code()
-    if vm.pos >= len(vm.stream) or vm.stream[vm.pos] != arg_object:
-        vm.fail_message = ("expected {!r}", arg_object)
-        FAIL(vm)
-    else:
-        vm.action = SemanticAction(arg_object)
-        vm.pos += 1
 
 def RETURN(vm):
     if not vm.call_backtrack_stack:
@@ -79,45 +62,47 @@ def RETURN(vm):
     vm.pc, key = vm.call_backtrack_stack.pop()
     vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)
 
-def LIST_APPEND(vm):
-    vm.scope.append(vm.action)
+def MATCH_ANY(vm):
+    MATCH_(vm, lambda x: True, ("expected any",))
 
-def BIND(vm):
-    vm.scope[vm.pop_code()] = vm.action
-
-def ACTION(vm):
-    vm.action = SemanticAction(vm.scope, vm.pop_code())
+def MATCH_OBJECT(vm):
+    arg_object = vm.pop_arg()
+    MATCH_(vm, lambda x: x == arg_object, ("expected {!r}", arg_object))
 
 def MATCH_RANGE(vm):
-    arg_start = vm.pop_code()
-    arg_end = vm.pop_code()
-    if vm.pos >= len(vm.stream) or not (arg_start <= vm.stream[vm.pos] <= arg_end):
-        vm.fail_message = ("expected range {!r}-{!r}", arg_start, arg_end)
-        FAIL(vm)
+    arg_start = vm.pop_arg()
+    arg_end = vm.pop_arg()
+    MATCH_(vm, lambda x: arg_start <= x <= arg_end, ("expected range {!r}-{!r}", arg_start, arg_end))
+
+def MATCH_(vm, fn, message):
+    if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):
+        FAIL_(vm, message)
     else:
-        vm.action = SemanticAction(vm.stream[vm.pos])
+        match = vm.stream[vm.pos]
+        vm.action = SemanticAction(match)
         vm.pos += 1
+        return match
 
 def LIST_START(vm):
     vm.scope_rest = (vm.scope, vm.scope_rest)
     vm.scope = []
 
+def LIST_APPEND(vm):
+    vm.scope.append(vm.action)
+
 def LIST_END(vm):
     vm.action = SemanticAction(vm.scope, lambda self: [x.eval(self.runtime) for x in self.value])
     vm.scope, vm.scope_rest = vm.scope_rest
 
-def MATCH_ANY(vm):
-    if vm.pos >= len(vm.stream):
-        vm.fail_message = ("expected any",)
-        FAIL(vm)
-    else:
-        vm.action = SemanticAction(vm.stream[vm.pos])
-        vm.pos += 1
+def BIND(vm):
+    vm.scope[vm.pop_arg()] = vm.action
+
+def ACTION(vm):
+    vm.action = SemanticAction(vm.scope, vm.pop_arg())
 
 def PUSH_STREAM(vm):
     if vm.pos >= len(vm.stream) or not isinstance(vm.stream[vm.pos], list):
-        vm.fail_message = ("expected list",)
-        FAIL(vm)
+        FAIL_(vm, ("expected list",))
     else:
         vm.stream_rest = (vm.stream, vm.stream_rest)
         vm.pos_rest = vm.pos_rest + (vm.pos,)
@@ -126,21 +111,19 @@ def PUSH_STREAM(vm):
 
 def POP_STREAM(vm):
     if vm.pos < len(vm.stream):
-        vm.fail_message = ("expected end of list",)
-        FAIL(vm)
+        FAIL_(vm, ("expected end of list",))
     else:
         vm.stream, vm.stream_rest = vm.stream_rest
         vm.pos, vm.pos_rest = vm.pos_rest[-1], vm.pos_rest[:-1]
         vm.pos += 1
 
 def FAIL(vm):
-    vm.fail_message = (vm.pop_code(),)
-    FAIL(vm)
+    FAIL_(vm, (vm.pop_arg(),))
 
-def FAIL(vm):
+def FAIL_(vm, fail_message):
     fail_pos = vm.pos_rest+(vm.pos,)
     if fail_pos >= vm.latest_fail_pos:
-        vm.latest_fail_message = vm.fail_message
+        vm.latest_fail_message = fail_message
         vm.latest_fail_pos = fail_pos
     call_backtrack_entry = tuple()
     while vm.call_backtrack_stack:
@@ -148,7 +131,7 @@ def FAIL(vm):
         if len(call_backtrack_entry) == 7:
             break
         else:
-            vm.memo[call_backtrack_entry[1]] = (None, vm.fail_message)
+            vm.memo[call_backtrack_entry[1]] = (None, fail_message)
     if len(call_backtrack_entry) != 7:
         raise MatchError(
             vm.latest_fail_message[0].format(*vm.latest_fail_message[1:]),
@@ -212,7 +195,6 @@ class Runtime(dict):
 
     def run(self, rule, stream):
         return VM(self.grammar.code, self.grammar.rules).run(rule, stream).eval(self)
-        return vm(self.grammar.code, self.grammar.rules, rule, stream).eval(self)
 
 class Counter(object):
 
