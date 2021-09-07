@@ -1,5 +1,16 @@
 CHANGES:
 
+It started with this goal:
+
+    RLMeta Poster 2: Experiment with PyVM and see if it can improve "assembly
+    code in code generator".
+
+Then continued with this:
+
+* Import all current code into smart notes document.
+
+    * Added search of code notes to smart notes.
+
 * Adapt to Python 3.
 
 * PyVM (first version)
@@ -125,7 +136,8 @@ TODO:
 
     [ ] MatchError probably has wrong stream if error occurs deep down
 
-[ ] Try to port to JS to see how flexible it is?
+    [ ] I am not happy with how the new VM looks. A mix between classes and
+        functions and helpers.
 
 [ ] Add DEBUG flag that outputs source between passes.
 
@@ -140,6 +152,10 @@ TODO:
         disabled during a "Not"?
 
 [ ] Poster with intermediate versions shown.
+
+    * Interactive on the web. (Requires JS version.)
+
+[ ] Try to port to JS to see how flexible it is?
 
 [ ] Rename ast to tree?
 
