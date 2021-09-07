@@ -103,6 +103,12 @@ CHANGES:
     [x] Write VM as clean as possible in Python. Then write a separate
         optimized VM?
 
+[x] Put object match expr tree in parser instead of in codegen?
+
+    - This makes the VM more clean. There is only one instruction for matching
+      and the matching is done with a Python lambda. The VM knows nothing about
+      how to match a single object.
+
 TODO:
 
 [ ] Can support library (and new Runtime) become smaller?

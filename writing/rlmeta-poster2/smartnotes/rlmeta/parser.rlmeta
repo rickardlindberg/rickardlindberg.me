@@ -21,13 +21,13 @@ Parser {
     | expr2
   expr2 =
     | name:x !(space '=')                     -> ["MatchRule" x]
-    | space char:x '-' char:y                 -> ["MatchRange" x y]
+    | space char:x '-' char:y                 -> ["MatchObject" ["Range" x y]]
     | space '\'' (!'\'' matchChar)*:xs '\''   -> ["And" ~xs]
-    | space '.'                               -> ["MatchAny"]
+    | space '.'                               -> ["MatchObject" ["Any"]]
     | space '(' choice:x space ')'            -> x
     | space '[' expr*:xs space ']'            -> ["MatchList" ["And" ~xs]]
   matchChar =
-    | innerChar:x                             -> ["MatchObject" x]
+    | innerChar:x                             -> ["MatchObject" ["Eq" x]]
   maybeAction =
     | actionExpr:x                            -> [["Action" x]]
     |                                         -> []

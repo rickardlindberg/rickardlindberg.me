@@ -42,9 +42,6 @@ def COMMIT(vm):
 def CALL(vm):
     CALL_(vm, vm.pop_arg())
 
-def MATCH_CALL_RULE(vm):
-    CALL_(vm, vm.rules[MATCH_(vm, lambda x: True, ("expected any",))])
-
 def CALL_(vm, pc):
     key = (pc, vm.pos_rest+(vm.pos,))
     if key in vm.memo:
@@ -62,17 +59,10 @@ def RETURN(vm):
     vm.pc, key = vm.call_backtrack_stack.pop()
     vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)
 
-def MATCH_ANY(vm):
-    MATCH_(vm, lambda x: True, ("expected any",))
-
-def MATCH_OBJECT(vm):
-    arg_object = vm.pop_arg()
-    MATCH_(vm, lambda x: x == arg_object, ("expected {!r}", arg_object))
-
-def MATCH_RANGE(vm):
-    arg_start = vm.pop_arg()
-    arg_end = vm.pop_arg()
-    MATCH_(vm, lambda x: arg_start <= x <= arg_end, ("expected range {!r}-{!r}", arg_start, arg_end))
+def MATCH(vm):
+    object_description = vm.pop_arg()
+    fn = vm.pop_arg()
+    MATCH_(vm, fn, ("expected {}", object_description))
 
 def MATCH_(vm, fn, message):
     if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):
@@ -81,7 +71,10 @@ def MATCH_(vm, fn, message):
         match = vm.stream[vm.pos]
         vm.action = SemanticAction(match)
         vm.pos += 1
-        return match
+
+def MATCH_CALL_RULE(vm):
+    MATCH_(vm, lambda x: x in vm.rules, ("expected rule name",))
+    CALL_(vm, vm.rules[vm.action.value])
 
 def LIST_START(vm):
     vm.scope_rest = (vm.scope, vm.scope_rest)
@@ -176,7 +169,7 @@ class Grammar(object):
             "indentprefix": "    ",
             "list": list,
             "dict": dict,
-            "append": lambda x, y: x.append(y),
+            "add": lambda x, y: x.append(y),
             "get": lambda x, y: x[y],
             "set": lambda x, y, z: x.__setitem__(y, z),
             "len": len,
