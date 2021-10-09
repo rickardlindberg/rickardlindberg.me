@@ -16,8 +16,19 @@ gen() {
 
 (cd rlmeta-poster-2 && ./make.py)
 
-rm rlmeta-poster-2.zip
+git restore rlmeta-poster-2.zip
 
-find rlmeta-poster-2 ! -name '.*.swp' | xargs zip rlmeta-poster-2.zip
+test ! -e rlmeta-poster-2-new.zip
+
+find rlmeta-poster-2 ! -name '.*.swp' | sort | xargs zip rlmeta-poster-2-new.zip
+
+unzip rlmeta-poster-2.zip -d a
+unzip rlmeta-poster-2-new.zip -d b
+
+if ! diff -r a/ b/; then
+    mv rlmeta-poster-2-new.zip rlmeta-poster-2.zip
+fi
+
+rm -rf a/ b/ rlmeta-poster-2-new.zip
 
 gen > index.markdown
