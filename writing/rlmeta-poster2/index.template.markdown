@@ -33,7 +33,9 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 $:shell:rlmeta-poster-2:tree --dirsfirst
 
-$:shell:rlmeta-poster-2/src:wc -l *
+Looking at the source code, this is it:
+
+$:shell:rlmeta-poster-2:wc -l src/*
 
 ## Do a meta-compilation
 

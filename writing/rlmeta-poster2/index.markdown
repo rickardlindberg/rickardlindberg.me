@@ -53,12 +53,14 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
     
     1 directory, 8 files
 
-    $ wc -l *
-       39 assembler.rlmeta
-       57 codegenerator.rlmeta
-       26 main.py
-       60 parser.rlmeta
-      237 support.py
+Looking at the source code, this is it:
+
+    $ wc -l src/*
+       39 src/assembler.rlmeta
+       57 src/codegenerator.rlmeta
+       26 src/main.py
+       60 src/parser.rlmeta
+      237 src/support.py
       419 total
 
 ## Do a meta-compilation
