@@ -31,15 +31,9 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
-$:run:rlmeta-poster-2:tree --dirsfirst
+$:shell:rlmeta-poster-2:tree --dirsfirst
 
-    $ wc -l *
-       39 assembler.rlmeta
-       57 codegenerator.rlmeta
-       26 main.py
-       60 parser.rlmeta
-      237 support.py
-      419 total
+$:shell:rlmeta-poster-2/src:wc -l *
 
 ## Do a meta-compilation
 

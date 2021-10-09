@@ -40,7 +40,6 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 ## Structure
 
     $ tree --dirsfirst
-
     .
     ├── src
     │   ├── assembler.rlmeta

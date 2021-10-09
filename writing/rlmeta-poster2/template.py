@@ -4,12 +4,12 @@ import sys
 import subprocess
 
 def process_line(line):
-    if line.startswith("$:run:"):
-        return run(*line.split(":")[-2:])
+    if line.startswith("$:shell:"):
+        return shell(*line.strip().split(":")[2:])
     else:
         return [line]
 
-def run(cwd, cmd):
+def shell(cwd, cmd):
     return [
         f"    {x}\n"
         for x
