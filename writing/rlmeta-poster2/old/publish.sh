@@ -2,7 +2,7 @@
 
 set -e
 
-./generate.sh
+./generate_html.sh
 
 git-cola
 

@@ -350,6 +350,7 @@ patternPostIndexPandoc =
     .||. "writing/bullet-journal-method-migration-as-review/index.markdown"
     .||. "writing/kinesis-advantage-2-swedish-setup/index.markdown"
     .||. "writing/what-is-programming/index.markdown"
+    .||. "writing/rlmeta-poster2/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
