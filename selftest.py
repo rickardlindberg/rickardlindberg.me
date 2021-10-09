@@ -23,6 +23,8 @@ def check(base):
     to_process = [base]
     while len(to_process) > 0:
         url = to_process.pop()
+        if not url.startswith(base):
+            continue
         if url not in processed:
             print url,
             processed.append(url)
