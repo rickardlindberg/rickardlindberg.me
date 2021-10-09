@@ -6,11 +6,11 @@ tags: rlmeta,draft
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
-A while ago I created a [poster](/writing/rlmeta-poster/index.html) to showcase
-RLMeta. To be able to finish the poster, I had to stop polishing RLMeta at some
-point and put the source on a poster. This was difficult because I felt the
-need for it to be perfect.  Eventually I did stop polishing, but I left a few
-items unresolved.
+A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
+showcase RLMeta. To be able to finish the poster, I had to stop polishing
+RLMeta at some point and put the source on a poster. This was difficult because
+I felt the need for it to be perfect.  Eventually I did stop polishing, but I
+left a few items unresolved.
 
 Recently, I picked up where I left off. Initially, my plan was to make a second
 version of the poster. I started to fix the unresolved items and I was making
