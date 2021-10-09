@@ -7,8 +7,33 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged newsletter]]></description>
         <atom:link href="http://rickardlindberg.me/tags/newsletter/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 07 Sep 2021 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sat, 09 Oct 2021 00:00:00 UT</lastBuildDate>
         <item>
+    <title>September 2021 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/september-2021/</link>
+    <description><![CDATA[<h1>September 2021 Update</h1>
+
+<p><em>Published on  9 October 2021.</em></p>
+
+<p>This is what I’ve been up to in September 2021:</p>
+<ul>
+<li><p>I created a short movie about what programming is like for me. You can watch it <a href="https://youtu.be/jYvMbSTvns8">here</a> and read about my behind the scenes thoughts <a href="/writing/what-is-programming/index.html">here</a>. I mainly did it to explore movie making.</p></li>
+<li><p>I continued to work on RLMeta. Specifically on the <a href="/writing/rlmeta-poster2/index.html">second poster version</a>.</p>
+<ul>
+<li><p>At first my plan was to make a second poster with an improved version of RLMeta. The goal would be to showcase an even more beautiful implementation.</p></li>
+<li><p>However, the idea of a second poster was putting too much pressure on me. If I did a second poster, I would want it to be perfect. And I never seemed to get there. I was able to improve many things in RLMeta, but somehow imperfections always kept creeping in.</p></li>
+<li><p>So to relief the pressure of making a more polished poster, I decided to instead write a blog post about this new version in a “code walkthrough” style. That blog post could be the start of a README for a dedicated project repo for RLMeta. At some time I would have to publish the blog post, so that is a bit of a pressure, but I can more easily tweak it closer to publishing time because generating a new blog post is an automatic process whereas creating a poster from source code is a manuall process (that requires manual layout decisions). The blog post will be another way to showcase RLMeta.</p></li>
+</ul></li>
+<li><p>I read about <a href="https://handmade.network/manifesto">Handmade</a>. I was inspired by the idea to implement more things “by hand” and not layer abstraction on abstraction that creates a slow mess. I though about designing programming systems where you could more easily implement things at a lower level to avoid creating lots of abstractions when not needed.</p></li>
+<li><p>I created a dedicated notebook for project ideas that I have. I have more ideas than I have time to work on. I think I need to focus on one project at a time to make progress.</p></li>
+<li><p>I thought about how to make hobby programming a habit. My hobby projects are things I want to make progress on, but on the other hand, they should be fun. They are hobby projects right? But even hobby projects are not interesting all the time. Sometimes you just have to push through.</p></li>
+</ul>
+]]></description>
+    <pubDate>Sat, 09 Oct 2021 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/september-2021/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>August 2021 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/august-2021/</link>
     <description><![CDATA[<h1>August 2021 Update</h1>
@@ -382,36 +407,6 @@
 ]]></description>
     <pubDate>Mon, 03 Aug 2020 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/july-2020/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Newsletter June 2020</title>
-    <link>http://rickardlindberg.me/writing/newsletter/june-2020/</link>
-    <description><![CDATA[<h1>Newsletter June 2020</h1>
-
-<p><em>Published on  6 July 2020.</em></p>
-
-<p>This is what I’ve been up to in June 2020:</p>
-<ul>
-<li><p>I read parts of <a href="https://compilers.iecc.com/crenshaw/">Let’s Build a Compiler, by Jack Crenshaw</a>. It was interesting and it would be fun to try to implement the described language using <a href="/projects/rlmeta/index.html">RLMeta</a>.</p></li>
-<li><p>I read a few articles from Julia Evans that I found interesting:</p>
-<ul>
-<li><p><a href="https://jvns.ca/blog/2017/02/17/mystery-swap/">Swapping, memory limits, and cgroups</a></p></li>
-<li><p><a href="https://jvns.ca/blog/2016/12/03/how-much-memory-is-my-process-using-/">How much memory is my process using?</a></p></li>
-<li><p><a href="https://jvns.ca/blog/2016/10/10/what-even-is-a-container/">What even is a container: namespaces and cgroups</a></p></li>
-</ul></li>
-<li><p>I decided to have a look at <a href="/projects/rliterate/index.html">RLiterate</a> again.</p>
-<ul>
-<li><p>I continued work on direct manipulation of text. Text in RLiterate is represented as a list of text segements with different styles. That structure has to be projected to the screen and edits have to go into the correct segement. Segments might be projected with some additional markup text that is not present in the text itself. So the problem is a little bit more involved than plain text editing. I’m struggling to solve this problem in an elegant way.</p></li>
-<li><p>I have read about two so called projectional editors to get inspiration for how to solve these problems: <a href="https://github.com/projectured/projectured/wiki/Overview">ProjecturEd</a> and <a href="https://projectit-org.github.io/ProjectIt/projectit-component/0.0.4/index.html">ProjectIt</a>.</p></li>
-<li><p>One particular problem I’m working on is how to represent selections. Today, a selection is both in the GUI domain and the document domain. If the selection is only in the document domain, then two selection markers can appear in GUI since the same page can be projected more than once onto the workspace. When I click a title for example, I want exactly that title to be selected, not the same underlying title on another projected page. What is a good representation of selections that take this into account?</p></li>
-<li><p>I streamlined how props are generated. I wrote about the problem and my prefered pattern <a href="/projects/rliterate/book2/index.html#742ebf5ff2d8457ab8c01b3721052425">here</a>.</p></li>
-<li><p>I improved the performance of the text widget. When calculating where all characters will appear on the screen, you have to take <a href="https://en.wikipedia.org/wiki/Kerning">kerning</a> into account. Previously that was done by calculating the bounding rectangle for consequtively longer substrings. For example: bounding rectangle for “H”, then bounding rectangle for “He”, and so on until “Hello”. Now only bounding rectangles for pairs of characters are calculated. So “He”, and “el”, “ll”, and “lo”. My guess (which seems to hold for now) is that kerning only affects two consecutive characters, in which case this optimization works. Since the number of pairs are limited by the alphabet, these calculations can also be cached.</p></li>
-</ul></li>
-</ul>
-]]></description>
-    <pubDate>Mon, 06 Jul 2020 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/newsletter/june-2020/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
