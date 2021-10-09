@@ -14,5 +14,10 @@ gen() {
     cat index.template.markdown
 }
 
-gen > index.markdown
+(cd rlmeta-poster-2 && ./make.py)
 
+rm rlmeta-poster-2.zip
+
+find rlmeta-poster-2 ! -name '.*.swp' | xargs zip rlmeta-poster-2.zip
+
+gen > index.markdown

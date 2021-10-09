@@ -27,7 +27,7 @@ and it might serve as a start fo.
 ## Getting the source code
 
 In order to follow along on this walk through, you can download the source code
-here: ...
+here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
