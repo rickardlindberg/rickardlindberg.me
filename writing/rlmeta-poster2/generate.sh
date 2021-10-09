@@ -11,7 +11,7 @@ gen() {
     echo ""
     echo "**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**"
     echo ""
-    cat index.template.markdown
+    ./template.py index.template.markdown
 }
 
 (cd rlmeta-poster-2 && ./make.py)

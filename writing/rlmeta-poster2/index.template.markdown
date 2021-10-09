@@ -31,16 +31,7 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
-    $ tree
-    .
-    ├── make.py
-    ├── src
-    │   ├── assembler.rlmeta
-    │   ├── codegenerator.rlmeta
-    │   ├── main.py
-    │   ├── parser.rlmeta
-    │   └── support.py
-    └── rlmeta.py
+$:run:rlmeta-poster-2:tree --dirsfirst
 
     $ wc -l *
        39 assembler.rlmeta

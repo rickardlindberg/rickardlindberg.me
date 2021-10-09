@@ -39,16 +39,20 @@ here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
-    $ tree
+    $ tree --dirsfirst
+
     .
-    ├── make.py
     ├── src
     │   ├── assembler.rlmeta
     │   ├── codegenerator.rlmeta
     │   ├── main.py
     │   ├── parser.rlmeta
     │   └── support.py
+    ├── make.py
+    ├── rlmeta.notes
     └── rlmeta.py
+    
+    1 directory, 8 files
 
     $ wc -l *
        39 assembler.rlmeta
