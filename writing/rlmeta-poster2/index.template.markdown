@@ -41,6 +41,10 @@ $:shell:rlmeta-poster-2:wc -l src/*
 
 ## Follow transformation of a simple program
 
+## Code
+
+$:code:rlmeta-poster-2/src/parser.rlmeta
+
 --
 
 CHANGES:

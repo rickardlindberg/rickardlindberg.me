@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-10-09
+date: 2021-10-10
 tags: rlmeta,draft
 ---
 
@@ -66,6 +66,70 @@ Looking at the source code, this is it:
 ## Do a meta-compilation
 
 ## Follow transformation of a simple program
+
+## Code
+
+<div class="highlight"><pre><span></span>Parser {
+  file <span class="nb">=</span>
+    <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
+  grammar <span class="nb">=</span>
+    <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
+  rule <span class="nb">=</span>
+    <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;=&#39;</span> choice<span class="nb">:</span>y               <span class="nb">-&gt;</span> [<span class="s">&quot;Rule&quot;</span> x y]
+  choice <span class="nb">=</span>
+    <span class="nb">|</span> (space <span class="sc">&#39;|&#39;</span>)<span class="nc">?</span>
+      sequence<span class="nb">:</span>x (space <span class="sc">&#39;|&#39;</span> sequence)<span class="nc">*</span><span class="nb">:</span>xs     <span class="nb">-&gt;</span> [<span class="s">&quot;Or&quot;</span> x <span class="nc">~</span>xs]
+  sequence <span class="nb">=</span>
+    <span class="nb">|</span> expr<span class="nc">*</span><span class="nb">:</span>xs maybeAction<span class="nb">:</span>ys                 <span class="nb">-&gt;</span> [<span class="s">&quot;Scope&quot;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs <span class="nc">~</span>ys]]
+  expr <span class="nb">=</span>
+    <span class="nb">|</span> expr1<span class="nb">:</span>x space <span class="sc">&#39;:&#39;</span> name<span class="nb">:</span>y                <span class="nb">-&gt;</span> [<span class="s">&quot;Bind&quot;</span> y x]
+    <span class="nb">|</span> expr1
+  expr1 <span class="nb">=</span>
+    <span class="nb">|</span> expr2<span class="nb">:</span>x space <span class="sc">&#39;*&#39;</span>                       <span class="nb">-&gt;</span> [<span class="s">&quot;Star&quot;</span> x]
+    <span class="nb">|</span> expr2<span class="nb">:</span>x space <span class="sc">&#39;?&#39;</span>                       <span class="nb">-&gt;</span> [<span class="s">&quot;Or&quot;</span> x [<span class="s">&quot;And&quot;</span>]]
+    <span class="nb">|</span> space <span class="sc">&#39;!&#39;</span> expr2<span class="nb">:</span>x                       <span class="nb">-&gt;</span> [<span class="s">&quot;Not&quot;</span> x]
+    <span class="nb">|</span> space <span class="sc">&#39;%&#39;</span>                               <span class="nb">-&gt;</span> [<span class="s">&quot;MatchCallRule&quot;</span>]
+    <span class="nb">|</span> expr2
+  expr2 <span class="nb">=</span>
+    <span class="nb">|</span> name<span class="nb">:</span>x <span class="nc">!</span>(space <span class="sc">&#39;=&#39;</span>)                     <span class="nb">-&gt;</span> [<span class="s">&quot;MatchRule&quot;</span> x]
+    <span class="nb">|</span> space char<span class="nb">:</span>x <span class="sc">&#39;-&#39;</span> char<span class="nb">:</span>y                 <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Range&quot;</span> x y]]
+    <span class="nb">|</span> space <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> (<span class="nc">!</span><span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> matchChar)<span class="nc">*</span><span class="nb">:</span>xs <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span>   <span class="nb">-&gt;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs]
+    <span class="nb">|</span> space <span class="sc">&#39;.&#39;</span>                               <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Any&quot;</span>]]
+    <span class="nb">|</span> space <span class="sc">&#39;(&#39;</span> choice<span class="nb">:</span>x space <span class="sc">&#39;)&#39;</span>            <span class="nb">-&gt;</span> x
+    <span class="nb">|</span> space <span class="sc">&#39;[&#39;</span> expr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;]&#39;</span>            <span class="nb">-&gt;</span> [<span class="s">&quot;MatchList&quot;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs]]
+  matchChar <span class="nb">=</span>
+    <span class="nb">|</span> innerChar<span class="nb">:</span>x                             <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Eq&quot;</span> x]]
+  maybeAction <span class="nb">=</span>
+    <span class="nb">|</span> actionExpr<span class="nb">:</span>x                            <span class="nb">-&gt;</span> [[<span class="s">&quot;Action&quot;</span> x]]
+    <span class="nb">|</span>                                         <span class="nb">-&gt;</span> []
+  actionExpr <span class="nb">=</span>
+    <span class="nb">|</span> space <span class="sc">&#39;-&gt;&#39;</span> hostExpr<span class="nb">:</span>x
+      (space <span class="sc">&#39;:&#39;</span> name <span class="nb">|</span> <span class="nb">-&gt;</span> <span class="s">&quot;&quot;</span>)<span class="nb">:</span>y actionExpr<span class="nb">:</span>z <span class="nb">-&gt;</span> [<span class="s">&quot;Set&quot;</span> y x z]
+    <span class="nb">|</span> space <span class="sc">&#39;-&gt;&#39;</span> hostExpr<span class="nb">:</span>x                   <span class="nb">-&gt;</span> x
+  hostExpr <span class="nb">=</span>
+    <span class="nb">|</span> space string<span class="nb">:</span>x                          <span class="nb">-&gt;</span> [<span class="s">&quot;String&quot;</span> x]
+    <span class="nb">|</span> space <span class="sc">&#39;[&#39;</span> hostListItem<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;]&#39;</span>    <span class="nb">-&gt;</span> [<span class="s">&quot;List&quot;</span> <span class="nc">~</span>xs]
+    <span class="nb">|</span> space <span class="sc">&#39;{&#39;</span> formatExpr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;}&#39;</span>      <span class="nb">-&gt;</span> [<span class="s">&quot;Format&quot;</span> <span class="nc">~</span>xs]
+    <span class="nb">|</span> var<span class="nb">:</span>x space <span class="sc">&#39;(&#39;</span> hostExpr<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;)&#39;</span>  <span class="nb">-&gt;</span> [<span class="s">&quot;Call&quot;</span> x <span class="nc">~</span>ys]
+    <span class="nb">|</span> var<span class="nb">:</span>x
+  hostListItem <span class="nb">=</span>
+    <span class="nb">|</span> space <span class="sc">&#39;~&#39;</span><span class="nc">*</span><span class="nb">:</span>ys hostExpr<span class="nb">:</span>x                <span class="nb">-&gt;</span> [<span class="s">&quot;ListItem&quot;</span> len(ys) x]
+  formatExpr <span class="nb">=</span>
+    <span class="nb">|</span> space <span class="sc">&#39;&gt;&#39;</span> formatExpr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;&lt;&#39;</span>      <span class="nb">-&gt;</span> [<span class="s">&quot;Indent&quot;</span> [<span class="s">&quot;Format&quot;</span> <span class="nc">~</span>xs]]
+    <span class="nb">|</span> hostExpr
+  var <span class="nb">=</span>
+    <span class="nb">|</span> name<span class="nb">:</span>x <span class="nc">!</span>(space <span class="sc">&#39;=&#39;</span>)                     <span class="nb">-&gt;</span> [<span class="s">&quot;Lookup&quot;</span> x]
+  string    <span class="nb">=</span> <span class="sc">&#39;&quot;&#39;</span>  (<span class="nc">!</span><span class="sc">&#39;&quot;&#39;</span>  innerChar)<span class="nc">*</span><span class="nb">:</span>xs <span class="sc">&#39;&quot;&#39;</span>  <span class="nb">-&gt;</span> { xs }
+  char      <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span>  <span class="nc">!</span><span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> innerChar  <span class="nb">:</span>x  <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> x
+  innerChar <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\\</span><span class="sc">&#39;</span> escape <span class="nb">|</span> <span class="nc">.</span>
+  escape    <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\\</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="nb">|</span> <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> <span class="s">&quot;&#39;&quot;</span>
+            <span class="nb">|</span> <span class="sc">&#39;&quot;&#39;</span>  <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="nb">|</span> <span class="sc">&#39;n&#39;</span>  <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+  name      <span class="nb">=</span> space nameStart<span class="nb">:</span>x nameChar<span class="nc">*</span><span class="nb">:</span>xs  <span class="nb">-&gt;</span> { x xs }
+  nameStart <span class="nb">=</span> <span class="sc">&#39;a&#39;</span><span class="nc">-</span><span class="sc">&#39;z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;A&#39;</span><span class="nc">-</span><span class="sc">&#39;Z&#39;</span>
+  nameChar  <span class="nb">=</span> <span class="sc">&#39;a&#39;</span><span class="nc">-</span><span class="sc">&#39;z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;A&#39;</span><span class="nc">-</span><span class="sc">&#39;Z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;0&#39;</span><span class="nc">-</span><span class="sc">&#39;9&#39;</span>
+  space     <span class="nb">=</span> (<span class="sc">&#39; &#39;</span> <span class="nb">|</span> <span class="sc">&#39;</span><span class="se">\n</span><span class="sc">&#39;</span>)<span class="nc">*</span>
+}
+</pre></div>
 
 --
 
