@@ -80,10 +80,10 @@ def write(path, content):
         return f.write(content)
 
 def log(message):
-    sys.stdout.write("\033[0;33m{}\033[0m\n".format(message))
+    sys.stderr.write("\033[0;33m{}\033[0m\n".format(message))
 
 def success(message):
-    sys.stdout.write("\033[0;32m{}\033[0m\n".format(message))
+    sys.stderr.write("\033[0;32m{}\033[0m\n".format(message))
 
 def fail(message):
     sys.exit("\033[0;31mERROR: {}\033[0m".format(message))
