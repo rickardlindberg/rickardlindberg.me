@@ -32,3 +32,5 @@ fi
 rm -rf a/ b/ rlmeta-poster-2-new.zip
 
 gen > index.markdown
+
+rm -f rlmeta-poster-2/rlmeta-new.py

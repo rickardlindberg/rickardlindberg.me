@@ -1,22 +1,21 @@
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
 showcase RLMeta. To be able to finish the poster, I had to stop polishing
-RLMeta at some point and put the source on a poster. This was difficult because
+RLMeta and put the source code on a poster. This was difficult because
 I felt the need for it to be perfect.  Eventually I did stop polishing, but I
 left a few items unresolved.
 
-Recently, I picked up where I left off. Initially, my plan was to make a second
+Recently (how many months later?), I picked up where I left off. Initially, my plan was to make a second
 version of the poster. I started to fix the unresolved items and I was making
 progress. But somehow imperfections kept creeping in. It felt like a never
 ending game of chasing perfection. That's when I decided that a second poster
 would probably not be worth it. But I still liked the new version of RLMeta.
 What should I do?
 
-I decided to attempt to write a more practical walk through and presentation of
-the new version of RLMeta. That is the remaining of this blog post. After the
-walk through there will be also be a section on the most important changes from
-the previous version and motivation for them.
-
-The walk through will be another way to showcase RLMeta.
+I decided to attempt to present the new version of RLMeta in the style of a
+code walk through.  In other words, another way to showcase RLMeta that is
+hopefully a bit more practical. That is the remaining of this blog post. After
+the walk through there will be also be a section on the most important changes
+from the previous version and motivation for them.
 
 Compared to poster version, it could also be more easily improved. Not having
 to go to print.
@@ -26,8 +25,8 @@ and it might serve as a start fo.
 
 ## Getting the source code
 
-In order to follow along on this walk through, you can download the source code
-here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
+In order to follow along on this walk through, you need the source code of
+RLMeta which can be download here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
@@ -38,6 +37,10 @@ Looking at the source code, this is it:
 $:shell:rlmeta-poster-2:wc -l src/*
 
 ## Do a meta-compilation
+
+$:shell:rlmeta-poster-2:./make.py compile > rlmeta-new.py
+
+$:shell:rlmeta-poster-2:md5sum rlmeta.py rlmeta-new.py
 
 ## Follow transformation of a simple program
 
