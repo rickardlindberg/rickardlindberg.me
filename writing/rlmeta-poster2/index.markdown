@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-11-22
+date: 2021-11-23
 tags: rlmeta,draft
 ---
 
@@ -8,35 +8,40 @@ tags: rlmeta,draft
 
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
 showcase RLMeta. To be able to finish the poster, I had to stop polishing
-RLMeta and put the source code on a poster. This was difficult because
-I felt the need for it to be perfect.  Eventually I did stop polishing, but I
-left a few items unresolved.
+RLMeta and put the source code on a poster. That was difficult because I felt
+the need for it to be perfect. Eventually I did stop polishing, and left a few
+items unresolved.
 
-Recently (how many months later?), I picked up where I left off. Initially, my plan was to make a second
-version of the poster. I started to fix the unresolved items and I was making
-progress. But somehow imperfections kept creeping in. It felt like a never
-ending game of chasing perfection. That's when I decided that a second poster
-would probably not be worth it. But I still liked the new version of RLMeta.
-What should I do?
+Almost immediately after I finished the poster, I started work on a second
+version. Initially, my plan was to make a second version of the poster. I
+started to fix the unresolved items and I was making progress. But somehow
+imperfections kept creeping in. It felt like a never ending game of chasing
+perfection. That's when I decided that a second poster would probably not be
+worth it. But I still liked the new version of RLMeta. What to do?
 
 I decided to attempt to present the new version of RLMeta in the style of a
-code walk through.  In other words, another way to showcase RLMeta that is
-hopefully a bit more practical. That is the remaining of this blog post. After
-the walk through there will be also be a section on the most important changes
-from the previous version and motivation for them.
+code walk through. In other words, another way to showcase RLMeta that is also
+a bit more practical. Compared to poster version, this versions could also be
+more easily improved because the rendering of the blog post is automatic
+compared to the rendering of the poster which is a lot of manual work every
+time the source changes. I also wanted to experiment with the walk through
+format because I think it might also be something worth putting into the README
+of a project.
 
-Compared to poster version, it could also be more easily improved. Not having
-to go to print.
-
-Such a walk through might be a good way to structure a README for a project,
-and it might serve as a start fo.
+The remaining of this blog post consists of the walk through of the new
+version of RLMeta and then a section on the most important changes from the
+poster version and motivations for them.
 
 ## Getting the source code
 
-In order to follow along on this walk through, you need the source code of
-RLMeta which can be download here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
+In order to follow along on this walk through, you need the source code of this
+version of RLMeta which can be download here:
+[rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
+
+The zip file consists of the source code, a make script, and the RLMeta
+compiler itself (`rlmeta.py`):
 
     $ tree --dirsfirst
     .
@@ -61,13 +66,38 @@ Looking at the source code, this is it:
       237 src/support.py
       419 total
 
+The RLMeta compiler can be created from the source code.
+
 ## Do a meta-compilation
 
-    $ ./make.py compile > rlmeta-new.py
+    $ python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py > rlmeta-raw.py
 
-    $ md5sum rlmeta.py rlmeta-new.py
+Let's break down this command:
+
+* First we invoke the compiler: `python rlmeta.py`.
+* The first argument `--embed SUPPORT src/support.py` tells the compiler to
+  generate a Python variable named `SUPPORT` containing the contents of the
+  file `src/suppor.py`.
+* The next argument `--support` tells the compiler to generate the support
+  library that is embedded in the compiler.
+* The `--compile ...` arguments tell the compiler to compile the given files
+  and generate code for them.
+* The last argument, `--copy src/main.py` tells the compiler to copy the file
+  verbatim.
+
+The make script can be called with the `compile` argument to perform this exact
+function:
+
+    $ ./make.py compile > rlmeta-compile.py
+
+And all these files are exactly the same:
+
+    $ md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
     8f438ec43dc93d0297415c7ddbcc683c  rlmeta.py
-    8f438ec43dc93d0297415c7ddbcc683c  rlmeta-new.py
+    8f438ec43dc93d0297415c7ddbcc683c  rlmeta-compile.py
+    8f438ec43dc93d0297415c7ddbcc683c  rlmeta-raw.py
+
+Thus, the RLMeta compiler reproduced itself exactly from the source code.
 
 ## Follow transformation of a simple program
 
