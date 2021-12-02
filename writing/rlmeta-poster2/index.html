@@ -54,15 +54,15 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 23 November 2021.</em></p>
+<p><em>Published on  2 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>A while ago I created a <a href="../../writing/creating-rlmeta-poster/">poster</a> to showcase RLMeta. To be able to finish the poster, I had to stop polishing RLMeta and put the source code on a poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
-<p>Almost immediately after I finished the poster, I started work on a second version. Initially, my plan was to make a second version of the poster. I started to fix the unresolved items and I was making progress. But somehow imperfections kept creeping in. It felt like a never ending game of chasing perfection. That’s when I decided that a second poster would probably not be worth it. But I still liked the new version of RLMeta. What to do?</p>
-<p>I decided to attempt to present the new version of RLMeta in the style of a code walk through. In other words, another way to showcase RLMeta that is also a bit more practical. Compared to poster version, this versions could also be more easily improved because the rendering of the blog post is automatic compared to the rendering of the poster which is a lot of manual work every time the source changes. I also wanted to experiment with the walk through format because I think it might also be something worth putting into the README of a project.</p>
+<p>A while ago I created a <a href="../../writing/creating-rlmeta-poster/">poster</a> to showcase RLMeta. To be able to finish the poster, I had to stop coding on RLMeta and put the source code on a poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
+<p>Almost immediately after I finished the poster, I started work on a second version. Initially, my plan was to make a second version of the poster. I started to fix the unresolved items and I was making progress. But somehow imperfections kept creeping in. It felt like a never ending game of chasing perfection. That’s when I decided that a second poster would probably not be worth it. But I still liked the new version of RLMeta.</p>
+<p>I decided to attempt to present the new version of RLMeta in the style of a code walk through. In other words, another way to showcase RLMeta that is also a bit more practical. Compared to the poster version, this versions could also be more easily improved because the rendering of the blog post is automatic compared to the rendering of the poster which is a lot of manual work every time the source code changes. I also wanted to experiment with the walk through format because I think it might be something worth putting into the README of a project.</p>
 <p>The remaining of this blog post consists of the walk through of the new version of RLMeta and then a section on the most important changes from the poster version and motivations for them.</p>
 <h2 id="getting-the-source-code">Getting the source code</h2>
-<p>In order to follow along on this walk through, you need the source code of this version of RLMeta which can be download here: <a href="rlmeta-poster-2.zip">rlmeta-poster-2.zip</a>.</p>
+<p>In order to follow along on this walk through, you need this version of RLMeta which can be download here: <a href="rlmeta-poster-2.zip">rlmeta-poster-2.zip</a>.</p>
 <h2 id="structure">Structure</h2>
 <p>The zip file consists of the source code, a make script, and the RLMeta compiler itself (<code>rlmeta.py</code>):</p>
 <pre><code>$ tree --dirsfirst
@@ -86,14 +86,83 @@
   237 src/support.py
   419 total</code></pre>
 <p>The RLMeta compiler can be created from the source code.</p>
+<h2 id="exploring-rlmeta">Exploring RLMeta</h2>
+<p>Before we dive into how the RLMeta compiler is created, let’s explore what it can do. The RLMeta compiler takes various inputs and outputs Python code.</p>
+<p>The most fundamental way it does that is with the <code>--compile</code> option that specifies a grammar file:</p>
+<pre><code>$ python rlmeta.py --compile &lt;(echo 'Foo { foo = . }')
+class Foo(Grammar):
+    rules = {
+        'foo': 0
+    }
+    code = [
+        PUSH_SCOPE,
+        MATCH,
+        'any',
+        lambda x: True,
+        POP_SCOPE,
+        RETURN
+    ]</code></pre>
+<p>This is the same as piping a grammar into the compiler with no arguments:</p>
+<pre><code>$ echo 'Foo { foo = . }' | python rlmeta.py
+class Foo(Grammar):
+    rules = {
+        'foo': 0
+    }
+    code = [
+        PUSH_SCOPE,
+        MATCH,
+        'any',
+        lambda x: True,
+        POP_SCOPE,
+        RETURN
+    ]</code></pre>
+<p>The generated Python code depends on a support library. The <code>--support</code> option can be used to generate that library:</p>
+<pre><code>$ python rlmeta.py --support | grep '^\(class\|def\)'
+class VM:
+def PUSH_SCOPE(vm):
+def POP_SCOPE(vm):
+def BACKTRACK(vm):
+def COMMIT(vm):
+def CALL(vm):
+def CALL_(vm, pc):
+def RETURN(vm):
+def MATCH(vm):
+def MATCH_(vm, fn, message):
+def MATCH_CALL_RULE(vm):
+def LIST_START(vm):
+def LIST_APPEND(vm):
+def LIST_END(vm):
+def BIND(vm):
+def ACTION(vm):
+def PUSH_STREAM(vm):
+def POP_STREAM(vm):
+def FAIL(vm):
+def FAIL_(vm, fail_message):
+class SemanticAction(object):
+class MatchError(Exception):
+class Grammar(object):
+class Runtime(dict):
+class Counter(object):
+def splice(depth, item):
+def concat(lists):
+def join(items, delimiter=&quot;&quot;):
+def indent(text, prefix=&quot;    &quot;):
+def compile_chain(grammars, source):</code></pre>
+<p>Next, the compiler has a <code>--embed</code> options which takes a name and a file. It will generated a Python variable assignment where the first argument is the name of the variable and the contents of the file is the string value of the variable:</p>
+<pre><code>$ python rlmeta.py --embed FOO &lt;(echo hello)
+FOO = 'hello\n'</code></pre>
+<p>And finally, it has an option to do verbatim copy of a file:</p>
+<pre><code>$ python rlmeta.py --copy &lt;(echo 'print(&quot;hello&quot;)')
+print(&quot;hello&quot;)</code></pre>
 <h2 id="do-a-meta-compilation">Do a meta-compilation</h2>
+<p>Now that we have an understanding of the RLMeta compiler, let’s see how we can create it from the source code. Here is the full command:</p>
 <pre><code>$ python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py &gt; rlmeta-raw.py</code></pre>
-<p>Let’s break down this command:</p>
+<p>Let’s break it down:</p>
 <ul>
 <li>First we invoke the compiler: <code>python rlmeta.py</code>.</li>
 <li>The first argument <code>--embed SUPPORT src/support.py</code> tells the compiler to generate a Python variable named <code>SUPPORT</code> containing the contents of the file <code>src/suppor.py</code>.</li>
 <li>The next argument <code>--support</code> tells the compiler to generate the support library that is embedded in the compiler.</li>
-<li>The <code>--compile ...</code> arguments tell the compiler to compile the given files and generate code for them.</li>
+<li>The <code>--compile ...</code> arguments tell the compiler to compile the given grammar files.</li>
 <li>The last argument, <code>--copy src/main.py</code> tells the compiler to copy the file verbatim.</li>
 </ul>
 <p>The make script can be called with the <code>compile</code> argument to perform this exact function:</p>
@@ -104,6 +173,7 @@
 8f438ec43dc93d0297415c7ddbcc683c  rlmeta-compile.py
 8f438ec43dc93d0297415c7ddbcc683c  rlmeta-raw.py</code></pre>
 <p>Thus, the RLMeta compiler reproduced itself exactly from the source code.</p>
+<h2 id="the-usage-of-the-make-script">The usage of the make script</h2>
 <h2 id="follow-transformation-of-a-simple-program">Follow transformation of a simple program</h2>
 <h2 id="code">Code</h2>
 <div class="highlight">
