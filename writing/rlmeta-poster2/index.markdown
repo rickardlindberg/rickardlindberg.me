@@ -1,13 +1,13 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-11-23
+date: 2021-12-02
 tags: rlmeta,draft
 ---
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
-showcase RLMeta. To be able to finish the poster, I had to stop polishing
+showcase RLMeta. To be able to finish the poster, I had to stop coding on
 RLMeta and put the source code on a poster. That was difficult because I felt
 the need for it to be perfect. Eventually I did stop polishing, and left a few
 items unresolved.
@@ -17,16 +17,16 @@ version. Initially, my plan was to make a second version of the poster. I
 started to fix the unresolved items and I was making progress. But somehow
 imperfections kept creeping in. It felt like a never ending game of chasing
 perfection. That's when I decided that a second poster would probably not be
-worth it. But I still liked the new version of RLMeta. What to do?
+worth it. But I still liked the new version of RLMeta.
 
 I decided to attempt to present the new version of RLMeta in the style of a
 code walk through. In other words, another way to showcase RLMeta that is also
-a bit more practical. Compared to poster version, this versions could also be
-more easily improved because the rendering of the blog post is automatic
+a bit more practical. Compared to the poster version, this versions could also
+be more easily improved because the rendering of the blog post is automatic
 compared to the rendering of the poster which is a lot of manual work every
-time the source changes. I also wanted to experiment with the walk through
-format because I think it might also be something worth putting into the README
-of a project.
+time the source code changes. I also wanted to experiment with the walk through
+format because I think it might be something worth putting into the README of a
+project.
 
 The remaining of this blog post consists of the walk through of the new
 version of RLMeta and then a section on the most important changes from the
@@ -34,9 +34,8 @@ poster version and motivations for them.
 
 ## Getting the source code
 
-In order to follow along on this walk through, you need the source code of this
-version of RLMeta which can be download here:
-[rlmeta-poster-2.zip](rlmeta-poster-2.zip).
+In order to follow along on this walk through, you need this version of RLMeta
+which can be download here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## Structure
 
@@ -68,11 +67,100 @@ Looking at the source code, this is it:
 
 The RLMeta compiler can be created from the source code.
 
+## Exploring RLMeta
+
+Before we dive into how the RLMeta compiler is created, let's explore what it
+can do. The RLMeta compiler takes various inputs and outputs Python code.
+
+The most fundamental way it does that is with the `--compile` option that
+specifies a grammar file:
+
+    $ python rlmeta.py --compile <(echo 'Foo { foo = . }')
+    class Foo(Grammar):
+        rules = {
+            'foo': 0
+        }
+        code = [
+            PUSH_SCOPE,
+            MATCH,
+            'any',
+            lambda x: True,
+            POP_SCOPE,
+            RETURN
+        ]
+
+This is the same as piping a grammar into the compiler with no arguments:
+
+    $ echo 'Foo { foo = . }' | python rlmeta.py
+    class Foo(Grammar):
+        rules = {
+            'foo': 0
+        }
+        code = [
+            PUSH_SCOPE,
+            MATCH,
+            'any',
+            lambda x: True,
+            POP_SCOPE,
+            RETURN
+        ]
+
+The generated Python code depends on a support library. The `--support` option
+can be used to generate that library:
+
+    $ python rlmeta.py --support | grep '^\(class\|def\)'
+    class VM:
+    def PUSH_SCOPE(vm):
+    def POP_SCOPE(vm):
+    def BACKTRACK(vm):
+    def COMMIT(vm):
+    def CALL(vm):
+    def CALL_(vm, pc):
+    def RETURN(vm):
+    def MATCH(vm):
+    def MATCH_(vm, fn, message):
+    def MATCH_CALL_RULE(vm):
+    def LIST_START(vm):
+    def LIST_APPEND(vm):
+    def LIST_END(vm):
+    def BIND(vm):
+    def ACTION(vm):
+    def PUSH_STREAM(vm):
+    def POP_STREAM(vm):
+    def FAIL(vm):
+    def FAIL_(vm, fail_message):
+    class SemanticAction(object):
+    class MatchError(Exception):
+    class Grammar(object):
+    class Runtime(dict):
+    class Counter(object):
+    def splice(depth, item):
+    def concat(lists):
+    def join(items, delimiter=""):
+    def indent(text, prefix="    "):
+    def compile_chain(grammars, source):
+
+Next, the compiler has a `--embed` options which takes a name and a file. It
+will generated a Python variable assignment where the first argument is the
+name of the variable and the contents of the file is the string value of the
+variable:
+
+    $ python rlmeta.py --embed FOO <(echo hello)
+    FOO = 'hello\n'
+
+And finally, it has an option to do verbatim copy of a file:
+
+    $ python rlmeta.py --copy <(echo 'print("hello")')
+    print("hello")
+
 ## Do a meta-compilation
+
+Now that we have an understanding of the RLMeta compiler, let's see how we
+can create it from the source code. Here is the full command:
 
     $ python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py > rlmeta-raw.py
 
-Let's break down this command:
+Let's break it down:
 
 * First we invoke the compiler: `python rlmeta.py`.
 * The first argument `--embed SUPPORT src/support.py` tells the compiler to
@@ -80,8 +168,8 @@ Let's break down this command:
   file `src/suppor.py`.
 * The next argument `--support` tells the compiler to generate the support
   library that is embedded in the compiler.
-* The `--compile ...` arguments tell the compiler to compile the given files
-  and generate code for them.
+* The `--compile ...` arguments tell the compiler to compile the given grammar
+  files.
 * The last argument, `--copy src/main.py` tells the compiler to copy the file
   verbatim.
 
@@ -98,6 +186,8 @@ And all these files are exactly the same:
     8f438ec43dc93d0297415c7ddbcc683c  rlmeta-raw.py
 
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
+
+## The usage of the make script
 
 ## Follow transformation of a simple program
 
