@@ -1,28 +1,30 @@
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
-showcase RLMeta. To be able to finish the poster, I had to stop coding on
-RLMeta and put the source code on a poster. That was difficult because I felt
-the need for it to be perfect. Eventually I did stop polishing, and left a few
-items unresolved.
+showcase RLMeta. The version of RLMeta on the poster is based on the version
+from the [memoizing failures](/writing/rlmeta-memoize-failures/index.html)
+article, but I made it smaller and more beautiful to better suit a poster. To
+be able to finish the poster, I had to stop making changes and put the source
+code on the poster. That was difficult because I felt the need for it to be
+perfect. Eventually I did stop polishing, and left a few items unresolved.
 
-Almost immediately after I finished the poster, I started work on a second
+Almost immediately after I finished the poster, I started working on a second
 version. Initially, my plan was to make a second version of the poster. I
 started to fix the unresolved items and I was making progress. But somehow
 imperfections kept creeping in. It felt like a never ending game of chasing
-perfection. That's when I decided that a second poster would probably not be
-worth it. But I still liked the new version of RLMeta.
+perfection. That's when I decided that a second poster was probably not going
+to be worth it. But I still liked the new version of RLMeta.
 
-I decided to attempt to present the new version of RLMeta in the style of a
-code walk through. In other words, another way to showcase RLMeta that is also
-a bit more practical. Compared to the poster version, this versions could also
-be more easily improved because the rendering of the blog post is automatic
+Instead, I decided to attempt to present the new version in the style of a code
+walk through. In other words, another way to showcase RLMeta that is also a bit
+more practical. Compared to the poster version, this versions could also be
+more easily improved because the rendering of the blog post is automatic
 compared to the rendering of the poster which is a lot of manual work every
 time the source code changes. I also wanted to experiment with the walk through
-format because I think it might be something worth putting into the README of a
-project.
+format because I thought it might be something that is worth putting into the
+README of a project.
 
-The remaining of this blog post consists of the walk through of the new
-version of RLMeta and then a section on the most important changes from the
-poster version and motivations for them.
+The rest of this blog post consists of the walk through of the new version of
+RLMeta and a section on the most important changes from the poster version and
+motivations for them.
 
 ## Getting the source code
 
@@ -50,27 +52,27 @@ can do. The RLMeta compiler takes various inputs and outputs Python code.
 The most fundamental way it does that is with the `--compile` option that
 specifies a grammar file:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --compile <(echo 'Foo { foo = . }')
+$:shell:rlmeta-poster-2:python rlmeta.py --compile <(echo 'Foo { foo = .  }'):python
 
 This is the same as piping a grammar into the compiler with no arguments:
 
-$:shell:rlmeta-poster-2:echo 'Foo { foo = . }' | python rlmeta.py
+$:shell:rlmeta-poster-2:echo 'Foo { foo = . }' | python rlmeta.py:python
 
 The generated Python code depends on a support library. The `--support` option
 can be used to generate that library:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --support | grep '^\(class\|def\)'
+$:shell:rlmeta-poster-2:python rlmeta.py --support | grep '^\(class\|def\)':python
 
 Next, the compiler has a `--embed` options which takes a name and a file. It
 will generated a Python variable assignment where the first argument is the
 name of the variable and the contents of the file is the string value of the
 variable:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --embed FOO <(echo hello)
+$:shell:rlmeta-poster-2:python rlmeta.py --embed FOO <(echo hello):python
 
 And finally, it has an option to do verbatim copy of a file:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --copy <(echo 'print("hello")')
+$:shell:rlmeta-poster-2:python rlmeta.py --copy <(echo 'print("hello")'):python
 
 ## Do a meta-compilation
 
@@ -110,6 +112,14 @@ Thus, the RLMeta compiler reproduced itself exactly from the source code.
 ## Code
 
 $:code:rlmeta-poster-2/src/parser.rlmeta
+
+$:code:rlmeta-poster-2/src/codegenerator.rlmeta
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta
+
+$:code:rlmeta-poster-2/src/support.py
+
+$:code:rlmeta-poster-2/src/main.py
 
 --
 
