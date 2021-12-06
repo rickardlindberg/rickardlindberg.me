@@ -1,7 +1,7 @@
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
 showcase RLMeta. The version of RLMeta on the poster is based on the version
 from the [memoizing failures](/writing/rlmeta-memoize-failures/index.html)
-article, but I made it smaller and more beautiful to better suit a poster. To
+article, but I made it smaller and more beautiful to better fit a poster. To
 be able to finish the poster, I had to stop making changes and put the source
 code on the poster. That was difficult because I felt the need for it to be
 perfect. Eventually I did stop polishing, and left a few items unresolved.
@@ -15,64 +15,70 @@ to be worth it. But I still liked the new version of RLMeta.
 
 Instead, I decided to attempt to present the new version in the style of a code
 walk through. In other words, another way to showcase RLMeta that is also a bit
-more practical. Compared to the poster version, this versions could also be
-more easily improved because the rendering of the blog post is automatic
-compared to the rendering of the poster which is a lot of manual work every
-time the source code changes. I also wanted to experiment with the walk through
-format because I thought it might be something that is worth putting into the
-README of a project.
+more practical. Compared to the poster version, this version could also be more
+easily improved because rendering the blog post is automatic whereas creating
+the layout of a poster requires manual work every time the source code changes.
+I also wanted to experiment with the walk through format because I thought it
+could be something worth putting into the README of a project.
 
 The rest of this blog post consists of the walk through of the new version of
 RLMeta and a section on the most important changes from the poster version and
 motivations for them.
 
-## Getting the source code
+## Getting RLMeta
 
-In order to follow along on this walk through, you need this version of RLMeta
-which can be download here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
+In order to follow along on this walk through, you need to download this
+version of RLMeta from here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
-## Structure
+## File structure
 
 The zip file consists of the source code, a make script, and the RLMeta
-compiler itself (`rlmeta.py`):
+compiler:
 
 $:shell:rlmeta-poster-2:tree --dirsfirst
 
-Looking at the source code, this is it:
+The size of the source code is quite small:
 
 $:shell:rlmeta-poster-2:wc -l src/*
 
-The RLMeta compiler can be created from the source code.
+The RLMeta compiler can be created from this source code only. We will see how
+later in this walk through, and also learn what the make script does.
 
 ## Exploring RLMeta
 
 Before we dive into how the RLMeta compiler is created, let's explore what it
-can do. The RLMeta compiler takes various inputs and outputs Python code.
+can do.
 
-The most fundamental way it does that is with the `--compile` option that
-specifies a grammar file:
+The main function of the RLMeta compiler is to transform grammars to Python
+code. It does that is with the `--compile` option which specifies a grammar
+file to transform:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --compile <(echo 'Foo { foo = .  }'):python
 
-This is the same as piping a grammar into the compiler with no arguments:
+The same function can be achieved by piping a grammar into RLMeta's stdin:
 
 $:shell:rlmeta-poster-2:echo 'Foo { foo = . }' | python rlmeta.py:python
 
-The generated Python code depends on a support library. The `--support` option
-can be used to generate that library:
+A grammar is read from stdin and compiled if no arguments are given or if
+`--compile` is given the `-` argument.
+
+The generated Python code for a grammar depends on a support library. The
+`--support` option can be used to generate that library:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --support | grep '^\(class\|def\)':python
 
-Next, the compiler has a `--embed` options which takes a name and a file. It
-will generated a Python variable assignment where the first argument is the
-name of the variable and the contents of the file is the string value of the
-variable:
+Next, the compiler has a `--embed` options which takes a name and a filename. The
+compiler will generate a Python variable assignment where the name is the name
+of the variable and the value is the contents of the file:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --embed FOO <(echo hello):python
 
-And finally, it has an option to do verbatim copy of a file:
+And finally, the compiler has an option to do verbatim copy of files:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --copy <(echo 'print("hello")'):python
+
+## Making a small program with RLMeta
+
 
 ## Do a meta-compilation
 
@@ -106,8 +112,6 @@ $:shell:rlmeta-poster-2:md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
 
 ## The usage of the make script
-
-## Follow transformation of a simple program
 
 ## Code
 
