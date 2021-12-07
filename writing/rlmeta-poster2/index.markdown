@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-06
+date: 2021-12-07
 tags: rlmeta,draft
 ---
 
@@ -9,7 +9,7 @@ tags: rlmeta,draft
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
 showcase RLMeta. The version of RLMeta on the poster is based on the version
 from the [memoizing failures](/writing/rlmeta-memoize-failures/index.html)
-article, but I made it smaller and more beautiful to better fit a poster. To
+article, but I made it smaller and more beautiful to better fit the poster. To
 be able to finish the poster, I had to stop making changes and put the source
 code on the poster. That was difficult because I felt the need for it to be
 perfect. Eventually I did stop polishing, and left a few items unresolved.
@@ -69,18 +69,22 @@ The size of the source code is quite small:
 </pre></div>
 
 The RLMeta compiler can be created from this source code only. We will see how
-later in this walk through, and also learn what the make script does.
+later in this walk through.
 
 ## Exploring RLMeta
 
 Before we dive into how the RLMeta compiler is created, let's explore what it
 can do.
 
-The main function of the RLMeta compiler is to transform grammars to Python
-code. It does that is with the `--compile` option which specifies a grammar
+The main function of the RLMeta compiler is to transform grammars into to
+Python code. It does that with the `--compile` option which specifies a grammar
 file to transform:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile &lt;<span class="o">(</span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = .  }&#39;</span><span class="o">)</span>
+<div class="highlight"><pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = .  }&#39;</span> &gt; example.grammar
+<span></span>
+</pre></div>
+
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
 <span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -95,7 +99,7 @@ file to transform:
     <span class="p">]</span>
 </pre></div>
 
-The same function can be achieved by piping a grammar into RLMeta's stdin:
+The same function can be achieved by piping a grammar into its stdin:
 
 <div class="highlight"><pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = . }&#39;</span> <span class="p">|</span> python rlmeta.py
 <span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
@@ -112,8 +116,8 @@ The same function can be achieved by piping a grammar into RLMeta's stdin:
     <span class="p">]</span>
 </pre></div>
 
-A grammar is read from stdin and compiled if no arguments are given or if
-`--compile` is given the `-` argument.
+When RLMeta is invoked without arguments, the `--compile` option is assumed
+with a value of `-` which stands for stdin.
 
 The generated Python code for a grammar depends on a support library. The
 `--support` option can be used to generate that library:
@@ -151,18 +155,19 @@ The generated Python code for a grammar depends on a support library. The
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
 </pre></div>
 
-Next, the compiler has a `--embed` options which takes a name and a filename. The
-compiler will generate a Python variable assignment where the name is the name
-of the variable and the value is the contents of the file:
+Next, the RLMeta compiler has an `--embed` option which takes a name and a
+filename. It is used to generate a Python variable assignment where the name is
+the name of the variable and the value is the contents of the file:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --embed FOO &lt;<span class="o">(</span><span class="nb">echo</span> hello<span class="o">)</span>
-<span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;hello</span><span class="se">\n</span><span class="s1">&#39;</span>
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --embed FOO example.grammar
+<span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;Foo { foo = .  }</span><span class="se">\n</span><span class="s1">&#39;</span>
 </pre></div>
 
-And finally, the compiler has an option to do verbatim copy of files:
+And finally, the compiler has an option to do verbatim copy of files with the
+`--copy` flag:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --copy &lt;<span class="o">(</span><span class="nb">echo</span> <span class="s1">&#39;print(&quot;hello&quot;)&#39;</span><span class="o">)</span>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --copy example.grammar
+<span></span>Foo { foo <span class="nb">=</span> <span class="nc">.</span>  }
 </pre></div>
 
 ## Making a small program with RLMeta

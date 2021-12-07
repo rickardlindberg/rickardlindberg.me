@@ -29,7 +29,10 @@ def code(path):
 
 def pygmentize(text, lexer, strip_beginning=False, strip_end=False):
     pygments_cmd = ["pygmentize"]
-    pygments_cmd.extend(["-l", lexer])
+    if lexer == "rlmeta":
+        pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
+    else:
+        pygments_cmd.extend(["-l", lexer])
     pygments_cmd.extend(["-f", "html"])
     html = subprocess.check_output(pygments_cmd, text=True, input=text)
     if strip_beginning:
