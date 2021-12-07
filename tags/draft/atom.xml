@@ -8,19 +8,19 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-12-06T00:00:00Z</updated>
+    <updated>2021-12-07T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2021-12-06T00:00:00Z</published>
-    <updated>2021-12-06T00:00:00Z</updated>
+    <published>2021-12-07T00:00:00Z</published>
+    <updated>2021-12-07T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on  6 December 2021.</em></p>
+<p><em>Published on  7 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit a poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
+<p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
 <p>Almost immediately after I finished the poster, I started working on a second version. Initially, my plan was to make a second version of the poster. I started to fix the unresolved items and I was making progress. But somehow imperfections kept creeping in. It felt like a never ending game of chasing perfection. That’s when I decided that a second poster was probably not going to be worth it. But I still liked the new version of RLMeta.</p>
 <p>Instead, I decided to attempt to present the new version in the style of a code walk through. In other words, another way to showcase RLMeta that is also a bit more practical. Compared to the poster version, this version could also be more easily improved because rendering the blog post is automatic whereas creating the layout of a poster requires manual work every time the source code changes. I also wanted to experiment with the walk through format because I thought it could be something worth putting into the README of a project.</p>
 <p>The rest of this blog post consists of the walk through of the new version of RLMeta and a section on the most important changes from the poster version and motivations for them.</p>
@@ -54,12 +54,17 @@
   419 total
 </pre>
 </div>
-<p>The RLMeta compiler can be created from this source code only. We will see how later in this walk through, and also learn what the make script does.</p>
+<p>The RLMeta compiler can be created from this source code only. We will see how later in this walk through.</p>
 <h2 id="exploring-rlmeta">Exploring RLMeta</h2>
 <p>Before we dive into how the RLMeta compiler is created, let’s explore what it can do.</p>
-<p>The main function of the RLMeta compiler is to transform grammars to Python code. It does that is with the <code>--compile</code> option which specifies a grammar file to transform:</p>
+<p>The main function of the RLMeta compiler is to transform grammars into to Python code. It does that with the <code>--compile</code> option which specifies a grammar file to transform:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --compile &lt;<span class="o">(</span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = .  }&#39;</span><span class="o">)</span>
+<pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = .  }&#39;</span> &gt; example.grammar
+<span></span>
+</pre>
+</div>
+<div class="highlight">
+<pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
 <span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;foo&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -74,7 +79,7 @@
     <span class="p">]</span>
 </pre>
 </div>
-<p>The same function can be achieved by piping a grammar into RLMeta’s stdin:</p>
+<p>The same function can be achieved by piping a grammar into its stdin:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;Foo { foo = . }&#39;</span> <span class="p">|</span> python rlmeta.py
 <span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
@@ -91,7 +96,7 @@
     <span class="p">]</span>
 </pre>
 </div>
-<p>A grammar is read from stdin and compiled if no arguments are given or if <code>--compile</code> is given the <code>-</code> argument.</p>
+<p>When RLMeta is invoked without arguments, the <code>--compile</code> option is assumed with a value of <code>-</code> which stands for stdin.</p>
 <p>The generated Python code for a grammar depends on a support library. The <code>--support</code> option can be used to generate that library:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>python rlmeta.py --support <span class="p">|</span> grep <span class="s1">&#39;^\(class\|def\)&#39;</span>
@@ -127,16 +132,16 @@
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
 </pre>
 </div>
-<p>Next, the compiler has a <code>--embed</code> options which takes a name and a filename. The compiler will generate a Python variable assignment where the name is the name of the variable and the value is the contents of the file:</p>
+<p>Next, the RLMeta compiler has an <code>--embed</code> option which takes a name and a filename. It is used to generate a Python variable assignment where the name is the name of the variable and the value is the contents of the file:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --embed FOO &lt;<span class="o">(</span><span class="nb">echo</span> hello<span class="o">)</span>
-<span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;hello</span><span class="se">\n</span><span class="s1">&#39;</span>
+<pre><span></span>$ <span></span>python rlmeta.py --embed FOO example.grammar
+<span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;Foo { foo = .  }</span><span class="se">\n</span><span class="s1">&#39;</span>
 </pre>
 </div>
-<p>And finally, the compiler has an option to do verbatim copy of files:</p>
+<p>And finally, the compiler has an option to do verbatim copy of files with the <code>--copy</code> flag:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --copy &lt;<span class="o">(</span><span class="nb">echo</span> <span class="s1">&#39;print(&quot;hello&quot;)&#39;</span><span class="o">)</span>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+<pre><span></span>$ <span></span>python rlmeta.py --copy example.grammar
+<span></span>Foo { foo <span class="nb">=</span> <span class="nc">.</span>  }
 </pre>
 </div>
 <h2 id="making-a-small-program-with-rlmeta">Making a small program with RLMeta</h2>
