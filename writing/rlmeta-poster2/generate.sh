@@ -34,4 +34,5 @@ rm -rf a/ b/ rlmeta-poster-2-new.zip
 gen > index.markdown
 
 rm -f rlmeta-poster-2/rlmeta-*.py
-rm -f rlmeta-poster-2/example.grammar
+rm -f rlmeta-poster-2/example*
+rm -f rlmeta-poster-2/counter.py

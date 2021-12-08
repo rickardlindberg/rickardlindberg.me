@@ -6,6 +6,8 @@ import subprocess
 def process_line(line):
     if line.startswith("$:shell:"):
         return shell(*line.strip().split(":")[2:])
+    elif line.startswith("$#shell#"):
+        return shell(*line.strip().split("#")[2:])
     elif line.startswith("$:code:"):
         return code(*line.strip().split(":")[2:])
     else:
@@ -16,7 +18,11 @@ def shell(cwd, cmd, lexer="text"):
         pygmentize("$ ", "text", strip_end=True),
         pygmentize(cmd, "bash", strip_beginning=True, strip_end=True),
         '\n',
-        pygmentize(subprocess.check_output(cmd, cwd=cwd, shell=True, text=True), lexer, strip_beginning=True),
+        pygmentize(
+            subprocess.check_output(cmd, cwd=cwd, shell=True, text=True),
+            lexer,
+            strip_beginning=True
+        ),
     ]).splitlines(True)
 
 def code(path):

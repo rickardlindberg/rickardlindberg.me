@@ -44,14 +44,14 @@ $:shell:rlmeta-poster-2:wc -l src/*
 The RLMeta compiler can be created from this source code only. We will see how
 later in this walk through.
 
-## Exploring RLMeta
+## Exploring the RLMeta compiler
 
 Before we dive into how the RLMeta compiler is created, let's explore what it
 can do.
 
-The main function of the RLMeta compiler is to transform grammars into to
-Python code. It does that with the `--compile` option which specifies a grammar
-file to transform:
+The main function of the compiler is to transform grammars into to Python code.
+It does that with the `--compile` option which specifies a grammar file to
+transform:
 
 $:shell:rlmeta-poster-2:echo 'Foo { foo = .  }' > example.grammar
 
@@ -61,27 +61,62 @@ The same function can be achieved by piping a grammar into its stdin:
 
 $:shell:rlmeta-poster-2:echo 'Foo { foo = . }' | python rlmeta.py:python
 
-When RLMeta is invoked without arguments, the `--compile` option is assumed
-with a value of `-` which stands for stdin.
+When the compiler is invoked without arguments, the `--compile` option is
+assumed with a value of `-` which stands for stdin.
 
 The generated Python code for a grammar depends on a support library. The
 `--support` option can be used to generate that library:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --support | grep '^\(class\|def\)':python
 
-Next, the RLMeta compiler has an `--embed` option which takes a name and a
+Next, the compiler has an `--embed` option which takes a name and a
 filename. It is used to generate a Python variable assignment where the name is
 the name of the variable and the value is the contents of the file:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --embed FOO example.grammar:python
 
 And finally, the compiler has an option to do verbatim copy of files with the
-`--copy` flag:
+`--copy` option:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --copy example.grammar:rlmeta
 
-## Making a small program with RLMeta
+## Writing a small program in RLMeta
 
+What types of programs can we write using RLMeta?
+
+In RLMeta, we write grammars. Grammars have rules that specify how to match
+objects from an input stream and specify what should happen when objects are
+matched.
+
+Let's write a grammar that counts the number of objects in an input stream and
+produces a report:
+
+$#shell#rlmeta-poster-2#echo 'CountGrammar { count = .*:xs -> { "number of objects = " len(xs) } }' > example.grammar
+
+Compiling this grammar gives a Python class with the same name:
+
+$:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar | grep '^class':python
+
+To be able to use this class, the support library must come before it so that
+`Grammar`, for example, is defined:
+
+$:shell:rlmeta-poster-2:python rlmeta.py --support --compile example.grammar | grep '^class':python
+
+To create a complete program, we also have to write a main function that
+instantiates the `CountGrammar` grammar and invokes its `count` rule.
+
+Here is an example that passes stdin to the `count` rule and prints the result
+to stdout:
+
+$:shell:rlmeta-poster-2:echo -e 'import sys\nsys.stdout.write(CountGrammar().run("count", sys.stdin.read()))' > example.py
+
+Combining these pieces, we get this:
+
+$:shell:rlmeta-poster-2:python rlmeta.py --support --compile example.grammar --copy example.py > counter.py
+
+$:shell:rlmeta-poster-2:echo 'hello' | python counter.py
+
+$:shell:rlmeta-poster-2:echo 'this is longer' | python counter.py
 
 ## Do a meta-compilation
 
