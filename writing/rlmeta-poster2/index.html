@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on  7 December 2021.</em></p>
+<p><em>Published on  8 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="../../writing/creating-rlmeta-poster/">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="../../writing/rlmeta-memoize-failures/">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
@@ -92,9 +92,9 @@
 </pre>
 </div>
 <p>The RLMeta compiler can be created from this source code only. We will see how later in this walk through.</p>
-<h2 id="exploring-rlmeta">Exploring RLMeta</h2>
+<h2 id="exploring-the-rlmeta-compiler">Exploring the RLMeta compiler</h2>
 <p>Before we dive into how the RLMeta compiler is created, let’s explore what it can do.</p>
-<p>The main function of the RLMeta compiler is to transform grammars into to Python code. It does that with the <code>--compile</code> option which specifies a grammar file to transform:</p>
+<p>The main function of the compiler is to transform grammars into to Python code. It does that with the <code>--compile</code> option which specifies a grammar file to transform:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">'Foo { foo = .  }'</span> &gt; example.grammar
 <span></span>
@@ -133,7 +133,7 @@
     <span class="p">]</span>
 </pre>
 </div>
-<p>When RLMeta is invoked without arguments, the <code>--compile</code> option is assumed with a value of <code>-</code> which stands for stdin.</p>
+<p>When the compiler is invoked without arguments, the <code>--compile</code> option is assumed with a value of <code>-</code> which stands for stdin.</p>
 <p>The generated Python code for a grammar depends on a support library. The <code>--support</code> option can be used to generate that library:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>python rlmeta.py --support <span class="p">|</span> grep <span class="s1">'^\(class\|def\)'</span>
@@ -169,19 +169,68 @@
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
 </pre>
 </div>
-<p>Next, the RLMeta compiler has an <code>--embed</code> option which takes a name and a filename. It is used to generate a Python variable assignment where the name is the name of the variable and the value is the contents of the file:</p>
+<p>Next, the compiler has an <code>--embed</code> option which takes a name and a filename. It is used to generate a Python variable assignment where the name is the name of the variable and the value is the contents of the file:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>python rlmeta.py --embed FOO example.grammar
 <span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">'Foo { foo = .  }</span><span class="se">\n</span><span class="s1">'</span>
 </pre>
 </div>
-<p>And finally, the compiler has an option to do verbatim copy of files with the <code>--copy</code> flag:</p>
+<p>And finally, the compiler has an option to do verbatim copy of files with the <code>--copy</code> option:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>python rlmeta.py --copy example.grammar
 <span></span>Foo { foo <span class="nb">=</span> <span class="nc">.</span>  }
 </pre>
 </div>
-<h2 id="making-a-small-program-with-rlmeta">Making a small program with RLMeta</h2>
+<h2 id="writing-a-small-program-in-rlmeta">Writing a small program in RLMeta</h2>
+<p>What types of programs can we write using RLMeta?</p>
+<p>In RLMeta, we write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched.</p>
+<p>Let’s write a grammar that counts the number of objects in an input stream and produces a report:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">'CountGrammar { count = .*:xs -&gt; { &quot;number of objects = &quot; len(xs) } }'</span> &gt; example.grammar
+<span></span>
+</pre>
+</div>
+<p>Compiling this grammar gives a Python class with the same name:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar <span class="p">|</span> grep <span class="s1">'^class'</span>
+<span></span><span class="k">class</span> <span class="nc">CountGrammar</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
+</pre>
+</div>
+<p>To be able to use this class, the support library must come before it so that <code>Grammar</code>, for example, is defined:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span>python rlmeta.py --support --compile example.grammar <span class="p">|</span> grep <span class="s1">'^class'</span>
+<span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">SemanticAction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MatchError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Grammar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Runtime</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CountGrammar</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
+</pre>
+</div>
+<p>To create a complete program, we also have to write a main function that instantiates the <code>CountGrammar</code> grammar and invokes its <code>count</code> rule.</p>
+<p>Here is an example that passes stdin to the <code>count</code> rule and prints the result to stdout:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span><span class="nb">echo</span> -e <span class="s1">'import sys\nsys.stdout.write(CountGrammar().run(&quot;count&quot;, sys.stdin.read()))'</span> &gt; example.py
+<span></span>
+</pre>
+</div>
+<p>Combining these pieces, we get this:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span>python rlmeta.py --support --compile example.grammar --copy example.py &gt; counter.py
+<span></span>
+</pre>
+</div>
+<div class="highlight">
+<pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">'hello'</span> <span class="p">|</span> python counter.py
+<span></span>number of objects = 6
+</pre>
+</div>
+<div class="highlight">
+<pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">'this is longer'</span> <span class="p">|</span> python counter.py
+<span></span>number of objects = 15
+</pre>
+</div>
 <h2 id="do-a-meta-compilation">Do a meta-compilation</h2>
 <p>Now that we have an understanding of the RLMeta compiler, let’s see how we can create it from the source code. Here is the full command:</p>
 <div class="highlight">
