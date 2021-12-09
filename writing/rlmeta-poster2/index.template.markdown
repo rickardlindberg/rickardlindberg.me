@@ -53,16 +53,21 @@ The main function of the compiler is to transform grammars into to Python code.
 It does that with the `--compile` option which specifies a grammar file to
 transform:
 
-$:shell:rlmeta-poster-2:echo 'Foo { foo = .  }' > example.grammar
+$~shell~rlmeta-poster-2~echo -e 'Example {\n  main = .\n}' > example.grammar
+
+$:shell:rlmeta-poster-2:cat example.grammar:rlmeta
 
 $:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar:python
 
 The same function can be achieved by piping a grammar into its stdin:
 
-$:shell:rlmeta-poster-2:echo 'Foo { foo = . }' | python rlmeta.py:python
+$:shell:rlmeta-poster-2:cat example.grammar | python rlmeta.py:python
 
 When the compiler is invoked without arguments, the `--compile` option is
 assumed with a value of `-` which stands for stdin.
+
+Don't worry about understanding the generated code now. We will explore it more
+later.
 
 The generated Python code for a grammar depends on a support library. The
 `--support` option can be used to generate that library:
@@ -80,6 +85,8 @@ And finally, the compiler has an option to do verbatim copy of files with the
 
 $:shell:rlmeta-poster-2:python rlmeta.py --copy example.grammar:rlmeta
 
+$~shell~rlmeta-poster-2~rm example.grammar
+
 ## Writing a small program in RLMeta
 
 What types of programs can we write using RLMeta?
@@ -91,32 +98,40 @@ matched.
 Let's write a grammar that counts the number of objects in an input stream and
 produces a report:
 
-$#shell#rlmeta-poster-2#echo 'CountGrammar { count = .*:xs -> { "number of objects = " len(xs) } }' > example.grammar
+$~shell~rlmeta-poster-2~echo -e 'ObjectCounter {\n  count = .*:xs -> { "number of objects = " len(xs) }\n}' > object_counter.grammar
+
+$:shell:rlmeta-poster-2:cat object_counter.grammar:rlmeta
 
 Compiling this grammar gives a Python class with the same name:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar | grep '^class':python
+$:shell:rlmeta-poster-2:python rlmeta.py --compile object_counter.grammar | grep '^class':python
 
 To be able to use this class, the support library must come before it so that
 `Grammar`, for example, is defined:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --support --compile example.grammar | grep '^class':python
+$:shell:rlmeta-poster-2:python rlmeta.py --support --compile object_counter.grammar | grep '^class':python
 
 To create a complete program, we also have to write a main function that
-instantiates the `CountGrammar` grammar and invokes its `count` rule.
+instantiates the `ObjectCounter` grammar and invokes its `count` rule.
 
 Here is an example that passes stdin to the `count` rule and prints the result
 to stdout:
 
-$:shell:rlmeta-poster-2:echo -e 'import sys\nsys.stdout.write(CountGrammar().run("count", sys.stdin.read()))' > example.py
+$~shell~rlmeta-poster-2~echo -e 'import sys\nsys.stdout.write(ObjectCounter().run("count", sys.stdin.read()))' > object_counter_main.py
+
+$:shell:rlmeta-poster-2:cat object_counter_main.py:python
 
 Combining these pieces, we get this:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --support --compile example.grammar --copy example.py > counter.py
+$:shell:rlmeta-poster-2:python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py > object_counter.py
 
-$:shell:rlmeta-poster-2:echo 'hello' | python counter.py
+$:shell:rlmeta-poster-2:echo 'hello' | python object_counter.py
 
-$:shell:rlmeta-poster-2:echo 'this is longer' | python counter.py
+$:shell:rlmeta-poster-2:echo 'this is longer' | python object_counter.py
+
+$~shell~rlmeta-poster-2~rm object_counter.grammar
+$~shell~rlmeta-poster-2~rm object_counter_main.py
+$~shell~rlmeta-poster-2~rm object_counter.py
 
 ## Do a meta-compilation
 
@@ -148,6 +163,9 @@ And all these files are exactly the same:
 $:shell:rlmeta-poster-2:md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
 
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
+
+$~shell~rlmeta-poster-2~rm rlmeta-compile.py
+$~shell~rlmeta-poster-2~rm rlmeta-raw.py
 
 ## The usage of the make script
 

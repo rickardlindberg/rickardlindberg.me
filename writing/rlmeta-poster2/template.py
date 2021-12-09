@@ -6,8 +6,10 @@ import subprocess
 def process_line(line):
     if line.startswith("$:shell:"):
         return shell(*line.strip().split(":")[2:])
-    elif line.startswith("$#shell#"):
-        return shell(*line.strip().split("#")[2:])
+    elif line.startswith("$~shell~"):
+        cwd, cmd = line.strip().split("~")[2:]
+        subprocess.check_output(cmd, cwd=cwd, shell=True)
+        return []
     elif line.startswith("$:code:"):
         return code(*line.strip().split(":")[2:])
     else:
