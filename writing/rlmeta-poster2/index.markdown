@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-09
+date: 2021-12-10
 tags: rlmeta,draft
 ---
 
@@ -71,62 +71,60 @@ The size of the source code is quite small:
 The RLMeta compiler can be created from this source code only. We will see how
 later in this walk through.
 
-## Exploring the RLMeta compiler
+## Exploring RLMeta
 
-Before we dive into how the RLMeta compiler is created, let's explore what it
-can do.
+Before we dive into how the RLMeta compiler is created, let's explore RLMeta by
+writing a small, but real, program in it.
 
-The main function of the compiler is to transform grammars into to Python code.
-It does that with the `--compile` option which specifies a grammar file to
-transform:
+What types of programs can we write in RLMeta?
+
+In RLMeta, we write grammars. Grammars have rules that specify how to match
+objects from an input stream and specify what should happen when objects are
+matched.
+
+Let's write a grammar that counts the number of objects in an input stream and
+produces a report:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat example.grammar
-<span></span>Example {
-  main <span class="nb">=</span> <span class="nc">.</span>
+<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar
+<span></span>ObjectCounter {
+  count <span class="nb">=</span> <span class="nc">.*</span><span class="nb">:</span>xs <span class="nb">-&gt;</span> { <span class="s">&quot;number of objects = &quot;</span> len(xs) }
 }
 </pre></div>
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
-<span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
+Compiling this grammar gives a Python class with the same name:
+
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.grammar
+<span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
     <span class="p">}</span>
     <span class="n">code</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">PUSH_SCOPE</span><span class="p">,</span>
+        <span class="n">LIST_START</span><span class="p">,</span>
+        <span class="n">BACKTRACK</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">,</span>
         <span class="n">MATCH</span><span class="p">,</span>
         <span class="s1">&#39;any&#39;</span><span class="p">,</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">LIST_APPEND</span><span class="p">,</span>
+        <span class="n">COMMIT</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">,</span>
+        <span class="n">LIST_END</span><span class="p">,</span>
+        <span class="n">BIND</span><span class="p">,</span>
+        <span class="s1">&#39;xs&#39;</span><span class="p">,</span>
+        <span class="n">ACTION</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">join</span><span class="p">([</span><span class="s1">&#39;number of objects = &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;len&#39;</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;xs&#39;</span><span class="p">))]),</span>
         <span class="n">POP_SCOPE</span><span class="p">,</span>
         <span class="n">RETURN</span>
     <span class="p">]</span>
 </pre></div>
-
-The same function can be achieved by piping a grammar into its stdin:
-
-<div class="highlight"><pre><span></span>$ <span></span>cat example.grammar <span class="p">|</span> python rlmeta.py
-<span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
-    <span class="p">}</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">PUSH_SCOPE</span><span class="p">,</span>
-        <span class="n">MATCH</span><span class="p">,</span>
-        <span class="s1">&#39;any&#39;</span><span class="p">,</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">POP_SCOPE</span><span class="p">,</span>
-        <span class="n">RETURN</span>
-    <span class="p">]</span>
-</pre></div>
-
-When the compiler is invoked without arguments, the `--compile` option is
-assumed with a value of `-` which stands for stdin.
 
 Don't worry about understanding the generated code now. We will explore it more
-later.
-
-The generated Python code for a grammar depends on a support library. The
-`--support` option can be used to generate that library:
+later. Just note that the generated class inherits from a class called
+`Grammar` and that is uses some constants like `PUSH_SCOPE` and `LIST_START`.
+These things are defined in a support library which can be generated by the
+RLMeta compiler with the `--support` option:
 
 <div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support <span class="p">|</span> grep <span class="s1">&#39;^\(class\|def\)&#39;</span>
 <span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
@@ -161,78 +159,32 @@ The generated Python code for a grammar depends on a support library. The
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
 </pre></div>
 
-Next, the compiler has an `--embed` option which takes a name and a
-filename. It is used to generate a Python variable assignment where the name is
-the name of the variable and the value is the contents of the file:
-
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --embed FOO example.grammar
-<span></span><span class="n">FOO</span> <span class="o">=</span> <span class="s1">&#39;Example {</span><span class="se">\n</span><span class="s1">  main = .</span><span class="se">\n</span><span class="s1">}</span><span class="se">\n</span><span class="s1">&#39;</span>
-</pre></div>
-
-And finally, the compiler has an option to do verbatim copy of files with the
-`--copy` option:
-
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --copy example.grammar
-<span></span>Example {
-  main <span class="nb">=</span> <span class="nc">.</span>
-}
-</pre></div>
-
-
-## Writing a small program in RLMeta
-
-What types of programs can we write using RLMeta?
-
-In RLMeta, we write grammars. Grammars have rules that specify how to match
-objects from an input stream and specify what should happen when objects are
-matched.
-
-Let's write a grammar that counts the number of objects in an input stream and
-produces a report:
-
-
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar
-<span></span>ObjectCounter {
-  count <span class="nb">=</span> <span class="nc">.*</span><span class="nb">:</span>xs <span class="nb">-&gt;</span> { <span class="s">&quot;number of objects = &quot;</span> len(xs) }
-}
-</pre></div>
-
-Compiling this grammar gives a Python class with the same name:
-
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.grammar <span class="p">|</span> grep <span class="s1">&#39;^class&#39;</span>
-<span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-</pre></div>
-
-To be able to use this class, the support library must come before it so that
-`Grammar`, for example, is defined:
-
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.grammar <span class="p">|</span> grep <span class="s1">&#39;^class&#39;</span>
-<span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">SemanticAction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">MatchError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Grammar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Runtime</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-</pre></div>
-
 To create a complete program, we also have to write a main function that
 instantiates the `ObjectCounter` grammar and invokes its `count` rule.
 
-Here is an example that passes stdin to the `count` rule and prints the result
-to stdout:
+Here is an example that passes stdin as the input stream to the `count` rule
+and prints the result to stdout:
 
 
 <div class="highlight"><pre><span></span>$ <span></span>cat object_counter_main.py
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+<span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">sys</span>
+  <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 </pre></div>
 
-Combining these pieces, we get this:
+TODO: explain `--copy` option
+
+Combining these pieces in a single compile command looks like this:
 
 <div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py &gt; object_counter.py
 <span></span>
 </pre></div>
+
+Note that the support library must come before the grammar so that `Grammar` is
+defined by the time `ObjectCounter` is evaluated.
+
+The object counter source code has now been compiled into a standalone Python
+program that can be run like this:
 
 <div class="highlight"><pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;hello&#39;</span> <span class="p">|</span> python object_counter.py
 <span></span>number of objects = 6
@@ -242,8 +194,12 @@ Combining these pieces, we get this:
 <span></span>number of objects = 15
 </pre></div>
 
+So programs in RLMeta are written mainly in grammar files with some support
+functions written in Python. The RLMeta compiler can process all these files to
+produce a single Python file which is the compiled program.
 
-## Do a meta-compilation
+
+## Compiling RLMeta itself
 
 Now that we have an understanding of the RLMeta compiler, let's see how we
 can create it from the source code. Here is the full command:
@@ -257,7 +213,7 @@ Let's break it down:
 * First we invoke the compiler: `python rlmeta.py`.
 * The first argument `--embed SUPPORT src/support.py` tells the compiler to
   generate a Python variable named `SUPPORT` containing the contents of the
-  file `src/suppor.py`.
+  file `src/suppor.py`. Needed to be able to generate the support library.
 * The next argument `--support` tells the compiler to generate the support
   library that is embedded in the compiler.
 * The `--compile ...` arguments tell the compiler to compile the given grammar
