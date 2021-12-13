@@ -27,7 +27,7 @@ motivations for them.
 
 ## Getting RLMeta
 
-In order to follow along on this walk through, you need to download this
+In order to follow along on this walk through, you need to download the
 version of RLMeta from here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## File structure
@@ -68,7 +68,7 @@ and writes Python code to stdout:
 
 $:shell:rlmeta-poster-2:cat object_counter.grammar | python rlmeta.py:python
 
-This is equivalent to using the `--compile` command with the value `-` which
+This is equivalent to using the `--compile` command with a value  of `-` which
 stands for stdin:
 
 $:shell:rlmeta-poster-2:cat object_counter.grammar | python rlmeta.py --compile - | head -n3:python
@@ -102,7 +102,10 @@ Combining these pieces into a single compile command, we get this:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py > object_counter.py
 
-Note that the support library must come before the grammar so that `Grammar` is
+It will perform all commands given and write all generated code concatenated
+into a single file.
+
+Note that the support library comes before the grammar so that `Grammar` is
 defined by the time `ObjectCounter` is evaluated.
 
 The object counter source code has now been compiled into a standalone Python
@@ -123,7 +126,7 @@ $~shell~rlmeta-poster-2~rm object_counter.py
 ## Compiling RLMeta itself
 
 Now that we have an understanding of RLMeta, let's look at the command that
-compiles the RLMeta compiler itself:
+compiles the RLMeta compiler itself from the source code:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py > rlmeta-raw.py
 
@@ -159,6 +162,8 @@ $~shell~rlmeta-poster-2~rm rlmeta-raw.py
 ## A brief tour of the main function / options
 
 $:code:rlmeta-poster-2/src/main.py
+
+$:code:rlmeta-poster-2/src/main.py:--support:^        [^ ]
 
 ## The usage of the make script
 

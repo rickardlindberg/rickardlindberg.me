@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-12
+date: 2021-12-13
 tags: rlmeta,draft
 ---
 
@@ -35,7 +35,7 @@ motivations for them.
 
 ## Getting RLMeta
 
-In order to follow along on this walk through, you need to download this
+In order to follow along on this walk through, you need to download the
 version of RLMeta from here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
 ## File structure
@@ -122,7 +122,7 @@ and writes Python code to stdout:
     <span class="p">]</span>
 </pre></div>
 
-This is equivalent to using the `--compile` command with the value `-` which
+This is equivalent to using the `--compile` command with a value  of `-` which
 stands for stdin:
 
 <div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
@@ -200,7 +200,10 @@ Combining these pieces into a single compile command, we get this:
 <span></span>
 </pre></div>
 
-Note that the support library must come before the grammar so that `Grammar` is
+It will perform all commands given and write all generated code concatenated
+into a single file.
+
+Note that the support library comes before the grammar so that `Grammar` is
 defined by the time `ObjectCounter` is evaluated.
 
 The object counter source code has now been compiled into a standalone Python
@@ -222,7 +225,7 @@ produce a single Python file which is the compiled program.
 ## Compiling RLMeta itself
 
 Now that we have an understanding of RLMeta, let's look at the command that
-compiles the RLMeta compiler itself:
+compiles the RLMeta compiler itself from the source code:
 
 <div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py &gt; rlmeta-raw.py
 <span></span>
@@ -289,6 +292,10 @@ Thus, the RLMeta compiler reproduced itself exactly from the source code.
             <span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span>        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--support&quot;</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">SUPPORT</span><span class="p">)</span>
 </pre></div>
 
 ## The usage of the make script

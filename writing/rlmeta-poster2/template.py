@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-import sys
+import os
+import re
 import subprocess
+import sys
 
 def process_line(line):
     if line.startswith("$:shell:"):
@@ -27,13 +29,24 @@ def shell(cwd, cmd, lexer="text"):
         ),
     ]).splitlines(True)
 
-def code(path):
+def code(path, start=None, end=None):
     pygments_cmd = ["pygmentize"]
     if path.endswith(".rlmeta"):
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
+    else:
+        pygments_cmd.extend(["-l", os.path.splitext(path)[1][1:]])
     pygments_cmd.extend(["-f", "html"])
-    pygments_cmd.append(path)
-    return subprocess.check_output(pygments_cmd, text=True).splitlines(True)
+    with open(path) as f:
+        lines = f.read().splitlines(True)
+    if start is not None:
+        while lines and not re.search(start, lines[0]):
+            lines.pop(0)
+    if end is not None and lines:
+        keep = [lines.pop(0)]
+        while lines and not re.search(end, lines[0]):
+            keep.append(lines.pop(0))
+        lines = keep
+    return subprocess.check_output(pygments_cmd, text=True, input="".join(lines)).splitlines(True)
 
 def pygmentize(text, lexer, strip_beginning=False, strip_end=False):
     pygments_cmd = ["pygmentize"]
