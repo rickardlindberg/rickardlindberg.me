@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-15
+date: 2021-12-16
 tags: rlmeta,draft
 ---
 
@@ -329,18 +329,96 @@ included in the support library and not only in the main file.
 
 ## Following a compilation
 
-Parser:
+Let's now follow a compilation of a grammar.
+
+Here is an example grammar:
+
+
+<div class="highlight"><pre><span></span>$ <span></span>cat example.grammar
+<span></span>Example {
+    main <span class="nb">=</span> <span class="nc">.</span>
+}
+</pre></div>
+
+And here is what it looks like compiled:
+
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
+<span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
+    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">}</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">PUSH_SCOPE</span><span class="p">,</span>
+        <span class="n">MATCH</span><span class="p">,</span>
+        <span class="s1">&#39;any&#39;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">POP_SCOPE</span><span class="p">,</span>
+        <span class="n">RETURN</span>
+    <span class="p">]</span>
+</pre></div>
+
+The compile chain was given in the main function:
+
+<div class="highlight"><pre><span></span>                <span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
+</pre></div>
+
+So first the grammar file is passed to the `file` rule of the parser:
+
+<div class="highlight"><pre><span></span>  file <span class="nb">=</span>
+    <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
+</pre></div>
+
+It it turn calls the `grammar` rule:
 
 <div class="highlight"><pre><span></span>  grammar <span class="nb">=</span>
     <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
 </pre></div>
 
-Code generator:
+This rule matches the name, the open curly brace, a set of rules, and the
+closing curly brace. It will then return an AST that looks like this:
+
+    [
+        "Grammar",
+        "Example",
+        ...
+    ]
+
+This AST is handed off to the `asts` rule of the code generator:
+
+<div class="highlight"><pre><span></span>  asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
+</pre></div>
+
+It will call the `ast` rule:
+
+<div class="highlight"><pre><span></span>  asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
+</pre></div>
+
+Which will take the first argument in the AST as a rule name, and call that
+rule. In this case `Grammar`:
 
 <div class="highlight"><pre><span></span>  Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
 </pre></div>
 
-Assembler:
+The code generator transforms the body of the grammar and returns a new AST
+node that looks the same in the beginning:
+
+    [
+        "Grammar",
+        "Example",
+        ...
+    ]
+
+This AST is passed to the `asts` rule in the assembler:
+
+<div class="highlight"><pre><span></span>  asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
+</pre></div>
+
+It in turn calls the `ast` rule:
+
+<div class="highlight"><pre><span></span>  ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
+</pre></div>
+
+Which does the same trick again, now invoking the `Grammar` rule:
 
 <div class="highlight"><pre><span></span>  Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
                              <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
@@ -353,6 +431,30 @@ Assembler:
                                     <span class="s">&quot;code = [</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(code  <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span>
                                   &lt; }
 </pre></div>
+
+This rule can be read as follows:
+
+* Define a variable called `rules` which is a list
+* Define a variable called `code` which is a list
+* Define a variable called `labels` which is a dictionary
+* Define a variable called `patches` which is a list
+* Evaluate the sub AST nodes
+* Path the code if needed
+* Return a string which is generated Python code
+
+The generated code from our example will look like this:
+
+    class Example(Grammar):
+        rules = {
+            ...
+        }
+        code = [
+            ...
+        ]
+
+The evaluating the sub AST nodes, the variables that were defined can be
+alterad.
+
 
 ## The usage of the make script
 

@@ -180,17 +180,97 @@ included in the support library and not only in the main file.
 
 ## Following a compilation
 
-Parser:
+Let's now follow a compilation of a grammar.
 
-$:code:rlmeta-poster-2/src/parser.rlmeta:^  grammar =:^  [^ ]
+Here is an example grammar:
 
-Code generator:
+$~shell~rlmeta-poster-2~echo -e 'Example {\n    main = .\n}' > example.grammar
+
+$:shell:rlmeta-poster-2:cat example.grammar:rlmeta
+
+And here is what it looks like compiled:
+
+$:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar:python
+
+The compile chain was given in the main function:
+
+$:code:rlmeta-poster-2/src/main.py:Parser:^.
+
+So first the grammar file is passed to the `file` rule of the parser:
+
+$:code:rlmeta-poster-2/src/parser.rlmeta:^  file:^  [^ ]
+
+It it turn calls the `grammar` rule:
+
+$:code:rlmeta-poster-2/src/parser.rlmeta:^  grammar:^  [^ ]
+
+This rule matches the name, the open curly brace, a set of rules, and the
+closing curly brace. It will then return an AST that looks like this:
+
+    [
+        "Grammar",
+        "Example",
+        ...
+    ]
+
+This AST is handed off to the `asts` rule of the code generator:
+
+$:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  asts *=:.
+
+It will call the `ast` rule:
+
+$:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  asts *=:.
+
+Which will take the first argument in the AST as a rule name, and call that
+rule. In this case `Grammar`:
 
 $:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  Grammar:^  [^ ]
 
-Assembler:
+The code generator transforms the body of the grammar and returns a new AST
+node that looks the same in the beginning:
+
+    [
+        "Grammar",
+        "Example",
+        ...
+    ]
+
+This AST is passed to the `asts` rule in the assembler:
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  asts *=:.
+
+It in turn calls the `ast` rule:
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  ast *=:.
+
+Which does the same trick again, now invoking the `Grammar` rule:
 
 $:code:rlmeta-poster-2/src/assembler.rlmeta:^  Grammar:^  [^ ]
+
+This rule can be read as follows:
+
+* Define a variable called `rules` which is a list
+* Define a variable called `code` which is a list
+* Define a variable called `labels` which is a dictionary
+* Define a variable called `patches` which is a list
+* Evaluate the sub AST nodes
+* Path the code if needed
+* Return a string which is generated Python code
+
+The generated code from our example will look like this:
+
+    class Example(Grammar):
+        rules = {
+            ...
+        }
+        code = [
+            ...
+        ]
+
+The evaluating the sub AST nodes, the variables that were defined can be
+alterad.
+
+$~shell~rlmeta-poster-2~rm example.grammar
 
 ## The usage of the make script
 
