@@ -180,19 +180,18 @@ included in the support library and not only in the main file.
 
 ## Following a compilation
 
-Let's now follow a compilation of a grammar.
-
-Here is an example grammar:
+Let's now follow a compilation of this example grammar:
 
 $~shell~rlmeta-poster-2~echo -e 'Example {\n    main = .\n}' > example.grammar
 
 $:shell:rlmeta-poster-2:cat example.grammar:rlmeta
 
-And here is what it looks like compiled:
+And this is what it compiles to:
 
 $:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar:python
 
-The compile chain was given in the main function:
+The transformations that the grammar goes through were defined in the main
+function:
 
 $:code:rlmeta-poster-2/src/main.py:Parser:^.
 
@@ -200,7 +199,7 @@ So first the grammar file is passed to the `file` rule of the parser:
 
 $:code:rlmeta-poster-2/src/parser.rlmeta:^  file:^  [^ ]
 
-It it turn calls the `grammar` rule:
+It it turn calls the `grammar` rule to parse all grammars in the file:
 
 $:code:rlmeta-poster-2/src/parser.rlmeta:^  grammar:^  [^ ]
 
@@ -213,18 +212,22 @@ closing curly brace. It will then return an AST that looks like this:
         ...
     ]
 
-This AST is handed off to the `asts` rule of the code generator:
+This AST is handed off to the `asts` rule in the code generator:
 
 $:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  asts *=:.
 
-It will call the `ast` rule:
+It it turn calls the `ast` rule to process all ast nodes:
 
-$:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  asts *=:.
+$:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  ast *=:.
 
-Which will take the first argument in the AST as a rule name, and call that
-rule. In this case `Grammar`:
+The `ast` rule treats the first argument in the AST as a rule name, and calls
+that rule. In this case `Grammar`:
 
 $:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  Grammar:^  [^ ]
+
+The code generator creates a new ast node representing a grammar. But this ast
+node is slightly different and meant to be processed by the assembler. The
+result is this
 
 The code generator transforms the body of the grammar and returns a new AST
 node that looks the same in the beginning:
@@ -232,10 +235,10 @@ node that looks the same in the beginning:
     [
         "Grammar",
         "Example",
-        ...
+        ... ast nodes for consumption by assembler ...
     ]
 
-This AST is passed to the `asts` rule in the assembler:
+This ast is passed to the `asts` rule in the assembler:
 
 $:code:rlmeta-poster-2/src/assembler.rlmeta:^  asts *=:.
 
@@ -253,11 +256,13 @@ This rule can be read as follows:
 * Define a variable called `code` which is a list
 * Define a variable called `labels` which is a dictionary
 * Define a variable called `patches` which is a list
-* Evaluate the sub AST nodes
-* Path the code if needed
+* Evaluate the ast nodes (with possible side effects recorded in the above
+  variables)
+* Tread the contents of the `code` variable as a list of ast nodes and process
+  them with this grammar
 * Return a string which is generated Python code
 
-The generated code from our example will look like this:
+The generated code from our example looks like this:
 
     class Example(Grammar):
         rules = {
@@ -267,8 +272,26 @@ The generated code from our example will look like this:
             ...
         ]
 
-The evaluating the sub AST nodes, the variables that were defined can be
-alterad.
+Let's look at one more transformation, namely that for the rule:
+
+$:code:rlmeta-poster-2/src/parser.rlmeta:^  rule =:^  [^ ]
+
+$:code:rlmeta-poster-2/src/codegenerator.rlmeta:^  Rule:^  [^ ]
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  Rule:^  [^ ]
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  OpCode:^  [^ ]
+
+    rules = [
+        "'main': 0",
+    ]
+    labels = {
+        'main': 0,
+    }
+    code = [
+        ...,
+        "RETURN",
+    ]
 
 $~shell~rlmeta-poster-2~rm example.grammar
 

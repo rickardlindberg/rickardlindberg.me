@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-16
+date: 2021-12-18
 tags: rlmeta,draft
 ---
 
@@ -329,9 +329,7 @@ included in the support library and not only in the main file.
 
 ## Following a compilation
 
-Let's now follow a compilation of a grammar.
-
-Here is an example grammar:
+Let's now follow a compilation of this example grammar:
 
 
 <div class="highlight"><pre><span></span>$ <span></span>cat example.grammar
@@ -340,7 +338,7 @@ Here is an example grammar:
 }
 </pre></div>
 
-And here is what it looks like compiled:
+And this is what it compiles to:
 
 <div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
 <span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
@@ -357,21 +355,22 @@ And here is what it looks like compiled:
     <span class="p">]</span>
 </pre></div>
 
-The compile chain was given in the main function:
+The transformations that the grammar goes through were defined in the main
+function:
 
-<div class="highlight"><pre><span></span>                <span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
+<div class="highlight"><pre><span></span><span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
 </pre></div>
 
 So first the grammar file is passed to the `file` rule of the parser:
 
-<div class="highlight"><pre><span></span>  file <span class="nb">=</span>
-    <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
+<div class="highlight"><pre><span></span>file <span class="nb">=</span>
+  <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
 </pre></div>
 
-It it turn calls the `grammar` rule:
+It it turn calls the `grammar` rule to parse all grammars in the file:
 
-<div class="highlight"><pre><span></span>  grammar <span class="nb">=</span>
-    <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
+<div class="highlight"><pre><span></span>grammar <span class="nb">=</span>
+  <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
 </pre></div>
 
 This rule matches the name, the open curly brace, a set of rules, and the
@@ -383,21 +382,25 @@ closing curly brace. It will then return an AST that looks like this:
         ...
     ]
 
-This AST is handed off to the `asts` rule of the code generator:
+This AST is handed off to the `asts` rule in the code generator:
 
-<div class="highlight"><pre><span></span>  asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
+<div class="highlight"><pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre></div>
 
-It will call the `ast` rule:
+It it turn calls the `ast` rule to process all ast nodes:
 
-<div class="highlight"><pre><span></span>  asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
+<div class="highlight"><pre><span></span>ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
 </pre></div>
 
-Which will take the first argument in the AST as a rule name, and call that
-rule. In this case `Grammar`:
+The `ast` rule treats the first argument in the AST as a rule name, and calls
+that rule. In this case `Grammar`:
 
-<div class="highlight"><pre><span></span>  Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
+<div class="highlight"><pre><span></span>Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
 </pre></div>
+
+The code generator creates a new ast node representing a grammar. But this ast
+node is slightly different and meant to be processed by the assembler. The
+result is this
 
 The code generator transforms the body of the grammar and returns a new AST
 node that looks the same in the beginning:
@@ -405,31 +408,31 @@ node that looks the same in the beginning:
     [
         "Grammar",
         "Example",
-        ...
+        ... ast nodes for consumption by assembler ...
     ]
 
-This AST is passed to the `asts` rule in the assembler:
+This ast is passed to the `asts` rule in the assembler:
 
-<div class="highlight"><pre><span></span>  asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
+<div class="highlight"><pre><span></span>asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
 </pre></div>
 
 It in turn calls the `ast` rule:
 
-<div class="highlight"><pre><span></span>  ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
+<div class="highlight"><pre><span></span>ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
 </pre></div>
 
 Which does the same trick again, now invoking the `Grammar` rule:
 
-<div class="highlight"><pre><span></span>  Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
-                             <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
-                             <span class="nb">-&gt;</span> dict()<span class="nb">:</span>labels
-                             <span class="nb">-&gt;</span> list()<span class="nb">:</span>patches
-                             <span class="nb">-&gt;</span> ys
-                             <span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
-                             <span class="nb">-&gt;</span> { <span class="s">&quot;class &quot;</span> x <span class="s">&quot;(Grammar):</span><span class="se">\n</span><span class="s">&quot;</span> &gt;
-                                    <span class="s">&quot;rules = {</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(rules <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">}</span><span class="se">\n</span><span class="s">&quot;</span>
-                                    <span class="s">&quot;code = [</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(code  <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span>
-                                  &lt; }
+<div class="highlight"><pre><span></span>Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
+                           <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
+                           <span class="nb">-&gt;</span> dict()<span class="nb">:</span>labels
+                           <span class="nb">-&gt;</span> list()<span class="nb">:</span>patches
+                           <span class="nb">-&gt;</span> ys
+                           <span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
+                           <span class="nb">-&gt;</span> { <span class="s">&quot;class &quot;</span> x <span class="s">&quot;(Grammar):</span><span class="se">\n</span><span class="s">&quot;</span> &gt;
+                                  <span class="s">&quot;rules = {</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(rules <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">}</span><span class="se">\n</span><span class="s">&quot;</span>
+                                  <span class="s">&quot;code = [</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(code  <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span>
+                                &lt; }
 </pre></div>
 
 This rule can be read as follows:
@@ -438,11 +441,13 @@ This rule can be read as follows:
 * Define a variable called `code` which is a list
 * Define a variable called `labels` which is a dictionary
 * Define a variable called `patches` which is a list
-* Evaluate the sub AST nodes
-* Path the code if needed
+* Evaluate the ast nodes (with possible side effects recorded in the above
+  variables)
+* Tread the contents of the `code` variable as a list of ast nodes and process
+  them with this grammar
 * Return a string which is generated Python code
 
-The generated code from our example will look like this:
+The generated code from our example looks like this:
 
     class Example(Grammar):
         rules = {
@@ -452,8 +457,34 @@ The generated code from our example will look like this:
             ...
         ]
 
-The evaluating the sub AST nodes, the variables that were defined can be
-alterad.
+Let's look at one more transformation, namely that for the rule:
+
+<div class="highlight"><pre><span></span>rule <span class="nb">=</span>
+  <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;=&#39;</span> choice<span class="nb">:</span>y               <span class="nb">-&gt;</span> [<span class="s">&quot;Rule&quot;</span> x y]
+</pre></div>
+
+<div class="highlight"><pre><span></span>Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
+                                <span class="nc">~</span>y
+                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;RETURN&quot;</span>]]
+</pre></div>
+
+<div class="highlight"><pre><span></span>Rule     <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(rules { repr(x) <span class="s">&quot;: &quot;</span> len(code) })
+                           <span class="nb">-&gt;</span> set(labels x len(code))
+</pre></div>
+
+<div class="highlight"><pre><span></span>OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
+</pre></div>
+
+    rules = [
+        "'main': 0",
+    ]
+    labels = {
+        'main': 0,
+    }
+    code = [
+        ...,
+        "RETURN",
+    ]
 
 
 ## The usage of the make script

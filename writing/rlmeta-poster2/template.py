@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 
 def process_line(line):
     if line.startswith("$:shell:"):
@@ -46,7 +47,10 @@ def code(path, start=None, end=None):
         while lines and not re.search(end, lines[0]):
             keep.append(lines.pop(0))
         lines = keep
-    return subprocess.check_output(pygments_cmd, text=True, input="".join(lines)).splitlines(True)
+    joined = "".join(lines)
+    if start is not None or end is not None:
+        joined = textwrap.dedent(joined)
+    return subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
 
 def pygmentize(text, lexer, strip_beginning=False, strip_end=False):
     pygments_cmd = ["pygmentize"]
