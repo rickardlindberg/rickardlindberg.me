@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-18
+date: 2021-12-19
 tags: rlmeta,draft
 ---
 
@@ -33,12 +33,14 @@ The rest of this blog post consists of the walk through of the new version of
 RLMeta and a section on the most important changes from the poster version and
 motivations for them.
 
-## Getting RLMeta
+## Code walk through
+
+### Getting RLMeta
 
 In order to follow along on this walk through, you need to download the
 version of RLMeta from here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 
-## File structure
+### File structure
 
 The zip file consists of the source code for the RLMeta compiler, a make
 script, and the compiler itself (`rlmeta.py`):
@@ -71,7 +73,7 @@ The size of the source code is quite small:
 The compiler can be created from this source code only. We will see how later
 in this walk through.
 
-## Exploring RLMeta
+### Exploring RLMeta
 
 Before we dive into how the RLMeta compiler is created, let's explore RLMeta by
 writing a small, but real, program in it.
@@ -222,7 +224,7 @@ functions written in Python. The RLMeta compiler can process all these files to
 produce a single Python file which is the compiled program.
 
 
-## Compiling RLMeta itself
+### Compiling RLMeta itself
 
 Now that we have an understanding of RLMeta, let's look at the command that
 compiles the RLMeta compiler itself from the source code:
@@ -250,7 +252,11 @@ The make script can be called with the `--compile` command to perform this
 exact function:
 
 <div class="highlight"><pre><span></span>$ <span></span>./make.py --compile &gt; rlmeta-compile.py
-<span></span>
+<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
+[0;32m  O-----------------O[0m
+[0;32m  | RLMeta compiled |[0m
+[0;32m~~|     itself!     |[0m
+[0;32m  O-----------------O[0m
 </pre></div>
 
 And all these files are exactly the same:
@@ -264,7 +270,7 @@ And all these files are exactly the same:
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
 
 
-## A brief tour of the main function / options
+### A tour of the main function
 
 Let's now look at how all commands of the RLMeta compiler are implemented. Here
 is the main function:
@@ -327,9 +333,10 @@ the assembler) and prints a pretty error message to stderr upon failure:
 This function might be useful for other grammars as well. That is why it's
 included in the support library and not only in the main file.
 
-## Following a compilation
+### Following a compilation
 
-Let's now follow a compilation of this example grammar:
+Let's now follow a compilation of an example grammar to learn more about how
+a grammar file is turned into Python code. Here it is:
 
 
 <div class="highlight"><pre><span></span>$ <span></span>cat example.grammar
@@ -376,18 +383,20 @@ It it turn calls the `grammar` rule to parse all grammars in the file:
 This rule matches the name, the open curly brace, a set of rules, and the
 closing curly brace. It will then return an AST that looks like this:
 
-    [
-        "Grammar",
-        "Example",
-        ...
-    ]
+```python
+[
+    "Grammar",
+    "Example",
+    ...
+]
+```
 
 This AST is handed off to the `asts` rule in the code generator:
 
 <div class="highlight"><pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre></div>
 
-It it turn calls the `ast` rule to process all ast nodes:
+It it turn calls the `ast` rule to process all AST nodes:
 
 <div class="highlight"><pre><span></span>ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
 </pre></div>
@@ -398,20 +407,19 @@ that rule. In this case `Grammar`:
 <div class="highlight"><pre><span></span>Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
 </pre></div>
 
-The code generator creates a new ast node representing a grammar. But this ast
+The code generator creates a new AST node representing a grammar. But this AST
 node is slightly different and meant to be processed by the assembler. The
-result is this
+result is this:
 
-The code generator transforms the body of the grammar and returns a new AST
-node that looks the same in the beginning:
+```python
+[
+    "Grammar",
+    "Example",
+    ... ast nodes for consumption by assembler ...
+]
+```
 
-    [
-        "Grammar",
-        "Example",
-        ... ast nodes for consumption by assembler ...
-    ]
-
-This ast is passed to the `asts` rule in the assembler:
+This AST is passed to the `asts` rule in the assembler:
 
 <div class="highlight"><pre><span></span>asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
 </pre></div>
@@ -421,7 +429,8 @@ It in turn calls the `ast` rule:
 <div class="highlight"><pre><span></span>ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
 </pre></div>
 
-Which does the same trick again, now invoking the `Grammar` rule:
+Which does the same trick again, now invoking the `Grammar` rule (in the
+assembler) which looks like this:
 
 <div class="highlight"><pre><span></span>Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
                            <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
@@ -441,10 +450,10 @@ This rule can be read as follows:
 * Define a variable called `code` which is a list
 * Define a variable called `labels` which is a dictionary
 * Define a variable called `patches` which is a list
-* Evaluate the ast nodes (with possible side effects recorded in the above
+* Evaluate the AST nodes (with possible side effects recorded in the above
   variables)
-* Tread the contents of the `code` variable as a list of ast nodes and process
-  them with this grammar
+* Tread the contents of the `code` variable as a list of AST nodes and process
+  them with the `asts` rule of this grammar
 * Return a string which is generated Python code
 
 The generated code from our example looks like this:
@@ -457,42 +466,321 @@ The generated code from our example looks like this:
             ...
         ]
 
-Let's look at one more transformation, namely that for the rule:
+To understand how the `rule` and `code` sections are generated, we just have to
+follow a few more transformations.
+
+Let's look at one more and see how the rule in our example grammar is
+transformed.
+
+First, the rule is parsed by the `rule` rule in the parser:
 
 <div class="highlight"><pre><span></span>rule <span class="nb">=</span>
   <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;=&#39;</span> choice<span class="nb">:</span>y               <span class="nb">-&gt;</span> [<span class="s">&quot;Rule&quot;</span> x y]
 </pre></div>
+
+First the name is matched, then the equals sign, and then an expression
+representing the body of the rule.
+
+It our case, this rule produces this AST node:
+
+```python
+[
+    "Rule",
+    "main",
+    ...
+]
+```
+
+That note is going to be processed by the `Rule` rule in the code generator:
 
 <div class="highlight"><pre><span></span>Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
                                 <span class="nc">~</span>y
                                 [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;RETURN&quot;</span>]]
 </pre></div>
 
+Generating an AST node that looks like this:
+
+```python
+[
+    ["Rule", "main"],
+    ...,
+    ["OpCode", "RETURN"]
+]
+```
+
+Here we can see that the AST from the code generator looks a bit more like
+assembly code than a representation of the syntax in the grammar.
+
+The first child in this AST node is going to be handled the `Rule` rule in the
+assembler:
+
 <div class="highlight"><pre><span></span>Rule     <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(rules { repr(x) <span class="s">&quot;: &quot;</span> len(code) })
                            <span class="nb">-&gt;</span> set(labels x len(code))
 </pre></div>
 
+It does two things:
+
+1. Adds a string value to the `rules` list
+2. Adds an entry to the `labels` dictionary to map a label to an index in the
+   `code` list
+
+At this point, the variables have the following values.
+
+```python
+rules = [
+    "'main': 0",
+]
+labels = {
+    'main': 0,
+}
+```
+
+The second child in the AST node is going to be handled the `OpCode` rule in
+the assembler:
+
 <div class="highlight"><pre><span></span>OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
 </pre></div>
 
-    rules = [
-        "'main': 0",
-    ]
-    labels = {
-        'main': 0,
-    }
-    code = [
-        ...,
-        "RETURN",
-    ]
+It adds the given op code to the `code` list, giving it this value:
+
+```python
+code = [
+    ...,
+    "RETURN",
+]
+```
+
+Hopefully you should now be comfortable to follow transformations yourself to
+understand how a compilation is done.
 
 
-## The usage of the make script
+### The usage of the make script
 
 When the make script is called without arguments, it performs a meta
-compilation and runs a few tests.
+compilation and runs a few tests:
 
-## Code
+<div class="highlight"><pre><span></span>$ <span></span>./make.py
+<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
+[0;33mWriting rlmeta1.py[0m
+[0;33mTest: Has its own support library[0m
+[0;33mTest: Disallow semantic action in the middle[0m
+ERROR: expected }
+POSITION: 22
+STREAM:
+    Grammar { x = . -&gt; [] [0;31m&lt;ERROR POSITION&gt;[0m. }
+[0;33mMoving rlmeta1.py -&gt; rlmeta.py[0m
+[0;32m  O-----------------O[0m
+[0;32m  | RLMeta compiled |[0m
+[0;32m~~|     itself!     |[0m
+[0;32m  O-----------------O[0m
+</pre></div>
+
+The meaning of a meta compilation is to create a new version of RLMeta that can
+still reproduce it self from the source code.
+
+In the output above, we can see that it compiled RLMeta and wrote the result to
+`rlmeta1.py`. In this case, since it is exactly the same as `rlmeta.py`, the
+compilation stopped there and a few more tests were run using this compiler.
+But if we make changes to the source code, `rlmeta1.py` will most likely not be
+exactly the same as `rlmeta.py`, and a few more compilations might be needed.
+I've written about the details of meta compilation in a [previous blog
+post](/writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135).
+
+## Changes from the previous version
+
+This section explains the most important changes in this version of RLMeta
+compared to the original poster version.
+
+### Evaluation guidelines
+
+From the first poster article:
+
+> The smaller it is, the easier it is to understand and therefore extend. The
+> more flexible it is to extend the better. If I make another poster version it
+> would therefore focus on being smaller and more flexible. Since all
+> successive version of RLMeta have been faster than the ones before,
+> performance is also important. But small size, clarity, and flexibility come
+> first.
+
+* Clarity: How does it affect understandability/learnability/readability?
+* Size: Lines of code.
+* Flexibility: How easy is it to modify RLMeta to be what you need?
+* Performance: How fast does it compile?
+
+### TODO....
+
+CHANGES:
+
+It started with this goal:
+
+    RLMeta Poster 2: Experiment with PyVM and see if it can improve "assembly
+    code in code generator".
+
+Then continued with this:
+
+* Import all current code into smart notes document.
+
+    * Added search of code notes to smart notes.
+
+* Adapt to Python 3.
+
+* PyVM (first version)
+
+    *   Split PyVM into parser and codegenerator.
+
+    *   Two passes (and thus two grammars) are needed if macros should be
+        possible to define last.
+
+    *   What is a good AST for PyVM?
+
+    [x] Continue to build parse tree.
+
+    [x] Figure out how to replace support library in make.py
+
+    $ wc -l rlmeta/*; echo; wc -l pyvm/*
+       66 rlmeta/codegenerator.rlmeta
+       46 rlmeta/main.py
+       58 rlmeta/parser.rlmeta
+       77 rlmeta/support.py
+      169 rlmeta/vm.pyvm
+      416 total
+
+      22 pyvm/codegenerator.rlmeta
+      19 pyvm/parser.rlmeta
+      35 pyvm/support.py
+      76 total
+
+[x] Better error message than None if runtime/scope is not found.
+
+    * Rename match -> matches in Scope
+    * Immutable scope instead and fail if entry does not exist?
+
+    $ wc -l rlmeta/*; echo; wc -l pyvm/*
+       66 rlmeta/codegenerator.rlmeta
+       46 rlmeta/main.py
+       58 rlmeta/parser.rlmeta
+       68 rlmeta/support.py
+      169 rlmeta/vm.pyvm
+      407 total
+
+      22 pyvm/codegenerator.rlmeta
+      19 pyvm/parser.rlmeta
+      35 pyvm/support.py
+      76 total
+
+[x] Generate instruction "enum" so that strings don't have to be used
+
+[x] Counter class is more clean
+
+    $ wc -l rlmeta/*; echo; wc -l pyvm/*
+       66 rlmeta/codegenerator.rlmeta
+       46 rlmeta/main.py
+       58 rlmeta/parser.rlmeta
+       72 rlmeta/support.py
+      169 rlmeta/vm.pyvm
+      411 total
+
+      22 pyvm/codegenerator.rlmeta
+      19 pyvm/parser.rlmeta
+      35 pyvm/support.py
+      76 total
+
+* No need to wrap parser output in list for codegenerator in RLMeta
+
+[x] Put compile + error reporting function in support lib.
+
+[x] No need to wrap parser output in list for codegenerator in PyVM
+
+[x] You can put any crap at end of file, and parsers don't care. Fix it!
+
+[x] VM should not know about runtime.
+
+[x] Move "assembly" out of support library. Grammar should generate
+    labels/instructions.
+
+[x] No failure if VM-compilation fails? (Swap Instruction arguments.)
+
+[x] Support recursive macros?
+
+    * Probably requires function to run grammar against an object.
+
+    * Needed to get rid of duplicated call code.
+
+[x] Split code generator into code generator and python assembler. That makes
+    each phase more clear and allows for optimizations.
+
+[x] Better AST for action expressions.
+
+[x] Can "native" calls be removed by adding binding in runtime?
+
+[x] Resolve labels in assembler.
+
+[x] Get rid of PyVM
+
+    [x] Compilation was further complicated now when VM has to be generated and
+        a combined support library created.
+
+    [x] Clean up PyVM grammars
+
+    [x] Write VM as clean as possible in Python. Then write a separate
+        optimized VM?
+
+[x] Put object match expr tree in parser instead of in codegen?
+
+    - This makes the VM more clean. There is only one instruction for matching
+      and the matching is done with a Python lambda. The VM knows nothing about
+      how to match a single object.
+
+TODO:
+
+[ ] Can support library (and new Runtime) become smaller?
+
+[ ] Should memo be removed since it is an optimization?
+
+[ ] VM
+
+    [ ] Review VM and see if clarity can be improved.
+
+        [ ] Can it be written with less optimizations in mind?
+
+    [ ] Can fail_pos be handled better?
+
+    [ ] MatchError probably has wrong stream if error occurs deep down
+
+    [ ] I am not happy with how the new VM looks. A mix between classes and
+        functions and helpers.
+
+[ ] Add DEBUG flag that outputs source between passes.
+
+[ ] Why not better error message when action wrong? Why index wrong?
+
+      Action        = .:xs
+      Action        = .*:xs
+
+    [ ] Wrong pos is reported for "Not" instruction.
+
+    -   "Not" messes up latest_fail_pos in general. It should perhaps be
+        disabled during a "Not"?
+
+[ ] Poster with intermediate versions shown.
+
+    * Interactive on the web. (Requires JS version.)
+
+[ ] Try to port to JS to see how flexible it is?
+
+[ ] Rename ast to tree?
+
+[ ] Lists can be repeated and xs refers to last match?
+
+    echo 'G{x=[.:xs]*}' | python rlmeta.py
+
+[ ] Lookup concat/splice/join/indent?
+
+## Appendix
+
+Here is all the source code and also the make script.
+
+### src/parser.rlmeta
 
 <div class="highlight"><pre><span></span>Parser {
   file <span class="nb">=</span>
@@ -556,6 +844,8 @@ compilation and runs a few tests.
 }
 </pre></div>
 
+### src/codegenerator.rlmeta
+
 <div class="highlight"><pre><span></span>CodeGenerator {
   Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
   Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
@@ -615,6 +905,8 @@ compilation and runs a few tests.
 }
 </pre></div>
 
+### src/assembler.rlmeta
+
 <div class="highlight"><pre><span></span>Assembler {
   Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
                              <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
@@ -655,6 +947,8 @@ compilation and runs a few tests.
   ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
 }
 </pre></div>
+
+### src/support.py
 
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
 
@@ -895,6 +1189,8 @@ compilation and runs a few tests.
     <span class="k">return</span> <span class="n">source</span>
 </pre></div>
 
+### src/main.py
+
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -923,171 +1219,107 @@ compilation and runs a few tests.
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
 </pre></div>
 
---
-
-CHANGES:
-
-It started with this goal:
-
-    RLMeta Poster 2: Experiment with PyVM and see if it can improve "assembly
-    code in code generator".
-
-Then continued with this:
-
-* Import all current code into smart notes document.
-
-    * Added search of code notes to smart notes.
-
-* Adapt to Python 3.
-
-* PyVM (first version)
-
-    *   Split PyVM into parser and codegenerator.
-
-    *   Two passes (and thus two grammars) are needed if macros should be
-        possible to define last.
-
-    *   What is a good AST for PyVM?
-
-    [x] Continue to build parse tree.
-
-    [x] Figure out how to replace support library in make.py
-
-    $ wc -l rlmeta/*; echo; wc -l pyvm/*
-       66 rlmeta/codegenerator.rlmeta
-       46 rlmeta/main.py
-       58 rlmeta/parser.rlmeta
-       77 rlmeta/support.py
-      169 rlmeta/vm.pyvm
-      416 total
-
-      22 pyvm/codegenerator.rlmeta
-      19 pyvm/parser.rlmeta
-      35 pyvm/support.py
-      76 total
-
-[x] Better error message than None if runtime/scope is not found.
-
-    * Rename match -> matches in Scope
-    * Immutable scope instead and fail if entry does not exist?
-
-    $ wc -l rlmeta/*; echo; wc -l pyvm/*
-       66 rlmeta/codegenerator.rlmeta
-       46 rlmeta/main.py
-       58 rlmeta/parser.rlmeta
-       68 rlmeta/support.py
-      169 rlmeta/vm.pyvm
-      407 total
-
-      22 pyvm/codegenerator.rlmeta
-      19 pyvm/parser.rlmeta
-      35 pyvm/support.py
-      76 total
-
-[x] Generate instruction "enum" so that strings don't have to be used
-
-[x] Counter class is more clean
-
-    $ wc -l rlmeta/*; echo; wc -l pyvm/*
-       66 rlmeta/codegenerator.rlmeta
-       46 rlmeta/main.py
-       58 rlmeta/parser.rlmeta
-       72 rlmeta/support.py
-      169 rlmeta/vm.pyvm
-      411 total
-
-      22 pyvm/codegenerator.rlmeta
-      19 pyvm/parser.rlmeta
-      35 pyvm/support.py
-      76 total
-
-* No need to wrap parser output in list for codegenerator in RLMeta
-
-[x] Put compile + error reporting function in support lib.
-
-[x] No need to wrap parser output in list for codegenerator in PyVM
-
-[x] You can put any crap at end of file, and parsers don't care. Fix it!
-
-[x] VM should not know about runtime.
-
-[x] Move "assembly" out of support library. Grammar should generate
-    labels/instructions.
-
-[x] No failure if VM-compilation fails? (Swap Instruction arguments.)
-
-[x] Support recursive macros?
-
-    * Probably requires function to run grammar against an object.
-
-    * Needed to get rid of duplicated call code.
-
-[x] Split code generator into code generator and python assembler. That makes
-    each phase more clear and allows for optimizations.
-
-[x] Better AST for action expressions.
-
-[x] Can "native" calls be removed by adding binding in runtime?
-
-[x] Resolve labels in assembler.
-
-[x] Get rid of PyVM
-
-    [x] Compilation was further complicated now when VM has to be generated and
-        a combined support library created.
-
-    [x] Clean up PyVM grammars
-
-    [x] Write VM as clean as possible in Python. Then write a separate
-        optimized VM?
-
-[x] Put object match expr tree in parser instead of in codegen?
-
-    - This makes the VM more clean. There is only one instruction for matching
-      and the matching is done with a Python lambda. The VM knows nothing about
-      how to match a single object.
-
-TODO:
-
-[ ] Can support library (and new Runtime) become smaller?
-
-[ ] Should memo be removed since it is an optimization?
-
-[ ] VM
-
-    [ ] Review VM and see if clarity can be improved.
-
-        [ ] Can it be written with less optimizations in mind?
-
-    [ ] Can fail_pos be handled better?
-
-    [ ] MatchError probably has wrong stream if error occurs deep down
-
-    [ ] I am not happy with how the new VM looks. A mix between classes and
-        functions and helpers.
-
-[ ] Add DEBUG flag that outputs source between passes.
-
-[ ] Why not better error message when action wrong? Why index wrong?
-
-      Action        = .:xs
-      Action        = .*:xs
-
-    [ ] Wrong pos is reported for "Not" instruction.
-
-    -   "Not" messes up latest_fail_pos in general. It should perhaps be
-        disabled during a "Not"?
-
-[ ] Poster with intermediate versions shown.
-
-    * Interactive on the web. (Requires JS version.)
-
-[ ] Try to port to JS to see how flexible it is?
-
-[ ] Rename ast to tree?
-
-[ ] Lists can be repeated and xs refers to last match?
-
-    echo 'G{x=[.:xs]*}' | python rlmeta.py
-
-[ ] Lookup concat/splice/join/indent?
+### make.py
+
+<div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">make_next_version</span><span class="p">():</span>
+    <span class="n">final_compiler</span> <span class="o">=</span> <span class="n">meta_compile_rlmeta</span><span class="p">()</span>
+    <span class="n">test</span><span class="p">(</span><span class="n">final_compiler</span><span class="p">)</span>
+    <span class="n">mv</span><span class="p">(</span><span class="n">final_compiler</span><span class="p">,</span> <span class="s2">&quot;rlmeta.py&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">meta_compile_rlmeta</span><span class="p">():</span>
+    <span class="n">compiler</span> <span class="o">=</span> <span class="s2">&quot;rlmeta.py&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">next_compiler</span> <span class="o">=</span> <span class="s2">&quot;rlmeta</span><span class="si">{}</span><span class="s2">.py&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">next_content</span> <span class="o">=</span> <span class="n">compile_rlmeta</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Writing </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">next_compiler</span><span class="p">))</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">next_compiler</span><span class="p">,</span> <span class="n">next_content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">next_content</span> <span class="o">==</span> <span class="n">content</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">next_compiler</span>
+        <span class="n">compiler</span> <span class="o">=</span> <span class="n">next_compiler</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">next_content</span>
+    <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Unable to produce metacompiler.&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">compile_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">):</span>
+    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Compiling rlmeta using </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span>
+        <span class="s2">&quot;--embed&quot;</span><span class="p">,</span> <span class="s2">&quot;SUPPORT&quot;</span><span class="p">,</span> <span class="s2">&quot;src/support.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--support&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/parser.rlmeta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/codegenerator.rlmeta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/assembler.rlmeta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--copy&quot;</span><span class="p">,</span> <span class="s2">&quot;src/main.py&quot;</span><span class="p">,</span>
+    <span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">):</span>
+    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Has its own support library&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;--support&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">read</span><span class="p">(</span><span class="s2">&quot;src/support.py&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Disallow semantic action in the middle&quot;</span><span class="p">)</span>
+    <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[],</span> <span class="sa">b</span><span class="s2">&quot;Grammar { x = . -&gt; [] . }&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">rlmeta</span><span class="p">]</span><span class="o">+</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+    <span class="p">)</span>
+    <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">expect_failure</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Expected failure&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Expected success&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stdout</span>
+
+<span class="k">def</span> <span class="nf">mv</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Moving </span><span class="si">{}</span><span class="s2"> -&gt; </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">cleanup</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="s2">&quot;rlmeta1.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rlmeta2.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rlmeta3.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;rlmeta4.py&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Deleting </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;33m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;32m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31mERROR: </span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cleanup</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--compile&quot;</span><span class="p">]:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">compile_rlmeta</span><span class="p">(</span><span class="s2">&quot;rlmeta.py&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">make_next_version</span><span class="p">()</span>
+    <span class="n">cleanup</span><span class="p">()</span>
+    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  O-----------------O&quot;</span><span class="p">)</span>
+    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  | RLMeta compiled |&quot;</span><span class="p">)</span>
+    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;~~|     itself!     |&quot;</span><span class="p">)</span>
+    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  O-----------------O&quot;</span><span class="p">)</span>
+</pre></div>

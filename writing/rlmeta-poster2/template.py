@@ -24,7 +24,7 @@ def shell(cwd, cmd, lexer="text"):
         pygmentize(cmd, "bash", strip_beginning=True, strip_end=True),
         '\n',
         pygmentize(
-            subprocess.check_output(cmd, cwd=cwd, shell=True, text=True),
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT, cwd=cwd, shell=True, text=True),
             lexer,
             strip_beginning=True
         ),
