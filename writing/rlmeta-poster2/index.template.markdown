@@ -381,9 +381,16 @@ post](/writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135).
 This section explains the most important changes in this version of RLMeta
 compared to the original poster version.
 
-### Evaluation guidelines
+First of all, I wanted to work on the unresolved items which were the
+following:
 
-From the first poster article:
+* Assembly code in code generator is hard to read.
+* The label counter is incremented at match time, not at semantic action
+  evaluation time.
+* Compilation depends on bash.
+
+In the poster article, I also had a few notes about
+[future versions](/writing/creating-rlmeta-poster/index.html#b070abcd2f134cf894e33e63188a9fee):
 
 > The smaller it is, the easier it is to understand and therefore extend. The
 > more flexible it is to extend the better. If I make another poster version it
@@ -392,12 +399,76 @@ From the first poster article:
 > performance is also important. But small size, clarity, and flexibility come
 > first.
 
+I used these guidelines to decide if certain changes should go into the new
+version or not.
+
+One interesting thing to note is that the guidelines are sometimes
+contradicting. Writing clear code might mean more lines of code which makes the
+code base larger.  Perhaps that's also why I got stuck chasing perfection. I
+thought I made something easier to read, but it ended up costing 10 extra lines
+of code.  Should I include it?
+
+### Generate labels in semantic actions
+
+One thing that I left in the first version of the poster that still annoyed me
+was that labels are generated at match time, not at semantic action evaluation
+time. It will not produce incorrect results. At worst, some labels end up not
+being used because the counter value captured was in a rule that later failed.
+But dealing with labels at match time does not make sense. It should really
+happen at semantic action evaluation time.
+
+Here is what the `Not` rule looks like in the first version of the poster:
+
+```rlmeta
+Not = ast:x #:a #:b -> { "I('BACKTRACK', " b ")\n"
+                         x
+                         "I('COMMIT', " a ")\n"
+                         "LABEL(" a ")\n"
+                         "I('FAIL', 'no match expected')\n"
+                         "LABEL(" b ")\n"                   }
+```
+
+Here is what the `Not` rule looks like after the change:
+
+```rlmeta
+Not = ast:x -> label():a -> label():b
+            -> { "I('BACKTRACK', " b ")\n"
+                 x
+                 "I('COMMIT', " a ")\n"
+                 "LABEL(" a ")\n"
+                 "I('FAIL', 'no match expected')\n"
+                 "LABEL(" b ")\n"                   }
+```
+
+This change puts label generation where it belongs, in semantic actions, and
+thus makes the implementation **more clear**. The VM is no longer concerned
+with labels. It is only concerned with matching. It does make semantic actions
+a bit more complicated, but the bind syntax is familiar from match expressions
+and an action being a sequence of things should be familiar as well.
+
+This change required a bit of rework how semantic actions work. Previously only
+one expression was allowed. Now multiple expressions are allowed. The result of
+expressions can also be bound to names which subsequent expressions can refer
+to. Furthermore, there are now also runtime variables that are set with
+bindings. `label` is a built in runtime function that generates increasing
+integers starting at 0.
+
+The implementation of this change also **increases the flexibility** of RLMeta.
+For example, it is now possible to write a semantic action that generates code
+in different sections like this:
+
+### Remove dependency on Bash
+
+### Extract assembler
+
+...
+
+### TODO/NOTES
+
 * Clarity: How does it affect understandability/learnability/readability?
 * Size: Lines of code.
 * Flexibility: How easy is it to modify RLMeta to be what you need?
 * Performance: How fast does it compile?
-
-### TODO....
 
 CHANGES:
 
@@ -566,7 +637,7 @@ TODO:
 
 [ ] Lookup concat/splice/join/indent?
 
-## Appendix
+## Code listings for RLMeta
 
 Here is all the source code and also the make script.
 
