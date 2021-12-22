@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-12-21T00:00:00Z</updated>
+    <updated>2021-12-22T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2021-12-21T00:00:00Z</published>
-    <updated>2021-12-21T00:00:00Z</updated>
+    <published>2021-12-22T00:00:00Z</published>
+    <updated>2021-12-22T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 21 December 2021.</em></p>
+<p><em>Published on 22 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
@@ -62,7 +62,7 @@
 <p>In RLMeta, we write grammars. Grammars have rules that specify how to match objects from an input stream and specify what should happen when objects are matched.</p>
 <p>Let’s write a grammar that counts the number of objects in an input stream and produces a report:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>cat object_counter.grammar
+<pre><span></span>$ <span></span>cat object_counter.rlmeta
 <span></span>ObjectCounter {
     count <span class="nb">=</span> <span class="nc">.*</span><span class="nb">:</span>xs <span class="nb">-&gt;</span> { <span class="s">&quot;number of objects = &quot;</span> len(xs) }
 }
@@ -70,7 +70,7 @@
 </div>
 <p>The main function of the RLMeta compiler is to transform grammars into Python code. If invoked without arguments, the compiler reads a grammar from stdin and writes Python code to stdout:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>cat object_counter.grammar <span class="p">|</span> python rlmeta.py
+<pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -98,7 +98,7 @@
 </div>
 <p>This is equivalent to using the <code>--compile</code> command with a value of <code>-</code> which stands for stdin:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>cat object_counter.grammar <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
+<pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -106,7 +106,7 @@
 </div>
 <p>And, the file can also be specified directly like this:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.grammar <span class="p">|</span> head -n3
+<pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.rlmeta <span class="p">|</span> head -n3
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -159,7 +159,7 @@
 <p>The <code>--copy</code> command of the RLMeta compiler can be used to copy this main file as is to compiled file.</p>
 <p>Combining these pieces into a single compile command, we get this:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py &gt; object_counter.py
+<pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py &gt; object_counter.py
 <span></span>
 </pre>
 </div>
@@ -265,7 +265,7 @@
 <h3 id="following-a-compilation">Following a compilation</h3>
 <p>Let’s now follow a compilation of an example grammar to learn more about how a grammar file is turned into Python code. Here it is:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>cat example.grammar
+<pre><span></span>$ <span></span>cat example.rlmeta
 <span></span>Example {
     main <span class="nb">=</span> <span class="nc">.</span>
 }
@@ -273,7 +273,7 @@
 </div>
 <p>And this is what it compiles to:</p>
 <div class="highlight">
-<pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
+<pre><span></span>$ <span></span>python rlmeta.py --compile example.rlmeta
 <span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -487,6 +487,49 @@ STREAM:
 <p>This change puts label generation where it belongs, in semantic actions, and thus makes the implementation <strong>more clear</strong>. The VM is no longer concerned with labels. It is only concerned with matching. It does make semantic actions a bit more complicated, but the bind syntax is familiar from match expressions and an action being a sequence of things should be familiar as well.</p>
 <p>This change required a bit of rework how semantic actions work. Previously only one expression was allowed. Now multiple expressions are allowed. The result of expressions can also be bound to names which subsequent expressions can refer to. Furthermore, there are now also runtime variables that are set with bindings. <code>label</code> is a built in runtime function that generates increasing integers starting at 0.</p>
 <p>The implementation of this change also <strong>increases the flexibility</strong> of RLMeta. For example, it is now possible to write a semantic action that generates code in different sections like this:</p>
+<div class="highlight">
+<pre><span></span>ExampleBuffers {
+    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> Buffer()<span class="nb">:</span>header
+                      <span class="nb">-&gt;</span> { <span class="s">&quot;# HEADER</span><span class="se">\n</span><span class="s">&quot;</span>
+                           header
+                           <span class="s">&quot;# BODY</span><span class="se">\n</span><span class="s">&quot;</span>
+                           x            }
+    ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]  <span class="nb">-&gt;</span> x
+    Program  <span class="nb">=</span> ast<span class="nc">*</span>
+    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> header({ <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
+                      <span class="nb">-&gt;</span> { name <span class="s">&quot;()</span><span class="se">\n</span><span class="s">&quot;</span> }
+}
+</pre>
+</div>
+<p><code>Buffer</code> is a specialised list that appends an element when called as a function:</p>
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Buffer</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+</pre>
+</div>
+<p>Here is an example AST representing a program:</p>
+<div class="highlight">
+<pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;Program&#39;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre>
+</div>
+<p>When the <code>program</code> rule is run on the example input, the following is output:</p>
+<div class="highlight">
+<pre><span></span>$ <span></span>python example_buffers.py
+<span></span># HEADER
+def foo
+def bar
+# BODY
+foo()
+bar()
+</pre>
+</div>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
 <h3 id="extract-assembler">Extract assembler</h3>
 <p>…</p>
