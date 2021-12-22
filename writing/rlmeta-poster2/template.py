@@ -6,7 +6,18 @@ import subprocess
 import sys
 import textwrap
 
+block = None
+
 def process_line(line):
+    global block
+    if block is not None:
+        if line.strip() == "$:endfile":
+            with open(block["path"], "w") as f:
+                f.write("".join(block["lines"]))
+            block = None
+        else:
+            block["lines"].append(line)
+        return []
     if line.startswith("$:shell:"):
         return shell(*line.strip().split(":")[2:])
     elif line.startswith("$~shell~"):
@@ -15,6 +26,9 @@ def process_line(line):
         return []
     elif line.startswith("$:code:"):
         return code(*line.strip().split(":")[2:])
+    elif line.startswith("$:file:"):
+        block = {"path": line.strip().split(":")[2], "lines": []}
+        return []
     else:
         return [line]
 

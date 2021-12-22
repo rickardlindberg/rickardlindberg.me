@@ -60,24 +60,24 @@ matched.
 Let's write a grammar that counts the number of objects in an input stream and
 produces a report:
 
-$~shell~rlmeta-poster-2~echo -e 'ObjectCounter {\n    count = .*:xs -> { "number of objects = " len(xs) }\n}' > object_counter.grammar
+$~shell~rlmeta-poster-2~echo -e 'ObjectCounter {\n    count = .*:xs -> { "number of objects = " len(xs) }\n}' > object_counter.rlmeta
 
-$:shell:rlmeta-poster-2:cat object_counter.grammar:rlmeta
+$:shell:rlmeta-poster-2:cat object_counter.rlmeta:rlmeta
 
 The main function of the RLMeta compiler is to transform grammars into Python
 code. If invoked without arguments, the compiler reads a grammar from stdin
 and writes Python code to stdout:
 
-$:shell:rlmeta-poster-2:cat object_counter.grammar | python rlmeta.py:python
+$:shell:rlmeta-poster-2:cat object_counter.rlmeta | python rlmeta.py:python
 
 This is equivalent to using the `--compile` command with a value  of `-` which
 stands for stdin:
 
-$:shell:rlmeta-poster-2:cat object_counter.grammar | python rlmeta.py --compile - | head -n3:python
+$:shell:rlmeta-poster-2:cat object_counter.rlmeta | python rlmeta.py --compile - | head -n3:python
 
 And, the file can also be specified directly like this:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --compile object_counter.grammar | head -n3:python
+$:shell:rlmeta-poster-2:python rlmeta.py --compile object_counter.rlmeta | head -n3:python
 
 Don't worry about understanding the generated code. We will explore it more
 later. Just note that the generated class inherits from a class called
@@ -102,7 +102,7 @@ as is to compiled file.
 
 Combining these pieces into a single compile command, we get this:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py > object_counter.py
+$:shell:rlmeta-poster-2:python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py > object_counter.py
 
 It will perform all commands in the given order and write all generated code
 concatenated into a single file.
@@ -121,7 +121,7 @@ So programs in RLMeta are written mainly in grammar files with some support
 functions written in Python. The RLMeta compiler can process all these files to
 produce a single Python file which is the compiled program.
 
-$~shell~rlmeta-poster-2~rm object_counter.grammar
+$~shell~rlmeta-poster-2~rm object_counter.rlmeta
 $~shell~rlmeta-poster-2~rm object_counter_main.py
 $~shell~rlmeta-poster-2~rm object_counter.py
 
@@ -185,13 +185,13 @@ included in the support library and not only in the main file.
 Let's now follow a compilation of an example grammar to learn more about how
 a grammar file is turned into Python code. Here it is:
 
-$~shell~rlmeta-poster-2~echo -e 'Example {\n    main = .\n}' > example.grammar
+$~shell~rlmeta-poster-2~echo -e 'Example {\n    main = .\n}' > example.rlmeta
 
-$:shell:rlmeta-poster-2:cat example.grammar:rlmeta
+$:shell:rlmeta-poster-2:cat example.rlmeta:rlmeta
 
 And this is what it compiles to:
 
-$:shell:rlmeta-poster-2:python rlmeta.py --compile example.grammar:python
+$:shell:rlmeta-poster-2:python rlmeta.py --compile example.rlmeta:python
 
 The transformations that the grammar goes through were defined in the main
 function:
@@ -356,7 +356,7 @@ code = [
 Hopefully you should now be comfortable to follow transformations yourself to
 understand how a compilation is done.
 
-$~shell~rlmeta-poster-2~rm example.grammar
+$~shell~rlmeta-poster-2~rm example.rlmeta
 
 ### The usage of the make script
 
@@ -456,6 +456,62 @@ integers starting at 0.
 The implementation of this change also **increases the flexibility** of RLMeta.
 For example, it is now possible to write a semantic action that generates code
 in different sections like this:
+
+$:file:rlmeta-poster-2/example_buffers.rlmeta
+ExampleBuffers {
+    program  = ast:x  -> Buffer():header
+                      -> { "# HEADER\n"
+                           header
+                           "# BODY\n"
+                           x            }
+    ast      = [%:x]  -> x
+    Program  = ast*
+    Function = .:name -> header({ "def " name "\n" })
+                      -> { name "()\n" }
+}
+$:endfile
+$:code:rlmeta-poster-2/example_buffers.rlmeta
+
+`Buffer` is a specialised list that appends an element when called as a
+function:
+
+$:file:rlmeta-poster-2/buffer.py
+class Buffer(list):
+
+    def __call__(self, arg):
+        self.append(arg)
+$:endfile
+$:code:rlmeta-poster-2/buffer.py
+
+Here is an example AST representing a program:
+
+$:file:rlmeta-poster-2/ast.py
+AST = [
+    ['Program',
+        ['Function', 'foo'],
+        ['Function', 'bar']
+    ]
+]
+$:endfile
+$:code:rlmeta-poster-2/ast.py
+
+$:file:rlmeta-poster-2/main.py
+import sys
+sys.stdout.write(ExampleBuffers().run("program", AST, runtime={"Buffer": Buffer}))
+$:endfile
+
+$~shell~rlmeta-poster-2~python rlmeta.py --support --compile example_buffers.rlmeta --copy buffer.py --copy ast.py --copy main.py > example_buffers.py
+
+When the `program` rule is run on the example input, the following is output:
+
+$:shell:rlmeta-poster-2:python example_buffers.py
+
+$~shell~rlmeta-poster-2~rm example_buffers.rlmeta
+$~shell~rlmeta-poster-2~rm buffer.py
+$~shell~rlmeta-poster-2~rm main.py
+$~shell~rlmeta-poster-2~rm ast.py
+$~shell~rlmeta-poster-2~rm example_buffers.py
+$~shell~rlmeta-poster-2~rm -rf __pycache__
 
 ### Remove dependency on Bash
 

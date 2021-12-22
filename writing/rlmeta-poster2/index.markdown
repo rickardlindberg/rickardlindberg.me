@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-21
+date: 2021-12-22
 tags: rlmeta,draft
 ---
 
@@ -88,7 +88,7 @@ Let's write a grammar that counts the number of objects in an input stream and
 produces a report:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar
+<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta
 <span></span>ObjectCounter {
     count <span class="nb">=</span> <span class="nc">.*</span><span class="nb">:</span>xs <span class="nb">-&gt;</span> { <span class="s">&quot;number of objects = &quot;</span> len(xs) }
 }
@@ -98,7 +98,7 @@ The main function of the RLMeta compiler is to transform grammars into Python
 code. If invoked without arguments, the compiler reads a grammar from stdin
 and writes Python code to stdout:
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar <span class="p">|</span> python rlmeta.py
+<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -127,7 +127,7 @@ and writes Python code to stdout:
 This is equivalent to using the `--compile` command with a value  of `-` which
 stands for stdin:
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.grammar <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
+<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -135,7 +135,7 @@ stands for stdin:
 
 And, the file can also be specified directly like this:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.grammar <span class="p">|</span> head -n3
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.rlmeta <span class="p">|</span> head -n3
 <span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -198,7 +198,7 @@ as is to compiled file.
 
 Combining these pieces into a single compile command, we get this:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.grammar --copy object_counter_main.py &gt; object_counter.py
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py &gt; object_counter.py
 <span></span>
 </pre></div>
 
@@ -339,7 +339,7 @@ Let's now follow a compilation of an example grammar to learn more about how
 a grammar file is turned into Python code. Here it is:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat example.grammar
+<div class="highlight"><pre><span></span>$ <span></span>cat example.rlmeta
 <span></span>Example {
     main <span class="nb">=</span> <span class="nc">.</span>
 }
@@ -347,7 +347,7 @@ a grammar file is turned into Python code. Here it is:
 
 And this is what it compiles to:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.grammar
+<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.rlmeta
 <span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
@@ -666,6 +666,52 @@ integers starting at 0.
 The implementation of this change also **increases the flexibility** of RLMeta.
 For example, it is now possible to write a semantic action that generates code
 in different sections like this:
+
+<div class="highlight"><pre><span></span>ExampleBuffers {
+    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> Buffer()<span class="nb">:</span>header
+                      <span class="nb">-&gt;</span> { <span class="s">&quot;# HEADER</span><span class="se">\n</span><span class="s">&quot;</span>
+                           header
+                           <span class="s">&quot;# BODY</span><span class="se">\n</span><span class="s">&quot;</span>
+                           x            }
+    ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]  <span class="nb">-&gt;</span> x
+    Program  <span class="nb">=</span> ast<span class="nc">*</span>
+    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> header({ <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
+                      <span class="nb">-&gt;</span> { name <span class="s">&quot;()</span><span class="se">\n</span><span class="s">&quot;</span> }
+}
+</pre></div>
+
+`Buffer` is a specialised list that appends an element when called as a
+function:
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Buffer</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+</pre></div>
+
+Here is an example AST representing a program:
+
+<div class="highlight"><pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;Program&#39;</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+
+
+
+When the `program` rule is run on the example input, the following is output:
+
+<div class="highlight"><pre><span></span>$ <span></span>python example_buffers.py
+<span></span># HEADER
+def foo
+def bar
+# BODY
+foo()
+bar()
+</pre></div>
+
 
 ### Remove dependency on Bash
 
