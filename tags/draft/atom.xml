@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-12-22T00:00:00Z</updated>
+    <updated>2021-12-28T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2021-12-22T00:00:00Z</published>
-    <updated>2021-12-22T00:00:00Z</updated>
+    <published>2021-12-28T00:00:00Z</published>
+    <updated>2021-12-28T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 22 December 2021.</em></p>
+<p><em>Published on 28 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
@@ -468,7 +468,7 @@ STREAM:
 <p>I used these guidelines to decide if certain changes should go into the new version or not.</p>
 <p>One interesting thing to note is that the guidelines are sometimes contradicting. Writing clear code might mean more lines of code which makes the code base larger. Perhaps that’s also why I got stuck chasing perfection. I thought I made something easier to read, but it ended up costing 10 extra lines of code. Should I include it?</p>
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
-<p>One thing that I left in the first version of the poster that still annoyed me was that labels are generated at match time, not at semantic action evaluation time. It will not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
+<p>One thing that I left in the first version of the poster that still annoyed me was that labels were generated at match time, not at semantic action evaluation time. It would not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
 <p>Here is what the <code>Not</code> rule looks like in the first version of the poster:</p>
 <pre class="rlmeta"><code>Not = ast:x #:a #:b -&gt; { &quot;I(&#39;BACKTRACK&#39;, &quot; b &quot;)\n&quot;
                          x
@@ -530,9 +530,19 @@ foo()
 bar()
 </pre>
 </div>
+<p>This type of thing is useful for example when generating C functions where definitions need to go in “header” and declarations in “body”.</p>
+<p>In summary, this change is as follows:</p>
+<ul>
+<li>Label syntax (<code>#</code>) in parser is removed</li>
+<li>Actions can have multiple expressions</li>
+<li>Expressions can be bound to names</li>
+<li>A default <code>label</code> function to generate labels</li>
+<li>Names in semantic actions refer to matches or results bound earlier</li>
+</ul>
+<p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
+<p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
 <h3 id="extract-assembler">Extract assembler</h3>
-<p>…</p>
 <h3 id="todonotes">TODO/NOTES</h3>
 <ul>
 <li>Clarity: How does it affect understandability/learnability/readability?</li>
@@ -541,6 +551,20 @@ bar()
 <li>Performance: How fast does it compile?</li>
 </ul>
 <p>CHANGES:</p>
+<ul>
+<li>Join using support function
+<ul>
+<li>Smaller and faster</li>
+</ul></li>
+<li>Disallow semantic actions in the middle
+<ul>
+<li>More clear</li>
+</ul></li>
+<li>Allow indent prefix to be changed
+<ul>
+<li>More flexible</li>
+</ul></li>
+</ul>
 <p>It started with this goal:</p>
 <pre><code>RLMeta Poster 2: Experiment with PyVM and see if it can improve &quot;assembly
 code in code generator&quot;.</code></pre>
@@ -654,6 +678,7 @@ $ wc -l rlmeta/*; echo; wc -l pyvm/*
 <p>[ ] Lists can be repeated and xs refers to last match?</p>
 <pre><code>echo &#39;G{x=[.:xs]*}&#39; | python rlmeta.py</code></pre>
 <p>[ ] Lookup concat/splice/join/indent?</p>
+<p>[ ] Substream matching should return substream as action [ ] Macro language for creating VMs in Python [ ] run -&gt; match rename of grammar method [ ] What should an empty [“And”] return? Undefined or default None? [ ] ? operator should return empty list (in case of no match) or list with one item (in case of match). [ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
 <p>Here is all the source code and also the make script.</p>
 <h3 id="srcparser.rlmeta">src/parser.rlmeta</h3>
