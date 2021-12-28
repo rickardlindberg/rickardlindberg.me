@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-22
+date: 2021-12-28
 tags: rlmeta,draft
 ---
 
@@ -621,8 +621,8 @@ of code.  Should I include it?
 ### Generate labels in semantic actions
 
 One thing that I left in the first version of the poster that still annoyed me
-was that labels are generated at match time, not at semantic action evaluation
-time. It will not produce incorrect results. At worst, some labels end up not
+was that labels were generated at match time, not at semantic action evaluation
+time. It would not produce incorrect results. At worst, some labels end up not
 being used because the counter value captured was in a rule that later failed.
 But dealing with labels at match time does not make sense. It should really
 happen at semantic action evaluation time.
@@ -712,12 +712,25 @@ foo()
 bar()
 </pre></div>
 
+This type of thing is useful for example when generating C functions where
+definitions need to go in "header" and declarations in "body".
+
+In summary, this change is as follows:
+
+* Label syntax (`#`) in parser is removed
+* Actions can have multiple expressions
+* Expressions can be bound to names
+* A default `label` function to generate labels
+* Names in semantic actions refer to matches or results bound earlier
+
+The complete diff for this change can be found on [GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05).
+
 
 ### Remove dependency on Bash
 
-### Extract assembler
+The complete diff for this change can be found on [GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9).
 
-...
+### Extract assembler
 
 ### TODO/NOTES
 
@@ -727,6 +740,14 @@ bar()
 * Performance: How fast does it compile?
 
 CHANGES:
+
+* Join using support function
+    * Smaller and faster
+* Disallow semantic actions in the middle
+    * More clear
+* Allow indent prefix to be changed
+    * More flexible
+
 
 It started with this goal:
 
@@ -892,6 +913,15 @@ TODO:
     echo 'G{x=[.:xs]*}' | python rlmeta.py
 
 [ ] Lookup concat/splice/join/indent?
+
+[ ] Substream matching should return substream as action
+[ ] Macro language for creating VMs in Python
+[ ] run -> match rename of grammar method
+[ ] What should an empty ["And"] return? Undefined or default None?
+[ ] ? operator should return empty list (in case of no match) or list with one item (in case of match).
+[ ] Add one more pass in between parser and codegen that generates VM-instrucionts
+    [ ] VM-instructions will be easier to read
+    [ ] Possible for peephole optimizations before generating Python code
 
 ## Code listings for RLMeta
 
