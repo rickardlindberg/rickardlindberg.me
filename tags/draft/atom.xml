@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2021-12-28T00:00:00Z</updated>
+    <updated>2021-12-29T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2021-12-28T00:00:00Z</published>
-    <updated>2021-12-28T00:00:00Z</updated>
+    <published>2021-12-29T00:00:00Z</published>
+    <updated>2021-12-29T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 28 December 2021.</em></p>
+<p><em>Published on 29 December 2021.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
@@ -457,14 +457,20 @@ STREAM:
 <p>This section explains the most important changes in this version of RLMeta compared to the original poster version.</p>
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
 <ul>
-<li>Assembly code in code generator is hard to read.</li>
 <li>The label counter is incremented at match time, not at semantic action evaluation time.</li>
 <li>Compilation depends on bash.</li>
+<li>Assembly code in code generator is hard to read.</li>
 </ul>
 <p>In the poster article, I also had a few notes about <a href="/writing/creating-rlmeta-poster/index.html#b070abcd2f134cf894e33e63188a9fee">future versions</a>:</p>
 <blockquote>
 <p>The smaller it is, the easier it is to understand and therefore extend. The more flexible it is to extend the better. If I make another poster version it would therefore focus on being smaller and more flexible. Since all successive version of RLMeta have been faster than the ones before, performance is also important. But small size, clarity, and flexibility come first.</p>
 </blockquote>
+<ul>
+<li>Clarity: How does it affect understandability/learnability/readability?</li>
+<li>Size: Lines of code.</li>
+<li>Flexibility: How easy is it to modify RLMeta to be what you need?</li>
+<li>Performance: How fast does it compile?</li>
+</ul>
 <p>I used these guidelines to decide if certain changes should go into the new version or not.</p>
 <p>One interesting thing to note is that the guidelines are sometimes contradicting. Writing clear code might mean more lines of code which makes the code base larger. Perhaps that’s also why I got stuck chasing perfection. I thought I made something easier to read, but it ended up costing 10 extra lines of code. Should I include it?</p>
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
@@ -540,41 +546,15 @@ bar()
 <li>Names in semantic actions refer to matches or results bound earlier</li>
 </ul>
 <p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>.</p>
+<p>The increased clarity and flexibility come with a price. The size increases and the performance drops.</p>
+<p>The parser and the code generator are mostly the same. The greatest addition is in the support library. Which is expected when semantic action evaluation becomes more complex. The drop in performance is likely due to more function calls when evaluating semantic actions. Even though size and performance got worse, I believe the clarity and flexibility gain is worth it.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
 <p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
 <h3 id="extract-assembler">Extract assembler</h3>
-<h3 id="todonotes">TODO/NOTES</h3>
-<ul>
-<li>Clarity: How does it affect understandability/learnability/readability?</li>
-<li>Size: Lines of code.</li>
-<li>Flexibility: How easy is it to modify RLMeta to be what you need?</li>
-<li>Performance: How fast does it compile?</li>
-</ul>
-<p>CHANGES:</p>
-<ul>
-<li>Join using support function
-<ul>
-<li>Smaller and faster</li>
-</ul></li>
-<li>Disallow semantic actions in the middle
-<ul>
-<li>More clear</li>
-</ul></li>
-<li>Allow indent prefix to be changed
-<ul>
-<li>More flexible</li>
-</ul></li>
-</ul>
 <p>It started with this goal:</p>
 <pre><code>RLMeta Poster 2: Experiment with PyVM and see if it can improve &quot;assembly
 code in code generator&quot;.</code></pre>
-<p>Then continued with this:</p>
 <ul>
-<li><p>Import all current code into smart notes document.</p>
-<ul>
-<li>Added search of code notes to smart notes.</li>
-</ul></li>
-<li><p>Adapt to Python 3.</p></li>
 <li><p>PyVM (first version)</p>
 <ul>
 <li><p>Split PyVM into parser and codegenerator.</p></li>
@@ -582,59 +562,21 @@ code in code generator&quot;.</code></pre>
 <li><p>What is a good AST for PyVM?</p></li>
 </ul>
 <p>[x] Continue to build parse tree.</p>
-<p>[x] Figure out how to replace support library in make.py</p>
-<p>$ wc -l rlmeta/<em>; echo; wc -l pyvm/</em> 66 rlmeta/codegenerator.rlmeta 46 rlmeta/main.py 58 rlmeta/parser.rlmeta 77 rlmeta/support.py 169 rlmeta/vm.pyvm 416 total</p>
-<pre><code>22 pyvm/codegenerator.rlmeta
-19 pyvm/parser.rlmeta
-35 pyvm/support.py
-76 total</code></pre></li>
+<p>[x] Figure out how to replace support library in make.py</p></li>
 </ul>
-<p>[x] Better error message than None if runtime/scope is not found.</p>
-<pre><code>* Rename match -&gt; matches in Scope
-* Immutable scope instead and fail if entry does not exist?
-
-$ wc -l rlmeta/*; echo; wc -l pyvm/*
-   66 rlmeta/codegenerator.rlmeta
-   46 rlmeta/main.py
-   58 rlmeta/parser.rlmeta
-   68 rlmeta/support.py
-  169 rlmeta/vm.pyvm
-  407 total
-
-  22 pyvm/codegenerator.rlmeta
-  19 pyvm/parser.rlmeta
-  35 pyvm/support.py
-  76 total</code></pre>
 <p>[x] Generate instruction “enum” so that strings don’t have to be used</p>
-<p>[x] Counter class is more clean</p>
-<pre><code>$ wc -l rlmeta/*; echo; wc -l pyvm/*
-   66 rlmeta/codegenerator.rlmeta
-   46 rlmeta/main.py
-   58 rlmeta/parser.rlmeta
-   72 rlmeta/support.py
-  169 rlmeta/vm.pyvm
-  411 total
-
-  22 pyvm/codegenerator.rlmeta
-  19 pyvm/parser.rlmeta
-  35 pyvm/support.py
-  76 total</code></pre>
 <ul>
-<li>No need to wrap parser output in list for codegenerator in RLMeta</li>
+<li>No need to wrap parser output in list for codegenerator in PyVM</li>
 </ul>
-<p>[x] Put compile + error reporting function in support lib.</p>
-<p>[x] No need to wrap parser output in list for codegenerator in PyVM</p>
-<p>[x] You can put any crap at end of file, and parsers don’t care. Fix it!</p>
-<p>[x] VM should not know about runtime.</p>
 <p>[x] Move “assembly” out of support library. Grammar should generate labels/instructions.</p>
-<p>[x] No failure if VM-compilation fails? (Swap Instruction arguments.)</p>
-<p>[x] Support recursive macros?</p>
-<pre><code>* Probably requires function to run grammar against an object.
-
-* Needed to get rid of duplicated call code.</code></pre>
+<ul>
+<li><p>Support recursive macros?</p>
+<ul>
+<li><p>Probably requires function to run grammar against an object.</p></li>
+<li><p>Needed to get rid of duplicated call code.</p></li>
+</ul></li>
+</ul>
 <p>[x] Split code generator into code generator and python assembler. That makes each phase more clear and allows for optimizations.</p>
-<p>[x] Better AST for action expressions.</p>
-<p>[x] Can “native” calls be removed by adding binding in runtime?</p>
 <p>[x] Resolve labels in assembler.</p>
 <p>[x] Get rid of PyVM</p>
 <pre><code>[x] Compilation was further complicated now when VM has to be generated and
@@ -644,13 +586,67 @@ $ wc -l rlmeta/*; echo; wc -l pyvm/*
 
 [x] Write VM as clean as possible in Python. Then write a separate
     optimized VM?</code></pre>
-<p>[x] Put object match expr tree in parser instead of in codegen?</p>
-<pre><code>- This makes the VM more clean. There is only one instruction for matching
-  and the matching is done with a Python lambda. The VM knows nothing about
-  how to match a single object.</code></pre>
-<p>TODO:</p>
-<p>[ ] Can support library (and new Runtime) become smaller?</p>
-<p>[ ] Should memo be removed since it is an optimization?</p>
+<p>[ ] Macro language for creating VMs in Python</p>
+<p>[ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
+<h3 id="misc">Misc</h3>
+<ul>
+<li><p>Reformat to improve readability.</p></li>
+<li><p>Rename to make intention more clear.</p></li>
+<li><p>Join using support function</p>
+<ul>
+<li>Smaller and faster</li>
+<li>https://github.com/rickardlindberg/rickardlindberg.me/commit/c7cde4ef64db9c871ee25ea7ec39d26a1adb6d7d</li>
+</ul></li>
+<li><p>Disallow semantic actions in the middle</p>
+<ul>
+<li>More clear</li>
+<li>Before after</li>
+<li>Test case</li>
+<li>https://github.com/rickardlindberg/rickardlindberg.me/commit/4934b9105ec609de2d59fce955d41879ef57fcea</li>
+</ul>
+<p>$ echo “Grammar { rule = . -&gt;[] . }” | python rlmeta.py class Grammar(Grammar):</p>
+<pre><code>  def assemble(self, I, LABEL):
+      LABEL(&#39;rule&#39;)
+      I(&#39;PUSH_SCOPE&#39;)
+      I(&#39;MATCH_ANY&#39;)
+      I(&#39;ACTION&#39;, lambda scope: concat([]))
+      I(&#39;MATCH_ANY&#39;)
+      I(&#39;POP_SCOPE&#39;)
+      I(&#39;RETURN&#39;)</code></pre>
+<p>$ echo “Grammar { rule = . -&gt;[] . }” | python rlmeta.py ERROR: expected ‘}’ POSITION: 24 STREAM: Grammar { rule = . -&gt;[] <ERROR POSITION>. }</p></li>
+<li><p>Allow indent prefix to be changed</p>
+<ul>
+<li>More flexible</li>
+<li>Better flexibility at marginal cost. A little slower, but fixed by optimizing indent a little.</li>
+<li>https://github.com/rickardlindberg/rickardlindberg.me/commit/ac6126b7ea6a8d38967d7cb5bcfe6784332f587a</li>
+</ul>
+<p>def indent(text): return join(join([" ", line]) for line in text.splitlines(True))</p>
+<p>def indent(text, prefix=" “): return”".join(prefix + line for line in text.splitlines(True))</p></li>
+<li><p>Runtime vars outside VM</p>
+<ul>
+<li>More stuff moved out of VM</li>
+</ul></li>
+<li><p>Adapt to Python 3.</p></li>
+<li><p>Better error message than None if runtime/scope is not found.</p>
+<ul>
+<li>Rename match -&gt; matches in Scope</li>
+<li>Immutable scope instead and fail if entry does not exist?</li>
+</ul></li>
+<li><p>Counter class is more clean</p></li>
+<li><p>No need to wrap parser output in list for codegenerator in RLMeta</p></li>
+<li><p>Put compile + error reporting function in support lib.</p></li>
+<li><p>You can put any crap at end of file, and parsers don’t care. Fix it!</p></li>
+<li><p>VM should not know about runtime.</p></li>
+<li><p>No failure if VM-compilation fails? (Swap Instruction arguments.)</p></li>
+<li><p>Better AST for action expressions.</p></li>
+<li><p>Can “native” calls be removed by adding binding in runtime?</p></li>
+<li><p>Put object match expr tree in parser instead of in codegen?</p>
+<ul>
+<li>This makes the VM more clean. There is only one instruction for matching and the matching is done with a Python lambda. The VM knows nothing about how to match a single object.</li>
+</ul></li>
+</ul>
+<h3 id="todo">TODO</h3>
+<p>[ ] Substream matching should return substream as action [ ] run -&gt; match rename of grammar method [ ] What should an empty [“And”] return? Undefined or default None? [ ] ? operator should return empty list (in case of no match) or list with one item (in case of match). [ ] Can support library (and new Runtime) become smaller? [ ] Should memo be removed since it is an optimization?</p>
 <p>[ ] VM</p>
 <pre><code>[ ] Review VM and see if clarity can be improved.
 
@@ -678,7 +674,15 @@ $ wc -l rlmeta/*; echo; wc -l pyvm/*
 <p>[ ] Lists can be repeated and xs refers to last match?</p>
 <pre><code>echo &#39;G{x=[.:xs]*}&#39; | python rlmeta.py</code></pre>
 <p>[ ] Lookup concat/splice/join/indent?</p>
-<p>[ ] Substream matching should return substream as action [ ] Macro language for creating VMs in Python [ ] run -&gt; match rename of grammar method [ ] What should an empty [“And”] return? Undefined or default None? [ ] ? operator should return empty list (in case of no match) or list with one item (in case of match). [ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
+<h3 id="summary-of-changes">Summary of changes</h3>
+<ul>
+<li><p>More flexible</p></li>
+<li><p>More clear</p></li>
+<li><p>Similar preformance?</p></li>
+<li><p>At the cost of a few lines?</p></li>
+<li><p>wc -l</p></li>
+<li><p>Performance graph</p></li>
+</ul>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
 <p>Here is all the source code and also the make script.</p>
 <h3 id="srcparser.rlmeta">src/parser.rlmeta</h3>
