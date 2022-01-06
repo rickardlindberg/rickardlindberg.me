@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 29 December 2021.</em></p>
+<p><em>Published on  6 January 2022.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="../../writing/creating-rlmeta-poster/">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="../../writing/rlmeta-memoize-failures/">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
@@ -495,7 +495,7 @@ STREAM:
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
 <ul>
 <li>The label counter is incremented at match time, not at semantic action evaluation time.</li>
-<li>Compilation depends on bash.</li>
+<li>Compilation depends on Bash.</li>
 <li>Assembly code in code generator is hard to read.</li>
 </ul>
 <p>In the poster article, I also had a few notes about <a href="../../writing/creating-rlmeta-poster/index.html#b070abcd2f134cf894e33e63188a9fee">future versions</a>:</p>
@@ -513,6 +513,7 @@ STREAM:
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
 <p>One thing that I left in the first version of the poster that still annoyed me was that labels were generated at match time, not at semantic action evaluation time. It would not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
 <p>Here is what the <code>Not</code> rule looks like in the first version of the poster:</p>
+<p>TODO: highlight this</p>
 <pre class="rlmeta"><code>Not = ast:x #:a #:b -&gt; { &quot;I('BACKTRACK', &quot; b &quot;)\n&quot;
                          x
                          &quot;I('COMMIT', &quot; a &quot;)\n&quot;
@@ -520,6 +521,7 @@ STREAM:
                          &quot;I('FAIL', 'no match expected')\n&quot;
                          &quot;LABEL(&quot; b &quot;)\n&quot;                   }</code></pre>
 <p>Here is what the <code>Not</code> rule looks like after the change:</p>
+<p>TODO: highlight this</p>
 <pre class="rlmeta"><code>Not = ast:x -&gt; label():a -&gt; label():b
             -&gt; { &quot;I('BACKTRACK', &quot; b &quot;)\n&quot;
                  x
@@ -582,12 +584,40 @@ bar()
 <li>A default <code>label</code> function to generate labels</li>
 <li>Names in semantic actions refer to matches or results bound earlier</li>
 </ul>
-<p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>.</p>
+<p>The complete initial diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>. Note that later changes have been made that make the <code>Not</code> rule not look like above for example.</p>
 <p>The increased clarity and flexibility come with a price. The size increases and the performance drops.</p>
 <p>The parser and the code generator are mostly the same. The greatest addition is in the support library. Which is expected when semantic action evaluation becomes more complex. The drop in performance is likely due to more function calls when evaluating semantic actions. Even though size and performance got worse, I believe the clarity and flexibility gain is worth it.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
+<p>TODO: improve this section</p>
+<p>To compile the previous version of RLMeta, you ran the following command:</p>
+<pre><code>./compile.sh rlmeta.py</code></pre>
+<p>In one way, the compiler could not compile itself, but relied on a Bash script for gluing things together. It would call the <code>rlmeta.py</code> compiler for certain tasks and use Bash and Python for other parts.</p>
+<p>As you have already seen, the new version of RLMeta compiles itself like this:</p>
+<pre><code>python rlmeta.py \
+    --embed SUPPORT src/support.py \
+    --support \
+    --compile src/parser.rlmeta \
+    --compile src/codegenerator.rlmeta \
+    --compile src/assembler.rlmeta \
+    --copy src/main.py \
+    &gt; rlmeta-raw.py</code></pre>
+<p>The <code>rlmeta.py</code> compiler now has support for doing what the Bash script previously did via <code>--embed</code>, <code>--copy</code>.</p>
+<p>This makes the compiler slightly larger, but it feels so much cleaner.</p>
+<p>In addition, the extra features are useful when writing programs in RLMeta. Those programs can now also be compiled with a single command, and there is no need to concatenate different pieces together.</p>
 <p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
 <h3 id="extract-assembler">Extract assembler</h3>
+<p>The third thing I had a problem with was the readability of the code generation. For example, the <code>Not</code> rule now looked like this:</p>
+<pre class="rlmeta"><code>Not = ast:x -&gt; label():a -&gt; label():b
+            -&gt; { &quot;I('BACKTRACK', &quot; b &quot;)\n&quot;
+                 x
+                 &quot;I('COMMIT', &quot; a &quot;)\n&quot;
+                 &quot;LABEL(&quot; a &quot;)\n&quot;
+                 &quot;I('FAIL', 'no match expected')\n&quot;
+                 &quot;LABEL(&quot; b &quot;)\n&quot;                   }</code></pre>
+<p>It generates a string which outputs some Python code that calls some functions to create “assembly” code. It is mixed and messy.</p>
+<p>TODO: include from file</p>
+<p>``rlmeta Not = ast:x -&gt; label():a -&gt; label():b -&gt; [[“OpCode” “BACKTRACK”] [“Target” b] ~x [“OpCode” “COMMIT”] [“Target” a] [“Label” a] [“OpCode” “FAIL”] [“Value” “no match”] [“Label” b]] ```</p>
+<p>It now generates abstract assembly code. Much cleaner. And then an assembler turns that into Python code.</p>
 <p>It started with this goal:</p>
 <pre><code>RLMeta Poster 2: Experiment with PyVM and see if it can improve &quot;assembly
 code in code generator&quot;.</code></pre>
