@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2021-12-29
+date: 2022-01-06
 tags: rlmeta,draft
 ---
 
@@ -596,7 +596,7 @@ following:
 
 * The label counter is incremented at match time, not at semantic action
   evaluation time.
-* Compilation depends on bash.
+* Compilation depends on Bash.
 * Assembly code in code generator is hard to read.
 
 In the poster article, I also had a few notes about
@@ -634,6 +634,8 @@ happen at semantic action evaluation time.
 
 Here is what the `Not` rule looks like in the first version of the poster:
 
+TODO: highlight this
+
 ```rlmeta
 Not = ast:x #:a #:b -> { "I('BACKTRACK', " b ")\n"
                          x
@@ -644,6 +646,8 @@ Not = ast:x #:a #:b -> { "I('BACKTRACK', " b ")\n"
 ```
 
 Here is what the `Not` rule looks like after the change:
+
+TODO: highlight this
 
 ```rlmeta
 Not = ast:x -> label():a -> label():b
@@ -728,7 +732,10 @@ In summary, this change is as follows:
 * A default `label` function to generate labels
 * Names in semantic actions refer to matches or results bound earlier
 
-The complete diff for this change can be found on [GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05).
+The complete initial diff for this change can be found on
+[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05).
+Note that later changes have been made that make the `Not` rule not look like
+above for example.
 
 The increased clarity and flexibility come with a price. The size increases and
 the performance drops.
@@ -742,9 +749,74 @@ worse, I believe the clarity and flexibility gain is worth it.
 
 ### Remove dependency on Bash
 
-The complete diff for this change can be found on [GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9).
+TODO: improve this section
+
+To compile the previous version of RLMeta, you ran the following command:
+
+    ./compile.sh rlmeta.py
+
+In one way, the compiler could not compile itself, but relied on a Bash script
+for gluing things together. It would call the `rlmeta.py` compiler for certain
+tasks and use Bash and Python for other parts.
+
+As you have already seen, the new version of RLMeta compiles itself like this:
+
+    python rlmeta.py \
+        --embed SUPPORT src/support.py \
+        --support \
+        --compile src/parser.rlmeta \
+        --compile src/codegenerator.rlmeta \
+        --compile src/assembler.rlmeta \
+        --copy src/main.py \
+        > rlmeta-raw.py
+
+The `rlmeta.py` compiler now has support for doing what the Bash script
+previously did via `--embed`, `--copy`.
+
+This makes the compiler slightly larger, but it feels so much cleaner.
+
+In addition, the extra features are useful when writing programs in RLMeta.
+Those programs can now also be compiled with a single command, and there is no
+need to concatenate different pieces together.
+
+The complete diff for this change can be found on
+[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9).
 
 ### Extract assembler
+
+The third thing I had a problem with was the readability of the code
+generation. For example, the `Not` rule now looked like this:
+
+```rlmeta
+Not = ast:x -> label():a -> label():b
+            -> { "I('BACKTRACK', " b ")\n"
+                 x
+                 "I('COMMIT', " a ")\n"
+                 "LABEL(" a ")\n"
+                 "I('FAIL', 'no match expected')\n"
+                 "LABEL(" b ")\n"                   }
+```
+
+It generates a string which outputs some Python code that calls some functions
+to create "assembly" code. It is mixed and messy.
+
+TODO: include from file
+
+``rlmeta
+Not           = ast:x       -> label():a -> label():b
+                            -> [["OpCode" "BACKTRACK"]
+                                ["Target" b]
+                                ~x
+                                ["OpCode" "COMMIT"]
+                                ["Target" a]
+                                ["Label" a]
+                                ["OpCode" "FAIL"]
+                                ["Value" "no match"]
+                                ["Label" b]]
+```
+
+It now generates abstract assembly code. Much cleaner. And then an assembler
+turns that into Python code.
 
 It started with this goal:
 
