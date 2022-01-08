@@ -39,6 +39,23 @@ def test(rlmeta):
     assert run_rlmeta(rlmeta, ["--support"]) == read("src/support.py")
     log("Test: Disallow semantic action in the middle")
     run_rlmeta(rlmeta, [], b"Grammar { x = . -> [] . }", expect_failure=True)
+    log("Test: Call unknown rule foo")
+    assert test_grammar(
+        rlmeta,
+        b"Grammar { x = % | . }",
+        b"print(compile_chain([(Grammar, 'x')], ['foo']))"
+    ) == b"foo\n"
+
+def test_grammar(rlmeta, grammar, main_code):
+    compiled = run_rlmeta(rlmeta, ["--support", "--compile", "-"], grammar)
+    total = compiled + main_code
+    process = subprocess.Popen(
+        ["python"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE
+    )
+    stdout, _ = process.communicate(total)
+    return stdout
 
 def run_rlmeta(rlmeta, args, stdin=b"", expect_failure=False):
     process = subprocess.Popen(

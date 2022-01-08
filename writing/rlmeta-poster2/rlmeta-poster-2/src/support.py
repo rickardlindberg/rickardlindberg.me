@@ -68,13 +68,13 @@ def MATCH_(vm, fn, message):
     if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):
         FAIL_(vm, message)
     else:
-        match = vm.stream[vm.pos]
-        vm.action = SemanticAction(match)
+        vm.action = SemanticAction(vm.stream[vm.pos])
         vm.pos += 1
+        return True
 
 def MATCH_CALL_RULE(vm):
-    MATCH_(vm, lambda x: x in vm.rules, ("expected rule name",))
-    CALL_(vm, vm.rules[vm.action.value])
+    if MATCH_(vm, lambda x: x in vm.rules, ("expected rule name",)):
+        CALL_(vm, vm.rules[vm.action.value])
 
 def LIST_START(vm):
     vm.scope_rest = (vm.scope, vm.scope_rest)

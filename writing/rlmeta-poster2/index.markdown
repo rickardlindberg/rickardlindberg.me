@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2022-01-06
+date: 2022-01-08
 tags: rlmeta,draft
 ---
 
@@ -262,9 +262,9 @@ exact function:
 And all these files are exactly the same:
 
 <div class="highlight"><pre><span></span>$ <span></span>md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
-<span></span>8f438ec43dc93d0297415c7ddbcc683c  rlmeta.py
-8f438ec43dc93d0297415c7ddbcc683c  rlmeta-compile.py
-8f438ec43dc93d0297415c7ddbcc683c  rlmeta-raw.py
+<span></span>504430e673ab5a117179667ee7e8c769  rlmeta.py
+504430e673ab5a117179667ee7e8c769  rlmeta-compile.py
+504430e673ab5a117179667ee7e8c769  rlmeta-raw.py
 </pre></div>
 
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
@@ -568,6 +568,7 @@ ERROR: expected }
 POSITION: 22
 STREAM:
     Grammar { x = . -&gt; [] [0;31m&lt;ERROR POSITION&gt;[0m. }
+[0;33mTest: Call unknown rule foo[0m
 [0;33mMoving rlmeta1.py -&gt; rlmeta.py[0m
 [0;32m  O-----------------O[0m
 [0;32m  | RLMeta compiled |[0m
@@ -1250,13 +1251,13 @@ Here is all the source code and also the make script.
     <span class="k">if</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">fn</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">]):</span>
         <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+        <span class="n">vm</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
         <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
 <span class="k">def</span> <span class="nf">MATCH_CALL_RULE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected rule name&quot;</span><span class="p">,))</span>
-    <span class="n">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected rule name&quot;</span><span class="p">,)):</span>
+        <span class="n">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
 
 <span class="k">def</span> <span class="nf">LIST_START</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
     <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span>
@@ -1492,6 +1493,23 @@ Here is all the source code and also the make script.
     <span class="k">assert</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;--support&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">read</span><span class="p">(</span><span class="s2">&quot;src/support.py&quot;</span><span class="p">)</span>
     <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Disallow semantic action in the middle&quot;</span><span class="p">)</span>
     <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[],</span> <span class="sa">b</span><span class="s2">&quot;Grammar { x = . -&gt; [] . }&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Call unknown rule foo&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">test_grammar</span><span class="p">(</span>
+        <span class="n">rlmeta</span><span class="p">,</span>
+        <span class="sa">b</span><span class="s2">&quot;Grammar { x = % | . }&quot;</span><span class="p">,</span>
+        <span class="sa">b</span><span class="s2">&quot;print(compile_chain([(Grammar, &#39;x&#39;)], [&#39;foo&#39;]))&quot;</span>
+    <span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;foo</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="k">def</span> <span class="nf">test_grammar</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">main_code</span><span class="p">):</span>
+    <span class="n">compiled</span> <span class="o">=</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;--support&quot;</span><span class="p">,</span> <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n">grammar</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">compiled</span> <span class="o">+</span> <span class="n">main_code</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">],</span>
+        <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+    <span class="p">)</span>
+    <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stdout</span>
 
 <span class="k">def</span> <span class="nf">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
