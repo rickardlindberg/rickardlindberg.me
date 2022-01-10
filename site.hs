@@ -8,6 +8,7 @@ import Network.HTTP.Base
 import System.Environment
 import System.FilePath
 import Text.Pandoc.Options
+import Text.Pandoc
 
 main :: IO ()
 main = hasHakyllBuildTarget "webserver" >>= hakyllWith config . rules
@@ -37,6 +38,7 @@ rules isBuildTargetWebserver = do
     rulesPageIndexPandocTemplate           isBuildTargetWebserver tags
     rulesPostIndexHtml                     isBuildTargetWebserver
     rulesPostIndexPandoc                   isBuildTargetWebserver
+    rulesPostIndexPandocTocTemplate        isBuildTargetWebserver
     rulesPostIndexPandocNewsletter         isBuildTargetWebserver
     rulesPostIndexPandocWithOwnTitle       isBuildTargetWebserver
     rulesPostIndexUpOneUpPandoc            isBuildTargetWebserver
@@ -247,6 +249,18 @@ rulesPostIndexPandoc isBuildTargetWebserver = do
     where
         context = contextPost isBuildTargetWebserver
 
+rulesPostIndexPandocTocTemplate :: Bool -> Rules ()
+rulesPostIndexPandocTocTemplate isBuildTargetWebserver = do
+    match patternPostIndexPandocTocTemplate $ do
+        route $ setExtension "html"
+        compile $ myPandocCompilerToc
+            >>= loadAndApplyTemplate "templates/title.html" context
+            >>= saveSnapshot "postContentOnly"
+            >>= loadAndApplyTemplate "templates/default.html" context
+            >>= processUrls isBuildTargetWebserver
+    where
+        context = contextPost isBuildTargetWebserver
+
 rulesPostIndexPandocNewsletter :: Bool -> Rules ()
 rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
     match patternPostIndexPandocNewsletter $ do
@@ -313,6 +327,7 @@ patternAllPosts =
     .||. patternReflectionsOnProgramming
     .||. patternPostIndexHtml
     .||. patternPostIndexPandoc
+    .||. patternPostIndexPandocTocTemplate
     .||. patternPostIndexPandocNewsletter
     .||. patternPostIndexPandocWithOwnTitle
 
@@ -351,7 +366,10 @@ patternPostIndexPandoc =
     .||. "writing/bullet-journal-method-migration-as-review/index.markdown"
     .||. "writing/kinesis-advantage-2-swedish-setup/index.markdown"
     .||. "writing/what-is-programming/index.markdown"
-    .||. "writing/rlmeta-poster2/index.markdown"
+
+patternPostIndexPandocTocTemplate :: Pattern
+patternPostIndexPandocTocTemplate =
+         "writing/rlmeta-poster2/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
@@ -439,4 +457,21 @@ stripIndexHtml url =
 
 myPandocCompiler :: Compiler (Item String)
 myPandocCompiler =
-    pandocCompilerWith defaultHakyllReaderOptions defaultHakyllWriterOptions { writerEmailObfuscation = JavascriptObfuscation }
+    pandocCompilerWith defaultHakyllReaderOptions defaultHakyllWriterOptions
+        { writerEmailObfuscation = JavascriptObfuscation
+        }
+
+myPandocCompilerToc :: Compiler (Item String)
+myPandocCompilerToc =
+    pandocCompilerWith defaultHakyllReaderOptions defaultHakyllWriterOptions
+        { writerEmailObfuscation = JavascriptObfuscation
+        , writerTableOfContents = True
+        , writerTOCDepth = 3
+        , writerTemplate = Just tocTemplate
+        }
+    where
+        tocTemplate = either error id
+            $ either (error . show) id
+            $ runPure
+            $ runWithDefaultPartials
+            $ compileTemplate "" "$toc$\n$body$"
