@@ -424,22 +424,20 @@ happen at semantic action evaluation time.
 
 Here is what the `Not` rule looks like in the first version of the poster:
 
-TODO: highlight this
-
-```rlmeta
+$:file:scratch.rlmeta
 Not = ast:x #:a #:b -> { "I('BACKTRACK', " b ")\n"
                          x
                          "I('COMMIT', " a ")\n"
                          "LABEL(" a ")\n"
                          "I('FAIL', 'no match expected')\n"
                          "LABEL(" b ")\n"                   }
-```
+$:endfile
+$:code:scratch.rlmeta
+$~shell~.~rm scratch.rlmeta
 
 Here is what the `Not` rule looks like after the change:
 
-TODO: highlight this
-
-```rlmeta
+$:file:scratch.rlmeta
 Not = ast:x -> label():a -> label():b
             -> { "I('BACKTRACK', " b ")\n"
                  x
@@ -447,7 +445,9 @@ Not = ast:x -> label():a -> label():b
                  "LABEL(" a ")\n"
                  "I('FAIL', 'no match expected')\n"
                  "LABEL(" b ")\n"                   }
-```
+$:endfile
+$:code:scratch.rlmeta
+$~shell~.~rm scratch.rlmeta
 
 This change puts label generation where it belongs, in semantic actions, and
 thus makes the implementation **more clear**. The VM is no longer concerned
@@ -557,9 +557,9 @@ To compile the previous version of RLMeta, you ran the following command:
 
 In one way, the compiler could not compile itself, but relied on a Bash script
 for gluing things together. It would call the `rlmeta.py` compiler for certain
-tasks and use Bash and Python for other parts.
+tasks and use Bash and Python for other tasks.
 
-As you have already seen, the new version of RLMeta compiles itself like this:
+As we have already seen, the new version of RLMeta compiles itself like this:
 
     python rlmeta.py \
         --embed SUPPORT src/support.py \
@@ -568,7 +568,7 @@ As you have already seen, the new version of RLMeta compiles itself like this:
         --compile src/codegenerator.rlmeta \
         --compile src/assembler.rlmeta \
         --copy src/main.py \
-        > rlmeta-raw.py
+        > rlmeta.py
 
 The `rlmeta.py` compiler now has support for doing what the Bash script
 previously did via `--embed`, `--copy`.
@@ -584,10 +584,10 @@ The complete diff for this change can be found on
 
 ### Extract assembler
 
-The third thing I had a problem with was the readability of the code
-generation. For example, the `Not` rule now looked like this:
+The third thing I had a problem with was the readability of the code generator.
+For example, the `Not` rule looked like this:
 
-```rlmeta
+$:file:scratch.rlmeta
 Not = ast:x -> label():a -> label():b
             -> { "I('BACKTRACK', " b ")\n"
                  x
@@ -595,14 +595,16 @@ Not = ast:x -> label():a -> label():b
                  "LABEL(" a ")\n"
                  "I('FAIL', 'no match expected')\n"
                  "LABEL(" b ")\n"                   }
-```
+$:endfile
+$:code:scratch.rlmeta
+$~shell~.~rm scratch.rlmeta
 
 It generates a string which outputs some Python code that calls some functions
 to create "assembly" code. It is mixed and messy.
 
-TODO: include from file
+The new `Not` rule looks like this:
 
-``rlmeta
+$:file:scratch.rlmeta
 Not           = ast:x       -> label():a -> label():b
                             -> [["OpCode" "BACKTRACK"]
                                 ["Target" b]
@@ -613,10 +615,15 @@ Not           = ast:x       -> label():a -> label():b
                                 ["OpCode" "FAIL"]
                                 ["Value" "no match"]
                                 ["Label" b]]
-```
+$:endfile
+$:code:scratch.rlmeta
+$~shell~.~rm scratch.rlmeta
 
 It now generates abstract assembly code. Much cleaner. And then an assembler
 turns that into Python code.
+
+This adds another pass to the compiler. It also makes it possible to do
+optimizations on abstract assembly code.
 
 It started with this goal:
 
