@@ -8,17 +8,47 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2022-01-08T00:00:00Z</updated>
+    <updated>2022-01-11T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2022-01-08T00:00:00Z</published>
-    <updated>2022-01-08T00:00:00Z</updated>
+    <published>2022-01-11T00:00:00Z</published>
+    <updated>2022-01-11T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on  8 January 2022.</em></p>
+<p><em>Published on 11 January 2022.</em></p>
 
+<ul>
+<li><a href="#code-walk-through">Code walk through</a>
+<ul>
+<li><a href="#getting-rlmeta">Getting RLMeta</a></li>
+<li><a href="#file-structure">File structure</a></li>
+<li><a href="#exploring-rlmeta">Exploring RLMeta</a></li>
+<li><a href="#compiling-rlmeta-itself">Compiling RLMeta itself</a></li>
+<li><a href="#a-tour-of-the-main-function">A tour of the main function</a></li>
+<li><a href="#following-a-compilation">Following a compilation</a></li>
+<li><a href="#the-usage-of-the-make-script">The usage of the make script</a></li>
+</ul></li>
+<li><a href="#changes-from-the-previous-version">Changes from the previous version</a>
+<ul>
+<li><a href="#generate-labels-in-semantic-actions">Generate labels in semantic actions</a></li>
+<li><a href="#remove-dependency-on-bash">Remove dependency on Bash</a></li>
+<li><a href="#extract-assembler">Extract assembler</a></li>
+<li><a href="#misc">Misc</a></li>
+<li><a href="#todo">TODO</a></li>
+<li><a href="#summary-of-changes">Summary of changes</a></li>
+</ul></li>
+<li><a href="#code-listings-for-rlmeta">Code listings for RLMeta</a>
+<ul>
+<li><a href="#srcparser.rlmeta">src/parser.rlmeta</a></li>
+<li><a href="#srccodegenerator.rlmeta">src/codegenerator.rlmeta</a></li>
+<li><a href="#srcassembler.rlmeta">src/assembler.rlmeta</a></li>
+<li><a href="#srcsupport.py">src/support.py</a></li>
+<li><a href="#srcmain.py">src/main.py</a></li>
+<li><a href="#make.py">make.py</a></li>
+</ul></li>
+</ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="/writing/creating-rlmeta-poster/index.html">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="/writing/rlmeta-memoize-failures/index.html">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
 <p>Almost immediately after I finished the poster, I started working on a second version. Initially, my plan was to make a second version of the poster. I started to fix the unresolved items and I was making progress. But somehow imperfections kept creeping in. It felt like a never ending game of chasing perfection. That’s when I decided that a second poster was probably not going to be worth it. But I still liked the new version of RLMeta.</p>
@@ -477,22 +507,26 @@ STREAM:
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
 <p>One thing that I left in the first version of the poster that still annoyed me was that labels were generated at match time, not at semantic action evaluation time. It would not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
 <p>Here is what the <code>Not</code> rule looks like in the first version of the poster:</p>
-<p>TODO: highlight this</p>
-<pre class="rlmeta"><code>Not = ast:x #:a #:b -&gt; { &quot;I(&#39;BACKTRACK&#39;, &quot; b &quot;)\n&quot;
+<div class="highlight">
+<pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nc">#</span><span class="nb">:</span>a <span class="nc">#</span><span class="nb">:</span>b <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
                          x
-                         &quot;I(&#39;COMMIT&#39;, &quot; a &quot;)\n&quot;
-                         &quot;LABEL(&quot; a &quot;)\n&quot;
-                         &quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)\n&quot;
-                         &quot;LABEL(&quot; b &quot;)\n&quot;                   }</code></pre>
+                         <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                         <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                         <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                         <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
+</pre>
+</div>
 <p>Here is what the <code>Not</code> rule looks like after the change:</p>
-<p>TODO: highlight this</p>
-<pre class="rlmeta"><code>Not = ast:x -&gt; label():a -&gt; label():b
-            -&gt; { &quot;I(&#39;BACKTRACK&#39;, &quot; b &quot;)\n&quot;
+<div class="highlight">
+<pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
+            <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
                  x
-                 &quot;I(&#39;COMMIT&#39;, &quot; a &quot;)\n&quot;
-                 &quot;LABEL(&quot; a &quot;)\n&quot;
-                 &quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)\n&quot;
-                 &quot;LABEL(&quot; b &quot;)\n&quot;                   }</code></pre>
+                 <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
+</pre>
+</div>
 <p>This change puts label generation where it belongs, in semantic actions, and thus makes the implementation <strong>more clear</strong>. The VM is no longer concerned with labels. It is only concerned with matching. It does make semantic actions a bit more complicated, but the bind syntax is familiar from match expressions and an action being a sequence of things should be familiar as well.</p>
 <p>This change required a bit of rework how semantic actions work. Previously only one expression was allowed. Now multiple expressions are allowed. The result of expressions can also be bound to names which subsequent expressions can refer to. Furthermore, there are now also runtime variables that are set with bindings. <code>label</code> is a built in runtime function that generates increasing integers starting at 0.</p>
 <p>The implementation of this change also <strong>increases the flexibility</strong> of RLMeta. For example, it is now possible to write a semantic action that generates code in different sections like this:</p>
@@ -555,8 +589,8 @@ bar()
 <p>TODO: improve this section</p>
 <p>To compile the previous version of RLMeta, you ran the following command:</p>
 <pre><code>./compile.sh rlmeta.py</code></pre>
-<p>In one way, the compiler could not compile itself, but relied on a Bash script for gluing things together. It would call the <code>rlmeta.py</code> compiler for certain tasks and use Bash and Python for other parts.</p>
-<p>As you have already seen, the new version of RLMeta compiles itself like this:</p>
+<p>In one way, the compiler could not compile itself, but relied on a Bash script for gluing things together. It would call the <code>rlmeta.py</code> compiler for certain tasks and use Bash and Python for other tasks.</p>
+<p>As we have already seen, the new version of RLMeta compiles itself like this:</p>
 <pre><code>python rlmeta.py \
     --embed SUPPORT src/support.py \
     --support \
@@ -564,24 +598,40 @@ bar()
     --compile src/codegenerator.rlmeta \
     --compile src/assembler.rlmeta \
     --copy src/main.py \
-    &gt; rlmeta-raw.py</code></pre>
+    &gt; rlmeta.py</code></pre>
 <p>The <code>rlmeta.py</code> compiler now has support for doing what the Bash script previously did via <code>--embed</code>, <code>--copy</code>.</p>
 <p>This makes the compiler slightly larger, but it feels so much cleaner.</p>
 <p>In addition, the extra features are useful when writing programs in RLMeta. Those programs can now also be compiled with a single command, and there is no need to concatenate different pieces together.</p>
 <p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
 <h3 id="extract-assembler">Extract assembler</h3>
-<p>The third thing I had a problem with was the readability of the code generation. For example, the <code>Not</code> rule now looked like this:</p>
-<pre class="rlmeta"><code>Not = ast:x -&gt; label():a -&gt; label():b
-            -&gt; { &quot;I(&#39;BACKTRACK&#39;, &quot; b &quot;)\n&quot;
+<p>The third thing I had a problem with was the readability of the code generator. For example, the <code>Not</code> rule looked like this:</p>
+<div class="highlight">
+<pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
+            <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
                  x
-                 &quot;I(&#39;COMMIT&#39;, &quot; a &quot;)\n&quot;
-                 &quot;LABEL(&quot; a &quot;)\n&quot;
-                 &quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)\n&quot;
-                 &quot;LABEL(&quot; b &quot;)\n&quot;                   }</code></pre>
+                 <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
+                 <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
+</pre>
+</div>
 <p>It generates a string which outputs some Python code that calls some functions to create “assembly” code. It is mixed and messy.</p>
-<p>TODO: include from file</p>
-<p>``rlmeta Not = ast:x -&gt; label():a -&gt; label():b -&gt; [[“OpCode” “BACKTRACK”] [“Target” b] ~x [“OpCode” “COMMIT”] [“Target” a] [“Label” a] [“OpCode” “FAIL”] [“Value” “no match”] [“Label” b]] ```</p>
+<p>The new <code>Not</code> rule looks like this:</p>
+<div class="highlight">
+<pre><span></span>Not           <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
+                            <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
+                                [<span class="s">&quot;Target&quot;</span> b]
+                                <span class="nc">~</span>x
+                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
+                                [<span class="s">&quot;Target&quot;</span> a]
+                                [<span class="s">&quot;Label&quot;</span> a]
+                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;FAIL&quot;</span>]
+                                [<span class="s">&quot;Value&quot;</span> <span class="s">&quot;no match&quot;</span>]
+                                [<span class="s">&quot;Label&quot;</span> b]]
+</pre>
+</div>
 <p>It now generates abstract assembly code. Much cleaner. And then an assembler turns that into Python code.</p>
+<p>This adds another pass to the compiler. It also makes it possible to do optimizations on abstract assembly code.</p>
 <p>It started with this goal:</p>
 <pre><code>RLMeta Poster 2: Experiment with PyVM and see if it can improve &quot;assembly
 code in code generator&quot;.</code></pre>
