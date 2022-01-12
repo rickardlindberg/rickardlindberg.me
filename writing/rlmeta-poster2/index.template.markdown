@@ -625,41 +625,43 @@ turns that into Python code.
 This adds another pass to the compiler. It also makes it possible to do
 optimizations on abstract assembly code.
 
-It started with this goal:
-
-    RLMeta Poster 2: Experiment with PyVM and see if it can improve "assembly
-    code in code generator".
-
-* PyVM (first version)
-
-    *   Split PyVM into parser and codegenerator.
-
-    *   Two passes (and thus two grammars) are needed if macros should be
-        possible to define last.
-
-    *   What is a good AST for PyVM?
-
-    [x] Continue to build parse tree.
-
-    [x] Figure out how to replace support library in make.py
-
-[x] Generate instruction "enum" so that strings don't have to be used
-
-* No need to wrap parser output in list for codegenerator in PyVM
-
 [x] Move "assembly" out of support library. Grammar should generate
     labels/instructions.
-
-* Support recursive macros?
-
-    * Probably requires function to run grammar against an object.
-
-    * Needed to get rid of duplicated call code.
 
 [x] Split code generator into code generator and python assembler. That makes
     each phase more clear and allows for optimizations.
 
 [x] Resolve labels in assembler.
+
+[ ] Add one more pass in between parser and codegen that generates VM-instrucionts
+    [ ] VM-instructions will be easier to read
+    [ ] Possible for peephole optimizations before generating Python code
+
+### Clearer VM
+
+* Previously the VM was written for performance
+* Now the VM is written to be clear
+* Not sure size changed that much, but clarity did
+* Still not happy with the VM
+
+Before I ended up with the clear VM, I did another experiment with PyVM.
+
+PyVM was a new language whose sole purpose was to express virtual machines that
+compiled to a Python function. It was basically a small macro language on top
+of Python.
+
+    TODO: Example PyVM code
+
+    TODO: Example of what it turned it into
+
+I got this approach working, and the VM was expressed quite nicely, but it
+introduced complexity to the whole project:
+
+* There were grammars for PyVM
+* The VM had to be generated before it could be included in the support library
+
+I decided that the complexity was not worth it and decided to not care about
+performance and instead write the VM as clean as I could in pure Python.
 
 [x] Get rid of PyVM
 
@@ -671,11 +673,15 @@ It started with this goal:
     [x] Write VM as clean as possible in Python. Then write a separate
         optimized VM?
 
-[ ] Macro language for creating VMs in Python
+### Ability to run a rule in semantic action
 
-[ ] Add one more pass in between parser and codegen that generates VM-instrucionts
-    [ ] VM-instructions will be easier to read
-    [ ] Possible for peephole optimizations before generating Python code
+* Perhaps it originally came from PyVM?
+
+* Support recursive macros?
+
+    * Probably requires function to run grammar against an object.
+
+    * Needed to get rid of duplicated call code.
 
 ### Misc
 
@@ -757,18 +763,9 @@ It started with this goal:
 
 ### TODO
 
-[ ] Substream matching should return substream as action
-[ ] run -> match rename of grammar method
-[ ] What should an empty ["And"] return? Undefined or default None?
-[ ] ? operator should return empty list (in case of no match) or list with one item (in case of match).
 [ ] Can support library (and new Runtime) become smaller?
-[ ] Should memo be removed since it is an optimization?
 
 [ ] VM
-
-    [ ] Review VM and see if clarity can be improved.
-
-        [ ] Can it be written with less optimizations in mind?
 
     [ ] Can fail_pos be handled better?
 
@@ -776,32 +773,6 @@ It started with this goal:
 
     [ ] I am not happy with how the new VM looks. A mix between classes and
         functions and helpers.
-
-[ ] Add DEBUG flag that outputs source between passes.
-
-[ ] Why not better error message when action wrong? Why index wrong?
-
-      Action        = .:xs
-      Action        = .*:xs
-
-    [ ] Wrong pos is reported for "Not" instruction.
-
-    -   "Not" messes up latest_fail_pos in general. It should perhaps be
-        disabled during a "Not"?
-
-[ ] Poster with intermediate versions shown.
-
-    * Interactive on the web. (Requires JS version.)
-
-[ ] Try to port to JS to see how flexible it is?
-
-[ ] Rename ast to tree?
-
-[ ] Lists can be repeated and xs refers to last match?
-
-    echo 'G{x=[.:xs]*}' | python rlmeta.py
-
-[ ] Lookup concat/splice/join/indent?
 
 ### Summary of changes
 
@@ -812,6 +783,21 @@ It started with this goal:
 
 * wc -l
 * Performance graph
+
+## The future
+
+This article turned out to have the same problem as the poster. It just kept
+growing and growing, and at some point I had to stop working on in, leave some
+issues unresolved, and call the article finished.
+
+I decided to set up a repo for RLMeta where it can continue to be improved.
+
+I plan for it to contain the base version which is the minimal version to be
+able to compile itself and maintain properties such as flexible, easy to
+extend, easy to understand.
+
+Then to show examples how you can extend it in various ways and show examples
+how RLMeta can be used.
 
 ## Code listings for RLMeta
 
