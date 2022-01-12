@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 11 January 2022.</em></p>
+<p><em>Published on 12 January 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -72,10 +72,13 @@
 <li><a href="#generate-labels-in-semantic-actions">Generate labels in semantic actions</a></li>
 <li><a href="#remove-dependency-on-bash">Remove dependency on Bash</a></li>
 <li><a href="#extract-assembler">Extract assembler</a></li>
+<li><a href="#clearer-vm">Clearer VM</a></li>
+<li><a href="#ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</a></li>
 <li><a href="#misc">Misc</a></li>
 <li><a href="#todo">TODO</a></li>
 <li><a href="#summary-of-changes">Summary of changes</a></li>
 </ul></li>
+<li><a href="#the-future">The future</a></li>
 <li><a href="#code-listings-for-rlmeta">Code listings for RLMeta</a>
 <ul>
 <li><a href="#srcparser.rlmeta">src/parser.rlmeta</a></li>
@@ -669,33 +672,28 @@ bar()
 </div>
 <p>It now generates abstract assembly code. Much cleaner. And then an assembler turns that into Python code.</p>
 <p>This adds another pass to the compiler. It also makes it possible to do optimizations on abstract assembly code.</p>
-<p>It started with this goal:</p>
-<pre><code>RLMeta Poster 2: Experiment with PyVM and see if it can improve &quot;assembly
-code in code generator&quot;.</code></pre>
-<ul>
-<li><p>PyVM (first version)</p>
-<ul>
-<li><p>Split PyVM into parser and codegenerator.</p></li>
-<li><p>Two passes (and thus two grammars) are needed if macros should be possible to define last.</p></li>
-<li><p>What is a good AST for PyVM?</p></li>
-</ul>
-<p>[x] Continue to build parse tree.</p>
-<p>[x] Figure out how to replace support library in make.py</p></li>
-</ul>
-<p>[x] Generate instruction “enum” so that strings don’t have to be used</p>
-<ul>
-<li>No need to wrap parser output in list for codegenerator in PyVM</li>
-</ul>
 <p>[x] Move “assembly” out of support library. Grammar should generate labels/instructions.</p>
-<ul>
-<li><p>Support recursive macros?</p>
-<ul>
-<li><p>Probably requires function to run grammar against an object.</p></li>
-<li><p>Needed to get rid of duplicated call code.</p></li>
-</ul></li>
-</ul>
 <p>[x] Split code generator into code generator and python assembler. That makes each phase more clear and allows for optimizations.</p>
 <p>[x] Resolve labels in assembler.</p>
+<p>[ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
+<h3 id="clearer-vm">Clearer VM</h3>
+<ul>
+<li>Previously the VM was written for performance</li>
+<li>Now the VM is written to be clear</li>
+<li>Not sure size changed that much, but clarity did</li>
+<li>Still not happy with the VM</li>
+</ul>
+<p>Before I ended up with the clear VM, I did another experiment with PyVM.</p>
+<p>PyVM was a new language whose sole purpose was to express virtual machines that compiled to a Python function. It was basically a small macro language on top of Python.</p>
+<pre><code>TODO: Example PyVM code
+
+TODO: Example of what it turned it into</code></pre>
+<p>I got this approach working, and the VM was expressed quite nicely, but it introduced complexity to the whole project:</p>
+<ul>
+<li>There were grammars for PyVM</li>
+<li>The VM had to be generated before it could be included in the support library</li>
+</ul>
+<p>I decided that the complexity was not worth it and decided to not care about performance and instead write the VM as clean as I could in pure Python.</p>
 <p>[x] Get rid of PyVM</p>
 <pre><code>[x] Compilation was further complicated now when VM has to be generated and
     a combined support library created.
@@ -704,8 +702,15 @@ code in code generator&quot;.</code></pre>
 
 [x] Write VM as clean as possible in Python. Then write a separate
     optimized VM?</code></pre>
-<p>[ ] Macro language for creating VMs in Python</p>
-<p>[ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
+<h3 id="ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</h3>
+<ul>
+<li><p>Perhaps it originally came from PyVM?</p></li>
+<li><p>Support recursive macros?</p>
+<ul>
+<li><p>Probably requires function to run grammar against an object.</p></li>
+<li><p>Needed to get rid of duplicated call code.</p></li>
+</ul></li>
+</ul>
 <h3 id="misc">Misc</h3>
 <ul>
 <li><p>Reformat to improve readability.</p></li>
@@ -764,34 +769,14 @@ code in code generator&quot;.</code></pre>
 </ul></li>
 </ul>
 <h3 id="todo">TODO</h3>
-<p>[ ] Substream matching should return substream as action [ ] run -&gt; match rename of grammar method [ ] What should an empty [“And”] return? Undefined or default None? [ ] ? operator should return empty list (in case of no match) or list with one item (in case of match). [ ] Can support library (and new Runtime) become smaller? [ ] Should memo be removed since it is an optimization?</p>
+<p>[ ] Can support library (and new Runtime) become smaller?</p>
 <p>[ ] VM</p>
-<pre><code>[ ] Review VM and see if clarity can be improved.
-
-    [ ] Can it be written with less optimizations in mind?
-
-[ ] Can fail_pos be handled better?
+<pre><code>[ ] Can fail_pos be handled better?
 
 [ ] MatchError probably has wrong stream if error occurs deep down
 
 [ ] I am not happy with how the new VM looks. A mix between classes and
     functions and helpers.</code></pre>
-<p>[ ] Add DEBUG flag that outputs source between passes.</p>
-<p>[ ] Why not better error message when action wrong? Why index wrong?</p>
-<pre><code>  Action        = .:xs
-  Action        = .*:xs
-
-[ ] Wrong pos is reported for &quot;Not&quot; instruction.
-
--   &quot;Not&quot; messes up latest_fail_pos in general. It should perhaps be
-    disabled during a &quot;Not&quot;?</code></pre>
-<p>[ ] Poster with intermediate versions shown.</p>
-<pre><code>* Interactive on the web. (Requires JS version.)</code></pre>
-<p>[ ] Try to port to JS to see how flexible it is?</p>
-<p>[ ] Rename ast to tree?</p>
-<p>[ ] Lists can be repeated and xs refers to last match?</p>
-<pre><code>echo 'G{x=[.:xs]*}' | python rlmeta.py</code></pre>
-<p>[ ] Lookup concat/splice/join/indent?</p>
 <h3 id="summary-of-changes">Summary of changes</h3>
 <ul>
 <li><p>More flexible</p></li>
@@ -801,6 +786,11 @@ code in code generator&quot;.</code></pre>
 <li><p>wc -l</p></li>
 <li><p>Performance graph</p></li>
 </ul>
+<h2 id="the-future">The future</h2>
+<p>This article turned out to have the same problem as the poster. It just kept growing and growing, and at some point I had to stop working on in, leave some issues unresolved, and call the article finished.</p>
+<p>I decided to set up a repo for RLMeta where it can continue to be improved.</p>
+<p>I plan for it to contain the base version which is the minimal version to be able to compile itself and maintain properties such as flexible, easy to extend, easy to understand.</p>
+<p>Then to show examples how you can extend it in various ways and show examples how RLMeta can be used.</p>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
 <p>Here is all the source code and also the make script.</p>
 <h3 id="srcparser.rlmeta">src/parser.rlmeta</h3>
