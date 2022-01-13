@@ -761,34 +761,17 @@ performance and instead write the VM as clean as I could in pure Python.
       and the matching is done with a Python lambda. The VM knows nothing about
       how to match a single object.
 
-### TODO
-
-[ ] Can support library (and new Runtime) become smaller?
-
-[ ] VM
-
-    [ ] Can fail_pos be handled better?
-
-    [ ] MatchError probably has wrong stream if error occurs deep down
-
-    [ ] I am not happy with how the new VM looks. A mix between classes and
-        functions and helpers.
-
-### Summary of changes
-
-* More flexible
-* More clear
-* Similar preformance?
-* At the cost of a few lines?
-
-* wc -l
-* Performance graph
-
 ## The future
 
-This article turned out to have the same problem as the poster. It just kept
-growing and growing, and at some point I had to stop working on in, leave some
-issues unresolved, and call the article finished.
+On the one hand, I'm quite happy with the improvements to RLMeta that I was
+able to make. The code feels more clear and flexible. Definitely a better
+version of RLMeta.
+
+On the other hand, this article turned out to have the same problem as the
+poster. It just kept growing and growing, and at some point I had to stop
+working on in, leave some issues unresolved, and call the article finished. For
+example, I am not happy with how the new VM looks. A mix between classes and
+functions and helpers.
 
 I decided to set up a repo for RLMeta where it can continue to be improved.
 
@@ -801,7 +784,8 @@ how RLMeta can be used.
 
 ## Code listings for RLMeta
 
-Here is all the source code and also the make script.
+Here is all the source code and also the make script for this version of
+RLMeta.
 
 ### src/parser.rlmeta
 
