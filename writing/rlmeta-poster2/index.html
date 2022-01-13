@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 12 January 2022.</em></p>
+<p><em>Published on 13 January 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -75,8 +75,6 @@
 <li><a href="#clearer-vm">Clearer VM</a></li>
 <li><a href="#ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</a></li>
 <li><a href="#misc">Misc</a></li>
-<li><a href="#todo">TODO</a></li>
-<li><a href="#summary-of-changes">Summary of changes</a></li>
 </ul></li>
 <li><a href="#the-future">The future</a></li>
 <li><a href="#code-listings-for-rlmeta">Code listings for RLMeta</a>
@@ -768,31 +766,14 @@ TODO: Example of what it turned it into</code></pre>
 <li>This makes the VM more clean. There is only one instruction for matching and the matching is done with a Python lambda. The VM knows nothing about how to match a single object.</li>
 </ul></li>
 </ul>
-<h3 id="todo">TODO</h3>
-<p>[ ] Can support library (and new Runtime) become smaller?</p>
-<p>[ ] VM</p>
-<pre><code>[ ] Can fail_pos be handled better?
-
-[ ] MatchError probably has wrong stream if error occurs deep down
-
-[ ] I am not happy with how the new VM looks. A mix between classes and
-    functions and helpers.</code></pre>
-<h3 id="summary-of-changes">Summary of changes</h3>
-<ul>
-<li><p>More flexible</p></li>
-<li><p>More clear</p></li>
-<li><p>Similar preformance?</p></li>
-<li><p>At the cost of a few lines?</p></li>
-<li><p>wc -l</p></li>
-<li><p>Performance graph</p></li>
-</ul>
 <h2 id="the-future">The future</h2>
-<p>This article turned out to have the same problem as the poster. It just kept growing and growing, and at some point I had to stop working on in, leave some issues unresolved, and call the article finished.</p>
+<p>On the one hand, I’m quite happy with the improvements to RLMeta that I was able to make. The code feels more clear and flexible. Definitely a better version of RLMeta.</p>
+<p>On the other hand, this article turned out to have the same problem as the poster. It just kept growing and growing, and at some point I had to stop working on in, leave some issues unresolved, and call the article finished. For example, I am not happy with how the new VM looks. A mix between classes and functions and helpers.</p>
 <p>I decided to set up a repo for RLMeta where it can continue to be improved.</p>
 <p>I plan for it to contain the base version which is the minimal version to be able to compile itself and maintain properties such as flexible, easy to extend, easy to understand.</p>
 <p>Then to show examples how you can extend it in various ways and show examples how RLMeta can be used.</p>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
-<p>Here is all the source code and also the make script.</p>
+<p>Here is all the source code and also the make script for this version of RLMeta.</p>
 <h3 id="srcparser.rlmeta">src/parser.rlmeta</h3>
 <div class="highlight">
 <pre><span></span>Parser {
