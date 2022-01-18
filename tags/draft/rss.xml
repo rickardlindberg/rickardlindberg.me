@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 13 Jan 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 18 Jan 2022 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: RLMeta Poster 2</title>
     <link>http://rickardlindberg.me/writing/rlmeta-poster2/</link>
     <description><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 13 January 2022.</em></p>
+<p><em>Published on 18 January 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -24,7 +24,7 @@
 <li><a href="#compiling-rlmeta-itself">Compiling RLMeta itself</a></li>
 <li><a href="#a-tour-of-the-main-function">A tour of the main function</a></li>
 <li><a href="#following-a-compilation">Following a compilation</a></li>
-<li><a href="#the-usage-of-the-make-script">The usage of the make script</a></li>
+<li><a href="#the-purpose-of-the-make-script">The purpose of the make script</a></li>
 </ul></li>
 <li><a href="#changes-from-the-previous-version">Changes from the previous version</a>
 <ul>
@@ -183,7 +183,7 @@
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 </pre>
 </div>
-<p>The <code>--copy</code> command of the RLMeta compiler can be used to copy this main file as is to compiled file.</p>
+<p>The <code>--copy</code> command of the RLMeta compiler can be used to copy this main file, as is, to the output.</p>
 <p>Combining these pieces into a single compile command, we get this:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py &gt; object_counter.py
@@ -315,7 +315,7 @@
     <span class="p">]</span>
 </pre>
 </div>
-<p>The transformations that the grammar goes through were defined in the main function:</p>
+<p>The transformations that the grammar goes through are defined in the main function:</p>
 <div class="highlight">
 <pre><span></span><span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
 </pre>
@@ -338,7 +338,7 @@
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="st">&quot;Example&quot;</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>    ...</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>]</span></code></pre></div>
-<p>This AST is handed off to the <code>asts</code> rule in the code generator:</p>
+<p>All grammar AST nodes are handed off to the <code>asts</code> rule in the code generator:</p>
 <div class="highlight">
 <pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre>
@@ -359,7 +359,7 @@
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="st">&quot;Example&quot;</span>,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    ... ast nodes <span class="cf">for</span> consumption by assembler ...</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>]</span></code></pre></div>
-<p>This AST is passed to the <code>asts</code> rule in the assembler:</p>
+<p>This AST node and all the others that the code generator produces are passed to the <code>asts</code> rule in the assembler:</p>
 <div class="highlight">
 <pre><span></span>asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
 </pre>
@@ -385,6 +385,9 @@
 </div>
 <p>This rule can be read as follows:</p>
 <ul>
+<li>Match the grammar name and all AST nodes</li>
+<li>Perform the following action
+<ul>
 <li>Define a variable called <code>rules</code> which is a list</li>
 <li>Define a variable called <code>code</code> which is a list</li>
 <li>Define a variable called <code>labels</code> which is a dictionary</li>
@@ -392,6 +395,7 @@
 <li>Evaluate the AST nodes (with possible side effects recorded in the above variables)</li>
 <li>Tread the contents of the <code>code</code> variable as a list of AST nodes and process them with the <code>asts</code> rule of this grammar</li>
 <li>Return a string which is generated Python code</li>
+</ul></li>
 </ul>
 <p>The generated code from our example looks like this:</p>
 <pre><code>class Example(Grammar):
@@ -416,7 +420,7 @@
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="st">&quot;main&quot;</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    ...</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>]</span></code></pre></div>
-<p>That note is going to be processed by the <code>Rule</code> rule in the code generator:</p>
+<p>That node is going to be processed by the <code>Rule</code> rule in the code generator:</p>
 <div class="highlight">
 <pre><span></span>Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
                                 <span class="nc">~</span>y
@@ -448,7 +452,7 @@
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>labels <span class="op">=</span> {</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    <span class="st">&#39;main&#39;</span>: <span class="dv">0</span>,</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>}</span></code></pre></div>
-<p>The second child in the AST node is going to be handled the <code>OpCode</code> rule in the assembler:</p>
+<p>The second child in the AST node is going to be handled by the <code>OpCode</code> rule in the assembler:</p>
 <div class="highlight">
 <pre><span></span>OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
 </pre>
@@ -458,8 +462,17 @@
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    ...,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="st">&quot;RETURN&quot;</span>,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>]</span></code></pre></div>
+<p>When the <code>rules</code> and <code>code</code> variables are expanded, the resulting class looks like this:</p>
+<pre><code>class Example(Grammar):
+    rules = {
+        &#39;main&#39;: 0
+    }
+    code = [
+        ...,
+        RETURN
+    ]</code></pre>
 <p>Hopefully you should now be comfortable to follow transformations yourself to understand how a compilation is done.</p>
-<h3 id="the-usage-of-the-make-script">The usage of the make script</h3>
+<h3 id="the-purpose-of-the-make-script">The purpose of the make script</h3>
 <p>When the make script is called without arguments, it performs a meta compilation and runs a few tests:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>./make.py
@@ -481,6 +494,7 @@ STREAM:
 </div>
 <p>The meaning of a meta compilation is to create a new version of RLMeta that can still reproduce it self from the source code.</p>
 <p>In the output above, we can see that it compiled RLMeta and wrote the result to <code>rlmeta1.py</code>. In this case, since it is exactly the same as <code>rlmeta.py</code>, the compilation stopped there and a few more tests were run using this compiler. But if we make changes to the source code, <code>rlmeta1.py</code> will most likely not be exactly the same as <code>rlmeta.py</code>, and a few more compilations might be needed. I’ve written about the details of meta compilation in a <a href="/writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135">previous blog post</a>.</p>
+<p>So the purpose of the make script is the ease meta compilations and also run a test suit on the newly generated metacompiler before accepting it.</p>
 <h2 id="changes-from-the-previous-version">Changes from the previous version</h2>
 <p>This section explains the most important changes in this version of RLMeta compared to the original poster version.</p>
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
@@ -493,12 +507,6 @@ STREAM:
 <blockquote>
 <p>The smaller it is, the easier it is to understand and therefore extend. The more flexible it is to extend the better. If I make another poster version it would therefore focus on being smaller and more flexible. Since all successive version of RLMeta have been faster than the ones before, performance is also important. But small size, clarity, and flexibility come first.</p>
 </blockquote>
-<ul>
-<li>Clarity: How does it affect understandability/learnability/readability?</li>
-<li>Size: Lines of code.</li>
-<li>Flexibility: How easy is it to modify RLMeta to be what you need?</li>
-<li>Performance: How fast does it compile?</li>
-</ul>
 <p>I used these guidelines to decide if certain changes should go into the new version or not.</p>
 <p>One interesting thing to note is that the guidelines are sometimes contradicting. Writing clear code might mean more lines of code which makes the code base larger. Perhaps that’s also why I got stuck chasing perfection. I thought I made something easier to read, but it ended up costing 10 extra lines of code. Should I include it?</p>
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
@@ -1295,7 +1303,7 @@ TODO: Example of what it turned it into</code></pre>
 </pre>
 </div>
 ]]></description>
-    <pubDate>Thu, 13 Jan 2022 00:00:00 UT</pubDate>
+    <pubDate>Tue, 18 Jan 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/rlmeta-poster2/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
