@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2022-01-13
+date: 2022-01-18
 tags: rlmeta,draft
 ---
 
@@ -193,8 +193,8 @@ and prints the result to stdout:
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 </pre></div>
 
-The `--copy` command of the RLMeta compiler can be used to copy this main file
-as is to compiled file.
+The `--copy` command of the RLMeta compiler can be used to copy this main file,
+as is, to the output.
 
 Combining these pieces into a single compile command, we get this:
 
@@ -362,7 +362,7 @@ And this is what it compiles to:
     <span class="p">]</span>
 </pre></div>
 
-The transformations that the grammar goes through were defined in the main
+The transformations that the grammar goes through are defined in the main
 function:
 
 <div class="highlight"><pre><span></span><span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
@@ -391,7 +391,7 @@ closing curly brace. It will then return an AST that looks like this:
 ]
 ```
 
-This AST is handed off to the `asts` rule in the code generator:
+All grammar AST nodes are handed off to the `asts` rule in the code generator:
 
 <div class="highlight"><pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre></div>
@@ -419,7 +419,8 @@ result is this:
 ]
 ```
 
-This AST is passed to the `asts` rule in the assembler:
+This AST node and all the others that the code generator produces are passed to
+the `asts` rule in the assembler:
 
 <div class="highlight"><pre><span></span>asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
 </pre></div>
@@ -446,15 +447,17 @@ assembler) which looks like this:
 
 This rule can be read as follows:
 
-* Define a variable called `rules` which is a list
-* Define a variable called `code` which is a list
-* Define a variable called `labels` which is a dictionary
-* Define a variable called `patches` which is a list
-* Evaluate the AST nodes (with possible side effects recorded in the above
-  variables)
-* Tread the contents of the `code` variable as a list of AST nodes and process
-  them with the `asts` rule of this grammar
-* Return a string which is generated Python code
+* Match the grammar name and all AST nodes
+* Perform the following action
+    * Define a variable called `rules` which is a list
+    * Define a variable called `code` which is a list
+    * Define a variable called `labels` which is a dictionary
+    * Define a variable called `patches` which is a list
+    * Evaluate the AST nodes (with possible side effects recorded in the above
+      variables)
+    * Tread the contents of the `code` variable as a list of AST nodes and process
+      them with the `asts` rule of this grammar
+    * Return a string which is generated Python code
 
 The generated code from our example looks like this:
 
@@ -491,7 +494,7 @@ It our case, this rule produces this AST node:
 ]
 ```
 
-That note is going to be processed by the `Rule` rule in the code generator:
+That node is going to be processed by the `Rule` rule in the code generator:
 
 <div class="highlight"><pre><span></span>Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
                                 <span class="nc">~</span>y
@@ -535,7 +538,7 @@ labels = {
 }
 ```
 
-The second child in the AST node is going to be handled the `OpCode` rule in
+The second child in the AST node is going to be handled by the `OpCode` rule in
 the assembler:
 
 <div class="highlight"><pre><span></span>OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
@@ -550,11 +553,23 @@ code = [
 ]
 ```
 
+When the `rules` and `code` variables are expanded, the resulting class looks
+like this:
+
+    class Example(Grammar):
+        rules = {
+            'main': 0
+        }
+        code = [
+            ...,
+            RETURN
+        ]
+
 Hopefully you should now be comfortable to follow transformations yourself to
 understand how a compilation is done.
 
 
-### The usage of the make script
+### The purpose of the make script
 
 When the make script is called without arguments, it performs a meta
 compilation and runs a few tests:
@@ -587,6 +602,9 @@ exactly the same as `rlmeta.py`, and a few more compilations might be needed.
 I've written about the details of meta compilation in a [previous blog
 post](/writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135).
 
+So the purpose of the make script is the ease meta compilations and also run a
+test suit on the newly generated metacompiler before accepting it.
+
 ## Changes from the previous version
 
 This section explains the most important changes in this version of RLMeta
@@ -609,11 +627,6 @@ In the poster article, I also had a few notes about
 > successive version of RLMeta have been faster than the ones before,
 > performance is also important. But small size, clarity, and flexibility come
 > first.
-
-* Clarity: How does it affect understandability/learnability/readability?
-* Size: Lines of code.
-* Flexibility: How easy is it to modify RLMeta to be what you need?
-* Performance: How fast does it compile?
 
 I used these guidelines to decide if certain changes should go into the new
 version or not.
