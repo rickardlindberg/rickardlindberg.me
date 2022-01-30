@@ -306,8 +306,8 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command '</span><span class="si">{}</span><span class="s2">'&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
 </pre>
 </div>
-<p>It contains command line parsing and handles the basic cases.</p>
-<p>The <code>--compile</code> is the most complex of them all. It calls the <code>compile_chain</code> method which runs the given grammars/rules in order (in this case the input will first be parsed, then passed to the code generator, and finally passed to the assembler) and prints a pretty error message to stderr upon failure:</p>
+<p>It contains command line parsing and handles processing of all commands.</p>
+<p>The <code>--compile</code> command is the most complex of them all. It calls the <code>compile_chain</code> function which runs the given grammars/rules in order (in this case the input will first be parsed, then passed to the code generator, and finally passed to the assembler) and prints a pretty error message to stderr upon failure:</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">sys</span>
@@ -329,7 +329,7 @@
     <span class="k">return</span> <span class="n">source</span>
 </pre>
 </div>
-<p>This function might be useful for other grammars as well. That is why it’s included in the support library and not only in the main file.</p>
+<p>This function might be useful for other RLMeta programs as well. That is why it’s included in the support library and not only in the main file.</p>
 <h3 id="following-a-compilation">Following a compilation</h3>
 <p>Let’s now follow a compilation of an example grammar to learn more about how a grammar file is turned into Python code. Here it is:</p>
 <div class="highlight">
@@ -367,7 +367,7 @@
   <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
 </pre>
 </div>
-<p>It it turn calls the <code>grammar</code> rule to parse all grammars in the file:</p>
+<p>It in turn calls the <code>grammar</code> rule to parse all grammars in the file:</p>
 <div class="highlight">
 <pre><span></span>grammar <span class="nb">=</span>
   <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">'{'</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">'}'</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
@@ -384,7 +384,7 @@
 <pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre>
 </div>
-<p>It it turn calls the <code>ast</code> rule to process all AST nodes:</p>
+<p>It it turn calls the <code>ast</code> rule to process each AST node:</p>
 <div class="highlight">
 <pre><span></span>ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
 </pre>
@@ -434,7 +434,7 @@
 <li>Define a variable called <code>labels</code> which is a dictionary</li>
 <li>Define a variable called <code>patches</code> which is a list</li>
 <li>Evaluate the AST nodes (with possible side effects recorded in the above variables)</li>
-<li>Tread the contents of the <code>code</code> variable as a list of AST nodes and process them with the <code>asts</code> rule of this grammar</li>
+<li>Treat the value of the <code>patches</code> variable as a list of AST nodes and process them with the <code>asts</code> rule of this grammar</li>
 <li>Return a string which is generated Python code</li>
 </ul></li>
 </ul>
@@ -535,7 +535,8 @@ STREAM:
 </div>
 <p>The meaning of a meta compilation is to create a new version of RLMeta that can still reproduce it self from the source code.</p>
 <p>In the output above, we can see that it compiled RLMeta and wrote the result to <code>rlmeta1.py</code>. In this case, since it is exactly the same as <code>rlmeta.py</code>, the compilation stopped there and a few more tests were run using this compiler. But if we make changes to the source code, <code>rlmeta1.py</code> will most likely not be exactly the same as <code>rlmeta.py</code>, and a few more compilations might be needed. I’ve written about the details of meta compilation in a <a href="../../writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135">previous blog post</a>.</p>
-<p>So the purpose of the make script is the ease meta compilations and also run a test suit on the newly generated metacompiler before accepting it.</p>
+<p>So the purpose of the make script is to ease meta compilations and also run a test suit on the newly generated metacompiler before accepting it.</p>
+<p>The make script can also be used to perform a single compilation of RLMeta with the <code>--compile</code> argument as we saw earlier.</p>
 <h2 id="changes-from-the-previous-version">Changes from the previous version</h2>
 <p>This section explains the most important changes in this version of RLMeta compared to the original poster version.</p>
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
@@ -551,8 +552,8 @@ STREAM:
 <p>I used these guidelines to decide if certain changes should go into the new version or not.</p>
 <p>One interesting thing to note is that the guidelines are sometimes contradicting. Writing clear code might mean more lines of code which makes the code base larger. Perhaps that’s also why I got stuck chasing perfection. I thought I made something easier to read, but it ended up costing 10 extra lines of code. Should I include it?</p>
 <h3 id="generate-labels-in-semantic-actions">Generate labels in semantic actions</h3>
-<p>One thing that I left in the first version of the poster that still annoyed me was that labels were generated at match time, not at semantic action evaluation time. It would not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
-<p>Here is what the <code>Not</code> rule looks like in the first version of the poster:</p>
+<p>One thing that I left in the poster version that still annoyed me was that labels were generated at match time, not at semantic action evaluation time. It would not produce incorrect results. At worst, some labels end up not being used because the counter value captured was in a rule that later failed. But dealing with labels at match time does not make sense. It should really happen at semantic action evaluation time.</p>
+<p>Here is what the <code>Not</code> rule looks like in the poster version:</p>
 <div class="highlight">
 <pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nc">#</span><span class="nb">:</span>a <span class="nc">#</span><span class="nb">:</span>b <span class="nb">-&gt;</span> { <span class="s">&quot;I('BACKTRACK', &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
                          x
@@ -595,7 +596,7 @@ STREAM:
 }
 </pre>
 </div>
-<p>The expressions <code>[]:header</code> creates a list and assigns it to the variable <code>header</code>. When <code>x</code> is evaluated, the semantic action for the <code>Function</code> rule will be evaluated which can then access the <code>header</code> variable defined earlier. These variables are not lexically scoped, but dynamically scoped. If at runtime, a variable is defined, it will be accessible. It also means that the <code>Function</code> rule can not be runt without <code>program</code> being run first, or the <code>header</code> variable will not be defined.</p>
+<p>The expressions <code>[]:header</code> creates a list and assigns it to the variable <code>header</code>. When <code>x</code> is evaluated in the next step, the semantic action for the <code>Function</code> rule will be evaluated which can then access the <code>header</code> variable defined earlier. These variables are not lexically scoped, but dynamically scoped. If at runtime, a variable is defined, it will be accessible. It also means that the <code>Function</code> rule can not be run without <code>program</code> being run first, or the <code>header</code> variable will not be defined.</p>
 <p>Here is an example AST representing a program:</p>
 <div class="highlight">
 <pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
@@ -774,9 +775,8 @@ TODO: Example of what it turned it into</code></pre>
 <h2 id="the-future">The future</h2>
 <p>On the one hand, I’m quite happy with the improvements to RLMeta that I was able to make. The code feels more clear and flexible. Definitely a better version of RLMeta.</p>
 <p>On the other hand, this article turned out to have the same problem as the poster. It just kept growing and growing, and at some point I had to stop working on in, leave some issues unresolved, and call the article finished. For example, I am not happy with how the new VM looks. A mix between classes and functions and helpers.</p>
-<p>I decided to set up a repo for RLMeta where it can continue to be improved.</p>
-<p>I plan for it to contain the base version which is the minimal version to be able to compile itself and maintain properties such as flexible, easy to extend, easy to understand.</p>
-<p>Then to show examples how you can extend it in various ways and show examples how RLMeta can be used.</p>
+<p>I decided to set up a <a href="https://github.com/rickardlindberg/rlmeta">repo on Github</a> for RLMeta where it can continue to be improved.</p>
+<p>I plan for it to contain the base version of RLMeta which is the minimal version that is able to compile itself and maintain properties such as flexible, easy to extend, and easy to understand. Then I want to include examples as well to show how RLMeta can be used and how you can extend it in various ways.</p>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
 <p>Here is all the source code and also the make script for this version of RLMeta.</p>
 <h3 id="srcparser.rlmeta">src/parser.rlmeta</h3>
