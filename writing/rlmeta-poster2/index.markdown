@@ -303,12 +303,13 @@ is the main function:
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
 </pre></div>
 
-It contains command line parsing and handles the basic cases.
+It contains command line parsing and handles processing of all commands.
 
-The `--compile` is the most complex of them all. It calls the `compile_chain`
-method which runs the given grammars/rules in order (in this case the input
-will first be parsed, then passed to the code generator, and finally passed to
-the assembler) and prints a pretty error message to stderr upon failure:
+The `--compile` command is the most complex of them all. It calls the
+`compile_chain` function which runs the given grammars/rules in order (in this
+case the input will first be parsed, then passed to the code generator, and
+finally passed to the assembler) and prints a pretty error message to stderr
+upon failure:
 
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">sys</span>
@@ -330,8 +331,8 @@ the assembler) and prints a pretty error message to stderr upon failure:
     <span class="k">return</span> <span class="n">source</span>
 </pre></div>
 
-This function might be useful for other grammars as well. That is why it's
-included in the support library and not only in the main file.
+This function might be useful for other RLMeta programs as well. That is why
+it's included in the support library and not only in the main file.
 
 ### Following a compilation
 
@@ -374,7 +375,7 @@ So first the grammar file is passed to the `file` rule of the parser:
   <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
 </pre></div>
 
-It it turn calls the `grammar` rule to parse all grammars in the file:
+It in turn calls the `grammar` rule to parse all grammars in the file:
 
 <div class="highlight"><pre><span></span>grammar <span class="nb">=</span>
   <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
@@ -396,7 +397,7 @@ All grammar AST nodes are handed off to the `asts` rule in the code generator:
 <div class="highlight"><pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
 </pre></div>
 
-It it turn calls the `ast` rule to process all AST nodes:
+It it turn calls the `ast` rule to process each AST node:
 
 <div class="highlight"><pre><span></span>ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
 </pre></div>
@@ -455,8 +456,8 @@ This rule can be read as follows:
     * Define a variable called `patches` which is a list
     * Evaluate the AST nodes (with possible side effects recorded in the above
       variables)
-    * Tread the contents of the `code` variable as a list of AST nodes and process
-      them with the `asts` rule of this grammar
+    * Treat the value of the `patches` variable as a list of AST nodes and
+      process them with the `asts` rule of this grammar
     * Return a string which is generated Python code
 
 The generated code from our example looks like this:
@@ -602,8 +603,11 @@ exactly the same as `rlmeta.py`, and a few more compilations might be needed.
 I've written about the details of meta compilation in a [previous blog
 post](/writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135).
 
-So the purpose of the make script is the ease meta compilations and also run a
+So the purpose of the make script is to ease meta compilations and also run a
 test suit on the newly generated metacompiler before accepting it.
+
+The make script can also be used to perform a single compilation of RLMeta with
+the `--compile` argument as we saw earlier.
 
 ## Changes from the previous version
 
@@ -639,14 +643,14 @@ of code.  Should I include it?
 
 ### Generate labels in semantic actions
 
-One thing that I left in the first version of the poster that still annoyed me
-was that labels were generated at match time, not at semantic action evaluation
-time. It would not produce incorrect results. At worst, some labels end up not
-being used because the counter value captured was in a rule that later failed.
-But dealing with labels at match time does not make sense. It should really
-happen at semantic action evaluation time.
+One thing that I left in the poster version that still annoyed me was that
+labels were generated at match time, not at semantic action evaluation time. It
+would not produce incorrect results. At worst, some labels end up not being
+used because the counter value captured was in a rule that later failed.  But
+dealing with labels at match time does not make sense. It should really happen
+at semantic action evaluation time.
 
-Here is what the `Not` rule looks like in the first version of the poster:
+Here is what the `Not` rule looks like in the poster version:
 
 <div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nc">#</span><span class="nb">:</span>a <span class="nc">#</span><span class="nb">:</span>b <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
                          x
@@ -702,12 +706,12 @@ in different sections like this:
 </pre></div>
 
 The expressions `[]:header` creates a list and assigns it to the variable
-`header`. When `x` is evaluated, the semantic action for the `Function` rule
-will be evaluated which can then access the `header` variable defined earlier.
-These variables are not lexically scoped, but dynamically scoped. If at
-runtime, a variable is defined, it will be accessible. It also means that the
-`Function` rule can not be runt without `program` being run first, or the
-`header` variable will not be defined.
+`header`. When `x` is evaluated in the next step, the semantic action for the
+`Function` rule will be evaluated which can then access the `header` variable
+defined earlier.  These variables are not lexically scoped, but dynamically
+scoped. If at runtime, a variable is defined, it will be accessible. It also
+means that the `Function` rule can not be run without `program` being run
+first, or the `header` variable will not be defined.
 
 Here is an example AST representing a program:
 
@@ -976,14 +980,15 @@ working on in, leave some issues unresolved, and call the article finished. For
 example, I am not happy with how the new VM looks. A mix between classes and
 functions and helpers.
 
-I decided to set up a repo for RLMeta where it can continue to be improved.
+I decided to set up a [repo on
+Github](https://github.com/rickardlindberg/rlmeta) for RLMeta where it can
+continue to be improved.
 
-I plan for it to contain the base version which is the minimal version to be
-able to compile itself and maintain properties such as flexible, easy to
-extend, easy to understand.
-
-Then to show examples how you can extend it in various ways and show examples
-how RLMeta can be used.
+I plan for it to contain the base version of RLMeta which is the minimal
+version that is able to compile itself and maintain properties such as
+flexible, easy to extend, and easy to understand. Then I want to include
+examples as well to show how RLMeta can be used and how you can extend it in
+various ways.
 
 ## Code listings for RLMeta
 
