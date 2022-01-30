@@ -544,10 +544,8 @@ In summary, this change is as follows:
 * A default `label` function to generate labels
 * Names in semantic actions refer to matches or results bound earlier
 
-The complete initial diff for this change can be found on
-[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05).
-Note that later changes have been made that make the `Not` rule not look like
-above for example.
+(The complete initial diff for this change can be found on
+[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05).)
 
 The increased clarity and flexibility come with a price. The size increases and
 the performance drops.
@@ -594,13 +592,14 @@ In addition, the extra features are useful when writing programs in RLMeta.
 Those programs can now also be compiled with a single command, and there is no
 need to concatenate different pieces together.
 
-The complete diff for this change can be found on
-[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9).
+(The complete diff for this change can be found on
+[GitHub](https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9).)
 
 ### Extract assembler
 
-The third thing I had a problem with was the readability of the code generator.
-For example, the `Not` rule looked like this:
+The third thing that I had a problem with in the poster version was the
+readability of the code generator.  For example, the `Not` rule looked like
+this:
 
 $:file:scratch.rlmeta
 Not = ast:x -> label():a -> label():b
@@ -614,43 +613,38 @@ $:endfile
 $:code:scratch.rlmeta
 $~shell~.~rm scratch.rlmeta
 
-It generates a string which outputs some Python code that calls some functions
-to create "assembly" code. It is mixed and messy.
+It generates a string which contains Python code that calls functions to create
+"assembly" code. So part of the compilation is actually happening at runtime
+here. It is mixed and messy.
 
 The new `Not` rule looks like this:
 
 $:file:scratch.rlmeta
-Not           = ast:x       -> label():a -> label():b
-                            -> [["OpCode" "BACKTRACK"]
-                                ["Target" b]
-                                ~x
-                                ["OpCode" "COMMIT"]
-                                ["Target" a]
-                                ["Label" a]
-                                ["OpCode" "FAIL"]
-                                ["Value" "no match"]
-                                ["Label" b]]
+Not = ast:x -> label():a -> label():b
+            -> [["OpCode" "BACKTRACK"]
+                ["Target" b]
+                ~x
+                ["OpCode" "COMMIT"]
+                ["Target" a]
+                ["Label" a]
+                ["OpCode" "FAIL"]
+                ["Value" "no match"]
+                ["Label" b]]
 $:endfile
 $:code:scratch.rlmeta
 $~shell~.~rm scratch.rlmeta
 
-It now generates abstract assembly code. Much cleaner. And then an assembler
-turns that into Python code.
+Instead of outputting Python code directly, it now generates abstract assembly
+code. Then a new third pass, the assembler, turns those instructions into
+Python code as well as resolves label positions. So no more compilation at
+runtime.
 
-This adds another pass to the compiler. It also makes it possible to do
-optimizations on abstract assembly code.
+This reads better because the purpose of the code generator is now a bit
+narrower. It can focus on one thing and leave the rest to the assembler.
 
-[x] Move "assembly" out of support library. Grammar should generate
-    labels/instructions.
-
-[x] Split code generator into code generator and python assembler. That makes
-    each phase more clear and allows for optimizations.
-
-[x] Resolve labels in assembler.
-
-[ ] Add one more pass in between parser and codegen that generates VM-instrucionts
-    [ ] VM-instructions will be easier to read
-    [ ] Possible for peephole optimizations before generating Python code
+Adding another pass also opens up the possibility to do peep-hole optimizations
+on the abstract assembly code before the assembler turns the instructions into
+Python code.
 
 ### Clearer VM
 
@@ -789,7 +783,7 @@ example, I am not happy with how the new VM looks. A mix between classes and
 functions and helpers.
 
 I decided to set up a [repo on
-Github](https://github.com/rickardlindberg/rlmeta) for RLMeta where it can
+GitHub](https://github.com/rickardlindberg/rlmeta) for RLMeta where it can
 continue to be improved.
 
 I plan for it to contain the base version of RLMeta which is the minimal

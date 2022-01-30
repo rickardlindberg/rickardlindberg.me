@@ -4,7 +4,7 @@ set -e
 
 gen() {
     echo "---"
-    echo "title: 'DRAFT: RLMeta Poster 2'"
+    echo "title: 'DRAFT: RLMeta Poster 2 (Abandoned)'"
     echo "date: $(date +%Y-%m-%d)"
     echo "tags: rlmeta,draft"
     echo "---"
