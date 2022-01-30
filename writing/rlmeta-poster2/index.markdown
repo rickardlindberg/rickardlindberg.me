@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2'
-date: 2022-01-18
+date: 2022-01-30
 tags: rlmeta,draft
 ---
 
@@ -669,42 +669,45 @@ Here is what the `Not` rule looks like after the change:
 
 This change puts label generation where it belongs, in semantic actions, and
 thus makes the implementation **more clear**. The VM is no longer concerned
-with labels. It is only concerned with matching. It does make semantic actions
-a bit more complicated, but the bind syntax is familiar from match expressions
-and an action being a sequence of things should be familiar as well.
+with labels. It is only concerned with matching. This change required a bit of
+rework how semantic actions work. Previously only one expression was allowed:
 
-This change required a bit of rework how semantic actions work. Previously only
-one expression was allowed. Now multiple expressions are allowed. The result of
-expressions can also be bound to names which subsequent expressions can refer
-to. Furthermore, there are now also runtime variables that are set with
-bindings. `label` is a built in runtime function that generates increasing
-integers starting at 0.
+    <match expression> -> <semantic action expression>
+
+Now multiple expressions are allowed:
+
+    <match expression> -> <semantic action expression>:x
+                       -> <semantic action expression>
+                       -> <semantic action expression>
+
+The result of expressions can also be bound to names which subsequent
+expressions can refer to. `label` is such a variable that is set internally to
+a function that generates increasing integers starting at 0.
 
 The implementation of this change also **increases the flexibility** of RLMeta.
 For example, it is now possible to write a semantic action that generates code
 in different sections like this:
 
 <div class="highlight"><pre><span></span>ExampleBuffers {
-    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> Buffer()<span class="nb">:</span>header
+    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> []<span class="nb">:</span>header
                       <span class="nb">-&gt;</span> { <span class="s">&quot;# HEADER</span><span class="se">\n</span><span class="s">&quot;</span>
                            header
                            <span class="s">&quot;# BODY</span><span class="se">\n</span><span class="s">&quot;</span>
                            x            }
     ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]  <span class="nb">-&gt;</span> x
     Program  <span class="nb">=</span> ast<span class="nc">*</span>
-    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> header({ <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
+    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> add(header { <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
                       <span class="nb">-&gt;</span> { name <span class="s">&quot;()</span><span class="se">\n</span><span class="s">&quot;</span> }
 }
 </pre></div>
 
-`Buffer` is a specialised list that appends an element when called as a
-function:
-
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Buffer</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-</pre></div>
+The expressions `[]:header` creates a list and assigns it to the variable
+`header`. When `x` is evaluated, the semantic action for the `Function` rule
+will be evaluated which can then access the `header` variable defined earlier.
+These variables are not lexically scoped, but dynamically scoped. If at
+runtime, a variable is defined, it will be accessible. It also means that the
+`Function` rule can not be runt without `program` being run first, or the
+`header` variable will not be defined.
 
 Here is an example AST representing a program:
 
@@ -757,8 +760,6 @@ worse, I believe the clarity and flexibility gain is worth it.
 
 ### Remove dependency on Bash
 
-TODO: improve this section
-
 To compile the previous version of RLMeta, you ran the following command:
 
     ./compile.sh rlmeta.py
@@ -778,8 +779,8 @@ As we have already seen, the new version of RLMeta compiles itself like this:
         --copy src/main.py \
         > rlmeta.py
 
-The `rlmeta.py` compiler now has support for doing what the Bash script
-previously did via `--embed`, `--copy`.
+The `rlmeta.py` compiler now has support (via `--embed` and `--copy`) for doing
+what the Bash script previously did.
 
 This makes the compiler slightly larger, but it feels so much cleaner.
 
