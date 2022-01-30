@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: RLMeta Poster 2 | Rickard's personal homepage
+      DRAFT: RLMeta Poster 2 (Abandoned) | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -52,7 +52,7 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: RLMeta Poster 2</h1>
+      <h1>DRAFT: RLMeta Poster 2 (Abandoned)</h1>
 
 <p><em>Published on 30 January 2022.</em></p>
 
@@ -627,7 +627,7 @@ bar()
 <li>A default <code>label</code> function to generate labels</li>
 <li>Names in semantic actions refer to matches or results bound earlier</li>
 </ul>
-<p>The complete initial diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>. Note that later changes have been made that make the <code>Not</code> rule not look like above for example.</p>
+<p>(The complete initial diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/5154583e9d98c123630fb41664aa6906d4801d05">GitHub</a>.)</p>
 <p>The increased clarity and flexibility come with a price. The size increases and the performance drops.</p>
 <p>The parser and the code generator are mostly the same. The greatest addition is in the support library. Which is expected when semantic action evaluation becomes more complex. The drop in performance is likely due to more function calls when evaluating semantic actions. Even though size and performance got worse, I believe the clarity and flexibility gain is worth it.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
@@ -646,9 +646,9 @@ bar()
 <p>The <code>rlmeta.py</code> compiler now has support (via <code>--embed</code> and <code>--copy</code>) for doing what the Bash script previously did.</p>
 <p>This makes the compiler slightly larger, but it feels so much cleaner.</p>
 <p>In addition, the extra features are useful when writing programs in RLMeta. Those programs can now also be compiled with a single command, and there is no need to concatenate different pieces together.</p>
-<p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
+<p>(The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.)</p>
 <h3 id="extract-assembler">Extract assembler</h3>
-<p>The third thing I had a problem with was the readability of the code generator. For example, the <code>Not</code> rule looked like this:</p>
+<p>The third thing that I had a problem with in the poster version was the readability of the code generator. For example, the <code>Not</code> rule looked like this:</p>
 <div class="highlight">
 <pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
             <span class="nb">-&gt;</span> { <span class="s">&quot;I('BACKTRACK', &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -659,27 +659,24 @@ bar()
                  <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
 </pre>
 </div>
-<p>It generates a string which outputs some Python code that calls some functions to create “assembly” code. It is mixed and messy.</p>
+<p>It generates a string which contains Python code that calls functions to create “assembly” code. So part of the compilation is actually happening at runtime here. It is mixed and messy.</p>
 <p>The new <code>Not</code> rule looks like this:</p>
 <div class="highlight">
-<pre><span></span>Not           <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-                            <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
-                                [<span class="s">&quot;Target&quot;</span> b]
-                                <span class="nc">~</span>x
-                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
-                                [<span class="s">&quot;Target&quot;</span> a]
-                                [<span class="s">&quot;Label&quot;</span> a]
-                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;FAIL&quot;</span>]
-                                [<span class="s">&quot;Value&quot;</span> <span class="s">&quot;no match&quot;</span>]
-                                [<span class="s">&quot;Label&quot;</span> b]]
+<pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
+            <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
+                [<span class="s">&quot;Target&quot;</span> b]
+                <span class="nc">~</span>x
+                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
+                [<span class="s">&quot;Target&quot;</span> a]
+                [<span class="s">&quot;Label&quot;</span> a]
+                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;FAIL&quot;</span>]
+                [<span class="s">&quot;Value&quot;</span> <span class="s">&quot;no match&quot;</span>]
+                [<span class="s">&quot;Label&quot;</span> b]]
 </pre>
 </div>
-<p>It now generates abstract assembly code. Much cleaner. And then an assembler turns that into Python code.</p>
-<p>This adds another pass to the compiler. It also makes it possible to do optimizations on abstract assembly code.</p>
-<p>[x] Move “assembly” out of support library. Grammar should generate labels/instructions.</p>
-<p>[x] Split code generator into code generator and python assembler. That makes each phase more clear and allows for optimizations.</p>
-<p>[x] Resolve labels in assembler.</p>
-<p>[ ] Add one more pass in between parser and codegen that generates VM-instrucionts [ ] VM-instructions will be easier to read [ ] Possible for peephole optimizations before generating Python code</p>
+<p>Instead of outputting Python code directly, it now generates abstract assembly code. Then a new third pass, the assembler, turns those instructions into Python code as well as resolves label positions. So no more compilation at runtime.</p>
+<p>This reads better because the purpose of the code generator is now a bit narrower. It can focus on one thing and leave the rest to the assembler.</p>
+<p>Adding another pass also opens up the possibility to do peep-hole optimizations on the abstract assembly code before the assembler turns the instructions into Python code.</p>
 <h3 id="clearer-vm">Clearer VM</h3>
 <ul>
 <li>Previously the VM was written for performance</li>
@@ -775,7 +772,7 @@ TODO: Example of what it turned it into</code></pre>
 <h2 id="the-future">The future</h2>
 <p>On the one hand, I’m quite happy with the improvements to RLMeta that I was able to make. The code feels more clear and flexible. Definitely a better version of RLMeta.</p>
 <p>On the other hand, this article turned out to have the same problem as the poster. It just kept growing and growing, and at some point I had to stop working on in, leave some issues unresolved, and call the article finished. For example, I am not happy with how the new VM looks. A mix between classes and functions and helpers.</p>
-<p>I decided to set up a <a href="https://github.com/rickardlindberg/rlmeta">repo on Github</a> for RLMeta where it can continue to be improved.</p>
+<p>I decided to set up a <a href="https://github.com/rickardlindberg/rlmeta">repo on GitHub</a> for RLMeta where it can continue to be improved.</p>
 <p>I plan for it to contain the base version of RLMeta which is the minimal version that is able to compile itself and maintain properties such as flexible, easy to extend, and easy to understand. Then I want to include examples as well to show how RLMeta can be used and how you can extend it in various ways.</p>
 <h2 id="code-listings-for-rlmeta">Code listings for RLMeta</h2>
 <p>Here is all the source code and also the make script for this version of RLMeta.</p>
