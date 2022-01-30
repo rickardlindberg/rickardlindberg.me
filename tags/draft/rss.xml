@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 18 Jan 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 30 Jan 2022 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: RLMeta Poster 2</title>
     <link>http://rickardlindberg.me/writing/rlmeta-poster2/</link>
     <description><![CDATA[<h1>DRAFT: RLMeta Poster 2</h1>
 
-<p><em>Published on 18 January 2022.</em></p>
+<p><em>Published on 30 January 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -532,31 +532,29 @@ STREAM:
                  <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
 </pre>
 </div>
-<p>This change puts label generation where it belongs, in semantic actions, and thus makes the implementation <strong>more clear</strong>. The VM is no longer concerned with labels. It is only concerned with matching. It does make semantic actions a bit more complicated, but the bind syntax is familiar from match expressions and an action being a sequence of things should be familiar as well.</p>
-<p>This change required a bit of rework how semantic actions work. Previously only one expression was allowed. Now multiple expressions are allowed. The result of expressions can also be bound to names which subsequent expressions can refer to. Furthermore, there are now also runtime variables that are set with bindings. <code>label</code> is a built in runtime function that generates increasing integers starting at 0.</p>
+<p>This change puts label generation where it belongs, in semantic actions, and thus makes the implementation <strong>more clear</strong>. The VM is no longer concerned with labels. It is only concerned with matching. This change required a bit of rework how semantic actions work. Previously only one expression was allowed:</p>
+<pre><code>&lt;match expression&gt; -&gt; &lt;semantic action expression&gt;</code></pre>
+<p>Now multiple expressions are allowed:</p>
+<pre><code>&lt;match expression&gt; -&gt; &lt;semantic action expression&gt;:x
+                   -&gt; &lt;semantic action expression&gt;
+                   -&gt; &lt;semantic action expression&gt;</code></pre>
+<p>The result of expressions can also be bound to names which subsequent expressions can refer to. <code>label</code> is such a variable that is set internally to a function that generates increasing integers starting at 0.</p>
 <p>The implementation of this change also <strong>increases the flexibility</strong> of RLMeta. For example, it is now possible to write a semantic action that generates code in different sections like this:</p>
 <div class="highlight">
 <pre><span></span>ExampleBuffers {
-    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> Buffer()<span class="nb">:</span>header
+    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> []<span class="nb">:</span>header
                       <span class="nb">-&gt;</span> { <span class="s">&quot;# HEADER</span><span class="se">\n</span><span class="s">&quot;</span>
                            header
                            <span class="s">&quot;# BODY</span><span class="se">\n</span><span class="s">&quot;</span>
                            x            }
     ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]  <span class="nb">-&gt;</span> x
     Program  <span class="nb">=</span> ast<span class="nc">*</span>
-    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> header({ <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
+    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> add(header { <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
                       <span class="nb">-&gt;</span> { name <span class="s">&quot;()</span><span class="se">\n</span><span class="s">&quot;</span> }
 }
 </pre>
 </div>
-<p><code>Buffer</code> is a specialised list that appends an element when called as a function:</p>
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Buffer</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-</pre>
-</div>
+<p>The expressions <code>[]:header</code> creates a list and assigns it to the variable <code>header</code>. When <code>x</code> is evaluated, the semantic action for the <code>Function</code> rule will be evaluated which can then access the <code>header</code> variable defined earlier. These variables are not lexically scoped, but dynamically scoped. If at runtime, a variable is defined, it will be accessible. It also means that the <code>Function</code> rule can not be runt without <code>program</code> being run first, or the <code>header</code> variable will not be defined.</p>
 <p>Here is an example AST representing a program:</p>
 <div class="highlight">
 <pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
@@ -591,7 +589,6 @@ bar()
 <p>The increased clarity and flexibility come with a price. The size increases and the performance drops.</p>
 <p>The parser and the code generator are mostly the same. The greatest addition is in the support library. Which is expected when semantic action evaluation becomes more complex. The drop in performance is likely due to more function calls when evaluating semantic actions. Even though size and performance got worse, I believe the clarity and flexibility gain is worth it.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
-<p>TODO: improve this section</p>
 <p>To compile the previous version of RLMeta, you ran the following command:</p>
 <pre><code>./compile.sh rlmeta.py</code></pre>
 <p>In one way, the compiler could not compile itself, but relied on a Bash script for gluing things together. It would call the <code>rlmeta.py</code> compiler for certain tasks and use Bash and Python for other tasks.</p>
@@ -604,7 +601,7 @@ bar()
     --compile src/assembler.rlmeta \
     --copy src/main.py \
     &gt; rlmeta.py</code></pre>
-<p>The <code>rlmeta.py</code> compiler now has support for doing what the Bash script previously did via <code>--embed</code>, <code>--copy</code>.</p>
+<p>The <code>rlmeta.py</code> compiler now has support (via <code>--embed</code> and <code>--copy</code>) for doing what the Bash script previously did.</p>
 <p>This makes the compiler slightly larger, but it feels so much cleaner.</p>
 <p>In addition, the extra features are useful when writing programs in RLMeta. Those programs can now also be compiled with a single command, and there is no need to concatenate different pieces together.</p>
 <p>The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.</p>
@@ -1303,7 +1300,7 @@ TODO: Example of what it turned it into</code></pre>
 </pre>
 </div>
 ]]></description>
-    <pubDate>Tue, 18 Jan 2022 00:00:00 UT</pubDate>
+    <pubDate>Sun, 30 Jan 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/rlmeta-poster2/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
