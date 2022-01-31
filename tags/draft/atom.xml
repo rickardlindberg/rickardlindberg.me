@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2022-01-30T00:00:00Z</updated>
+    <updated>2022-01-31T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2 (Abandoned)</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2022-01-30T00:00:00Z</published>
-    <updated>2022-01-30T00:00:00Z</updated>
+    <published>2022-01-31T00:00:00Z</published>
+    <updated>2022-01-31T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2 (Abandoned)</h1>
 
-<p><em>Published on 30 January 2022.</em></p>
+<p><em>Published on 31 January 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -641,31 +641,68 @@ bar()
 <p>This reads better because the purpose of the code generator is now a bit narrower. It can focus on one thing and leave the rest to the assembler.</p>
 <p>Adding another pass also opens up the possibility to do peep-hole optimizations on the abstract assembly code before the assembler turns the instructions into Python code.</p>
 <h3 id="clearer-vm">Clearer VM</h3>
-<ul>
-<li>Previously the VM was written for performance</li>
-<li>Now the VM is written to be clear</li>
-<li>Not sure size changed that much, but clarity did</li>
-<li>Still not happy with the VM</li>
-</ul>
-<p>Before I ended up with the clear VM, I did another experiment with PyVM.</p>
-<p>PyVM was a new language whose sole purpose was to express virtual machines that compiled to a Python function. It was basically a small macro language on top of Python.</p>
-<pre><code>TODO: Example PyVM code
-
-TODO: Example of what it turned it into</code></pre>
-<p>I got this approach working, and the VM was expressed quite nicely, but it introduced complexity to the whole project:</p>
+<p>In the poster version, the virtual machine was written as a single function with one loop like this:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">def</span> vm(instructions, labels, start_rule, stream):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>    ...</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>        name, arg1, arg2 <span class="op">=</span> instructions[pc]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>        <span class="cf">if</span> name <span class="op">==</span> <span class="st">&quot;PUSH_SCOPE&quot;</span>:</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>            scope_stack.append(scope)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>            scope <span class="op">=</span> {}</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>            pc <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>            <span class="cf">continue</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a>        <span class="cf">elif</span> name <span class="op">==</span> <span class="st">&quot;BACKTRACK&quot;</span>:</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a>            ...</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>        ...</span></code></pre></div>
+<p>It was written like that to be as fast as possible. It avoided function calls. It avoided class variables lookup by avoiding classes. All variables used were defined locally in the <code>vm</code> function. Because function calls could not be used, some code was also duplicated.</p>
+<p>I decided that I would not consider performance at all, and instead try to write the VM as clear as I could. I ended up with a <code>VM</code> class to hold some state and the instruction functions that operated on an instance of a VM:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> VM:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, code, rules):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>        ...</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>    ...</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a><span class="kw">def</span> PUSH_SCOPE(vm):</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>    vm.scope_rest <span class="op">=</span> (vm.scope, vm.scope_rest)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>    vm.scope <span class="op">=</span> {}</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a><span class="kw">def</span> BACKTRACK(vm):</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>    ...</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true"></a>...</span></code></pre></div>
+<p>As I noted earlier, I’m not sure I am happy with this result. I’m not convinced that it reads better. The biggest upside is that since function calls are allowed now, part of the VM can be expressed more clearly without repetition.</p>
+<p>Before I ended up with this VM, I experimented with a language for writing virtual machines that compiled to Python code. You could define instructions and the arguments they took and define macros for code re-use. It looked something like this:</p>
+<p>It was basically a small macro language on top of Python.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">def</span> vm(code, rules, start_rule, stream):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    action <span class="op">=</span> SemanticAction(<span class="va">None</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    pc <span class="op">=</span> rules[start_rule]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>    call_backtrack_stack <span class="op">=</span> []</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>    stream, stream_rest <span class="op">=</span> (stream, <span class="va">None</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>    pos, pos_rest <span class="op">=</span> (<span class="dv">0</span>, <span class="bu">tuple</span>())</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>    scope, scope_rest <span class="op">=</span> (<span class="va">None</span>, <span class="va">None</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a>    fail_message <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a>    latest_fail_message, latest_fail_pos <span class="op">=</span> (<span class="va">None</span>, <span class="bu">tuple</span>())</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a>    memo <span class="op">=</span> {}</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a>definstruction PUSH_SCOPE():</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true"></a>    scope_rest <span class="op">=</span> (scope, scope_rest)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true"></a>    scope <span class="op">=</span> {}</span></code></pre></div>
+<p>And here is how macros were used:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a>definstruction FAIL(arg_message):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>    fail_message <span class="op">=</span> (arg_message,)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    <span class="co">#FAIL</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>defmacro FAIL:</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>    ...</span></code></pre></div>
+<p>When this was compiled, something similar to the <code>vm</code> function above was generated. A single function that was intended to run as fast as possible. But you could write the VM quite clearly anyway.</p>
+<p>I liked the result of that, but it introduced yet another language and made compilation and metacompilation more complicated. For that reason, I decided against it.</p>
 <ul>
 <li>There were grammars for PyVM</li>
 <li>The VM had to be generated before it could be included in the support library</li>
 </ul>
-<p>I decided that the complexity was not worth it and decided to not care about performance and instead write the VM as clean as I could in pure Python.</p>
-<p>[x] Get rid of PyVM</p>
-<pre><code>[x] Compilation was further complicated now when VM has to be generated and
-    a combined support library created.
-
-[x] Clean up PyVM grammars
-
-[x] Write VM as clean as possible in Python. Then write a separate
-    optimized VM?</code></pre>
+<p>Perhaps another approach would be to consider the VM a separate piece, not to be included in compilations and metacompilations. But they are also strongly connected. Say for example that an optimizer decides to output a new VM instruction, then the VM has to change.</p>
+<p>I am not entirely clear about the interface here between the VM and the rest of the compiler.</p>
 <h3 id="ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</h3>
 <ul>
 <li><p>Perhaps it originally came from PyVM?</p></li>
