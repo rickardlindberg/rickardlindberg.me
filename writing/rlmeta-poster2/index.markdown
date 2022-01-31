@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2 (Abandoned)'
-date: 2022-01-30
+date: 2022-01-31
 tags: rlmeta,draft
 ---
 
@@ -840,39 +840,109 @@ Python code.
 
 ### Clearer VM
 
-* Previously the VM was written for performance
-* Now the VM is written to be clear
-* Not sure size changed that much, but clarity did
-* Still not happy with the VM
+In the poster version, the virtual machine was written as a single function
+with one loop like this:
 
-Before I ended up with the clear VM, I did another experiment with PyVM.
+```python
+def vm(instructions, labels, start_rule, stream):
+    ...
+    while True:
+        name, arg1, arg2 = instructions[pc]
+        if name == "PUSH_SCOPE":
+            scope_stack.append(scope)
+            scope = {}
+            pc += 1
+            continue
+        elif name == "BACKTRACK":
+            ...
+        ...
+```
 
-PyVM was a new language whose sole purpose was to express virtual machines that
-compiled to a Python function. It was basically a small macro language on top
+It was written like that to be as fast as possible. It avoided function calls.
+It avoided class variables lookup by avoiding classes. All variables used were
+defined locally in the `vm` function. Because function calls could not be used,
+some code was also duplicated.
+
+I decided that I would not consider performance at all, and instead try to
+write the VM as clear as I could. I ended up with a `VM` class to hold some
+state and the instruction functions that operated on an instance of a VM:
+
+```python
+class VM:
+
+    def __init__(self, code, rules):
+        ...
+
+    ...
+
+def PUSH_SCOPE(vm):
+    vm.scope_rest = (vm.scope, vm.scope_rest)
+    vm.scope = {}
+
+def BACKTRACK(vm):
+    ...
+
+...
+```
+
+As I noted earlier, I'm not sure I am happy with this result. I'm not convinced
+that it reads better. The biggest upside is that since function calls are
+allowed now, part of the VM can be expressed more clearly without repetition.
+
+Before I ended up with this VM, I experimented with a language for writing
+virtual machines that compiled to Python code. You could define instructions
+and the arguments they took and define macros for code re-use. It looked
+something like this:
+
+It was basically a small macro language on top
 of Python.
 
-    TODO: Example PyVM code
+```python
+def vm(code, rules, start_rule, stream):
+    action = SemanticAction(None)
+    pc = rules[start_rule]
+    call_backtrack_stack = []
+    stream, stream_rest = (stream, None)
+    pos, pos_rest = (0, tuple())
+    scope, scope_rest = (None, None)
+    fail_message = None
+    latest_fail_message, latest_fail_pos = (None, tuple())
+    memo = {}
 
-    TODO: Example of what it turned it into
+definstruction PUSH_SCOPE():
+    scope_rest = (scope, scope_rest)
+    scope = {}
+```
 
-I got this approach working, and the VM was expressed quite nicely, but it
-introduced complexity to the whole project:
+And here is how macros were used:
+
+```python
+definstruction FAIL(arg_message):
+    fail_message = (arg_message,)
+    #FAIL
+
+defmacro FAIL:
+    ...
+```
+
+When this was compiled, something similar to the `vm` function above was
+generated. A single function that was intended to run as fast as possible. But
+you could write the VM quite clearly anyway.
+
+I liked the result of that, but it introduced yet another language and made
+compilation and metacompilation more complicated. For that reason, I decided
+against it.
 
 * There were grammars for PyVM
 * The VM had to be generated before it could be included in the support library
 
-I decided that the complexity was not worth it and decided to not care about
-performance and instead write the VM as clean as I could in pure Python.
+Perhaps another approach would be to consider the VM a separate piece, not to
+be included in compilations and metacompilations. But they are also strongly
+connected. Say for example that an optimizer decides to output a new VM
+instruction, then the VM has to change.
 
-[x] Get rid of PyVM
-
-    [x] Compilation was further complicated now when VM has to be generated and
-        a combined support library created.
-
-    [x] Clean up PyVM grammars
-
-    [x] Write VM as clean as possible in Python. Then write a separate
-        optimized VM?
+I am not entirely clear about the interface here between the VM and the rest of
+the compiler.
 
 ### Ability to run a rule in semantic action
 
