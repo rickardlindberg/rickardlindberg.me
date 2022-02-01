@@ -651,7 +651,8 @@ Python code.
 In the poster version, the virtual machine was written as a single function
 with one loop like this:
 
-```python
+
+$:file:scratch.py
 def vm(instructions, labels, start_rule, stream):
     ...
     while True:
@@ -664,7 +665,9 @@ def vm(instructions, labels, start_rule, stream):
         elif name == "BACKTRACK":
             ...
         ...
-```
+$:endfile
+$:code:scratch.py
+$~shell~.~rm scratch.py
 
 It was written like that to be as fast as possible. It avoided function calls.
 It avoided class variables lookup by avoiding classes. All variables used were
@@ -675,7 +678,7 @@ I decided that I would not consider performance at all, and instead try to
 write the VM as clear as I could. I ended up with a `VM` class to hold some
 state and the instruction functions that operated on an instance of a VM:
 
-```python
+$:file:scratch.py
 class VM:
 
     def __init__(self, code, rules):
@@ -691,21 +694,20 @@ def BACKTRACK(vm):
     ...
 
 ...
-```
+$:endfile
+$:code:scratch.py
+$~shell~.~rm scratch.py
 
 As I noted earlier, I'm not sure I am happy with this result. I'm not convinced
 that it reads better. The biggest upside is that since function calls are
-allowed now, part of the VM can be expressed more clearly without repetition.
+now allowed, part of the VM can be expressed more clearly without repetition.
 
 Before I ended up with this VM, I experimented with a language for writing
 virtual machines that compiled to Python code. You could define instructions
-and the arguments they took and define macros for code re-use. It looked
-something like this:
+and the arguments they took and define macros for code re-use. It was basically
+a small macro language on top of Python. It looked something like this:
 
-It was basically a small macro language on top
-of Python.
-
-```python
+$:file:scratch.py
 def vm(code, rules, start_rule, stream):
     action = SemanticAction(None)
     pc = rules[start_rule]
@@ -720,18 +722,22 @@ def vm(code, rules, start_rule, stream):
 definstruction PUSH_SCOPE():
     scope_rest = (scope, scope_rest)
     scope = {}
-```
+$:endfile
+$:code:scratch.py
+$~shell~.~rm scratch.py
 
 And here is how macros were used:
 
-```python
+$:file:scratch.py
 definstruction FAIL(arg_message):
     fail_message = (arg_message,)
     #FAIL
 
 defmacro FAIL:
     ...
-```
+$:endfile
+$:code:scratch.py
+$~shell~.~rm scratch.py
 
 When this was compiled, something similar to the `vm` function above was
 generated. A single function that was intended to run as fast as possible. But
@@ -740,9 +746,6 @@ you could write the VM quite clearly anyway.
 I liked the result of that, but it introduced yet another language and made
 compilation and metacompilation more complicated. For that reason, I decided
 against it.
-
-* There were grammars for PyVM
-* The VM had to be generated before it could be included in the support library
 
 Perhaps another approach would be to consider the VM a separate piece, not to
 be included in compilations and metacompilations. But they are also strongly
@@ -754,91 +757,44 @@ the compiler.
 
 ### Ability to run a rule in semantic action
 
-* Perhaps it originally came from PyVM?
+Another feature that was added in this version was the ability to call a
+grammar rule recursively from a semantic action.
 
-* Support recursive macros?
+This was initially needed to to implement recursive macros in the VM language
+mentioned in the previous section, but it made its way into RLMeta to support
+the patching of assembly instructions.
 
-    * Probably requires function to run grammar against an object.
+When a `Target` instruction is encountered, the `patches` list is populated
+with a command:
 
-    * Needed to get rid of duplicated call code.
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  Target:^  [^ ]
+
+These commands are then evaluated bu running the `asts` rule on the `patches`
+list. This starts another parse on the given stream.
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^.*-> run.*patches:.
+
+The new parse has access the all the runtime variables that the semantic action
+that invokes it has. So that is why a `Patch` instruction can modify the `code`
+array and insert the correct index there instead of the placeholder:
+
+$:code:rlmeta-poster-2/src/assembler.rlmeta:^  Patch:^  [^ ]
 
 ### Misc
 
-* Reformat to improve readability.
+Many more small changes were done. Here is a few notes about them.
 
-* Rename to make intention more clear.
+* Various renames to make intention more clear and reformats to improve
+  readability.
 
-* Join using support function
-    * Smaller and faster
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/c7cde4ef64db9c871ee25ea7ec39d26a1adb6d7d
+* Various clean ups in the parser:
 
-* Disallow semantic actions in the middle
-    * More clear
-    * Before after
-    * Test case
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/4934b9105ec609de2d59fce955d41879ef57fcea
+    * Only allow semantic actions at the very end of a rule.
 
-    $ echo "Grammar { rule = . ->[] . }" | python rlmeta.py
-    class Grammar(Grammar):
-
-        def assemble(self, I, LABEL):
-            LABEL('rule')
-            I('PUSH_SCOPE')
-            I('MATCH_ANY')
-            I('ACTION', lambda scope: concat([]))
-            I('MATCH_ANY')
-            I('POP_SCOPE')
-            I('RETURN')
-
-    $ echo "Grammar { rule = . ->[] . }" | python rlmeta.py
-    ERROR: expected '}'
-    POSITION: 24
-    STREAM:
-        Grammar { rule = . ->[] <ERROR POSITION>. }
-
-* Allow indent prefix to be changed
-    * More flexible
-    * Better flexibility at marginal cost. A little slower, but fixed by
-      optimizing indent a little.
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/ac6126b7ea6a8d38967d7cb5bcfe6784332f587a
-
-    def indent(text):
-        return join(join(["    ", line]) for line in text.splitlines(True))
-
-    def indent(text, prefix="    "):
-        return "".join(prefix + line for line in text.splitlines(True))
-
-* Runtime vars outside VM
-    * More stuff moved out of VM
+    * Make sure the whole file is parsed so that junk after a grammar results
+      in an error.
 
 * Adapt to Python 3.
-
-* Better error message than None if runtime/scope is not found.
-
-    * Rename match -> matches in Scope
-    * Immutable scope instead and fail if entry does not exist?
-
-* Counter class is more clean
-
-* No need to wrap parser output in list for codegenerator in RLMeta
-
-* Put compile + error reporting function in support lib.
-
-* You can put any crap at end of file, and parsers don't care. Fix it!
-
-* VM should not know about runtime.
-
-* No failure if VM-compilation fails? (Swap Instruction arguments.)
-
-* Better AST for action expressions.
-
-* Can "native" calls be removed by adding binding in runtime?
-
-* Put object match expr tree in parser instead of in codegen?
-
-    - This makes the VM more clean. There is only one instruction for matching
-      and the matching is done with a Python lambda. The VM knows nothing about
-      how to match a single object.
 
 ## The future
 

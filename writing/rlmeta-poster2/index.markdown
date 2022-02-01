@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2 (Abandoned)'
-date: 2022-01-31
+date: 2022-02-01
 tags: rlmeta,draft
 ---
 
@@ -843,20 +843,20 @@ Python code.
 In the poster version, the virtual machine was written as a single function
 with one loop like this:
 
-```python
-def vm(instructions, labels, start_rule, stream):
-    ...
-    while True:
-        name, arg1, arg2 = instructions[pc]
-        if name == "PUSH_SCOPE":
-            scope_stack.append(scope)
-            scope = {}
-            pc += 1
-            continue
-        elif name == "BACKTRACK":
-            ...
-        ...
-```
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">vm</span><span class="p">(</span><span class="n">instructions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span> <span class="o">=</span> <span class="n">instructions</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;PUSH_SCOPE&quot;</span><span class="p">:</span>
+            <span class="n">scope_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+            <span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">pc</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;BACKTRACK&quot;</span><span class="p">:</span>
+            <span class="o">...</span>
+        <span class="o">...</span>
+</pre></div>
 
 It was written like that to be as fast as possible. It avoided function calls.
 It avoided class variables lookup by avoiding classes. All variables used were
@@ -867,63 +867,57 @@ I decided that I would not consider performance at all, and instead try to
 write the VM as clear as I could. I ended up with a `VM` class to hold some
 state and the instruction functions that operated on an instance of a VM:
 
-```python
-class VM:
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
 
-    def __init__(self, code, rules):
-        ...
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
+        <span class="o">...</span>
 
-    ...
+    <span class="o">...</span>
 
-def PUSH_SCOPE(vm):
-    vm.scope_rest = (vm.scope, vm.scope_rest)
-    vm.scope = {}
+<span class="k">def</span> <span class="nf">PUSH_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
+    <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span>
+    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
 
-def BACKTRACK(vm):
-    ...
+<span class="k">def</span> <span class="nf">BACKTRACK</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
+    <span class="o">...</span>
 
-...
-```
+<span class="o">...</span>
+</pre></div>
 
 As I noted earlier, I'm not sure I am happy with this result. I'm not convinced
 that it reads better. The biggest upside is that since function calls are
-allowed now, part of the VM can be expressed more clearly without repetition.
+now allowed, part of the VM can be expressed more clearly without repetition.
 
 Before I ended up with this VM, I experimented with a language for writing
 virtual machines that compiled to Python code. You could define instructions
-and the arguments they took and define macros for code re-use. It looked
-something like this:
+and the arguments they took and define macros for code re-use. It was basically
+a small macro language on top of Python. It looked something like this:
 
-It was basically a small macro language on top
-of Python.
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">vm</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">rules</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">pc</span> <span class="o">=</span> <span class="n">rules</span><span class="p">[</span><span class="n">start_rule</span><span class="p">]</span>
+    <span class="n">call_backtrack_stack</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stream</span><span class="p">,</span> <span class="n">stream_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pos</span><span class="p">,</span> <span class="n">pos_rest</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+    <span class="n">scope</span><span class="p">,</span> <span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">fail_message</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">latest_fail_message</span><span class="p">,</span> <span class="n">latest_fail_pos</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
+    <span class="n">memo</span> <span class="o">=</span> <span class="p">{}</span>
 
-```python
-def vm(code, rules, start_rule, stream):
-    action = SemanticAction(None)
-    pc = rules[start_rule]
-    call_backtrack_stack = []
-    stream, stream_rest = (stream, None)
-    pos, pos_rest = (0, tuple())
-    scope, scope_rest = (None, None)
-    fail_message = None
-    latest_fail_message, latest_fail_pos = (None, tuple())
-    memo = {}
-
-definstruction PUSH_SCOPE():
-    scope_rest = (scope, scope_rest)
-    scope = {}
-```
+<span class="n">definstruction</span> <span class="n">PUSH_SCOPE</span><span class="p">():</span>
+    <span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">scope_rest</span><span class="p">)</span>
+    <span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
 
 And here is how macros were used:
 
-```python
-definstruction FAIL(arg_message):
-    fail_message = (arg_message,)
-    #FAIL
+<div class="highlight"><pre><span></span><span class="n">definstruction</span> <span class="n">FAIL</span><span class="p">(</span><span class="n">arg_message</span><span class="p">):</span>
+    <span class="n">fail_message</span> <span class="o">=</span> <span class="p">(</span><span class="n">arg_message</span><span class="p">,)</span>
+    <span class="c1">#FAIL</span>
 
-defmacro FAIL:
-    ...
-```
+<span class="n">defmacro</span> <span class="n">FAIL</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
 
 When this was compiled, something similar to the `vm` function above was
 generated. A single function that was intended to run as fast as possible. But
@@ -932,9 +926,6 @@ you could write the VM quite clearly anyway.
 I liked the result of that, but it introduced yet another language and made
 compilation and metacompilation more complicated. For that reason, I decided
 against it.
-
-* There were grammars for PyVM
-* The VM had to be generated before it could be included in the support library
 
 Perhaps another approach would be to consider the VM a separate piece, not to
 be included in compilations and metacompilations. But they are also strongly
@@ -946,91 +937,48 @@ the compiler.
 
 ### Ability to run a rule in semantic action
 
-* Perhaps it originally came from PyVM?
+Another feature that was added in this version was the ability to call a
+grammar rule recursively from a semantic action.
 
-* Support recursive macros?
+This was initially needed to to implement recursive macros in the VM language
+mentioned in the previous section, but it made its way into RLMeta to support
+the patching of assembly instructions.
 
-    * Probably requires function to run grammar against an object.
+When a `Target` instruction is encountered, the `patches` list is populated
+with a command:
 
-    * Needed to get rid of duplicated call code.
+<div class="highlight"><pre><span></span>Target   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(patches [<span class="s">&quot;Patch&quot;</span> len(code) x])
+                           <span class="nb">-&gt;</span> add(code <span class="s">&quot;placeholder&quot;</span>)
+</pre></div>
+
+These commands are then evaluated bu running the `asts` rule on the `patches`
+list. This starts another parse on the given stream.
+
+<div class="highlight"><pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
+</pre></div>
+
+The new parse has access the all the runtime variables that the semantic action
+that invokes it has. So that is why a `Patch` instruction can modify the `code`
+array and insert the correct index there instead of the placeholder:
+
+<div class="highlight"><pre><span></span>Patch    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x <span class="nc">.</span><span class="nb">:</span>y         <span class="nb">-&gt;</span> set(code x get(labels y))
+</pre></div>
 
 ### Misc
 
-* Reformat to improve readability.
+Many more small changes were done. Here is a few notes about them.
 
-* Rename to make intention more clear.
+* Various renames to make intention more clear and reformats to improve
+  readability.
 
-* Join using support function
-    * Smaller and faster
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/c7cde4ef64db9c871ee25ea7ec39d26a1adb6d7d
+* Various clean ups in the parser:
 
-* Disallow semantic actions in the middle
-    * More clear
-    * Before after
-    * Test case
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/4934b9105ec609de2d59fce955d41879ef57fcea
+    * Only allow semantic actions at the very end of a rule.
 
-    $ echo "Grammar { rule = . ->[] . }" | python rlmeta.py
-    class Grammar(Grammar):
-
-        def assemble(self, I, LABEL):
-            LABEL('rule')
-            I('PUSH_SCOPE')
-            I('MATCH_ANY')
-            I('ACTION', lambda scope: concat([]))
-            I('MATCH_ANY')
-            I('POP_SCOPE')
-            I('RETURN')
-
-    $ echo "Grammar { rule = . ->[] . }" | python rlmeta.py
-    ERROR: expected '}'
-    POSITION: 24
-    STREAM:
-        Grammar { rule = . ->[] <ERROR POSITION>. }
-
-* Allow indent prefix to be changed
-    * More flexible
-    * Better flexibility at marginal cost. A little slower, but fixed by
-      optimizing indent a little.
-    * https://github.com/rickardlindberg/rickardlindberg.me/commit/ac6126b7ea6a8d38967d7cb5bcfe6784332f587a
-
-    def indent(text):
-        return join(join(["    ", line]) for line in text.splitlines(True))
-
-    def indent(text, prefix="    "):
-        return "".join(prefix + line for line in text.splitlines(True))
-
-* Runtime vars outside VM
-    * More stuff moved out of VM
+    * Make sure the whole file is parsed so that junk after a grammar results
+      in an error.
 
 * Adapt to Python 3.
-
-* Better error message than None if runtime/scope is not found.
-
-    * Rename match -> matches in Scope
-    * Immutable scope instead and fail if entry does not exist?
-
-* Counter class is more clean
-
-* No need to wrap parser output in list for codegenerator in RLMeta
-
-* Put compile + error reporting function in support lib.
-
-* You can put any crap at end of file, and parsers don't care. Fix it!
-
-* VM should not know about runtime.
-
-* No failure if VM-compilation fails? (Swap Instruction arguments.)
-
-* Better AST for action expressions.
-
-* Can "native" calls be removed by adding binding in runtime?
-
-* Put object match expr tree in parser instead of in codegen?
-
-    - This makes the VM more clean. There is only one instruction for matching
-      and the matching is done with a Python lambda. The VM knows nothing about
-      how to match a single object.
 
 ## The future
 
