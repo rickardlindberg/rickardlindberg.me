@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2022-02-01T00:00:00Z</updated>
+    <updated>2022-02-03T00:00:00Z</updated>
     <entry>
     <title>DRAFT: RLMeta Poster 2 (Abandoned)</title>
     <link href="http://rickardlindberg.me/writing/rlmeta-poster2/" />
     <id>http://rickardlindberg.me/writing/rlmeta-poster2/</id>
-    <published>2022-02-01T00:00:00Z</published>
-    <updated>2022-02-01T00:00:00Z</updated>
+    <published>2022-02-03T00:00:00Z</published>
+    <updated>2022-02-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: RLMeta Poster 2 (Abandoned)</h1>
 
-<p><em>Published on  1 February 2022.</em></p>
+<p><em>Published on  3 February 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -658,7 +658,7 @@ bar()
 </pre>
 </div>
 <p>It was written like that to be as fast as possible. It avoided function calls. It avoided class variables lookup by avoiding classes. All variables used were defined locally in the <code>vm</code> function. Because function calls could not be used, some code was also duplicated.</p>
-<p>I decided that I would not consider performance at all, and instead try to write the VM as clear as I could. I ended up with a <code>VM</code> class to hold some state and the instruction functions that operated on an instance of a VM:</p>
+<p>I decided that I would not consider performance at all, and instead try to write the VM as clear as I could. I ended up with a <code>VM</code> class to hold some state and instruction functions that operate on an instance of a VM:</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
 
@@ -719,7 +719,7 @@ bar()
                            <span class="nb">-&gt;</span> add(code <span class="s">&quot;placeholder&quot;</span>)
 </pre>
 </div>
-<p>These commands are then evaluated bu running the <code>asts</code> rule on the <code>patches</code> list. This starts another parse on the given stream.</p>
+<p>These commands are then evaluated by running the <code>asts</code> rule on the <code>patches</code> list. This starts another parse on the given stream.</p>
 <div class="highlight">
 <pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
 </pre>
@@ -730,7 +730,7 @@ bar()
 </pre>
 </div>
 <h3 id="misc">Misc</h3>
-<p>Many more small changes were done. Here is a few notes about them.</p>
+<p>Many more small changes were made. Here are a few notes about them.</p>
 <ul>
 <li><p>Various renames to make intention more clear and reformats to improve readability.</p></li>
 <li><p>Various clean ups in the parser:</p>
