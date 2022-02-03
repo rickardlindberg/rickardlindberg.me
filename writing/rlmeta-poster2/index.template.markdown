@@ -676,7 +676,7 @@ some code was also duplicated.
 
 I decided that I would not consider performance at all, and instead try to
 write the VM as clear as I could. I ended up with a `VM` class to hold some
-state and the instruction functions that operated on an instance of a VM:
+state and instruction functions that operate on an instance of a VM:
 
 $:file:scratch.py
 class VM:
@@ -769,7 +769,7 @@ with a command:
 
 $:code:rlmeta-poster-2/src/assembler.rlmeta:^  Target:^  [^ ]
 
-These commands are then evaluated bu running the `asts` rule on the `patches`
+These commands are then evaluated by running the `asts` rule on the `patches`
 list. This starts another parse on the given stream.
 
 $:code:rlmeta-poster-2/src/assembler.rlmeta:^.*-> run.*patches:.
@@ -782,7 +782,7 @@ $:code:rlmeta-poster-2/src/assembler.rlmeta:^  Patch:^  [^ ]
 
 ### Misc
 
-Many more small changes were done. Here is a few notes about them.
+Many more small changes were made. Here are a few notes about them.
 
 * Various renames to make intention more clear and reformats to improve
   readability.

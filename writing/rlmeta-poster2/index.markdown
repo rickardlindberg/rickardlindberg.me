@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2 (Abandoned)'
-date: 2022-02-01
+date: 2022-02-03
 tags: rlmeta,draft
 ---
 
@@ -865,7 +865,7 @@ some code was also duplicated.
 
 I decided that I would not consider performance at all, and instead try to
 write the VM as clear as I could. I ended up with a `VM` class to hold some
-state and the instruction functions that operated on an instance of a VM:
+state and instruction functions that operate on an instance of a VM:
 
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
 
@@ -951,7 +951,7 @@ with a command:
                            <span class="nb">-&gt;</span> add(code <span class="s">&quot;placeholder&quot;</span>)
 </pre></div>
 
-These commands are then evaluated bu running the `asts` rule on the `patches`
+These commands are then evaluated by running the `asts` rule on the `patches`
 list. This starts another parse on the given stream.
 
 <div class="highlight"><pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
@@ -966,7 +966,7 @@ array and insert the correct index there instead of the placeholder:
 
 ### Misc
 
-Many more small changes were done. Here is a few notes about them.
+Many more small changes were made. Here are a few notes about them.
 
 * Various renames to make intention more clear and reformats to improve
   readability.
