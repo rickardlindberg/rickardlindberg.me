@@ -33,11 +33,11 @@ This is what I've been up to in January 2022:
   incorporate a bit in [RLiterate](/projects/rliterate/index.html).
 
 * I watched [A Tour of the Acme Editor](https://youtu.be/dP1xVpMPn8M) by Russ
-  Cox. Acme felt like a different an unique text editor with an interesting
+  Cox. Acme felt like a different and unique text editor with an interesting
   approach.
 
 * I did some work to update my
   [dotfiles](https://github.com/rickardlindberg/dotfiles/). Mainly to simplify
-  and add support for different setups. When I am recording videos for Youtube
+  and add support for different setups. When I am recording videos for Youtube,
   for example, I want to have bigger font size in various applications. With my
   new dotfiles, I can now quickly switch between different setups.
