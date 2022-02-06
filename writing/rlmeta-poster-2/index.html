@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: RLMeta Poster 2 (Abandoned)</h1>
 
-<p><em>Published on  3 February 2022.</em></p>
+<p><em>Published on  6 February 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -67,13 +67,13 @@
 <li><a href="#following-a-compilation">Following a compilation</a></li>
 <li><a href="#the-purpose-of-the-make-script">The purpose of the make script</a></li>
 </ul></li>
-<li><a href="#changes-from-the-previous-version">Changes from the previous version</a>
+<li><a href="#changes-from-the-original-poster-version">Changes from the original poster version</a>
 <ul>
 <li><a href="#generate-labels-in-semantic-actions">Generate labels in semantic actions</a></li>
 <li><a href="#remove-dependency-on-bash">Remove dependency on Bash</a></li>
 <li><a href="#extract-assembler">Extract assembler</a></li>
-<li><a href="#clearer-vm">Clearer VM</a></li>
-<li><a href="#ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</a></li>
+<li><a href="#rewrite-vm-for-clarity">Rewrite VM for clarity</a></li>
+<li><a href="#add-ability-to-run-a-rule-in-semantic-action">Add ability to run a rule in semantic action</a></li>
 <li><a href="#misc">Misc</a></li>
 </ul></li>
 <li><a href="#the-future">The future</a></li>
@@ -537,7 +537,7 @@ STREAM:
 <p>In the output above, we can see that it compiled RLMeta and wrote the result to <code>rlmeta1.py</code>. In this case, since it is exactly the same as <code>rlmeta.py</code>, the compilation stopped there and a few more tests were run using this compiler. But if we make changes to the source code, <code>rlmeta1.py</code> will most likely not be exactly the same as <code>rlmeta.py</code>, and a few more compilations might be needed. I’ve written about the details of meta compilation in a <a href="../../writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135">previous blog post</a>.</p>
 <p>So the purpose of the make script is to ease meta compilations and also run a test suit on the newly generated metacompiler before accepting it.</p>
 <p>The make script can also be used to perform a single compilation of RLMeta with the <code>--compile</code> argument as we saw earlier.</p>
-<h2 id="changes-from-the-previous-version">Changes from the previous version</h2>
+<h2 id="changes-from-the-original-poster-version">Changes from the original poster version</h2>
 <p>This section explains the most important changes in this version of RLMeta compared to the original poster version.</p>
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
 <ul>
@@ -596,7 +596,7 @@ STREAM:
 }
 </pre>
 </div>
-<p>The expressions <code>[]:header</code> creates a list and assigns it to the variable <code>header</code>. When <code>x</code> is evaluated in the next step, the semantic action for the <code>Function</code> rule will be evaluated which can then access the <code>header</code> variable defined earlier. These variables are not lexically scoped, but dynamically scoped. If at runtime, a variable is defined, it will be accessible. It also means that the <code>Function</code> rule can not be run without <code>program</code> being run first, or the <code>header</code> variable will not be defined.</p>
+<p>The expression <code>[]:header</code> creates a list and assigns it to the variable <code>header</code>. When <code>x</code> is evaluated in the next step, the semantic action for the <code>Function</code> rule will be evaluated which can then access the <code>header</code> variable defined earlier. These variables are not lexically scoped, but dynamically scoped. If at runtime, a variable is defined, it will be accessible. It also means that the <code>Function</code> rule can not be run without <code>program</code> being run first, or the <code>header</code> variable will not be defined.</p>
 <p>Here is an example AST representing a program:</p>
 <div class="highlight">
 <pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
@@ -677,7 +677,7 @@ bar()
 <p>Instead of outputting Python code directly, it now generates abstract assembly code. Then a new third pass, the assembler, turns those instructions into Python code as well as resolves label positions. So no more compilation at runtime.</p>
 <p>This reads better because the purpose of the code generator is now a bit narrower. It can focus on one thing and leave the rest to the assembler.</p>
 <p>Adding another pass also opens up the possibility to do peep-hole optimizations on the abstract assembly code before the assembler turns the instructions into Python code.</p>
-<h3 id="clearer-vm">Clearer VM</h3>
+<h3 id="rewrite-vm-for-clarity">Rewrite VM for clarity</h3>
 <p>In the poster version, the virtual machine was written as a single function with one loop like this:</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">vm</span><span class="p">(</span><span class="n">instructions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
@@ -747,7 +747,7 @@ bar()
 <p>I liked the result of that, but it introduced yet another language and made compilation and metacompilation more complicated. For that reason, I decided against it.</p>
 <p>Perhaps another approach would be to consider the VM a separate piece, not to be included in compilations and metacompilations. But they are also strongly connected. Say for example that an optimizer decides to output a new VM instruction, then the VM has to change.</p>
 <p>I am not entirely clear about the interface here between the VM and the rest of the compiler.</p>
-<h3 id="ability-to-run-a-rule-in-semantic-action">Ability to run a rule in semantic action</h3>
+<h3 id="add-ability-to-run-a-rule-in-semantic-action">Add ability to run a rule in semantic action</h3>
 <p>Another feature that was added in this version was the ability to call a grammar rule recursively from a semantic action.</p>
 <p>This was initially needed to to implement recursive macros in the VM language mentioned in the previous section, but it made its way into RLMeta to support the patching of assembly instructions.</p>
 <p>When a <code>Target</code> instruction is encountered, the <code>patches</code> list is populated with a command:</p>
