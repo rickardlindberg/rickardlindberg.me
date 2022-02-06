@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: RLMeta Poster 2 (Abandoned)'
-date: 2022-02-03
+date: 2022-02-06
 tags: rlmeta,draft
 ---
 
@@ -609,7 +609,7 @@ test suit on the newly generated metacompiler before accepting it.
 The make script can also be used to perform a single compilation of RLMeta with
 the `--compile` argument as we saw earlier.
 
-## Changes from the previous version
+## Changes from the original poster version
 
 This section explains the most important changes in this version of RLMeta
 compared to the original poster version.
@@ -705,7 +705,7 @@ in different sections like this:
 }
 </pre></div>
 
-The expressions `[]:header` creates a list and assigns it to the variable
+The expression `[]:header` creates a list and assigns it to the variable
 `header`. When `x` is evaluated in the next step, the semantic action for the
 `Function` rule will be evaluated which can then access the `header` variable
 defined earlier.  These variables are not lexically scoped, but dynamically
@@ -838,7 +838,7 @@ Adding another pass also opens up the possibility to do peep-hole optimizations
 on the abstract assembly code before the assembler turns the instructions into
 Python code.
 
-### Clearer VM
+### Rewrite VM for clarity
 
 In the poster version, the virtual machine was written as a single function
 with one loop like this:
@@ -935,7 +935,7 @@ instruction, then the VM has to change.
 I am not entirely clear about the interface here between the VM and the rest of
 the compiler.
 
-### Ability to run a rule in semantic action
+### Add ability to run a rule in semantic action
 
 Another feature that was added in this version was the ability to call a
 grammar rule recursively from a semantic action.
