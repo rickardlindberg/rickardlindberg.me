@@ -64,7 +64,7 @@ rulesStaticFiles = do
         .||. "writing/**/*.png"
         .||. "writing/**/*.gif"
         .||. "writing/alan-kay-notes/*.pdf"
-        .||. "writing/rlmeta-poster2/*.zip"
+        .||. "writing/rlmeta-poster-2/*.zip"
         ) $ do
         route idRoute
         compile copyFileCompiler
@@ -369,7 +369,7 @@ patternPostIndexPandoc =
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
-         "writing/rlmeta-poster2/index.markdown"
+         "writing/rlmeta-poster-2/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =

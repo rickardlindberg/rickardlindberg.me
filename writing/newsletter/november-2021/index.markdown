@@ -7,7 +7,7 @@ tags: newsletter
 This is what I've been up to in November 2021:
 
 * I managed to do a little more writing on the
-  [RLMeta](/writing/rlmeta-poster2/index.html) blog post. Not as much as I had
+  [RLMeta](/writing/rlmeta-poster-2/index.html) blog post. Not as much as I had
   hoped, but I plan to continue working on it in December.
 
 * Since I started getting interested in cameras and making videos, my spare

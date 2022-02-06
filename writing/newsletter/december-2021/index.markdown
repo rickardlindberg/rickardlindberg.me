@@ -6,7 +6,7 @@ tags: newsletter
 
 This is what I've been up to in December 2021:
 
-* I did more writing on the [RLMeta](/writing/rlmeta-poster2/index.html) blog
+* I did more writing on the [RLMeta](/writing/rlmeta-poster-2/index.html) blog
   post. I wrote for quite many days, but not for a very long time each day. I
   believe consistency works better.  After each small edit, I published the
   draft. I will continue writing in January.

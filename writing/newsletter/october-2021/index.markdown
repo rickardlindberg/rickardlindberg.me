@@ -7,7 +7,7 @@ tags: newsletter
 This is what I've been up to in October 2021:
 
 * I set up some infrastructure for writing the blog post about
-  [RLMeta](/writing/rlmeta-poster2/index.html). Now I can automatically
+  [RLMeta](/writing/rlmeta-poster-2/index.html). Now I can automatically
   generate the post with up to date code examples and syntax highlighting.  I
   didn't make much progress on the writing itself. Hopefully I can make more
   progress on that in November.

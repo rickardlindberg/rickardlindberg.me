@@ -10,7 +10,7 @@ This is what I've been up to in May 2020:
   [wrote](/writing/creating-rlmeta-poster/index.html) about it in a blog post.
   I am happy that I was able to improve both clarity and speed of RLMeta.
 
-* I started working on a [second version](/writing/rlmeta-poster2/index.html)
+* I started working on a [second version](/writing/rlmeta-poster-2/index.html)
   of the RLMeta poster. So far I've been able to resolve some of the issue from
   the first version (generate labels in actions, remove dependency on Bash) as
   well as other improvements.

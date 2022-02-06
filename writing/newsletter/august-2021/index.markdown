@@ -7,7 +7,7 @@ tags: newsletter
 This is what I've been up to in August 2021:
 
 * I continued with the draft post [RLMeta poster
-  2](/writing/rlmeta-poster2/index.html).
+  2](/writing/rlmeta-poster-2/index.html).
 
   * I had some ideas of things I wanted to improve in the next version of
     RLMeta. But mainly, I just wanted to work on it again because I think it is

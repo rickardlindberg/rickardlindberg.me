@@ -6,7 +6,7 @@ tags: newsletter
 
 This is what I've been up to in January 2022:
 
-* I did more writing on the [RLMeta](/writing/rlmeta-poster2/index.html) blog
+* I did more writing on the [RLMeta](/writing/rlmeta-poster-2/index.html) blog
   post. I took some larger time blocks to work on it, and I can now finally see
   it being finished next month.
 

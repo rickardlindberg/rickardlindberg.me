@@ -12,7 +12,7 @@ This is what I've been up to in September 2021:
   explore movie making.
 
 * I continued to work on RLMeta. Specifically on the [second poster
-  version](/writing/rlmeta-poster2/index.html).
+  version](/writing/rlmeta-poster-2/index.html).
 
     * At first my plan was to make a second poster with an improved version of
       RLMeta. The goal would be to showcase an even more beautiful
