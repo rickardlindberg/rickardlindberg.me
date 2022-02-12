@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: RLMeta Poster 2 (Abandoned) | Rickard's personal homepage
+      RLMeta poster 2: the poster that wasn't | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -52,9 +52,9 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: RLMeta Poster 2 (Abandoned)</h1>
+      <h1>RLMeta poster 2: the poster that wasn't</h1>
 
-<p><em>Published on  6 February 2022.</em></p>
+<p><em>Published on 12 February 2022.</em></p>
 
 <ul>
 <li><a href="#code-walk-through">Code walk through</a>
@@ -67,7 +67,7 @@
 <li><a href="#following-a-compilation">Following a compilation</a></li>
 <li><a href="#the-purpose-of-the-make-script">The purpose of the make script</a></li>
 </ul></li>
-<li><a href="#changes-from-the-original-poster-version">Changes from the original poster version</a>
+<li><a href="#changes-from-the-poster-version">Changes from the poster version</a>
 <ul>
 <li><a href="#generate-labels-in-semantic-actions">Generate labels in semantic actions</a></li>
 <li><a href="#remove-dependency-on-bash">Remove dependency on Bash</a></li>
@@ -87,7 +87,6 @@
 <li><a href="#make.py">make.py</a></li>
 </ul></li>
 </ul>
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>A while ago I created a <a href="../../writing/creating-rlmeta-poster/">poster</a> to showcase RLMeta. The version of RLMeta on the poster is based on the version from the <a href="../../writing/rlmeta-memoize-failures/">memoizing failures</a> article, but I made it smaller and more beautiful to better fit the poster. To be able to finish the poster, I had to stop making changes and put the source code on the poster. That was difficult because I felt the need for it to be perfect. Eventually I did stop polishing, and left a few items unresolved.</p>
 <p>Almost immediately after I finished the poster, I started working on a second version. Initially, my plan was to make a second version of the poster. I started to fix the unresolved items and I was making progress. But somehow imperfections kept creeping in. It felt like a never ending game of chasing perfection. That’s when I decided that a second poster was probably not going to be worth it. But I still liked the new version of RLMeta.</p>
 <p>Instead, I decided to attempt to present the new version in the style of a code walk through. In other words, another way to showcase RLMeta that is also a bit more practical. Compared to the poster version, this version could also be more easily improved because rendering the blog post is automatic whereas creating the layout of a poster requires manual work every time the source code changes. I also wanted to experiment with the walk through format because I thought it could be something worth putting into the README of a project.</p>
@@ -119,8 +118,8 @@
    57 src/codegenerator.rlmeta
    26 src/main.py
    60 src/parser.rlmeta
-  237 src/support.py
-  419 total
+  240 src/support.py
+  422 total
 </pre>
 </div>
 <p>The compiler can be created from this source code only. We will see how later in this walk through.</p>
@@ -259,19 +258,19 @@
 <p>The make script can be called with the <code>--compile</code> command to perform this exact function:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>./make.py --compile &gt; rlmeta-compile.py
-<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
-[0;32m  O-----------------O[0m
-[0;32m  | RLMeta compiled |[0m
-[0;32m~~|     itself!     |[0m
-[0;32m  O-----------------O[0m
+<span></span>Compiling rlmeta using rlmeta.py
+  O-----------------O
+  | RLMeta compiled |
+~~|     itself!     |
+  O-----------------O
 </pre>
 </div>
 <p>And all these files are exactly the same:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
-<span></span>504430e673ab5a117179667ee7e8c769  rlmeta.py
-504430e673ab5a117179667ee7e8c769  rlmeta-compile.py
-504430e673ab5a117179667ee7e8c769  rlmeta-raw.py
+<span></span>92396155e85e24fb45cb3e58e160e89e  rlmeta.py
+92396155e85e24fb45cb3e58e160e89e  rlmeta-compile.py
+92396155e85e24fb45cb3e58e160e89e  rlmeta-raw.py
 </pre>
 </div>
 <p>Thus, the RLMeta compiler reproduced itself exactly from the source code.</p>
@@ -310,15 +309,18 @@
 <p>The <code>--compile</code> command is the most complex of them all. It calls the <code>compile_chain</code> function which runs the given grammars/rules in order (in this case the input will first be parsed, then passed to the code generator, and finally passed to the assembler) and prints a pretty error message to stderr upon failure:</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">os</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="kn">import</span> <span class="nn">pprint</span>
     <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m&lt;ERROR POSITION&gt;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARKER</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
+                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -517,28 +519,28 @@
 <p>When the make script is called without arguments, it performs a meta compilation and runs a few tests:</p>
 <div class="highlight">
 <pre><span></span>$ <span></span>./make.py
-<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
-[0;33mWriting rlmeta1.py[0m
-[0;33mTest: Has its own support library[0m
-[0;33mTest: Disallow semantic action in the middle[0m
+<span></span>Compiling rlmeta using rlmeta.py
+Writing rlmeta1.py
+Test: Has its own support library
+Test: Disallow semantic action in the middle
 ERROR: expected }
 POSITION: 22
 STREAM:
-    Grammar { x = . -&gt; [] [0;31m&lt;ERROR POSITION&gt;[0m. }
-[0;33mTest: Call unknown rule foo[0m
-[0;33mMoving rlmeta1.py -&gt; rlmeta.py[0m
-[0;32m  O-----------------O[0m
-[0;32m  | RLMeta compiled |[0m
-[0;32m~~|     itself!     |[0m
-[0;32m  O-----------------O[0m
+    Grammar { x = . -&gt; [] &lt;ERROR POSITION&gt;. }
+Test: Call unknown rule foo
+Moving rlmeta1.py -&gt; rlmeta.py
+  O-----------------O
+  | RLMeta compiled |
+~~|     itself!     |
+  O-----------------O
 </pre>
 </div>
-<p>The meaning of a meta compilation is to create a new version of RLMeta that can still reproduce it self from the source code.</p>
+<p>The meaning of a meta compilation is to create a new version of RLMeta that can still reproduce itself from the source code.</p>
 <p>In the output above, we can see that it compiled RLMeta and wrote the result to <code>rlmeta1.py</code>. In this case, since it is exactly the same as <code>rlmeta.py</code>, the compilation stopped there and a few more tests were run using this compiler. But if we make changes to the source code, <code>rlmeta1.py</code> will most likely not be exactly the same as <code>rlmeta.py</code>, and a few more compilations might be needed. I’ve written about the details of meta compilation in a <a href="../../writing/modifying-rlmeta/index.html#5f6a1c91143146dbb3b865ac42562135">previous blog post</a>.</p>
 <p>So the purpose of the make script is to ease meta compilations and also run a test suit on the newly generated metacompiler before accepting it.</p>
 <p>The make script can also be used to perform a single compilation of RLMeta with the <code>--compile</code> argument as we saw earlier.</p>
-<h2 id="changes-from-the-original-poster-version">Changes from the original poster version</h2>
-<p>This section explains the most important changes in this version of RLMeta compared to the original poster version.</p>
+<h2 id="changes-from-the-poster-version">Changes from the poster version</h2>
+<p>This section explains the most important changes in this version of RLMeta compared to the poster version.</p>
 <p>First of all, I wanted to work on the unresolved items which were the following:</p>
 <ul>
 <li>The label counter is incremented at match time, not at semantic action evaluation time.</li>
@@ -618,7 +620,6 @@ foo()
 bar()
 </pre>
 </div>
-<p>This type of thing is useful for example when generating C functions where definitions need to go in “header” and declarations in “body”.</p>
 <p>In summary, this change is as follows:</p>
 <ul>
 <li>Label syntax (<code>#</code>) in parser is removed</li>
@@ -631,7 +632,7 @@ bar()
 <p>The increased clarity and flexibility come with a price. The size increases and the performance drops.</p>
 <p>The parser and the code generator are mostly the same. The greatest addition is in the support library. Which is expected when semantic action evaluation becomes more complex. The drop in performance is likely due to more function calls when evaluating semantic actions. Even though size and performance got worse, I believe the clarity and flexibility gain is worth it.</p>
 <h3 id="remove-dependency-on-bash">Remove dependency on Bash</h3>
-<p>To compile the previous version of RLMeta, you ran the following command:</p>
+<p>To compile the poster version of RLMeta, you ran the following command:</p>
 <pre><code>./compile.sh rlmeta.py</code></pre>
 <p>In one way, the compiler could not compile itself, but relied on a Bash script for gluing things together. It would call the <code>rlmeta.py</code> compiler for certain tasks and use Bash and Python for other tasks.</p>
 <p>As we have already seen, the new version of RLMeta compiles itself like this:</p>
@@ -648,7 +649,7 @@ bar()
 <p>In addition, the extra features are useful when writing programs in RLMeta. Those programs can now also be compiled with a single command, and there is no need to concatenate different pieces together.</p>
 <p>(The complete diff for this change can be found on <a href="https://github.com/rickardlindberg/rickardlindberg.me/commit/935bb77e1d5b88e09de64112aa2fb2f46dbcb7d9">GitHub</a>.)</p>
 <h3 id="extract-assembler">Extract assembler</h3>
-<p>The third thing that I had a problem with in the poster version was the readability of the code generator. For example, the <code>Not</code> rule looked like this:</p>
+<p>The third thing that annoyed me with in the poster version was the readability of the code generator. For example, the <code>Not</code> rule looked like this:</p>
 <div class="highlight">
 <pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
             <span class="nb">-&gt;</span> { <span class="s">&quot;I('BACKTRACK', &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -748,7 +749,7 @@ bar()
 <p>Perhaps another approach would be to consider the VM a separate piece, not to be included in compilations and metacompilations. But they are also strongly connected. Say for example that an optimizer decides to output a new VM instruction, then the VM has to change.</p>
 <p>I am not entirely clear about the interface here between the VM and the rest of the compiler.</p>
 <h3 id="add-ability-to-run-a-rule-in-semantic-action">Add ability to run a rule in semantic action</h3>
-<p>Another feature that was added in this version was the ability to call a grammar rule recursively from a semantic action.</p>
+<p>Another feature that was added in this version was the ability to run a grammar rule recursively from a semantic action.</p>
 <p>This was initially needed to to implement recursive macros in the VM language mentioned in the previous section, but it made its way into RLMeta to support the patching of assembly instructions.</p>
 <p>When a <code>Target</code> instruction is encountered, the <code>patches</code> list is populated with a command:</p>
 <div class="highlight">
@@ -761,7 +762,7 @@ bar()
 <pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
 </pre>
 </div>
-<p>The new parse has access the all the runtime variables that the semantic action that invokes it has. So that is why a <code>Patch</code> instruction can modify the <code>code</code> array and insert the correct index there instead of the placeholder:</p>
+<p>The new parse has access to all the runtime variables that the semantic action that invokes it has. So that is why a <code>Patch</code> instruction can modify the <code>code</code> array and insert the correct index there instead of the placeholder:</p>
 <div class="highlight">
 <pre><span></span>Patch    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x <span class="nc">.</span><span class="nb">:</span>y         <span class="nb">-&gt;</span> set(code x get(labels y))
 </pre>
@@ -1174,15 +1175,18 @@ bar()
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="o">+</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">os</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="kn">import</span> <span class="nn">pprint</span>
     <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m&lt;ERROR POSITION&gt;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARKER</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
+                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1324,13 +1328,19 @@ bar()
         <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;33m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;33&quot;</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;32m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;32&quot;</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31mERROR: </span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;31&quot;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">m</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">message</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">cleanup</span><span class="p">()</span>
