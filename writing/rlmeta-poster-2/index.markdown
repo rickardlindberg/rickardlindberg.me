@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: RLMeta Poster 2 (Abandoned)'
-date: 2022-02-06
-tags: rlmeta,draft
+title: "RLMeta poster 2: the poster that wasn't"
+date: 2022-02-12
+tags: rlmeta
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 A while ago I created a [poster](/writing/creating-rlmeta-poster/index.html) to
 showcase RLMeta. The version of RLMeta on the poster is based on the version
@@ -66,8 +64,8 @@ The size of the source code is quite small:
    57 src/codegenerator.rlmeta
    26 src/main.py
    60 src/parser.rlmeta
-  237 src/support.py
-  419 total
+  240 src/support.py
+  422 total
 </pre></div>
 
 The compiler can be created from this source code only. We will see how later
@@ -252,19 +250,19 @@ The make script can be called with the `--compile` command to perform this
 exact function:
 
 <div class="highlight"><pre><span></span>$ <span></span>./make.py --compile &gt; rlmeta-compile.py
-<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
-[0;32m  O-----------------O[0m
-[0;32m  | RLMeta compiled |[0m
-[0;32m~~|     itself!     |[0m
-[0;32m  O-----------------O[0m
+<span></span>Compiling rlmeta using rlmeta.py
+  O-----------------O
+  | RLMeta compiled |
+~~|     itself!     |
+  O-----------------O
 </pre></div>
 
 And all these files are exactly the same:
 
 <div class="highlight"><pre><span></span>$ <span></span>md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
-<span></span>504430e673ab5a117179667ee7e8c769  rlmeta.py
-504430e673ab5a117179667ee7e8c769  rlmeta-compile.py
-504430e673ab5a117179667ee7e8c769  rlmeta-raw.py
+<span></span>92396155e85e24fb45cb3e58e160e89e  rlmeta.py
+92396155e85e24fb45cb3e58e160e89e  rlmeta-compile.py
+92396155e85e24fb45cb3e58e160e89e  rlmeta-raw.py
 </pre></div>
 
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
@@ -312,15 +310,18 @@ finally passed to the assembler) and prints a pretty error message to stderr
 upon failure:
 
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">os</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="kn">import</span> <span class="nn">pprint</span>
     <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m&lt;ERROR POSITION&gt;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARKER</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
+                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -576,24 +577,24 @@ When the make script is called without arguments, it performs a meta
 compilation and runs a few tests:
 
 <div class="highlight"><pre><span></span>$ <span></span>./make.py
-<span></span>[0;33mCompiling rlmeta using rlmeta.py[0m
-[0;33mWriting rlmeta1.py[0m
-[0;33mTest: Has its own support library[0m
-[0;33mTest: Disallow semantic action in the middle[0m
+<span></span>Compiling rlmeta using rlmeta.py
+Writing rlmeta1.py
+Test: Has its own support library
+Test: Disallow semantic action in the middle
 ERROR: expected }
 POSITION: 22
 STREAM:
-    Grammar { x = . -&gt; [] [0;31m&lt;ERROR POSITION&gt;[0m. }
-[0;33mTest: Call unknown rule foo[0m
-[0;33mMoving rlmeta1.py -&gt; rlmeta.py[0m
-[0;32m  O-----------------O[0m
-[0;32m  | RLMeta compiled |[0m
-[0;32m~~|     itself!     |[0m
-[0;32m  O-----------------O[0m
+    Grammar { x = . -&gt; [] &lt;ERROR POSITION&gt;. }
+Test: Call unknown rule foo
+Moving rlmeta1.py -&gt; rlmeta.py
+  O-----------------O
+  | RLMeta compiled |
+~~|     itself!     |
+  O-----------------O
 </pre></div>
 
 The meaning of a meta compilation is to create a new version of RLMeta that can
-still reproduce it self from the source code.
+still reproduce itself from the source code.
 
 In the output above, we can see that it compiled RLMeta and wrote the result to
 `rlmeta1.py`. In this case, since it is exactly the same as `rlmeta.py`, the
@@ -609,10 +610,10 @@ test suit on the newly generated metacompiler before accepting it.
 The make script can also be used to perform a single compilation of RLMeta with
 the `--compile` argument as we saw earlier.
 
-## Changes from the original poster version
+## Changes from the poster version
 
 This section explains the most important changes in this version of RLMeta
-compared to the original poster version.
+compared to the poster version.
 
 First of all, I wanted to work on the unresolved items which were the
 following:
@@ -736,9 +737,6 @@ foo()
 bar()
 </pre></div>
 
-This type of thing is useful for example when generating C functions where
-definitions need to go in "header" and declarations in "body".
-
 In summary, this change is as follows:
 
 * Label syntax (`#`) in parser is removed
@@ -762,7 +760,7 @@ worse, I believe the clarity and flexibility gain is worth it.
 
 ### Remove dependency on Bash
 
-To compile the previous version of RLMeta, you ran the following command:
+To compile the poster version of RLMeta, you ran the following command:
 
     ./compile.sh rlmeta.py
 
@@ -795,9 +793,8 @@ need to concatenate different pieces together.
 
 ### Extract assembler
 
-The third thing that I had a problem with in the poster version was the
-readability of the code generator.  For example, the `Not` rule looked like
-this:
+The third thing that annoyed me with in the poster version was the readability
+of the code generator. For example, the `Not` rule looked like this:
 
 <div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
             <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -937,7 +934,7 @@ the compiler.
 
 ### Add ability to run a rule in semantic action
 
-Another feature that was added in this version was the ability to call a
+Another feature that was added in this version was the ability to run a
 grammar rule recursively from a semantic action.
 
 This was initially needed to to implement recursive macros in the VM language
@@ -957,7 +954,7 @@ list. This starts another parse on the given stream.
 <div class="highlight"><pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
 </pre></div>
 
-The new parse has access the all the runtime variables that the semantic action
+The new parse has access to all the runtime variables that the semantic action
 that invokes it has. So that is why a `Patch` instruction can modify the `code`
 array and insert the correct index there instead of the placeholder:
 
@@ -1397,15 +1394,18 @@ RLMeta.
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="o">+</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">os</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="kn">import</span> <span class="nn">pprint</span>
     <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">MARKER</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m&lt;ERROR POSITION&gt;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARKER</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
+                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -1547,13 +1547,19 @@ RLMeta.
         <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;33m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;33&quot;</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;32m</span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;32&quot;</span><span class="p">))</span>
 
 <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31mERROR: </span><span class="si">{}</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;31&quot;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">m</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">message</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">cleanup</span><span class="p">()</span>

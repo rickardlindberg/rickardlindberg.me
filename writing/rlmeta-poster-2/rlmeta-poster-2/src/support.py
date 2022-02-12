@@ -218,15 +218,18 @@ def indent(text, prefix="    "):
     return "".join(prefix+line for line in text.splitlines(True))
 
 def compile_chain(grammars, source):
+    import os
     import sys
     import pprint
     for grammar, rule in grammars:
         try:
             source = grammar().run(rule, source)
         except MatchError as e:
-            MARKER = "\033[0;31m<ERROR POSITION>\033[0m"
+            marker = "<ERROR POSITION>"
+            if os.isatty(sys.stderr.fileno()):
+                marker = f"\033[0;31m{marker}\033[0m"
             if isinstance(e.stream, str):
-                stream_string = e.stream[:e.pos] + MARKER + e.stream[e.pos:]
+                stream_string = e.stream[:e.pos] + marker + e.stream[e.pos:]
             else:
                 stream_string = pprint.pformat(e.stream)
             sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(

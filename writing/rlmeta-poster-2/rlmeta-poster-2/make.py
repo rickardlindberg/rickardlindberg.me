@@ -97,13 +97,19 @@ def write(path, content):
         return f.write(content)
 
 def log(message):
-    sys.stderr.write("\033[0;33m{}\033[0m\n".format(message))
+    sys.stderr.write(color(f"{message}\n", "33"))
 
 def success(message):
-    sys.stderr.write("\033[0;32m{}\033[0m\n".format(message))
+    sys.stderr.write(color(f"{message}\n", "32"))
 
 def fail(message):
-    sys.exit("\033[0;31mERROR: {}\033[0m".format(message))
+    sys.exit(color(f"ERROR: {message}", "31"))
+
+def color(message, color):
+    if os.isatty(sys.stderr.fileno()):
+        return f"\033[0;{color}m{message}\033[0m"
+    else:
+        return message
 
 if __name__ == "__main__":
     cleanup()

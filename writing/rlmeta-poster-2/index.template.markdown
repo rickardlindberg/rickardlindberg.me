@@ -382,7 +382,7 @@ compilation and runs a few tests:
 $:shell:rlmeta-poster-2:./make.py
 
 The meaning of a meta compilation is to create a new version of RLMeta that can
-still reproduce it self from the source code.
+still reproduce itself from the source code.
 
 In the output above, we can see that it compiled RLMeta and wrote the result to
 `rlmeta1.py`. In this case, since it is exactly the same as `rlmeta.py`, the
@@ -398,10 +398,10 @@ test suit on the newly generated metacompiler before accepting it.
 The make script can also be used to perform a single compilation of RLMeta with
 the `--compile` argument as we saw earlier.
 
-## Changes from the original poster version
+## Changes from the poster version
 
 This section explains the most important changes in this version of RLMeta
-compared to the original poster version.
+compared to the poster version.
 
 First of all, I wanted to work on the unresolved items which were the
 following:
@@ -533,9 +533,6 @@ When the `program` rule is run on the example input, the following is output:
 
 $:shell:rlmeta-poster-2:python example_buffers.py
 
-This type of thing is useful for example when generating C functions where
-definitions need to go in "header" and declarations in "body".
-
 In summary, this change is as follows:
 
 * Label syntax (`#`) in parser is removed
@@ -564,7 +561,7 @@ $~shell~rlmeta-poster-2~rm -rf __pycache__
 
 ### Remove dependency on Bash
 
-To compile the previous version of RLMeta, you ran the following command:
+To compile the poster version of RLMeta, you ran the following command:
 
     ./compile.sh rlmeta.py
 
@@ -597,9 +594,8 @@ need to concatenate different pieces together.
 
 ### Extract assembler
 
-The third thing that I had a problem with in the poster version was the
-readability of the code generator.  For example, the `Not` rule looked like
-this:
+The third thing that annoyed me with in the poster version was the readability
+of the code generator. For example, the `Not` rule looked like this:
 
 $:file:scratch.rlmeta
 Not = ast:x -> label():a -> label():b
@@ -757,7 +753,7 @@ the compiler.
 
 ### Add ability to run a rule in semantic action
 
-Another feature that was added in this version was the ability to call a
+Another feature that was added in this version was the ability to run a
 grammar rule recursively from a semantic action.
 
 This was initially needed to to implement recursive macros in the VM language
@@ -774,7 +770,7 @@ list. This starts another parse on the given stream.
 
 $:code:rlmeta-poster-2/src/assembler.rlmeta:^.*-> run.*patches:.
 
-The new parse has access the all the runtime variables that the semantic action
+The new parse has access to all the runtime variables that the semantic action
 that invokes it has. So that is why a `Patch` instruction can modify the `code`
 array and insert the correct index there instead of the placeholder:
 

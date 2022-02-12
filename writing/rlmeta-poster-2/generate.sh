@@ -4,12 +4,10 @@ set -e
 
 gen() {
     echo "---"
-    echo "title: 'DRAFT: RLMeta Poster 2 (Abandoned)'"
-    echo "date: $(date +%Y-%m-%d)"
-    echo "tags: rlmeta,draft"
+    echo "title: \"RLMeta poster 2: the poster that wasn't\""
+    echo "date: 2022-02-12"
+    echo "tags: rlmeta"
     echo "---"
-    echo ""
-    echo "**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**"
     echo ""
     ./template.py index.template.markdown
 }
