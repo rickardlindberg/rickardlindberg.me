@@ -7,8 +7,33 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged newsletter]]></description>
         <atom:link href="http://rickardlindberg.me/tags/newsletter/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 02 Apr 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 01 May 2022 00:00:00 UT</lastBuildDate>
         <item>
+    <title>April 2022 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/april-2022/</link>
+    <description><![CDATA[<h1>April 2022 Update</h1>
+
+<p><em>Published on  1 May 2022.</em></p>
+
+<p>This is what I’ve been up to in April 2022:</p>
+<ul>
+<li><p>I continued working on <a href="https://github.com/rickardlindberg/rlci/">RLCI</a>. In particular I started working on the server component and wrote it using <a href="https://docs.python.org/3/library/asyncio.html">asyncio</a>. So far, that feels like a good choice.</p></li>
+<li><p>I read <a href="https://www.martinfowler.com/books/refactoringDatabases.html">Refactoring databases</a> and started reading <a href="https://www.martinfowler.com/books/nosql.html">NoSQL Distilled</a>. The reason I picked up the first one was that I sought to understand how you can do zero-downtime deployments and still evolve your database. That is, how can both an old version of an application and a new version of an application work with the same database? The answer was that you must evolve your database schema such that it is compatible with both versions. So if you move a column for example, you can create a trigger that make sure that both the old and the new column are in sync. And when a transition period is over, you can drop the old column, and the move column refactoring is complete. I picked up the second book to find if the answer was any different for NoSQL databases which generally are a bit more flexible when it comes to database schema. My guess is that a similar approach is needed. So far the book has given me some new ideas about what databases are for and how different databases serve different purposes. This will all be useful in going forward with a storage mechanism for RCLI.</p></li>
+<li><p>I published another five programming videos on my Youtube channel:</p>
+<ul>
+<li><a href="https://youtu.be/lqV5c_fN29Q">How to find time to work on your hobby projects?</a></li>
+<li><a href="https://youtu.be/aXkGdvKZu1A">How I got unstuck with RLCI.</a></li>
+<li><a href="https://youtu.be/GO-sfUaqbvg">Learning Python asyncio when working on CI server.</a></li>
+<li><a href="https://youtu.be/ihS0HagBfKY">What makes programming videos interesting?</a></li>
+<li><a href="https://youtu.be/uV2eeAcrxzU">Refactoring a class to test in isolation: REAL WORLD EXAMPLE</a></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Sun, 01 May 2022 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/april-2022/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>March 2022 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/march-2022/</link>
     <description><![CDATA[<h1>March 2022 Update</h1>
@@ -372,25 +397,6 @@
 ]]></description>
     <pubDate>Tue, 02 Mar 2021 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/february-2021/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Newsletter January 2021</title>
-    <link>http://rickardlindberg.me/writing/newsletter/january-2021/</link>
-    <description><![CDATA[<h1>Newsletter January 2021</h1>
-
-<p><em>Published on  2 February 2021.</em></p>
-
-<p>This is what I’ve been up to in January 2021:</p>
-<ul>
-<li><p>I posted a <a href="https://www.youtube.com/watch?v=Xh2bik1cOl0">video</a> demoing my note taking application. I have a few ideas of things I would like to improve in it. I’m thinking about recording some hacking sessions and publishing them. Let me know if you would be interested in that.</p></li>
-<li><p>I created a simple HTML file upload form to learn more how file transfer over HTTP works. I have an idea for a different kind of CI system that I would like to try and implement. It is a big project and I’ve not committed to anything, so it will likely not happen anytime soon. But I’ve had the idea for a while and felt the urge multiple times to attempt to implement it. Anyway, file transfer over HTTP might be one part of that system.</p></li>
-<li><p>I read parts of Clean Code again. Readability is important, but when reading the examples, I couldn’t help to think that no matter how clean we write our code, it would benefit from a description in prose as well. I’m thinking about Literate Programming. Why has it not caught on? Why is nobody using it? I might want to research this topic a bit. I have some practical experience with LP through RLiterate. Perhaps RLiterate can solve some problems with LP. At least it can be a playground for trying out new ideas.</p></li>
-<li><p>I continued work on the <a href="/writing/kinesis-advantage-2-swedish-setup/index.html">blog post</a> about the configuration of my Kinesis Advantage 2 keyboard.</p></li>
-</ul>
-]]></description>
-    <pubDate>Tue, 02 Feb 2021 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/newsletter/january-2021/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 

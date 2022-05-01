@@ -7,8 +7,33 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 02 Apr 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 01 May 2022 00:00:00 UT</lastBuildDate>
         <item>
+    <title>April 2022 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/april-2022/</link>
+    <description><![CDATA[<h1>April 2022 Update</h1>
+
+<p><em>Published on  1 May 2022.</em></p>
+
+<p>This is what I’ve been up to in April 2022:</p>
+<ul>
+<li><p>I continued working on <a href="https://github.com/rickardlindberg/rlci/">RLCI</a>. In particular I started working on the server component and wrote it using <a href="https://docs.python.org/3/library/asyncio.html">asyncio</a>. So far, that feels like a good choice.</p></li>
+<li><p>I read <a href="https://www.martinfowler.com/books/refactoringDatabases.html">Refactoring databases</a> and started reading <a href="https://www.martinfowler.com/books/nosql.html">NoSQL Distilled</a>. The reason I picked up the first one was that I sought to understand how you can do zero-downtime deployments and still evolve your database. That is, how can both an old version of an application and a new version of an application work with the same database? The answer was that you must evolve your database schema such that it is compatible with both versions. So if you move a column for example, you can create a trigger that make sure that both the old and the new column are in sync. And when a transition period is over, you can drop the old column, and the move column refactoring is complete. I picked up the second book to find if the answer was any different for NoSQL databases which generally are a bit more flexible when it comes to database schema. My guess is that a similar approach is needed. So far the book has given me some new ideas about what databases are for and how different databases serve different purposes. This will all be useful in going forward with a storage mechanism for RCLI.</p></li>
+<li><p>I published another five programming videos on my Youtube channel:</p>
+<ul>
+<li><a href="https://youtu.be/lqV5c_fN29Q">How to find time to work on your hobby projects?</a></li>
+<li><a href="https://youtu.be/aXkGdvKZu1A">How I got unstuck with RLCI.</a></li>
+<li><a href="https://youtu.be/GO-sfUaqbvg">Learning Python asyncio when working on CI server.</a></li>
+<li><a href="https://youtu.be/ihS0HagBfKY">What makes programming videos interesting?</a></li>
+<li><a href="https://youtu.be/uV2eeAcrxzU">Refactoring a class to test in isolation: REAL WORLD EXAMPLE</a></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Sun, 01 May 2022 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/april-2022/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>March 2022 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/march-2022/</link>
     <description><![CDATA[<h1>March 2022 Update</h1>
@@ -1660,32 +1685,6 @@ bar()
 ]]></description>
     <pubDate>Tue, 04 May 2021 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/april-2021/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Newsletter March 2021</title>
-    <link>http://rickardlindberg.me/writing/newsletter/march-2021/</link>
-    <description><![CDATA[<h1>Newsletter March 2021</h1>
-
-<p><em>Published on  4 April 2021.</em></p>
-
-<p>This is what I’ve been up to in March 2021:</p>
-<ul>
-<li><p>I recorded and published 7 videos where I hack on Smart Notes:</p>
-<ul>
-<li><a href="https://youtu.be/Qsho_NbXj2M">Smart Notes Table Feature Session 2: Event Bubbling</a></li>
-<li><a href="https://youtu.be/YdSgqCDQo8U">Smart Notes Table Feature Session 3: Parent</a></li>
-<li><a href="https://youtu.be/6hnu9hbE3zI">Smart Notes Hacking Session #5: Bubble Base and Trouble Drawing</a></li>
-<li><a href="https://youtu.be/AwtkiRIUFdQ">Smart Notes Hacking Session #6: Base Interaction 1</a></li>
-<li><a href="https://youtu.be/iIlbNr9EM4E">Smart Notes Hacking Session #7: Base Interaction 2</a></li>
-<li><a href="https://youtu.be/mOwefiHJ_YU">Smart Notes Hacking Session #8: Private Access Removal 1</a></li>
-<li><a href="https://youtu.be/w6TNMC_MG9o">Smart Notes Hacking Session #9: Private Access Removal 2</a></li>
-</ul></li>
-<li><p>In the process of editing the videos, I learned about audio editing in Audacity and Ardour.</p></li>
-</ul>
-]]></description>
-    <pubDate>Sun, 04 Apr 2021 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/newsletter/march-2021/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
