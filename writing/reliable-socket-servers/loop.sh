@@ -1,4 +1,5 @@
 while true; do
     echo "$@"
-    "$@" || echo "restarting"
+    "$@" || true
+    echo "restarting"
 done

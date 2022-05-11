@@ -370,6 +370,7 @@ patternPostIndexPandoc =
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
          "writing/rlmeta-poster-2/index.markdown"
+    .||. "writing/reliable-socket-servers/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =

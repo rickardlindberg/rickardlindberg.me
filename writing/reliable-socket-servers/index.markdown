@@ -20,8 +20,7 @@ it.
 
 ## The problem with a crashing server
 
-To illustrate the problem with a crashing server, we will use the example
-server below.
+To illustrate the problem with a crashing server, we use the example below.
 
 `server-listen.py`:
 
@@ -46,7 +45,7 @@ This is a TCP server, listening on port 9000, reading numbers from clients, and
 echoing them back. It assumes that the data received can be parsed as an
 integer. If the parsing fails, the server crashes.
 
-To test the behavior of the server, we have the following client:
+To test the behavior of the server, we use the following client:
 
 `client.py`:
 
@@ -124,7 +123,7 @@ crashed, and there is no one listening on port 9000.
 
 In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
-infinite loop.
+infinite loop using a script like the one below:
 
 `loop.sh`:
 
@@ -135,7 +134,7 @@ while true; do
 done
 ```
 
-This Bash script takes a command to run as argument and runs that program in a
+This Bash script takes a command to run as argument and runs that command in a
 loop, ignoring any exit code.
 
 Invoking the server and client again, we get the following output:
@@ -197,9 +196,17 @@ subsequent requests, we only drop a few.
 But during the time between the server crash and a new process been started,
 there is no one listening on port 9000 and we still drop connections.
 
-How can we make sure to not drop any connections?
+How can we make sure to answer all connections?
 
-## Solution: separate listening on a socket and accepting connections into different processes
+## Solution: separate listening on a socket and accepting connections
+
+The trick, as also demonstrated in the blog post, is to listen on the socket in
+one process and accept connections and processing requests in another process.
+That way, if processing fails, and that process dies, the socket still stays
+open because it is managed by another process.
+
+Here is a program that listens on a socket and then spawns another process in a
+loop to accept connections:
 
 Here is `server-listen-loop.py`:
 
@@ -216,6 +223,14 @@ with socket.socket() as s:
     os.close(s.fileno())
     os.execvp("bash", ["bash", "loop.sh", "python", "server-accept.py"])
 ```
+
+The first part of this program creates a socket and starts listening.
+
+The last part starts executing the command `bash loop.sh python
+server-accept.py`. At this point the process is listening on the socket and
+starts the `server-accept.py` program in a loop.
+
+The `server-accept.py` program is similar to `server-listen.py`, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):
 
 Here is `server-accept.py`:
 
@@ -272,9 +287,13 @@ $ python client.py
 0ms got number 20
 ```
 
-We can see that request number six takes longer to complete. That is because
-the server needs to start and `accept` the socket. But it doesn't fail. The
-client will not get connection errors.
+Now all requests that we send get a response. We see that request number six
+takes longer to complete. That is because the server needs to start and
+`accept` the socket. But it doesn't fail. The client will not get connection
+errors.
+
+And this is one way to write a reliable socket servers that survive crashes and
+restarts.
 
 ## Questions & Answers
 
@@ -320,3 +339,5 @@ Don't kill server if client request failed
 Well, yes, that is how I learned about it in the blog post.
 
 ### Can we use this technique to create a load balancer?
+
+### Unix domain socket vs. TCP socket
