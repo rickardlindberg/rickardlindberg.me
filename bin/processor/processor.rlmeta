@@ -1,0 +1,14 @@
+Processor {
+    file = header:x line*:xs !. -> { pre(x) xs }
+    header = sep keys:x sep -> dict():keys -> x -> keys
+    keys = key*:xs -> xs
+    sep = '---\n'
+    key =
+        | 'tags: ' commasep:x '\n' -> set(keys "tags" x)
+        | !sep (! ':' .)*:xs ': ' line:y -> set(keys {xs} y)
+    commasep = item:x -> [x]
+    item = (!delimiter .)*:xs -> { xs }
+    delimiter = ',' | ' ' | '\n'
+    line =
+        | (! '\n' .)*:xs '\n' -> { xs "\n" }
+}
