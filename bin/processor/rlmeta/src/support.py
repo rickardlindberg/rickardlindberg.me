@@ -217,13 +217,13 @@ def join(items, delimiter=""):
 def indent(text, prefix="    "):
     return "".join(prefix+line for line in text.splitlines(True))
 
-def compile_chain(grammars, source):
+def compile_chain(grammars, source, runtime={}):
     import os
     import sys
     import pprint
     for grammar, rule in grammars:
         try:
-            source = grammar().run(rule, source)
+            source = grammar().run(rule, source, runtime)
         except MatchError as e:
             marker = "<ERROR POSITION>"
             if os.isatty(sys.stderr.fileno()):
