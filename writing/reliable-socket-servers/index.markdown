@@ -1,10 +1,10 @@
 ---
-title: DRAFT: How to write reliable socket servers that survive crashes and restart?
+title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
 date: 2022-05-15
 tags: draft
 ---
 
-*This is a draft.*
+**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 This past weekend I was researching how to do zero-downtime deployments and
 found the wonderful blog post [Dream Deploys: Atomic, Zero-Downtime
