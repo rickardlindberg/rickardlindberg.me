@@ -2,13 +2,13 @@ def pre(header):
     lines = []
     lines.append("---\n")
     if "draft" in header.get("tags", []):
-        header["title"] = f"DRAFT: {header['title']}"
-        header["date"] = datetime.datetime.now().isoformat()[:10] + "\n"
+        header["title"] = repr(f"DRAFT: {header['title']}")
+        header["date"] = datetime.datetime.now().isoformat()[:10]
         for key, value in header.items():
             if isinstance(value, list):
                 lines.append(f"{key}: {','.join(value)}\n")
             else:
-                lines.append(f"{key}: {value}")
+                lines.append(f"{key}: {value}\n")
     lines.append("---\n")
     if "draft" in header.get("tags", []):
         lines.append("\n")

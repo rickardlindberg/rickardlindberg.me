@@ -5,7 +5,7 @@ Processor {
     sep = '---\n'
     key =
         | 'tags: ' commasep:x '\n' -> set(keys "tags" x)
-        | !sep (! ':' .)*:xs ': ' line:y -> set(keys {xs} y)
+        | !sep (! ':' .)*:xs ': ' linex:y '\n' -> set(keys {xs} y)
     commasep = item:x -> [x]
     item = (!delimiter .)*:xs -> { xs }
     delimiter = ',' | ' ' | '\n'
