@@ -17,6 +17,7 @@ In this blog post I want to document that trick and my understanding of it.
 ## TODO
 
 * Make service double multiplication service
+* Clean up client code
 
 ## The problem with a crashing server
 
@@ -86,14 +87,7 @@ In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
 infinite loop using a script like the one below:
 
-`loop.sh`:
-
-```bash
-while true; do
-    echo "$@"
-    "$@" || echo "restarting"
-done
-```
+$:code:loop.sh
 
 This Bash script takes a command to run as argument and runs that command in a
 loop, ignoring any exit code.
@@ -171,19 +165,7 @@ loop to accept connections:
 
 Here is `server-listen-loop.py`:
 
-```python
-import os
-import socket
-
-with socket.socket() as s:
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("localhost", 9000))
-    s.listen()
-    print("listening on port 9000")
-    os.dup2(s.fileno(), 0)
-    os.close(s.fileno())
-    os.execvp("bash", ["bash", "loop.sh", "python", "server-accept.py"])
-```
+$:code:server-listen-loop.py
 
 The first part of this program creates a socket and starts listening.
 
@@ -195,18 +177,7 @@ The `server-accept.py` program is similar to `server-listen.py`, but instead of 
 
 Here is `server-accept.py`:
 
-```python
-import socket
-
-with socket.socket(fileno=0) as s:
-    print("accepting connections")
-    while True:
-        conn, addr = s.accept()
-        with conn:
-            data = conn.recv(100)
-            number = int(data)
-            conn.sendall(f"got number {number}\n".encode("ascii"))
-```
+$:code:server-accept.py
 
 Again:
 
