@@ -35,7 +35,21 @@ def code(path, start=None, end=None):
     joined = "".join(lines)
     if start is not None or end is not None:
         joined = textwrap.dedent(joined)
-    return subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    x = subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    return [
+        '<div class="rliterate-code">',
+        '<div class="rliterate-code-header">',
+        '<ol class="rliterate-code-path">',
+        '<li>',
+        path,
+        '</li>',
+        '</ol>',
+        '</div>',
+        '<div class="rliterate-code-body">',
+    ]+x+[
+        '</div>',
+        '</div>',
+    ]
 
 if __name__ == "__main__":
     import sys
