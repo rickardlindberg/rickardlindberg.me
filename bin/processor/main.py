@@ -51,6 +51,29 @@ def code(path, start=None, end=None):
         '</div>',
     ]
 
+def output(title, text):
+    pygments_cmd = ["pygmentize"]
+    pygments_cmd.extend(["-f", "html"])
+    pygments_cmd.extend(["-l", "text"])
+    joined = text
+    x = subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    return [
+        '<div class="rliterate-code">',
+        '<div class="rliterate-code-header">',
+        '<ol class="rliterate-code-path">',
+        '<li>',
+        '<span class="cp">',
+        title,
+        '</span>',
+        '</li>',
+        '</ol>',
+        '</div>',
+        '<div class="rliterate-code-body">',
+    ]+x+[
+        '</div>',
+        '</div>',
+    ]
+
 if __name__ == "__main__":
     import sys
     import datetime
@@ -62,5 +85,5 @@ if __name__ == "__main__":
                 dest.write(compile_chain(
                     [(Processor, "file")],
                     source.read(),
-                    {"pre": pre, "code": code}
+                    {"pre": pre, "code": code, "output": output}
                 ))

@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
-date: 2022-06-06
+date: 2022-06-07
 tags: draft
 ---
 
@@ -76,22 +76,18 @@ to cause the server to crash.
 
 If we start the server, then the client, the output looks as follows:
 
-`server output`
-
-```
-$ python server-listen.py 
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen.py 
 listening on port 9000
 accepting connections
 Traceback (most recent call last):
-  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py", line 13, in <module>
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
     number = int(data)
-ValueError: invalid literal for int() with base 10: b'five\n'
-```
-
-`client output`
-
-```
-$ python client.py 
+ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
+</pre></div>
+</div></div>
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
 0ms got number 1
 0ms got number 2
 0ms got number 3
@@ -112,8 +108,8 @@ $ python client.py
 18 failed
 19 failed
 20 failed
-```
-
+</pre></div>
+</div></div>
 In the client output, we see that request number five never receives a response
 from the server and that subsequent requests fail because the server has
 crashed, and there is no one listening on port 9000.
@@ -137,27 +133,23 @@ loop, ignoring any exit code.
 
 Invoking the server and client again, we get the following output:
 
-`server output`
-
-```
-$ bash loop.sh python server-listen.py 
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ bash loop.sh python server-listen.py 
 python server-listen.py
 listening on port 9000
 accepting connections
 Traceback (most recent call last):
-  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py", line 13, in <module>
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
     number = int(data)
-ValueError: invalid literal for int() with base 10: b'five\n'
+ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
 restarting
 python server-listen.py
 listening on port 9000
 accepting connections
-```
-
-`client output`
-
-```
-$ python client.py 
+</pre></div>
+</div></div>
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
 0ms got number 1
 0ms got number 2
 0ms got number 3
@@ -178,8 +170,8 @@ $ python client.py
 0ms got number 18
 0ms got number 19
 0ms got number 20
-```
-
+</pre></div>
+</div></div>
 In the server output, we see that the server starts again after the crash and
 starts listening to port 9000.
 
@@ -247,22 +239,22 @@ Here is `server-accept.py`:
 
 Again:
 
-```
-$ python server-listen-loop.py 
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen-loop.py 
 listening on port 9000
 python server-accept.py
 accepting connections
 Traceback (most recent call last):
-  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py", line 9, in <module>
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py&quot;, line 9, in &lt;module&gt;
     number = int(data)
-ValueError: invalid literal for int() with base 10: b'five\n'
+ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
 restarting
 python server-accept.py
 accepting connections
-```
-
-```
-$ python client.py 
+</pre></div>
+</div></div>
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
 0ms got number 1
 0ms got number 2
 0ms got number 3
@@ -283,8 +275,8 @@ $ python client.py
 0ms got number 18
 0ms got number 19
 0ms got number 20
-```
-
+</pre></div>
+</div></div>
 Now all requests that we send get a response. We see that request number six
 takes longer to complete. That is because the server needs to start and
 `accept` the socket. But it doesn't fail. The client will not get connection
