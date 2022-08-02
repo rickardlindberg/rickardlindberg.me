@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
-date: 2022-06-07
+date: 2022-08-02
 tags: draft
 ---
 
@@ -16,11 +16,6 @@ times even during a restart.
 
 In this blog post I want to document that trick and my understanding of it.
 
-## TODO
-
-* Make service double multiplication service
-* Clean up client code
-
 ## The problem with a crashing server
 
 To illustrate the problem with a crashing server, we use the example below.
@@ -30,48 +25,54 @@ To illustrate the problem with a crashing server, we use the example below.
 <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
     <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connections&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
             <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;got number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
 </pre></div>
 </div></div>
 
 This is a TCP server, listening on port 9000, reading numbers from clients, and
-echoing them back. It assumes that the data received can be parsed as an
-integer. If the parsing fails, the server crashes.
+reporting the product of the two numbers. It assumes that numbers can be parsed
+as integers. If parsing fails, the server crashes.
 
 To test the behavior of the server, we use the following client:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>client.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">21</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;five</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">prev</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">ms </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
-    <span class="n">prev</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">make_request</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;five</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">make_request</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> (request took </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">ms)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No response for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection failed for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
 </pre></div>
 </div></div>
 
-It sends 20 requests to the server with a 0.01s delay between them. However, on
-the fifth request, instead of sending the number `5` it sends the string `five`
+It sends 20 requests to the server with a 10ms delay between them. However, on
+sixth request, instead of sending the number `5` it sends the string `five`
 to cause the server to crash.
 
 If we start the server, then the client, the output looks as follows:
@@ -79,7 +80,12 @@ If we start the server, then the client, the output looks as follows:
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen.py 
 listening on port 9000
-accepting connections
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
 Traceback (most recent call last):
   File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
     number = int(data)
@@ -88,29 +94,29 @@ ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
 </div></div>
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
-0ms got number 1
-0ms got number 2
-0ms got number 3
-0ms got number 4
-0ms 
-6 failed
-7 failed
-8 failed
-9 failed
-10 failed
-11 failed
-12 failed
-13 failed
-14 failed
-15 failed
-16 failed
-17 failed
-18 failed
-19 failed
-20 failed
+0*0=0 (request took 1ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 0ms)
+3*3=9 (request took 0ms)
+4*4=16 (request took 0ms)
+No response for 5
+Connection failed for 6
+Connection failed for 7
+Connection failed for 8
+Connection failed for 9
+Connection failed for 10
+Connection failed for 11
+Connection failed for 12
+Connection failed for 13
+Connection failed for 14
+Connection failed for 15
+Connection failed for 16
+Connection failed for 17
+Connection failed for 18
+Connection failed for 19
 </pre></div>
 </div></div>
-In the client output, we see that request number five never receives a response
+In the client output, we see that request number six never receives a response
 from the server and that subsequent requests fail because the server has
 crashed, and there is no one listening on port 9000.
 
@@ -134,10 +140,15 @@ loop, ignoring any exit code.
 Invoking the server and client again, we get the following output:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ bash loop.sh python server-listen.py 
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
-accepting connections
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
 Traceback (most recent call last):
   File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
     number = int(data)
@@ -145,46 +156,51 @@ ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
 restarting
 python server-listen.py
 listening on port 9000
-accepting connections
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
 </pre></div>
 </div></div>
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
-0ms got number 1
-0ms got number 2
-0ms got number 3
-0ms got number 4
-0ms 
-6 failed
-7 failed
-8 failed
-9 failed
-10 failed
-11 failed
-12 failed
-13 failed
-14 failed
-15 failed
-16 failed
-0ms got number 17
-0ms got number 18
-0ms got number 19
-0ms got number 20
+0*0=0 (request took 1ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 0ms)
+3*3=9 (request took 1ms)
+4*4=16 (request took 0ms)
+No response for 5
+Connection failed for 6
+Connection failed for 7
+Connection failed for 8
+Connection failed for 9
+Connection failed for 10
+Connection failed for 11
+Connection failed for 12
+Connection failed for 13
+14*14=196 (request took 0ms)
+15*15=225 (request took 0ms)
+16*16=256 (request took 0ms)
+17*17=289 (request took 0ms)
+18*18=324 (request took 0ms)
+19*19=361 (request took 1ms)
 </pre></div>
 </div></div>
 In the server output, we see that the server starts again after the crash and
-starts listening to port 9000.
+starts listening on port 9000.
 
-In the client output, we see that request five fails the same way, but after a
-few more request, it starts getting responses again at request 17.
+In the client output, we see that request six fails the same way, but after a
+few more request, it starts getting responses again at request 15.
 
 ## The problem with a restarting server
 
 Running the server in a loop is an improvement. Instead of dropping all
 subsequent requests, we only drop a few.
 
-But during the time between the server crash and a new process been started,
-there is no one listening on port 9000 and we still drop connections.
+But during the time between the server crash and a new server being up, there
+is no one listening on port 9000 and we still drop connections.
 
 How can we make sure to answer all connections?
 
@@ -206,8 +222,8 @@ Here is `server-listen-loop.py`:
 <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
     <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -216,68 +232,89 @@ Here is `server-listen-loop.py`:
 
 The first part of this program creates a socket and starts listening.
 
-The last part starts executing the command `bash loop.sh python
+The second part starts executing the command `bash loop.sh python
 server-accept.py`. At this point the process is listening on the socket and
-starts the `server-accept.py` program in a loop.
+starts the `server-accept.py` program in a loop. As long as the `loop.sh`
+script doesn't exit, there will be someone listening on port 9000.
 
-The `server-accept.py` program is similar to `server-listen.py`, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):
+The `server-accept.py` program is similar to `server-listen.py`, but instead of
+listening on port 9000, it just accepts connections on the socket which is
+passed to it as file descriptor 0 (stdin):
 
 Here is `server-accept.py`:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connections&quot;</span><span class="p">)</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
             <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;got number </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
 </pre></div>
 </div></div>
 
 Again:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen-loop.py 
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
-accepting connections
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
 Traceback (most recent call last):
   File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py&quot;, line 9, in &lt;module&gt;
     number = int(data)
 ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
 restarting
 python server-accept.py
-accepting connections
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
 </pre></div>
 </div></div>
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
-0ms got number 1
-0ms got number 2
-0ms got number 3
-0ms got number 4
-0ms 
-108ms got number 6
-0ms got number 7
-1ms got number 8
-0ms got number 9
-0ms got number 10
-0ms got number 11
-0ms got number 12
-0ms got number 13
-0ms got number 14
-0ms got number 15
-0ms got number 16
-0ms got number 17
-0ms got number 18
-0ms got number 19
-0ms got number 20
+0*0=0 (request took 0ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 1ms)
+3*3=9 (request took 0ms)
+4*4=16 (request took 0ms)
+No response for 5
+6*6=36 (request took 106ms)
+7*7=49 (request took 0ms)
+8*8=64 (request took 1ms)
+9*9=81 (request took 0ms)
+10*10=100 (request took 0ms)
+11*11=121 (request took 1ms)
+12*12=144 (request took 0ms)
+13*13=169 (request took 0ms)
+14*14=196 (request took 0ms)
+15*15=225 (request took 0ms)
+16*16=256 (request took 1ms)
+17*17=289 (request took 0ms)
+18*18=324 (request took 0ms)
+19*19=361 (request took 1ms)
 </pre></div>
 </div></div>
-Now all requests that we send get a response. We see that request number six
+Now all requests that we send get a response. We see that request number seven
 takes longer to complete. That is because the server needs to start and
 `accept` the socket. But it doesn't fail. The client will not get connection
 errors.

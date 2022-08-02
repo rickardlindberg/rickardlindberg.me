@@ -1,19 +1,25 @@
 import socket
 import time
 
-for i in range(21):
-    if i > 0:
-        try:
-            with socket.socket() as s:
-                s.connect(("localhost", 9000))
-                if i == 5:
-                    s.sendall(b"five\n")
-                else:
-                    s.sendall(f"{i}\n".encode("ascii"))
-                message = s.recv(100).decode("ascii").rstrip()
-                diff = int((time.perf_counter() - prev) * 1000)
-                print(f"{diff}ms {message}")
-        except:
-            print(f"{i} failed")
-        time.sleep(0.01)
-    prev = time.perf_counter()
+def make_request(number):
+    with socket.socket() as s:
+        s.connect(("localhost", 9000))
+        if number == 5:
+            s.sendall(b"five\n")
+        else:
+            s.sendall(f"{number}\n".encode("ascii"))
+        return s.recv(100).decode("ascii").rstrip()
+
+for i in range(20):
+    try:
+        time_start = time.perf_counter()
+        message = make_request(i)
+        time_end = time.perf_counter()
+        diff = int((time_end - time_start) * 1000)
+        if message:
+            print(f"{message} (request took {diff}ms)")
+        else:
+            print(f"No response for {i}")
+    except:
+        print(f"Connection failed for {i}")
+    time.sleep(0.01)

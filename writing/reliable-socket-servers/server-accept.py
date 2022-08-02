@@ -1,10 +1,10 @@
 import socket
 
 with socket.socket(fileno=0) as s:
-    print("accepting connections")
     while True:
         conn, addr = s.accept()
+        print("accepting connection")
         with conn:
             data = conn.recv(100)
             number = int(data)
-            conn.sendall(f"got number {number}\n".encode("ascii"))
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
