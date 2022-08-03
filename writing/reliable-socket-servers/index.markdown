@@ -1,12 +1,12 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
-date: 2022-08-02
+date: 2022-08-03
 tags: draft
 ---
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
-This past weekend I was researching how to do zero-downtime deployments and
+A few months ago, I was researching how to do zero-downtime deployments and
 found the wonderful blog post [Dream Deploys: Atomic, Zero-Downtime
 Deployments](https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments).
 
@@ -71,9 +71,9 @@ To test the behavior of the server, we use the following client:
 </pre></div>
 </div></div>
 
-It sends 20 requests to the server with a 10ms delay between them. However, on
-sixth request, instead of sending the number `5` it sends the string `five`
-to cause the server to crash.
+It sends 20 requests to the server with a 10ms delay between them. However, for
+request with number 5, instead of sending the number `5` it sends the string
+`five` to cause the server to crash.
 
 If we start the server, then the client, the output looks as follows:
 
@@ -116,11 +116,11 @@ Connection failed for 18
 Connection failed for 19
 </pre></div>
 </div></div>
-In the client output, we see that request number six never receives a response
-from the server and that subsequent requests fail because the server has
-crashed, and there is no one listening on port 9000.
+In the client output, we see that request with number 5 never receives a
+response from the server and that subsequent requests fail because the server
+has crashed, and there is no one listening on port 9000.
 
-## Solution: restart server in loop
+## Solution: restart the server in loop
 
 In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
@@ -191,8 +191,9 @@ Connection failed for 13
 In the server output, we see that the server starts again after the crash and
 starts listening on port 9000.
 
-In the client output, we see that request six fails the same way, but after a
-few more request, it starts getting responses again at request 15.
+In the client output, we see that request with number 5 fails the same way, but
+after a few more request, it starts getting responses again at request with
+number 14.
 
 ## The problem with a restarting server
 
@@ -314,8 +315,8 @@ No response for 5
 19*19=361 (request took 1ms)
 </pre></div>
 </div></div>
-Now all requests that we send get a response. We see that request number seven
-takes longer to complete. That is because the server needs to start and
+Now all requests that we send get a response. We see that request with number
+six takes longer to complete. That is because the server needs to start and
 `accept` the socket. But it doesn't fail. The client will not get connection
 errors.
 
