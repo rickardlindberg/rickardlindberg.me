@@ -158,10 +158,10 @@ How can we make sure to answer all connections?
 
 ## Solution: separate listening on a socket and accepting connections
 
-The trick, as also demonstrated in the blog post, is to listen on the socket in
-one process and accept connections and processing requests in another process.
-That way, if processing fails, and that process dies, the socket still stays
-open because it is managed by another process.
+The trick, as also demonstrated in Alan's blog post, is to listen on the socket
+in one process and accept connections and processing requests in another
+process.  That way, if processing fails, and that process dies, the socket
+still stays open because it is managed by another process.
 
 Here is a program that listens on a socket and then spawns another process in a
 loop to accept connections:
