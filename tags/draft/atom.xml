@@ -8,20 +8,20 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2022-08-02T00:00:00Z</updated>
+    <updated>2022-08-03T00:00:00Z</updated>
     <entry>
     <title>DRAFT: How to write reliable socket servers that survive crashes and restart?</title>
     <link href="http://rickardlindberg.me/writing/reliable-socket-servers/" />
     <id>http://rickardlindberg.me/writing/reliable-socket-servers/</id>
-    <published>2022-08-02T00:00:00Z</published>
-    <updated>2022-08-02T00:00:00Z</updated>
+    <published>2022-08-03T00:00:00Z</published>
+    <updated>2022-08-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: How to write reliable socket servers that survive crashes and restart?</h1>
 
-<p><em>Published on  2 August 2022.</em></p>
+<p><em>Published on  3 August 2022.</em></p>
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
-<li><a href="#solution-restart-server-in-loop">Solution: restart server in loop</a></li>
+<li><a href="#solution-restart-the-server-in-loop">Solution: restart the server in loop</a></li>
 <li><a href="#the-problem-with-a-restarting-server">The problem with a restarting server</a></li>
 <li><a href="#solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</a></li>
 <li><a href="#questions-answers">Questions &amp; Answers</a>
@@ -39,7 +39,7 @@
 </ul></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>This past weekend I was researching how to do zero-downtime deployments and found the wonderful blog post <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Dream Deploys: Atomic, Zero-Downtime Deployments</a>.</p>
+<p>A few months ago, I was researching how to do zero-downtime deployments and found the wonderful blog post <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Dream Deploys: Atomic, Zero-Downtime Deployments</a>.</p>
 <p>In it, Alan describes how separating listening on a socket and accepting connections on it into different processes can keep a socket “live” at all times even during a restart.</p>
 <p>In this blog post I want to document that trick and my understanding of it.</p>
 <h2 id="the-problem-with-a-crashing-server">The problem with a crashing server</h2>
@@ -113,7 +113,7 @@ client.py
 </div>
 </div>
 </div>
-<p>It sends 20 requests to the server with a 10ms delay between them. However, on sixth request, instead of sending the number <code>5</code> it sends the string <code>five</code> to cause the server to crash.</p>
+<p>It sends 20 requests to the server with a 10ms delay between them. However, for request with number 5, instead of sending the number <code>5</code> it sends the string <code>five</code> to cause the server to crash.</p>
 <p>If we start the server, then the client, the output looks as follows:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -176,8 +176,8 @@ Connection failed for 19
 </div>
 </div>
 </div>
-<p>In the client output, we see that request number six never receives a response from the server and that subsequent requests fail because the server has crashed, and there is no one listening on port 9000.</p>
-<h2 id="solution-restart-server-in-loop">Solution: restart server in loop</h2>
+<p>In the client output, we see that request with number 5 never receives a response from the server and that subsequent requests fail because the server has crashed, and there is no one listening on port 9000.</p>
+<h2 id="solution-restart-the-server-in-loop">Solution: restart the server in loop</h2>
 <p>In order for subsequent requests to succeed, we need to start the server again after it has crashed. One way to do that is to run the server program in an infinite loop using a script like the one below:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -272,13 +272,13 @@ Connection failed for 13
 </div>
 </div>
 <p>In the server output, we see that the server starts again after the crash and starts listening on port 9000.</p>
-<p>In the client output, we see that request six fails the same way, but after a few more request, it starts getting responses again at request 15.</p>
+<p>In the client output, we see that request with number 5 fails the same way, but after a few more request, it starts getting responses again at request with number 14.</p>
 <h2 id="the-problem-with-a-restarting-server">The problem with a restarting server</h2>
 <p>Running the server in a loop is an improvement. Instead of dropping all subsequent requests, we only drop a few.</p>
 <p>But during the time between the server crash and a new server being up, there is no one listening on port 9000 and we still drop connections.</p>
 <p>How can we make sure to answer all connections?</p>
 <h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
-<p>The trick, as also demonstrated in the blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
+<p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
 <p>Here is a program that listens on a socket and then spawns another process in a loop to accept connections:</p>
 <p>Here is <code>server-listen-loop.py</code>:</p>
 <div class="rliterate-code">
@@ -413,7 +413,7 @@ No response for 5
 </div>
 </div>
 </div>
-<p>Now all requests that we send get a response. We see that request number seven takes longer to complete. That is because the server needs to start and <code>accept</code> the socket. But it doesn’t fail. The client will not get connection errors.</p>
+<p>Now all requests that we send get a response. We see that request with number six takes longer to complete. That is because the server needs to start and <code>accept</code> the socket. But it doesn’t fail. The client will not get connection errors.</p>
 <p>And this is one way to write a reliable socket servers that survive crashes and restarts.</p>
 <h2 id="questions-answers">Questions &amp; Answers</h2>
 <h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
