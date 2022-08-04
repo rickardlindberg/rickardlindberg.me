@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
-date: 2022-08-03
+date: 2022-08-04
 tags: draft
 ---
 
@@ -212,8 +212,8 @@ in one process and accept connections and processing requests in another
 process.  That way, if processing fails, and that process dies, the socket
 still stays open because it is managed by another process.
 
-Here is a program that listens on a socket and then spawns another process in a
-loop to accept connections:
+Here is a program that listens on a socket and then spawns processes in a loop
+to accept connections:
 
 Here is `server-listen-loop.py`:
 
@@ -231,9 +231,13 @@ Here is `server-listen-loop.py`:
 </pre></div>
 </div></div>
 
-The first part of this program creates a socket and starts listening.
+The first part of this program creates a socket and starts listening. This is
+what we had in the previous example.
 
-The second part starts executing the command `bash loop.sh python
+The second part moves the file descriptor of the socket to file descriptor 0
+(stdin).
+
+The third part replaces the current process with `bash loop.sh python
 server-accept.py`. At this point the process is listening on the socket and
 starts the `server-accept.py` program in a loop. As long as the `loop.sh`
 script doesn't exit, there will be someone listening on port 9000.
@@ -257,7 +261,7 @@ Here is `server-accept.py`:
 </pre></div>
 </div></div>
 
-Again:
+Invoking the server and client again, we get the following output:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen-loop.py
@@ -316,11 +320,11 @@ No response for 5
 </pre></div>
 </div></div>
 Now all requests that we send get a response. We see that request with number
-six takes longer to complete. That is because the server needs to start and
-`accept` the socket. But it doesn't fail. The client will not get connection
-errors.
+six takes longer to complete. That is because `server-listen-loop.py` needs
+time to start up (by the loop script) and call `accept` on the socket. But the
+request doesn't fail. The client will not get connection errors.
 
-And this is one way to write a reliable socket servers that survive crashes and
+And this is one way to write reliable socket servers that survive crashes and
 restarts.
 
 ## Questions & Answers
@@ -354,6 +358,8 @@ again, we can as well use a regular program and create the socket ourselves.
 
 ### Why sleep in loop?
 
+https://github.com/acg/dream-deploys/blob/master/loop-forever
+
 ### Is dup needed?
 
 Python file descriptors not inheritable.
@@ -369,3 +375,7 @@ Well, yes, that is how I learned about it in the blog post.
 ### Can we use this technique to create a load balancer?
 
 ### Unix domain socket vs. TCP socket
+
+### Why is execvp needed?
+
+https://github.com/acg/dream-deploys/blob/master/tcplisten
