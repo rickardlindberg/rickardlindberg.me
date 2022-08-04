@@ -331,6 +331,46 @@ restarts.
 
 ### How long will a socket wait before timing out?
 
+I tried to modify the loop script to sleep for 60 seconds before restarting the
+server:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>loop-sleep.sh</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
+    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
+    sleep <span class="m">60</span>
+<span class="k">done</span>
+</pre></div>
+</div></div>
+
+The client output looked as follows:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>...
+No response for 5
+6*6=36 (request took 60123ms)
+7*7=49 (request took 0ms)
+...
+</pre></div>
+</div></div>
+So it seems that the client got no errors even though the response took 60
+seconds to arrive.
+
+I suppose you can put a timeout in the client code. But this question was about
+how long the operating system on the server will keep the connection "alive"
+even though no one calls `accept`.
+
+I suppose the operating system has some kind of buffer. Say that there are
+multiple clients making requests at the same time and the server never calls
+`accept` during that time. Eventually some buffer must be exceeded and
+connections get dropped.
+
+(It seems that the client hangs on the `s.recv` call. That means that the
+request was sent to the server and must have filled up some buffer.)
+
+If anyone can point me to documentation where I can read about this behavior,
+please drop me a line.
+
 ### Can we improve on the long startup time?
 
 * Have another process in standby and tell it to start listening somehow?
