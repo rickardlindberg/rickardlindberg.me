@@ -406,6 +406,15 @@ All of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
 closed, and subsequent requests will get connection failures.
 
+### Can we use this technique to create a load balancer?
+
+Well, yes.
+
+If the loop script spawns multiple server processes, the operating system will
+load balance between them.
+
+No fancy load balancing software needed.
+
 ### Why socket option REUSE?
 
 ### Is this how supervisor works?
@@ -442,8 +451,6 @@ Don't kill server if client request failed
 ### Can this mechanism be used for zero-downtime deploy
 
 Well, yes, that is how I learned about it in the blog post.
-
-### Can we use this technique to create a load balancer?
 
 ### Unix domain socket vs. TCP socket
 
