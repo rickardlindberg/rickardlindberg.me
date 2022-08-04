@@ -292,9 +292,28 @@ request was sent to the server and must have filled up some buffer.)
 If anyone can point me to documentation where I can read about this behavior,
 please drop me a line.
 
-### Can we improve on the long startup time?
+### Can we decrease the startup time?
 
-* Have another process in standby and tell it to start listening somehow?
+When the loop script restarts the server, it takes ~100ms for it to come up and
+process requests. How can we decrease that time?
+
+One way would be to modify the loop script to spawn multiple server processes.
+That way, if one crashes, the other can serve the next request.
+
+This would also make the server code concurrent. That is, no "global" state can
+reside in the server process, because we don't know which server process will
+serve the next request.
+
+Another solution might be to have a second process in standby mode. So the loop
+script starts a second server process, but it stops it right before calling
+accept. But then we would need a way to signal to the process to resume
+operation. Perhaps by sending it a signal?
+
+$:code:server-accept-standby.py
+
+All of these make the loop script more complicated. And if it gets more
+complicated, it is more likely to crash. And if it crashes, the socket gets
+closed, and subsequent requests will get connection failures.
 
 ### Why socket option REUSE?
 

@@ -371,9 +371,40 @@ request was sent to the server and must have filled up some buffer.)
 If anyone can point me to documentation where I can read about this behavior,
 please drop me a line.
 
-### Can we improve on the long startup time?
+### Can we decrease the startup time?
 
-* Have another process in standby and tell it to start listening somehow?
+When the loop script restarts the server, it takes ~100ms for it to come up and
+process requests. How can we decrease that time?
+
+One way would be to modify the loop script to spawn multiple server processes.
+That way, if one crashes, the other can serve the next request.
+
+This would also make the server code concurrent. That is, no "global" state can
+reside in the server process, because we don't know which server process will
+serve the next request.
+
+Another solution might be to have a second process in standby mode. So the loop
+script starts a second server process, but it stops it right before calling
+accept. But then we would need a way to signal to the process to resume
+operation. Perhaps by sending it a signal?
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-standby.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="c1"># wait for signal before proceeding</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre></div>
+</div></div>
+
+All of these make the loop script more complicated. And if it gets more
+complicated, it is more likely to crash. And if it crashes, the socket gets
+closed, and subsequent requests will get connection failures.
 
 ### Why socket option REUSE?
 
