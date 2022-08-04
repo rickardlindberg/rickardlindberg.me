@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 03 Aug 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 04 Aug 2022 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: How to write reliable socket servers that survive crashes and restart?</title>
     <link>http://rickardlindberg.me/writing/reliable-socket-servers/</link>
     <description><![CDATA[<h1>DRAFT: How to write reliable socket servers that survive crashes and restart?</h1>
 
-<p><em>Published on  3 August 2022.</em></p>
+<p><em>Published on  4 August 2022.</em></p>
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
@@ -23,15 +23,16 @@
 <li><a href="#questions-answers">Questions &amp; Answers</a>
 <ul>
 <li><a href="#how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</a></li>
-<li><a href="#can-we-improve-on-the-long-startup-time">Can we improve on the long startup time?</a></li>
+<li><a href="#can-we-decrease-the-startup-time">Can we decrease the startup time?</a></li>
+<li><a href="#can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</a></li>
 <li><a href="#why-socket-option-reuse">Why socket option REUSE?</a></li>
 <li><a href="#is-this-how-supervisor-works">Is this how supervisor works?</a></li>
 <li><a href="#why-sleep-in-loop">Why sleep in loop?</a></li>
 <li><a href="#is-dup-needed">Is dup needed?</a></li>
 <li><a href="#is-asyncio-more-reliable">Is asyncio more reliable</a></li>
 <li><a href="#can-this-mechanism-be-used-for-zero-downtime-deploy">Can this mechanism be used for zero-downtime deploy</a></li>
-<li><a href="#can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</a></li>
 <li><a href="#unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</a></li>
+<li><a href="#why-is-execvp-needed">Why is execvp needed?</a></li>
 </ul></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
@@ -275,7 +276,7 @@ Connection failed for 13
 <p>How can we make sure to answer all connections?</p>
 <h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
 <p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
-<p>Here is a program that listens on a socket and then spawns another process in a loop to accept connections:</p>
+<p>Here is a program that listens on a socket and then spawns processes in a loop to accept connections:</p>
 <p>Here is <code>server-listen-loop.py</code>:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -302,8 +303,9 @@ server-listen-loop.py
 </div>
 </div>
 </div>
-<p>The first part of this program creates a socket and starts listening.</p>
-<p>The second part starts executing the command <code>bash loop.sh python server-accept.py</code>. At this point the process is listening on the socket and starts the <code>server-accept.py</code> program in a loop. As long as the <code>loop.sh</code> script doesn’t exit, there will be someone listening on port 9000.</p>
+<p>The first part of this program creates a socket and starts listening. This is what we had in the previous example.</p>
+<p>The second part moves the file descriptor of the socket to file descriptor 0 (stdin).</p>
+<p>The third part replaces the current process with <code>bash loop.sh python server-accept.py</code>. At this point the process is listening on the socket and starts the <code>server-accept.py</code> program in a loop. As long as the <code>loop.sh</code> script doesn’t exit, there will be someone listening on port 9000.</p>
 <p>The <code>server-accept.py</code> program is similar to <code>server-listen.py</code>, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):</p>
 <p>Here is <code>server-accept.py</code>:</p>
 <div class="rliterate-code">
@@ -330,7 +332,7 @@ server-accept.py
 </div>
 </div>
 </div>
-<p>Again:</p>
+<p>Invoking the server and client again, we get the following output:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
@@ -409,14 +411,91 @@ No response for 5
 </div>
 </div>
 </div>
-<p>Now all requests that we send get a response. We see that request with number six takes longer to complete. That is because the server needs to start and <code>accept</code> the socket. But it doesn’t fail. The client will not get connection errors.</p>
-<p>And this is one way to write a reliable socket servers that survive crashes and restarts.</p>
+<p>Now all requests that we send get a response. We see that request with number six takes longer to complete. That is because <code>server-listen-loop.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get connection errors.</p>
+<p>And this is one way to write reliable socket servers that survive crashes and restarts.</p>
 <h2 id="questions-answers">Questions &amp; Answers</h2>
 <h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
-<h3 id="can-we-improve-on-the-long-startup-time">Can we improve on the long startup time?</h3>
-<ul>
-<li>Have another process in standby and tell it to start listening somehow?</li>
-</ul>
+<p>I tried to modify the loop script to sleep for 60 seconds before restarting the server:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+loop-sleep.sh
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
+    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
+    sleep <span class="m">60</span>
+<span class="k">done</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The client output looked as follows:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">client output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>...
+No response for 5
+6*6=36 (request took 60123ms)
+7*7=49 (request took 0ms)
+...
+</pre>
+</div>
+</div>
+</div>
+<p>So it seems that the client got no errors even though the response took 60 seconds to arrive.</p>
+<p>I suppose you can put a timeout in the client code. But this question was about how long the operating system on the server will keep the connection “alive” even though no one calls <code>accept</code>.</p>
+<p>I suppose the operating system has some kind of buffer. Say that there are multiple clients making requests at the same time and the server never calls <code>accept</code> during that time. Eventually some buffer must be exceeded and connections get dropped.</p>
+<p>(It seems that the client hangs on the <code>s.recv</code> call. That means that the request was sent to the server and must have filled up some buffer.)</p>
+<p>If anyone can point me to documentation where I can read about this behavior, please drop me a line.</p>
+<h3 id="can-we-decrease-the-startup-time">Can we decrease the startup time?</h3>
+<p>When the loop script restarts the server, it takes ~100ms for it to come up and process requests. How can we decrease that time?</p>
+<p>One way would be to modify the loop script to spawn multiple server processes. That way, if one crashes, the other can serve the next request.</p>
+<p>This would also make the server code concurrent. That is, no “global” state can reside in the server process, because we don’t know which server process will serve the next request.</p>
+<p>Another solution might be to have a second process in standby mode. So the loop script starts a second server process, but it stops it right before calling accept. But then we would need a way to signal to the process to resume operation. Perhaps by sending it a signal?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-accept-standby.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="c1"># wait for signal before proceeding</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>All of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection failures.</p>
+<h3 id="can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</h3>
+<p>Well, yes.</p>
+<p>If the loop script spawns multiple server processes, the operating system will load balance between them.</p>
+<p>No fancy load balancing software needed.</p>
 <h3 id="why-socket-option-reuse">Why socket option REUSE?</h3>
 <h3 id="is-this-how-supervisor-works">Is this how supervisor works?</h3>
 <p>Seems like it closes socket upon restart:</p>
@@ -432,16 +511,18 @@ command=python /home/rick/rickardlindberg.me/writing/reliable-socket-servers/ser
 <p>Can we solve it with a dummy process just to keep the socket open?</p>
 <p>It can call <code>loop.sh python server-accept.py</code> instead. Of course! But then again, we can as well use a regular program and create the socket ourselves.</p>
 <h3 id="why-sleep-in-loop">Why sleep in loop?</h3>
+<p>https://github.com/acg/dream-deploys/blob/master/loop-forever</p>
 <h3 id="is-dup-needed">Is dup needed?</h3>
 <p>Python file descriptors not inheritable.</p>
 <h3 id="is-asyncio-more-reliable">Is asyncio more reliable</h3>
 <p>Don’t kill server if client request failed</p>
 <h3 id="can-this-mechanism-be-used-for-zero-downtime-deploy">Can this mechanism be used for zero-downtime deploy</h3>
-<p>Well, yes, that is how I learned about it in the blog post.</p>
-<h3 id="can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</h3>
+<p>Well, yes, that is how I learned about it in Alan’s blog post.</p>
 <h3 id="unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</h3>
+<h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
+<p>https://github.com/acg/dream-deploys/blob/master/tcplisten</p>
 ]]></description>
-    <pubDate>Wed, 03 Aug 2022 00:00:00 UT</pubDate>
+    <pubDate>Thu, 04 Aug 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/reliable-socket-servers/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
