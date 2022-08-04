@@ -450,7 +450,7 @@ Don't kill server if client request failed
 
 ### Can this mechanism be used for zero-downtime deploy
 
-Well, yes, that is how I learned about it in the blog post.
+Well, yes, that is how I learned about it in Alan's blog post.
 
 ### Unix domain socket vs. TCP socket
 
