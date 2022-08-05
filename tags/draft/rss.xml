@@ -17,7 +17,7 @@
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
-<li><a href="#solution-restart-the-server-in-loop">Solution: restart the server in loop</a></li>
+<li><a href="#solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</a></li>
 <li><a href="#the-problem-with-a-restarting-server">The problem with a restarting server</a></li>
 <li><a href="#solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</a></li>
 <li><a href="#questions-answers">Questions &amp; Answers</a>
@@ -40,7 +40,7 @@
 <p>In it, Alan describes how separating listening on a socket and accepting connections on it into different processes can keep a socket “live” at all times even during a restart.</p>
 <p>In this blog post I want to document that trick and my understanding of it.</p>
 <h2 id="the-problem-with-a-crashing-server">The problem with a crashing server</h2>
-<p>To illustrate the problem with a crashing server, we use the example below.</p>
+<p>To illustrate the problem with a crashing server, we use the example below:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
@@ -174,7 +174,7 @@ Connection failed for 19
 </div>
 </div>
 <p>In the client output, we see that request with number 5 never receives a response from the server and that subsequent requests fail because the server has crashed, and there is no one listening on port 9000.</p>
-<h2 id="solution-restart-the-server-in-loop">Solution: restart the server in loop</h2>
+<h2 id="solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</h2>
 <p>In order for subsequent requests to succeed, we need to start the server again after it has crashed. One way to do that is to run the server program in an infinite loop using a script like the one below:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -273,11 +273,10 @@ Connection failed for 13
 <h2 id="the-problem-with-a-restarting-server">The problem with a restarting server</h2>
 <p>Running the server in a loop is an improvement. Instead of dropping all subsequent requests, we only drop a few.</p>
 <p>But during the time between the server crash and a new server being up, there is no one listening on port 9000 and we still drop connections.</p>
-<p>How can we make sure to answer all connections?</p>
+<p>How can we make sure to answer all requests?</p>
 <h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
 <p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
 <p>Here is a program that listens on a socket and then spawns processes in a loop to accept connections:</p>
-<p>Here is <code>server-listen-loop.py</code>:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
@@ -411,7 +410,7 @@ No response for 5
 </div>
 </div>
 </div>
-<p>Now all requests that we send get a response. We see that request with number six takes longer to complete. That is because <code>server-listen-loop.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get connection errors.</p>
+<p>Now all requests (except the one that causes a crash) that we send get a response. We see that request with number six takes longer to complete. That is because <code>server-accept.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get connection errors.</p>
 <p>And this is one way to write reliable socket servers that survive crashes and restarts.</p>
 <h2 id="questions-answers">Questions &amp; Answers</h2>
 <h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
@@ -493,7 +492,7 @@ server-accept-standby.py
 </div>
 <p>Both of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection failures.</p>
 <h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
-<p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket.</p>
+<p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
