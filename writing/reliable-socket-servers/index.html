@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: How to write reliable socket servers that survive crashes and restart? | Rickard's personal homepage
+      DRAFT: How to write reliable socket servers that survive crashes and restarts? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -52,9 +52,9 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: How to write reliable socket servers that survive crashes and restart?</h1>
+      <h1>DRAFT: How to write reliable socket servers that survive crashes and restarts?</h1>
 
-<p><em>Published on  4 August 2022.</em></p>
+<p><em>Published on  5 August 2022.</em></p>
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
@@ -65,15 +65,15 @@
 <ul>
 <li><a href="#how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</a></li>
 <li><a href="#can-we-decrease-the-startup-time">Can we decrease the startup time?</a></li>
+<li><a href="#why-is-execvp-needed">Why is execvp needed?</a></li>
 <li><a href="#can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</a></li>
 <li><a href="#why-socket-option-reuse">Why socket option REUSE?</a></li>
 <li><a href="#is-this-how-supervisor-works">Is this how supervisor works?</a></li>
 <li><a href="#why-sleep-in-loop">Why sleep in loop?</a></li>
 <li><a href="#is-dup-needed">Is dup needed?</a></li>
 <li><a href="#is-asyncio-more-reliable">Is asyncio more reliable</a></li>
-<li><a href="#can-this-mechanism-be-used-for-zero-downtime-deploy">Can this mechanism be used for zero-downtime deploy</a></li>
+<li><a href="#can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</a></li>
 <li><a href="#unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</a></li>
-<li><a href="#why-is-execvp-needed">Why is execvp needed?</a></li>
 </ul></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
@@ -477,7 +477,7 @@ loop-sleep.sh
 </div>
 </div>
 </div>
-<p>The client output looked as follows:</p>
+<p>The client output looked like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
@@ -497,7 +497,7 @@ No response for 5
 </div>
 </div>
 </div>
-<p>So it seems that the client got no errors even though the response took 60 seconds to arrive.</p>
+<p>So it seems that the client got no errors even though the request took 60 seconds to be responded to.</p>
 <p>I suppose you can put a timeout in the client code. But this question was about how long the operating system on the server will keep the connection “alive” even though no one calls <code>accept</code>.</p>
 <p>I suppose the operating system has some kind of buffer. Say that there are multiple clients making requests at the same time and the server never calls <code>accept</code> during that time. Eventually some buffer must be exceeded and connections get dropped.</p>
 <p>(It seems that the client hangs on the <code>s.recv</code> call. That means that the request was sent to the server and must have filled up some buffer.)</p>
@@ -520,9 +520,9 @@ server-accept-standby.py
 <pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="c1"># wait for signal before proceeding</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="c1"># wait for signal before proceeding</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
@@ -532,7 +532,66 @@ server-accept-standby.py
 </div>
 </div>
 </div>
-<p>All of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection failures.</p>
+<p>Both of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection failures.</p>
+<h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
+<p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Why do we do that?</p>
+<p>I did it because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>. But now that I think about it, I think we can just as well inline the loop script in <code>server-listen-loop.py</code>. That of course requires the loop script to be written in the same language. Something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop-python.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;restarting&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It seems to work as well.</p>
+<p>If the loop script is a simple loop like this, perhaps it makes sense to inline it. But if the loop script is more complex, perhaps even a third party product to manage server processes, it makes sense to do the <code>execvp</code>.</p>
 <h3 id="can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</h3>
 <p>Well, yes.</p>
 <p>If the loop script spawns multiple server processes, the operating system will load balance between them.</p>
@@ -557,11 +616,11 @@ command=python /home/rick/rickardlindberg.me/writing/reliable-socket-servers/ser
 <p>Python file descriptors not inheritable.</p>
 <h3 id="is-asyncio-more-reliable">Is asyncio more reliable</h3>
 <p>Don’t kill server if client request failed</p>
-<h3 id="can-this-mechanism-be-used-for-zero-downtime-deploy">Can this mechanism be used for zero-downtime deploy</h3>
+<h3 id="can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</h3>
 <p>Well, yes, that is how I learned about it in Alan’s blog post.</p>
 <h3 id="unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</h3>
-<h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
-<p>https://github.com/acg/dream-deploys/blob/master/tcplisten</p>
+<p>Unix domain sockets are probably faster than TCP sockets when running on the same machine.</p>
+<p>https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/</p>
 
       <hr>
       <center>
