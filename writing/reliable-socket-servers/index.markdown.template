@@ -1,5 +1,5 @@
 ---
-title: How to write reliable socket servers that survive crashes and restart?
+title: How to write reliable socket servers that survive crashes and restarts?
 date: 2022-05-08
 tags: draft
 ---
@@ -264,7 +264,7 @@ server:
 
 $:code:loop-sleep.sh
 
-The client output looked as follows:
+The client output looked like this:
 
 $:output:client output
 ...
@@ -274,8 +274,8 @@ No response for 5
 ...
 $:END
 
-So it seems that the client got no errors even though the response took 60
-seconds to arrive.
+So it seems that the client got no errors even though the request took 60
+seconds to be responded to.
 
 I suppose you can put a timeout in the client code. But this question was about
 how long the operating system on the server will keep the connection "alive"
@@ -311,9 +311,32 @@ operation. Perhaps by sending it a signal?
 
 $:code:server-accept-standby.py
 
-All of these make the loop script more complicated. And if it gets more
+Both of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
 closed, and subsequent requests will get connection failures.
+
+### Why is execvp needed?
+
+At the end of `server-listen-loop.py` we call `execvp` to start executing the
+loop script in the same process that started listening on the socket.
+
+$:code:server-listen-loop.py
+
+Why do we do that?
+
+I did it because that is how [Alan did
+it](https://github.com/acg/dream-deploys/blob/master/tcplisten). But now that I
+think about it, I think we can just as well inline the loop script in
+`server-listen-loop.py`. That of course requires the loop script to be written
+in the same language. Something like this:
+
+$:code:server-listen-loop-python.py
+
+It seems to work as well.
+
+If the loop script is a simple loop like this, perhaps it makes sense to inline
+it. But if the loop script is more complex, perhaps even a third party product
+to manage server processes, it makes sense to do the `execvp`.
 
 ### Can we use this technique to create a load balancer?
 
@@ -357,12 +380,13 @@ Python file descriptors not inheritable.
 
 Don't kill server if client request failed
 
-### Can this mechanism be used for zero-downtime deploy
+### Can this mechanism be used for zero-downtime deployments
 
 Well, yes, that is how I learned about it in Alan's blog post.
 
 ### Unix domain socket vs. TCP socket
 
-### Why is execvp needed?
+Unix domain sockets are probably faster than TCP sockets when running on the
+same machine.
 
-https://github.com/acg/dream-deploys/blob/master/tcplisten
+https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/

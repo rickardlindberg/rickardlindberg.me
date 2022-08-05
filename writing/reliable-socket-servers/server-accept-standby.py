@@ -1,9 +1,9 @@
 import socket
 
 with socket.socket(fileno=0) as s:
+    # wait for signal before proceeding
     while True:
         conn, addr = s.accept()
-        # wait for signal before proceeding
         print("accepting connection")
         with conn:
             data = conn.recv(100)

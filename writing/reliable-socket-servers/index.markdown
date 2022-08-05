@@ -1,6 +1,6 @@
 ---
-title: 'DRAFT: How to write reliable socket servers that survive crashes and restart?'
-date: 2022-08-04
+title: 'DRAFT: How to write reliable socket servers that survive crashes and restarts?'
+date: 2022-08-05
 tags: draft
 ---
 
@@ -343,7 +343,7 @@ server:
 </pre></div>
 </div></div>
 
-The client output looked as follows:
+The client output looked like this:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
 </span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>...
@@ -353,8 +353,8 @@ No response for 5
 ...
 </pre></div>
 </div></div>
-So it seems that the client got no errors even though the response took 60
-seconds to arrive.
+So it seems that the client got no errors even though the request took 60
+seconds to be responded to.
 
 I suppose you can put a timeout in the client code. But this question was about
 how long the operating system on the server will keep the connection "alive"
@@ -391,9 +391,9 @@ operation. Perhaps by sending it a signal?
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-standby.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="c1"># wait for signal before proceeding</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="c1"># wait for signal before proceeding</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
@@ -402,9 +402,59 @@ operation. Perhaps by sending it a signal?
 </pre></div>
 </div></div>
 
-All of these make the loop script more complicated. And if it gets more
+Both of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
 closed, and subsequent requests will get connection failures.
+
+### Why is execvp needed?
+
+At the end of `server-listen-loop.py` we call `execvp` to start executing the
+loop script in the same process that started listening on the socket.
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre></div>
+</div></div>
+
+Why do we do that?
+
+I did it because that is how [Alan did
+it](https://github.com/acg/dream-deploys/blob/master/tcplisten). But now that I
+think about it, I think we can just as well inline the loop script in
+`server-listen-loop.py`. That of course requires the loop script to be written
+in the same language. Something like this:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-python.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;restarting&quot;</span><span class="p">)</span>
+</pre></div>
+</div></div>
+
+It seems to work as well.
+
+If the loop script is a simple loop like this, perhaps it makes sense to inline
+it. But if the loop script is more complex, perhaps even a third party product
+to manage server processes, it makes sense to do the `execvp`.
 
 ### Can we use this technique to create a load balancer?
 
@@ -448,12 +498,13 @@ Python file descriptors not inheritable.
 
 Don't kill server if client request failed
 
-### Can this mechanism be used for zero-downtime deploy
+### Can this mechanism be used for zero-downtime deployments
 
 Well, yes, that is how I learned about it in Alan's blog post.
 
 ### Unix domain socket vs. TCP socket
 
-### Why is execvp needed?
+Unix domain sockets are probably faster than TCP sockets when running on the
+same machine.
 
-https://github.com/acg/dream-deploys/blob/master/tcplisten
+https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/
