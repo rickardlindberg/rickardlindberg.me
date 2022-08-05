@@ -18,7 +18,7 @@ In this blog post I want to document that trick and my understanding of it.
 
 ## The problem with a crashing server
 
-To illustrate the problem with a crashing server, we use the example below.
+To illustrate the problem with a crashing server, we use the example below:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 
@@ -120,7 +120,7 @@ In the client output, we see that request with number 5 never receives a
 response from the server and that subsequent requests fail because the server
 has crashed, and there is no one listening on port 9000.
 
-## Solution: restart the server in loop
+## Solution: restart the server in a loop
 
 In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
@@ -203,7 +203,7 @@ subsequent requests, we only drop a few.
 But during the time between the server crash and a new server being up, there
 is no one listening on port 9000 and we still drop connections.
 
-How can we make sure to answer all connections?
+How can we make sure to answer all requests?
 
 ## Solution: separate listening on a socket and accepting connections
 
@@ -214,8 +214,6 @@ still stays open because it is managed by another process.
 
 Here is a program that listens on a socket and then spawns processes in a loop
 to accept connections:
-
-Here is `server-listen-loop.py`:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">socket</span>
@@ -319,10 +317,11 @@ No response for 5
 19*19=361 (request took 1ms)
 </pre></div>
 </div></div>
-Now all requests that we send get a response. We see that request with number
-six takes longer to complete. That is because `server-listen-loop.py` needs
-time to start up (by the loop script) and call `accept` on the socket. But the
-request doesn't fail. The client will not get connection errors.
+Now all requests (except the one that causes a crash) that we send get a
+response. We see that request with number six takes longer to complete. That is
+because `server-accept.py` needs time to start up (by the loop script) and
+call `accept` on the socket. But the request doesn't fail. The client will not
+get connection errors.
 
 And this is one way to write reliable socket servers that survive crashes and
 restarts.
@@ -409,7 +408,7 @@ closed, and subsequent requests will get connection failures.
 ### Why is execvp needed?
 
 At the end of `server-listen-loop.py` we call `execvp` to start executing the
-loop script in the same process that started listening on the socket.
+loop script in the same process that started listening on the socket:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">socket</span>
