@@ -332,59 +332,6 @@ restarts.
 
 ## Questions & Answers
 
-### Why do we need to move the socket file descriptor?
-
-The file descriptor of the socket (`s.fileno()`) must be available to child
-processes so that they can create a socket using that file descriptor and then
-call `accept`.
-
-In Python, the file descriptor of the socket is [not inheritable by
-default](https://docs.python.org/3/library/os.html#fd-inheritance). That is, a
-child process will not be able to access the socket file descriptor.
-
-That is why we move the file descriptor of the socket to file descriptor 0
-(stdin) which is inherited.
-
-Another option might be to make the file descriptor inheritable. Something like
-this:
-
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept-inherit.py&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())])</span>
-</pre></div>
-</div></div>
-
-Then the file descriptor must also be passed to the server processes and used
-there instead of stdin:
-
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
-
-This seems to work as well.
-
-I think I choose the first approach because that is how Alan did it.
-
-Not having the pass the file descriptor to the child processes might also be
-preferable in some situations. I don't know.
-
 ### How long will a socket wait before timing out?
 
 I tried to modify the loop script to sleep for 60 seconds before restarting the
@@ -470,6 +417,78 @@ If the loop script spawns multiple server processes, the operating system will
 load balance between them.
 
 No fancy load balancing software needed.
+
+### Why do we need to move the socket file descriptor?
+
+In the middle of `server-listen-loop.py` we move the file descriptor of the
+socket (`s.fileno()`) to file descriptor 0 (stdin):
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre></div>
+</div></div>
+
+We do that to make the file descriptor available to child processes so that
+they can create a socket using it and then call `accept`.
+
+In Python, the file descriptor of the socket is [not inheritable by
+default](https://docs.python.org/3/library/os.html#fd-inheritance). That is, a
+child process will not be able to access the socket file descriptor.  That is
+why we have to move it to file descriptor 0 (stdin) which is inherited.
+
+Another option might be to make the file descriptor inheritable. Something like
+this:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept-inherit.py&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())])</span>
+</pre></div>
+</div></div>
+
+Then the file descriptor must also be passed to the server processes and used
+there instead of stdin:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre></div>
+</div></div>
+
+This seems to work as well.
+
+I think I choose the first approach because that is how [Alan did
+it](https://github.com/acg/dream-deploys/blob/master/tcplisten).
+
+Not having the pass the file descriptor to the child processes might be
+preferable in some situations. I don't know.
 
 ### Why is execvp needed?
 

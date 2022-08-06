@@ -256,36 +256,6 @@ restarts.
 
 ## Questions & Answers
 
-### Why do we need to move the socket file descriptor?
-
-The file descriptor of the socket (`s.fileno()`) must be available to child
-processes so that they can create a socket using that file descriptor and then
-call `accept`.
-
-In Python, the file descriptor of the socket is [not inheritable by
-default](https://docs.python.org/3/library/os.html#fd-inheritance). That is, a
-child process will not be able to access the socket file descriptor.
-
-That is why we move the file descriptor of the socket to file descriptor 0
-(stdin) which is inherited.
-
-Another option might be to make the file descriptor inheritable. Something like
-this:
-
-$:code:server-listen-loop-inherit.py
-
-Then the file descriptor must also be passed to the server processes and used
-there instead of stdin:
-
-$:code:server-accept-inherit.py
-
-This seems to work as well.
-
-I think I choose the first approach because that is how Alan did it.
-
-Not having the pass the file descriptor to the child processes might also be
-preferable in some situations. I don't know.
-
 ### How long will a socket wait before timing out?
 
 I tried to modify the loop script to sleep for 60 seconds before restarting the
@@ -352,6 +322,39 @@ If the loop script spawns multiple server processes, the operating system will
 load balance between them.
 
 No fancy load balancing software needed.
+
+### Why do we need to move the socket file descriptor?
+
+In the middle of `server-listen-loop.py` we move the file descriptor of the
+socket (`s.fileno()`) to file descriptor 0 (stdin):
+
+$:code:server-listen-loop.py
+
+We do that to make the file descriptor available to child processes so that
+they can create a socket using it and then call `accept`.
+
+In Python, the file descriptor of the socket is [not inheritable by
+default](https://docs.python.org/3/library/os.html#fd-inheritance). That is, a
+child process will not be able to access the socket file descriptor.  That is
+why we have to move it to file descriptor 0 (stdin) which is inherited.
+
+Another option might be to make the file descriptor inheritable. Something like
+this:
+
+$:code:server-listen-loop-inherit.py
+
+Then the file descriptor must also be passed to the server processes and used
+there instead of stdin:
+
+$:code:server-accept-inherit.py
+
+This seems to work as well.
+
+I think I choose the first approach because that is how [Alan did
+it](https://github.com/acg/dream-deploys/blob/master/tcplisten).
+
+Not having the pass the file descriptor to the child processes might be
+preferable in some situations. I don't know.
 
 ### Why is execvp needed?
 
