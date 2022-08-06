@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restarts?'
-date: 2022-08-05
+date: 2022-08-06
 tags: draft
 ---
 
@@ -212,8 +212,8 @@ in one process and accept connections and processing requests in another
 process.  That way, if processing fails, and that process dies, the socket
 still stays open because it is managed by another process.
 
-Here is a program that listens on a socket and then spawns processes in a loop
-to accept connections:
+Here is a program that listens on a socket and then spawns server processes in
+a loop to accept connections:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">socket</span>
@@ -223,6 +223,10 @@ to accept connections:
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -233,7 +237,7 @@ The first part of this program creates a socket and starts listening. This is
 what we had in the previous example.
 
 The second part moves the file descriptor of the socket to file descriptor 0
-(stdin).
+(stdin). (More on why in Q&A.)
 
 The third part replaces the current process with `bash loop.sh python
 server-accept.py`. At this point the process is listening on the socket and
@@ -317,16 +321,69 @@ No response for 5
 19*19=361 (request took 1ms)
 </pre></div>
 </div></div>
-Now all requests (except the one that causes a crash) that we send get a
-response. We see that request with number six takes longer to complete. That is
-because `server-accept.py` needs time to start up (by the loop script) and
-call `accept` on the socket. But the request doesn't fail. The client will not
-get connection errors.
+Now all requests (except the one that causes a crash) get a response. We see
+that request with number six takes longer to complete. That is because
+`server-accept.py` needs time to start up (by the loop script) and call
+`accept` on the socket. But the request doesn't fail. The client will not get
+connection errors.
 
 And this is one way to write reliable socket servers that survive crashes and
 restarts.
 
 ## Questions & Answers
+
+### Why do we need to move the socket file descriptor?
+
+The file descriptor of the socket (`s.fileno()`) must be available to child
+processes so that they can create a socket using that file descriptor and then
+call `accept`.
+
+In Python, the file descriptor of the socket is [not inheritable by
+default](https://docs.python.org/3/library/os.html#fd-inheritance). That is, a
+child process will not be able to access the socket file descriptor.
+
+That is why we move the file descriptor of the socket to file descriptor 0
+(stdin) which is inherited.
+
+Another option might be to make the file descriptor inheritable. Something like
+this:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept-inherit.py&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())])</span>
+</pre></div>
+</div></div>
+
+Then the file descriptor must also be passed to the server processes and used
+there instead of stdin:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre></div>
+</div></div>
+
+This seems to work as well.
+
+I think I choose the first approach because that is how Alan did it.
+
+Not having the pass the file descriptor to the child processes might also be
+preferable in some situations. I don't know.
 
 ### How long will a socket wait before timing out?
 
@@ -405,6 +462,15 @@ Both of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
 closed, and subsequent requests will get connection failures.
 
+### Can we use this technique to create a load balancer?
+
+Well, yes.
+
+If the loop script spawns multiple server processes, the operating system will
+load balance between them.
+
+No fancy load balancing software needed.
+
 ### Why is execvp needed?
 
 At the end of `server-listen-loop.py` we call `execvp` to start executing the
@@ -418,6 +484,10 @@ loop script in the same process that started listening on the socket:
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -429,8 +499,8 @@ Why do we do that?
 I did it because that is how [Alan did
 it](https://github.com/acg/dream-deploys/blob/master/tcplisten). But now that I
 think about it, I think we can just as well inline the loop script in
-`server-listen-loop.py`. That of course requires the loop script to be written
-in the same language. Something like this:
+`server-listen-loop.py`. That, of course, requires the loop script to be
+written in Python. Something like this:
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-python.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">socket</span>
@@ -454,15 +524,6 @@ It seems to work as well.
 If the loop script is a simple loop like this, perhaps it makes sense to inline
 it. But if the loop script is more complex, perhaps even a third party product
 to manage server processes, it makes sense to do the `execvp`.
-
-### Can we use this technique to create a load balancer?
-
-Well, yes.
-
-If the loop script spawns multiple server processes, the operating system will
-load balance between them.
-
-No fancy load balancing software needed.
 
 ### Why socket option REUSE?
 
@@ -488,10 +549,6 @@ again, we can as well use a regular program and create the socket ourselves.
 ### Why sleep in loop?
 
 https://github.com/acg/dream-deploys/blob/master/loop-forever
-
-### Is dup needed?
-
-Python file descriptors not inheritable.
 
 ### Is asyncio more reliable
 
