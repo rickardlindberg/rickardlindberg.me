@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 06 Aug 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 07 Aug 2022 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: How to write reliable socket servers that survive crashes and restarts?</title>
     <link>http://rickardlindberg.me/writing/reliable-socket-servers/</link>
     <description><![CDATA[<h1>DRAFT: How to write reliable socket servers that survive crashes and restarts?</h1>
 
-<p><em>Published on  6 August 2022.</em></p>
+<p><em>Published on  7 August 2022.</em></p>
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
@@ -69,7 +69,7 @@ server-listen.py
 </div>
 </div>
 </div>
-<p>This is a TCP server, listening on port 9000, reading numbers from clients, and reporting the product of the two numbers. It assumes that numbers can be parsed as integers. If parsing fails, the server crashes.</p>
+<p>This is a TCP server, listening on port 9000, reading numbers from clients, and returning the product of the two numbers. It assumes that numbers can be parsed as integers. If parsing fails, the server crashes.</p>
 <p>To test the behavior of the server, we use the following client:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -269,11 +269,11 @@ Connection failed for 13
 </div>
 </div>
 <p>In the server output, we see that the server starts again after the crash and starts listening on port 9000.</p>
-<p>In the client output, we see that request with number 5 fails the same way, but after a few more request, it starts getting responses again at request with number 14.</p>
+<p>In the client output, we see that request with number 5 fails the same way, but after a few more requests, it starts getting responses again at request with number 14.</p>
 <h2 id="the-problem-with-a-restarting-server">The problem with a restarting server</h2>
 <p>Running the server in a loop is an improvement. Instead of dropping all subsequent requests, we only drop a few.</p>
 <p>But during the time between the server crash and a new server being up, there is no one listening on port 9000 and we still drop connections.</p>
-<p>How can we make sure to answer all requests?</p>
+<p>How can we make sure to handle all requests?</p>
 <h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
 <p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
 <p>Here is a program that listens on a socket and then spawns server processes in a loop to accept connections:</p>
@@ -295,10 +295,6 @@ server-listen-loop.py
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -307,7 +303,7 @@ server-listen-loop.py
 </div>
 </div>
 <p>The first part of this program creates a socket and starts listening. This is what we had in the previous example.</p>
-<p>The second part moves the file descriptor of the socket to file descriptor 0 (stdin). (More on why in Q&amp;A.)</p>
+<p>The second part moves the file descriptor of the socket to file descriptor 0 (stdin) to make it available to child processes.</p>
 <p>The third part replaces the current process with <code>bash loop.sh python server-accept.py</code>. At this point the process is listening on the socket and starts the <code>server-accept.py</code> program in a loop. As long as the <code>loop.sh</code> script doesn’t exit, there will be someone listening on port 9000.</p>
 <p>The <code>server-accept.py</code> program is similar to <code>server-listen.py</code>, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):</p>
 <p>Here is <code>server-accept.py</code>:</p>
@@ -414,7 +410,7 @@ No response for 5
 </div>
 </div>
 </div>
-<p>Now all requests (except the one that causes a crash) get a response. We see that request with number six takes longer to complete. That is because <code>server-accept.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get connection errors.</p>
+<p>Now all requests (except the one that causes a crash) get a response. We see that request with number six takes longer to complete. That is because <code>server-accept.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get a connection error.</p>
 <p>And this is one way to write reliable socket servers that survive crashes and restarts.</p>
 <h2 id="questions-answers">Questions &amp; Answers</h2>
 <h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
@@ -494,13 +490,13 @@ server-accept-standby.py
 </div>
 </div>
 </div>
-<p>Both of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection failures.</p>
+<p>Both of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection errors.</p>
 <h3 id="can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</h3>
 <p>Well, yes.</p>
 <p>If the loop script spawns multiple server processes, the operating system will load balance between them.</p>
 <p>No fancy load balancing software needed.</p>
 <h3 id="why-do-we-need-to-move-the-socket-file-descriptor">Why do we need to move the socket file descriptor?</h3>
-<p>In the middle of <code>server-listen-loop.py</code> we move the file descriptor of the socket (<code>s.fileno()</code>) to file descriptor 0 (stdin):</p>
+<p>In the middle of <code>server-listen-loop.py</code> we move the file descriptor of the socket, <code>s.fileno()</code>, to file descriptor 0 (stdin):</p>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
 <ol class="rliterate-code-path">
@@ -519,10 +515,6 @@ server-listen-loop.py
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -585,7 +577,7 @@ server-accept-inherit.py
 </div>
 <p>This seems to work as well.</p>
 <p>I think I choose the first approach because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>.</p>
-<p>Not having the pass the file descriptor to the child processes might be preferable in some situations. I don’t know.</p>
+<p>Not having to pass the file descriptor to the child processes might be preferable in some situations. I don’t know.</p>
 <h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
 <p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket:</p>
 <div class="rliterate-code">
@@ -606,10 +598,6 @@ server-listen-loop.py
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -673,7 +661,7 @@ command=python /home/rick/rickardlindberg.me/writing/reliable-socket-servers/ser
 <p>Unix domain sockets are probably faster than TCP sockets when running on the same machine.</p>
 <p>https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/</p>
 ]]></description>
-    <pubDate>Sat, 06 Aug 2022 00:00:00 UT</pubDate>
+    <pubDate>Sun, 07 Aug 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/reliable-socket-servers/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
