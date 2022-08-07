@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restarts?'
-date: 2022-08-06
+date: 2022-08-07
 tags: draft
 ---
 
@@ -38,7 +38,7 @@ To illustrate the problem with a crashing server, we use the example below:
 </div></div>
 
 This is a TCP server, listening on port 9000, reading numbers from clients, and
-reporting the product of the two numbers. It assumes that numbers can be parsed
+returning the product of the two numbers. It assumes that numbers can be parsed
 as integers. If parsing fails, the server crashes.
 
 To test the behavior of the server, we use the following client:
@@ -192,7 +192,7 @@ In the server output, we see that the server starts again after the crash and
 starts listening on port 9000.
 
 In the client output, we see that request with number 5 fails the same way, but
-after a few more request, it starts getting responses again at request with
+after a few more requests, it starts getting responses again at request with
 number 14.
 
 ## The problem with a restarting server
@@ -203,7 +203,7 @@ subsequent requests, we only drop a few.
 But during the time between the server crash and a new server being up, there
 is no one listening on port 9000 and we still drop connections.
 
-How can we make sure to answer all requests?
+How can we make sure to handle all requests?
 
 ## Solution: separate listening on a socket and accepting connections
 
@@ -223,10 +223,6 @@ a loop to accept connections:
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -237,7 +233,7 @@ The first part of this program creates a socket and starts listening. This is
 what we had in the previous example.
 
 The second part moves the file descriptor of the socket to file descriptor 0
-(stdin). (More on why in Q&A.)
+(stdin) to make it available to child processes.
 
 The third part replaces the current process with `bash loop.sh python
 server-accept.py`. At this point the process is listening on the socket and
@@ -324,8 +320,8 @@ No response for 5
 Now all requests (except the one that causes a crash) get a response. We see
 that request with number six takes longer to complete. That is because
 `server-accept.py` needs time to start up (by the loop script) and call
-`accept` on the socket. But the request doesn't fail. The client will not get
-connection errors.
+`accept` on the socket. But the request doesn't fail. The client will not get a
+connection error.
 
 And this is one way to write reliable socket servers that survive crashes and
 restarts.
@@ -407,7 +403,7 @@ operation. Perhaps by sending it a signal?
 
 Both of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
-closed, and subsequent requests will get connection failures.
+closed, and subsequent requests will get connection errors.
 
 ### Can we use this technique to create a load balancer?
 
@@ -421,7 +417,7 @@ No fancy load balancing software needed.
 ### Why do we need to move the socket file descriptor?
 
 In the middle of `server-listen-loop.py` we move the file descriptor of the
-socket (`s.fileno()`) to file descriptor 0 (stdin):
+socket, `s.fileno()`, to file descriptor 0 (stdin):
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">socket</span>
@@ -431,10 +427,6 @@ socket (`s.fileno()`) to file descriptor 0 (stdin):
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
@@ -487,7 +479,7 @@ This seems to work as well.
 I think I choose the first approach because that is how [Alan did
 it](https://github.com/acg/dream-deploys/blob/master/tcplisten).
 
-Not having the pass the file descriptor to the child processes might be
+Not having to pass the file descriptor to the child processes might be
 preferable in some situations. I don't know.
 
 ### Why is execvp needed?
@@ -503,10 +495,6 @@ loop script in the same process that started listening on the socket:
     <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
     <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">get_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">()))</span>
     <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
     <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
