@@ -54,7 +54,7 @@
     <div class="container">
       <h1>DRAFT: How to write reliable socket servers that survive crashes and restarts?</h1>
 
-<p><em>Published on  7 August 2022.</em></p>
+<p><em>Published on 31 August 2022.</em></p>
 
 <ul>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
@@ -70,9 +70,9 @@
 <li><a href="#why-is-execvp-needed">Why is execvp needed?</a></li>
 <li><a href="#why-socket-option-reuse">Why socket option REUSE?</a></li>
 <li><a href="#is-this-how-supervisor-works">Is this how supervisor works?</a></li>
+<li><a href="#can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</a></li>
 <li><a href="#why-sleep-in-loop">Why sleep in loop?</a></li>
 <li><a href="#is-asyncio-more-reliable">Is asyncio more reliable</a></li>
-<li><a href="#can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</a></li>
 <li><a href="#unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</a></li>
 </ul></li>
 </ul>
@@ -679,25 +679,61 @@ server-listen-loop-python.py
 <p>It seems to work as well.</p>
 <p>If the loop script is a simple loop like this, perhaps it makes sense to inline it. But if the loop script is more complex, perhaps even a third party product to manage server processes, it makes sense to do the <code>execvp</code>.</p>
 <h3 id="why-socket-option-reuse">Why socket option REUSE?</h3>
+<p>In <code>server-listen.py</code>, we set the socket option <code>SO_REUSEADDR</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Why?</p>
+<p>I think <a href="https://stackoverflow.com/a/3229926">this Stackoverflow answer</a> explains it well:</p>
+<blockquote>
+<p>This socket option tells the kernel that even if this port is busy (in the TIME_WAIT state), go ahead and reuse it anyway. If it is busy, but with another state, you will still get an address already in use error. It is useful if your server has been shut down, and then restarted right away while sockets are still active on its port.</p>
+</blockquote>
+<p>Without it, it can not be run in a loop, but will get this error:</p>
+<pre><code>OSError: [Errno 98] Address already in use</code></pre>
 <h3 id="is-this-how-supervisor-works">Is this how supervisor works?</h3>
-<p>Seems like it closes socket upon restart:</p>
+<p><a href="http://supervisord.org/">Supervisor</a> can create a process that listens to a socket and then pass that socket to child processes. For example like this:</p>
 <pre><code>[fcgi-program:test]
 socket=tcp://localhost:9000
-command=python /home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py
-
-2022-05-10 21:46:28,734 INFO exited: test (exit status 1; not expected)
+command=python server-accept.py</code></pre>
+<p>The <code>server-accept.py</code> program will get a socket passed to it as file descriptor 0 (stdin).</p>
+<p>However, if <code>server-accept.py</code> crashes, it seems like Supervisor closes the socket and creates it again upon restart:</p>
+<pre><code>2022-05-10 21:46:28,734 INFO exited: test (exit status 1; not expected)
 2022-05-10 21:46:28,734 INFO Closing socket tcp://localhost:9000
 2022-05-10 21:46:29,736 INFO Creating socket tcp://localhost:9000
 2022-05-10 21:46:29,737 INFO spawned: 'test' with pid 561624
 2022-05-10 21:46:30,740 INFO success: test entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)</code></pre>
-<p>Can we solve it with a dummy process just to keep the socket open?</p>
-<p>It can call <code>loop.sh python server-accept.py</code> instead. Of course! But then again, we can as well use a regular program and create the socket ourselves.</p>
+<p>So in this setup, we would still drop connections.</p>
+<h3 id="can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</h3>
+<p>Well, yes, that is how I learned about it in Alan’s blog post.</p>
 <h3 id="why-sleep-in-loop">Why sleep in loop?</h3>
 <p>https://github.com/acg/dream-deploys/blob/master/loop-forever</p>
 <h3 id="is-asyncio-more-reliable">Is asyncio more reliable</h3>
 <p>Don’t kill server if client request failed</p>
-<h3 id="can-this-mechanism-be-used-for-zero-downtime-deployments">Can this mechanism be used for zero-downtime deployments</h3>
-<p>Well, yes, that is how I learned about it in Alan’s blog post.</p>
 <h3 id="unix-domain-socket-vs.-tcp-socket">Unix domain socket vs. TCP socket</h3>
 <p>Unix domain sockets are probably faster than TCP sockets when running on the same machine.</p>
 <p>https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/</p>
