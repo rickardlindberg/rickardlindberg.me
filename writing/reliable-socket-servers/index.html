@@ -57,6 +57,7 @@
 <p><em>Published on 31 August 2022.</em></p>
 
 <ul>
+<li><a href="#video-version">Video version</a></li>
 <li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
 <li><a href="#solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</a></li>
 <li><a href="#the-problem-with-a-restarting-server">The problem with a restarting server</a></li>
@@ -80,6 +81,13 @@
 <p>A few months ago, I was researching how to do zero-downtime deployments and found the wonderful blog post <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Dream Deploys: Atomic, Zero-Downtime Deployments</a>.</p>
 <p>In it, Alan describes how separating listening on a socket and accepting connections on it into different processes can keep a socket “live” at all times even during a restart.</p>
 <p>In this blog post I want to document that trick and my understanding of it.</p>
+<h2 id="video-version">Video version</h2>
+<p>If you prefer a video version covering this topic:</p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tu3Sbm78SpY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</center>
 <h2 id="the-problem-with-a-crashing-server">The problem with a crashing server</h2>
 <p>To illustrate the problem with a crashing server, we use the example below:</p>
 <div class="rliterate-code">
