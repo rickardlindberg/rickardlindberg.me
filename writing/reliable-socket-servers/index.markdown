@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: How to write reliable socket servers that survive crashes and restarts?'
-date: 2022-08-07
+date: 2022-08-31
 tags: draft
 ---
 
@@ -534,13 +534,54 @@ to manage server processes, it makes sense to do the `execvp`.
 
 ### Why socket option REUSE?
 
+In `server-listen.py`, we set the socket option `SO_REUSEADDR`:
+
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre></div>
+</div></div>
+
+Why?
+
+I think [this Stackoverflow answer](https://stackoverflow.com/a/3229926)
+explains it well:
+
+> This socket option tells the kernel that even if this port is busy (in the
+> TIME_WAIT state), go ahead and reuse it anyway. If it is busy, but with
+> another state, you will still get an address already in use error. It is
+> useful if your server has been shut down, and then restarted right away while
+> sockets are still active on its port.
+
+Without it, it can not be run in a loop, but will get this error:
+
+    OSError: [Errno 98] Address already in use
+
 ### Is this how supervisor works?
 
-Seems like it closes socket upon restart:
+[Supervisor](http://supervisord.org/) can create a process that listens to a
+socket and then pass that socket to child processes. For example like this:
 
     [fcgi-program:test]
     socket=tcp://localhost:9000
-    command=python /home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py
+    command=python server-accept.py
+
+The `server-accept.py` program will get a socket passed to it as file
+descriptor 0 (stdin).
+
+However, if `server-accept.py` crashes, it seems like Supervisor closes the
+socket and creates it again upon restart:
 
     2022-05-10 21:46:28,734 INFO exited: test (exit status 1; not expected)
     2022-05-10 21:46:28,734 INFO Closing socket tcp://localhost:9000
@@ -548,10 +589,11 @@ Seems like it closes socket upon restart:
     2022-05-10 21:46:29,737 INFO spawned: 'test' with pid 561624
     2022-05-10 21:46:30,740 INFO success: test entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
 
-Can we solve it with a dummy process just to keep the socket open?
+So in this setup, we would still drop connections.
 
-It can call `loop.sh python server-accept.py` instead. Of course! But then
-again, we can as well use a regular program and create the socket ourselves.
+### Can this mechanism be used for zero-downtime deployments
+
+Well, yes, that is how I learned about it in Alan's blog post.
 
 ### Why sleep in loop?
 
@@ -560,10 +602,6 @@ https://github.com/acg/dream-deploys/blob/master/loop-forever
 ### Is asyncio more reliable
 
 Don't kill server if client request failed
-
-### Can this mechanism be used for zero-downtime deployments
-
-Well, yes, that is how I learned about it in Alan's blog post.
 
 ### Unix domain socket vs. TCP socket
 
