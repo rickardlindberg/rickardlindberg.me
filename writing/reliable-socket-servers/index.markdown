@@ -1,10 +1,7 @@
 ---
-title: 'DRAFT: How to write reliable socket servers that survive crashes and restarts?'
-date: 2022-08-31
-tags: draft
+title: How to write reliable socket servers that survive crashes and restarts?
+date: 2022-09-02
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 A few months ago, I was researching how to do zero-downtime deployments and
 found the wonderful blog post [Dream Deploys: Atomic, Zero-Downtime
@@ -424,6 +421,9 @@ load balance between them.
 
 No fancy load balancing software needed.
 
+More info in [this blog
+post](https://relaxdiego.com/2017/02/load-balancing-sockets.html).
+
 ### Why do we need to move the socket file descriptor?
 
 In the middle of `server-listen-loop.py` we move the file descriptor of the
@@ -574,13 +574,13 @@ explains it well:
 > useful if your server has been shut down, and then restarted right away while
 > sockets are still active on its port.
 
-Without it, it can not be run in a loop, but will get this error:
+Without it, it can not be run in a loop, and will get this error:
 
     OSError: [Errno 98] Address already in use
 
-### Is this how supervisor works?
+### Is this how Supervisor works?
 
-[Supervisor](http://supervisord.org/) can create a process that listens to a
+[Supervisor](http://supervisord.org/) can create a process that listens on a
 socket and then pass that socket to child processes. For example like this:
 
     [fcgi-program:test]
@@ -601,21 +601,38 @@ socket and creates it again upon restart:
 
 So in this setup, we would still drop connections.
 
-### Can this mechanism be used for zero-downtime deployments
+### Why not make the server more reliable?
 
-Well, yes, that is how I learned about it in Alan's blog post.
+We could make the server more reliable so that it doesn't crash. But sometimes
+a server needs to be restarted anyway. For example when configuration changes
+or a new version of the server should be deployed. The approach described in
+this blog post makes it possible to do those kinds of things without ever
+dropping connections as well.
 
-### Why sleep in loop?
+### Can this approach be used for zero-downtime deployments
 
-https://github.com/acg/dream-deploys/blob/master/loop-forever
+Well, yes, that is how I learned about it in [Alan's blog
+post](https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments).
 
-### Is asyncio more reliable
+### Can we use a Unix domain socket instead of a TCP socket?
 
-Don't kill server if client request failed
+Well, yes.
 
-### Unix domain socket vs. TCP socket
+In fact, the accepting server doesn't know what kind of socket is passed to it.
+It could be either a Unix domain socket or a TCP socket:
 
-Unix domain sockets are probably faster than TCP sockets when running on the
-same machine.
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
 
-https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre></div>
+</div></div>
+
+([Unix domain sockets are probably faster than TCP sockets when running on the
+same machine.](https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/))
