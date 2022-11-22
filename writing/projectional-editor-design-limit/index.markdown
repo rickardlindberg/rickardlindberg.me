@@ -1,5 +1,5 @@
 ---
-title: DRAFT: I hit the limit of the design of my projectional editor
+title: "DRAFT: I hit the limit of the design of my projectional editor"
 date: 2022-11-20
 tags: draft
 ---
