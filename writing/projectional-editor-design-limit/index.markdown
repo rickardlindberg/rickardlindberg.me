@@ -547,9 +547,10 @@ good way forward. I feel like I keep trying things and just run into new
 problems.
 
 I'm trying to think ahead 10 steps to see if the new design will serve all the
-things that I potentially want to do. Perhaps I shouldn't. Perhaps I should
-just focus on the next thing, and the eventually I will have reached my end
-goal. I guess that is the TDD way of doing it.
+things that I potentially want to do. I end up just thinking without doing
+anything. Perhaps I shouldn't. Perhaps I should just focus on the next thing,
+and the eventually I will have reached my end goal. I guess that is the TDD way
+of doing it.
 
 But I'm frustrated that I can't clearly see how this new design will solve even
 my immediate problems.
