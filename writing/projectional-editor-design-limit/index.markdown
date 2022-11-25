@@ -564,6 +564,22 @@ How to implement it in small steps?
 
 I think I have to do it in parallel...
 
+commit af8a0513a1cf14de372748d51d6bfe21009047fd
+    First tiny step towards new driver/event interface.
+
+commit 2584a428a6bf481df924234c59bf98bd36d864e5 (HEAD -> main)
+    Test drive new_size_event. Make sure correct type is returned.
+
+Maybe this is test driving. Just one dumb test after another. Just learn what
+you need, one tiny test at a time.
+
+Am I learning the design aspect of TDD just now?!
+
+Maybe not according to jbrains.
+https://mastodon.social/@jbrains/109406661608224141
+
+Maybe I just sneaked up on a solution slowly.
+
 ## Was a blog post necessary?
 
 The blog post forced me to explain things so that it would be clear to someone
