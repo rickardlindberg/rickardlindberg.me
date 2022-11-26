@@ -580,6 +580,29 @@ https://mastodon.social/@jbrains/109406661608224141
 
 Maybe I just sneaked up on a solution slowly.
 
+Was able to implement parallel solution and both write tests for it and try it
+out in the GUI. Fleshed out one detail after another.
+
+Then I felt that this would actually work out nicely.
+
+## Cleaning up
+
+Now I had two parallel versions.
+
+The new one worked almost as good as the old, except
+
+* popup
+* ms
+
+The popup never really worked in the old version. And was also the main reason
+this design change started. I can see how it can be better implemented in this
+new design, so I think I can just remove that functionality for now and do it
+again in the new design.
+
+Or now, I should try...
+
+ms worked so so before. Dind't show complete truth. Better solution is needed.
+
 ## Was a blog post necessary?
 
 The blog post forced me to explain things so that it would be clear to someone
