@@ -87,7 +87,7 @@ The `Editor` draws the status bar that you see in the screenshot on the first
 line. The rest of the window is filled with the document that is passed to the
 editor which in turn is created by `Split.project`. And so on.
 
-## The next thing I want my editor to do
+## The next thing I wanted my editor to do
 
 The power of a projectional editor comes from projections, and being able to
 combine projections in various ways to easily create custom editors for
@@ -164,7 +164,7 @@ forward.
 ## A previous problem I had noticed
 
 One problem that I had noticed before starting working on filtering lines, but
-though was not significant, is partially seen in the creation of the editor:
+thought was not significant, is partially seen in the creation of the editor:
 
 ```python
 Editor.project(
@@ -208,8 +208,8 @@ Perhaps there was something more fundamentally wrong with the design here.
 
 ## Making the split work sensible
 
-Say I wanted to modify the `Split` to only forward events to the top split and
-have the bottom split be just another view. How would I do that?
+Say we want to modify the `Split` to only forward events to the top split and
+have the bottom split be just another view. How would we do that?
 
 First of all, there can be only one document, so something like this:
 
@@ -238,7 +238,7 @@ immutable. So even if we modify `Split` to only pass events along to the top
 split, when the second split renders, it will do so with the original version
 of the document.
 
-What if we created a projection function like this:
+What if we create a projection function like this:
 
 ```python
 def create_editor(document):
@@ -278,7 +278,7 @@ In this version, the terminal document returns a new version of itself in the
 response to a key event. So there is no way to apply the new style projection
 because it is currently embedded in the document.
 
-What if we wrote the driver like this instead:
+What if we write the driver like this instead:
 
 ```
 def on_char(self, evt):
@@ -333,7 +333,7 @@ class LinesToTerminal(
         )
 ```
 
-It has a projection (the terminal document), a lines document which was used as
+It has a projection, the terminal document, a lines document, which was used as
 input, and a `project` function.
 
 It is used something like this:
@@ -374,21 +374,23 @@ handle events appropriately. (I think this state is what
 an IO map.)
 
 Needing this wrapper `Projection` to make "projection objects" behave as
-document objects annoyed me.
+document objects annoys me.
 
-Then I thought about inverting this.
-
-What if all documents had an extra field, called `meta` maybe, that projections
-could use to store whatever they needed to appropriately handle events? That
-would require all documents to have such a field, but then the wrapper would
-not be needed and code would be a bit more clean.
+Can we invert it?  What if all documents had an extra field, called `meta`
+maybe, that projections could use to store whatever they needed to
+appropriately handle events? That would require all documents to have such a
+field, but then the wrapper would not be needed and code would be a bit more
+clean.
 
 ## Ideas to move forward with
 
-Now I have two ideas of how to move forward:
+Writing this blog post has yielded some results.
 
-1. Make events return a new version of the source document
-2. Move projection state to documents
+Now I have two ideas to move forward with:
+
+1. Move projection state to documents
+2. Change event driver to make events return a new version of the source
+   document
 
 How can I make tine progress to any of the two ideas?
 
@@ -423,33 +425,18 @@ class String(
 ```
 
 Immediately tests broke because I had not supplied the `meta` field anywhere.
-
 I supplied `None` as a value in all cases, and now everything was back to
-green: [Add meta argument to String in an attempt to move projection
-state into the document.](2e4e32e7917313d4a3db01030d8e597ea8ddcb5d)
+green.
 
-There are no projections to `String`, currently.
+Unfortunately, there were no projections to `String`, so that was a bad choice.
 
-So that was a bad choice.
+I did the same change to `Lines`.
 
-I do the same change to `Lines`.
-
-It turned out to be even easier since I had used a factory method: [Add meta argument to Lines in an attempt to move projection
-state into the document.](d278896843ebda1c1203422b3a8ad0caf73a41d3)
+It turned out to be even easier since I had used a factory method.
 
 There is only one projection that projects to `Lines`, and that is
-`StringToLines`. Let's see if we can modify it to store its state in the
-`Lines` document instead of in the projection.
-
-I ran into a problem where the key handler was no longer associated with the
-projection.
-
-```pyton
-class Meta(
-    namedtuple("Meta", "string")
-):
-    pass
-```
+`StringToLines`. I modified it to store its state in the `Lines` document
+instead of in the projection.
 
 I went from
 
@@ -471,7 +458,7 @@ class StringToLines(
         )
 ```
 
-to
+to this
 
 ```pyton
 class StringToLines(Lines):
@@ -486,6 +473,15 @@ class StringToLines(Lines):
         )
 ```
 
+where `Meta` is defined like this:
+
+```pyton
+class Meta(
+    namedtuple("Meta", "string")
+):
+    pass
+```
+
 I noticed that `StringToLines` class is still needed because it overrides
 method to handle events, and those events handlers use the data in the `meta`
 field to handle the event. But the class inherits `Lines`, so it uses exactly
@@ -495,14 +491,13 @@ I realized that storing state in the document or in the projection wouldn't
 matter. Different event handlers would need to be associated with different
 projections.
 
-However, I think storing state in documents provides a slightly cleaner design,
-so I decide to go ahead with it anyway.
+However, I think storing state in documents provides a slightly cleaner design
+([complete
+diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa),
+so I decided to go ahead with it anyway.
 
 Even if I know it won't help solve my problem, it might be more clear and I
 might learn something going through with it.
-
-[It turned out a lot
-cleaner.](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa)
 
 ## New problem again
 
@@ -610,9 +605,9 @@ else. It forced me to think clearly.
 
 I don't think I could have done that using TDD only.
 
-Some kind of prose or diagrams would have been needed. Does that have a place
-in the code base? Most likely not. I'm explaining the current state (with all
-its flaws) so that I can improve it.
+Some kind of prose or diagram would have been needed. Does that have a place in
+the code base? Most likely not. I'm explaining the current state (with all its
+flaws) so that I can improve it.
 
 Would a code base benefit from having blog posts and discussions attached to
 it? So you can see how it has evolved? Maybe.
