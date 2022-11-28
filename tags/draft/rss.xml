@@ -7,8 +7,350 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 20 May 2020 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 23 Nov 2022 00:00:00 UT</lastBuildDate>
         <item>
+    <title>DRAFT: How should I evolve the design of my projectional editor?</title>
+    <link>http://rickardlindberg.me/writing/projectional-editor-design-limit/</link>
+    <description><![CDATA[<h1>DRAFT: How should I evolve the design of my projectional editor?</h1>
+
+<p><em>Published on 23 November 2022.</em></p>
+
+<ul>
+<li><a href="#background">Background</a></li>
+<li><a href="#the-next-thing-i-wanted-my-editor-to-do">The next thing I wanted my editor to do</a></li>
+<li><a href="#a-note-on-getting-stuck">A note on getting stuck</a></li>
+<li><a href="#a-previous-problem-i-had-noticed">A previous problem I had noticed</a></li>
+<li><a href="#making-the-split-work-sensible">Making the split work sensible</a></li>
+<li><a href="#how-do-projections-hold-state">How do projections hold state?</a></li>
+<li><a href="#ideas-to-move-forward-with">Ideas to move forward with</a></li>
+<li><a href="#move-projection-state-into-document">Move projection state into document</a></li>
+<li><a href="#new-problem-again">New problem again</a></li>
+<li><a href="#how-long-is-this-going-to-take">How long is this going to take?</a></li>
+<li><a href="#doing-the-switch">Doing the switch…</a></li>
+<li><a href="#cleaning-up">Cleaning up</a></li>
+<li><a href="#was-a-blog-post-necessary">Was a blog post necessary?</a></li>
+</ul>
+<p>I am writing this blog post to help me get unstuck.</p>
+<p>I tried to implement the next thing in my projectional editor and I felt like I had hit the limit of what the design was capable of. There was no way I could add this next thing.</p>
+<p>I had to modify the design.</p>
+<p>The problem, though, was that I was not able to figure out <em>how</em> to modify the design. I didn’t even know how to move it in the right direction.</p>
+<p>So, now I’m writing this blog post to help me find a solution.</p>
+<h2 id="background">Background</h2>
+<p>I am building a <a href="https://github.com/rickardlindberg/rlproject">projectional editor</a>. Currently it looks like this:</p>
+<center>
+<img src="rlproject-base.png" title="fig:" alt="My projectional editor." />
+</center>
+<p>A projectional editor differs from a text editor in that it can project the data structure being edited in different ways. It is not limited to syntax highlighted lines of text for example.</p>
+<p>In the screenshot above, you see the same document being projected in two different ways. The first one as multiple lines, and the second one as a single-line string.</p>
+<p>The whole editor is created like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>Editor.project(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    Split.project([</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            LinesToTerminal.project(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>                StringToLines.project(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>                    String.from_file(path)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>                )</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>            ),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>        ),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>            StringToTerminal.project(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>                String.from_file(path)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>            ),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>        ),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>    ])</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>)</span></code></pre></div>
+<p>The <code>Editor.project</code> creates a document that the user can interact with via the GUI. So when the user presses a key on the keyboard, for example, the document responds by modifying itself and returning a new version of itself that the GUI can then render.</p>
+<p>The driver for this in the GUI is implemented like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> on_char(<span class="va">self</span>, evt):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="va">self</span>.terminal <span class="op">=</span> <span class="va">self</span>.terminal.keyboard_event(KeyboardEvent(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        unicode_character<span class="op">=</span><span class="bu">chr</span>(evt.GetUnicodeKey())</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    ))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="va">self</span>.repaint_bitmap()</span></code></pre></div>
+<p>The document is called <code>self.terminal</code> here because <code>Editor.project</code> creates a document of type <code>Terminal</code>. It contains fragments at given positions that could be displayed in a terminal-like GUI.</p>
+<p>The drawing in the GUI looks like this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="cf">for</span> fragment <span class="kw">in</span> <span class="va">self</span>.terminal.fragments:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    memdc.DrawText(fragment.text, fragment.x<span class="op">*</span>char_width, fragment.y<span class="op">*</span>char_height)</span></code></pre></div>
+<p>The <code>Editor</code> draws the status bar that you see in the screenshot on the first line. The rest of the window is filled with the document that is passed to the editor which in turn is created by <code>Split.project</code>. And so on.</p>
+<h2 id="the-next-thing-i-wanted-my-editor-to-do">The next thing I wanted my editor to do</h2>
+<p>The power of a projectional editor comes from projections, and being able to combine projections in various ways to easily create custom editors for different data structures and scenarios.</p>
+<p>The next thing I wanted to try in my editor was to filter the lines in the top split.</p>
+<p>Put in other words, I wanted to insert a filter projection in the chain of projections. Something like this (<code>Filter.project</code> added):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>Editor.project(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    Split.project([</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>            LinesToTerminal.project(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>                Filter.project(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>                    StringToLines.project(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>                        String.from_file(path)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>                    )</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>                )</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>            ),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>        ),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>            StringToTerminal.project(</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>                String.from_file(path)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>            ),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>        ),</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>    ])</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>)</span></code></pre></div>
+<p>This could be useful in a search and replace scenario for example. Instead of scrolling through the document for matches, you could instead only show the lines that match and make the edit right there. And now you can see how this starts to differ from a plain text editor.</p>
+<p>I started working on how to input the text to use in the filter. I came up with this:</p>
+<center>
+<img src="rlproject-filter.png" title="fig:" alt="New filter input field." />
+</center>
+<p>The idea was that as a typed characters in the filter input field, the lines that did not match would get excluded from the top split.</p>
+<p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor toward a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
+<h2 id="a-note-on-getting-stuck">A note on getting stuck</h2>
+<p>When I end up in a stuck situation like this, I wonder if I’m doing something wrong.</p>
+<p>Sometimes when I’m reading Agile literature, and maybe TDD literature in particular, I get the feeling that it should always be possible to make progress. Even if just a tiny step. And if you get stuck, it’s because you ignored earlier signs that you should have refactored or evolved your design in a certain direction.</p>
+<p>But I feel like you sometimes have to take a step backwards, rethink the design, and then move forward again. Being able to always move forward seems impossible to me.</p>
+<p>Well, now I am stuck, and I can’t figure out a test to write to make even tiny progress. So I am turning to my blog for advice and guidance. By writing about the problem, perhaps I can get some clarity and get an idea for how to move forward.</p>
+<h2 id="a-previous-problem-i-had-noticed">A previous problem I had noticed</h2>
+<p>One problem that I had noticed before starting working on filtering lines, but thought was not significant, is partially seen in the creation of the editor:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>Editor.project(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    Split.project([</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>            LinesToTerminal.project(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>                StringToLines.project(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>                    String.from_file(path)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>                )</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>            ),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>        ),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>            StringToTerminal.project(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>                String.from_file(path)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>            ),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>        ),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    ])</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>)</span></code></pre></div>
+<p>The idea is to create an editor for a file at the given <code>path</code>. This editor provides two projections of this file (one with lines, and one as a string). But the idea is to edit a single file. The different projections can give different views of the data structure, but the underlying data structure is the same.</p>
+<p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. The child documents are actually edited separately, but it looks like it is the same document because they receive the same events and change in the same way.</p>
+<p>In most cases, it is probably not useful to have a split that forwards events to all its children. It is probably mostly confusing. I thought that <code>Split</code> would be temporarily useful as way to test multiple projections, and that it could be replaced with something better later on.</p>
+<p>But I might have been wrong.</p>
+<p>Perhaps there was something more fundamentally wrong with the design here.</p>
+<h2 id="making-the-split-work-sensible">Making the split work sensible</h2>
+<p>Say we want to modify the <code>Split</code> to only forward events to the top split and have the bottom split be just another view. How would we do that?</p>
+<p>First of all, there can be only one document, so something like this:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>document <span class="op">=</span> String.from_file(path)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>Editor.project(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    Split.project([</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>            LinesToTerminal.project(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>                StringToLines.project(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>                    document</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>                )</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>            ),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>        ),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>        ClipScroll.project(</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>            StringToTerminal.project(</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>                document</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>            ),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>        ),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>    ])</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>)</span></code></pre></div>
+<p>But this doesn’t help at all. It is because all documents in this design are immutable. So even if we modify <code>Split</code> to only pass events along to the top split, when the second split renders, it will do so with the original version of the document.</p>
+<p>What if we create a projection function like this:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">def</span> create_editor(document):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    Editor.project(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>        Split.project([</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>            ClipScroll.project(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>                LinesToTerminal.project(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>                    StringToLines.project(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>                        document</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>                    )</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>                ),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>            ),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>            ClipScroll.project(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>                StringToTerminal.project(</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>                    document</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>                ),</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>            ),</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>        ])</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>    )</span></code></pre></div>
+<p>That way, the same document would always be used.</p>
+<p>But creating projections in this is not possible with the current design.</p>
+<p>Let’s look at the driver again to see why:</p>
+<pre><code>def on_char(self, evt):
+    self.terminal = self.terminal.keyboard_event(KeyboardEvent(
+        unicode_character=chr(evt.GetUnicodeKey())
+    ))
+    self.repaint_bitmap()</code></pre>
+<p>In this version, the terminal document returns a new version of itself in the response to a key event. So there is no way to apply the new style projection because it is currently embedded in the document.</p>
+<p>What if we write the driver like this instead:</p>
+<pre><code>def on_char(self, evt):
+    new_document = self.terminal.keyboard_event(KeyboardEvent(
+        unicode_character=chr(evt.GetUnicodeKey())
+    ))
+    self.terminal = create_editor(new_document)
+    self.repaint_bitmap()</code></pre>
+<p>In this design, we need to supply two things to the driver</p>
+<ol type="1">
+<li>The document to edit</li>
+<li>A projection function that projects the document to a terminal document</li>
+</ol>
+<p>In this design, we probably could modify <code>Split</code> to behave as we wanted.</p>
+<p>Can we do it?</p>
+<h2 id="how-do-projections-hold-state">How do projections hold state?</h2>
+<p>In the current design, there is a slight distinction between a document and a projection, but they are related. Let’s have a look.</p>
+<p>Here is what a <code>Terminal</code> document looks like:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">class</span> Terminal(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;Terminal&quot;</span>, <span class="st">&quot;fragments cursors&quot;</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>):</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    <span class="kw">def</span> print_fragments_and_cursors(<span class="va">self</span>):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>        ...</span></code></pre></div>
+<p>It has a list of fragments, a list of cursors, and methods that operate on the document.</p>
+<p>Now, let’s look at a projection from lines to terminal:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> LinesToTerminal(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;LinesToTerminal&quot;</span>, <span class="st">&quot;projection lines&quot;</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    Projection</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>):</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>    <span class="kw">def</span> project(lines):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a>        ...</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>        <span class="cf">return</span> LinesToTerminalText(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>            ...</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>        )</span></code></pre></div>
+<p>It has a projection, the terminal document, a lines document, which was used as input, and a <code>project</code> function.</p>
+<p>It is used something like this:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>terminal <span class="op">=</span> LinesToTerminal.project(lines)</span></code></pre></div>
+<p>It projects a lines document to a terminal document. So the input to the <code>project</code> function is a <code>Lines</code> document and the output is a <code>Terminal</code> document.</p>
+<p>Except the <code>project</code> function returns an instance of itself, a <code>LinesToTerminal</code>. What’s going on?</p>
+<p>Notice the second base class, <code>Projection</code>. It looks like this:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> Projection:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="at">@property</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>    <span class="kw">def</span> fragments(<span class="va">self</span>):</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.projection.fragments</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>    ...</span></code></pre></div>
+<p>It adds methods to <code>LinesToTerminal</code> so that it behaves like <code>Terminal</code> document even though it is not. (It assumes that the <code>Terminal</code> document is stored in the <code>projection</code> field.)</p>
+<p>So why can’t we just return a <code>Terminal</code> document?</p>
+<p>Because the projection needs to hold some state. In this case it holds a copy of the <code>Lines</code> document that was passed as input. It needs that to be able to handle events appropriately. (I think this state is what <a href="https://github.com/projectured/projectured/wiki/Projection">ProjecturEd</a> calls an IO map.)</p>
+<p>Needing this wrapper <code>Projection</code> to make “projection objects” behave as document objects annoys me.</p>
+<p>Can we invert it? What if all documents had an extra field, called <code>meta</code> maybe, that projections could use to store whatever they needed to appropriately handle events? That would require all documents to have such a field, but then the wrapper would not be needed and code would be a bit more clean.</p>
+<h2 id="ideas-to-move-forward-with">Ideas to move forward with</h2>
+<p>Writing this blog post has yielded some results.</p>
+<p>Now I have two ideas to move forward with:</p>
+<ol type="1">
+<li>Move projection state to documents</li>
+<li>Change event driver to make events return a new version of the source document</li>
+</ol>
+<p>How can I make tine progress to any of the two ideas?</p>
+<p>Changing how the driver work seems like a big task that is hard to do in small steps. But moving projection state to documents seems like something that could quite easily be done.</p>
+<h2 id="move-projection-state-into-document">Move projection state into document</h2>
+<p>There are currently 3 types of documents:</p>
+<ul>
+<li>String</li>
+<li>Lines</li>
+<li>Terminal</li>
+</ul>
+<p>I decided to start with <code>String</code> to test out this idea.</p>
+<p>I went from</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> String(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;String&quot;</span>, <span class="st">&quot;string selections&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>):</span></code></pre></div>
+<p>to</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">class</span> String(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;String&quot;</span>, <span class="st">&quot;meta string selections&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>):</span></code></pre></div>
+<p>Immediately tests broke because I had not supplied the <code>meta</code> field anywhere. I supplied <code>None</code> as a value in all cases, and now everything was back to green.</p>
+<p>Unfortunately, there were no projections to <code>String</code>, so that was a bad choice.</p>
+<p>I did the same change to <code>Lines</code>.</p>
+<p>It turned out to be even easier since I had used a factory method.</p>
+<p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modified it to store its state in the <code>Lines</code> document instead of in the projection.</p>
+<p>I went from</p>
+<pre class="pyton"><code>class StringToLines(
+    namedtuple(&quot;StringToLines&quot;, &quot;projection string&quot;),
+    Projection
+)
+
+    ...
+    @staticmethod
+    def project(string):
+        return StringToLines(
+            projection=Lines.create(
+                lines=(line[0] for line in lines),
+                selections=selections
+            ),
+            string=string,
+        )</code></pre>
+<p>to this</p>
+<pre class="pyton"><code>class StringToLines(Lines):
+
+    ...
+    @staticmethod
+    def project(string):
+        return StringToLines.create(
+            lines=(line[0] for line in lines),
+            selections=selections,
+            meta=Meta(string=string)
+        )</code></pre>
+<p>where <code>Meta</code> is defined like this:</p>
+<pre class="pyton"><code>class Meta(
+    namedtuple(&quot;Meta&quot;, &quot;string&quot;)
+):
+    pass</code></pre>
+<p>I noticed that <code>StringToLines</code> class is still needed because it overrides method to handle events, and those events handlers use the data in the <code>meta</code> field to handle the event. But the class inherits <code>Lines</code>, so it uses exactly the same data.</p>
+<p>I realized that storing state in the document or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections.</p>
+<p>However, I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>, so I decided to go ahead with it anyway.</p>
+<p>Even if I know it won’t help solve my problem, it might be more clear and I might learn something going through with it.</p>
+<h2 id="new-problem-again">New problem again</h2>
+<p>Moving projection stat into documents didn’t really move me closer to a solution. Or it might have, I’m not sure yet. But it made the code a little cleaner.</p>
+<p>The next thing to work on is change the behavior of event handlers to return the document being edited instead of a new version of itself. Then call a project function on this new document to render it.</p>
+<p>The new <code>meta</code> field might come in handy here.</p>
+<p>Let’s explore.</p>
+<p>So in our target design, the driver looks like this:</p>
+<pre><code>def on_char(self, evt):
+    new_document = self.terminal.keyboard_event(KeyboardEvent(
+        unicode_character=chr(evt.GetUnicodeKey())
+    ))
+    self.terminal = create_editor(new_document)
+    self.repaint_bitmap()</code></pre>
+<p>Say that the document is a <code>String</code> and that it is read from a file. The <code>create_editor</code> function is completely stateless, so all information about how to render this document through a series of projections must be contained in the document. But a <code>String</code> document has no information about the editor. And the editor would for sure need some state unrelated to the document. One such state would be if the filter input dialog should be shown or not. Another might be which projection to use. Imagine that you can press a key to cycle through different projections. The one chosen must be stored somewhere.</p>
+<p>The new <code>meta</code> field might come in handy here.</p>
+<h2 id="how-long-is-this-going-to-take">How long is this going to take?</h2>
+<p>I feel like I’ve done a lot of work, and I’m still not confident that this is a good way forward. I feel like I keep trying things and just run into new problems.</p>
+<p>I’m trying to think ahead 10 steps to see if the new design will serve all the things that I potentially want to do. I end up just thinking without doing anything. Perhaps I shouldn’t. Perhaps I should just focus on the next thing, and the eventually I will have reached my end goal. I guess that is the TDD way of doing it.</p>
+<p>But I’m frustrated that I can’t clearly see how this new design will solve even my immediate problems.</p>
+<p>But I have given it some thought. And though some more by writing about it, and my confidence is starting to grow.</p>
+<h2 id="doing-the-switch">Doing the switch…</h2>
+<p>How to implement it in small steps?</p>
+<p>I think I have to do it in parallel…</p>
+<p>commit af8a0513a1cf14de372748d51d6bfe21009047fd First tiny step towards new driver/event interface.</p>
+<p>commit 2584a428a6bf481df924234c59bf98bd36d864e5 (HEAD -&gt; main) Test drive new_size_event. Make sure correct type is returned.</p>
+<p>Maybe this is test driving. Just one dumb test after another. Just learn what you need, one tiny test at a time.</p>
+<p>Am I learning the design aspect of TDD just now?!</p>
+<p>Maybe not according to jbrains. https://mastodon.social/<span class="citation" data-cites="jbrains/109406661608224141">@jbrains/109406661608224141</span></p>
+<p>Maybe I just sneaked up on a solution slowly.</p>
+<p>Was able to implement parallel solution and both write tests for it and try it out in the GUI. Fleshed out one detail after another.</p>
+<p>Then I felt that this would actually work out nicely.</p>
+<h2 id="cleaning-up">Cleaning up</h2>
+<p>Now I had two parallel versions.</p>
+<p>The new one worked almost as good as the old, except</p>
+<ul>
+<li>popup</li>
+<li>ms</li>
+</ul>
+<p>The popup never really worked in the old version. And was also the main reason this design change started. I can see how it can be better implemented in this new design, so I think I can just remove that functionality for now and do it again in the new design.</p>
+<p>Or now, I should try…</p>
+<p>ms worked so so before. Dind’t show complete truth. Better solution is needed.</p>
+<h2 id="was-a-blog-post-necessary">Was a blog post necessary?</h2>
+<p>The blog post forced me to explain things so that it would be clear to someone else. It forced me to think clearly.</p>
+<p>I don’t think I could have done that using TDD only.</p>
+<p>Some kind of prose or diagram would have been needed. Does that have a place in the code base? Most likely not. I’m explaining the current state (with all its flaws) so that I can improve it.</p>
+<p>Would a code base benefit from having blog posts and discussions attached to it? So you can see how it has evolved? Maybe.</p>
+<p>Making systems explainable is also something that <a href="https://gtoolkit.com/usecases/software-assessment/">GToolkit is working on</a>.</p>
+<p>These things popped into my mind as I was writing this blog post.</p>
+<p>Writing helps in thinking. The process works. The end result might be discarded.</p>
+]]></description>
+    <pubDate>Wed, 23 Nov 2022 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/projectional-editor-design-limit/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>DRAFT: Compiling expressions to x86 machine code</title>
     <link>http://rickardlindberg.me/writing/expr-to-x86-compiler/</link>
     <description><![CDATA[<h1>DRAFT: Compiling expressions to x86 machine code</h1>
