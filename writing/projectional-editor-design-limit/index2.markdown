@@ -388,8 +388,8 @@ Writing this blog post has yielded some results.
 Now I have two ideas to move forward with:
 
 1. Move projection state to documents
-2. Change event driver to make events return a new version of the source
-   document
+2. Change event driver to make events return a new version of the document
+   being edited instead of a projection
 
 How can I make tiny progress to any of the two ideas?
 
@@ -482,32 +482,32 @@ Lines. It *is* a `Lines` document. It does not need to add wrappers to act like
 one.
 
 Why return a `StringToLines` at all? Why not just return `Lines`?  Because it
-needs to override method to handle events. Projections need to implement unique
-event handles because they handle events differently. But the data the event
-handlers need to properly handle events are now stored in the `meta` field of
-the document.
+needs to override methods to handle events. Projections need to implement
+unique event handles because they handle events differently. But the data the
+event handlers need to properly handle events are now stored in the `meta`
+field of the document.
 
-I realized that storing state in the document or in the projection wouldn't
-matter. Different event handlers would need to be associated with different
-projections.
+I realize that storing the projection state in the document `meta` field or in
+the projection wouldn't matter. Different event handlers would need to be
+associated with different projections.
 
 I'm not sure we are much closer to solving the problem of a sane split view,
 but I think storing state in documents provides a slightly cleaner design
 ([complete
 diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa),
-so it should help us thing a bit more clearly.
+so it should help us think a bit more clearly.
 
 ## New problem again
 
-The next thing to work on is change the behavior of event handlers to return
-the document being edited instead of a new version of itself. Then call a
+The next thing to work on is to change the behavior of event handlers to return
+a new version of the document being edited instead of a projection. Then call a
 project function on this new document to render it.
 
 The new `meta` field might come in handy here.
 
 Let's explore.
 
-So in our target design, the driver looks like this:
+In our target design, the driver looks like this:
 
 ```
 def on_char(self, evt):
@@ -527,7 +527,7 @@ state would be if the filter input dialog should be shown or not. Another might
 be which projection to use. Imagine that you can press a key to cycle through
 different projections for example. The one chosen must be stored somewhere.
 
-The new `meta` field might come in handy here.
+We can use the new `meta` field for this.
 
 ## How long is this going to take?
 
@@ -540,7 +540,7 @@ things that I potentially want to do. I end up just thinking without doing
 anything. Perhaps I shouldn't. Perhaps I should just focus on the next thing,
 and then, eventually, I will have reached my end goal. I guess that is the TDD
 way of doing it. One tiny test at a time. At least now, I have a direction to
-try.
+try. I know one test to write.
 
 But I'm frustrated that I can't clearly see how this new design will solve even
 my immediate problems.
@@ -549,15 +549,66 @@ But my confidence is starting to grow that this is a promising direction.
 
 ## Doing the switch...
 
-How to implement it in small steps?
+We can't just change how the event driver works in a small step. It would
+require changing everything.
 
-I think I have to do it in parallel...
+What we can do is to do a completely parallel, isolated version of the event
+handler. We can test drive that, and when it works, we are confident that it
+works, we can switch over to that version and remove the old one.
 
-commit af8a0513a1cf14de372748d51d6bfe21009047fd
-    First tiny step towards new driver/event interface.
+I start with this basic test:
 
-commit 2584a428a6bf481df924234c59bf98bd36d864e5 (HEAD -> main)
-    Test drive new_size_event. Make sure correct type is returned.
+```python
+>>> project, document = Editor.create_projection_document("rlproject.py")
+>>> terminal = project(document)
+>>> isinstance(terminal, Terminal)
+True
+```
+
+`Editor.create_projection_document` is a completely new function. It returns a
+projection function and a document. This is what the new event driver would
+require.
+
+I add another test:
+
+```python
+>>> document = terminal.new_size_event(SizeEvent(10, 10))
+>>> isinstance(document, String)
+True
+```
+
+This test uses the 2 things like the event driver would. It send an event to
+the projection (`terminal`) and receives a new version of the document being
+edited (`document`). The assert checks that we get back a document of the
+correct type.
+
+The event is called `new_size_event`. The old one is called only `size_event`.
+Here the parallelism comes in. We have to duplicate event handlers because the
+have different signatures.
+
+...
+
+I keep going...
+
+```python
+if "--new-style-driver" in sys.argv[1:]:
+    driver = Editor.create_driver(path)
+else:
+    driver = Editor.from_file(path)
+```
+
+Now I'm starting to feel confident as I can test the new solution for real.
+
+Not there yet though.
+
+I keep going.
+
+Was able to implement parallel solution and both write tests for it and try it
+out in the GUI. Fleshed out one detail after another.
+
+Then I felt that this would actually work out nicely.
+
+## ...
 
 Maybe this is test driving. Just one dumb test after another. Just learn what
 you need, one tiny test at a time.
@@ -568,11 +619,6 @@ Maybe not according to jbrains.
 https://mastodon.social/@jbrains/109406661608224141
 
 Maybe I just sneaked up on a solution slowly.
-
-Was able to implement parallel solution and both write tests for it and try it
-out in the GUI. Fleshed out one detail after another.
-
-Then I felt that this would actually work out nicely.
 
 ## Cleaning up
 
