@@ -8,16 +8,16 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2022-11-23T00:00:00Z</updated>
+    <updated>2022-12-08T00:00:00Z</updated>
     <entry>
     <title>DRAFT: How should I evolve the design of my projectional editor?</title>
     <link href="http://rickardlindberg.me/writing/projectional-editor-design-limit/" />
     <id>http://rickardlindberg.me/writing/projectional-editor-design-limit/</id>
-    <published>2022-11-23T00:00:00Z</published>
-    <updated>2022-11-23T00:00:00Z</updated>
+    <published>2022-12-08T00:00:00Z</published>
+    <updated>2022-12-08T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: How should I evolve the design of my projectional editor?</h1>
 
-<p><em>Published on 23 November 2022.</em></p>
+<p><em>Published on  8 December 2022.</em></p>
 
 <ul>
 <li><a href="#background">Background</a></li>
@@ -27,10 +27,11 @@
 <li><a href="#making-the-split-work-sensible">Making the split work sensible</a></li>
 <li><a href="#how-do-projections-hold-state">How do projections hold state?</a></li>
 <li><a href="#ideas-to-move-forward-with">Ideas to move forward with</a></li>
-<li><a href="#move-projection-state-into-document">Move projection state into document</a></li>
+<li><a href="#move-projection-state-into-documents">Move projection state into documents</a></li>
 <li><a href="#new-problem-again">New problem again</a></li>
 <li><a href="#how-long-is-this-going-to-take">How long is this going to take?</a></li>
 <li><a href="#doing-the-switch">Doing the switch…</a></li>
+<li><a href="#section">…</a></li>
 <li><a href="#cleaning-up">Cleaning up</a></li>
 <li><a href="#was-a-blog-post-necessary">Was a blog post necessary?</a></li>
 </ul>
@@ -173,7 +174,7 @@
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>        ])</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>    )</span></code></pre></div>
 <p>That way, the same document would always be used.</p>
-<p>But creating projections in this is not possible with the current design.</p>
+<p>But creating projections in this way is not possible with the current design.</p>
 <p>Let’s look at the driver again to see why:</p>
 <pre><code>def on_char(self, evt):
     self.terminal = self.terminal.keyboard_event(KeyboardEvent(
@@ -217,7 +218,7 @@
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>        <span class="cf">return</span> LinesToTerminalText(</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>            ...</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>        )</span></code></pre></div>
-<p>It has a projection, the terminal document, a lines document, which was used as input, and a <code>project</code> function.</p>
+<p>It has a projection (the terminal document), a lines document (which was used as input), and a <code>project</code> function.</p>
 <p>It is used something like this:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>terminal <span class="op">=</span> LinesToTerminal.project(lines)</span></code></pre></div>
 <p>It projects a lines document to a terminal document. So the input to the <code>project</code> function is a <code>Lines</code> document and the output is a <code>Terminal</code> document.</p>
@@ -234,25 +235,24 @@
 <p>So why can’t we just return a <code>Terminal</code> document?</p>
 <p>Because the projection needs to hold some state. In this case it holds a copy of the <code>Lines</code> document that was passed as input. It needs that to be able to handle events appropriately. (I think this state is what <a href="https://github.com/projectured/projectured/wiki/Projection">ProjecturEd</a> calls an IO map.)</p>
 <p>Needing this wrapper <code>Projection</code> to make “projection objects” behave as document objects annoys me.</p>
-<p>Can we invert it? What if all documents had an extra field, called <code>meta</code> maybe, that projections could use to store whatever they needed to appropriately handle events? That would require all documents to have such a field, but then the wrapper would not be needed and code would be a bit more clean.</p>
+<p>Can we invert it? What if all documents had an extra field, called <code>meta</code> maybe, that projections could use to store whatever they need to appropriately handle events? That would require all documents to have such a field, but then the wrapper would not be needed and code would be a bit more clean.</p>
 <h2 id="ideas-to-move-forward-with">Ideas to move forward with</h2>
 <p>Writing this blog post has yielded some results.</p>
 <p>Now I have two ideas to move forward with:</p>
 <ol type="1">
 <li>Move projection state to documents</li>
-<li>Change event driver to make events return a new version of the source document</li>
+<li>Change event driver to make events return a new version of the document being edited instead of a projection</li>
 </ol>
-<p>How can I make tine progress to any of the two ideas?</p>
+<p>How can I make tiny progress to any of the two ideas?</p>
 <p>Changing how the driver work seems like a big task that is hard to do in small steps. But moving projection state to documents seems like something that could quite easily be done.</p>
-<h2 id="move-projection-state-into-document">Move projection state into document</h2>
+<h2 id="move-projection-state-into-documents">Move projection state into documents</h2>
 <p>There are currently 3 types of documents:</p>
 <ul>
 <li>String</li>
 <li>Lines</li>
 <li>Terminal</li>
 </ul>
-<p>I decided to start with <code>String</code> to test out this idea.</p>
-<p>I went from</p>
+<p>I decide to start with <code>String</code> to test out this idea. I change</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> String(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;String&quot;</span>, <span class="st">&quot;string selections&quot;</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>):</span></code></pre></div>
@@ -260,12 +260,10 @@
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">class</span> String(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;String&quot;</span>, <span class="st">&quot;meta string selections&quot;</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>):</span></code></pre></div>
-<p>Immediately tests broke because I had not supplied the <code>meta</code> field anywhere. I supplied <code>None</code> as a value in all cases, and now everything was back to green.</p>
-<p>Unfortunately, there were no projections to <code>String</code>, so that was a bad choice.</p>
-<p>I did the same change to <code>Lines</code>.</p>
-<p>It turned out to be even easier since I had used a factory method.</p>
-<p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modified it to store its state in the <code>Lines</code> document instead of in the projection.</p>
-<p>I went from</p>
+<p>Immediately tests brake because I have not supplied the <code>meta</code> field anywhere. I supply <code>None</code> as a value in all cases, and now everything is back to green.</p>
+<p>Unfortunately, there are no projections to <code>String</code>, so there are no projections that would have use for this new <code>meta</code> field.</p>
+<p>I do the same change to <code>Lines</code> instead. It turns out to be even easier since I already had factory method and only needed to modify that.</p>
+<p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modify it to store its state in <code>meta</code> field of the <code>Lines</code> document instead of in the projection by changing this</p>
 <pre class="pyton"><code>class StringToLines(
     namedtuple(&quot;StringToLines&quot;, &quot;projection string&quot;),
     Projection
@@ -292,45 +290,64 @@
             selections=selections,
             meta=Meta(string=string)
         )</code></pre>
-<p>where <code>Meta</code> is defined like this:</p>
+<p>The <code>Meta</code> class is defined like this:</p>
 <pre class="pyton"><code>class Meta(
     namedtuple(&quot;Meta&quot;, &quot;string&quot;)
 ):
     pass</code></pre>
-<p>I noticed that <code>StringToLines</code> class is still needed because it overrides method to handle events, and those events handlers use the data in the <code>meta</code> field to handle the event. But the class inherits <code>Lines</code>, so it uses exactly the same data.</p>
-<p>I realized that storing state in the document or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections.</p>
-<p>However, I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>, so I decided to go ahead with it anyway.</p>
-<p>Even if I know it won’t help solve my problem, it might be more clear and I might learn something going through with it.</p>
+<p>Notice the change in base class. A <code>StringToLines</code> projection is now of type Lines. It <em>is</em> a <code>Lines</code> document. It does not need to add wrappers to act like one.</p>
+<p>Why return a <code>StringToLines</code> at all? Why not just return <code>Lines</code>? Because it needs to override methods to handle events. Projections need to implement unique event handles because they handle events differently. But the data the event handlers need to properly handle events are now stored in the <code>meta</code> field of the document.</p>
+<p>I realize that storing the projection state in the document <code>meta</code> field or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections.</p>
+<p>I’m not sure we are much closer to solving the problem of a sane split view, but I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>, so it should help us think a bit more clearly.</p>
 <h2 id="new-problem-again">New problem again</h2>
-<p>Moving projection stat into documents didn’t really move me closer to a solution. Or it might have, I’m not sure yet. But it made the code a little cleaner.</p>
-<p>The next thing to work on is change the behavior of event handlers to return the document being edited instead of a new version of itself. Then call a project function on this new document to render it.</p>
+<p>The next thing to work on is to change the behavior of event handlers to return a new version of the document being edited instead of a projection. Then call a project function on this new document to render it.</p>
 <p>The new <code>meta</code> field might come in handy here.</p>
 <p>Let’s explore.</p>
-<p>So in our target design, the driver looks like this:</p>
+<p>In our target design, the driver looks like this:</p>
 <pre><code>def on_char(self, evt):
     new_document = self.terminal.keyboard_event(KeyboardEvent(
         unicode_character=chr(evt.GetUnicodeKey())
     ))
     self.terminal = create_editor(new_document)
     self.repaint_bitmap()</code></pre>
-<p>Say that the document is a <code>String</code> and that it is read from a file. The <code>create_editor</code> function is completely stateless, so all information about how to render this document through a series of projections must be contained in the document. But a <code>String</code> document has no information about the editor. And the editor would for sure need some state unrelated to the document. One such state would be if the filter input dialog should be shown or not. Another might be which projection to use. Imagine that you can press a key to cycle through different projections. The one chosen must be stored somewhere.</p>
-<p>The new <code>meta</code> field might come in handy here.</p>
+<p>Say that the document is a <code>String</code> and that it is read from a file. The <code>create_editor</code> function is completely stateless, so all information about how to render this document through a series of projections must be contained in the document. But a <code>String</code> document has no information about the editor. And the editor would for sure need some state unrelated to the document. One such state would be if the filter input dialog should be shown or not. Another might be which projection to use. Imagine that you can press a key to cycle through different projections for example. The one chosen must be stored somewhere.</p>
+<p>We can use the new <code>meta</code> field for this.</p>
 <h2 id="how-long-is-this-going-to-take">How long is this going to take?</h2>
 <p>I feel like I’ve done a lot of work, and I’m still not confident that this is a good way forward. I feel like I keep trying things and just run into new problems.</p>
-<p>I’m trying to think ahead 10 steps to see if the new design will serve all the things that I potentially want to do. I end up just thinking without doing anything. Perhaps I shouldn’t. Perhaps I should just focus on the next thing, and the eventually I will have reached my end goal. I guess that is the TDD way of doing it.</p>
+<p>I’m trying to think ahead 10 steps to see if the new design will serve all the things that I potentially want to do. I end up just thinking without doing anything. Perhaps I shouldn’t. Perhaps I should just focus on the next thing, and then, eventually, I will have reached my end goal. I guess that is the TDD way of doing it. One tiny test at a time. At least now, I have a direction to try. I know one test to write.</p>
 <p>But I’m frustrated that I can’t clearly see how this new design will solve even my immediate problems.</p>
-<p>But I have given it some thought. And though some more by writing about it, and my confidence is starting to grow.</p>
+<p>But my confidence is starting to grow that this is a promising direction.</p>
 <h2 id="doing-the-switch">Doing the switch…</h2>
-<p>How to implement it in small steps?</p>
-<p>I think I have to do it in parallel…</p>
-<p>commit af8a0513a1cf14de372748d51d6bfe21009047fd First tiny step towards new driver/event interface.</p>
-<p>commit 2584a428a6bf481df924234c59bf98bd36d864e5 (HEAD -&gt; main) Test drive new_size_event. Make sure correct type is returned.</p>
+<p>We can’t just change how the event driver works in a small step. It would require changing everything.</p>
+<p>What we can do is to do a completely parallel, isolated version of the event handler. We can test drive that, and when it works, we are confident that it works, we can switch over to that version and remove the old one.</p>
+<p>I start with this basic test:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> project, document <span class="op">=</span> Editor.create_projection_document(<span class="st">&quot;rlproject.py&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> terminal <span class="op">=</span> project(document)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">isinstance</span>(terminal, Terminal)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a><span class="va">True</span></span></code></pre></div>
+<p><code>Editor.create_projection_document</code> is a completely new function. It returns a projection function and a document. This is what the new event driver would require.</p>
+<p>I add another test:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> document <span class="op">=</span> terminal.new_size_event(SizeEvent(<span class="dv">10</span>, <span class="dv">10</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">isinstance</span>(document, String)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a><span class="va">True</span></span></code></pre></div>
+<p>This test uses the 2 things like the event driver would. It send an event to the projection (<code>terminal</code>) and receives a new version of the document being edited (<code>document</code>). The assert checks that we get back a document of the correct type.</p>
+<p>The event is called <code>new_size_event</code>. The old one is called only <code>size_event</code>. Here the parallelism comes in. We have to duplicate event handlers because the have different signatures.</p>
+<p>…</p>
+<p>I keep going…</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="cf">if</span> <span class="st">&quot;--new-style-driver&quot;</span> <span class="kw">in</span> sys.argv[<span class="dv">1</span>:]:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.create_driver(path)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a><span class="cf">else</span>:</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.from_file(path)</span></code></pre></div>
+<p>Now I’m starting to feel confident as I can test the new solution for real.</p>
+<p>Not there yet though.</p>
+<p>I keep going.</p>
+<p>Was able to implement parallel solution and both write tests for it and try it out in the GUI. Fleshed out one detail after another.</p>
+<p>Then I felt that this would actually work out nicely.</p>
+<h2 id="section">…</h2>
 <p>Maybe this is test driving. Just one dumb test after another. Just learn what you need, one tiny test at a time.</p>
 <p>Am I learning the design aspect of TDD just now?!</p>
 <p>Maybe not according to jbrains. https://mastodon.social/<span class="citation" data-cites="jbrains/109406661608224141">@jbrains/109406661608224141</span></p>
 <p>Maybe I just sneaked up on a solution slowly.</p>
-<p>Was able to implement parallel solution and both write tests for it and try it out in the GUI. Fleshed out one detail after another.</p>
-<p>Then I felt that this would actually work out nicely.</p>
 <h2 id="cleaning-up">Cleaning up</h2>
 <p>Now I had two parallel versions.</p>
 <p>The new one worked almost as good as the old, except</p>
