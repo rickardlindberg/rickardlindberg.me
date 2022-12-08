@@ -262,7 +262,7 @@ def create_editor(document):
 
 That way, the same document would always be used.
 
-But creating projections in this is not possible with the current design.
+But creating projections in this way is not possible with the current design.
 
 Let's look at the driver again to see why:
 
@@ -333,8 +333,8 @@ class LinesToTerminal(
         )
 ```
 
-It has a projection, the terminal document, a lines document, which was used as
-input, and a `project` function.
+It has a projection (the terminal document), a lines document (which was used
+as input), and a `project` function.
 
 It is used something like this:
 
@@ -377,10 +377,9 @@ Needing this wrapper `Projection` to make "projection objects" behave as
 document objects annoys me.
 
 Can we invert it?  What if all documents had an extra field, called `meta`
-maybe, that projections could use to store whatever they needed to
-appropriately handle events? That would require all documents to have such a
-field, but then the wrapper would not be needed and code would be a bit more
-clean.
+maybe, that projections could use to store whatever they need to appropriately
+handle events? That would require all documents to have such a field, but then
+the wrapper would not be needed and code would be a bit more clean.
 
 ## Ideas to move forward with
 
@@ -389,16 +388,16 @@ Writing this blog post has yielded some results.
 Now I have two ideas to move forward with:
 
 1. Move projection state to documents
-2. Change event driver to make events return a new version of the source
-   document
+2. Change event driver to make events return a new version of the document
+   being edited instead of a projection
 
-How can I make tine progress to any of the two ideas?
+How can I make tiny progress to any of the two ideas?
 
 Changing how the driver work seems like a big task that is hard to do in small
 steps. But moving projection state to documents seems like something that could
 quite easily be done.
 
-## Move projection state into document
+## Move projection state into documents
 
 There are currently 3 types of documents:
 
@@ -406,9 +405,7 @@ There are currently 3 types of documents:
 * Lines
 * Terminal
 
-I decided to start with `String` to test out this idea.
-
-I went from
+I decide to start with `String` to test out this idea. I change
 
 ```python
 class String(
@@ -424,21 +421,19 @@ class String(
 ):
 ```
 
-Immediately tests broke because I had not supplied the `meta` field anywhere.
-I supplied `None` as a value in all cases, and now everything was back to
+Immediately tests brake because I have not supplied the `meta` field anywhere.
+I supply `None` as a value in all cases, and now everything is back to
 green.
 
-Unfortunately, there were no projections to `String`, so that was a bad choice.
+Unfortunately, there are no projections to `String`, so there are no
+projections that would have use for this new `meta` field.
 
-I did the same change to `Lines`.
-
-It turned out to be even easier since I had used a factory method.
+I do the same change to `Lines` instead.  It turns out to be even easier since
+I already had factory method and only needed to modify that.
 
 There is only one projection that projects to `Lines`, and that is
-`StringToLines`. I modified it to store its state in the `Lines` document
-instead of in the projection.
-
-I went from
+`StringToLines`. I modify it to store its state in `meta` field of the `Lines`
+document instead of in the projection by changing this
 
 ```pyton
 class StringToLines(
@@ -473,7 +468,7 @@ class StringToLines(Lines):
         )
 ```
 
-where `Meta` is defined like this:
+The `Meta` class is defined like this:
 
 ```pyton
 class Meta(
@@ -482,38 +477,37 @@ class Meta(
     pass
 ```
 
-I noticed that `StringToLines` class is still needed because it overrides
-method to handle events, and those events handlers use the data in the `meta`
-field to handle the event. But the class inherits `Lines`, so it uses exactly
-the same data.
+Notice the change in base class. A `StringToLines` projection is now of type
+Lines. It *is* a `Lines` document. It does not need to add wrappers to act like
+one.
 
-I realized that storing state in the document or in the projection wouldn't
-matter. Different event handlers would need to be associated with different
-projections.
+Why return a `StringToLines` at all? Why not just return `Lines`?  Because it
+needs to override methods to handle events. Projections need to implement
+unique event handles because they handle events differently. But the data the
+event handlers need to properly handle events are now stored in the `meta`
+field of the document.
 
-However, I think storing state in documents provides a slightly cleaner design
+I realize that storing the projection state in the document `meta` field or in
+the projection wouldn't matter. Different event handlers would need to be
+associated with different projections.
+
+I'm not sure we are much closer to solving the problem of a sane split view,
+but I think storing state in documents provides a slightly cleaner design
 ([complete
 diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa),
-so I decided to go ahead with it anyway.
-
-Even if I know it won't help solve my problem, it might be more clear and I
-might learn something going through with it.
+so it should help us think a bit more clearly.
 
 ## New problem again
 
-Moving projection stat into documents didn't really move me closer to a
-solution. Or it might have, I'm not sure yet. But it made the code a little
-cleaner.
-
-The next thing to work on is change the behavior of event handlers to return
-the document being edited instead of a new version of itself. Then call a
+The next thing to work on is to change the behavior of event handlers to return
+a new version of the document being edited instead of a projection. Then call a
 project function on this new document to render it.
 
 The new `meta` field might come in handy here.
 
 Let's explore.
 
-So in our target design, the driver looks like this:
+In our target design, the driver looks like this:
 
 ```
 def on_char(self, evt):
@@ -531,9 +525,9 @@ the document. But a `String` document has no information about the editor. And
 the editor would for sure need some state unrelated to the document. One such
 state would be if the filter input dialog should be shown or not. Another might
 be which projection to use. Imagine that you can press a key to cycle through
-different projections. The one chosen must be stored somewhere.
+different projections for example. The one chosen must be stored somewhere.
 
-The new `meta` field might come in handy here.
+We can use the new `meta` field for this.
 
 ## How long is this going to take?
 
@@ -544,26 +538,77 @@ problems.
 I'm trying to think ahead 10 steps to see if the new design will serve all the
 things that I potentially want to do. I end up just thinking without doing
 anything. Perhaps I shouldn't. Perhaps I should just focus on the next thing,
-and the eventually I will have reached my end goal. I guess that is the TDD way
-of doing it.
+and then, eventually, I will have reached my end goal. I guess that is the TDD
+way of doing it. One tiny test at a time. At least now, I have a direction to
+try. I know one test to write.
 
 But I'm frustrated that I can't clearly see how this new design will solve even
 my immediate problems.
 
-But I have given it some thought. And though some more by writing about it, and
-my confidence is starting to grow.
+But my confidence is starting to grow that this is a promising direction.
 
 ## Doing the switch...
 
-How to implement it in small steps?
+We can't just change how the event driver works in a small step. It would
+require changing everything.
 
-I think I have to do it in parallel...
+What we can do is to do a completely parallel, isolated version of the event
+handler. We can test drive that, and when it works, we are confident that it
+works, we can switch over to that version and remove the old one.
 
-commit af8a0513a1cf14de372748d51d6bfe21009047fd
-    First tiny step towards new driver/event interface.
+I start with this basic test:
 
-commit 2584a428a6bf481df924234c59bf98bd36d864e5 (HEAD -> main)
-    Test drive new_size_event. Make sure correct type is returned.
+```python
+>>> project, document = Editor.create_projection_document("rlproject.py")
+>>> terminal = project(document)
+>>> isinstance(terminal, Terminal)
+True
+```
+
+`Editor.create_projection_document` is a completely new function. It returns a
+projection function and a document. This is what the new event driver would
+require.
+
+I add another test:
+
+```python
+>>> document = terminal.new_size_event(SizeEvent(10, 10))
+>>> isinstance(document, String)
+True
+```
+
+This test uses the 2 things like the event driver would. It send an event to
+the projection (`terminal`) and receives a new version of the document being
+edited (`document`). The assert checks that we get back a document of the
+correct type.
+
+The event is called `new_size_event`. The old one is called only `size_event`.
+Here the parallelism comes in. We have to duplicate event handlers because the
+have different signatures.
+
+...
+
+I keep going...
+
+```python
+if "--new-style-driver" in sys.argv[1:]:
+    driver = Editor.create_driver(path)
+else:
+    driver = Editor.from_file(path)
+```
+
+Now I'm starting to feel confident as I can test the new solution for real.
+
+Not there yet though.
+
+I keep going.
+
+Was able to implement parallel solution and both write tests for it and try it
+out in the GUI. Fleshed out one detail after another.
+
+Then I felt that this would actually work out nicely.
+
+## ...
 
 Maybe this is test driving. Just one dumb test after another. Just learn what
 you need, one tiny test at a time.
@@ -574,11 +619,6 @@ Maybe not according to jbrains.
 https://mastodon.social/@jbrains/109406661608224141
 
 Maybe I just sneaked up on a solution slowly.
-
-Was able to implement parallel solution and both write tests for it and try it
-out in the GUI. Fleshed out one detail after another.
-
-Then I felt that this would actually work out nicely.
 
 ## Cleaning up
 
