@@ -69,9 +69,8 @@
 <li><a href="#new-problem-again">New problem again</a></li>
 <li><a href="#how-long-is-this-going-to-take">How long is this going to take?</a></li>
 <li><a href="#doing-the-switch">Doing the switch…</a></li>
-<li><a href="#section">…</a></li>
-<li><a href="#cleaning-up">Cleaning up</a></li>
 <li><a href="#was-a-blog-post-necessary">Was a blog post necessary?</a></li>
+<li><a href="#misc">Misc</a></li>
 </ul>
 <p>I am writing this blog post to help me get unstuck.</p>
 <p>I tried to implement the next thing in my projectional editor and I felt like I had hit the limit of what the design was capable of. There was no way I could add this next thing.</p>
@@ -142,7 +141,7 @@
 <center>
 <img src="rlproject-filter.png" title="fig:" alt="New filter input field." />
 </center>
-<p>The idea was that as a typed characters in the filter input field, the lines that did not match would get excluded from the top split.</p>
+<p>The idea was that as I typed characters in the filter input field, the lines that did not match would get excluded from the top split.</p>
 <p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor toward a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
 <h2 id="a-note-on-getting-stuck">A note on getting stuck</h2>
 <p>When I end up in a stuck situation like this, I wonder if I’m doing something wrong.</p>
@@ -168,7 +167,7 @@
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    ])</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>)</span></code></pre></div>
 <p>The idea is to create an editor for a file at the given <code>path</code>. This editor provides two projections of this file (one with lines, and one as a string). But the idea is to edit a single file. The different projections can give different views of the data structure, but the underlying data structure is the same.</p>
-<p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. The child documents are actually edited separately, but it looks like it is the same document because they receive the same events and change in the same way.</p>
+<p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. (Not shown in the code above.) The child documents are actually edited separately, but it looks like it is the same document because they receive the same events and change in the same way.</p>
 <p>In most cases, it is probably not useful to have a split that forwards events to all its children. It is probably mostly confusing. I thought that <code>Split</code> would be temporarily useful as way to test multiple projections, and that it could be replaced with something better later on.</p>
 <p>But I might have been wrong.</p>
 <p>Perhaps there was something more fundamentally wrong with the design here.</p>
@@ -227,13 +226,12 @@
     ))
     self.terminal = create_editor(new_document)
     self.repaint_bitmap()</code></pre>
-<p>In this design, we need to supply two things to the driver</p>
+<p>In this design, we need to supply two things to the driver:</p>
 <ol type="1">
 <li>The document to edit</li>
 <li>A projection function that projects the document to a terminal document</li>
 </ol>
-<p>In this design, we probably could modify <code>Split</code> to behave as we wanted.</p>
-<p>Can we do it?</p>
+<p>In this design, we can probably modify <code>Split</code> to behave as we want. Let’s try.</p>
 <h2 id="how-do-projections-hold-state">How do projections hold state?</h2>
 <p>In the current design, there is a slight distinction between a document and a projection, but they are related. Let’s have a look.</p>
 <p>Here is what a <code>Terminal</code> document looks like:</p>
@@ -298,8 +296,8 @@
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">class</span> String(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    namedtuple(<span class="st">&quot;String&quot;</span>, <span class="st">&quot;meta string selections&quot;</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>):</span></code></pre></div>
-<p>Immediately tests brake because I have not supplied the <code>meta</code> field anywhere. I supply <code>None</code> as a value in all cases, and now everything is back to green.</p>
-<p>Unfortunately, there are no projections to <code>String</code>, so there are no projections that would have use for this new <code>meta</code> field.</p>
+<p>Immediately tests break because I have not supplied the <code>meta</code> field anywhere. I supply <code>None</code> as a value in all cases, and now everything is back to green.</p>
+<p>Unfortunately, there are no projections to <code>String</code>, so there are no projections that would have use for this new <code>meta</code> field. Bad first choice. Never mind.</p>
 <p>I do the same change to <code>Lines</code> instead. It turns out to be even easier since I already had factory method and only needed to modify that.</p>
 <p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modify it to store its state in <code>meta</code> field of the <code>Lines</code> document instead of in the projection by changing this</p>
 <pre class="pyton"><code>class StringToLines(
@@ -334,11 +332,11 @@
 ):
     pass</code></pre>
 <p>Notice the change in base class. A <code>StringToLines</code> projection is now of type Lines. It <em>is</em> a <code>Lines</code> document. It does not need to add wrappers to act like one.</p>
-<p>Why return a <code>StringToLines</code> at all? Why not just return <code>Lines</code>? Because it needs to override methods to handle events. Projections need to implement unique event handles because they handle events differently. But the data the event handlers need to properly handle events are now stored in the <code>meta</code> field of the document.</p>
-<p>I realize that storing the projection state in the document <code>meta</code> field or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections.</p>
-<p>I’m not sure we are much closer to solving the problem of a sane split view, but I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>, so it should help us think a bit more clearly.</p>
+<p>Why return a <code>StringToLines</code> at all? Why not just return <code>Lines</code>? Because it needs to override methods to handle events. Projections need to implement unique event handles because they handle events differently. But the data that the event handlers need to properly handle events are now stored in the <code>meta</code> field of the document.</p>
+<p>I realize that storing the projection state in the document <code>meta</code> field or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections anyway.</p>
+<p>I’m not sure we are much closer to solving the problem of a sane split view, but I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>), so it should help us think a bit more clearly.</p>
 <h2 id="new-problem-again">New problem again</h2>
-<p>The next thing to work on is to change the behavior of event handlers to return a new version of the document being edited instead of a projection. Then call a project function on this new document to render it.</p>
+<p>The next thing to try is to change the behavior of event handlers to return a new version of the document being edited instead of a projection. Then call a project function on this new document to render it.</p>
 <p>The new <code>meta</code> field might come in handy here.</p>
 <p>Let’s explore.</p>
 <p>In our target design, the driver looks like this:</p>
@@ -357,7 +355,7 @@
 <p>But my confidence is starting to grow that this is a promising direction.</p>
 <h2 id="doing-the-switch">Doing the switch…</h2>
 <p>We can’t just change how the event driver works in a small step. It would require changing everything.</p>
-<p>What we can do is to do a completely parallel, isolated version of the event handler. We can test drive that, and when it works, we are confident that it works, we can switch over to that version and remove the old one.</p>
+<p>What we can do is to do a completely parallel, isolated version of the event handler. We can test drive that, and when we are confident that it works, we can switch over to that version and remove the old one.</p>
 <p>I start with this basic test:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> project, document <span class="op">=</span> Editor.create_projection_document(<span class="st">&quot;rlproject.py&quot;</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> terminal <span class="op">=</span> project(document)</span>
@@ -381,29 +379,23 @@
 <p>I keep going.</p>
 <p>Was able to implement parallel solution and both write tests for it and try it out in the GUI. Fleshed out one detail after another.</p>
 <p>Then I felt that this would actually work out nicely.</p>
-<h2 id="section">…</h2>
-<p>Maybe this is test driving. Just one dumb test after another. Just learn what you need, one tiny test at a time.</p>
-<p>Am I learning the design aspect of TDD just now?!</p>
-<p>Maybe not according to jbrains. https://mastodon.social/<span class="citation" data-cites="jbrains/109406661608224141">@jbrains/109406661608224141</span></p>
-<p>Maybe I just sneaked up on a solution slowly.</p>
-<h2 id="cleaning-up">Cleaning up</h2>
-<p>Now I had two parallel versions.</p>
-<p>The new one worked almost as good as the old, except</p>
-<ul>
-<li>popup</li>
-<li>ms</li>
-</ul>
-<p>The popup never really worked in the old version. And was also the main reason this design change started. I can see how it can be better implemented in this new design, so I think I can just remove that functionality for now and do it again in the new design.</p>
-<p>Or now, I should try…</p>
-<p>ms worked so so before. Dind’t show complete truth. Better solution is needed.</p>
+<p>Then I was able to remove the old version completely…</p>
+<p>Then I could clean up the code and my confidence grew even more.</p>
 <h2 id="was-a-blog-post-necessary">Was a blog post necessary?</h2>
 <p>The blog post forced me to explain things so that it would be clear to someone else. It forced me to think clearly.</p>
 <p>I don’t think I could have done that using TDD only.</p>
+<p><strong>Maybe writing was my way of listening to the code.</strong></p>
+<h2 id="misc">Misc</h2>
 <p>Some kind of prose or diagram would have been needed. Does that have a place in the code base? Most likely not. I’m explaining the current state (with all its flaws) so that I can improve it.</p>
 <p>Would a code base benefit from having blog posts and discussions attached to it? So you can see how it has evolved? Maybe.</p>
 <p>Making systems explainable is also something that <a href="https://gtoolkit.com/usecases/software-assessment/">GToolkit is working on</a>.</p>
 <p>These things popped into my mind as I was writing this blog post.</p>
 <p>Writing helps in thinking. The process works. The end result might be discarded.</p>
+<p>…</p>
+<p>Maybe this is test driving. Just one dumb test after another. Just learn what you need, one tiny test at a time.</p>
+<p>Am I learning the design aspect of TDD just now?!</p>
+<p>Maybe not according to jbrains. https://mastodon.social/<span class="citation" data-cites="jbrains/109406661608224141">@jbrains/109406661608224141</span></p>
+<p>Maybe I just sneaked up on a solution slowly.</p>
 
       <hr>
       <center>
