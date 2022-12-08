@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: How should I evolve the design of my projectional editor?"
-date: 2022-11-23
+date: 2022-12-08
 tags: rlproject,draft
 ---
 
