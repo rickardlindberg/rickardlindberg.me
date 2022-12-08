@@ -132,7 +132,7 @@ this:
 ![New filter input field.](rlproject-filter.png)
 </center>
 
-The idea was that as a typed characters in the filter input field, the lines
+The idea was that as I typed characters in the filter input field, the lines
 that did not match would get excluded from the top split.
 
 When I made the modification to add the input field, I had to force it in. I
@@ -193,9 +193,9 @@ same.
 
 Except, in this case it isn't. You can see that `String.from_file(path)` is
 called twice. And the `Split` projection forwards key events to both child
-documents. The child documents are actually edited separately, but it looks
-like it is the same document because they receive the same events and change in
-the same way.
+documents. (Not shown in the code above.) The child documents are actually
+edited separately, but it looks like it is the same document because they
+receive the same events and change in the same way.
 
 In most cases, it is probably not useful to have a split that forwards events
 to all its children. It is probably mostly confusing. I thought that `Split`
@@ -289,14 +289,13 @@ def on_char(self, evt):
     self.repaint_bitmap()
 ```
 
-In this design, we need to supply two things to the driver
+In this design, we need to supply two things to the driver:
 
 1. The document to edit
 2. A projection function that projects the document to a terminal document
 
-In this design, we probably could modify `Split` to behave as we wanted.
-
-Can we do it?
+In this design, we can probably modify `Split` to behave as we want.  Let's
+try.
 
 ## How do projections hold state?
 
@@ -421,12 +420,13 @@ class String(
 ):
 ```
 
-Immediately tests brake because I have not supplied the `meta` field anywhere.
+Immediately tests break because I have not supplied the `meta` field anywhere.
 I supply `None` as a value in all cases, and now everything is back to
 green.
 
 Unfortunately, there are no projections to `String`, so there are no
-projections that would have use for this new `meta` field.
+projections that would have use for this new `meta` field. Bad first choice.
+Never mind.
 
 I do the same change to `Lines` instead.  It turns out to be even easier since
 I already had factory method and only needed to modify that.
@@ -483,23 +483,23 @@ one.
 
 Why return a `StringToLines` at all? Why not just return `Lines`?  Because it
 needs to override methods to handle events. Projections need to implement
-unique event handles because they handle events differently. But the data the
-event handlers need to properly handle events are now stored in the `meta`
+unique event handles because they handle events differently. But the data that
+the event handlers need to properly handle events are now stored in the `meta`
 field of the document.
 
 I realize that storing the projection state in the document `meta` field or in
 the projection wouldn't matter. Different event handlers would need to be
-associated with different projections.
+associated with different projections anyway.
 
 I'm not sure we are much closer to solving the problem of a sane split view,
 but I think storing state in documents provides a slightly cleaner design
 ([complete
-diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa),
+diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa)),
 so it should help us think a bit more clearly.
 
 ## New problem again
 
-The next thing to work on is to change the behavior of event handlers to return
+The next thing to try is to change the behavior of event handlers to return
 a new version of the document being edited instead of a projection. Then call a
 project function on this new document to render it.
 
@@ -553,8 +553,8 @@ We can't just change how the event driver works in a small step. It would
 require changing everything.
 
 What we can do is to do a completely parallel, isolated version of the event
-handler. We can test drive that, and when it works, we are confident that it
-works, we can switch over to that version and remove the old one.
+handler. We can test drive that, and when we are confident that it works, we
+can switch over to that version and remove the old one.
 
 I start with this basic test:
 
@@ -608,35 +608,9 @@ out in the GUI. Fleshed out one detail after another.
 
 Then I felt that this would actually work out nicely.
 
-## ...
+Then I was able to remove the old version completely...
 
-Maybe this is test driving. Just one dumb test after another. Just learn what
-you need, one tiny test at a time.
-
-Am I learning the design aspect of TDD just now?!
-
-Maybe not according to jbrains.
-https://mastodon.social/@jbrains/109406661608224141
-
-Maybe I just sneaked up on a solution slowly.
-
-## Cleaning up
-
-Now I had two parallel versions.
-
-The new one worked almost as good as the old, except
-
-* popup
-* ms
-
-The popup never really worked in the old version. And was also the main reason
-this design change started. I can see how it can be better implemented in this
-new design, so I think I can just remove that functionality for now and do it
-again in the new design.
-
-Or now, I should try...
-
-ms worked so so before. Dind't show complete truth. Better solution is needed.
+Then I could clean up the code and my confidence grew even more.
 
 ## Was a blog post necessary?
 
@@ -644,6 +618,10 @@ The blog post forced me to explain things so that it would be clear to someone
 else. It forced me to think clearly.
 
 I don't think I could have done that using TDD only.
+
+**Maybe writing was my way of listening to the code.**
+
+## Misc
 
 Some kind of prose or diagram would have been needed. Does that have a place in
 the code base? Most likely not. I'm explaining the current state (with all its
@@ -659,3 +637,15 @@ These things popped into my mind as I was writing this blog post.
 
 Writing helps in thinking. The process works. The end result might be
 discarded.
+
+...
+
+Maybe this is test driving. Just one dumb test after another. Just learn what
+you need, one tiny test at a time.
+
+Am I learning the design aspect of TDD just now?!
+
+Maybe not according to jbrains.
+https://mastodon.social/@jbrains/109406661608224141
+
+Maybe I just sneaked up on a solution slowly.
