@@ -28,7 +28,6 @@
 <li><a href="#how-long-is-this-going-to-take">How long is this going to take?</a></li>
 <li><a href="#doing-the-switch">Doing the switch…</a></li>
 <li><a href="#was-a-blog-post-necessary">Was a blog post necessary?</a></li>
-<li><a href="#misc">Misc</a></li>
 </ul>
 <p>I am writing this blog post to help me get unstuck.</p>
 <p>I tried to implement the next thing in my projectional editor and I felt like I had hit the limit of what the design was capable of. There was no way I could add this next thing.</p>
@@ -103,9 +102,8 @@
 <p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor toward a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
 <h2 id="a-note-on-getting-stuck">A note on getting stuck</h2>
 <p>When I end up in a stuck situation like this, I wonder if I’m doing something wrong.</p>
-<p>Sometimes when I’m reading Agile literature, and maybe TDD literature in particular, I get the feeling that it should always be possible to make progress. Even if just a tiny step. And if you get stuck, it’s because you ignored earlier signs that you should have refactored or evolved your design in a certain direction.</p>
-<p>But I feel like you sometimes have to take a step backwards, rethink the design, and then move forward again. Being able to always move forward seems impossible to me.</p>
-<p>Well, now I am stuck, and I can’t figure out a test to write to make even tiny progress. So I am turning to my blog for advice and guidance. By writing about the problem, perhaps I can get some clarity and get an idea for how to move forward.</p>
+<p>Sometimes when I’m reading Agile literature, and maybe TDD literature in particular, I get the feeling that it should always be possible to make progress. Even if just a tiny bit. And if you get stuck, it’s because you ignored earlier signs that you should have refactored or evolved your design in a certain direction.</p>
+<p>Well, now I am stuck, and I can’t figure out a test to write to make even tiny progress. So I am turning to my blog for advice and guidance. By writing about the problem, perhaps I can get some clarity and ideas for how to move forward.</p>
 <h2 id="a-previous-problem-i-had-noticed">A previous problem I had noticed</h2>
 <p>One problem that I had noticed before starting working on filtering lines, but thought was not significant, is partially seen in the creation of the editor:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>Editor.project(</span>
@@ -340,20 +338,11 @@
 <p>Then I was able to remove the old version completely…</p>
 <p>Then I could clean up the code and my confidence grew even more.</p>
 <h2 id="was-a-blog-post-necessary">Was a blog post necessary?</h2>
-<p>The blog post forced me to explain things so that it would be clear to someone else. It forced me to think clearly.</p>
+<p>The blog post forced me to explain things so that it would be clear to someone else. It forced me to think more clearly.</p>
+<p>By doing so, I noticed a problem in the code and a possible way forward.</p>
 <p>I don’t think I could have done that using TDD only.</p>
-<p><strong>Maybe writing was my way of listening to the code.</strong></p>
-<h2 id="misc">Misc</h2>
-<p>Some kind of prose or diagram would have been needed. Does that have a place in the code base? Most likely not. I’m explaining the current state (with all its flaws) so that I can improve it.</p>
-<p>Would a code base benefit from having blog posts and discussions attached to it? So you can see how it has evolved? Maybe.</p>
-<p>Making systems explainable is also something that <a href="https://gtoolkit.com/usecases/software-assessment/">GToolkit is working on</a>.</p>
-<p>These things popped into my mind as I was writing this blog post.</p>
-<p>Writing helps in thinking. The process works. The end result might be discarded.</p>
-<p>…</p>
-<p>Maybe this is test driving. Just one dumb test after another. Just learn what you need, one tiny test at a time.</p>
-<p>Am I learning the design aspect of TDD just now?!</p>
-<p>Maybe not according to jbrains. https://mastodon.social/<span class="citation" data-cites="jbrains/109406661608224141">@jbrains/109406661608224141</span></p>
-<p>Maybe I just sneaked up on a solution slowly.</p>
+<p><strong>Maybe writing was my way of listening to the code.</strong> It was my way of thinking of what test to write next. Writing made it more clear in what direction to move, then TDD helped me move in that direction safely and steadily.</p>
+<p>On the other hand, thinking is not forbidden in TDD. And if writing gives better thinking, is it thinking or writing?</p>
 ]]></description>
     <pubDate>Thu, 08 Dec 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/projectional-editor-design-limit/</guid>
