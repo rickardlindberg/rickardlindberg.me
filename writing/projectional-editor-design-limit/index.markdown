@@ -148,18 +148,13 @@ wrong.
 
 Sometimes when I'm reading Agile literature, and maybe TDD literature in
 particular, I get the feeling that it should always be possible to make
-progress. Even if just a tiny step. And if you get stuck, it's because you
+progress. Even if just a tiny bit. And if you get stuck, it's because you
 ignored earlier signs that you should have refactored or evolved your design in
 a certain direction.
 
-But I feel like you sometimes have to take a step backwards, rethink the
-design, and then move forward again. Being able to always move forward seems
-impossible to me.
-
 Well, now I am stuck, and I can't figure out a test to write to make even tiny
 progress. So I am turning to my blog for advice and guidance. By writing about
-the problem, perhaps I can get some clarity and get an idea for how to move
-forward.
+the problem, perhaps I can get some clarity and ideas for how to move forward.
 
 ## A previous problem I had noticed
 
@@ -615,50 +610,16 @@ Then I could clean up the code and my confidence grew even more.
 ## Was a blog post necessary?
 
 The blog post forced me to explain things so that it would be clear to someone
-else. It forced me to think clearly.
+else. It forced me to think more clearly.
+
+By doing so, I noticed a problem in the code and a possible way forward.
 
 I don't think I could have done that using TDD only.
 
 **Maybe writing was my way of listening to the code.** It was my way of
-thinking of what test to write next.
+thinking of what test to write next. Writing made it more clear in what
+direction to move, then TDD helped me move in that direction safely and
+steadily.
 
-Writing made it more clear in what direction to move. TDD helped me move in
-that direction safely and steadily.
-
-## Misc
-
-I did not use TDD for design, I used writing and thinking. At least for the
-big picture. Then TDD helped me move there.
-
-    https://mastodon.social/@jbrains/109406661608224141
-
-    https://focusedlabs.io/blog/tdd-first-step-think
-
-    Think -> What test to write
-
-Some kind of prose or diagram would have been needed. Does that have a place in
-the code base? Most likely not. I'm explaining the current state (with all its
-flaws) so that I can improve it.
-
-Would a code base benefit from having blog posts and discussions attached to
-it? So you can see how it has evolved? Maybe.
-
-Making systems explainable is also something that [GToolkit is working
-on](https://gtoolkit.com/usecases/software-assessment/).
-
-These things popped into my mind as I was writing this blog post.
-
-Writing helps in thinking. The process works. The end result might be
-discarded.
-
-...
-
-Maybe this is test driving. Just one dumb test after another. Just learn what
-you need, one tiny test at a time.
-
-Am I learning the design aspect of TDD just now?!
-
-Maybe not according to jbrains.
-https://mastodon.social/@jbrains/109406661608224141
-
-Maybe I just sneaked up on a solution slowly.
+On the other hand, thinking is not forbidden in TDD. And if writing gives
+better thinking, is it thinking or writing?
