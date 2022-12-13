@@ -619,9 +619,22 @@ else. It forced me to think clearly.
 
 I don't think I could have done that using TDD only.
 
-**Maybe writing was my way of listening to the code.**
+**Maybe writing was my way of listening to the code.** It was my way of
+thinking of what test to write next.
+
+Writing made it more clear in what direction to move. TDD helped me move in
+that direction safely and steadily.
 
 ## Misc
+
+I did not use TDD for design, I used writing and thinking. At least for the
+big picture. Then TDD helped me move there.
+
+    https://mastodon.social/@jbrains/109406661608224141
+
+    https://focusedlabs.io/blog/tdd-first-step-think
+
+    Think -> What test to write
 
 Some kind of prose or diagram would have been needed. Does that have a place in
 the code base? Most likely not. I'm explaining the current state (with all its
