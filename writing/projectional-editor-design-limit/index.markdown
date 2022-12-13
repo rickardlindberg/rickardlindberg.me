@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: How should I evolve the design of my projectional editor?"
-date: 2022-12-08
+date: 2022-12-13
 tags: rlproject,draft
 ---
 
@@ -73,7 +73,7 @@ def on_char(self, evt):
 
 The document is called `self.terminal` here because `Editor.project` creates a
 document of type `Terminal`. It contains fragments at given positions that
-could be displayed in a terminal-like GUI.
+can be displayed in a terminal-like GUI.
 
 The drawing in the GUI looks like this:
 
@@ -132,12 +132,12 @@ this:
 ![New filter input field.](rlproject-filter.png)
 </center>
 
-The idea was that as I typed characters in the filter input field, the lines
-that did not match would get excluded from the top split.
+The idea was that as you type characters in the filter input field, the lines
+that do not match get excluded from the top split.
 
 When I made the modification to add the input field, I had to force it in. I
 didn't find any clean way to do it using the current design. Forcing it in at
-first is fine. But I couldn't find a way to refactor toward a better design
+first is fine. But I couldn't find a way to refactor towards a better design
 either. Furthermore, I was unable to do the actual filtering part as well. I
 just couldn't figure out how. I was stuck.
 
@@ -181,8 +181,8 @@ Editor.project(
 ```
 
 The idea is to create an editor for a file at the given `path`. This editor
-provides two projections of this file (one with lines, and one as a string).
-But the idea is to edit a single file. The different projections can give
+provides two projections of this file (one with lines, and one with a string).
+But the idea is to edit a single file. The different projections give
 different views of the data structure, but the underlying data structure is the
 same.
 
@@ -289,8 +289,7 @@ In this design, we need to supply two things to the driver:
 1. The document to edit
 2. A projection function that projects the document to a terminal document
 
-In this design, we can probably modify `Split` to behave as we want.  Let's
-try.
+In this design, we can probably modify `Split` to behave as we want.
 
 ## How do projections hold state?
 
@@ -322,7 +321,7 @@ class LinesToTerminal(
     @staticmethod
     def project(lines):
         ...
-        return LinesToTerminalText(
+        return LinesToTerminal(
             ...
         )
 ```
@@ -343,7 +342,8 @@ document.
 Except the `project` function returns an instance of itself, a
 `LinesToTerminal`.  What's going on?
 
-Notice the second base class, `Projection`. It looks like this:
+Notice the second base class to `LinesToTerminal`: `Projection`. It looks like
+this:
 
 ```python
 class Projection:
@@ -385,7 +385,7 @@ Now I have two ideas to move forward with:
 2. Change event driver to make events return a new version of the document
    being edited instead of a projection
 
-How can I make tiny progress to any of the two ideas?
+How can I make tiny progress on any of the two ideas?
 
 Changing how the driver work seems like a big task that is hard to do in small
 steps. But moving projection state to documents seems like something that could
@@ -424,7 +424,7 @@ projections that would have use for this new `meta` field. Bad first choice.
 Never mind.
 
 I do the same change to `Lines` instead.  It turns out to be even easier since
-I already had factory method and only needed to modify that.
+I already had factory method and only needed to modify that in one place.
 
 There is only one projection that projects to `Lines`, and that is
 `StringToLines`. I modify it to store its state in `meta` field of the `Lines`
@@ -473,8 +473,8 @@ class Meta(
 ```
 
 Notice the change in base class. A `StringToLines` projection is now of type
-Lines. It *is* a `Lines` document. It does not need to add wrappers to act like
-one.
+`Lines`. It *is* a `Lines` document. It does not need to add wrappers to act
+like one.
 
 Why return a `StringToLines` at all? Why not just return `Lines`?  Because it
 needs to override methods to handle events. Projections need to implement
@@ -492,7 +492,7 @@ but I think storing state in documents provides a slightly cleaner design
 diff](https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa)),
 so it should help us think a bit more clearly.
 
-## New problem again
+## Where to store editor state?
 
 The next thing to try is to change the behavior of event handlers to return
 a new version of the document being edited instead of a projection. Then call a
@@ -545,9 +545,9 @@ But my confidence is starting to grow that this is a promising direction.
 ## Doing the switch...
 
 We can't just change how the event driver works in a small step. It would
-require changing everything.
+require changing in many places.
 
-What we can do is to do a completely parallel, isolated version of the event
+What we can do is do a completely parallel, isolated version of the event
 handler. We can test drive that, and when we are confident that it works, we
 can switch over to that version and remove the old one.
 
@@ -572,14 +572,14 @@ I add another test:
 True
 ```
 
-This test uses the 2 things like the event driver would. It send an event to
+This test uses the 2 things like the event driver would. It sends an event to
 the projection (`terminal`) and receives a new version of the document being
 edited (`document`). The assert checks that we get back a document of the
 correct type.
 
-The event is called `new_size_event`. The old one is called only `size_event`.
-Here the parallelism comes in. We have to duplicate event handlers because the
-have different signatures.
+The event is called `new_size_event`. The old one is called `size_event`. Here
+the parallelism comes in. We have to duplicate event handlers because they have
+different signatures.
 
 ...
 
