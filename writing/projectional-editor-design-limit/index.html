@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: How should I evolve the design of my projectional editor?</h1>
 
-<p><em>Published on  8 December 2022.</em></p>
+<p><em>Published on 13 December 2022.</em></p>
 
 <ul>
 <li><a href="#background">Background</a></li>
@@ -66,7 +66,7 @@
 <li><a href="#how-do-projections-hold-state">How do projections hold state?</a></li>
 <li><a href="#ideas-to-move-forward-with">Ideas to move forward with</a></li>
 <li><a href="#move-projection-state-into-documents">Move projection state into documents</a></li>
-<li><a href="#new-problem-again">New problem again</a></li>
+<li><a href="#where-to-store-editor-state">Where to store editor state?</a></li>
 <li><a href="#how-long-is-this-going-to-take">How long is this going to take?</a></li>
 <li><a href="#doing-the-switch">Doing the switch…</a></li>
 <li><a href="#was-a-blog-post-necessary">Was a blog post necessary?</a></li>
@@ -107,7 +107,7 @@
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        unicode_character<span class="op">=</span><span class="bu">chr</span>(evt.GetUnicodeKey())</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    ))</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="va">self</span>.repaint_bitmap()</span></code></pre></div>
-<p>The document is called <code>self.terminal</code> here because <code>Editor.project</code> creates a document of type <code>Terminal</code>. It contains fragments at given positions that could be displayed in a terminal-like GUI.</p>
+<p>The document is called <code>self.terminal</code> here because <code>Editor.project</code> creates a document of type <code>Terminal</code>. It contains fragments at given positions that can be displayed in a terminal-like GUI.</p>
 <p>The drawing in the GUI looks like this:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="cf">for</span> fragment <span class="kw">in</span> <span class="va">self</span>.terminal.fragments:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
@@ -140,8 +140,8 @@
 <center>
 <img src="rlproject-filter.png" title="fig:" alt="New filter input field." />
 </center>
-<p>The idea was that as I typed characters in the filter input field, the lines that did not match would get excluded from the top split.</p>
-<p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor toward a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
+<p>The idea was that as you type characters in the filter input field, the lines that do not match get excluded from the top split.</p>
+<p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor towards a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
 <h2 id="a-note-on-getting-stuck">A note on getting stuck</h2>
 <p>When I end up in a stuck situation like this, I wonder if I’m doing something wrong.</p>
 <p>Sometimes when I’m reading Agile literature, and maybe TDD literature in particular, I get the feeling that it should always be possible to make progress. Even if just a tiny bit. And if you get stuck, it’s because you ignored earlier signs that you should have refactored or evolved your design in a certain direction.</p>
@@ -164,7 +164,7 @@
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>        ),</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    ])</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>)</span></code></pre></div>
-<p>The idea is to create an editor for a file at the given <code>path</code>. This editor provides two projections of this file (one with lines, and one as a string). But the idea is to edit a single file. The different projections can give different views of the data structure, but the underlying data structure is the same.</p>
+<p>The idea is to create an editor for a file at the given <code>path</code>. This editor provides two projections of this file (one with lines, and one with a string). But the idea is to edit a single file. The different projections give different views of the data structure, but the underlying data structure is the same.</p>
 <p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. (Not shown in the code above.) The child documents are actually edited separately, but it looks like it is the same document because they receive the same events and change in the same way.</p>
 <p>In most cases, it is probably not useful to have a split that forwards events to all its children. It is probably mostly confusing. I thought that <code>Split</code> would be temporarily useful as way to test multiple projections, and that it could be replaced with something better later on.</p>
 <p>But I might have been wrong.</p>
@@ -229,7 +229,7 @@
 <li>The document to edit</li>
 <li>A projection function that projects the document to a terminal document</li>
 </ol>
-<p>In this design, we can probably modify <code>Split</code> to behave as we want. Let’s try.</p>
+<p>In this design, we can probably modify <code>Split</code> to behave as we want.</p>
 <h2 id="how-do-projections-hold-state">How do projections hold state?</h2>
 <p>In the current design, there is a slight distinction between a document and a projection, but they are related. Let’s have a look.</p>
 <p>Here is what a <code>Terminal</code> document looks like:</p>
@@ -249,7 +249,7 @@
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>    <span class="kw">def</span> project(lines):</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a>        ...</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>        <span class="cf">return</span> LinesToTerminalText(</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>        <span class="cf">return</span> LinesToTerminal(</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>            ...</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>        )</span></code></pre></div>
 <p>It has a projection (the terminal document), a lines document (which was used as input), and a <code>project</code> function.</p>
@@ -257,7 +257,7 @@
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>terminal <span class="op">=</span> LinesToTerminal.project(lines)</span></code></pre></div>
 <p>It projects a lines document to a terminal document. So the input to the <code>project</code> function is a <code>Lines</code> document and the output is a <code>Terminal</code> document.</p>
 <p>Except the <code>project</code> function returns an instance of itself, a <code>LinesToTerminal</code>. What’s going on?</p>
-<p>Notice the second base class, <code>Projection</code>. It looks like this:</p>
+<p>Notice the second base class to <code>LinesToTerminal</code>: <code>Projection</code>. It looks like this:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> Projection:</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="at">@property</span></span>
@@ -277,7 +277,7 @@
 <li>Move projection state to documents</li>
 <li>Change event driver to make events return a new version of the document being edited instead of a projection</li>
 </ol>
-<p>How can I make tiny progress to any of the two ideas?</p>
+<p>How can I make tiny progress on any of the two ideas?</p>
 <p>Changing how the driver work seems like a big task that is hard to do in small steps. But moving projection state to documents seems like something that could quite easily be done.</p>
 <h2 id="move-projection-state-into-documents">Move projection state into documents</h2>
 <p>There are currently 3 types of documents:</p>
@@ -296,7 +296,7 @@
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>):</span></code></pre></div>
 <p>Immediately tests break because I have not supplied the <code>meta</code> field anywhere. I supply <code>None</code> as a value in all cases, and now everything is back to green.</p>
 <p>Unfortunately, there are no projections to <code>String</code>, so there are no projections that would have use for this new <code>meta</code> field. Bad first choice. Never mind.</p>
-<p>I do the same change to <code>Lines</code> instead. It turns out to be even easier since I already had factory method and only needed to modify that.</p>
+<p>I do the same change to <code>Lines</code> instead. It turns out to be even easier since I already had factory method and only needed to modify that in one place.</p>
 <p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modify it to store its state in <code>meta</code> field of the <code>Lines</code> document instead of in the projection by changing this</p>
 <pre class="pyton"><code>class StringToLines(
     namedtuple(&quot;StringToLines&quot;, &quot;projection string&quot;),
@@ -329,11 +329,11 @@
     namedtuple(&quot;Meta&quot;, &quot;string&quot;)
 ):
     pass</code></pre>
-<p>Notice the change in base class. A <code>StringToLines</code> projection is now of type Lines. It <em>is</em> a <code>Lines</code> document. It does not need to add wrappers to act like one.</p>
+<p>Notice the change in base class. A <code>StringToLines</code> projection is now of type <code>Lines</code>. It <em>is</em> a <code>Lines</code> document. It does not need to add wrappers to act like one.</p>
 <p>Why return a <code>StringToLines</code> at all? Why not just return <code>Lines</code>? Because it needs to override methods to handle events. Projections need to implement unique event handles because they handle events differently. But the data that the event handlers need to properly handle events are now stored in the <code>meta</code> field of the document.</p>
 <p>I realize that storing the projection state in the document <code>meta</code> field or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections anyway.</p>
 <p>I’m not sure we are much closer to solving the problem of a sane split view, but I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>), so it should help us think a bit more clearly.</p>
-<h2 id="new-problem-again">New problem again</h2>
+<h2 id="where-to-store-editor-state">Where to store editor state?</h2>
 <p>The next thing to try is to change the behavior of event handlers to return a new version of the document being edited instead of a projection. Then call a project function on this new document to render it.</p>
 <p>The new <code>meta</code> field might come in handy here.</p>
 <p>Let’s explore.</p>
@@ -352,8 +352,8 @@
 <p>But I’m frustrated that I can’t clearly see how this new design will solve even my immediate problems.</p>
 <p>But my confidence is starting to grow that this is a promising direction.</p>
 <h2 id="doing-the-switch">Doing the switch…</h2>
-<p>We can’t just change how the event driver works in a small step. It would require changing everything.</p>
-<p>What we can do is to do a completely parallel, isolated version of the event handler. We can test drive that, and when we are confident that it works, we can switch over to that version and remove the old one.</p>
+<p>We can’t just change how the event driver works in a small step. It would require changing in many places.</p>
+<p>What we can do is do a completely parallel, isolated version of the event handler. We can test drive that, and when we are confident that it works, we can switch over to that version and remove the old one.</p>
 <p>I start with this basic test:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> project, document <span class="op">=</span> Editor.create_projection_document(<span class="st">&quot;rlproject.py&quot;</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> terminal <span class="op">=</span> project(document)</span>
@@ -364,8 +364,8 @@
 <div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> document <span class="op">=</span> terminal.new_size_event(SizeEvent(<span class="dv">10</span>, <span class="dv">10</span>))</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">isinstance</span>(document, String)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a><span class="va">True</span></span></code></pre></div>
-<p>This test uses the 2 things like the event driver would. It send an event to the projection (<code>terminal</code>) and receives a new version of the document being edited (<code>document</code>). The assert checks that we get back a document of the correct type.</p>
-<p>The event is called <code>new_size_event</code>. The old one is called only <code>size_event</code>. Here the parallelism comes in. We have to duplicate event handlers because the have different signatures.</p>
+<p>This test uses the 2 things like the event driver would. It sends an event to the projection (<code>terminal</code>) and receives a new version of the document being edited (<code>document</code>). The assert checks that we get back a document of the correct type.</p>
+<p>The event is called <code>new_size_event</code>. The old one is called <code>size_event</code>. Here the parallelism comes in. We have to duplicate event handlers because they have different signatures.</p>
 <p>…</p>
 <p>I keep going…</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="cf">if</span> <span class="st">&quot;--new-style-driver&quot;</span> <span class="kw">in</span> sys.argv[<span class="dv">1</span>:]:</span>
