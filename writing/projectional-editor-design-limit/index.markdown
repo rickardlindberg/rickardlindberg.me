@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: How should I evolve the design of my projectional editor?"
-date: 2022-12-13
+date: 2022-12-14
 tags: rlproject,draft
 ---
 
@@ -20,7 +20,7 @@ So, now I'm writing this blog post to help me find a solution.
 ## Background
 
 I am building a [projectional
-editor](https://github.com/rickardlindberg/rlproject). Currently it looks like
+editor](https://github.com/rickardlindberg/rlproject). It currently looks like
 this:
 
 <center>
@@ -391,7 +391,7 @@ Changing how the driver work seems like a big task that is hard to do in small
 steps. But moving projection state to documents seems like something that could
 quite easily be done.
 
-## Move projection state into documents
+## Moving projection state into documents
 
 There are currently 3 types of documents:
 
@@ -530,28 +530,28 @@ I feel like I've done a lot of work, and I'm still not confident that this is a
 good way forward. I feel like I keep trying things and just run into new
 problems.
 
-I'm trying to think ahead 10 steps to see if the new design will serve all the
-things that I potentially want to do. I end up just thinking without doing
-anything. Perhaps I shouldn't. Perhaps I should just focus on the next thing,
-and then, eventually, I will have reached my end goal. I guess that is the TDD
-way of doing it. One tiny test at a time. At least now, I have a direction to
-try. I know one test to write.
+I'm trying to think 10 steps ahead to see if the new design will serve all the
+things that I potentially want to do. I end up just thinking without actually
+doing anything. Perhaps I shouldn't. Perhaps I should just focus on the next
+thing, and then, eventually, I will have reached my end goal. I guess that is
+the TDD way of doing it. One tiny test at a time. At least now, I have a
+direction to try. I know one test to write.
 
 But I'm frustrated that I can't clearly see how this new design will solve even
 my immediate problems.
 
 But my confidence is starting to grow that this is a promising direction.
 
-## Doing the switch...
+## Switching event driver safely
 
 We can't just change how the event driver works in a small step. It would
-require changing in many places.
+require changes in many places.
 
 What we can do is do a completely parallel, isolated version of the event
-handler. We can test drive that, and when we are confident that it works, we
-can switch over to that version and remove the old one.
+handlers. We can test drive those, and when we are confident that they works,
+we can switch over to that version and remove the old one.
 
-I start with this basic test:
+I start with this test:
 
 ```python
 >>> project, document = Editor.create_projection_document("rlproject.py")
@@ -561,7 +561,7 @@ True
 ```
 
 `Editor.create_projection_document` is a completely new function. It returns a
-projection function and a document. This is what the new event driver would
+projection function and a document. This is what the new event driver
 require.
 
 I add another test:
@@ -581,9 +581,8 @@ The event is called `new_size_event`. The old one is called `size_event`. Here
 the parallelism comes in. We have to duplicate event handlers because they have
 different signatures.
 
-...
-
-I keep going...
+I am interested in getting some feedback if the new event driver will actually
+work for real, so I make it possible to use the new driver via a GUI flag:
 
 ```python
 if "--new-style-driver" in sys.argv[1:]:
@@ -592,20 +591,22 @@ else:
     driver = Editor.from_file(path)
 ```
 
-Now I'm starting to feel confident as I can test the new solution for real.
+This of course does not work fully, but it actually uses the new driver to
+project something on the screen!  I'm starting to feel more confident in the
+solution as I can test the it for real.
 
-Not there yet though.
+I'm not there yet tho. All events are not fully implemented. I write more tests
+for those and then try it in the GUI to get the satisfaction of seeing the
+change actually work.
 
-I keep going.
+I get so excited that I fix some things without writing tests for them. I just
+check them in the GUI. That's fine. At least I get quick feedback.
 
-Was able to implement parallel solution and both write tests for it and try it
-out in the GUI. Fleshed out one detail after another.
+Then I reach a point where the new version is as functional as the old one. It
+actually worked.
 
-Then I felt that this would actually work out nicely.
-
-Then I was able to remove the old version completely...
-
-Then I could clean up the code and my confidence grew even more.
+I remove the GUI flag and the old event driver implementation and clean up the
+code base a bit.
 
 ## Was a blog post necessary?
 
