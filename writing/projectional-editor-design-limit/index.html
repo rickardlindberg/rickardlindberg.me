@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: How should I evolve the design of my projectional editor?</h1>
 
-<p><em>Published on 14 December 2022.</em></p>
+<p><em>Published on 15 December 2022.</em></p>
 
 <ul>
 <li><a href="#background">Background</a></li>
@@ -112,7 +112,7 @@
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="cf">for</span> fragment <span class="kw">in</span> <span class="va">self</span>.terminal.fragments:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    memdc.DrawText(fragment.text, fragment.x<span class="op">*</span>char_width, fragment.y<span class="op">*</span>char_height)</span></code></pre></div>
-<p>The <code>Editor</code> draws the status bar that you see in the screenshot on the first line. The rest of the window is filled with the document that is passed to the editor which in turn is created by <code>Split.project</code>. And so on.</p>
+<p>The <code>Editor</code> adds the status bar that you see in the screenshot on the first line. The rest of the window is filled with the document that is passed to the editor which in turn is created by <code>Split.project</code>. And so on.</p>
 <h2 id="the-next-thing-i-wanted-my-editor-to-do">The next thing I wanted my editor to do</h2>
 <p>The power of a projectional editor comes from projections, and being able to combine projections in various ways to easily create custom editors for different data structures and scenarios.</p>
 <p>The next thing I wanted to try in my editor was to filter the lines in the top split.</p>
@@ -140,8 +140,8 @@
 <center>
 <img src="rlproject-filter.png" title="fig:" alt="New filter input field." />
 </center>
-<p>The idea was that as you type characters in the filter input field, the lines that do not match get excluded from the top split.</p>
-<p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor towards a better design either. Furthermore, I was unable to do the actual filtering part as well. I just couldn’t figure out how. I was stuck.</p>
+<p>The idea is that as you type characters in the filter input field, the lines that do not match get excluded from the top split.</p>
+<p>When I made the modification to add the input field, I had to force it in. I didn’t find any clean way to do it using the current design. Forcing it in at first is fine. But I couldn’t find a way to refactor towards a better design either. Furthermore, I was unable to implement the actual filtering part. I just couldn’t figure out how. I was stuck.</p>
 <h2 id="a-note-on-getting-stuck">A note on getting stuck</h2>
 <p>When I end up in a stuck situation like this, I wonder if I’m doing something wrong.</p>
 <p>Sometimes when I’m reading Agile literature, and maybe TDD literature in particular, I get the feeling that it should always be possible to make progress. Even if just a tiny bit. And if you get stuck, it’s because you ignored earlier signs that you should have refactored or evolved your design in a certain direction.</p>
@@ -165,7 +165,7 @@
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    ])</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>)</span></code></pre></div>
 <p>The idea is to create an editor for a file at the given <code>path</code>. This editor provides two projections of this file (one with lines, and one with a string). But the idea is to edit a single file. The different projections give different views of the data structure, but the underlying data structure is the same.</p>
-<p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. (Not shown in the code above.) The child documents are actually edited separately, but it looks like it is the same document because they receive the same events and change in the same way.</p>
+<p>Except, in this case it isn’t. You can see that <code>String.from_file(path)</code> is called twice. And the <code>Split</code> projection forwards key events to both child documents. (Not shown in the code above.) The child documents are actually edited separately, but it looks like they are the same document because they receive the same events and change in the same way.</p>
 <p>In most cases, it is probably not useful to have a split that forwards events to all its children. It is probably mostly confusing. I thought that <code>Split</code> would be temporarily useful as way to test multiple projections, and that it could be replaced with something better later on.</p>
 <p>But I might have been wrong.</p>
 <p>Perhaps there was something more fundamentally wrong with the design here.</p>
@@ -278,7 +278,7 @@
 <li>Change event driver to make events return a new version of the document being edited instead of a projection</li>
 </ol>
 <p>How can I make tiny progress on any of the two ideas?</p>
-<p>Changing how the driver work seems like a big task that is hard to do in small steps. But moving projection state to documents seems like something that could quite easily be done.</p>
+<p>Changing how the driver works seems like a big task that is hard to do in small steps. But moving projection state to documents seems like something that could quite easily be done.</p>
 <h2 id="moving-projection-state-into-documents">Moving projection state into documents</h2>
 <p>There are currently 3 types of documents:</p>
 <ul>
@@ -334,7 +334,7 @@
 <p>I realize that storing the projection state in the document <code>meta</code> field or in the projection wouldn’t matter. Different event handlers would need to be associated with different projections anyway.</p>
 <p>I’m not sure we are much closer to solving the problem of a sane split view, but I think storing state in documents provides a slightly cleaner design (<a href="https://github.com/rickardlindberg/rlproject/compare/1ab0ca6f57f33318fc87aa9c9913189cf08c99d3...df15b3f663855cd5e54c3b711e9a042afeee96fa">complete diff</a>), so it should help us think a bit more clearly.</p>
 <h2 id="where-to-store-editor-state">Where to store editor state?</h2>
-<p>The next thing to try is to change the behavior of event handlers to return a new version of the document being edited instead of a projection. Then call a project function on this new document to render it.</p>
+<p>The next thing to try is to change the behavior of event handlers to return a new version of the document being edited instead of a new projection. The document can then be converted to a <code>Terminal</code> document using the projection function which in turn can be rendered by the GUI.</p>
 <p>The new <code>meta</code> field might come in handy here.</p>
 <p>Let’s explore.</p>
 <p>In our target design, the driver looks like this:</p>
@@ -353,13 +353,13 @@
 <p>But my confidence is starting to grow that this is a promising direction.</p>
 <h2 id="switching-event-driver-safely">Switching event driver safely</h2>
 <p>We can’t just change how the event driver works in a small step. It would require changes in many places.</p>
-<p>What we can do is do a completely parallel, isolated version of the event handlers. We can test drive those, and when we are confident that they works, we can switch over to that version and remove the old one.</p>
+<p>What we can do is do a completely parallel implementation of event handlers. We can test drive those, and when we are confident that they work, we can switch over to use them in the driver and remove the old event handlers.</p>
 <p>I start with this test:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> project, document <span class="op">=</span> Editor.create_projection_document(<span class="st">&quot;rlproject.py&quot;</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> terminal <span class="op">=</span> project(document)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">isinstance</span>(terminal, Terminal)</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a><span class="va">True</span></span></code></pre></div>
-<p><code>Editor.create_projection_document</code> is a completely new function. It returns a projection function and a document. This is what the new event driver require.</p>
+<p><code>Editor.create_projection_document</code> is a completely new function. It returns a projection function and a document. This is what the new event driver requires.</p>
 <p>I add another test:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> document <span class="op">=</span> terminal.new_size_event(SizeEvent(<span class="dv">10</span>, <span class="dv">10</span>))</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">isinstance</span>(document, String)</span>
@@ -371,8 +371,8 @@
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.create_driver(path)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a><span class="cf">else</span>:</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.from_file(path)</span></code></pre></div>
-<p>This of course does not work fully, but it actually uses the new driver to project something on the screen! I’m starting to feel more confident in the solution as I can test the it for real.</p>
-<p>I’m not there yet tho. All events are not fully implemented. I write more tests for those and then try it in the GUI to get the satisfaction of seeing the change actually work.</p>
+<p>This of course does not work fully, but it actually uses the new driver to project something on the screen! I’m starting to feel more confidence in the solution as I can test the it for real.</p>
+<p>I’m not there yet tho. All events are not fully implemented. I write more tests for those and then try them in the GUI to get the satisfaction of seeing the changes actually work.</p>
 <p>I get so excited that I fix some things without writing tests for them. I just check them in the GUI. That’s fine. At least I get quick feedback.</p>
 <p>Then I reach a point where the new version is as functional as the old one. It actually worked.</p>
 <p>I remove the GUI flag and the old event driver implementation and clean up the code base a bit.</p>
