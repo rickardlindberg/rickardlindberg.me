@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: How should I evolve the design of my projectional editor?"
-date: 2022-12-14
+date: 2022-12-15
 tags: rlproject,draft
 ---
 
@@ -83,7 +83,7 @@ for fragment in self.terminal.fragments:
     memdc.DrawText(fragment.text, fragment.x*char_width, fragment.y*char_height)
 ```
 
-The `Editor` draws the status bar that you see in the screenshot on the first
+The `Editor` adds the status bar that you see in the screenshot on the first
 line. The rest of the window is filled with the document that is passed to the
 editor which in turn is created by `Split.project`. And so on.
 
@@ -132,13 +132,13 @@ this:
 ![New filter input field.](rlproject-filter.png)
 </center>
 
-The idea was that as you type characters in the filter input field, the lines
+The idea is that as you type characters in the filter input field, the lines
 that do not match get excluded from the top split.
 
 When I made the modification to add the input field, I had to force it in. I
 didn't find any clean way to do it using the current design. Forcing it in at
 first is fine. But I couldn't find a way to refactor towards a better design
-either. Furthermore, I was unable to do the actual filtering part as well. I
+either. Furthermore, I was unable to implement the actual filtering part. I
 just couldn't figure out how. I was stuck.
 
 ## A note on getting stuck
@@ -189,7 +189,7 @@ same.
 Except, in this case it isn't. You can see that `String.from_file(path)` is
 called twice. And the `Split` projection forwards key events to both child
 documents. (Not shown in the code above.) The child documents are actually
-edited separately, but it looks like it is the same document because they
+edited separately, but it looks like they are the same document because they
 receive the same events and change in the same way.
 
 In most cases, it is probably not useful to have a split that forwards events
@@ -387,7 +387,7 @@ Now I have two ideas to move forward with:
 
 How can I make tiny progress on any of the two ideas?
 
-Changing how the driver work seems like a big task that is hard to do in small
+Changing how the driver works seems like a big task that is hard to do in small
 steps. But moving projection state to documents seems like something that could
 quite easily be done.
 
@@ -494,9 +494,10 @@ so it should help us think a bit more clearly.
 
 ## Where to store editor state?
 
-The next thing to try is to change the behavior of event handlers to return
-a new version of the document being edited instead of a projection. Then call a
-project function on this new document to render it.
+The next thing to try is to change the behavior of event handlers to return a
+new version of the document being edited instead of a new projection. The
+document can then be converted to a `Terminal` document using the projection
+function which in turn can be rendered by the GUI.
 
 The new `meta` field might come in handy here.
 
@@ -547,9 +548,9 @@ But my confidence is starting to grow that this is a promising direction.
 We can't just change how the event driver works in a small step. It would
 require changes in many places.
 
-What we can do is do a completely parallel, isolated version of the event
-handlers. We can test drive those, and when we are confident that they works,
-we can switch over to that version and remove the old one.
+What we can do is do a completely parallel implementation of event handlers. We
+can test drive those, and when we are confident that they work, we can switch
+over to use them in the driver and remove the old event handlers.
 
 I start with this test:
 
@@ -562,7 +563,7 @@ True
 
 `Editor.create_projection_document` is a completely new function. It returns a
 projection function and a document. This is what the new event driver
-require.
+requires.
 
 I add another test:
 
@@ -592,12 +593,12 @@ else:
 ```
 
 This of course does not work fully, but it actually uses the new driver to
-project something on the screen!  I'm starting to feel more confident in the
+project something on the screen!  I'm starting to feel more confidence in the
 solution as I can test the it for real.
 
 I'm not there yet tho. All events are not fully implemented. I write more tests
-for those and then try it in the GUI to get the satisfaction of seeing the
-change actually work.
+for those and then try them in the GUI to get the satisfaction of seeing the
+changes actually work.
 
 I get so excited that I fix some things without writing tests for them. I just
 check them in the GUI. That's fine. At least I get quick feedback.
