@@ -30,6 +30,7 @@ Explain why I do TDD.
   https://focusedlabs.io/blog/tdd-first-step-think
   Solution to the problem "what test do I write?"
     * James Shore has a THINK step
+        * 4 steps in TDD
 
 --
 
