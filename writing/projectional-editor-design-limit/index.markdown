@@ -427,8 +427,8 @@ I do the same change to `Lines` instead.  It turns out to be even easier since
 I already had factory method and only needed to modify that in one place.
 
 There is only one projection that projects to `Lines`, and that is
-`StringToLines`. I modify it to store its state in `meta` field of the `Lines`
-document instead of in the projection by changing this
+`StringToLines`. I modify it to store its state in the `meta` field of the
+`Lines` document instead of in the projection by changing this
 
 ```pyton
 class StringToLines(
@@ -594,7 +594,7 @@ else:
 
 This of course does not work fully, but it actually uses the new driver to
 project something on the screen!  I'm starting to feel more confidence in the
-solution as I can test the it for real.
+solution as I can test it for real.
 
 I'm not there yet tho. All events are not fully implemented. I write more tests
 for those and then try them in the GUI to get the satisfaction of seeing the
@@ -604,10 +604,13 @@ I get so excited that I fix some things without writing tests for them. I just
 check them in the GUI. That's fine. At least I get quick feedback.
 
 Then I reach a point where the new version is as functional as the old one. It
-actually worked.
+actually works!
 
 I remove the GUI flag and the old event driver implementation and clean up the
 code base a bit.
+
+I can now also see how to proceed with filtering lines and how that would work
+in this new design. I'm unstuck!
 
 ## Was a blog post necessary?
 
