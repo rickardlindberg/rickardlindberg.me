@@ -1,7 +1,7 @@
 ---
-title: "DRAFT: How should I evolve the design of my projectional editor?"
+title: "How should I evolve the design of my projectional editor?"
 date: 2022-12-15
-tags: rlproject,draft
+tags: rlproject
 ---
 
 I am writing this blog post to help me get unstuck.
