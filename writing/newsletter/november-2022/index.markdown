@@ -9,7 +9,7 @@ This is what I've been up to in November 2022:
 * I continued programming on my [projectional
   editor](https://github.com/rickardlindberg/rlproject). I had so many ideas I
   wanted to try, but I got stuck with the design. I started writing a [blog
-  post](/writing/projectional-editor-design-limit/index.html) explaining the
+  post](/writing/evolving-design-of-projectional-editor/index.html) explaining the
   problem. The blog post helped me get unstuck and I was able to move forward
   with my ideas.
 
