@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: How should I evolve the design of my projectional editor? | Rickard's personal homepage
+      How should I evolve the design of my projectional editor? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,7 +53,7 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: How should I evolve the design of my projectional editor?</h1>
+      <h1>How should I evolve the design of my projectional editor?</h1>
 
 <p><em>Published on 15 December 2022.</em></p>
 
@@ -297,7 +297,7 @@
 <p>Immediately tests break because I have not supplied the <code>meta</code> field anywhere. I supply <code>None</code> as a value in all cases, and now everything is back to green.</p>
 <p>Unfortunately, there are no projections to <code>String</code>, so there are no projections that would have use for this new <code>meta</code> field. Bad first choice. Never mind.</p>
 <p>I do the same change to <code>Lines</code> instead. It turns out to be even easier since I already had factory method and only needed to modify that in one place.</p>
-<p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modify it to store its state in <code>meta</code> field of the <code>Lines</code> document instead of in the projection by changing this</p>
+<p>There is only one projection that projects to <code>Lines</code>, and that is <code>StringToLines</code>. I modify it to store its state in the <code>meta</code> field of the <code>Lines</code> document instead of in the projection by changing this</p>
 <pre class="pyton"><code>class StringToLines(
     namedtuple(&quot;StringToLines&quot;, &quot;projection string&quot;),
     Projection
@@ -371,11 +371,12 @@
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.create_driver(path)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a><span class="cf">else</span>:</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>    driver <span class="op">=</span> Editor.from_file(path)</span></code></pre></div>
-<p>This of course does not work fully, but it actually uses the new driver to project something on the screen! I’m starting to feel more confidence in the solution as I can test the it for real.</p>
+<p>This of course does not work fully, but it actually uses the new driver to project something on the screen! I’m starting to feel more confidence in the solution as I can test it for real.</p>
 <p>I’m not there yet tho. All events are not fully implemented. I write more tests for those and then try them in the GUI to get the satisfaction of seeing the changes actually work.</p>
 <p>I get so excited that I fix some things without writing tests for them. I just check them in the GUI. That’s fine. At least I get quick feedback.</p>
-<p>Then I reach a point where the new version is as functional as the old one. It actually worked.</p>
+<p>Then I reach a point where the new version is as functional as the old one. It actually works!</p>
 <p>I remove the GUI flag and the old event driver implementation and clean up the code base a bit.</p>
+<p>I can now also see how to proceed with filtering lines and how that would work in this new design. I’m unstuck!</p>
 <h2 id="was-a-blog-post-necessary">Was a blog post necessary?</h2>
 <p>The blog post forced me to explain things so that it would be clear to someone else. It forced me to think more clearly.</p>
 <p>By doing so, I noticed a problem in the code and a possible way forward.</p>
