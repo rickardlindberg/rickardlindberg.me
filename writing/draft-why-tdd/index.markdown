@@ -59,3 +59,9 @@ Maybe I just sneaked up on a solution slowly.
 
 On the other hand, thinking is not forbidden in TDD. And if writing gives
 better thinking, is it thinking or writing?
+
+--
+
+https://www.jamesshore.com/v2/blog/2005/red-green-refactor
+
+    Wow! This is how you do TDD.
