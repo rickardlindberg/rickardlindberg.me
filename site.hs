@@ -372,6 +372,7 @@ patternPostIndexPandocTocTemplate =
          "writing/rlmeta-poster-2/index.markdown"
     .||. "writing/reliable-socket-servers/index.markdown"
     .||. "writing/evolving-design-of-projectional-editor/index.markdown"
+    .||. "writing/what-should-a-ci-server-do/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
