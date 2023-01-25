@@ -10,18 +10,110 @@
     </author>
     <updated>2023-01-25T00:00:00Z</updated>
     <entry>
-    <title>DRAFT: What should a CI server do?</title>
+    <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link href="http://rickardlindberg.me/writing/what-should-a-ci-server-do/" />
     <id>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</id>
     <published>2023-01-25T00:00:00Z</published>
     <updated>2023-01-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>DRAFT: What should a CI server do?</h1>
+    <summary type="html"><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
 <p><em>Published on 25 January 2023.</em></p>
 
-
+<ul>
+<li><a href="#what-is-ci">What is CI?</a></li>
+<li><a href="#what-is-integrate">What is integrate?</a></li>
+<li><a href="#tooling-for-ci-should-do-the-following">Tooling for CI should do the following</a>
+<ul>
+<li><a href="#basics">Basics</a></li>
+<li><a href="#additional-functions">Additional functions</a></li>
+</ul></li>
+<li><a href="#benefit-even-if-not-real-ci">Benefit even if not “real” CI</a></li>
+<li><a href="#why-dont-ci-severs-work-like-this">Why don’t CI-severs work like this?</a></li>
+<li><a href="#what-about-pull-requests">What about pull requests?</a></li>
+</ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>Hello!</p>
+<p>I think that I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common CI tools like Jenkins make it hard or near impossible.</p>
+<h2 id="what-is-ci">What is CI?</h2>
+<p>A lot of my thoughts on CI here is based on <a href="https://www.jamesshore.com/v2/books/aoad2/continuous_integration">AOAD2</a>, and trying to find the roots of the practice. CI is probably a name that has different meanings to different people.</p>
+<p>CI is about two things:</p>
+<ul>
+<li>Integrate often.
+<ul>
+<li>Needs practice</li>
+</ul></li>
+<li>Promise to keep master green.
+<ul>
+<li>Needs self-testing code, needs practice.</li>
+<li>Needs process.</li>
+</ul></li>
+</ul>
+<h2 id="what-is-integrate">What is integrate?</h2>
+<ul>
+<li>Merge to master.</li>
+<li>When do we want to merge to master?
+<ul>
+<li>When it is in a deployable state</li>
+</ul></li>
+<li>When is it that?
+<ul>
+<li>When we have done all tests and deployed to test environment / burned CD</li>
+</ul></li>
+</ul>
+<h2 id="tooling-for-ci-should-do-the-following">Tooling for CI should do the following</h2>
+<p><strong>A CI tool should integrate (merge commits to master) in a “safe” way.</strong></p>
+<h3 id="basics">Basics</h3>
+<pre><code>lock {
+    git checkout master
+    git merge origin/X (fail/warn if someone else merged before you)
+
+    &lt;command to self tests&gt; (&lt;sha1 of integration comitt to test&gt;)
+    // commit build
+
+    git push master
+}
+
+&lt;post command&gt;
+// secondary build (in mulistage integration build)
+
+// improve:
+//   move stuff from secondary bulild -&gt; comitt build</code></pre>
+<p>This ensures the following:</p>
+<ul>
+<li>Every integration passes self-test</li>
+<li>Integration promoted after test pass</li>
+<li>Master is always green</li>
+<li>Lock ensure the correct code is tested</li>
+</ul>
+<h3 id="additional-functions">Additional functions</h3>
+<ul>
+<li>Clean environments (no dev laptop with custom dependencies)</li>
+<li>Multiple environments (windows, linux, different python versions, etc)</li>
+<li>Communication / visibility
+<ul>
+<li>Notify team on successful integration</li>
+<li>Show today’s integrations in a dashboard</li>
+<li>Show success rate of integrations</li>
+<li>Present clear errors if pipeline fails</li>
+</ul></li>
+</ul>
+<h2 id="benefit-even-if-not-real-ci">Benefit even if not “real” CI</h2>
+<h2 id="why-dont-ci-severs-work-like-this">Why don’t CI-severs work like this?</h2>
+<ul>
+<li>Difficult with SVN?</li>
+</ul>
+<h2 id="what-about-pull-requests">What about pull requests?</h2>
+<ul>
+<li>PRs and CI don’t play nice together.
+<ul>
+<li>In PR’s, you merge by pressing a button</li>
+<li>In CI, the CI server merges.</li>
+</ul></li>
+<li>Variants (although none of them “real” CI)
+<ul>
+<li>PRs can be a stage before CI</li>
+<li>Review can be a step in CI</li>
+</ul></li>
+</ul>
 ]]></summary>
 </entry>
 <entry>
