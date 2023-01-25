@@ -735,8 +735,14 @@ if __name__ == "__main__":
     import os
     import subprocess
     for path in sys.argv[1:]:
-        with open(path+".template") as source:
-            with open(path, "w") as dest:
+        if path == "index.template.markdown":
+            source_path = path
+            destination_path = "index.markdown"
+        else:
+            source_path = path+".template"
+            destination_path = path
+        with open(source_path) as source:
+            with open(destination_path, "w") as dest:
                 dest.write(compile_chain(
                     [(Processor, "file")],
                     source.read(),
