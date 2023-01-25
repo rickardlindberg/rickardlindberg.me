@@ -5,3 +5,5 @@
 git add .
 
 git commit -m 'Write.'
+
+(cd ../../ && ./bin/publish && git push --all)
