@@ -10,16 +10,20 @@ or near impossible.
 
 ## What is CI?
 
-A lot of my thoughts on CI here is based on [AOAD2](https://www.jamesshore.com/v2/books/aoad2/continuous_integration), and trying to find the roots
-of the practice. CI is probably a name that has different meanings to different
-people.
+CI probably means different things to different people.
 
-CI is about two things:
+I've tried to find the root of the practice, and a lot of my thoughts here are
+based on James Shore's descriptions in
+[AOAD2](https://www.jamesshore.com/v2/books/aoad2/continuous_integration).
 
-* Integrate often.
+So with that in mind, CI is about two things:
+
+1. Integrate often.
+    * At least once a day
     * Needs practice
+    * No diverged truths
 
-* Promise to keep master green.
+2. Promise to keep master green.
     * Needs self-testing code, needs practice.
     * Needs process.
 
@@ -27,7 +31,7 @@ CI is about two things:
 
 * Merge to master.
 * When do we want to merge to master?
-    * When it is in a deployable state
+    * When it is in a deployable/releasble state
 * When is it that?
     * When we have done all tests and deployed to test environment / burned
       CD
@@ -38,21 +42,16 @@ CI is about two things:
 
 ### Basics
 
-    lock {
-        git checkout master
-        git merge origin/X (fail/warn if someone else merged before you)
+Here is pseudo code for how a CI server should integrate changes from a branch
+in a Git repo:
 
-        <command to self tests> (<sha1 of integration comitt to test>)
-        // commit build
-
-        git push master
-    }
-
-    <post command>
-    // secondary build (in mulistage integration build)
-
-    // improve:
-    //   move stuff from secondary bulild -> comitt build
+    def integrate(repo, branch):
+        with lock(repo):
+            sh("git clone {repo}")
+            sh("git merge origin/{branch}")   # fail/warn if someone else merged before you
+            sh("<self test command>")
+            sh("git push")
+        sh("<more expensive test command>")
 
 This ensures the following:
 
@@ -60,6 +59,11 @@ This ensures the following:
 * Integration promoted after test pass
 * Master is always green
 * Lock ensure the correct code is tested
+
+Notes:
+
+* Integration step should take no more than 10 minutes
+* Improve: move stuff from expensive test command to self test command
 
 ### Additional functions
 
@@ -70,6 +74,12 @@ This ensures the following:
     * Show today's integrations in a dashboard
     * Show success rate of integrations
     * Present clear errors if pipeline fails
+
+## Problems with common workflow
+
+### Run pipeline after commit
+
+### Run pipeline on branch, then again after merge
 
 ## Benefit even if not "real" CI
 
