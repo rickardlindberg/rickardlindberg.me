@@ -4,9 +4,9 @@ date: 2023-01-25
 tags: draft
 ---
 
-I think that I have figured out what a Continuous Integration (CI) server
-*should* do. It is very simple. Yet common CI tools like Jenkins make it hard
-or near impossible.
+I think I have figured out what a Continuous Integration (CI) server *should*
+do. It is very simple. Yet common CI tools like Jenkins make it hard or near
+impossible.
 
 ## What is CI?
 
@@ -16,54 +16,111 @@ I've tried to find the root of the practice, and a lot of my thoughts here are
 based on James Shore's descriptions in
 [AOAD2](https://www.jamesshore.com/v2/books/aoad2/continuous_integration).
 
-So with that in mind, CI is about two things:
+So with that in mind, CI to me is about two things:
 
 1. Integrate often.
-    * At least once a day
-    * Needs practice
-    * No diverged truths
-
-2. Promise to keep master green.
-    * Needs self-testing code, needs practice.
-    * Needs process.
+2. Promise to keep the main branch working at all times.
 
 ## What is integrate?
 
-* Merge to master.
-* When do we want to merge to master?
-    * When it is in a deployable/releasble state
-* When is it that?
-    * When we have done all tests and deployed to test environment / burned
-      CD
+Integrate means to merge your changes into the main branch. This branch is
+commonly also referred to as master or trunk.
+
+## How often should we integrate?
+
+From what I've read, the consensus seems to be that you should at least
+integrate your code once a day. If you do it less frequently, you are not doing
+*continuous* integration.
+
+## When is it safe to integrate?
+
+Every time we integrate code, we have to make sure that the main branch is
+still working. (The second aspect of CI.) That is, we can not integrate code
+that breaks functionality.
+
+How can we do that?
+
+The only way to do that (and still integrate often) is with an automatic test
+suite.
+
+Before you integrate your code, you want to run the test suite to make sure
+everything still works.
+
+**That test suite should give you confidence that when it's time to deploy the
+software to production, it will just work.**
+
+To gain that confidence, you probably need to include deploying to a test
+environment in your test suite.
+
+## Human aspect
+
+James Shore points out that [you can do CI without a
+tool](https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day),
+and that CI is more about a way of working.
+
+No tool can choose to integrate your code often. You have to change your way of
+working so that you can integrate more often. This requires practice.
+
+No tool can enforce that your main branch is always in a working state. You
+have to have a mindset of working like that. This requires practice.
+
+However, there are some things that a tool can help with. To make it easier to
+work in this way.
 
 ## Tooling for CI should do the following
 
-**A CI tool should integrate (merge commits to master) in a "safe" way.**
+**A CI tool should merge changes to the main branch in a safe way.**
 
 ### Basics
 
 Here is pseudo code for how a CI server should integrate changes from a branch
 in a Git repo:
 
-    def integrate(repo, branch):
-        with lock(repo):
-            sh("git clone {repo}")
-            sh("git merge origin/{branch}")   # fail/warn if someone else merged before you
-            sh("<self test command>")
-            sh("git push")
-        sh("<more expensive test command>")
+```python
+def integrate(repo, branch):
+    with lock(repo):
+        sh("git clone {repo}")
+        sh("git merge origin/{branch}")
+        sh("<command to run test suite>")
+        sh("git push")
+```
 
-This ensures the following:
+The lock step ensures that only one integration can happen at a time. If you
+have two branches that want to integrate, one has to wait for the other to be
+integrated first.
 
-* Every integration passes self-test
-* Integration promoted after test pass
-* Master is always green
-* Lock ensure the correct code is tested
+A branch is then integrated by performing a `git merge` followed by a command
+to run the test suite. This test suite should be defined in the repo somewhere.
 
-Notes:
+If the test suite passes, a `git push` is performed to "promote" the changes to
+the main branch.
+
+If two integrations were to happen simultaneously, the second `git push`
+would fail because other changes have already been pushed and a new merge would
+be needed.
+
+This workflow ensures that every change that is integrated to the main branch
+passes the test suite.
+
+### Wait time?
+
+The lock step ensures that only one integration happens at a time.
 
 * Integration step should take no more than 10 minutes
+
+### Multistage variation
+
 * Improve: move stuff from expensive test command to self test command
+
+```python
+def integrate(repo, branch):
+    with lock(repo):
+        sh("git clone {repo}")
+        sh("git merge origin/{branch}")
+        sh("<command to run fast test suite>")
+        sh("git push")
+    sh("<command to run slow test suite>")
+```
 
 ### Additional functions
 
