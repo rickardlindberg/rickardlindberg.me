@@ -7,20 +7,25 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 28 Jan 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 12 Feb 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
     <description><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
-<p><em>Published on 28 January 2023.</em></p>
+<p><em>Published on 12 February 2023.</em></p>
 
 <ul>
 <li><a href="#what-is-ci">What is CI?</a></li>
 <li><a href="#what-is-integrate">What is integrate?</a></li>
+<li><a href="#how-often-should-we-integrate">How often should we integrate?</a></li>
+<li><a href="#when-is-it-safe-to-integrate">When is it safe to integrate?</a></li>
+<li><a href="#human-aspect">Human aspect</a></li>
 <li><a href="#tooling-for-ci-should-do-the-following">Tooling for CI should do the following</a>
 <ul>
 <li><a href="#basics">Basics</a></li>
+<li><a href="#wait-time">Wait time?</a></li>
+<li><a href="#multistage-variation">Multistage variation</a></li>
 <li><a href="#additional-functions">Additional functions</a></li>
 </ul></li>
 <li><a href="#problems-with-common-workflow">Problems with common workflow</a>
@@ -33,59 +38,62 @@
 <li><a href="#what-about-pull-requests">What about pull requests?</a></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>I think that I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common CI tools like Jenkins make it hard or near impossible.</p>
+<p>I think I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common CI tools like Jenkins make it hard or near impossible.</p>
 <h2 id="what-is-ci">What is CI?</h2>
 <p>CI probably means different things to different people.</p>
 <p>I’ve tried to find the root of the practice, and a lot of my thoughts here are based on James Shore’s descriptions in <a href="https://www.jamesshore.com/v2/books/aoad2/continuous_integration">AOAD2</a>.</p>
-<p>So with that in mind, CI is about two things:</p>
+<p>So with that in mind, CI to me is about two things:</p>
 <ol type="1">
-<li>Integrate often.
-<ul>
-<li>At least once a day</li>
-<li>Needs practice</li>
-<li>No diverged truths</li>
-</ul></li>
-<li>Promise to keep master green.
-<ul>
-<li>Needs self-testing code, needs practice.</li>
-<li>Needs process.</li>
-</ul></li>
+<li>Integrate often.</li>
+<li>Promise to keep the main branch working at all times.</li>
 </ol>
 <h2 id="what-is-integrate">What is integrate?</h2>
-<ul>
-<li>Merge to master.</li>
-<li>When do we want to merge to master?
-<ul>
-<li>When it is in a deployable/releasble state</li>
-</ul></li>
-<li>When is it that?
-<ul>
-<li>When we have done all tests and deployed to test environment / burned CD</li>
-</ul></li>
-</ul>
+<p>Integrate means to merge your changes into the main branch. This branch is commonly also referred to as master or trunk.</p>
+<h2 id="how-often-should-we-integrate">How often should we integrate?</h2>
+<p>From what I’ve read, the consensus seems to be that you should at least integrate your code once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
+<h2 id="when-is-it-safe-to-integrate">When is it safe to integrate?</h2>
+<p>Every time we integrate code, we have to make sure that the main branch is still working. (The second aspect of CI.) That is, we can not integrate code that breaks functionality.</p>
+<p>How can we do that?</p>
+<p>The only way to do that (and still integrate often) is with an automatic test suite.</p>
+<p>Before you integrate your code, you want to run the test suite to make sure everything still works.</p>
+<p><strong>That test suite should give you confidence that when it’s time to deploy the software to production, it will just work.</strong></p>
+<p>To gain that confidence, you probably need to include deploying to a test environment in your test suite.</p>
+<h2 id="human-aspect">Human aspect</h2>
+<p>James Shore points out that <a href="https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day">you can do CI without a tool</a>, and that CI is more about a way of working.</p>
+<p>No tool can choose to integrate your code often. You have to change your way of working so that you can integrate more often. This requires practice.</p>
+<p>No tool can enforce that your main branch is always in a working state. You have to have a mindset of working like that. This requires practice.</p>
+<p>However, there are some things that a tool can help with. To make it easier to work in this way.</p>
 <h2 id="tooling-for-ci-should-do-the-following">Tooling for CI should do the following</h2>
-<p><strong>A CI tool should integrate (merge commits to master) in a “safe” way.</strong></p>
+<p><strong>A CI tool should merge changes to the main branch in a safe way.</strong></p>
 <h3 id="basics">Basics</h3>
 <p>Here is pseudo code for how a CI server should integrate changes from a branch in a Git repo:</p>
-<pre><code>def integrate(repo, branch):
-    with lock(repo):
-        sh(&quot;git clone {repo}&quot;)
-        sh(&quot;git merge origin/{branch}&quot;)   # fail/warn if someone else merged before you
-        sh(&quot;&lt;self test command&gt;&quot;)
-        sh(&quot;git push&quot;)
-    sh(&quot;&lt;more expensive test command&gt;&quot;)</code></pre>
-<p>This ensures the following:</p>
-<ul>
-<li>Every integration passes self-test</li>
-<li>Integration promoted after test pass</li>
-<li>Master is always green</li>
-<li>Lock ensure the correct code is tested</li>
-</ul>
-<p>Notes:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run test suite&gt;&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span></code></pre></div>
+<p>The lock step ensures that only one integration can happen at a time. If you have two branches that want to integrate, one has to wait for the other to be integrated first.</p>
+<p>A branch is then integrated by performing a <code>git merge</code> followed by a command to run the test suite. This test suite should be defined in the repo somewhere.</p>
+<p>If the test suite passes, a <code>git push</code> is performed to “promote” the changes to the main branch.</p>
+<p>If two integrations were to happen simultaneously, the second <code>git push</code> would fail because other changes have already been pushed and a new merge would be needed.</p>
+<p>This workflow ensures that every change that is integrated to the main branch passes the test suite.</p>
+<h3 id="wait-time">Wait time?</h3>
+<p>The lock step ensures that only one integration happens at a time.</p>
 <ul>
 <li>Integration step should take no more than 10 minutes</li>
+</ul>
+<h3 id="multistage-variation">Multistage variation</h3>
+<ul>
 <li>Improve: move stuff from expensive test command to self test command</li>
 </ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
 <h3 id="additional-functions">Additional functions</h3>
 <ul>
 <li>Clean environments (no dev laptop with custom dependencies)</li>
@@ -120,7 +128,7 @@
 </ul></li>
 </ul>
 ]]></description>
-    <pubDate>Sat, 28 Jan 2023 00:00:00 UT</pubDate>
+    <pubDate>Sun, 12 Feb 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
