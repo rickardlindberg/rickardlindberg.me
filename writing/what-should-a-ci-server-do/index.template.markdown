@@ -95,22 +95,35 @@ to run the test suite. This test suite should be defined in the repo somewhere.
 If the test suite passes, a `git push` is performed to "promote" the changes to
 the main branch.
 
-If two integrations were to happen simultaneously, the second `git push`
-would fail because other changes have already been pushed and a new merge would
-be needed.
-
 This workflow ensures that every change that is integrated to the main branch
 passes the test suite.
 
-### Wait time?
+That is the basic function. Let's look at some variations.
+
+### Clean environments
+
+* Clean environments (no dev laptop with custom dependencies)
+* The CI server should set up a clean environment before running the test suite
+
+### Multiple environments
+
+* Multiple environments (windows, linux, different python versions, etc)
+
+### Communication / visibility
+
+* Notify team on successful integration
+* Show today's integrations in a dashboard
+* Show success rate of integrations
+* Present clear errors if pipeline fails
+
+### Multistage
 
 The lock step ensures that only one integration happens at a time.
 
-* Integration step should take no more than 10 minutes
+In some situations you might have a longer running test suite that you don't
+want to block further integrations.
 
-### Multistage variation
-
-* Improve: move stuff from expensive test command to self test command
+A CI server could support that something like this:
 
 ```python
 def integrate(repo, branch):
@@ -122,15 +135,15 @@ def integrate(repo, branch):
     sh("<command to run slow test suite>")
 ```
 
-### Additional functions
+As a rule of thumb, the fast test suite should take more than 10 minutes.
 
-* Clean environments (no dev laptop with custom dependencies)
-* Multiple environments (windows, linux, different python versions, etc)
-* Communication / visibility
-    * Notify team on successful integration
-    * Show today's integrations in a dashboard
-    * Show success rate of integrations
-    * Present clear errors if pipeline fails
+And it is also probably more beneficial to try to speed up your test suite than
+to have a separate slow test suite after integration.
+
+However, multistage might still be useful:
+
+* Improve: move stuff from expensive test command to self test command
+* Special long running tests
 
 ## Problems with common workflow
 
