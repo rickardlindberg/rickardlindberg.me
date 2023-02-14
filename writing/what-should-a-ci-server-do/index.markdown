@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-02-13
+date: 2023-02-14
 tags: draft
 ---
 
@@ -104,19 +104,68 @@ That is the basic function. Let's look at some variations.
 
 ### Clean environments
 
-* Clean environments (no dev laptop with custom dependencies)
-* The CI server should set up a clean environment before running the test suite
+One thing that a CI server helps prevent is the problem that code works on one
+developer's machine, but not another. Perhaps it is due to a dependency being
+missing on one developer's machine.
+
+With a CI server the one true environment is the CI server's environment.
+
+Preferably, this should also be set up in the exact same way before every test
+run so that two test runs have the exact same clean environment.
+
+Setting up a clean environment might look different in different languages. One
+option would be to use Docker containers. In the Python world, virtual
+environments could be set up for each test run.
+
+Anything generic function that a CI server can do to help in this area is good.
 
 ### Multiple environments
 
-* Multiple environments (windows, linux, different python versions, etc)
+Another feature of a CI server is that you can make sure your code works in an
+environment that you don't have access to on your development machine.
+
+You might write Python code that should work on both Windows and Linux, but
+your laptop only runs Windows.
+
+A CI server should have functionality to run code in different environments.
 
 ### Communication / visibility
 
-* Notify team on successful integration
-* Show today's integrations in a dashboard
-* Show success rate of integrations
-* Present clear errors if pipeline fails
+Another aspect of continuous integration is communication.
+
+For example, when you integrate code, you want to tell your team members about
+the change so that they can pull your latest changes and test their code
+against it.
+
+A CI server can help communicate. It can
+
+* notify team on successful integration
+* show today's integrations in a dashboard
+* show success rate of integrations
+* present clear errors if pipeline fails
+
+### Pipeline language
+
+To take full advantage of the CI server, the "command to run the test suite"
+should be written in a "pipeline language".
+
+Consider this pseudo example:
+
+    step('compile') {
+        sh('make')
+    }
+    parallel {
+        environment('unix') {
+            sh('./test')
+        }
+        environment('windows') {
+            sh('test.exe')
+        }
+    }
+
+This script could not have been written as a Bash script, because then it could
+not have taken advantage of the CI server functionality to run commands in
+different environments.
 
 ### Multistage
 
@@ -147,7 +196,7 @@ However, multistage might still be useful:
 * Improve: move stuff from expensive test command to self test command
 * Special long running tests
 
-## Problems with common workflow
+## Common "CI" workflows and their problems
 
 ### Run pipeline after commit
 
@@ -155,7 +204,7 @@ However, multistage might still be useful:
 
 ## Benefit even if not "real" CI
 
-## Why don't CI-severs work like this?
+## Why don't CI severs work like this?
 
 * Difficult with SVN?
 
