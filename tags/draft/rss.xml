@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 13 Feb 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 14 Feb 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
     <description><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
-<p><em>Published on 13 February 2023.</em></p>
+<p><em>Published on 14 February 2023.</em></p>
 
 <ul>
 <li><a href="#what-is-ci">What is CI?</a></li>
@@ -27,15 +27,16 @@
 <li><a href="#clean-environments">Clean environments</a></li>
 <li><a href="#multiple-environments">Multiple environments</a></li>
 <li><a href="#communication-visibility">Communication / visibility</a></li>
+<li><a href="#pipeline-language">Pipeline language</a></li>
 <li><a href="#multistage">Multistage</a></li>
 </ul></li>
-<li><a href="#problems-with-common-workflow">Problems with common workflow</a>
+<li><a href="#common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</a>
 <ul>
 <li><a href="#run-pipeline-after-commit">Run pipeline after commit</a></li>
 <li><a href="#run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</a></li>
 </ul></li>
 <li><a href="#benefit-even-if-not-real-ci">Benefit even if not “real” CI</a></li>
-<li><a href="#why-dont-ci-severs-work-like-this">Why don’t CI-severs work like this?</a></li>
+<li><a href="#why-dont-ci-severs-work-like-this">Why don’t CI severs work like this?</a></li>
 <li><a href="#what-about-pull-requests">What about pull requests?</a></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
@@ -80,32 +81,51 @@
 <p>This workflow ensures that every change that is integrated to the main branch passes the test suite.</p>
 <p>That is the basic function. Let’s look at some variations.</p>
 <h3 id="clean-environments">Clean environments</h3>
-<ul>
-<li>Clean environments (no dev laptop with custom dependencies)</li>
-<li>The CI server should set up a clean environment before running the test suite</li>
-</ul>
+<p>One thing that a CI server helps prevent is the problem that code works on one developer’s machine, but not another. Perhaps it is due to a dependency being missing on one developer’s machine.</p>
+<p>With a CI server the one true environment is the CI server’s environment.</p>
+<p>Preferably, this should also be set up in the exact same way before every test run so that two test runs have the exact same clean environment.</p>
+<p>Setting up a clean environment might look different in different languages. One option would be to use Docker containers. In the Python world, virtual environments could be set up for each test run.</p>
+<p>Anything generic function that a CI server can do to help in this area is good.</p>
 <h3 id="multiple-environments">Multiple environments</h3>
-<ul>
-<li>Multiple environments (windows, linux, different python versions, etc)</li>
-</ul>
+<p>Another feature of a CI server is that you can make sure your code works in an environment that you don’t have access to on your development machine.</p>
+<p>You might write Python code that should work on both Windows and Linux, but your laptop only runs Windows.</p>
+<p>A CI server should have functionality to run code in different environments.</p>
 <h3 id="communication-visibility">Communication / visibility</h3>
+<p>Another aspect of continuous integration is communication.</p>
+<p>For example, when you integrate code, you want to tell your team members about the change so that they can pull your latest changes and test their code against it.</p>
+<p>A CI server can help communicate. It can</p>
 <ul>
-<li>Notify team on successful integration</li>
-<li>Show today’s integrations in a dashboard</li>
-<li>Show success rate of integrations</li>
-<li>Present clear errors if pipeline fails</li>
+<li>notify team on successful integration</li>
+<li>show today’s integrations in a dashboard</li>
+<li>show success rate of integrations</li>
+<li>present clear errors if pipeline fails</li>
 </ul>
+<h3 id="pipeline-language">Pipeline language</h3>
+<p>To take full advantage of the CI server, the “command to run the test suite” should be written in a “pipeline language”.</p>
+<p>Consider this pseudo example:</p>
+<pre><code>step(&#39;compile&#39;) {
+    sh(&#39;make&#39;)
+}
+parallel {
+    environment(&#39;unix&#39;) {
+        sh(&#39;./test&#39;)
+    }
+    environment(&#39;windows&#39;) {
+        sh(&#39;test.exe&#39;)
+    }
+}</code></pre>
+<p>This script could not have been written as a Bash script, because then it could not have taken advantage of the CI server functionality to run commands in different environments.</p>
 <h3 id="multistage">Multistage</h3>
 <p>The lock step ensures that only one integration happens at a time.</p>
 <p>In some situations you might have a longer running test suite that you don’t want to block further integrations.</p>
 <p>A CI server could support that something like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
 <p>As a rule of thumb, the fast test suite should take more than 10 minutes.</p>
 <p>And it is also probably more beneficial to try to speed up your test suite than to have a separate slow test suite after integration.</p>
 <p>However, multistage might still be useful:</p>
@@ -113,11 +133,11 @@
 <li>Improve: move stuff from expensive test command to self test command</li>
 <li>Special long running tests</li>
 </ul>
-<h2 id="problems-with-common-workflow">Problems with common workflow</h2>
+<h2 id="common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</h2>
 <h3 id="run-pipeline-after-commit">Run pipeline after commit</h3>
 <h3 id="run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</h3>
 <h2 id="benefit-even-if-not-real-ci">Benefit even if not “real” CI</h2>
-<h2 id="why-dont-ci-severs-work-like-this">Why don’t CI-severs work like this?</h2>
+<h2 id="why-dont-ci-severs-work-like-this">Why don’t CI severs work like this?</h2>
 <ul>
 <li>Difficult with SVN?</li>
 </ul>
@@ -135,7 +155,7 @@
 </ul></li>
 </ul>
 ]]></description>
-    <pubDate>Mon, 13 Feb 2023 00:00:00 UT</pubDate>
+    <pubDate>Tue, 14 Feb 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
