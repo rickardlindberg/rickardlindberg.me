@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-02-14
+date: 2023-02-17
 tags: draft
 ---
 
@@ -91,8 +91,10 @@ The lock step ensures that only one integration can happen at a time. If you
 have two branches that want to integrate, one has to wait for the other to be
 integrated first.
 
-A branch is then integrated by performing a `git merge` followed by a command
-to run the test suite. This test suite should be defined in the repo somewhere.
+A branch is then integrated by performing a `git merge`.
+
+To make sure the changes are good, a test suite is then run. This test suite
+should be defined in the repo somewhere.
 
 If the test suite passes, a `git push` is performed to "promote" the changes to
 the main branch.
@@ -100,18 +102,22 @@ the main branch.
 This workflow ensures that every change that is integrated to the main branch
 passes the test suite.
 
-That is the basic function. Let's look at some variations.
+That is the basic function. Let's look at some directions where this design
+could be evolve to make a more full fledged CI server.
 
 ### Clean environments
 
-One thing that a CI server helps prevent is the problem that code works on one
-developer's machine, but not another. Perhaps it is due to a dependency being
-missing on one developer's machine.
+One thing that a dedicated CI server helps prevent is the problem that code
+works on one developer's machine, but not another. Perhaps it is due to a
+dependency being missing on one developer's machine.
 
-With a CI server the one true environment is the CI server's environment.
+With a CI server, the one true environment is the CI server's environment.
 
 Preferably, this should also be set up in the exact same way before every test
 run so that two test runs have the exact same clean environment.
+
+Clean environments make test runs more predictable and helps with the safe
+part.
 
 Setting up a clean environment might look different in different languages. One
 option would be to use Docker containers. In the Python world, virtual
@@ -121,33 +127,19 @@ Anything generic function that a CI server can do to help in this area is good.
 
 ### Multiple environments
 
-Another feature of a CI server is that you can make sure your code works in an
-environment that you don't have access to on your development machine.
+Another advantage of a separate CI server is that you can make sure your code
+works in an environment that you don't have access to on your development
+machine.
 
 You might write Python code that should work on both Windows and Linux, but
 your laptop only runs Windows.
 
 A CI server should have functionality to run code in different environments.
 
-### Communication / visibility
-
-Another aspect of continuous integration is communication.
-
-For example, when you integrate code, you want to tell your team members about
-the change so that they can pull your latest changes and test their code
-against it.
-
-A CI server can help communicate. It can
-
-* notify team on successful integration
-* show today's integrations in a dashboard
-* show success rate of integrations
-* present clear errors if pipeline fails
-
 ### Pipeline language
 
 To take full advantage of the CI server, the "command to run the test suite"
-should be written in a "pipeline language".
+should be written in a "pipeline language" that the CI server understands.
 
 Consider this pseudo example:
 
@@ -166,6 +158,21 @@ Consider this pseudo example:
 This script could not have been written as a Bash script, because then it could
 not have taken advantage of the CI server functionality to run commands in
 different environments.
+
+### Communication / visibility
+
+Another aspect of continuous integration is communication.
+
+For example, when you integrate code, you want to tell your team members about
+the change so that they can pull your changes and test their code against it.
+
+A CI server can help communicate. It can
+
+* notify a team on successful integration
+* show today's integrations in a dashboard
+* show success rate of integrations
+* present clear errors when an integration fails
+* present clear view of pipeline / stages (even the ones not run)
 
 ### Multistage
 
@@ -186,7 +193,7 @@ def integrate(repo, branch):
     sh("<command to run slow test suite>")
 ```
 
-As a rule of thumb, the fast test suite should take more than 10 minutes.
+As a rule of thumb, the fast test suite should take no more than 10 minutes.
 
 And it is also probably more beneficial to try to speed up your test suite than
 to have a separate slow test suite after integration.
@@ -198,15 +205,78 @@ However, multistage might still be useful:
 
 ## Common "CI" workflows and their problems
 
+I primarily have experience with using Jenkins as a CI server. And the two most
+common patterns in Jenkins prevents you from doing continuous integration.
+Let's have a look.
+
 ### Run pipeline after commit
+
+This patterns runs a pipeline only after you have merged your changes to the
+main branch.
+
+If the test suite fails, you have broken code on the main branch, and everyone
+who pulls your code will base their changes on something broken.
+
+If you are serious about continuous integration, you fix this problem
+immediately. Either by reverting the change or merging a fix. It might not be
+too big a problem.
+
+If you are not serious about continuous integration, you might leave the code
+broken and hope that someone else fixes it.
+
+With a CI server I describe in this article, it is simply not possible to merge
+something broken.
 
 ### Run pipeline on branch, then again after merge
 
-## Benefit even if not "real" CI
+This patterns runs a pipeline on every branch so that you know that your
+changes are good before you merge them. And when you merge them, the pipeline
+is run again.
+
+This is a slight improvement over the previous pattern, but it still has a
+flaw. Consider this scenario:
+
+    0---0
+         \
+          \---A
+           \
+            \---B
+
+`A` and `B` are two branches that both have passing test suites, so they both
+go ahead and merge, resulting in this:
+
+    0---0-------A'---B'
+         \     /    /
+          \---A    /
+           \      /
+            \----B
+
+`A'` has already been tested on the branch, but `B'` has never been tested.
+That is, the combination of `A`'s and `B`'s changes have never been tested,
+until they are both merged.
+
+With a CI server I describe in this article, this problem is solved with
+"synchronous integration" where multiple integrations have to wait for
+each other.
+
+If you choose to do "multistage integration", you still have this problem. But
+with my CI server it is a choice. A trade off that you can make.
 
 ## Why don't CI severs work like this?
 
-* Difficult with SVN?
+I have two speculations.
+
+First, if your team is committed to continuous integration, broken code on the
+main branch might not be too big a deal since everyone is committed to fixing
+it fast.
+
+Second, back in the day of using SVN (which was my fist version control
+system), branching was expensive. The default behavior was to do trunk based
+development. That is, push directly to the main branch. Having a CI tool do the
+actual integration was probably technically more difficult. However, now with
+Git, that is no longer true.
+
+Do you know why CI servers don't work like this? Please let me know.
 
 ## What about pull requests?
 
