@@ -1,14 +1,14 @@
 ---
 title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-02-17
+date: 2023-02-18
 tags: draft
 ---
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 I think I have figured out what a Continuous Integration (CI) server *should*
-do. It is very simple. Yet common CI tools like Jenkins make it hard or near
-impossible.
+do. It is very simple. Yet common tools used for CI, like Jenkins, make it hard
+or near impossible.
 
 ## What is CI?
 
@@ -28,7 +28,7 @@ So with that in mind, CI to me is about two things:
 Integrate means to merge your changes into the main branch. This branch is
 commonly also referred to as master or trunk.
 
-## How often should we integrate?
+## How often should you integrate?
 
 From what I've read, the consensus seems to be that you should at least
 integrate your code once a day. If you do it less frequently, you are not doing
@@ -36,44 +36,46 @@ integrate your code once a day. If you do it less frequently, you are not doing
 
 ## When is it safe to integrate?
 
-Every time we integrate code, we have to make sure that the main branch is
-still working. (The second aspect of CI.) That is, we can not integrate code
-that breaks functionality.
+Every time you integrate code, you have to make sure that the main branch is
+working. (The second aspect of CI.) That is, you can not integrate code that
+breaks functionality.
 
-How can we do that?
+How can you do that?
 
 The only way to do that (and still integrate often) is with an automatic test
 suite.
 
 Before you integrate your code, you want to run the test suite to make sure
-everything still works.
+that everything still works.
 
-**That test suite should give you confidence that when it's time to deploy the
+**The test suite should give you confidence that when it's time to deploy the
 software to production, it will just work.**
 
-To gain that confidence, you probably need to include deploying to a test
-environment in your test suite.
+To gain that confidence, the test suite probably needs to include steps to
+deploy the software to a test environment and do some smoke test on it. Not
+only unit tests.
 
-## Human aspect
+## Attitude, not a tool
 
-James Shore points out that [you can do CI without a
-tool](https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day),
-and that CI is more about a way of working.
+James Shore writes that [Continuous Integration is an Attitude, Not a
+Tool](https://www.jamesshore.com/v2/blog/2005/continuous-integration-is-an-attitude)
+and points out that [you can do CI without a
+tool](https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day).
 
 No tool can choose to integrate your code often. You have to change your way of
 working so that you can integrate more often. This requires practice.
 
-No tool can enforce that your main branch is always in a working state. You
+No tool can enforce that your main branch is always working. You
 have to have a mindset of working like that. This requires practice.
 
 However, there are some things that a tool can help with. To make it easier to
 work in this way.
 
-## Tooling for CI should do the following
+## CI server functionality
 
-**A CI tool should merge changes to the main branch in a safe way.**
+**A CI server should merge changes to the main branch in a safe way.**
 
-### Basics
+### Basic workflow
 
 Here is pseudo code for how a CI server should integrate changes from a branch
 in a Git repo:
@@ -93,31 +95,32 @@ integrated first.
 
 A branch is then integrated by performing a `git merge`.
 
-To make sure the changes are good, a test suite is then run. This test suite
-should be defined in the repo somewhere.
+To make sure the changes work, a test suite is then run. This test suite
+should be defined in the repo.
 
 If the test suite passes, a `git push` is performed to "promote" the changes to
 the main branch.
 
 This workflow ensures that every change that is integrated to the main branch
-passes the test suite.
+work. Where "work" is defined as passing the test suite.
 
-That is the basic function. Let's look at some directions where this design
-could be evolve to make a more full fledged CI server.
+That is the basic function that I think a CI server should perform. Let's look
+at some directions where this design can be evolved to make a more full fledged
+CI server.
 
 ### Clean environments
 
 One thing that a dedicated CI server helps prevent is the problem that code
 works on one developer's machine, but not another. Perhaps it is due to a
-dependency being missing on one developer's machine.
+dependency missing on one developer's machine.
 
 With a CI server, the one true environment is the CI server's environment.
 
 Preferably, this should also be set up in the exact same way before every test
 run so that two test runs have the exact same clean environment.
 
-Clean environments make test runs more predictable and helps with the safe
-part.
+Clean environments make test runs more predictable and helps making
+integrations safely.
 
 Setting up a clean environment might look different in different languages. One
 option would be to use Docker containers. In the Python world, virtual
@@ -127,7 +130,7 @@ Anything generic function that a CI server can do to help in this area is good.
 
 ### Multiple environments
 
-Another advantage of a separate CI server is that you can make sure your code
+Another advantage of a dedicated CI server is that you can make sure your code
 works in an environment that you don't have access to on your development
 machine.
 
@@ -169,14 +172,14 @@ the change so that they can pull your changes and test their code against it.
 A CI server can help communicate. It can
 
 * notify a team on successful integration
-* show today's integrations in a dashboard
-* show success rate of integrations
+* show today's integrations in a dashboard to make visible what is happening
+* show success rate of integrations to give an idea of how we are doing
 * present clear errors when an integration fails
-* present clear view of pipeline / stages (even the ones not run)
+* present clear view of pipeline and what steps were run
 
 ### Multistage
 
-The lock step ensures that only one integration happens at a time.
+The lock step ensures that only one integration can happen at a time.
 
 In some situations you might have a longer running test suite that you don't
 want to block further integrations.
@@ -206,7 +209,7 @@ However, multistage might still be useful:
 ## Common "CI" workflows and their problems
 
 I primarily have experience with using Jenkins as a CI server. And the two most
-common patterns in Jenkins prevents you from doing continuous integration.
+common patterns in Jenkins prevent you from doing continuous integration.
 Let's have a look.
 
 ### Run pipeline after commit
@@ -280,10 +283,13 @@ Do you know why CI servers don't work like this? Please let me know.
 
 ## What about pull requests?
 
-* PRs and CI don't play nice together.
-    * In PR's, you merge by pressing a button
-    * In CI, the CI server merges.
+Pull requests are a common way of working, but they don't play nicely together
+with CI.
 
-* Variants (although none of them "real" CI)
-    * PRs can be a stage before CI
-    * Review can be a step in CI
+First of all, when working with pull requests, you integrate your code by
+pressing a button that will perform the merge. With a proper CI tool, the CI
+tool performs the merge. With the former, no tool can prevent broken code on
+the main branch.
+
+Second of all, pull requests, at least a blocking ones, add delay to the
+process of integrating code, making it difficult to integrate often.
