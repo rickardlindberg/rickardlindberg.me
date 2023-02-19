@@ -30,30 +30,28 @@ commonly also referred to as master or trunk.
 
 ## How often should you integrate?
 
-From what I've read, the consensus seems to be that you should at least
-integrate once a day. If you do it less frequently, you are not doing
-*continuous* integration.
+From what I've read, the consensus seems to be that you should integrate at
+least once a day. If you do it less frequently, you are not doing *continuous*
+integration.
 
 ## When is it safe to integrate?
 
-    Every time you integrate, you have to make sure that the main branch is
-    working. (The second aspect of CI.) That is, you can not integrate code that
-    breaks functionality.
+Every time you integrate, you have to make sure that the main branch is
+working. (The second aspect of CI.)
 
-    How can you do that?
+How can you do that?
 
-    The only way to do that, and still integrate often, is with an automatic test
-    suite.
+The only way to do that, and still integrate often, is with an automatic test
+suite.
 
-    Before you integrate your code, you want to run the test suite to make sure
-    that everything still works.
+Before you integrate your code, you want to run the test suite to make sure
+that everything still works.
 
 **The test suite should give you confidence that when it's time to deploy to
 production, it will just work.**
 
 To gain that confidence, the test suite probably needs to include steps to
-deploy the software to a test environment and do some smoke test on it. Not
-only unit tests.
+deploy to a test environment and do some smoke test on it. Not only unit tests.
 
 ## Attitude, not a tool
 
@@ -128,7 +126,7 @@ option would be to use Docker containers. In the Python world, virtual
 environments could be set up for each test run.
 
 Any function that a CI server can perform to help set up a clean environment is
-good.
+useful.
 
 ### Multiple environments
 
@@ -139,7 +137,8 @@ machine.
 You might write Python code that should work on both Windows and Linux, but
 your laptop only runs Windows.
 
-A CI server should have functionality to run code in different environments.
+A CI server should have functionality to the test suite in different
+environments.
 
 ### Pipeline language
 
@@ -152,11 +151,15 @@ Consider this pseudo example:
         sh('make')
     }
     parallel {
-        environment('unix') {
-            sh('./test')
+        step('test unix') {
+            environment('unix') {
+                sh('./test')
+            }
         }
-        environment('windows') {
-            sh('test.exe')
+        step('test windows') {
+            environment('windows') {
+                sh('test.exe')
+            }
         }
     }
 
@@ -174,13 +177,13 @@ change so that they can pull your changes and test their code against it.
 A CI server can help communicate. It can for example do the following:
 
 * Notify the team on a successful integration.
-* Show today's integrations in a dashboard to make visible what is
+* Show today's integrations in a dashboard to visualize what's
   happening.
 * Show success rate of integrations to give an idea of how the team is doing.
 * Present clear errors when an integration fails.
 * Present clear view of a pipeline and what steps were run.
 
-### Multistage
+### Multiple test suites
 
 The lock step in the basic workflow ensures that only one integration can
 happen at a time.
@@ -242,8 +245,8 @@ something broken.
 ### Run pipeline on branch, then again after merge
 
 This patterns runs a pipeline on every branch so that you know that your
-changes are working before you merge them. And when you merge them, the
-pipeline is run again.
+changes work before you merge them. And when you merge them, the pipeline is
+run again.
 
 This is a slight improvement over the previous pattern, but it still has a
 flaw. Consider this scenario:
@@ -270,11 +273,13 @@ until they are both merged.
 With a CI server I describe in this article, this problem is solved with the
 lock where multiple integrations have to wait for each other.
 
-If you choose to do "multistage integration", you still have this problem. At
-leas for functionality only covered by the slow test suite. But then it's a
+If you use the multiple test suites pattern, you still have this problem. At
+least for functionality only covered by the slow test suite. But then it's a
 choice you make. You decide if the trade off is worth it for you or not.
 
 ## Why don't tools for CI work like this?
+
+I think that tools for CI should help you do CI well. Why don't they?
 
 I have two speculations.
 
@@ -288,7 +293,8 @@ directly to the main branch. Having a CI tool do the actual integration was
 probably technically more difficult. However, now with Git, that is no longer
 true.
 
-Do you know why tools for CI don't work like this? Please let me know.
+Do you know why tools for CI don't work like I describe in this article? Please
+let me know.
 
 ## What about pull requests?
 
@@ -298,12 +304,13 @@ with CI.
 First of all, when working with pull requests, you integrate your code by
 pressing a button that will perform the merge. With a CI tool like the one I
 describe in this article, the CI tool performs the merge. With the former, no
-tool can prevent broken code on the main branch.
+tool can prevent broken code on the main branch. (The best they can do is test
+the branch, then again after merge.)
 
 Second of all, pull requests, at least a blocking ones, add delay to the
 process of integrating code, making it difficult to integrate often.
 
-Pull requests are often used to review changes before they are merged. In the
+Pull requests are often used to review changes before they are merged. In a
 CI server that I describe in this article, there is nothing preventing you from
 having a manual review step before the CI server is allowed to merge. However,
 a manual review step adds delays and makes it really difficult to do CI.
