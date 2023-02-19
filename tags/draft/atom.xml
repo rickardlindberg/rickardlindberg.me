@@ -32,7 +32,7 @@
 <li><a href="#multiple-environments">Multiple environments</a></li>
 <li><a href="#pipeline-language">Pipeline language</a></li>
 <li><a href="#communication-visibility">Communication / visibility</a></li>
-<li><a href="#multistage">Multistage</a></li>
+<li><a href="#multiple-test-suites">Multiple test suites</a></li>
 </ul></li>
 <li><a href="#common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</a>
 <ul>
@@ -55,21 +55,14 @@
 <h2 id="what-does-integrate-mean">What does integrate mean?</h2>
 <p>Integrate means to merge your changes into the main branch. This branch is commonly also referred to as master or trunk.</p>
 <h2 id="how-often-should-you-integrate">How often should you integrate?</h2>
-<p>From what I’ve read, the consensus seems to be that you should at least integrate once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
+<p>From what I’ve read, the consensus seems to be that you should integrate at least once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
 <h2 id="when-is-it-safe-to-integrate">When is it safe to integrate?</h2>
-<pre><code>Every time you integrate, you have to make sure that the main branch is
-working. (The second aspect of CI.) That is, you can not integrate code that
-breaks functionality.
-
-How can you do that?
-
-The only way to do that, and still integrate often, is with an automatic test
-suite.
-
-Before you integrate your code, you want to run the test suite to make sure
-that everything still works.</code></pre>
+<p>Every time you integrate, you have to make sure that the main branch is working. (The second aspect of CI.)</p>
+<p>How can you do that?</p>
+<p>The only way to do that, and still integrate often, is with an automatic test suite.</p>
+<p>Before you integrate your code, you want to run the test suite to make sure that everything still works.</p>
 <p><strong>The test suite should give you confidence that when it’s time to deploy to production, it will just work.</strong></p>
-<p>To gain that confidence, the test suite probably needs to include steps to deploy the software to a test environment and do some smoke test on it. Not only unit tests.</p>
+<p>To gain that confidence, the test suite probably needs to include steps to deploy to a test environment and do some smoke test on it. Not only unit tests.</p>
 <h2 id="attitude-not-a-tool">Attitude, not a tool</h2>
 <p>James Shore writes that <a href="https://www.jamesshore.com/v2/blog/2005/continuous-integration-is-an-attitude">Continuous Integration is an Attitude, Not a Tool</a> and points out that <a href="https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day">you can do CI without a tool</a>.</p>
 <p>No tool can choose to integrate your changes often. You have to change your way of working so that you <em>can</em> integrate more often and also do so. This requires practice.</p>
@@ -79,12 +72,12 @@ that everything still works.</code></pre>
 <p><strong>A CI server should merge changes to the main branch in a safe way.</strong></p>
 <h3 id="basic-workflow">Basic workflow</h3>
 <p>Here is pseudo code for how a CI server should integrate changes from a branch in a Git repo:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run test suite&gt;&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run test suite&gt;&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span></code></pre></div>
 <p>The lock step ensures that only one integration can happen at a time. If you have two branches that want to integrate, one has to wait for the other to be integrated first.</p>
 <p>The branch is then integrated by performing a <code>git merge</code>.</p>
 <p>To make sure the new main branch work, a test suite is then run. This test suite should be defined in the repo.</p>
@@ -97,11 +90,11 @@ that everything still works.</code></pre>
 <p>Preferably, this should also be set up in the exact same way before every test run so that two test runs have the exact same clean environment.</p>
 <p>Clean environments make test runs more predictable and helps make integrations safe.</p>
 <p>Setting up a clean environment looks different in different contexts. One option would be to use Docker containers. In the Python world, virtual environments could be set up for each test run.</p>
-<p>Any function that a CI server can perform to help set up a clean environment is good.</p>
+<p>Any function that a CI server can perform to help set up a clean environment is useful.</p>
 <h3 id="multiple-environments">Multiple environments</h3>
 <p>Another advantage of a dedicated CI server is that you can make sure your code works in an environment that you don’t have access to on your development machine.</p>
 <p>You might write Python code that should work on both Windows and Linux, but your laptop only runs Windows.</p>
-<p>A CI server should have functionality to run code in different environments.</p>
+<p>A CI server should have functionality to the test suite in different environments.</p>
 <h3 id="pipeline-language">Pipeline language</h3>
 <p>To take full advantage of the CI server, the “command to run the test suite” should be written in a “pipeline language” that the CI server understands.</p>
 <p>Consider this pseudo example:</p>
@@ -109,11 +102,15 @@ that everything still works.</code></pre>
     sh(&#39;make&#39;)
 }
 parallel {
-    environment(&#39;unix&#39;) {
-        sh(&#39;./test&#39;)
+    step(&#39;test unix&#39;) {
+        environment(&#39;unix&#39;) {
+            sh(&#39;./test&#39;)
+        }
     }
-    environment(&#39;windows&#39;) {
-        sh(&#39;test.exe&#39;)
+    step(&#39;test windows&#39;) {
+        environment(&#39;windows&#39;) {
+            sh(&#39;test.exe&#39;)
+        }
     }
 }</code></pre>
 <p>This script could not have been written as a Bash script for example, because then it could not have taken advantage of the CI server functionality to run commands in different environments.</p>
@@ -123,22 +120,22 @@ parallel {
 <p>A CI server can help communicate. It can for example do the following:</p>
 <ul>
 <li>Notify the team on a successful integration.</li>
-<li>Show today’s integrations in a dashboard to make visible what is happening.</li>
+<li>Show today’s integrations in a dashboard to visualize what’s happening.</li>
 <li>Show success rate of integrations to give an idea of how the team is doing.</li>
 <li>Present clear errors when an integration fails.</li>
 <li>Present clear view of a pipeline and what steps were run.</li>
 </ul>
-<h3 id="multistage">Multistage</h3>
+<h3 id="multiple-test-suites">Multiple test suites</h3>
 <p>The lock step in the basic workflow ensures that only one integration can happen at a time.</p>
 <p>In some situations you might have a longer running test suite that you don’t want to block further integrations.</p>
 <p>A CI server could support that something like this:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
 <p>Of course, when you do this, you risk breaking the main branch since all tests are not run before the change is integrated.</p>
 <p>One scenario where this could be useful is if you have a slow running test suite today that you can’t make instantly faster. You can start using this pattern with the goal of making all your slow tests fast. As a rule of thumb, the fast test suite should take no more than 10 minutes. If it takes longer for an integration to complete, chances are that you start multitasking because you don’t want to wait for it.</p>
 <p>Some tests might also be impossible to run in less than 10 minutes. In that case, this pattern is also good. But make sure that all basic functionality is tested in the fast test suite.</p>
@@ -151,7 +148,7 @@ parallel {
 <p>If you are not serious about continuous integration, you might leave the main branch broken and hope that someone else fixes it.</p>
 <p>With a CI server I describe in this article, it is simply not possible to merge something broken.</p>
 <h3 id="run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</h3>
-<p>This patterns runs a pipeline on every branch so that you know that your changes are working before you merge them. And when you merge them, the pipeline is run again.</p>
+<p>This patterns runs a pipeline on every branch so that you know that your changes work before you merge them. And when you merge them, the pipeline is run again.</p>
 <p>This is a slight improvement over the previous pattern, but it still has a flaw. Consider this scenario:</p>
 <pre><code>0---0
      \
@@ -166,17 +163,18 @@ parallel {
         \----B</code></pre>
 <p><code>A'</code> has already been tested on the branch, but <code>B'</code> has never been tested. That is, the combination of <code>A</code>’s and <code>B</code>’s changes have never been tested, until they are both merged.</p>
 <p>With a CI server I describe in this article, this problem is solved with the lock where multiple integrations have to wait for each other.</p>
-<p>If you choose to do “multistage integration”, you still have this problem. At leas for functionality only covered by the slow test suite. But then it’s a choice you make. You decide if the trade off is worth it for you or not.</p>
+<p>If you use the multiple test suites pattern, you still have this problem. At least for functionality only covered by the slow test suite. But then it’s a choice you make. You decide if the trade off is worth it for you or not.</p>
 <h2 id="why-dont-tools-for-ci-work-like-this">Why don’t tools for CI work like this?</h2>
+<p>I think that tools for CI should help you do CI well. Why don’t they?</p>
 <p>I have two speculations.</p>
 <p>First, if your team is committed to continuous integration, a broken main branch might not be too big a deal since everyone is committed to fixing it fast.</p>
 <p>Second, back in the day of using SVN (which was my fist version control system), branching was expensive. The default way to share changes was to push directly to the main branch. Having a CI tool do the actual integration was probably technically more difficult. However, now with Git, that is no longer true.</p>
-<p>Do you know why tools for CI don’t work like this? Please let me know.</p>
+<p>Do you know why tools for CI don’t work like I describe in this article? Please let me know.</p>
 <h2 id="what-about-pull-requests">What about pull requests?</h2>
 <p>Pull requests are a common way of working, but they don’t play nicely together with CI.</p>
-<p>First of all, when working with pull requests, you integrate your code by pressing a button that will perform the merge. With a CI tool like the one I describe in this article, the CI tool performs the merge. With the former, no tool can prevent broken code on the main branch.</p>
+<p>First of all, when working with pull requests, you integrate your code by pressing a button that will perform the merge. With a CI tool like the one I describe in this article, the CI tool performs the merge. With the former, no tool can prevent broken code on the main branch. (The best they can do is test the branch, then again after merge.)</p>
 <p>Second of all, pull requests, at least a blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
-<p>Pull requests are often used to review changes before they are merged. In the CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it really difficult to do CI.</p>
+<p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it really difficult to do CI.</p>
 ]]></summary>
 </entry>
 <entry>
