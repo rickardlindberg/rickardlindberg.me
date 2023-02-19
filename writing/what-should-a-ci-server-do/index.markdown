@@ -37,7 +37,7 @@ integration.
 ## When is it safe to integrate?
 
 Every time you integrate, you have to make sure that the main branch is
-working. (The second aspect of CI.)
+working. This is the second aspect of CI.
 
 How can you do that?
 
@@ -94,13 +94,13 @@ integrated first.
 
 The branch is then integrated by performing a `git merge`.
 
-To make sure the new main branch work, a test suite is then run. This test
+To make sure the new main branch works, a test suite is then run. This test
 suite should be defined in the repo.
 
 If the test suite passes, a `git push` is performed to "publish" the new main
 branch.
 
-This workflow ensures that every change that is integrated to the main branch
+This workflow ensures that every change that is merged into the main branch
 works. Where "works" is defined as passing the test suite.
 
 That is the basic function that I think a CI server should perform. Let's look
@@ -137,7 +137,7 @@ machine.
 You might write Python code that should work on both Windows and Linux, but
 your laptop only runs Windows.
 
-A CI server should have functionality to the test suite in different
+A CI server should have functionality to run the test suite in different
 environments.
 
 ### Pipeline language
@@ -167,7 +167,7 @@ This script could not have been written as a Bash script for example, because
 then it could not have taken advantage of the CI server functionality to run
 commands in different environments.
 
-### Communication / visibility
+### Communication
 
 Another aspect of continuous integration is communication.
 
@@ -181,7 +181,7 @@ A CI server can help communicate. It can for example do the following:
   happening.
 * Show success rate of integrations to give an idea of how the team is doing.
 * Present clear errors when an integration fails.
-* Present clear view of a pipeline and what steps were run.
+* Present a clear view of a pipeline and what steps were run.
 
 ### Multiple test suites
 
@@ -209,7 +209,7 @@ are not run before the change is integrated.
 One scenario where this could be useful is if you have a slow running test
 suite today that you can't make instantly faster. You can start using this
 pattern with the goal of making all your slow tests fast. As a rule of thumb,
-the fast test suite should take no more than 10 minutes. If it takes longer for
+the fast test suite should not take more than 10 minutes. If it takes longer for
 an integration to complete, chances are that you start multitasking because you
 don't want to wait for it.
 
@@ -226,7 +226,7 @@ look.
 
 ### Run pipeline after commit
 
-This patterns runs a pipeline only after you have merged your changes to the
+This pattern runs a pipeline only after you have merged your changes to the
 main branch.
 
 If the test suite fails, your main branch is broken, and everyone who pulls
@@ -239,7 +239,7 @@ too big a problem.
 If you are not serious about continuous integration, you might leave the main
 branch broken and hope that someone else fixes it.
 
-With a CI server I describe in this article, it is simply not possible to merge
+With a CI server I describe in this article, it is simply impossible to merge
 something broken.
 
 ### Run pipeline on branch, then again after merge
