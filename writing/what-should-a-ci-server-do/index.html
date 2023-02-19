@@ -69,7 +69,7 @@
 <li><a href="#clean-environments">Clean environments</a></li>
 <li><a href="#multiple-environments">Multiple environments</a></li>
 <li><a href="#pipeline-language">Pipeline language</a></li>
-<li><a href="#communication-visibility">Communication / visibility</a></li>
+<li><a href="#communication">Communication</a></li>
 <li><a href="#multiple-test-suites">Multiple test suites</a></li>
 </ul></li>
 <li><a href="#common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</a>
@@ -95,7 +95,7 @@
 <h2 id="how-often-should-you-integrate">How often should you integrate?</h2>
 <p>From what I’ve read, the consensus seems to be that you should integrate at least once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
 <h2 id="when-is-it-safe-to-integrate">When is it safe to integrate?</h2>
-<p>Every time you integrate, you have to make sure that the main branch is working. (The second aspect of CI.)</p>
+<p>Every time you integrate, you have to make sure that the main branch is working. This is the second aspect of CI.</p>
 <p>How can you do that?</p>
 <p>The only way to do that, and still integrate often, is with an automatic test suite.</p>
 <p>Before you integrate your code, you want to run the test suite to make sure that everything still works.</p>
@@ -118,9 +118,9 @@
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span></code></pre></div>
 <p>The lock step ensures that only one integration can happen at a time. If you have two branches that want to integrate, one has to wait for the other to be integrated first.</p>
 <p>The branch is then integrated by performing a <code>git merge</code>.</p>
-<p>To make sure the new main branch work, a test suite is then run. This test suite should be defined in the repo.</p>
+<p>To make sure the new main branch works, a test suite is then run. This test suite should be defined in the repo.</p>
 <p>If the test suite passes, a <code>git push</code> is performed to “publish” the new main branch.</p>
-<p>This workflow ensures that every change that is integrated to the main branch works. Where “works” is defined as passing the test suite.</p>
+<p>This workflow ensures that every change that is merged into the main branch works. Where “works” is defined as passing the test suite.</p>
 <p>That is the basic function that I think a CI server should perform. Let’s look at some directions where this design can be evolved to make a more full fledged CI server.</p>
 <h3 id="clean-environments">Clean environments</h3>
 <p>One thing that a dedicated CI server helps prevent is the problem that code works on one developer’s machine, but not on another’s. Perhaps it is due to a dependency missing on one developer’s machine.</p>
@@ -132,7 +132,7 @@
 <h3 id="multiple-environments">Multiple environments</h3>
 <p>Another advantage of a dedicated CI server is that you can make sure your code works in an environment that you don’t have access to on your development machine.</p>
 <p>You might write Python code that should work on both Windows and Linux, but your laptop only runs Windows.</p>
-<p>A CI server should have functionality to the test suite in different environments.</p>
+<p>A CI server should have functionality to run the test suite in different environments.</p>
 <h3 id="pipeline-language">Pipeline language</h3>
 <p>To take full advantage of the CI server, the “command to run the test suite” should be written in a “pipeline language” that the CI server understands.</p>
 <p>Consider this pseudo example:</p>
@@ -152,7 +152,7 @@ parallel {
     }
 }</code></pre>
 <p>This script could not have been written as a Bash script for example, because then it could not have taken advantage of the CI server functionality to run commands in different environments.</p>
-<h3 id="communication-visibility">Communication / visibility</h3>
+<h3 id="communication">Communication</h3>
 <p>Another aspect of continuous integration is communication.</p>
 <p>For example, when you integrate, you want to tell your team members about the change so that they can pull your changes and test their code against it.</p>
 <p>A CI server can help communicate. It can for example do the following:</p>
@@ -161,7 +161,7 @@ parallel {
 <li>Show today’s integrations in a dashboard to visualize what’s happening.</li>
 <li>Show success rate of integrations to give an idea of how the team is doing.</li>
 <li>Present clear errors when an integration fails.</li>
-<li>Present clear view of a pipeline and what steps were run.</li>
+<li>Present a clear view of a pipeline and what steps were run.</li>
 </ul>
 <h3 id="multiple-test-suites">Multiple test suites</h3>
 <p>The lock step in the basic workflow ensures that only one integration can happen at a time.</p>
@@ -175,16 +175,16 @@ parallel {
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
 <p>Of course, when you do this, you risk breaking the main branch since all tests are not run before the change is integrated.</p>
-<p>One scenario where this could be useful is if you have a slow running test suite today that you can’t make instantly faster. You can start using this pattern with the goal of making all your slow tests fast. As a rule of thumb, the fast test suite should take no more than 10 minutes. If it takes longer for an integration to complete, chances are that you start multitasking because you don’t want to wait for it.</p>
+<p>One scenario where this could be useful is if you have a slow running test suite today that you can’t make instantly faster. You can start using this pattern with the goal of making all your slow tests fast. As a rule of thumb, the fast test suite should not take more than 10 minutes. If it takes longer for an integration to complete, chances are that you start multitasking because you don’t want to wait for it.</p>
 <p>Some tests might also be impossible to run in less than 10 minutes. In that case, this pattern is also good. But make sure that all basic functionality is tested in the fast test suite.</p>
 <h2 id="common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</h2>
 <p>When it comes to tools commonly used for CI, I primarily have experience with Jenkins. And the two most common patterns in Jenkins, which a believe are not unique to Jenkins, prevent you from doing continuous integration. Let’s have a look.</p>
 <h3 id="run-pipeline-after-commit">Run pipeline after commit</h3>
-<p>This patterns runs a pipeline only after you have merged your changes to the main branch.</p>
+<p>This pattern runs a pipeline only after you have merged your changes to the main branch.</p>
 <p>If the test suite fails, your main branch is broken, and everyone who pulls your changes will base their work on something broken.</p>
 <p>If you are serious about continuous integration, you fix this problem immediately. Either by reverting the change or merging a fix. It might not be too big a problem.</p>
 <p>If you are not serious about continuous integration, you might leave the main branch broken and hope that someone else fixes it.</p>
-<p>With a CI server I describe in this article, it is simply not possible to merge something broken.</p>
+<p>With a CI server I describe in this article, it is simply impossible to merge something broken.</p>
 <h3 id="run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</h3>
 <p>This patterns runs a pipeline on every branch so that you know that your changes work before you merge them. And when you merge them, the pipeline is run again.</p>
 <p>This is a slight improvement over the previous pattern, but it still has a flaw. Consider this scenario:</p>
