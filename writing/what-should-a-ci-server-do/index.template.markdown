@@ -128,8 +128,8 @@ useful.
 
 ### Multiple environments
 
-Another advantage of a dedicated CI server is that you can make sure your code
-works in an environment that you don't have access to on your development
+Another advantage of a dedicated CI server is that you can make sure that your
+code works in an environment that you don't have access to on your development
 machine.
 
 You might write Python code that should work on both Windows and Linux, but
@@ -215,6 +215,8 @@ Some tests might also be impossible to run in less than 10 minutes. In that
 case, this pattern is also good. But make sure that all basic functionality is
 tested in the fast test suite.
 
+Writing fast tests indeed needs practice, but it is possible.
+
 ## Common "CI" workflows and their problems
 
 When it comes to tools commonly used for CI, I primarily have experience with
@@ -281,7 +283,7 @@ I think that tools for CI should help you do CI well. Why don't they?
 
 I have two speculations.
 
-First, if your team is committed to continuous integration, a broken main
+First, if your team is committed to doing continuous integration, a broken main
 branch might not be too big a deal since everyone is committed to fixing it
 fast.
 
@@ -303,12 +305,12 @@ First of all, when working with pull requests, you integrate your code by
 pressing a button that will perform the merge. With a CI tool like the one I
 describe in this article, the CI tool performs the merge. With the former, no
 tool can prevent broken code on the main branch. (The best they can do is test
-the branch, then again after merge.)
+the branch, then test again after merge.)
 
-Second of all, pull requests, at least a blocking ones, add delay to the
+Second of all, pull requests, at least blocking ones, add delay to the
 process of integrating code, making it difficult to integrate often.
 
-Pull requests are often used to review changes before they are merged. In a
-CI server that I describe in this article, there is nothing preventing you from
+Pull requests are often used to review changes before they are merged. In a CI
+server that I describe in this article, there is nothing preventing you from
 having a manual review step before the CI server is allowed to merge. However,
-a manual review step adds delays and makes it really difficult to do CI.
+a manual review step adds delays and makes it difficult to integrate often.
