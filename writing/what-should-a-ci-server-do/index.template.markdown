@@ -4,6 +4,16 @@ date: 2023-01-25
 tags: draft
 ---
 
+*After drafting this article, I asked for feedback on
+[James'](https://www.jamesshore.com/) Discord.
+[Emily](https://coding-is-like-cooking.info/) wrote back and said that this
+sounded a lot like pre-tested integration that she had written about
+([here](https://www.eficode.com/blog/pre-tested-integration) and
+[here](https://www.eficode.com/blog/pre-tested-integration2)) earlier. She
+describes almost the exact same workflow as I imagine with this CI server, and
+there is also a Jenkins plugin to support that workflow. I encourage you the
+check out her writing as well.*
+
 I think I have figured out what a Continuous Integration (CI) server *should*
 do. It is very simple. Yet common tools used for CI, like Jenkins, make it hard
 or near impossible.
