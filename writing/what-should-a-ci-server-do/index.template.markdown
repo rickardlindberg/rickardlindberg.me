@@ -42,24 +42,25 @@ From what I've read, the consensus seems to be that you should integrate at
 least once a day. If you do it less frequently, you are not doing *continuous*
 integration.
 
-## When is it safe to integrate?
+## How to keep the main branch working?
 
 Every time you integrate, you have to make sure that the main branch is
-working. This is the second aspect of CI.
+still working. This is the second aspect of CI.
 
 How can you do that?
 
 The only way to do that, and still integrate often, is with an automatic test
 suite.
 
-Before you integrate your code, you want to run the test suite to make sure
-that everything still works.
+When you integrate your code, you want to run the test suite to make sure that
+everything still works.
 
 **The test suite should give you confidence that when it's time to deploy to
 production, it will just work.**
 
-To gain that confidence, the test suite probably needs to include steps to
-deploy to a test environment and do some smoke test on it. Not only unit tests.
+I'm using the term test suite here to include everything you need to gain that
+confidence, so it includes compiling, linting, static analysis, unit tests,
+deploy to test environment, smoke test... *everything*.
 
 ## Attitude, not a tool
 
@@ -80,7 +81,7 @@ work in this way.
 
 ## CI server functionality
 
-**A CI server should merge changes to the main branch in a safe way.**
+**A CI server should merge changes to the main branch in a "safe" way.**
 
 ### Basic workflow
 

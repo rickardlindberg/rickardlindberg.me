@@ -1,5 +1,5 @@
-* clarify test suite includes everything
 * review discord chat
+
     * pipeline script bad idea?
 
         * Common junit-like output format instead?
@@ -14,3 +14,5 @@
         > people who really understood what CI is, and there was a
         > communication gap. The tools that ended up becoming popular were
         > perhaps the easiest to adopt and had the best marketing?
+
+* notes on PRs ?
