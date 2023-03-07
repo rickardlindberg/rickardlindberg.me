@@ -7,19 +7,19 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 20 Feb 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 07 Mar 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
     <description><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
-<p><em>Published on 20 February 2023.</em></p>
+<p><em>Published on  7 March 2023.</em></p>
 
 <ul>
 <li><a href="#what-is-ci">What is CI?</a></li>
 <li><a href="#what-does-integrate-mean">What does integrate mean?</a></li>
 <li><a href="#how-often-should-you-integrate">How often should you integrate?</a></li>
-<li><a href="#when-is-it-safe-to-integrate">When is it safe to integrate?</a></li>
+<li><a href="#how-to-keep-the-main-branch-working">How to keep the main branch working?</a></li>
 <li><a href="#attitude-not-a-tool">Attitude, not a tool</a></li>
 <li><a href="#ci-server-functionality">CI server functionality</a>
 <ul>
@@ -39,6 +39,7 @@
 <li><a href="#what-about-pull-requests">What about pull requests?</a></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p><em>After drafting this article, I asked for feedback on <a href="https://www.jamesshore.com/">James’</a> Discord. <a href="https://coding-is-like-cooking.info/">Emily</a> wrote back and said that this sounded a lot like pre-tested integration that she had written about (<a href="https://www.eficode.com/blog/pre-tested-integration">here</a> and <a href="https://www.eficode.com/blog/pre-tested-integration2">here</a>) earlier. She describes almost the exact same workflow as I imagine with this CI server, and there is also a Jenkins plugin to support that workflow. I encourage you the check out her writing as well.</em></p>
 <p>I think I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common tools used for CI, like Jenkins, make it hard or near impossible.</p>
 <h2 id="what-is-ci">What is CI?</h2>
 <p>CI probably means different things to different people.</p>
@@ -52,20 +53,20 @@
 <p>Integrate means to merge your changes into the main branch. This branch is commonly also referred to as master or trunk.</p>
 <h2 id="how-often-should-you-integrate">How often should you integrate?</h2>
 <p>From what I’ve read, the consensus seems to be that you should integrate at least once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
-<h2 id="when-is-it-safe-to-integrate">When is it safe to integrate?</h2>
-<p>Every time you integrate, you have to make sure that the main branch is working. This is the second aspect of CI.</p>
+<h2 id="how-to-keep-the-main-branch-working">How to keep the main branch working?</h2>
+<p>Every time you integrate, you have to make sure that the main branch is still working. This is the second aspect of CI.</p>
 <p>How can you do that?</p>
 <p>The only way to do that, and still integrate often, is with an automatic test suite.</p>
-<p>Before you integrate your code, you want to run the test suite to make sure that everything still works.</p>
+<p>When you integrate your code, you want to run the test suite to make sure that everything still works.</p>
 <p><strong>The test suite should give you confidence that when it’s time to deploy to production, it will just work.</strong></p>
-<p>To gain that confidence, the test suite probably needs to include steps to deploy to a test environment and do some smoke test on it. Not only unit tests.</p>
+<p>I’m using the term test suite here to include everything you need to gain that confidence, so it includes compiling, linting, static analysis, unit tests, deploy to test environment, smoke test… <em>everything</em>.</p>
 <h2 id="attitude-not-a-tool">Attitude, not a tool</h2>
 <p>James Shore writes that <a href="https://www.jamesshore.com/v2/blog/2005/continuous-integration-is-an-attitude">Continuous Integration is an Attitude, Not a Tool</a> and points out that <a href="https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day">you can do CI without a tool</a>.</p>
 <p>No tool can choose to integrate your changes often. You have to change your way of working so that you <em>can</em> integrate more often and also do so. This requires practice.</p>
 <p>No tool can enforce that your main branch is always working. You have to have a mindset of working like that. This requires practice.</p>
 <p>However, there are some things that a tool can help with. To make it easier to work in this way.</p>
 <h2 id="ci-server-functionality">CI server functionality</h2>
-<p><strong>A CI server should merge changes to the main branch in a safe way.</strong></p>
+<p><strong>A CI server should merge changes to the main branch in a “safe” way.</strong></p>
 <h3 id="basic-workflow">Basic workflow</h3>
 <p>Here is pseudo code for how a CI server should integrate changes from a branch in a Git repo:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
@@ -173,7 +174,7 @@ parallel {
 <p>Second of all, pull requests, at least blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
 <p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it difficult to integrate often.</p>
 ]]></description>
-    <pubDate>Mon, 20 Feb 2023 00:00:00 UT</pubDate>
+    <pubDate>Tue, 07 Mar 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
