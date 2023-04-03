@@ -133,6 +133,8 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
         process $ contextRelatedPosts isBuildTargetWebserver "rliterate"
     match "projects/rlmeta/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "rlmeta"
+    match "projects/agdpp/index.html" $
+        process $ contextRelatedPosts isBuildTargetWebserver "agdpp"
     where
         process context = do
             route idRoute
@@ -373,6 +375,7 @@ patternPostIndexPandocTocTemplate =
     .||. "writing/reliable-socket-servers/index.markdown"
     .||. "writing/evolving-design-of-projectional-editor/index.markdown"
     .||. "writing/what-should-a-ci-server-do/index.markdown"
+    .||. "writing/agdpp-*/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
