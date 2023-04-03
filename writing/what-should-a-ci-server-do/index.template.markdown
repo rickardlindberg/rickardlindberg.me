@@ -4,8 +4,8 @@ date: 2023-01-25
 tags: draft
 ---
 
-*After drafting this article, I asked for feedback on
-[James'](https://www.jamesshore.com/) Discord.
+*After drafting this article, I asked for feedback on [James'
+Discord](https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760).
 [Emily](https://coding-is-like-cooking.info/) wrote back and said that this
 sounded a lot like pre-tested integration that she had written about
 ([here](https://www.eficode.com/blog/pre-tested-integration) and
@@ -176,6 +176,38 @@ This script could not have been written as a Bash script for example, because
 then it could not have taken advantage of the CI server functionality to run
 commands in different environments.
 
+### Objection!?
+
+I got some objections about a CI server being responsible for environments and
+pipeline scripts.
+
+Here is [one](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
+
+> ... having a pipeline script that works *only* with the ci software seems
+> like a huge lockin and risk
+
+And [another](https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060):
+
+> I feel that the moment I say I can't do this locally and I need a
+> pre-configured build server, I am violating the basic principles of
+> development.
+
+I partly agree with those objections.
+
+It would be better if you could run your whole pipeline locally and have it set
+up all the clean environments for you locally.
+
+Then the CI server doesn't have any authorative role.
+
+The CI server would only be used for coordination.
+
+[](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
+
+> ... instead they regard the build server as some central platform on which
+> development is done.
+
+You end up in this situation if you can't run your whole test suite locally.
+
 ### Communication
 
 Another aspect of continuous integration is communication.
@@ -306,6 +338,15 @@ true.
 
 Do you know why tools for CI don't work like I describe in this article? Please
 let me know.
+
+* Many don't know what CI is and think it is a build server
+
+Emily:
+
+> but I suspect the people building the tools weren't always the same people
+> who really understood what CI is, and there was a communication gap. The
+> tools that ended up becoming popular were perhaps the easiest to adopt and
+> had the best marketing?
 
 ## What about pull requests?
 
