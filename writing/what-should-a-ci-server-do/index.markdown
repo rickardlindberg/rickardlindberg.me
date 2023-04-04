@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-04-03
+date: 2023-04-04
 tags: draft
 ---
 
@@ -341,14 +341,30 @@ true.
 Do you know why tools for CI don't work like I describe in this article? Please
 let me know.
 
-* Many don't know what CI is and think it is a build server
+Emily
+[wrote](https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780)
+the following to that question:
 
-Emily:
+> I think it's hard to tell at this distance, but I suspect the people building
+> the tools weren't always the same people who really understood what CI is,
+> and there was a communication gap. The tools that ended up becoming popular
+> were perhaps the easiest to adopt and had the best marketing?
 
-> but I suspect the people building the tools weren't always the same people
-> who really understood what CI is, and there was a communication gap. The
-> tools that ended up becoming popular were perhaps the easiest to adopt and
-> had the best marketing?
+That sounds reasonable to me.
+
+Another
+[reply](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
+
+> i think most [build servers] can be configured that way [proper CI]. many
+> users do not want to because they don't understand the ci process. instead
+> they regard the build server as some central platform on which development is
+> done.
+
+So people find value in build servers even though they are not designed
+explicitly for CI. That also makes sense.
+
+So perhaps the reason why we don't have better tools for CI is that people
+don't understand the value of CI or don't want to adopt it?
 
 ## What about pull requests?
 
