@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 03 Apr 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 04 Apr 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
     <description><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
-<p><em>Published on  3 April 2023.</em></p>
+<p><em>Published on  4 April 2023.</em></p>
 
 <ul>
 <li><a href="#what-is-ci">What is CI?</a></li>
@@ -188,20 +188,24 @@ parallel {
 <p>First, if your team is committed to doing continuous integration, a broken main branch might not be too big a deal since everyone is committed to fixing it fast.</p>
 <p>Second, back in the day of using SVN (which was my fist version control system), branching was expensive. The default way to share changes was to push directly to the main branch. Having a CI tool do the actual integration was probably technically more difficult. However, now with Git, that is no longer true.</p>
 <p>Do you know why tools for CI don’t work like I describe in this article? Please let me know.</p>
-<ul>
-<li>Many don’t know what CI is and think it is a build server</li>
-</ul>
-<p>Emily:</p>
+<p>Emily <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780">wrote</a> the following to that question:</p>
 <blockquote>
-<p>but I suspect the people building the tools weren’t always the same people who really understood what CI is, and there was a communication gap. The tools that ended up becoming popular were perhaps the easiest to adopt and had the best marketing?</p>
+<p>I think it’s hard to tell at this distance, but I suspect the people building the tools weren’t always the same people who really understood what CI is, and there was a communication gap. The tools that ended up becoming popular were perhaps the easiest to adopt and had the best marketing?</p>
 </blockquote>
+<p>That sounds reasonable to me.</p>
+<p>Another <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">reply</a>:</p>
+<blockquote>
+<p>i think most [build servers] can be configured that way [proper CI]. many users do not want to because they don’t understand the ci process. instead they regard the build server as some central platform on which development is done.</p>
+</blockquote>
+<p>So people find value in build servers even though they are not designed explicitly for CI. That also makes sense.</p>
+<p>So perhaps the reason why we don’t have better tools for CI is that people don’t understand the value of CI or don’t want to adopt it?</p>
 <h2 id="what-about-pull-requests">What about pull requests?</h2>
 <p>Pull requests are a common way of working, but they don’t play nicely together with CI.</p>
 <p>First of all, when working with pull requests, you integrate your code by pressing a button that will perform the merge. With a CI tool like the one I describe in this article, the CI tool performs the merge. With the former, no tool can prevent broken code on the main branch. (The best they can do is test the branch, then test again after merge.)</p>
 <p>Second of all, pull requests, at least blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
 <p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it difficult to integrate often.</p>
 ]]></description>
-    <pubDate>Mon, 03 Apr 2023 00:00:00 UT</pubDate>
+    <pubDate>Tue, 04 Apr 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
