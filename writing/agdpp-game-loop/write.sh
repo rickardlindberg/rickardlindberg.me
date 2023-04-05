@@ -4,8 +4,6 @@ set -e
 
 ./build.sh
 
-git add .
-
-git commit -m 'Write.'
+git commit -a -m 'Write.'
 
 (cd ../../ && ./bin/publish && git push --all)
