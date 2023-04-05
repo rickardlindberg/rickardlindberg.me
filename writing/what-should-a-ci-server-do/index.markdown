@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-04-04
+date: 2023-04-05
 tags: draft
 ---
 
@@ -8,9 +8,10 @@ tags: draft
 
 *After drafting this article, I asked for feedback on [James'
 Discord](https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760).
-[Emily](https://coding-is-like-cooking.info/) wrote back and said that this
-sounded a lot like pre-tested integration that she had written about
-([here](https://www.eficode.com/blog/pre-tested-integration) and
+[Emily](https://coding-is-like-cooking.info/)
+[wrote](https://discord.com/channels/897648912851173408/897648913799077930/1078285384527650877)
+back and said that this sounded a lot like pre-tested integration that she had
+written about ([here](https://www.eficode.com/blog/pre-tested-integration) and
 [here](https://www.eficode.com/blog/pre-tested-integration2)) earlier. She
 describes almost the exact same workflow as I imagine with this CI server, and
 there is also a Jenkins plugin to support that workflow. I encourage you the
@@ -180,15 +181,16 @@ commands in different environments.
 
 ### Objection!?
 
-I got some objections about a CI server being responsible for environments and
-pipeline scripts.
+When I asked for feedback on this article, I got some objections about a CI
+server being responsible for environments and pipeline scripts.
 
-Here is [one](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
+One person wrote
+[this](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314)
+and
+[this](https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060):
 
 > ... having a pipeline script that works *only* with the ci software seems
 > like a huge lockin and risk
-
-And [another](https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060):
 
 > I feel that the moment I say I can't do this locally and I need a
 > pre-configured build server, I am violating the basic principles of
@@ -197,18 +199,17 @@ And [another](https://discord.com/channels/897648912851173408/897648913799077930
 I partly agree with those objections.
 
 It would be better if you could run your whole pipeline locally and have it set
-up all the clean environments for you locally.
+up all the clean environments for you. With virtualisation technology, this is
+becoming more and more possible.
 
-Then the CI server doesn't have any authorative role.
+If you manage to get this setup, then the CI server only functions as a single
+integration point that everyone has to go through.
 
-The CI server would only be used for coordination.
-
-[](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
-
-> ... instead they regard the build server as some central platform on which
-> development is done.
-
-You end up in this situation if you can't run your whole test suite locally.
+I still think that a pipeline language would be useful for programming your
+pipeline. However, it could be used outside the CI server as well. That way you
+could also debug your pipeline locally without involving the CI server. If a
+pipeline step requires a specific environment that you can't get locally, that
+step could be skipped when run locally.
 
 ### Communication
 
@@ -342,7 +343,7 @@ Do you know why tools for CI don't work like I describe in this article? Please
 let me know.
 
 Emily
-[wrote](https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780)
+[responded](https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780)
 the following to that question:
 
 > I think it's hard to tell at this distance, but I suspect the people building
@@ -352,8 +353,9 @@ the following to that question:
 
 That sounds reasonable to me.
 
-Another
-[reply](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314):
+Another person
+[responded](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314)
+with this:
 
 > i think most [build servers] can be configured that way [proper CI]. many
 > users do not want to because they don't understand the ci process. instead
