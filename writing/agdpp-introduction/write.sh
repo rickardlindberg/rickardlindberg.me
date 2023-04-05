@@ -4,7 +4,7 @@ set -e
 
 ./build.sh
 
-git add .
+git add -u .
 
 git commit -m 'Write.'
 

@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Introducing Agile Game Development with Python and Pygame'
-date: 2023-04-03
+date: 2023-04-05
 tags: agdpp,draft
 ---
 
