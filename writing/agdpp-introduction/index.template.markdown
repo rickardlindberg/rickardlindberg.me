@@ -19,9 +19,12 @@ together.
 
 ## The method
 
-The way to do that is with Agile methodology. Instead of first figuring
-out what game I want to write, I will develop it incrementally and guide
-development by feedback.
+I want to develop this game using Agile methodology.
+
+It means that instead of first figuring out what game I want
+to write, I will develop it incrementally and guide development by feedback.
+
+It also means that I will rely heavily on self-testing code and TDD.
 
 ## My background in games
 
@@ -42,3 +45,4 @@ Here is a list of topics off the top of my head that I imagine I will cover:
 * Learn to capture events from Logitech controller
 * Performance: background erase vs redraw?
 * Resolution: what to choose?
+* How to incrementally develop a game idea?
