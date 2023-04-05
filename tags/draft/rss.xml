@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 04 Apr 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 05 Apr 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: What should a Continuous Integration (CI) server do?</title>
     <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
     <description><![CDATA[<h1>DRAFT: What should a Continuous Integration (CI) server do?</h1>
 
-<p><em>Published on  4 April 2023.</em></p>
+<p><em>Published on  5 April 2023.</em></p>
 
 <ul>
 <li><a href="#what-is-ci">What is CI?</a></li>
@@ -40,7 +40,7 @@
 <li><a href="#what-about-pull-requests">What about pull requests?</a></li>
 </ul>
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p><em>After drafting this article, I asked for feedback on <a href="https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760">James’ Discord</a>. <a href="https://coding-is-like-cooking.info/">Emily</a> wrote back and said that this sounded a lot like pre-tested integration that she had written about (<a href="https://www.eficode.com/blog/pre-tested-integration">here</a> and <a href="https://www.eficode.com/blog/pre-tested-integration2">here</a>) earlier. She describes almost the exact same workflow as I imagine with this CI server, and there is also a Jenkins plugin to support that workflow. I encourage you the check out her writing as well.</em></p>
+<p><em>After drafting this article, I asked for feedback on <a href="https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760">James’ Discord</a>. <a href="https://coding-is-like-cooking.info/">Emily</a> <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078285384527650877">wrote</a> back and said that this sounded a lot like pre-tested integration that she had written about (<a href="https://www.eficode.com/blog/pre-tested-integration">here</a> and <a href="https://www.eficode.com/blog/pre-tested-integration2">here</a>) earlier. She describes almost the exact same workflow as I imagine with this CI server, and there is also a Jenkins plugin to support that workflow. I encourage you the check out her writing as well.</em></p>
 <p>I think I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common tools used for CI, like Jenkins, make it hard or near impossible.</p>
 <h2 id="what-is-ci">What is CI?</h2>
 <p>CI probably means different things to different people.</p>
@@ -113,24 +113,18 @@ parallel {
 }</code></pre>
 <p>This script could not have been written as a Bash script for example, because then it could not have taken advantage of the CI server functionality to run commands in different environments.</p>
 <h3 id="objection">Objection!?</h3>
-<p>I got some objections about a CI server being responsible for environments and pipeline scripts.</p>
-<p>Here is <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">one</a>:</p>
+<p>When I asked for feedback on this article, I got some objections about a CI server being responsible for environments and pipeline scripts.</p>
+<p>One person wrote <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">this</a> and <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060">this</a>:</p>
 <blockquote>
 <p>… having a pipeline script that works <em>only</em> with the ci software seems like a huge lockin and risk</p>
 </blockquote>
-<p>And <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060">another</a>:</p>
 <blockquote>
 <p>I feel that the moment I say I can’t do this locally and I need a pre-configured build server, I am violating the basic principles of development.</p>
 </blockquote>
 <p>I partly agree with those objections.</p>
-<p>It would be better if you could run your whole pipeline locally and have it set up all the clean environments for you locally.</p>
-<p>Then the CI server doesn’t have any authorative role.</p>
-<p>The CI server would only be used for coordination.</p>
-<p><a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314"></a>:</p>
-<blockquote>
-<p>… instead they regard the build server as some central platform on which development is done.</p>
-</blockquote>
-<p>You end up in this situation if you can’t run your whole test suite locally.</p>
+<p>It would be better if you could run your whole pipeline locally and have it set up all the clean environments for you. With virtualisation technology, this is becoming more and more possible.</p>
+<p>If you manage to get this setup, then the CI server only functions as a single integration point that everyone has to go through.</p>
+<p>I still think that a pipeline language would be useful for programming your pipeline. However, it could be used outside the CI server as well. That way you could also debug your pipeline locally without involving the CI server. If a pipeline step requires a specific environment that you can’t get locally, that step could be skipped when run locally.</p>
 <h3 id="communication">Communication</h3>
 <p>Another aspect of continuous integration is communication.</p>
 <p>For example, when you integrate, you want to tell your team members about the change so that they can pull your changes and test their code against it.</p>
@@ -188,12 +182,12 @@ parallel {
 <p>First, if your team is committed to doing continuous integration, a broken main branch might not be too big a deal since everyone is committed to fixing it fast.</p>
 <p>Second, back in the day of using SVN (which was my fist version control system), branching was expensive. The default way to share changes was to push directly to the main branch. Having a CI tool do the actual integration was probably technically more difficult. However, now with Git, that is no longer true.</p>
 <p>Do you know why tools for CI don’t work like I describe in this article? Please let me know.</p>
-<p>Emily <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780">wrote</a> the following to that question:</p>
+<p>Emily <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780">responded</a> the following to that question:</p>
 <blockquote>
 <p>I think it’s hard to tell at this distance, but I suspect the people building the tools weren’t always the same people who really understood what CI is, and there was a communication gap. The tools that ended up becoming popular were perhaps the easiest to adopt and had the best marketing?</p>
 </blockquote>
 <p>That sounds reasonable to me.</p>
-<p>Another <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">reply</a>:</p>
+<p>Another person <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">responded</a> with this:</p>
 <blockquote>
 <p>i think most [build servers] can be configured that way [proper CI]. many users do not want to because they don’t understand the ci process. instead they regard the build server as some central platform on which development is done.</p>
 </blockquote>
@@ -205,7 +199,7 @@ parallel {
 <p>Second of all, pull requests, at least blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
 <p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it difficult to integrate often.</p>
 ]]></description>
-    <pubDate>Tue, 04 Apr 2023 00:00:00 UT</pubDate>
+    <pubDate>Wed, 05 Apr 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
