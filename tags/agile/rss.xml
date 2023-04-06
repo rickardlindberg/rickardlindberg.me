@@ -1,59 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>
-      What should a Continuous Integration (CI) server do? | Rickard's personal homepage
-    </title>
-
-    <!-- Bootstrap -->
-    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-    <meta name="keywords" content="programming, writing" />
-    <meta name="description" content="Rickard's personal homepage.">
-    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
-    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
-    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
-    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
-    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
-  </head>
-  <body>
-
-    <nav class="navbar navbar-default navbar-static-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse navbar-right">
-          <ul class="nav navbar-nav">
-            <li><a href="../../">Home</a></li>
-            <li><a href="../../writing/">Writing</a></li>
-            <li><a href="../../writing/newsletter/">Newsletter</a></li>
-            <li><a href="../../projects/">Projects</a></li>
-            <li><a href="../../contact/">Contact</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-
-    <div class="container">
-      <h1>What should a Continuous Integration (CI) server do?</h1>
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Rickard's personal homepage: latest posts tagged agile</title>
+        <link>http://rickardlindberg.me</link>
+        <description><![CDATA[Rickard's personal homepage: latest posts tagged agile]]></description>
+        <atom:link href="http://rickardlindberg.me/tags/agile/rss.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Thu, 06 Apr 2023 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>What should a Continuous Integration (CI) server do?</title>
+    <link>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</link>
+    <description><![CDATA[<h1>What should a Continuous Integration (CI) server do?</h1>
 
 <p><em>Published on  6 April 2023.</em></p>
 
@@ -137,18 +95,18 @@
 <h3 id="pipeline-language">Pipeline language</h3>
 <p>To take full advantage of the CI server, the “command to run the test suite” should be written in a “pipeline language” that the CI server understands.</p>
 <p>Consider this pseudo example:</p>
-<pre><code>step('compile') {
-    sh('make')
+<pre><code>step(&#39;compile&#39;) {
+    sh(&#39;make&#39;)
 }
 parallel {
-    step('test unix') {
-        environment('unix') {
-            sh('./test')
+    step(&#39;test unix&#39;) {
+        environment(&#39;unix&#39;) {
+            sh(&#39;./test&#39;)
         }
     }
-    step('test windows') {
-        environment('windows') {
-            sh('test.exe')
+    step(&#39;test windows&#39;) {
+        environment(&#39;windows&#39;) {
+            sh(&#39;test.exe&#39;)
         }
     }
 }</code></pre>
@@ -208,7 +166,7 @@ parallel {
        \
         \---B</code></pre>
 <p><code>A</code> and <code>B</code> are two branches that both have passing test suites, so they both go ahead and merge, resulting in this:</p>
-<pre><code>0---0-------A'---B'
+<pre><code>0---0-------A&#39;---B&#39;
      \     /    /
       \---A    /
        \      /
@@ -238,16 +196,11 @@ parallel {
 <p>First of all, when working with pull requests, you integrate your code by pressing a button that will perform the merge. With a CI tool like the one I describe in this article, the CI tool performs the merge. With the former, no tool can prevent broken code on the main branch. (The best they can do is test the branch, then test again after merge.)</p>
 <p>Second of all, pull requests, at least blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
 <p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it difficult to integrate often.</p>
+]]></description>
+    <pubDate>Thu, 06 Apr 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
 
-      <hr>
-      <center>
-      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
-      </center>
-    </div><!-- /.container -->
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
-  </body>
-</html>
+    </channel>
+</rss>
