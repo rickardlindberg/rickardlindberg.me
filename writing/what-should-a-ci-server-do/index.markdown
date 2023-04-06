@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: What should a Continuous Integration (CI) server do?'
-date: 2023-04-05
-tags: draft
+title: What should a Continuous Integration (CI) server do?
+date: 2023-04-06
+tags: agile
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 *After drafting this article, I asked for feedback on [James'
 Discord](https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760).
@@ -182,7 +180,7 @@ commands in different environments.
 ### Objection!?
 
 When I asked for feedback on this article, I got some objections about a CI
-server being responsible for environments and pipeline scripts.
+server being responsible for environments and a pipeline language.
 
 One person wrote
 [this](https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314)
@@ -261,8 +259,6 @@ Some tests might also be impossible to run in less than 10 minutes. In that
 case, this pattern is also good. But make sure that all basic functionality is
 tested in the fast test suite.
 
-Writing fast tests indeed needs practice, but it is possible.
-
 ## Common "CI" workflows and their problems
 
 When it comes to tools commonly used for CI, I primarily have experience with
@@ -286,7 +282,7 @@ If you are not serious about continuous integration, you might leave the main
 branch broken and hope that someone else fixes it.
 
 With a CI server I describe in this article, it is simply impossible to merge
-something broken.
+something broken. (Given that your test suite will catch the broken things.)
 
 ### Run pipeline on branch, then again after merge
 
@@ -313,7 +309,7 @@ go ahead and merge, resulting in this:
             \----B
 
 `A'` has already been tested on the branch, but `B'` has never been tested.
-That is, the combination of `A`'s and `B`'s changes have never been tested,
+That is, the combination of `A`'s and `B`'s changes has never been tested,
 until they are both merged.
 
 With a CI server I describe in this article, this problem is solved with the
