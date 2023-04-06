@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Introducing Agile Game Development with Python and Pygame'
-date: 2023-04-05
+date: 2023-04-06
 tags: agdpp,draft
 ---
 
@@ -34,11 +34,24 @@ I'm by no means an expert in creating games. I don't even play games that much.
 But I have enjoyed creating some simple games in the past, like a Tetris clone
 and some kind of Asteroids.
 
-So the series will cover how to create a game from the perspective of someone
-who has much experience programming, but not that much knowledge in the game
-domain.
+I actually was able to restore an old copy of one of my Tetris games, and make
+it work. It was written using Python and Pygame (which I also plan to use for
+this game). I just needed to make a few small adjustments to make it work with
+Python 3. This is what it looks like:
+
+<center>
+![Intro screen of my Tetris game.](tetris1.png)
+</center>
+
+<center>
+![Gameplay screen of my Tetris game.](tetris2.png)
+</center>
 
 ## Series overview
+
+So this series will cover how to create a game from the perspective of someone
+who has much experience programming, but not that much knowledge in the game
+domain.
 
 Here is a list of topics off the top of my head that I imagine I will cover:
 

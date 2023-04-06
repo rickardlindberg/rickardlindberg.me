@@ -368,6 +368,7 @@ patternPostIndexPandoc =
     .||. "writing/bullet-journal-method-migration-as-review/index.markdown"
     .||. "writing/kinesis-advantage-2-swedish-setup/index.markdown"
     .||. "writing/what-is-programming/index.markdown"
+    .||. "writing/agdpp-*/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
@@ -375,7 +376,6 @@ patternPostIndexPandocTocTemplate =
     .||. "writing/reliable-socket-servers/index.markdown"
     .||. "writing/evolving-design-of-projectional-editor/index.markdown"
     .||. "writing/what-should-a-ci-server-do/index.markdown"
-    .||. "writing/agdpp-*/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
