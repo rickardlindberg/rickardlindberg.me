@@ -66,4 +66,4 @@ Here is a list of topics off the top of my head that I imagine I will cover:
 This list is just the beginning of my journey. I hope will enjoy following
 along.
 
-See you in the next episode.
+See you in the next episode!
