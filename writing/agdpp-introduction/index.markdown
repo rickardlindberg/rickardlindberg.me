@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: Introducing Agile Game Development with Python and Pygame'
-date: 2023-04-08
-tags: agdpp,draft
+title: Introducing Agile Game Development with Python and Pygame
+date: 2023-04-09
+tags: agdpp
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 I recently started playing computer games with my son. That sparked an interest
 in me to create a game myself that we can play together. Mostly because I think
@@ -13,6 +11,18 @@ make your own games. It's not something that you *only* consume.
 
 I thought I would also document this journey in a series of blog posts and
 videos.
+
+## Video version
+
+The video version of this episode:
+
+<center>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/9DZ81lOPfmo" title="YouTube video player"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share"
+allowfullscreen></iframe>
+</center>
 
 ## The challenge
 
@@ -62,6 +72,7 @@ Here is a list of topics off the top of my head that I imagine I will cover:
 * Performance: background erase vs redraw?
 * Resolution: what to choose?
 * How to incrementally develop a game idea?
+* Particle effects
 
 This list is just the beginning of my journey. I hope will enjoy following
 along.
