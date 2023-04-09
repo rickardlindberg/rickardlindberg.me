@@ -51,23 +51,28 @@ def code(path, start=None, end=None):
         '</div>',
     ]
 
-def output(title, text):
+def output(title, text, syntax="text"):
     pygments_cmd = ["pygmentize"]
     pygments_cmd.extend(["-f", "html"])
-    pygments_cmd.extend(["-l", "text"])
+    pygments_cmd.extend(["-l", syntax])
     joined = text
     x = subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    title_code = []
+    if title.strip():
+        title_code = [
+            '<div class="rliterate-code-header">',
+            '<ol class="rliterate-code-path">',
+            '<li>',
+            '<span class="cp">',
+            title,
+            '</span>',
+            '</li>',
+            '</ol>',
+            '</div>',
+        ]
     return [
         '<div class="rliterate-code">',
-        '<div class="rliterate-code-header">',
-        '<ol class="rliterate-code-path">',
-        '<li>',
-        '<span class="cp">',
-        title,
-        '</span>',
-        '</li>',
-        '</ol>',
-        '</div>',
+    ]+title_code+[
         '<div class="rliterate-code-body">',
     ]+x+[
         '</div>',

@@ -11,6 +11,7 @@ Processor {
     delimiter = ',' | ' ' | '\n'
     block =
         | '$:code:' linex:x -> code(x)
+        | '$:output:' (!':'.)*:syntax ':' line:title outputLines:x -> output(title x { syntax })
         | '$:output:' line:title outputLines:x -> output(title x)
         | line
     outputLines =
