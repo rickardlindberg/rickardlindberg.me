@@ -1,14 +1,20 @@
 ---
 title: 'DRAFT: Agile Game Development with Python and Pygame: The Game Loop'
-date: 2023-04-09
+date: 2023-04-10
 tags: agdpp,draft
 ---
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
-In this episode we will look at how to set up the game loop, draw something on
-the screen, and setup tests for it. We begin with a spike to learn Pygame
-fundamentals and then we look at how to set it up properly with tests.
+In this episode we look at how to set up the game loop, draw something on the
+screen, and test it. We begin with a spike to learn Pygame fundamentals and
+then we look at how to set up tests for it.
+
+## Video version
+
+The video version of this episode:
+
+...
 
 ## Hello World
 
@@ -44,7 +50,7 @@ docs](https://www.pygame.org/docs/):
 <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
 </pre></div>
 </div></div>
-When run, it shows an empty screen:
+When we run it, it shows an empty screen:
 
 <center>
 ![Tutorial output.](tutorial.png)
@@ -88,7 +94,7 @@ This seems to work. We get an animated circle:
 
 ## Refactor to clarify
 
-Next we want to split the logic of the game loop from the logic of our game. We
+Next we separate the logic of the game loop from the logic of our game. We
 refactor in small steps, testing manually that everything works, and end up
 with this for our game:
 
@@ -149,6 +155,11 @@ test it. Let's see.
 
 ## How to test this?
 
+So now we start completely from scratch, test driving our game. We know roughly
+what we want to do from the spike.
+
+Where to start?
+
 I find it easiest to start from the outside when writing tests. What should the
 system do? What should our game do?
 
@@ -191,8 +202,8 @@ spike we know in which direction to go. Let's continue.
 ## Removing fakes
 
 Eventually we want to turn `GameLoop` into an infrastructure wrapper. This will
-give us the ability to use it in tests. The pattern is explained in depth in
-[Testing Without
+give us the ability to conveniently use it in tests. This pattern is explained
+in depth in [Testing Without
 Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks).
 
 One part of that pattern is that we should be able to observe what `GameLoop`
@@ -225,11 +236,12 @@ The `GameLoop` now looks like this:
         <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
 </pre></div>
 </div></div>
-Instead of printing actions, it notifies about the actions via an observable
+Instead of printing actions, it notifies about its actions via an observable
 pattern.
 
-We also moved the circle drawing code to the game loop. It will be responsible
-for drawing things on the current frame.
+We also moved the circle drawing code to the game loop and have the game call
+that method instead. The game loop will be responsible for drawing things on
+the current frame.
 
 But we are still not doing anything real, we are just firing events and
 asserting on them. Time to fix that.
@@ -283,7 +295,7 @@ And we also create a test that uses the real Pygame module:
 This test will actually cause a window to pop up on the screen, so it is a bit
 distracting, but it makes sure we are calling Pygame correctly.
 
-The implementation now looks like this:
+The game loop now looks like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
 
