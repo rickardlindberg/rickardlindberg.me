@@ -55,10 +55,13 @@
     <div class="container">
       <h1>DRAFT: Agile Game Development with Python and Pygame: The Game Loop</h1>
 
-<p><em>Published on  9 April 2023.</em></p>
+<p><em>Published on 10 April 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>In this episode we will look at how to set up the game loop, draw something on the screen, and setup tests for it. We begin with a spike to learn Pygame fundamentals and then we look at how to set it up properly with tests.</p>
+<p>In this episode we look at how to set up the game loop, draw something on the screen, and test it. We begin with a spike to learn Pygame fundamentals and then we look at how to set up tests for it.</p>
+<h2 id="video-version">Video version</h2>
+<p>The video version of this episode:</p>
+<p>…</p>
 <h2 id="hello-world">Hello World</h2>
 <p>We start with this example straight from the <a href="https://www.pygame.org/docs/">Pygame docs</a>:</p>
 <div class="rliterate-code">
@@ -95,7 +98,7 @@
 </div>
 </div>
 </div>
-<p>When run, it shows an empty screen:</p>
+<p>When we run it, it shows an empty screen:</p>
 <center>
 <img src="tutorial.png" title="fig:" alt="Tutorial output." />
 </center>
@@ -135,7 +138,7 @@
 <img src="animation.png" title="fig:" alt="Animated circle." />
 </center>
 <h2 id="refactor-to-clarify">Refactor to clarify</h2>
-<p>Next we want to split the logic of the game loop from the logic of our game. We refactor in small steps, testing manually that everything works, and end up with this for our game:</p>
+<p>Next we separate the logic of the game loop from the logic of our game. We refactor in small steps, testing manually that everything works, and end up with this for our game:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -197,6 +200,8 @@
 <p>With this refactoring, the game is now responsible for handling events and drawing the animated circle and the game loop is responsible for setting up Pygame and calling the game in a loop.</p>
 <p>I think we have learned enough about this setup and I think I know how we could test it. Let’s see.</p>
 <h2 id="how-to-test-this">How to test this?</h2>
+<p>So now we start completely from scratch, test driving our game. We know roughly what we want to do from the spike.</p>
+<p>Where to start?</p>
 <p>I find it easiest to start from the outside when writing tests. What should the system do? What should our game do?</p>
 <p>Well, our game draws a circle on the screen until the user closes the window. Let’s start there.</p>
 <p>Here is how we get some basic structure in place:</p>
@@ -234,7 +239,7 @@
 </div>
 <p>Instead of actually drawing and exiting, we just print the action. We fake it. The point of this is to get some basic structure in place with tests. From the spike we know in which direction to go. Let’s continue.</p>
 <h2 id="removing-fakes">Removing fakes</h2>
-<p>Eventually we want to turn <code>GameLoop</code> into an infrastructure wrapper. This will give us the ability to use it in tests. The pattern is explained in depth in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>.</p>
+<p>Eventually we want to turn <code>GameLoop</code> into an infrastructure wrapper. This will give us the ability to conveniently use it in tests. This pattern is explained in depth in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>.</p>
 <p>One part of that pattern is that we should be able to observe what <code>GameLoop</code> is doing.</p>
 <p>Here is how we rewrite the test for our game to assert on events fired from <code>GameLoop</code> instead of print statements:</p>
 <div class="rliterate-code">
@@ -270,8 +275,8 @@
 </div>
 </div>
 </div>
-<p>Instead of printing actions, it notifies about the actions via an observable pattern.</p>
-<p>We also moved the circle drawing code to the game loop. It will be responsible for drawing things on the current frame.</p>
+<p>Instead of printing actions, it notifies about its actions via an observable pattern.</p>
+<p>We also moved the circle drawing code to the game loop and have the game call that method instead. The game loop will be responsible for drawing things on the current frame.</p>
 <p>But we are still not doing anything real, we are just firing events and asserting on them. Time to fix that.</p>
 <h2 id="flesh-out-pygame-calls">Flesh out pygame calls</h2>
 <p>Continuing the pattern of an infrastructure wrapper, we add an argument to <code>GameLoop</code> which is the Pygame module. We provide an embedded stub for the null version that does nothing:</p>
@@ -329,7 +334,7 @@
 </div>
 </div>
 <p>This test will actually cause a window to pop up on the screen, so it is a bit distracting, but it makes sure we are calling Pygame correctly.</p>
-<p>The implementation now looks like this:</p>
+<p>The game loop now looks like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
