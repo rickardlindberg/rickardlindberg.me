@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Agile Game Development with Python and Pygame: The Game Loop | Rickard's personal homepage
+      DRAFT: Test driving the game loop | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,9 +53,9 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Agile Game Development with Python and Pygame: The Game Loop</h1>
+      <h1>DRAFT: Test driving the game loop</h1>
 
-<p><em>Published on 10 April 2023.</em></p>
+<p><em>Published on 11 April 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this episode we look at how to set up the game loop, draw something on the screen, and test it. We begin with a spike to learn Pygame fundamentals and then we look at how to set up tests for it.</p>
@@ -238,7 +238,7 @@
 </div>
 </div>
 <p>Instead of actually drawing and exiting, we just print the action. We fake it. The point of this is to get some basic structure in place with tests. From the spike we know in which direction to go. Let’s continue.</p>
-<h2 id="removing-fakes">Removing fakes</h2>
+<h2 id="remove-fakes">Remove fakes</h2>
 <p>Eventually we want to turn <code>GameLoop</code> into an infrastructure wrapper. This will give us the ability to conveniently use it in tests. This pattern is explained in depth in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>.</p>
 <p>One part of that pattern is that we should be able to observe what <code>GameLoop</code> is doing.</p>
 <p>Here is how we rewrite the test for our game to assert on events fired from <code>GameLoop</code> instead of print statements:</p>
@@ -397,7 +397,7 @@
 </div>
 </div>
 </div>
-<p>So we made the decision that the game loop should exit if the tick function returns true.</p>
+<p>So we made the decision that the game loop should exit if the tick method returns true.</p>
 <p>We add the ability for the null version of the game loop to simulate events:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -466,7 +466,7 @@
 </div>
 </div>
 </div>
-<p>We had to add the x argument to the draw event so that we could observe that it changed:</p>
+<p>We had to add the <code>x</code> argument to the <code>DRAW_CIRCLE</code> event so that we could observe that it changed:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -529,7 +529,7 @@
 </div>
 <p>At this point our test-driven implementation does the same thing that our spike does. We are now in a good place to move forward.</p>
 <h2 id="refactor-exit">Refactor exit</h2>
-<p>Before closing this episode, let’s take advantage of our test suite and explore an alternative way to exit the application. Instead of having a boolean return from <code>tick</code> indicating if we should exit or not, let’s try an exception. Here it is:</p>
+<p>Before closing this episode, let’s take advantage of our test suite and explore an alternative way to exit the application. Instead of having a boolean return from <code>tick</code> indicating if we should exit or not, which I think is a bit unclear, let’s try an exception. Here it is:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -570,9 +570,10 @@
 </div>
 </div>
 </div>
-<p>I think this design is a bit more clean. And all the tests still pass, unchanged.</p>
+<p>I like this better. And all the tests still pass, unchanged.</p>
 <h2 id="summary">Summary</h2>
-<p>We have now recreated the functionality that we had in the spike, added the ability to test it, and improved the design with the safety new of our tests. Great success! You can <a href="https://github.com/rickardlindberg/agdpp/tree/initial-game-loop">browse</a> the source code as it looks now.</p>
+<p>We have now recreated the functionality that we had in the spike, added the ability to test it, and improved the design with the safety net of our tests. Great success!</p>
+<p>You can browse the <a href="https://github.com/rickardlindberg/agdpp/tree/initial-game-loop">complete source code</a> from this episode.</p>
 <p>See you in the next episode!</p>
 
       <hr>
