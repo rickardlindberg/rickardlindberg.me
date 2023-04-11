@@ -1,6 +1,6 @@
 ---
-title: 'DRAFT: Agile Game Development with Python and Pygame: The Game Loop'
-date: 2023-04-10
+title: 'DRAFT: Test driving the game loop'
+date: 2023-04-11
 tags: agdpp,draft
 ---
 
@@ -199,7 +199,7 @@ Instead of actually drawing and exiting, we just print the action. We fake it.
 The point of this is to get some basic structure in place with tests. From the
 spike we know in which direction to go. Let's continue.
 
-## Removing fakes
+## Remove fakes
 
 Eventually we want to turn `GameLoop` into an infrastructure wrapper. This will
 give us the ability to conveniently use it in tests. This pattern is explained
@@ -352,7 +352,7 @@ The `tick` method is modified to look like this:
     <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">()</span>
 </pre></div>
 </div></div>
-So we made the decision that the game loop should exit if the tick function
+So we made the decision that the game loop should exit if the tick method
 returns true.
 
 We add the ability for the null version of the game loop to simulate events:
@@ -418,8 +418,8 @@ frame is rendered. That gives us two calls to draw circle:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-We had to add the x argument to the draw event so that we could observe that it
-changed:
+We had to add the `x` argument to the `DRAW_CIRCLE` event so that we could
+observe that it changed:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
@@ -475,8 +475,8 @@ does. We are now in a good place to move forward.
 
 Before closing this episode, let's take advantage of our test suite and explore
 an alternative way to exit the application. Instead of having a boolean return
-from `tick` indicating if we should exit or not, let's try an exception. Here
-it is:
+from `tick` indicating if we should exit or not, which I think is a bit
+unclear, let's try an exception. Here it is:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExitGameLoop</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
@@ -505,15 +505,16 @@ And the game loop into this:
     <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
 </pre></div>
 </div></div>
-I think this design is a bit more clean. And all the tests still pass,
-unchanged.
+I like this better. And all the tests still pass, unchanged.
 
 ## Summary
 
 We have now recreated the functionality that we had in the spike, added the
-ability to test it, and improved the design with the safety new of our tests.
-Great success! You can
-[browse](https://github.com/rickardlindberg/agdpp/tree/initial-game-loop) the
-source code as it looks now.
+ability to test it, and improved the design with the safety net of our tests.
+Great success!
+
+You can browse the [complete source
+code](https://github.com/rickardlindberg/agdpp/tree/initial-game-loop) from
+this episode.
 
 See you in the next episode!

@@ -1,5 +1,5 @@
 ---
-title: Agile Game Development with Python and Pygame: The Game Loop
+title: Test driving the game loop
 date: 2023-04-05
 tags: agdpp,draft
 ---
@@ -203,7 +203,7 @@ Instead of actually drawing and exiting, we just print the action. We fake it.
 The point of this is to get some basic structure in place with tests. From the
 spike we know in which direction to go. Let's continue.
 
-## Removing fakes
+## Remove fakes
 
 Eventually we want to turn `GameLoop` into an infrastructure wrapper. This will
 give us the ability to conveniently use it in tests. This pattern is explained
@@ -364,7 +364,7 @@ def tick(self, events):
     self.loop.draw_circle()
 $:END
 
-So we made the decision that the game loop should exit if the tick function
+So we made the decision that the game loop should exit if the tick method
 returns true.
 
 We add the ability for the null version of the game loop to simulate events:
@@ -433,8 +433,8 @@ PYGAME_QUIT =>
 """
 $:END
 
-We had to add the x argument to the draw event so that we could observe that it
-changed:
+We had to add the `x` argument to the `DRAW_CIRCLE` event so that we could
+observe that it changed:
 
 $:output:python:
 def draw_circle(self, x):
@@ -494,8 +494,8 @@ does. We are now in a good place to move forward.
 
 Before closing this episode, let's take advantage of our test suite and explore
 an alternative way to exit the application. Instead of having a boolean return
-from `tick` indicating if we should exit or not, let's try an exception. Here
-it is:
+from `tick` indicating if we should exit or not, which I think is a bit
+unclear, let's try an exception. Here it is:
 
 $:output:python:
 class ExitGameLoop(Exception):
@@ -527,15 +527,16 @@ def run(self, game):
     self.pygame.quit()
 $:END
 
-I think this design is a bit more clean. And all the tests still pass,
-unchanged.
+I like this better. And all the tests still pass, unchanged.
 
 ## Summary
 
 We have now recreated the functionality that we had in the spike, added the
-ability to test it, and improved the design with the safety new of our tests.
-Great success! You can
-[browse](https://github.com/rickardlindberg/agdpp/tree/initial-game-loop) the
-source code as it looks now.
+ability to test it, and improved the design with the safety net of our tests.
+Great success!
+
+You can browse the [complete source
+code](https://github.com/rickardlindberg/agdpp/tree/initial-game-loop) from
+this episode.
 
 See you in the next episode!
