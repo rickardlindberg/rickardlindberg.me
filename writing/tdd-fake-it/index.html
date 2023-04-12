@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      TDD trick: fake it | Rickard's personal homepage
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>TDD trick: fake it</h1>
+
+<p><em>Published on 12 April 2023.</em></p>
+
+<ul>
+<li><a href="#the-example">The example</a></li>
+<li><a href="#first-behavior">First behavior</a></li>
+<li><a href="#fake-it">Fake it</a></li>
+<li><a href="#refactor">Refactor</a></li>
+<li><a href="#infrastructure-wrapper">Infrastructure wrapper</a></li>
+<li><a href="#make-game-loop-more-real">Make game loop more real</a></li>
+</ul>
+<p>The first step in the TDD loop is to think about what test you want to write. I find it easiest to do that from the outside-in. I might not yet know what different parts my system will consist of (especially in the beginning), but I do know some behavior of the system.</p>
+<p>The problem with outside-in is that the test might be difficult to write because you don’t have enough infrastructure in place to make the appropriate assertions.</p>
+<p>In this blog post I want to show you a trick to overcome that problem: faking it. (This is also similar to what James describes in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#grow-seeds">Grow Evolutionary Seeds</a>.)</p>
+<h2 id="the-example">The example</h2>
+<p>Animated game…</p>
+<h2 id="first-behavior">First behavior</h2>
+<blockquote>
+<p>I draw an animated circle until the user closes the window.</p>
+</blockquote>
+<h2 id="fake-it">Fake it</h2>
+<p>With an empty project, that test seems quite difficult to get in place. So let’s fake it. Here it is:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I draw an animated circle until the user closes the window.</span>
+
+<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
+<span class="sd">    &gt;&gt;&gt; game.run()</span>
+<span class="sd">    DRAW_CIRCLE</span>
+<span class="sd">    EXIT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Really? How is that useful?</p>
+<p>First of all we have got a description of one behavior of the system. We also have code that verifies that behavior, even though it is not yet complete.</p>
+<p>From here it is usually easier to see what to continue with.</p>
+<h2 id="refactor">Refactor</h2>
+<p>Are you kidding? Refactor already?</p>
+<p>To make this game testable, I want to separate the logic of the game from the infrastructure needed to initialize and use a graphics library.</p>
+<p>I imagine a game loop class that is responsible for that and also for calling our game in every loop.</p>
+<p>I can evolve the design in that direction even with what we have now.</p>
+<p>Here it is:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I draw an animated circle until the user closes the window.</span>
+
+<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
+<span class="sd">    &gt;&gt;&gt; game.run()</span>
+<span class="sd">    DRAW_CIRCLE</span>
+<span class="sd">    EXIT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">GameLoop</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
+        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The game now gets a loop as a dependency, and maybe you can see how this would be possible to test now.</p>
+<p>Notice that we could do this refactoring with the safety net of the test. We have one teeny tiny test that asserts something fake, but it still helped us do this refactoring safely.</p>
+<h2 id="infrastructure-wrapper">Infrastructure wrapper</h2>
+<p>I want to use some patterns from <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>. To test this.</p>
+<p>I want to turn the game loop into an infrastructure wrapper. One part of that pattern is that it should emit events of what it’s doing.</p>
+<p>So next I want to replace the print statements, that we used to fake this, with events. Here it is:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
+        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test for the game then changes to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw an animated circle until the user closes the window.</span>
+
+<span class="sd">&gt;&gt;&gt; loop = GameLoop()</span>
+<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
+<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">EXIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And this is starting to look more real now.</p>
+<p>But the game loop is still just emitting events, it’s not actually doing anything.</p>
+<h2 id="make-game-loop-more-real">Make game loop more real</h2>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;PYGAME_INIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
+        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+      <hr>
+      <center>
+      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </center>
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
