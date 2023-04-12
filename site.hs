@@ -376,6 +376,7 @@ patternPostIndexPandocTocTemplate =
     .||. "writing/reliable-socket-servers/index.markdown"
     .||. "writing/evolving-design-of-projectional-editor/index.markdown"
     .||. "writing/what-should-a-ci-server-do/index.markdown"
+    .||. "writing/tdd-fake-it/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
