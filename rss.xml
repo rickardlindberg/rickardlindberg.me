@@ -7,169 +7,8 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 12 Apr 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 09 Apr 2023 00:00:00 UT</lastBuildDate>
         <item>
-    <title>TDD trick: fake it</title>
-    <link>http://rickardlindberg.me/writing/tdd-fake-it/</link>
-    <description><![CDATA[<h1>TDD trick: fake it</h1>
-
-<p><em>Published on 12 April 2023.</em></p>
-
-<ul>
-<li><a href="#the-example">The example</a></li>
-<li><a href="#first-behavior">First behavior</a></li>
-<li><a href="#fake-it">Fake it</a></li>
-<li><a href="#refactor">Refactor</a></li>
-<li><a href="#infrastructure-wrapper">Infrastructure wrapper</a></li>
-<li><a href="#make-game-loop-more-real">Make game loop more real</a></li>
-</ul>
-<p>The first step in the TDD loop is to think about what test you want to write. I find it easiest to do that from the outside-in. I might not yet know what different parts my system will consist of (especially in the beginning), but I do know some behavior of the system.</p>
-<p>The problem with outside-in is that the test might be difficult to write because you don’t have enough infrastructure in place to make the appropriate assertions.</p>
-<p>In this blog post I want to show you a trick to overcome that problem: faking it. (This is also similar to what James describes in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#grow-seeds">Grow Evolutionary Seeds</a>.)</p>
-<h2 id="the-example">The example</h2>
-<p>Animated game…</p>
-<h2 id="first-behavior">First behavior</h2>
-<blockquote>
-<p>I draw an animated circle until the user closes the window.</p>
-</blockquote>
-<h2 id="fake-it">Fake it</h2>
-<p>With an empty project, that test seems quite difficult to get in place. So let’s fake it. Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
-<span class="sd">    &gt;&gt;&gt; game.run()</span>
-<span class="sd">    DRAW_CIRCLE</span>
-<span class="sd">    EXIT</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Really? How is that useful?</p>
-<p>First of all we have got a description of one behavior of the system. We also have code that verifies that behavior, even though it is not yet complete.</p>
-<p>From here it is usually easier to see what to continue with.</p>
-<h2 id="refactor">Refactor</h2>
-<p>Are you kidding? Refactor already?</p>
-<p>To make this game testable, I want to separate the logic of the game from the infrastructure needed to initialize and use a graphics library.</p>
-<p>I imagine a game loop class that is responsible for that and also for calling our game in every loop.</p>
-<p>I can evolve the design in that direction even with what we have now.</p>
-<p>Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
-<span class="sd">    &gt;&gt;&gt; game.run()</span>
-<span class="sd">    DRAW_CIRCLE</span>
-<span class="sd">    EXIT</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">()</span>
-
-<span class="k">class</span> <span class="nc">GameLoop</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The game now gets a loop as a dependency, and maybe you can see how this would be possible to test now.</p>
-<p>Notice that we could do this refactoring with the safety net of the test. We have one teeny tiny test that asserts something fake, but it still helped us do this refactoring safely.</p>
-<h2 id="infrastructure-wrapper">Infrastructure wrapper</h2>
-<p>I want to use some patterns from <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>. To test this.</p>
-<p>I want to turn the game loop into an infrastructure wrapper. One part of that pattern is that it should emit events of what it’s doing.</p>
-<p>So next I want to replace the print statements, that we used to fake this, with events. Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The test for the game then changes to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop()</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">EXIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>And this is starting to look more real now.</p>
-<p>But the game loop is still just emitting events, it’s not actually doing anything.</p>
-<h2 id="make-game-loop-more-real">Make game loop more real</h2>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;PYGAME_INIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-]]></description>
-    <pubDate>Wed, 12 Apr 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/tdd-fake-it/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
     <title>Introducing Agile Game Development with Python and Pygame</title>
     <link>http://rickardlindberg.me/writing/agdpp-introduction/</link>
     <description><![CDATA[<h1>Introducing Agile Game Development with Python and Pygame</h1>
@@ -1729,6 +1568,31 @@ server-accept.py
 ]]></description>
     <pubDate>Mon, 04 Jul 2022 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/june-2022/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
+    <title>May 2022 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/may-2022/</link>
+    <description><![CDATA[<h1>May 2022 Update</h1>
+
+<p><em>Published on  4 June 2022.</em></p>
+
+<p>This is what I’ve been up to in May 2022:</p>
+<ul>
+<li><p>I rediscovered James Shore through his <a href="https://www.jamesshore.com/v2/books/aoad2/book_club/evolutionary_design">Agile Book Club: Evolutionary Design (with Kent Beck)</a>. I had stumbled upon his <a href="https://www.jamesshore.com/v2/projects/lunch-and-learn">TDD Lunch &amp; Learn</a> series before, and the book club made me revisit some of his work. This time I also bought his book <a href="https://www.jamesshore.com/v2/books/aoad2">The Art of Agile Development</a> which reignited my interest for agile methods (something that has diminished more and more since I first got into it).</p></li>
+<li><p>I read <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Dream Deploys: Atomic, Zero-Downtime Deployments</a> and got inspired to try that approach. I also started working on a <a href="/writing/reliable-socket-servers/index.html">blog post</a> on my own to explore the topic.</p></li>
+<li><p>I continued working on <a href="https://github.com/rickardlindberg/rlci/">RLCI</a> and worked on connecting the different pieces. However, after getting inspired by agile methods again and learning that continuous integration is not what I thought it was (thanks for the inspiration James!), I will have to rethink the project. I think I will start over from scratch and develop it with a slightly new approach.</p></li>
+<li><p>I published another four programming videos on my <a href="https://www.youtube.com/channel/UC4XI09URnsM_YYTSizAMliA">Youtube channel</a>:</p>
+<ul>
+<li><a href="https://youtu.be/R-HCtiVzYuI">Connecting all the pieces in RLCI.</a></li>
+<li><a href="https://youtu.be/BQ-wWIVQ_gs">Researching zero downtime deployments.</a></li>
+<li><a href="https://youtu.be/S_R80ZhsmZo">Getting back to the roots of TDD.</a></li>
+<li><a href="https://youtu.be/Xm8QGMzyxeI">Practicing TDD and testing without mocks.</a></li>
+</ul></li>
+</ul>
+]]></description>
+    <pubDate>Sat, 04 Jun 2022 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/may-2022/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
