@@ -1,8 +1,10 @@
 ---
-title: "TDD trick: fake it"
-date: 2023-04-12
-tags: tdd
+title: 'DRAFT: "TDD trick: fake it"'
+date: 2023-04-13
+tags: tdd,draft
 ---
+
+**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 The first step in the TDD loop is to think about what test you want to write. I
 find it easiest to do that from the outside-in. I might not yet know what
