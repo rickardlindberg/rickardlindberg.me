@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DRAFT: Separating pygame completely from the rest of the game | Rickard's personal homepage
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard's personal homepage.">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DRAFT: Separating pygame completely from the rest of the game</h1>
+
+<p><em>Published on 14 April 2023.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>Right now our game is split up into two main classes: the game and the game loop. The game contains the logic of our game, while the game loop is responsible for setting up pygame and calling our game on every frame.</p>
+<p>Almost all references to pygame are contained in the game loop class. Our game knows almost nothing about pygame. Almost. And that bothers me.</p>
+<p>Let’s have a look at the test for our game:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw an animated circle until the user closes the window.</span>
+
+<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
+<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">PYGAME_INIT =&gt;</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 51</span>
+<span class="sd">PYGAME_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can see references to pygame in two places. First when we create the quit event. We create an instance of a pygame event and pass that to the null version of the game loop. Later in the events that we assert on, there are event names mentioning pygame (<code>PYGAME_INIT</code> and <code>PYGAME_QUIT</code>).</p>
+<p>Why does this bother me?</p>
+<p>One purpose of introducing the game loop class was to separate pygame code from our game. One reason to do that is that our game becomes easier to test. And if it’s easier to test, it suggests that the design is also better.</p>
+<p>But some details of pygame are leaking out.</p>
+<p>If <code>GameLoop</code> were instead called <code>PygameGameLoop</code>, I would be more fine with this. But I think the design would be more clear if the game didn’t know anything at all about pygame.</p>
+<p>Our game loop uses the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern. One purpose of that pattern is to isolate and contain infrastructure code so that the user of it can be provided an interface that is optimal for its consumption. In our case we want to design our game loop to fit exactly what our game needs. And the loop should encapsulate all the details of how to make that happen (using pygame).</p>
+<p>Enough talking, let’s see if we can fix this.</p>
+<ul>
+<li><p>Create Event wrapper class</p></li>
+<li><p>Add is_user_close_window</p></li>
+<li><p>Pass wrapper to tick and modify tick</p></li>
+<li><p>Test pass</p></li>
+<li><p>Add static create_user_close_window</p></li>
+<li><p>Make events pygame independent</p></li>
+<li><p>Kind of nice and better</p></li>
+<li><p>Not quite sure what I feel about event wrapper though</p></li>
+<li><p>Is this separation needed if we only plan on using pygame?</p></li>
+<li><p>I reset</p></li>
+<li><p>Smaller steps</p>
+<ul>
+<li>Like separation of pygame</li>
+<li>Let’s fix one thing at a time</li>
+<li>Starting with loop events mentioning pygame</li>
+</ul></li>
+<li><p>Designing in the beginning is easier, but it is harder to see smells. If you go too far in the wrong direction, you can always recover with refactoring, but the sooner you do it the easier. (Ron, Chet pair programming video.)</p></li>
+</ul>
+
+      <hr>
+      <center>
+      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
+      </center>
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
