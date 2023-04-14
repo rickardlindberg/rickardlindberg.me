@@ -16,6 +16,8 @@
 <p><em>Published on 14 April 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>In this episode we reflect on our current design. We see something that bothers us and talk about it and how to fix it.</p>
+<h2 id="the-problem">The problem</h2>
 <p>Right now our game is split up into two main classes: the game and the game loop. The game contains the logic of our game, while the game loop is responsible for setting up pygame and calling our game on every frame.</p>
 <p>Almost all references to pygame are contained in the game loop class. Our game knows almost nothing about pygame. Almost. And that bothers me.</p>
 <p>Let’s have a look at the test for our game:</p>
@@ -54,6 +56,17 @@
 <p>But some details of pygame are leaking out.</p>
 <p>If <code>GameLoop</code> were instead called <code>PygameGameLoop</code>, I would be more fine with this. But I think the design would be more clear if the game didn’t know anything at all about pygame.</p>
 <p>Our game loop uses the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern. One purpose of that pattern is to isolate and contain infrastructure code so that the user of it can be provided an interface that is optimal for its consumption. In our case we want to design our game loop to fit exactly what our game needs. And the loop should encapsulate all the details of how to make that happen (using pygame).</p>
+<p>Our game now needs to know that the pygame quit event is fired when the user closes the window. But wouldn’t it be more clear if that could be expressed in the code something like this instead?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Above, the game does not need to know about pygame and can directly express the idea that if the user closes the window, the game loop should be quit.</p>
 <p>Enough talking, let’s see if we can fix this.</p>
 <ul>
 <li><p>Create Event wrapper class</p></li>
