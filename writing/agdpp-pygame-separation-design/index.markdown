@@ -1,13 +1,13 @@
 ---
 title: 'DRAFT: Separating pygame completely from the rest of the game'
-date: 2023-04-14
+date: 2023-04-15
 tags: agdpp,draft
 ---
 
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
-In this episode we reflect on our current design. We see something that bothers
-us and talk about it and how to fix it.
+In this episode we reflect on our current design. I see something that bothers
+me. We talk about it and how to fix it.
 
 ## The problem
 
@@ -53,7 +53,8 @@ Why does this bother me?
 
 One purpose of introducing the game loop class was to separate pygame code from
 our game. One reason to do that is that our game becomes easier to test. And if
-it's easier to test, it suggests that the design is also better.
+it's easier to test, it suggests that the design is also better. (People claim
+at least. So let's go with that here.)
 
 But some details of pygame are leaking out.
 
@@ -136,7 +137,8 @@ All tests are passing again.
 
 We can rely on our tests for this refactoring.
 
-    git commit -a -m 'Wrap events to tick for a nicer interface.'
+<a
+href="https://github.com/rickardlindberg/agdpp/commit/ac00de877b8f4ee58716c0030c8b2ecab19a318e"><code>git commit -a -m 'Wrap events to tick for a nicer interface.'</code></a>
 
 ## Test still mentions pygame
 
@@ -153,7 +155,7 @@ Our test for the game still creates pygame events:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-Here I would like to instead express the idea that we want to simulate a user
+Here we would like to instead express the idea that we want to simulate a user
 closes the window event without mentioning any more details.
 
 Here is one attempt:
@@ -262,21 +264,94 @@ file now looks like this:
     <span class="o">...</span>
 </pre></div>
 </div></div>
-    git commit -a -m 'Wrap events so that our game now longer knows about pygame.'
+<a
+href="https://github.com/rickardlindberg/agdpp/commit/3686e4d1f5740301f2177810cfa26fa093153c17"><code>git commit -a -m 'Wrap events so that our game now longer knows about pygame.'</code></a>
 
-## TODO
+## Get rid of last pygame reference
 
-* Kind of nice and better
-* Not quite sure what I feel about event wrapper though
+There is still one place left where our game test refers to pygame:
 
-* Is this separation needed if we only plan on using pygame?
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">PYGAME_INIT =&gt;</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 51</span>
+<span class="sd">PYGAME_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+Some events that the game loop emits have pygame in their name.
 
-* I reset
-* Smaller steps
-    * Like separation of pygame
-    * Let's fix one thing at a time
-    * Starting with loop events mentioning pygame
+Imagine that we could plug any game loop implementation into our game and from
+the game's perspective, they all worked the same. Then it doesn't make sense
+for it to emit events that talk about the underlying technology to realize the
+game loop.
 
-* Designing in the beginning is easier, but it is harder to see smells. If you
-  go too far in the wrong direction, you can always recover with refactoring,
-  but the sooner you do it the easier. (Ron, Chet pair programming video.)
+Let's rename `PYGAME_INIT` to `GAMELOOP_INIT` and `PYGAME_QUIT` to
+`GAMELOOP_QUIT`. And while we are improving events, let's also add the
+resolution and fps to the init event so that we can observe them.
+
+Here is how the test reads then:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">...</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 51</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+<a
+href="https://github.com/rickardlindberg/agdpp/commit/b6ef6430ee93bf9b933f5f06d69d9666ca2d1cd2"><code>git commit -a -m 'Game loop emits events with clearer names.'</code></a>
+
+## Unnecessary work?
+
+At this point, our game knows nothing about pygame. It only relies on the
+interface of the game loop. That is something that we control and can design
+specifically for what our game needs. And should we want to switch out pygame
+for another graphics library, we only need to modify the game loop, not our
+game.
+
+You might object that this seems like too much speculative design. What is the
+likelyhood that we want to switch graphics package? And can't we deal with
+those problems when they arise?
+
+On the one hand, I think that objection is valid. But I would like to see this
+from another angle. The purpose of this change was not to make pygame easily
+replaceable. The purpose of the change was to design a clean interface for our
+game where the different classes had different responsibilities. Only as a side
+effect pygame became more replaceable.
+
+Had we designed a base class `GameLoop` and then derived a `PygameGameLoop`
+from it, then I think we would have designed speculatively. There is only one
+implementation of the game loop right now. We don't even anticipate any more
+implementations, so why make a "placeholder" in our design where a second
+implementation could be plugged in?
+
+## Summary
+
+Making design changes in the beginning is generally easier. The further you go
+in the wrong direction, the harder it is to undo. (But with careful
+refactoring, it is always possible.) One problem is that it might be harder to
+see problems with the design early on. How are a few references to pygame
+problematic? I think thinking in terms of code smells instead of in terms of
+speculative design is useful here.
+
+By the way, I'm not sure the design I choose here is the "correct" one. I'm
+just trying to learn and practice here and explain my thinking. But I think if
+I give attention to design early on, the future will be easier.
+
+See you in the next episode!
