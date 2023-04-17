@@ -1,7 +1,7 @@
 ---
 title: "TDD trick: fake it!"
-date: 2023-04-12
-tags: tdd,draft
+date: 2023-04-17
+tags: tdd
 ---
 
 The first step in the TDD loop is to think about what test to write. I find it
