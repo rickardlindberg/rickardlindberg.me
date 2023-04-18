@@ -369,6 +369,7 @@ patternPostIndexPandoc =
     .||. "writing/kinesis-advantage-2-swedish-setup/index.markdown"
     .||. "writing/what-is-programming/index.markdown"
     .||. "writing/agdpp-*/index.markdown"
+    .||. "writing/trying-rons-python-asteroids/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
