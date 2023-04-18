@@ -1,13 +1,12 @@
 ---
-title: "DRAFT: Trying Ron's Python Asteroids"
+title: Trying Ron's Python Asteroids
 date: 2023-04-18
-tags: draft,python
+tags: python
 ---
 
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
-
 [Ron](https://www.ronjeffries.com/) is working on an Asteroids game in Python
-and also writing about it.  I'm interested in his workflow, so I follow along.
+and also [writing](https://www.ronjeffries.com/categories/python/) about it.
+I'm interested in his workflow, so I follow along.
 
 He recently published the code on
 [Github](https://github.com/RonJeffries/python-asteroids-1).
@@ -45,7 +44,7 @@ style.
 I read about the copy method in the pygame manual and conclude that it was
 added in a later version.
 
-## Updating pygame
+## Upgrade pygame
 
 I think I've installed pygame via Fedora's package manager. That doesn't have a
 more recent version of pygame.
@@ -73,7 +72,7 @@ the `--upgrade` flag:
 Sometimes I hesitate to install Python packages via pip. Especially when
 they are not pure Python packages (like pygame which depends on SDL and C
 libraries). Mostly because it hasn't worked so well for me in the past. Maybe
-things are different now. And maybe it depends on the library. Let's see how
+things are better now. And maybe it depends on the library. Let's see how
 this works now.
 
 ## Testing the game again
@@ -98,28 +97,32 @@ It works!
 ## Zero friction
 
 I'm quite familiar with both Python and pygame, so it was not that difficult
-for me to get started. But I think we can improve a bit.
+for me to get started. But I think we can improve.
 
 One idea that I got from James Shore's writing about a [zero
 friction](https://www.jamesshore.com/v2/books/aoad2/zero_friction)
 development is that you should have scripts for doing common tasks
 like running your tests.
 
-Let's see if Ron likes that as well. I add one script to test
+Let's [see](https://github.com/RonJeffries/python-asteroids-1/pull/1) if Ron
+likes that as well. I add one script to test
 
-    $ cat build.sh 
-    #!/usr/bin/env bash
 
-    set -e
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">build.sh
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
 
-    pytest
+<span class="nb">set</span> -e
 
+pytest
+</pre></div>
+</div></div>
 and one to run the application
 
-    $ cat rundev.sh 
-    #!/usr/bin/env bash
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">rundev.sh
+</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
 
-    exec python main.py
-
+<span class="nb">exec</span> python main.py
+</pre></div>
+</div></div>
 Should the way to run tests or the application change, only those files need to
 be changed, and the usage of the developer stays the same.
