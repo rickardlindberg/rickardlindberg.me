@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: Test driving the game loop'
-date: 2023-04-11
-tags: agdpp,draft
+title: Test driving the game loop
+date: 2023-04-19
+tags: agdpp
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In this episode we look at how to set up the game loop, draw something on the
 screen, and test it. We begin with a spike to learn Pygame fundamentals and
@@ -14,7 +12,13 @@ then we look at how to set up tests for it.
 
 The video version of this episode:
 
-...
+<center>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/Q0347KVq7oU" title="YouTube video player"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share"
+allowfullscreen></iframe>
+</center>
 
 ## Hello World
 
