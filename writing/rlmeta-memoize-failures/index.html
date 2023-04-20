@@ -55,7 +55,7 @@
     <div class="container">
       <h1>Memoizing failures in RLMeta</h1>
 
-<p><em>Published on 2020-01-11</em>.</p>
+<p><em>Published on 2020-01-11.</em></p>
 
 <p>After reading <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a> I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, matching has to be tried again, even though it will fail. In the article, Guido writes</p>
 
