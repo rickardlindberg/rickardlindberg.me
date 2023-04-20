@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: Separating pygame completely from the rest of the game'
-date: 2023-04-15
-tags: agdpp,draft
+title: Separating pygame completely from the rest of the game
+date: 2023-04-20
+tags: agdpp
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In this episode we reflect on our current design. I see something that bothers
 me. We talk about it and how to fix it.
