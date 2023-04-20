@@ -2,6 +2,7 @@
 title: Introducing Agile Game Development with Python and Pygame
 date: 2023-04-09
 tags: agdpp
+agdpp: true
 ---
 
 I recently started playing computer games with my son. That sparked an interest

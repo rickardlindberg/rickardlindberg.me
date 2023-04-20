@@ -2,6 +2,7 @@
 title: Test driving the game loop
 date: 2023-04-19
 tags: agdpp
+agdpp: true
 ---
 
 In this episode we look at how to set up the game loop, draw something on the

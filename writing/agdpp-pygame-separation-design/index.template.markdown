@@ -2,6 +2,7 @@
 title: Separating pygame completely from the rest of the game
 date: 2023-04-20
 tags: agdpp
+agdpp: true
 ---
 
 In this episode we reflect on our current design. I see something that bothers
