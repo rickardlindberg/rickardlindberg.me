@@ -10,6 +10,14 @@ agdpp: true
 In this episode we demo the "game" for our customer. We get some feedback on it
 and start evolving the game to meet our customer's vision.
 
+## Video version
+
+The video version of this episode:
+
+<center>
+...
+</center>
+
 ## Demo
 
 I mentioned to my son that I had started working on a game. He wanted to see
@@ -57,7 +65,9 @@ In the spirit of
 [Ward](https://www.artima.com/articles/the-simplest-thing-that-could-possibly-work#part3)
 we ask ourselves what the simplest possible balloon shooter could look like.
 What is the absolute minimum version that I can give to my son and he can
-somewhat enjoy playing or at least recognize as a balloon shooter?
+somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is
+to create a game that *we* can enjoy playing together. That means some kind of
+multiplayer mode. But that is another story.)
 
 Here is what I'm thinking:
 
@@ -81,31 +91,175 @@ To make progress towards a balloon shooter, I want to work on a story that is
 about drawing a balloon and an arrow. Create the initial scene of the game sort
 of.
 
-1. Extract `Balloon`
-2. Add `Arrow`
-3. Refactor towards "sprite architecture"
-    * reflect on it
-4. Improve drawing
-5. Rename to `BalloonShooter`.
+Our game already animates a circle. Let's put all behavior related to that
+circle into its own class called `Balloon`. Here is how our game `tick` method
+looks like now:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div></div>
+After we extract the balloon class, it looks like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre></div>
+</div></div>
+And here is the balloon class:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div></div>
+Any behavior that the balloon should have, we can now test at this lower level.
+We can instantiate a balloon, call its tick method, and observe that the right
+thing happens. There is no need to involve the game or the game loop.
+
+With the balloon object in place, it is natural to create a new object called
+`Arrow` for our other piece in the balloon shooter game. We create a version
+that just draws a circle:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div></div>
+We make sure it is included in the game by modifying the tick method of the
+game to also tick and draw the arrow:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tick</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre></div>
+</div></div>
+We notice a pattern here. It seems like the responsibility of the game is to
+call tick and draw on a set of objects. In games (or in Pygame) those objects
+are referred to as sprites. My understanding is that a sprite is any visual
+element that shows up in the game.
+
+We refactor our game to reflect this new understanding:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+If we run the game now, this is what we see:
+
+<center>
+![First scene of balloon shooter.](scene1.png)
+</center>
+
+Not very pretty. What is that?
+
+Let's see if we can improve the drawing of the arrow. But remember, not
+perfection, but improvement. If I look at the game now, I don't get an idea
+what the game is about. We just want to make the arrow slightly more realistic
+to convey the meaning of the object. We are still restricted to drawing
+circles. The current `draw_circle` looks like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
+</pre></div>
+</div></div>
+That's stupid! Why is there no ability to specify anything but the
+x-coordinate? Well, until now, we haven't needed that. Now that we do need it,
+let's add it. No biggie:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
+</pre></div>
+</div></div>
+We experiment with three circles for the arrow and tweak the numbers until we
+think it looks good. Here is the result:
+
+<center>
+![Improved drawing of arrow.](scene2.png)
+</center>
+
+I don't know about you, but when I see this, I want to press a button to fire
+that arrow so it hits the balloon. I'm convinced this is a balloon shooter now.
+I hope our customer is as well.
+
+Right, balloon shooter. Before we didn't know what game we should write, so our
+game class was just called `Game`. Let's fix that:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span> from gameloop import GameLoop
+ 
+<span class="gd">-class Game:</span>
+<span class="gi">+class BalloonShooter:</span>
+</pre></div>
+</div></div>
+There, now the code more accurately represent the ideas that we have in our
+minds about this game.
 
 ## Summary
 
 We have completed a first vertical slice of our balloon shooter. There is now a
 balloon and an arrow on the screen. This is new behavior that we could show to
 our customer and get feedback on. Perhaps he doesn't like the position of the
-arrow. If so, we can adjust. Perhaps he can't imagine that the circles are
-actually an arrow. If so, we can work on improving the graphics.
+arrow. If so, we can adjust. Perhaps he can't imagine that the circle is
+actually a balloon. If so, we can work on improving the graphics.
 
 What else do we think we need before we have the first version of the balloon
 shooter?
 
 * Balloon moves downwards
-* Balloon respawns when reaching bottom
 * Arrow animates when shot
-* New arrow appears after shot
-* Arrow can burst balloon
+* Arrow can hit balloon
 * Point is given for hit
+* Game over when miss
 * Real graphics instead of circles
 
 Which one is the most important one to work on next? We'll tackle that one in
 the next episode!
+
+You can browse the [complete source
+code](https://github.com/rickardlindberg/agdpp/tree/initial-balloon-shooter-story) from
+this episode.
+
+See you!
