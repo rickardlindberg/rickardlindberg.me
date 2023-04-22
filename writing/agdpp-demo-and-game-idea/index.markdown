@@ -67,7 +67,7 @@ we ask ourselves what the simplest possible balloon shooter could look like.
 What is the absolute minimum version that I can give to my son and he can
 somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is
 to create a game that *we* can enjoy playing together. That means some kind of
-multiplayer mode. But that is another story.)
+multiplayer mode. But that is another for another story.)
 
 Here is what I'm thinking:
 
@@ -133,7 +133,8 @@ And here is the balloon class:
 </div></div>
 Any behavior that the balloon should have, we can now test at this lower level.
 We can instantiate a balloon, call its tick method, and observe that the right
-thing happens. There is no need to involve the game or the game loop.
+thing happens. There is no need to involve the game or the game loop. (At least
+if accept exposing somewhat internal state like the x variable.)
 
 With the balloon object in place, it is natural to create a new object called
 `Arrow` for our other piece in the balloon shooter game. We create a version
@@ -236,6 +237,58 @@ game class was just called `Game`. Let's fix that:
 </div></div>
 There, now the code more accurately represent the ideas that we have in our
 minds about this game.
+
+I forget to mention anything about testing. (For the complete workflow, check
+out the video.) But here is what the test for the balloon shooter looks like
+now:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
+<span class="sd">arrow and quit when the user closes the window.</span>
+
+<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
+<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">    y: 50</span>
+<span class="sd">    radius: 40</span>
+<span class="sd">    color: &#39;red&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 520</span>
+<span class="sd">    radius: 15</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 540</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+We both changed the description, becasue we have a balloon shooter now, not a
+generic game, and added checks for it drawing both the balloon and the arrow.
+
+It might be too specific to assert on exact coordinates here. We have to
+visually inspect the output and see if we think it looks good. That's what I
+did here. And when I was happy, I copied the coordinates into the test.
 
 ## Summary
 

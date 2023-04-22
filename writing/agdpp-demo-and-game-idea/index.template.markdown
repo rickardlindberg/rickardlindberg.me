@@ -65,7 +65,7 @@ we ask ourselves what the simplest possible balloon shooter could look like.
 What is the absolute minimum version that I can give to my son and he can
 somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is
 to create a game that *we* can enjoy playing together. That means some kind of
-multiplayer mode. But that is another story.)
+multiplayer mode. But that is another for another story.)
 
 Here is what I'm thinking:
 
@@ -134,7 +134,8 @@ $:END
 
 Any behavior that the balloon should have, we can now test at this lower level.
 We can instantiate a balloon, call its tick method, and observe that the right
-thing happens. There is no need to involve the game or the game loop.
+thing happens. There is no need to involve the game or the game loop. (At least
+if accept exposing somewhat internal state like the x variable.)
 
 With the balloon object in place, it is natural to create a new object called
 `Arrow` for our other piece in the balloon shooter game. We create a version
@@ -243,6 +244,59 @@ $:END
 
 There, now the code more accurately represent the ideas that we have in our
 minds about this game.
+
+I forget to mention anything about testing. (For the complete workflow, check
+out the video.) But here is what the test for the balloon shooter looks like
+now:
+
+$:output:python:
+"""
+I draw the initial scene of the game which consists of a balloon and an
+arrow and quit when the user closes the window.
+
+>>> loop = GameLoop.create_null(
+...     events=[
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+>>> events = loop.track_events()
+>>> BalloonShooter(loop).run()
+>>> events
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 520
+    radius: 15
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 540
+    radius: 20
+    color: 'blue'
+GAMELOOP_QUIT =>
+"""
+$:END
+
+We both changed the description, becasue we have a balloon shooter now, not a
+generic game, and added checks for it drawing both the balloon and the arrow.
+
+It might be too specific to assert on exact coordinates here. We have to
+visually inspect the output and see if we think it looks good. That's what I
+did here. And when I was happy, I copied the coordinates into the test.
 
 ## Summary
 
