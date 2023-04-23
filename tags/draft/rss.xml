@@ -9,6 +9,49 @@
                    type="application/rss+xml" />
         <lastBuildDate>Sun, 23 Apr 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>DRAFT: Thinking about test setup</title>
+    <link>http://rickardlindberg.me/writing/agdpp-thinking-about-test-setup/</link>
+    <description><![CDATA[<h1>DRAFT: Thinking about test setup</h1>
+
+<p><em>Published on 23 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>In the <a href="/writing/agdpp-shooting-arrow/index.html">previous</a> episode we were not quite happy with our test suite. Are we testing things at the right level? Do we see any smells? Are we missing tests? We will take some time in this episode to reflect on those questions so that things will go smooth, testing wise, when working on the next story.</p>
+<h2 id="a-concrete-problem">A concrete problem</h2>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="todo">TODO</h2>
+<ul>
+<li><p>In the last episode I had a feeling that everything was not alright with the tests. I poked around a bit and noticed that I could delete some vital production code that would break the game without my tests noticing.</p></li>
+<li><p>The promise of TDD and automated testing is that you have very high test coverage. What I aspire to is to create a test suite that within seconds tells me if I broke the production code. It might not be realistic, but when I find a case where I could break my production code without my tests noticing, I want to look more closely.</p></li>
+<li><p>One reason to not test is that you don’t know how. That can be solved by practicing. Another reason might be that you decide that the cost is not worth it. However, the cost of testing goes down the better you get at it.</p></li>
+<li><p>Anyway, I’m getting slightly off topic. Where were we?</p></li>
+<li><p>Test failure! Let’s look at the example.</p>
+<p>def tick(self, dt, events): for event in events: … elif event.is_keydown_space(): self.arrow.shoot() …</p>
+<p>def tick(self, dt, events): for event in events: … self.arrow.shoot() …</p>
+<p>This makes the arrow shoot right when you start the game, and no test is failing.</p></li>
+<li><p>What test is missing? Well, I generally prefer that tests for a class should test behavior of that class. Since the if-statement resides in the BalloonShooter class, that’s who’s missing a test.</p></li>
+<li><p>I think the reason for the missing test is that I wanted to test this behavior at a lower level. And part of it is, but not the input handling.</p></li>
+<li><p>In the beginning, it makes sense to write tests only for the top level application class. That frees us up to make refactorings without needing to change tests. After a while certain subsystems might emerge and stories start to cover that subsystem only.</p></li>
+<li><p>What tests are left to write after ATDD?</p></li>
+<li><p>Forgot to test inital case? Just one frame, and not animated?</p></li>
+<li><p>Extracted tests too early.</p></li>
+</ul>
+<h2 id="summary">Summary</h2>
+<p>…</p>
+<p>See you in the next episode!</p>
+]]></description>
+    <pubDate>Sun, 23 Apr 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/agdpp-thinking-about-test-setup/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>DRAFT: Shooting arrow</title>
     <link>http://rickardlindberg.me/writing/agdpp-shooting-arrow/</link>
     <description><![CDATA[<h1>DRAFT: Shooting arrow</h1>
