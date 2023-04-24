@@ -68,9 +68,20 @@ arrows going off the screen as being deactivated.
 
 ## How to write the test?
 
+## Slow progress because of tests?
+
+I feel like I'm moving so slowly.
+
+Because I want to test everything.
+
+But there is learning happening.
+
+And I expect things to pick up speed once more and more infrastructure is in
+place.
+
 ## TODO
 
-* God, testing is so fucking hard!
+* Testing is so fucking hard!
 * I tried sprite group refactoring.
 * I know exactly how to implement this. It's just one line of code. Why can't I
   just do it?
