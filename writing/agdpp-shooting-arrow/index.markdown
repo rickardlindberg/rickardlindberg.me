@@ -1,6 +1,6 @@
 ---
-title: 'DRAFT: Shooting arrow'
-date: 2023-04-23
+title: 'DRAFT: Shooting the arrow'
+date: 2023-04-24
 tags: agdpp,draft
 agdpp: true
 ---
@@ -15,7 +15,11 @@ It's time to shoot the arrow!
 The video version of this episode:
 
 <center>
-...
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/CfhEcp9Qghc" title="YouTube video player"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share"
+allowfullscreen></iframe>
 </center>
 
 ## Reacp
@@ -97,7 +101,7 @@ That is, we run the ballonn shooter game, configure a set of events that should
 be simulated, and then assert that certain things happens (game loop inits,
 circles are drawn on screen, etc).
 
-The test we want to write the for shoot behavior starts like this:
+The test we want to write the for the shoot behavior starts like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The arrow moves when it is shot by pressing the space key:</span>
@@ -117,7 +121,9 @@ The test we want to write the for shoot behavior starts like this:
 </pre></div>
 </div></div>
 We introduce a new event, keydown space, and simulate that it happens after one
-frame, and then we simulate a couple of more frames.
+frame, and then we simulate a couple of more frames. The reason we do include a
+couple of frames is that we want to observe that the arrows moves between
+different frames.
 
 This partial test fails because this new event does not yet exist, so let's fix
 it.
@@ -160,6 +166,8 @@ it.
 * implement quickly and now head of the arrow moves
 
 * fix arrow animation
+
+Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
 
 ## Getting tangled up in tests
 
