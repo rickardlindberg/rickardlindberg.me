@@ -1,6 +1,6 @@
 ---
-title: 'DRAFT: Thinking about test setup'
-date: 2023-04-23
+title: 'DRAFT: Thinking about test design'
+date: 2023-04-24
 tags: agdpp,draft
 agdpp: true
 ---
@@ -8,18 +8,20 @@ agdpp: true
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In the [previous](/writing/agdpp-shooting-arrow/index.html) episode we were not
-quite happy with our test suite. Are we testing things at the right level? Do
-we see any smells? Are we missing tests? We will take some time in this episode
-to reflect on those questions so that things will go smooth, testing wise, when
-working on the next story.
+quite happy with the design of our tests. Are we testing things at the right
+level? Do we see any smells? Are we missing tests? We will take some time in
+this episode to reflect on those questions so that things will go smooth(er),
+testing wise, when working on the next story.
 
 ## A concrete problem
 
-In the last episode I had a feeling that everything was not alright with the
-tests. I poked around a bit and noticed that I could delete some vital
+In the previous episode I had a feeling that everything was not alright with
+the tests. I poked around a bit and noticed that I could change some vital
 production code that would break the game without my tests noticing.
 
-The event handling in the balloon shooter now looks like this:
+Let's have a look.
+
+The event handling in the game now looks like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
 
@@ -60,7 +62,7 @@ but when I find a case where I could break my production code without my tests
 noticing, I want to look more closely.
 
 Testing can for sure be seen as a tradeoff. At some point it probably costs
-more to test that what you gain.
+more to test than what you gain.
 
 One reason to not test is that you don't know how. That can be solved by
 practicing. Another reason might be that you decide that the cost is not worth
@@ -77,7 +79,7 @@ The balloon shooter has two tests. Here are their descriptions:
 1. I draw the initial scene of the game which consists of a balloon and an
    arrow and quit when the user closes the window.
 
-2. The arrow moves when it is shot by pressing the space key:
+2. The arrow moves when it is shot by pressing the space key.
 
 The first test is checking that the initial frame is drawn correctly.
 
@@ -121,17 +123,9 @@ The problem is that the event checking logic is not in the `Arrow` class, but
 in the `BalloonShooter` class. So what we want to test can't be tested at this
 level.
 
-Perhaps there is a story missing. Something that talks about the initial state
-of the game. Which should be something like the balloon falls down and the
-arrow stays still.
-
 ## Where to test?
 
-I'm a fan of testing as much as possible. What I want is for my test suite to
-tell me within a couple of seconds if I made a mistake. I want that to be true
-for *any* change. That means I need high test coverage.
-
-But writing all tests as "top-level tests" which includes all objects is not a
+Writing all tests as "top-level tests" which includes all objects is not a
 good idea. The test setup will get complicated. The asserts will get difficult
 to write. The test will be slower.
 
@@ -253,16 +247,9 @@ What are some behaviors that we expect to see here?
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-The new cases cover all the old ones and more. Let's delete the old one. It now
-also makes the bug catch!
-
-These cases now cover all the cases from the initial test, and 
-
-commit: 51365a3e39b75462e58171cf564dd47874bab393
-
-Let's also remove the old tests.
-
-commit: 233e91b054d85cf25d95f0e7fcd18250660162c1
+These new cases cover all the cases in the old test, so we can remove the old.
+Furthermore it also checks that the arrow doesn't move so that we no longer can
+do the mistake of always shooting the arrow. Success!
 
 ## Reflecting on new test setup
 
@@ -303,12 +290,15 @@ Let's structure the rests of the test that way too:
 If there are more things that should happen when we press the space key, we can
 add asserts for it. But for now, I don't think there is any.
 
-## TODO
-
-* What tests are left to write after ATDD?
-
 ## Summary
 
-...
+All ours test for the game are now written at the top-level. They include all
+the objects. And they are written close to the acceptance criteria for stories.
+Don't we need lower-level tests as well?
+
+We for sure can't keep testing all aspects of the game with top-level tests.
+Subsystems must for sure emerge that are easier to test. We will keep that in
+mind for the future and look extra carefully at what those subsystems might be.
+But for now, we are happy that we closed the gap in our test suite.
 
 See you in the next episode!
