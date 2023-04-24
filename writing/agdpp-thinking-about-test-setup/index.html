@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Thinking about test setup | Rickard's personal homepage
+      DRAFT: Thinking about test design | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,15 +53,16 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Thinking about test setup</h1>
+      <h1>DRAFT: Thinking about test design</h1>
 
-<p><em>Published on 23 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 24 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>In the <a href="../../writing/agdpp-shooting-arrow/">previous</a> episode we were not quite happy with our test suite. Are we testing things at the right level? Do we see any smells? Are we missing tests? We will take some time in this episode to reflect on those questions so that things will go smooth, testing wise, when working on the next story.</p>
+<p>In the <a href="../../writing/agdpp-shooting-arrow/">previous</a> episode we were not quite happy with the design of our tests. Are we testing things at the right level? Do we see any smells? Are we missing tests? We will take some time in this episode to reflect on those questions so that things will go smooth(er), testing wise, when working on the next story.</p>
 <h2 id="a-concrete-problem">A concrete problem</h2>
-<p>In the last episode I had a feeling that everything was not alright with the tests. I poked around a bit and noticed that I could delete some vital production code that would break the game without my tests noticing.</p>
-<p>The event handling in the balloon shooter now looks like this:</p>
+<p>In the previous episode I had a feeling that everything was not alright with the tests. I poked around a bit and noticed that I could change some vital production code that would break the game without my tests noticing.</p>
+<p>Let’s have a look.</p>
+<p>The event handling in the game now looks like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -101,14 +102,14 @@
 <p>Then the arrow goes off immediately when the game starts, which is obviously not correct, but all tests still pass.</p>
 <h2 id="coverage-and-expectation">Coverage and expectation</h2>
 <p>The promise of TDD and automated testing is that you can have very high test coverage. What I aspire to is to create a test suite that within seconds tells me if I broke the production code with my change. It might not be realistic, but when I find a case where I could break my production code without my tests noticing, I want to look more closely.</p>
-<p>Testing can for sure be seen as a tradeoff. At some point it probably costs more to test that what you gain.</p>
+<p>Testing can for sure be seen as a tradeoff. At some point it probably costs more to test than what you gain.</p>
 <p>One reason to not test is that you don’t know how. That can be solved by practicing. Another reason might be that you decide that the cost is not worth it. However, the cost of testing goes down the better you get at it.</p>
 <p>And in this series I’m trying to learn as well and document that process. So let’s analyze the problem with the gap in the test suite and see what we can come up with.</p>
 <h2 id="what-test-is-missing">What test is missing?</h2>
 <p>The balloon shooter has two tests. Here are their descriptions:</p>
 <ol type="1">
 <li><p>I draw the initial scene of the game which consists of a balloon and an arrow and quit when the user closes the window.</p></li>
-<li><p>The arrow moves when it is shot by pressing the space key:</p></li>
+<li><p>The arrow moves when it is shot by pressing the space key.</p></li>
 </ol>
 <p>The first test is checking that the initial frame is drawn correctly.</p>
 <p>The second test is checking that the arrow moves when we press space.</p>
@@ -148,10 +149,8 @@
 </div>
 </div>
 <p>The problem is that the event checking logic is not in the <code>Arrow</code> class, but in the <code>BalloonShooter</code> class. So what we want to test can’t be tested at this level.</p>
-<p>Perhaps there is a story missing. Something that talks about the initial state of the game. Which should be something like the balloon falls down and the arrow stays still.</p>
 <h2 id="where-to-test">Where to test?</h2>
-<p>I’m a fan of testing as much as possible. What I want is for my test suite to tell me within a couple of seconds if I made a mistake. I want that to be true for <em>any</em> change. That means I need high test coverage.</p>
-<p>But writing all tests as “top-level tests” which includes all objects is not a good idea. The test setup will get complicated. The asserts will get difficult to write. The test will be slower.</p>
+<p>Writing all tests as “top-level tests” which includes all objects is not a good idea. The test setup will get complicated. The asserts will get difficult to write. The test will be slower.</p>
 <p>So we want to test at as a low level as possible.</p>
 <p>So if we want to test the initial state of the arrow in the <code>Arrow</code> class, we need to move event handling logic into it, so that it’s its responsibility and does not need to be tested in <code>BalloonShooter</code>.</p>
 <p>On the other hand, when you start writing tests for smaller subsystems, those subsystems become harder to refactor. Suppose you are not happy with the subsystems that you have created, and you want a different design. If you do that refactoring, you also have to modify the tests to fit. That makes refactoring and design harder. So you don’t want to do it too early.</p>
@@ -276,11 +275,7 @@
 </div>
 </div>
 </div>
-<p>The new cases cover all the old ones and more. Let’s delete the old one. It now also makes the bug catch!</p>
-<p>These cases now cover all the cases from the initial test, and</p>
-<p>commit: 51365a3e39b75462e58171cf564dd47874bab393</p>
-<p>Let’s also remove the old tests.</p>
-<p>commit: 233e91b054d85cf25d95f0e7fcd18250660162c1</p>
+<p>These new cases cover all the cases in the old test, so we can remove the old. Furthermore it also checks that the arrow doesn’t move so that we no longer can do the mistake of always shooting the arrow. Success!</p>
 <h2 id="reflecting-on-new-test-setup">Reflecting on new test setup</h2>
 <p>The test for the initial state is structured by simulating a run of the game, collecting events of what happened, and then making specific assertions about those events to check different behavior.</p>
 <p>Let’s structure the rests of the test that way too:</p>
@@ -318,12 +313,9 @@
 </div>
 </div>
 <p>If there are more things that should happen when we press the space key, we can add asserts for it. But for now, I don’t think there is any.</p>
-<h2 id="todo">TODO</h2>
-<ul>
-<li>What tests are left to write after ATDD?</li>
-</ul>
 <h2 id="summary">Summary</h2>
-<p>…</p>
+<p>All ours test for the game are now written at the top-level. They include all the objects. And they are written close to the acceptance criteria for stories. Don’t we need lower-level tests as well?</p>
+<p>We for sure can’t keep testing all aspects of the game with top-level tests. Subsystems must for sure emerge that are easier to test. We will keep that in mind for the future and look extra carefully at what those subsystems might be. But for now, we are happy that we closed the gap in our test suite.</p>
 <p>See you in the next episode!</p>
 
       <hr>
