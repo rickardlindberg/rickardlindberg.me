@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Shooting arrow | Rickard's personal homepage
+      DRAFT: Shooting the arrow | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,16 +53,18 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Shooting arrow</h1>
+      <h1>DRAFT: Shooting the arrow</h1>
 
-<p><em>Published on 23 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 24 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this episode we continue towards the first version of the balloon shooter. It’s time to shoot the arrow!</p>
 <h2 id="video-version">Video version</h2>
 <p>The video version of this episode:</p>
 <center>
-…
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CfhEcp9Qghc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
 </center>
 <h2 id="reacp">Reacp</h2>
 <p>We are trying to create an absolute minimum version of a balloon shooter game that we can show to our customer and ask if that was what he had in mind. Our idea for minimal is this:</p>
@@ -122,7 +124,7 @@
 </div>
 </div>
 <p>That is, we run the ballonn shooter game, configure a set of events that should be simulated, and then assert that certain things happens (game loop inits, circles are drawn on screen, etc).</p>
-<p>The test we want to write the for shoot behavior starts like this:</p>
+<p>The test we want to write the for the shoot behavior starts like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -145,7 +147,7 @@
 </div>
 </div>
 </div>
-<p>We introduce a new event, keydown space, and simulate that it happens after one frame, and then we simulate a couple of more frames.</p>
+<p>We introduce a new event, keydown space, and simulate that it happens after one frame, and then we simulate a couple of more frames. The reason we do include a couple of frames is that we want to observe that the arrows moves between different frames.</p>
 <p>This partial test fails because this new event does not yet exist, so let’s fix it.</p>
 <h2 id="adding-a-new-event">Adding a new event</h2>
 <div class="rliterate-code">
@@ -189,6 +191,7 @@
 <li><p>implement quickly and now head of the arrow moves</p></li>
 <li><p>fix arrow animation</p></li>
 </ul>
+<p>Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow</p>
 <h2 id="getting-tangled-up-in-tests">Getting tangled up in tests</h2>
 <p>I’m not happy with the current tests. On the other hand, I’m not sure how to improve them either.</p>
 <p>I think I need to spend some time with my notebook. Maybe running. Hammock?</p>
