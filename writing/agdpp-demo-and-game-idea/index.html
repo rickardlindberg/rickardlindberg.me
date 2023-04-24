@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Demo and game idea | Rickard's personal homepage
+      Demo and game idea | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,19 +53,20 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Demo and game idea</h1>
+      <h1>Demo and game idea</h1>
 
-<p><em>Published on 22 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 24 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this episode we demo the “game” for our customer. We get some feedback on it and start evolving the game to meet our customer’s vision.</p>
 <h2 id="video-version">Video version</h2>
 <p>The video version of this episode:</p>
 <center>
-…
+<iframe width="560" height="315" src="https://www.youtube.com/embed/z20IocFrKLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
 </center>
 <h2 id="demo">Demo</h2>
-<p>I mentioned to my son that I had started working on a game. He wanted to see it. I told him that there wasn’t much to play yet, but I could show him what it looks like.</p>
+<p>I mentioned to my son that I had started working on a game. He wanted to see it. I told him that there isn’t much to play yet, but that I can show him what it looks like.</p>
 <p>I started the “game” and he watched the circle going back and forth.</p>
 <p>For reference, this is what the “game” looks like now:</p>
 <center>
@@ -75,13 +76,13 @@
 <p>He looked at me sad and said “Dad, this game is boring.”</p>
 <p>Initially I wasn’t planning on showing him the game because in this early stage there is not much to play, and I knew he was not going to like it. Did I ruin it?</p>
 <p>Then I asked him, “What would you like to do with the circle?”</p>
-<p>The sadness in his face faded and he started talking about balloons. He said that he wanted the circle to be a balloon and that he wanted to shoot down balloons with arrows.</p>
+<p>The sadness in his face disappeared and he started talking about balloons. He said that he wanted the circle to be a balloon and that he wanted to shoot down balloons with arrows.</p>
 <p>I think we have an idea for a game.</p>
 <h2 id="on-early-feedback">On early feedback</h2>
 <p>My initial idea for the game was some kind of tetris variant. I was thinking that you have two boards and that you could help each other out by clearing blocks on each other’s boards. Cooperation seems more fun that competition.</p>
 <p>Turns out, the customer wants a balloon shooter. If we hadn’t shown the demo, we might have never found that out.</p>
 <h2 id="simplest-possible-version">Simplest possible version</h2>
-<p>In the spirit of <a href="https://www.artima.com/articles/the-simplest-thing-that-could-possibly-work#part3">Ward</a> we ask ourselves what the simplest possible balloon shooter could look like. What is the absolute minimum version that I can give to my son and he can somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is to create a game that <em>we</em> can enjoy playing together. That means some kind of multiplayer mode. But that is another for another story.)</p>
+<p>In the spirit of <a href="https://www.artima.com/articles/the-simplest-thing-that-could-possibly-work#part3">Ward</a> we ask ourselves what the simplest possible balloon shooter could look like. What is the absolute minimum version that I can give to my son and he can somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is to create a game that <em>we</em> can enjoy playing together. That means some kind of multiplayer mode. But that is another for a later story.)</p>
 <p>Here is what I’m thinking:</p>
 <ul>
 <li>1 balloon falling down the screen</li>
@@ -143,7 +144,7 @@
 </div>
 </div>
 </div>
-<p>Any behavior that the balloon should have, we can now test at this lower level. We can instantiate a balloon, call its tick method, and observe that the right thing happens. There is no need to involve the game or the game loop. (At least if accept exposing somewhat internal state like the x variable.)</p>
+<p>Any behavior that the balloon should have, we can now test at this lower level. We can instantiate a balloon, call its tick method, and observe that the right thing happens. There is no need to involve the game or the game loop. (At least if we accept exposing somewhat internal state like the x variable.)</p>
 <p>With the balloon object in place, it is natural to create a new object called <code>Arrow</code> for our other piece in the balloon shooter game. We create a version that just draws a circle:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -200,6 +201,7 @@
 </div>
 </div>
 </div>
+<p>Is our game class just becoming a thing layer of loops? Can we move some of that responsibility to the game loop? I’m not certain yet, so we will leave it like this for now.</p>
 <p>If we run the game now, this is what we see:</p>
 <center>
 <img src="scene1.png" title="fig:" alt="First scene of balloon shooter." />
@@ -244,7 +246,7 @@
 </div>
 </div>
 </div>
-<p>There, now the code more accurately represent the ideas that we have in our minds about this game.</p>
+<p>There! Now the code more accurately represent the ideas that we have in our minds about this game.</p>
 <p>I forget to mention anything about testing. (For the complete workflow, check out the video.) But here is what the test for the balloon shooter looks like now:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
