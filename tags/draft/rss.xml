@@ -436,6 +436,61 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 <item>
+    <title>DRAFT: Game over?</title>
+    <link>http://rickardlindberg.me/writing/agdpp-game-over/</link>
+    <description><![CDATA[<h1>DRAFT: Game over?</h1>
+
+<p><em>Published on 24 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>When we worked on <a href="/writing/agdpp-shooting-arrow/index.html">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow reset. Let’s work on that.</p>
+<h2 id="do-we-really-need-game-over">Do we really need game over?</h2>
+<p>If we implement game over now, there will be game over after every shot. Because there is no way to hit the balloon just yet.</p>
+<p>If you play a game where it is game over immediately, would you enjoy it?</p>
+<p>Game over is not really the problem. It is a solution to the problem that you don’t have any arrows to shoot after the first one.</p>
+<p>How about if you get a new arrow immediately? So you can just keep firing?</p>
+<p>From before, these are the stories we though about as needed for an initial balloon shooter:</p>
+<ul>
+<li>Balloon moves downwards</li>
+<li>Arrow can hit balloon</li>
+<li>Point is given for hit</li>
+<li>Game over when miss</li>
+<li>Real graphics instead of circles</li>
+</ul>
+<p>Let’s think about this. For minimal, I don’t think we need real graphics. The circles convey the idea just fine.</p>
+<p>I’m not sure the balloon needs to move downwards either. The current movement pattern is fine.</p>
+<p>And we decided to do something else instead of game over. That leaves us with this:</p>
+<ul>
+<li>Arrow can hit balloon</li>
+<li>Point is given for hit</li>
+<li>New arrow when the current one has been shot</li>
+</ul>
+<p>We can always make something smaller.</p>
+<p>Let’s work on spawning arrows now so that we can enjoy shooting arrows for a longer time without having to restart our game.</p>
+<h2 id="acceptance">Acceptance</h2>
+<p>I can think of two test:</p>
+<ul>
+<li>When an arrow goes outside the screen, we stop rendering it</li>
+<li>You get a new arrow when you shoot the current one</li>
+</ul>
+<p>The first test is kind of internal. If we render thousands of arrows outside the visible screen, no one will notice. Until there is a performance issue or an out of memory crash or something like that.</p>
+<p>On the other hand, it makes sense, from a gameplay perspective, to talk about arrows going off the screen as being deactivated.</p>
+<h2 id="how-to-write-the-test">How to write the test?</h2>
+<h2 id="todo">TODO</h2>
+<ul>
+<li><p>God, testing is so fucking hard!</p></li>
+<li><p>I tried sprite group refactoring.</p></li>
+<li><p>I know exactly how to implement this. It’s just one line of code. Why can’t I just do it?</p></li>
+<li><p>Breakthrough: getters to expose state! State based testing!</p></li>
+</ul>
+<h2 id="summary">Summary</h2>
+<p>See you in the next episode!</p>
+]]></description>
+    <pubDate>Mon, 24 Apr 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/agdpp-game-over/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>DRAFT: Compiling expressions to x86 machine code</title>
     <link>http://rickardlindberg.me/writing/expr-to-x86-compiler/</link>
     <description><![CDATA[<h1>DRAFT: Compiling expressions to x86 machine code</h1>
