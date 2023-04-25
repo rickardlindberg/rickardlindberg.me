@@ -81,10 +81,41 @@ place.
 
 * Testing is so fucking hard!
 * I tried sprite group refactoring.
+
+    commit cad62f918a6b47d13c6e5e40f37832b60627ff07
+    Author: Rickard Lindberg <rickard@rickardlindberg.me>
+    Date:   Sun Apr 23 10:49:24 2023 +0200
+
+        Extract SpriteGroup and create all_sprites in game.
+
+    commit 4c366588513a3086605dc01adc24f7df9a7c3f28
+    Author: Rickard Lindberg <rickard@rickardlindberg.me>
+    Date:   Sun Apr 23 15:44:44 2023 +0200
+
+        Sprites can update and draw, but not tick.
+
+    commit 4cc525b5af54a435182b386a7a3a8f29d7199d34
+    Author: Rickard Lindberg <rickard@rickardlindberg.me>
+    Date:   Sun Apr 23 15:51:51 2023 +0200
+
+        Extract GameScene.
+
+    commit faf96f8d02f2b998a94b6f00db984a3760b209c3 (HEAD -> main, origin/main)
+    Author: Rickard Lindberg <rickard@rickardlindberg.me>
+    Date:   Sun Apr 23 15:58:08 2023 +0200
+
+        Push game loop exit logic to game scene.
+
 * I know exactly how to implement this. It's just one line of code. Why can't I
   just do it?
 
 * Breakthrough: getters to expose state! State based testing!
+
+    commit 285f424514dbde48e82ee75c66f45930ad027ad2 (HEAD -> main)
+    Author: Rickard Lindberg <rickard@rickardlindberg.me>
+    Date:   Tue Apr 25 06:12:28 2023 +0200
+
+        Test initial state of game scene with state based testing.
 
 ## Summary
 
