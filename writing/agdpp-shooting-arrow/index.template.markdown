@@ -96,7 +96,7 @@ DRAW_CIRCLE =>
 """
 $:END
 
-That is, we run the ballonn shooter game, configure a set of events that should
+That is, we run the balloon shooter game, configure a set of events that should
 be simulated, and then assert that certain things happens (game loop inits,
 circles are drawn on screen, etc).
 
@@ -130,6 +130,8 @@ it.
 
 ## Adding a new event
 
+We add the new event like this:
+
 $:output:python:
 class GameLoop(Observable):
 
@@ -153,11 +155,85 @@ class Event:
         return self.pygame_event.type == pygame.KEYDOWN and self.pygame_event.key == pygame.K_SPACE
 $:END
 
+We figured out the Pygame event parameters to use by reading the documentation.
+
+We verify that we got it correct by printing all events and when running the
+game, press different keys to see if it correctly only captures the space key.
+
+It seems to work.
+
+## Filtering events
+
+The initial test now runs, but if we print all the events that we get, there is
+a lot of noise:
+
+$:output:python:
+"""
+>>> events
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+...
+"""
+$:END
+
+What we want to observe in that list of events is that the arrow has been drawn
+in different positions (indicating movement).
+
+So first we want to filter out the `DRAW_CIRCLE` events that are for the head
+of the arrow.
+
+We want to write like this:
+
+    >>> events.filter("DRAW_CIRCLE", radius=10)
+
+Filtering on event fields is not yet possible, but we own the library, and the
+fix goes smoothly.
+
+Once that is done, we get this list of events:
+
+    DRAW_CIRCLE =>
+        x: 500
+        y: 500
+        radius: 10
+        color: 'blue'
+    DRAW_CIRCLE =>
+        x: 500
+        y: 499
+        radius: 10
+        color: 'blue'
+    DRAW_CIRCLE =>
+        x: 500
+        y: 498
+        radius: 10
+        color: 'blue'
+    DRAW_CIRCLE =>
+        x: 500
+        y: 497
+        radius: 10
+        color: 'blue'
+
+This means that when we wan our game in test mode four frames where drawn and
+here are all the circles with radius 10. We use 10 here because we know that
+the head of the arrow is the only circle that is drawn with radius 10. But it
+is not bullet proof. It would be better if we could pass an id to the draw
+method call that is included in the event as well so that we could more
+accurately identify objects. But this will do for now.
+
+## Extracting positions
+
+Now that we have the events we are interested in we need to figure out 
+
+    >>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
+    [(500, 500), (500, 499), (500, 498), (500, 497)]
+
 ## TODO
-
-* move on to filter out draw events, not possible
-
-* implement more filtering in Events
 
 * discuss how to get x, y coordinates
 
