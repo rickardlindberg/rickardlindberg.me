@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: Game over?</h1>
 
-<p><em>Published on 24 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 25 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>When we worked on <a href="../../writing/agdpp-shooting-arrow/">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow reset. Let’s work on that.</p>
@@ -99,9 +99,44 @@
 <h2 id="todo">TODO</h2>
 <ul>
 <li><p>Testing is so fucking hard!</p></li>
-<li><p>I tried sprite group refactoring.</p></li>
+<li><p>I tried sprite group refactoring.</p>
+<p>commit cad62f918a6b47d13c6e5e40f37832b60627ff07 Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Sun Apr 23 10:49:24 2023 +0200</p>
+<pre><code>  Extract SpriteGroup and create all_sprites in game.</code></pre>
+<p>commit 4c366588513a3086605dc01adc24f7df9a7c3f28 Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Sun Apr 23 15:44:44 2023 +0200</p>
+<pre><code>  Sprites can update and draw, but not tick.</code></pre>
+<p>commit 4cc525b5af54a435182b386a7a3a8f29d7199d34 Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Sun Apr 23 15:51:51 2023 +0200</p>
+<pre><code>  Extract GameScene.</code></pre>
+<p>commit faf96f8d02f2b998a94b6f00db984a3760b209c3 (HEAD -&gt; main, origin/main) Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Sun Apr 23 15:58:08 2023 +0200</p>
+<pre><code>  Push game loop exit logic to game scene.</code></pre></li>
 <li><p>I know exactly how to implement this. It’s just one line of code. Why can’t I just do it?</p></li>
-<li><p>Breakthrough: getters to expose state! State based testing!</p></li>
+<li><p>Breakthrough: getters to expose state! State based testing!</p>
+<p>commit 285f424514dbde48e82ee75c66f45930ad027ad2 (HEAD -&gt; main) Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Tue Apr 25 06:12:28 2023 +0200</p>
+<pre><code>  Test initial state of game scene with state based testing.</code></pre></li>
 </ul>
 <h2 id="summary">Summary</h2>
 <p>See you in the next episode!</p>
