@@ -155,7 +155,7 @@ class Event:
         return self.pygame_event.type == pygame.KEYDOWN and self.pygame_event.key == pygame.K_SPACE
 $:END
 
-We figured out the Pygame event parameters to use by reading the documentation.
+We figure out the Pygame event parameters to use by reading the documentation.
 
 We verify that we got it correct by printing all events and when running the
 game, press different keys to see if it correctly only captures the space key.
@@ -205,21 +205,21 @@ Once that is done, we get this list of events:
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 499
+        y: 500
         radius: 10
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 498
+        y: 500
         radius: 10
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 497
+        y: 500
         radius: 10
         color: 'blue'
 
-This means that when we wan our game in test mode four frames where drawn and
+This means that when we ran our game in test mode, four frames where drawn and
 here are all the circles with radius 10. We use 10 here because we know that
 the head of the arrow is the only circle that is drawn with radius 10. But it
 is not bullet proof. It would be better if we could pass an id to the draw
@@ -228,26 +228,92 @@ accurately identify objects. But this will do for now.
 
 ## Extracting positions
 
-Now that we have the events we are interested in we need to figure out 
+In the output above, we can look at the x and y coordinates and see if they
+change. But there are also other fields that we don't care about in this test.
+Let's filter them out like this:
 
     >>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
-    [(500, 500), (500, 499), (500, 498), (500, 497)]
+    [(500, 500), (500, 500), (500, 500), (500, 500)]
 
-## TODO
+Again, the `collect` method does not exist, but we can extend our library
+with it.
 
-* discuss how to get x, y coordinates
+Now we have a list of positions where the head of the arrow is drawn. It
+doesn't seem to change, which we can see more clearly by making the collection
+into a set and seeing that it has only one element:
 
-* implement collect
+    >>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
+    {(500, 500)}
 
-* finally a real failure
+## Real test failure
 
-* implement quickly and now head of the arrow moves
+We want the arrow to move, so let's write an assert like this:
 
-* fix arrow animation
+    >>> len(arrow_head_positions) > 1
+    True
+    >>> len(set(arrow_head_positions)) > 1
+    True
 
-Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
+That is, we should get more than one position, and the set of all those
+positions should also be larger than one, indicating movement.
+
+The first assertion passes, but the other one fails. That is expected. Finally
+we have the assertion failure that we wanted. Took a bit of time, huh? That
+might tell us something about the design of our system. We'll talk about it
+later.
+
+## Implementation
+
+First, we modify the event handler to check for the space key and shoot the
+arrow if so:
+
+$:output:python:
+class BalloonShooter:
+
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+            elif event.is_keydown_space():
+                self.arrow.shoot()
+        ...
+
+    ...
+$:END
+
+The shooting mechanism we implement like this:
+
+$:output:python:
+class Arrow:
+
+    def __init__(self):
+        self.y = 500
+        self.shooting = False
+
+    def shoot(self):
+        self.shooting = True
+
+    def tick(self, dt):
+        if self.shooting:
+            self.y -= dt
+$:END
+
+We also adjust the drawing code so that all three circles that are drawn for
+the arrow are drawn relative to the now variable y position.
+
+$:output:python:
+def draw(self, loop):
+    loop.draw_circle(x=500, y=self.y, color="blue", radius=10)
+    loop.draw_circle(x=500, y=self.y+20, color="blue", radius=15)
+    loop.draw_circle(x=500, y=self.y+40, color="blue", radius=20)
+$:END
 
 ## Getting tangled up in tests
+
+* test objection
+    * whole lotta work in events
+    * not full coverage
+    * testing internals?
 
 I'm not happy with the current tests. On the other hand, I'm not sure how to
 improve them either.
@@ -265,5 +331,7 @@ After that, I think collision check with balloon would be most interesting.
 
 All those require tests of course. So we should probably work on getting
 comfortable with the test setup as well.
+
+Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
 
 See you in the next episode!

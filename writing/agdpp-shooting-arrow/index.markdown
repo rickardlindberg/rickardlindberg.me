@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Shooting the arrow'
-date: 2023-04-25
+date: 2023-04-26
 tags: agdpp,draft
 agdpp: true
 ---
@@ -153,7 +153,7 @@ We add the new event like this:
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span>
 </pre></div>
 </div></div>
-We figured out the Pygame event parameters to use by reading the documentation.
+We figure out the Pygame event parameters to use by reading the documentation.
 
 We verify that we got it correct by printing all events and when running the
 game, press different keys to see if it correctly only captures the space key.
@@ -202,21 +202,21 @@ Once that is done, we get this list of events:
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 499
+        y: 500
         radius: 10
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 498
+        y: 500
         radius: 10
         color: 'blue'
     DRAW_CIRCLE =>
         x: 500
-        y: 497
+        y: 500
         radius: 10
         color: 'blue'
 
-This means that when we wan our game in test mode four frames where drawn and
+This means that when we ran our game in test mode, four frames where drawn and
 here are all the circles with radius 10. We use 10 here because we know that
 the head of the arrow is the only circle that is drawn with radius 10. But it
 is not bullet proof. It would be better if we could pass an id to the draw
@@ -225,26 +225,89 @@ accurately identify objects. But this will do for now.
 
 ## Extracting positions
 
-Now that we have the events we are interested in we need to figure out 
+In the output above, we can look at the x and y coordinates and see if they
+change. But there are also other fields that we don't care about in this test.
+Let's filter them out like this:
 
     >>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
-    [(500, 500), (500, 499), (500, 498), (500, 497)]
+    [(500, 500), (500, 500), (500, 500), (500, 500)]
 
-## TODO
+Again, the `collect` method does not exist, but we can extend our library
+with it.
 
-* discuss how to get x, y coordinates
+Now we have a list of positions where the head of the arrow is drawn. It
+doesn't seem to change, which we can see more clearly by making the collection
+into a set and seeing that it has only one element:
 
-* implement collect
+    >>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
+    {(500, 500)}
 
-* finally a real failure
+## Real test failure
 
-* implement quickly and now head of the arrow moves
+We want the arrow to move, so let's write an assert like this:
 
-* fix arrow animation
+    >>> len(arrow_head_positions) > 1
+    True
+    >>> len(set(arrow_head_positions)) > 1
+    True
 
-Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
+That is, we should get more than one position, and the set of all those
+positions should also be larger than one, indicating movement.
 
+The first assertion passes, but the other one fails. That is expected. Finally
+we have the assertion failure that we wanted. Took a bit of time, huh? That
+might tell us something about the design of our system. We'll talk about it
+later.
+
+## Implementation
+
+First, we modify the event handler to check for the space key and shoot the
+arrow if so:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="o">...</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+The shooting mechanism we implement like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
+</pre></div>
+</div></div>
+We also adjust the drawing code so that all three circles that are drawn for
+the arrow are drawn relative to the now variable y position.
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div></div>
 ## Getting tangled up in tests
+
+* test objection
+    * whole lotta work in events
+    * not full coverage
+    * testing internals?
 
 I'm not happy with the current tests. On the other hand, I'm not sure how to
 improve them either.
@@ -262,5 +325,7 @@ After that, I think collision check with balloon would be most interesting.
 
 All those require tests of course. So we should probably work on getting
 comfortable with the test setup as well.
+
+Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
 
 See you in the next episode!
