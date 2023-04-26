@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: Shooting the arrow</h1>
 
-<p><em>Published on 25 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 26 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this episode we continue towards the first version of the balloon shooter. It’s time to shoot the arrow!</p>
@@ -182,7 +182,7 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 </div>
 </div>
 </div>
-<p>We figured out the Pygame event parameters to use by reading the documentation.</p>
+<p>We figure out the Pygame event parameters to use by reading the documentation.</p>
 <p>We verify that we got it correct by printing all events and when running the game, press different keys to see if it correctly only captures the space key.</p>
 <p>It seems to work.</p>
 <h2 id="filtering-events">Filtering events</h2>
@@ -220,40 +220,104 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
     color: 'blue'
 DRAW_CIRCLE =&gt;
     x: 500
-    y: 499
+    y: 500
     radius: 10
     color: 'blue'
 DRAW_CIRCLE =&gt;
     x: 500
-    y: 498
+    y: 500
     radius: 10
     color: 'blue'
 DRAW_CIRCLE =&gt;
     x: 500
-    y: 497
+    y: 500
     radius: 10
     color: 'blue'</code></pre>
-<p>This means that when we wan our game in test mode four frames where drawn and here are all the circles with radius 10. We use 10 here because we know that the head of the arrow is the only circle that is drawn with radius 10. But it is not bullet proof. It would be better if we could pass an id to the draw method call that is included in the event as well so that we could more accurately identify objects. But this will do for now.</p>
+<p>This means that when we ran our game in test mode, four frames where drawn and here are all the circles with radius 10. We use 10 here because we know that the head of the arrow is the only circle that is drawn with radius 10. But it is not bullet proof. It would be better if we could pass an id to the draw method call that is included in the event as well so that we could more accurately identify objects. But this will do for now.</p>
 <h2 id="extracting-positions">Extracting positions</h2>
-<p>Now that we have the events we are interested in we need to figure out</p>
+<p>In the output above, we can look at the x and y coordinates and see if they change. But there are also other fields that we don’t care about in this test. Let’s filter them out like this:</p>
 <pre><code>&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)
-[(500, 500), (500, 499), (500, 498), (500, 497)]</code></pre>
-<h2 id="todo">TODO</h2>
-<ul>
-<li><p>discuss how to get x, y coordinates</p></li>
-<li><p>implement collect</p></li>
-<li><p>finally a real failure</p></li>
-<li><p>implement quickly and now head of the arrow moves</p></li>
-<li><p>fix arrow animation</p></li>
-</ul>
-<p>Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow</p>
+[(500, 500), (500, 500), (500, 500), (500, 500)]</code></pre>
+<p>Again, the <code>collect</code> method does not exist, but we can extend our library with it.</p>
+<p>Now we have a list of positions where the head of the arrow is drawn. It doesn’t seem to change, which we can see more clearly by making the collection into a set and seeing that it has only one element:</p>
+<pre><code>&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))
+{(500, 500)}</code></pre>
+<h2 id="real-test-failure">Real test failure</h2>
+<p>We want the arrow to move, so let’s write an assert like this:</p>
+<pre><code>&gt;&gt;&gt; len(arrow_head_positions) &gt; 1
+True
+&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1
+True</code></pre>
+<p>That is, we should get more than one position, and the set of all those positions should also be larger than one, indicating movement.</p>
+<p>The first assertion passes, but the other one fails. That is expected. Finally we have the assertion failure that we wanted. Took a bit of time, huh? That might tell us something about the design of our system. We’ll talk about it later.</p>
+<h2 id="implementation">Implementation</h2>
+<p>First, we modify the event handler to check for the space key and shoot the arrow if so:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="o">...</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The shooting mechanism we implement like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We also adjust the drawing code so that all three circles that are drawn for the arrow are drawn relative to the now variable y position.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="getting-tangled-up-in-tests">Getting tangled up in tests</h2>
+<ul>
+<li>test objection
+<ul>
+<li>whole lotta work in events</li>
+<li>not full coverage</li>
+<li>testing internals?</li>
+</ul></li>
+</ul>
 <p>I’m not happy with the current tests. On the other hand, I’m not sure how to improve them either.</p>
 <p>I think I need to spend some time with my notebook. Maybe running. Hammock?</p>
 <h2 id="summary">Summary</h2>
 <p>The arrow now moves. So exciting! But it’s a bummer that you have to restart the game after each shot. Therefore I think the game over screen might be most interesting to work on next. When the arrow misses (goes outside the screen) the game should be over, and the arrow should be reset.</p>
 <p>After that, I think collision check with balloon would be most interesting.</p>
 <p>All those require tests of course. So we should probably work on getting comfortable with the test setup as well.</p>
+<p>Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow</p>
 <p>See you in the next episode!</p>
 
       <hr>
