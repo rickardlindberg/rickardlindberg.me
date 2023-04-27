@@ -1,7 +1,7 @@
 ---
 title: Shooting the arrow
 date: 2023-04-22
-tags: agdpp,draft
+tags: agdpp
 agdpp: true
 ---
 
@@ -20,7 +20,7 @@ encrypted-media; gyroscope; picture-in-picture; web-share"
 allowfullscreen></iframe>
 </center>
 
-## Reacp
+## Recap
 
 We are trying to create an absolute minimum version of a balloon shooter game
 that we can show to our customer and ask if that was what he had in mind. Our
@@ -70,7 +70,7 @@ The next step is to figure out how to write an automated test for that.
 
 ## The test we want to write
 
-Just to recap, the test for the ballon shooter looks like this:
+Just to recap, the test for the balloon shooter looks like this:
 
 $:output:python:
 """
@@ -121,12 +121,12 @@ The arrow moves when it is shot by pressing the space key:
 $:END
 
 We introduce a new event, keydown space, and simulate that it happens after one
-frame, and then we simulate a couple of more frames. The reason we do include a
-couple of frames is that we want to observe that the arrows moves between
+frame, and then we simulate a couple of more frames. The reason that we include
+a couple of frames is that we want to observe that the arrows moves between
 different frames.
 
 This partial test fails because this new event does not yet exist, so let's fix
-it.
+that.
 
 ## Adding a new event
 
@@ -157,8 +157,9 @@ $:END
 
 We figure out the Pygame event parameters to use by reading the documentation.
 
-We verify that we got it correct by printing all events and when running the
-game, press different keys to see if it correctly only captures the space key.
+We verify that we got it correct by printing something when we get the keydown
+space event when running the game. We press different keys to see if it
+correctly only captures the space key.
 
 It seems to work.
 
@@ -191,33 +192,41 @@ of the arrow.
 
 We want to write like this:
 
-    >>> events.filter("DRAW_CIRCLE", radius=10)
+$:output:python:
+"""
+>>> events.filter("DRAW_CIRCLE", radius=10)
+"""
+$:END
 
 Filtering on event fields is not yet possible, but we own the library, and the
 fix goes smoothly.
 
 Once that is done, we get this list of events:
 
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
+$:output:python:
+"""
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+"""
+$:END
 
 This means that when we ran our game in test mode, four frames where drawn and
 here are all the circles with radius 10. We use 10 here because we know that
@@ -230,10 +239,14 @@ accurately identify objects. But this will do for now.
 
 In the output above, we can look at the x and y coordinates and see if they
 change. But there are also other fields that we don't care about in this test.
-Let's filter them out like this:
+Let's filter out the position like this:
 
-    >>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
-    [(500, 500), (500, 500), (500, 500), (500, 500)]
+$:output:python:
+"""
+>>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
+[(500, 500), (500, 500), (500, 500), (500, 500)]
+"""
+$:END
 
 Again, the `collect` method does not exist, but we can extend our library
 with it.
@@ -242,17 +255,25 @@ Now we have a list of positions where the head of the arrow is drawn. It
 doesn't seem to change, which we can see more clearly by making the collection
 into a set and seeing that it has only one element:
 
-    >>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
-    {(500, 500)}
+$:output:python:
+"""
+>>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
+{(500, 500)}
+"""
+$:END
 
 ## Real test failure
 
 We want the arrow to move, so let's write an assert like this:
 
-    >>> len(arrow_head_positions) > 1
-    True
-    >>> len(set(arrow_head_positions)) > 1
-    True
+$:output:python:
+"""
+>>> len(arrow_head_positions) > 1
+True
+>>> len(set(arrow_head_positions)) > 1
+True
+"""
+$:END
 
 That is, we should get more than one position, and the set of all those
 positions should also be larger than one, indicating movement.
@@ -260,7 +281,7 @@ positions should also be larger than one, indicating movement.
 The first assertion passes, but the other one fails. That is expected. Finally
 we have the assertion failure that we wanted. Took a bit of time, huh? That
 might tell us something about the design of our system. We'll talk about it
-later.
+in [another episode](/writing/agdpp-thinking-about-test-setup/index.html).
 
 ## Implementation
 
@@ -281,7 +302,7 @@ class BalloonShooter:
     ...
 $:END
 
-The shooting mechanism we implement like this:
+The shooting mechanism, we implement like this:
 
 $:output:python:
 class Arrow:
@@ -308,17 +329,63 @@ def draw(self, loop):
     loop.draw_circle(x=500, y=self.y+40, color="blue", radius=20)
 $:END
 
+The arrow now moves when we press the space key. Success! Unfortunately we only
+have one shot. Then we need to restart the game to get a new arrow. We will fix
+that in another story.
+
 ## Getting tangled up in tests
 
-* test objection
-    * whole lotta work in events
-    * not full coverage
-    * testing internals?
+The shooting works, but I think we forgot to test the initial case. If we don't
+press the space key, the arrow should stay still.
+
+We can change the tick method of the arrow to this, and all tests still pass:
+
+$:output:python:
+def tick(self, dt):
+    self.y -= dt
+$:END
+
+But that makes the arrow move immediately, even if not shot, which was not
+intended.
+
+We write a few more specific tests for the behavior of the arrow:
+
+$:output:python:
+"""
+I stay still if I've not been fired:
+
+>>> arrow = Arrow()
+>>> initial_y = arrow.y
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> initial_y == arrow.y
+True
+
+I move upwards when fired:
+
+>>> arrow = Arrow()
+>>> initial_y = arrow.y
+>>> arrow.shoot()
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.y < initial_y
+True
+"""
+$:END
+
+That forces us to add the if statement again.
+
+I'm not sure I'm entirely happy that we access the y variable like that. I
+prefer to see all fields of a class in Python as private (unless it's a pure
+data object). But we got the test working at least.
 
 I'm not happy with the current tests. On the other hand, I'm not sure how to
 improve them either.
 
-I think I need to spend some time with my notebook. Maybe running. Hammock?
+Maybe it's time to go for a jog or spend some time off the computer with my
+notebook to see if any better ideas emerge. But for now, we leave it like this.
 
 ## Summary
 
@@ -332,6 +399,7 @@ After that, I think collision check with balloon would be most interesting.
 All those require tests of course. So we should probably work on getting
 comfortable with the test setup as well.
 
-Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
+The source code from this episode is on
+[GitHub](https://github.com/rickardlindberg/agdpp/tree/shoot-arrow).
 
 See you in the next episode!

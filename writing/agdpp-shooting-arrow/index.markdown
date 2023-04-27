@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Shooting the arrow'
-date: 2023-04-26
-tags: agdpp,draft
+title: Shooting the arrow
+date: 2023-04-22
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In this episode we continue towards the first version of the balloon shooter.
 It's time to shoot the arrow!
@@ -22,7 +20,7 @@ encrypted-media; gyroscope; picture-in-picture; web-share"
 allowfullscreen></iframe>
 </center>
 
-## Reacp
+## Recap
 
 We are trying to create an absolute minimum version of a balloon shooter game
 that we can show to our customer and ask if that was what he had in mind. Our
@@ -72,7 +70,7 @@ The next step is to figure out how to write an automated test for that.
 
 ## The test we want to write
 
-Just to recap, the test for the ballon shooter looks like this:
+Just to recap, the test for the balloon shooter looks like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
@@ -121,12 +119,12 @@ The test we want to write the for the shoot behavior starts like this:
 </pre></div>
 </div></div>
 We introduce a new event, keydown space, and simulate that it happens after one
-frame, and then we simulate a couple of more frames. The reason we do include a
-couple of frames is that we want to observe that the arrows moves between
+frame, and then we simulate a couple of more frames. The reason that we include
+a couple of frames is that we want to observe that the arrows moves between
 different frames.
 
 This partial test fails because this new event does not yet exist, so let's fix
-it.
+that.
 
 ## Adding a new event
 
@@ -155,8 +153,9 @@ We add the new event like this:
 </div></div>
 We figure out the Pygame event parameters to use by reading the documentation.
 
-We verify that we got it correct by printing all events and when running the
-game, press different keys to see if it correctly only captures the space key.
+We verify that we got it correct by printing something when we get the keydown
+space event when running the game. We press different keys to see if it
+correctly only captures the space key.
 
 It seems to work.
 
@@ -188,34 +187,40 @@ of the arrow.
 
 We want to write like this:
 
-    >>> events.filter("DRAW_CIRCLE", radius=10)
-
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
 Filtering on event fields is not yet possible, but we own the library, and the
 fix goes smoothly.
 
 Once that is done, we get this list of events:
 
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-    DRAW_CIRCLE =>
-        x: 500
-        y: 500
-        radius: 10
-        color: 'blue'
-
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: &#39;blue&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
 This means that when we ran our game in test mode, four frames where drawn and
 here are all the circles with radius 10. We use 10 here because we know that
 the head of the arrow is the only circle that is drawn with radius 10. But it
@@ -227,11 +232,14 @@ accurately identify objects. But this will do for now.
 
 In the output above, we can look at the x and y coordinates and see if they
 change. But there are also other fields that we don't care about in this test.
-Let's filter them out like this:
+Let's filter out the position like this:
 
-    >>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
-    [(500, 500), (500, 500), (500, 500), (500, 500)]
-
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
+<span class="sd">[(500, 500), (500, 500), (500, 500), (500, 500)]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
 Again, the `collect` method does not exist, but we can extend our library
 with it.
 
@@ -239,25 +247,31 @@ Now we have a list of positions where the head of the arrow is drawn. It
 doesn't seem to change, which we can see more clearly by making the collection
 into a set and seeing that it has only one element:
 
-    >>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
-    {(500, 500)}
-
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
+<span class="sd">{(500, 500)}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
 ## Real test failure
 
 We want the arrow to move, so let's write an assert like this:
 
-    >>> len(arrow_head_positions) > 1
-    True
-    >>> len(set(arrow_head_positions)) > 1
-    True
-
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
 That is, we should get more than one position, and the set of all those
 positions should also be larger than one, indicating movement.
 
 The first assertion passes, but the other one fails. That is expected. Finally
 we have the assertion failure that we wanted. Took a bit of time, huh? That
 might tell us something about the design of our system. We'll talk about it
-later.
+in [another episode](/writing/agdpp-thinking-about-test-setup/index.html).
 
 ## Implementation
 
@@ -277,7 +291,7 @@ arrow if so:
     <span class="o">...</span>
 </pre></div>
 </div></div>
-The shooting mechanism we implement like this:
+The shooting mechanism, we implement like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
 
@@ -302,17 +316,61 @@ the arrow are drawn relative to the now variable y position.
     <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div></div>
+The arrow now moves when we press the space key. Success! Unfortunately we only
+have one shot. Then we need to restart the game to get a new arrow. We will fix
+that in another story.
+
 ## Getting tangled up in tests
 
-* test objection
-    * whole lotta work in events
-    * not full coverage
-    * testing internals?
+The shooting works, but I think we forgot to test the initial case. If we don't
+press the space key, the arrow should stay still.
+
+We can change the tick method of the arrow to this, and all tests still pass:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
+</pre></div>
+</div></div>
+But that makes the arrow move immediately, even if not shot, which was not
+intended.
+
+We write a few more specific tests for the behavior of the arrow:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I stay still if I&#39;ve not been fired:</span>
+
+<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
+<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; initial_y == arrow.y</span>
+<span class="sd">True</span>
+
+<span class="sd">I move upwards when fired:</span>
+
+<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
+<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
+<span class="sd">&gt;&gt;&gt; arrow.shoot()</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">&gt;&gt;&gt; arrow.y &lt; initial_y</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+That forces us to add the if statement again.
+
+I'm not sure I'm entirely happy that we access the y variable like that. I
+prefer to see all fields of a class in Python as private (unless it's a pure
+data object). But we got the test working at least.
 
 I'm not happy with the current tests. On the other hand, I'm not sure how to
 improve them either.
 
-I think I need to spend some time with my notebook. Maybe running. Hammock?
+Maybe it's time to go for a jog or spend some time off the computer with my
+notebook to see if any better ideas emerge. But for now, we leave it like this.
 
 ## Summary
 
@@ -326,6 +384,7 @@ After that, I think collision check with balloon would be most interesting.
 All those require tests of course. So we should probably work on getting
 comfortable with the test setup as well.
 
-Source code from this episode: https://github.com/rickardlindberg/agdpp/tree/shoot-arrow
+The source code from this episode is on
+[GitHub](https://github.com/rickardlindberg/agdpp/tree/shoot-arrow).
 
 See you in the next episode!
