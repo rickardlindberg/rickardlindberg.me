@@ -1,6 +1,6 @@
 ---
 title: Shooting the arrow
-date: 2023-04-22
+date: 2023-04-27
 tags: agdpp
 agdpp: true
 ---
