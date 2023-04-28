@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Thinking about test design'
-date: 2023-04-24
-tags: agdpp,draft
+title: Thinking about test design
+date: 2023-04-28
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In the [previous](/writing/agdpp-shooting-arrow/index.html) episode we were not
 quite happy with the design of our tests. Are we testing things at the right
@@ -61,7 +59,7 @@ me if I broke the production code with my change. It might not be realistic,
 but when I find a case where I could break my production code without my tests
 noticing, I want to look more closely.
 
-Testing can for sure be seen as a tradeoff. At some point it probably costs
+Testing can for sure be seen as a trade off. At some point it probably costs
 more to test than what you gain.
 
 One reason to not test is that you don't know how. That can be solved by
@@ -292,7 +290,7 @@ add asserts for it. But for now, I don't think there is any.
 
 ## Summary
 
-All ours test for the game are now written at the top-level. They include all
+All our tests for the game are now written at the top-level. They include all
 the objects. And they are written close to the acceptance criteria for stories.
 Don't we need lower-level tests as well?
 
