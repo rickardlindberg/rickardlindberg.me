@@ -7,20 +7,20 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 25 Apr 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 04 May 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Game over?</title>
     <link>http://rickardlindberg.me/writing/agdpp-game-over/</link>
     <description><![CDATA[<h1>DRAFT: Game over?</h1>
 
-<p><em>Published on 25 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on  4 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>When we worked on <a href="/writing/agdpp-shooting-arrow/index.html">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow reset. Let’s work on that.</p>
+<p>When we worked on <a href="/writing/agdpp-shooting-arrow/index.html">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow reset. Let’s work on that in this episode.</p>
 <h2 id="do-we-really-need-game-over">Do we really need game over?</h2>
 <p>If we implement game over now, there will be game over after every shot. Because there is no way to hit the balloon just yet.</p>
 <p>If you play a game where it is game over immediately, would you enjoy it?</p>
-<p>Game over is not really the problem. It is a solution to the problem that you don’t have any arrows to shoot after the first one.</p>
+<p>Perhaps game over is not right story to work on? It is a solution to the problem that you don’t have any arrows to shoot after the first one.</p>
 <p>How about if you get a new arrow immediately? So you can just keep firing?</p>
 <p>From before, these are the stories we though about as needed for an initial balloon shooter:</p>
 <ul>
@@ -32,61 +32,215 @@
 </ul>
 <p>Let’s think about this. For minimal, I don’t think we need real graphics. The circles convey the idea just fine.</p>
 <p>I’m not sure the balloon needs to move downwards either. The current movement pattern is fine.</p>
-<p>And we decided to do something else instead of game over. That leaves us with this:</p>
+<p>And we can do something else instead of game over. That leaves us with this:</p>
 <ul>
 <li>Arrow can hit balloon</li>
 <li>Point is given for hit</li>
 <li>New arrow when the current one has been shot</li>
 </ul>
-<p>We can always make something smaller.</p>
+<p>We can always make something smaller. And what we initially thought we needed, we don’t need. At least yet. When we play the game, we quite quickly find out what is needed next. Working software. In the hands of its users.</p>
 <p>Let’s work on spawning arrows now so that we can enjoy shooting arrows for a longer time without having to restart our game.</p>
 <h2 id="acceptance">Acceptance</h2>
 <p>I can think of two test:</p>
 <ul>
-<li>When an arrow goes outside the screen, we stop rendering it</li>
 <li>You get a new arrow when you shoot the current one</li>
+<li>When an arrow goes outside the screen, we stop rendering it</li>
 </ul>
-<p>The first test is kind of internal. If we render thousands of arrows outside the visible screen, no one will notice. Until there is a performance issue or an out of memory crash or something like that.</p>
-<p>On the other hand, it makes sense, from a gameplay perspective, to talk about arrows going off the screen as being deactivated.</p>
+<p>The second test is kind of internal. If we render thousands of arrows outside the visible screen, no one will notice. Until there is a performance issue or an out of memory crash or something like that.</p>
+<p>On the other hand, it makes sense, from a gameplay perspective, to talk about arrows going off the screen as being deactivated. Otherwise it might be that they come back after a while, but now instead move downwards.</p>
 <h2 id="how-to-write-the-test">How to write the test?</h2>
-<h2 id="slow-progress-because-of-tests">Slow progress because of tests?</h2>
-<p>I feel like I’m moving so slowly.</p>
-<p>Because I want to test everything.</p>
-<p>But there is learning happening.</p>
-<p>And I expect things to pick up speed once more and more infrastructure is in place.</p>
+<p>All tests for our game are currently written at the top-level. Here is the test that checks for behavior when we press the space key:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
+<span class="sd">frames, then quit:</span>
+
+<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+
+<span class="sd">The arrow moves:</span>
+
+<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
+<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We filter out <code>DRAW_CIRCLE</code> events with radius 10 with the assumption that the only circle drawn with radius 10 is the arrow head.</p>
+<p>This test assumes only one arrow.</p>
+<p>If we were to draw another arrow, there would be no way of identifying the two different arrows in this test.</p>
+<p>So writing the new tests at this level feels difficult and error prone.</p>
+<p>Testing is so hard.</p>
+<p>Let’s see if we can make a new attempt at extracting a subsystem where this new behavior is easier to test.</p>
+<h2 id="sprite-group-and-game-scene-refactoring">Sprite group and game scene refactoring</h2>
+<p>Our game currently looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I have an idea how to push much of this logic down one level so that it can more easily be tested. Let’s give it a try.</p>
+<p>We keep all our sprites in a list. Managing a list of sprites seems like a good job for a new class. We create a <code>SpriteGroup</code> class that works like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; class TestSprite:</span>
+<span class="sd">...     def update(self, dt):</span>
+<span class="sd">...         print(f&quot;TEST SPRITE update {dt}&quot;)</span>
+<span class="sd">...     def draw(self, loop):</span>
+<span class="sd">...         print(f&quot;TEST SPRITE draw {loop}&quot;)</span>
+
+<span class="sd">&gt;&gt;&gt; group = SpriteGroup([TestSprite()])</span>
+<span class="sd">&gt;&gt;&gt; x = TestSprite()</span>
+<span class="sd">&gt;&gt;&gt; y = group.add(x)</span>
+<span class="sd">&gt;&gt;&gt; x is y</span>
+<span class="sd">True</span>
+
+<span class="sd">&gt;&gt;&gt; group.update(4)</span>
+<span class="sd">TEST SPRITE update 4</span>
+<span class="sd">TEST SPRITE update 4</span>
+
+<span class="sd">&gt;&gt;&gt; group.draw(None)</span>
+<span class="sd">TEST SPRITE draw None</span>
+<span class="sd">TEST SPRITE draw None</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>A sprite is any object that can respond to <code>update</code> and <code>draw</code> calls. When we update and draw the sprite group, it calls the corresponding methods on all its sprites.</p>
+<p>We can use this new class in our game like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span> <span class="o">=</span> <span class="n">SpriteGroup</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Not much of a difference. Mainly we moved the looping over the sprites from our game to the sprite group class. I think this is a bit cleaner, but it makes testing no easier.</p>
+<p>But we are not done yet. Now, let’s extract a lower level object that we call <code>GameScene</code>.</p>
+<p>The init of the game then changes to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And the tick method changes to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, we defer event handling, updating, and drawing to the game scene.</p>
+<p>The game scene looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It inherits from <code>SpriteGroup</code> so it gets the <code>update</code> and <code>draw</code> “for free”. And the event handling code is extracted from game. (Since the <code>event</code> function does not have access to the game loop, we can’t call <code>loop.quit()</code> to exit, so we instead raise the exception that <code>loop.quit()</code> would have raised. Initially I thought it would be nice if the loop hide the quit mechanism, and so I did not want to expose the exception. That made this part difficult to write, so I reverted that decision. We constantly adapt the design to the current needs. Perhaps hiding was not the right decision? Or perhaps it was. This will do for now.)</p>
+<p>Now that we have a new lower-level object, has testing become any easier?</p>
+<h2 id="slow-progress">Slow progress</h2>
+<p>I feel like this feature we are working on is quite easy to implement. It will just be a couple of lines of code. Yet, here we are many hours into a sprite group refactoring that we are not sure will even pay off. Why? Only so that we can write a test that “allow” us to write those couple of lines that actually implement this feature.</p>
+<p>When we work in an agile way, we constantly change our software, and having a good safety net in the form of a test suite allows us to make changes confidently.</p>
+<p>But if it always takes x minutes to write the test and x/10 minutes to implement the thing, is it really worth it?</p>
+<p>My suspicion and hope is that testing time varies. When a feature requires a design change, things will take a little longer. Wit the new design in place, new features can more easily be added (and tested). Until another design challenge comes a long.</p>
+<h2 id="state-based-testing">State based testing</h2>
+<p>Breakthrough!</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="todo">TODO</h2>
 <ul>
-<li><p>Testing is so fucking hard!</p></li>
-<li><p>I tried sprite group refactoring.</p>
-<p>commit cad62f918a6b47d13c6e5e40f37832b60627ff07 Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Sun Apr 23 10:49:24 2023 +0200</p>
-<pre><code>  Extract SpriteGroup and create all_sprites in game.</code></pre>
-<p>commit 4c366588513a3086605dc01adc24f7df9a7c3f28 Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Sun Apr 23 15:44:44 2023 +0200</p>
-<pre><code>  Sprites can update and draw, but not tick.</code></pre>
-<p>commit 4cc525b5af54a435182b386a7a3a8f29d7199d34 Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Sun Apr 23 15:51:51 2023 +0200</p>
-<pre><code>  Extract GameScene.</code></pre>
-<p>commit faf96f8d02f2b998a94b6f00db984a3760b209c3 (HEAD -&gt; main, origin/main) Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Sun Apr 23 15:58:08 2023 +0200</p>
-<pre><code>  Push game loop exit logic to game scene.</code></pre></li>
-<li><p>I know exactly how to implement this. It’s just one line of code. Why can’t I just do it?</p></li>
 <li><p>Breakthrough: getters to expose state! State based testing!</p>
 <p>commit 285f424514dbde48e82ee75c66f45930ad027ad2 (HEAD -&gt; main) Author: Rickard Lindberg <script type="text/javascript">
 <!--
@@ -94,12 +248,32 @@ h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;
 document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
 // -->
 </script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Tue Apr 25 06:12:28 2023 +0200</p>
-<pre><code>  Test initial state of game scene with state based testing.</code></pre></li>
+<pre><code>  Test initial state of game scene with state based testing.
+
+      #joysticks = {}
+
+          #for event in pygame_events:
+          #    print(event)
+          #    if event.type == pygame.JOYDEVICEADDED:
+          #        joy = pygame.joystick.Joystick(event.device_index)
+          #        joysticks[joy.get_instance_id()] = joy
+          #        print(joy)</code></pre></li>
+</ul>
+<p>&lt;Event(1539-JoyButtonDown {‘joy’: 1, ‘instance_id’: 1, ‘button’: 0})&gt; &lt;Event(1540-JoyButtonUp {‘joy’: 1, ‘instance_id’: 1, ‘button’: 0})&gt; &lt;Event(1536-JoyAxisMotion {‘joy’: 1, ‘instance_id’: 1, ‘axis’: 0, ‘value’: 0.003906369212927641})&gt; &lt;Event(1536-JoyAxisMotion {‘joy’: 1, ‘instance_id’: 1, ‘axis’: 1, ‘value’: -0.003936887722403638})&gt;</p>
+<ul>
+<li><p>TDD did not work for joystick movement. I needed to “feel” what was right. I did it as a spike.</p></li>
+<li><p>Inline event handling.</p></li>
+<li><p>Extract event handler for angle-change-number.</p></li>
+<li><p>Make tests independent of specifics speeds/angles so that they can be adjusted until they feel good without tests failing.</p></li>
+<li><p>This episode: state base testing got me going</p></li>
+<li><p>Next episode: fast flow of features building up to first balloon shooter</p></li>
+<li><p>Next: adding joystick</p></li>
+<li><p>Next: adding score text instead of circles</p></li>
 </ul>
 <h2 id="summary">Summary</h2>
 <p>See you in the next episode!</p>
 ]]></description>
-    <pubDate>Tue, 25 Apr 2023 00:00:00 UT</pubDate>
+    <pubDate>Thu, 04 May 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/agdpp-game-over/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
