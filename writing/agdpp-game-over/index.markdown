@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Game over?'
-date: 2023-05-04
+date: 2023-05-05
 tags: agdpp,draft
 agdpp: true
 ---
@@ -20,7 +20,7 @@ Because there is no way to hit the balloon just yet.
 
 If you play a game where it is game over immediately, would you enjoy it?
 
-Perhaps game over is not right story to work on? It is a solution to the
+Perhaps game over is not the right story to work on? It is a solution to the
 problem that you don't have any arrows to shoot after the first one.
 
 How about if you get a new arrow immediately? So you can just keep firing?
@@ -37,18 +37,38 @@ balloon shooter:
 Let's think about this. For minimal, I don't think we need real graphics. The
 circles convey the idea just fine.
 
+* Balloon moves downwards
+* Arrow can hit balloon
+* Point is given for hit
+* Game over when miss
+* ~~Real graphics instead of circles~~
+
 I'm not sure the balloon needs to move downwards either. The current movement
 pattern is fine.
 
-And we can do something else instead of game over. That leaves us with this:
+* ~~Balloon moves downwards~~
+* Arrow can hit balloon
+* Point is given for hit
+* Game over when miss
+* ~~Real graphics instead of circles~~
+
+And we can do something else instead of game over.
+
+* ~~Balloon moves downwards~~
+* Arrow can hit balloon
+* Point is given for hit
+* ~~Game over when miss~~
+* ~~Real graphics instead of circles~~
+
+That leaves us with this:
 
 * Arrow can hit balloon
 * Point is given for hit
 * New arrow when the current one has been shot
 
 We can always make something smaller. And what we initially thought we needed,
-we don't need. At least yet. When we play the game, we quite quickly find out
-what is needed next. Working software. In the hands of its users.
+we don't need. At least not yet. When we play the game, we quite quickly find
+out what is needed next. Working software. In the hands of its users. Powerful.
 
 Let's work on spawning arrows now so that we can enjoy shooting arrows for a
 longer time without having to restart our game.
@@ -140,7 +160,7 @@ Our game currently looks like this:
     <span class="o">...</span>
 </pre></div>
 </div></div>
-I have an idea how to push much of this logic down one level so that it can
+I have an idea for how to push much of this logic down one level so that it can
 more easily be tested. Let's give it a try.
 
 We keep all our sprites in a list. Managing a list of sprites seems like a good
@@ -239,7 +259,7 @@ The game scene looks like this:
 </pre></div>
 </div></div>
 It inherits from `SpriteGroup` so it gets the `update` and `draw` "for free".
-And the event handling code is extracted from game. (Since the `event` function
+And the event handling code is extracted from game. (Since the `event` method
 does not have access to the game loop, we can't call `loop.quit()` to exit, so
 we instead raise the exception that `loop.quit()` would have raised. Initially
 I thought it would be nice if the loop hide the quit mechanism, and so I did
@@ -266,59 +286,271 @@ But if it always takes x minutes to write the test and x/10 minutes to
 implement the thing, is it really worth it?
 
 My suspicion and hope is that testing time varies. When a feature requires a
-design change, things will take a little longer. Wit the new design in place,
+design change, things will take a little longer. With a new design in place,
 new features can more easily be added (and tested). Until another design
 challenge comes a long.
 
 ## State based testing
 
-Breakthrough!
+Let's see how we can test our lower-level game scene object. It is now
+responsible for some behavior that the balloon shooter class was previously
+responsible for, so we should be able to write some tests that check the same
+behavior.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
+Let's try initial state: the balloon should animate and the arrow should stay
+still. Here are tests for that:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initial state</span>
+<span class="sd">    =============</span>
+
+<span class="sd">    The balloon animates:</span>
+
+<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">    &gt;&gt;&gt; first_position = game.get_balloon_position()</span>
+<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
+<span class="sd">    &gt;&gt;&gt; second_position = game.get_balloon_position()</span>
+<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
+<span class="sd">    False</span>
+
+<span class="sd">    The arrow stays still:</span>
+
+<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">    &gt;&gt;&gt; first_position = game.get_arrow_position()</span>
+<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
+<span class="sd">    &gt;&gt;&gt; second_position = game.get_arrow_position()</span>
+<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
 </pre></div>
 </div></div>
-## TODO
+We create a game scene, query some of its state, update it, query some it its
+state again and make some assertions.
 
-* Breakthrough: getters to expose state! State based testing!
+When we wrote these test at the balloon shooter level, we had to assert that
+circles were drawn in specific locations. In this test, no drawing is involved.
 
-    commit 285f424514dbde48e82ee75c66f45930ad027ad2 (HEAD -> main)
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Tue Apr 25 06:12:28 2023 +0200
+In order for the tests above to work, we have to write getters to expose some
+internal state:
 
-        Test initial state of game scene with state based testing.
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
 
-            #joysticks = {}
+    <span class="o">...</span>
 
-                #for event in pygame_events:
-                #    print(event)
-                #    if event.type == pygame.JOYDEVICEADDED:
-                #        joy = pygame.joystick.Joystick(event.device_index)
-                #        joysticks[joy.get_instance_id()] = joy
-                #        print(joy)
+    <span class="k">def</span> <span class="nf">get_balloon_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
 
-<Event(1539-JoyButtonDown {'joy': 1, 'instance_id': 1, 'button': 0})>
-<Event(1540-JoyButtonUp {'joy': 1, 'instance_id': 1, 'button': 0})>
-<Event(1536-JoyAxisMotion {'joy': 1, 'instance_id': 1, 'axis': 0, 'value': 0.003906369212927641})>
-<Event(1536-JoyAxisMotion {'joy': 1, 'instance_id': 1, 'axis': 1, 'value': -0.003936887722403638})>
+    <span class="k">def</span> <span class="nf">get_arrow_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+</pre></div>
+</div></div>
+These are only used in tests.
 
-* TDD did not work for joystick movement. I needed to "feel" what was right. I
-  did it as a spike.
+For a long time, I was reluctant do this. Mainly because I've been taught that
+objects should not expose internals to the outside world. That is bad object
+oriented design.
 
-* Inline event handling.
+But [James
+writes](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#visible-behavior)
 
-* Extract event handler for angle-change-number.
+> For mutable objects, provide a way for changes in state to be observed,
+> either with a getter method or an event.
 
-* Make tests independent of specifics speeds/angles so that they can be
-  adjusted until they feel good without tests failing.
+So if we don't want to use mocks (which we are practicing), exposing state via
+getters is probably fine.
 
-* This episode: state base testing got me going
+One thing that we are not testing with these new tests is that the balloon and
+the arrow are actually drawn at the positions that are returned by the getters.
 
-* Next episode: fast flow of features building up to first balloon shooter
+We could probably write tests where we call the draw method as well and observe
+`DRAW_CIRCLE` events and see that they match. But I think the trade off is not
+worth it in this case. We still have the top-level tests that check that
+things are drawn on the screen, and the likelihood that we don't draw at the
+position that the getter returns is quite small I think.
 
-* Next: adding joystick
+Anyway, now that we are (mostly) fine with writing getters to expose internal
+state, testing should be a little smoother.
 
-* Next: adding score text instead of circles
+## Tests for new arrow behavior
+
+Let's start with the initial state. We introduce the concept of flying arrows
+(arrows that have been shot) and check that there aren't any in the beginning:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+We make it work like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">get_flying_arrows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">()</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+We also add the `get_sprites` getter in the `SpriteGroup` class. Again, this
+getter is only used in tests. This bothers me again. Not that it is only used
+in tests, but that this feels like bad object oriented design. Perhaps it would
+be cleaner it the sprite group only provided a `get_count` method? Or something
+more specific instead of just exposing its internal collection.
+
+But we are fine with exposing internal state for testing purposes. So we don't
+think too much about it now. But let's keep it in the back of our minds for the
+future.
+
+Let's move on to shooting so that we get some flying arrows. Here is the test:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">&gt;&gt;&gt; initial_position = game.get_arrow_position()</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
+<span class="sd">&gt;&gt;&gt; game.update(10)</span>
+
+<span class="sd">It makes the arrow fire:</span>
+
+<span class="sd">&gt;&gt;&gt; flying = game.get_flying_arrows()</span>
+<span class="sd">&gt;&gt;&gt; len(flying)</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; flying[0].get_position() == initial_position</span>
+<span class="sd">False</span>
+
+<span class="sd">The initial arrow stays the same:</span>
+
+<span class="sd">&gt;&gt;&gt; game.get_arrow_position() == initial_position</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+We simulate a shot by sending a space keydown event followed by an update. We
+assert that we now have a flying arrow and that its position is not the
+original position of the arrow (it has moved). Furthermore we assert that the
+current arrow position is the same as the initial meaning that we still have an
+arrow that we can shoot.
+
+The implementation: change the event handler for keydown space from this
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+</pre></div>
+</div></div>
+to this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div></div>
+So the arrow that we shoot actually stays the same and we create a new arrow
+instance which will be the one shot.
+
+At this point we can actually shoot multiple arrows in the game:
+
+<center>
+![Multiple arrows.](multiple-arrows.png)
+</center>
+
+## Remove behavior
+
+We are almost there. But if we keep running the game for long enough, we will
+get an out of memory error. So we need to remove arrows that go outside the
+screen.
+
+We write this test:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
+<span class="sd">&gt;&gt;&gt; game.update(10000)</span>
+<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+If we decrease the number in `update` the flying arrows collection will not be
+empty because the arrow that we shoot has not had time to fly off screen yet.
+
+We make this test pass by overriding the `update` method of the sprite group
+and doing the collision detection to remove flying arrows outside the screen:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div></div>
+Now the `get_sprites` method that we wrote before, for testing purposes, comes
+in handy. Iterating over sprites in a collection seems like a reasonable
+behavior. I still don't think we should expose the internal collection. That is
+bad. But we could expose some kind of iterator.
+
+Oh, and to remove the sprite, we actually reach into the fields of the flying
+arrows group and call it's `remove` method. Yikes. But the tests pass. Let's
+commit and see if we can improve this.
+
+We come up wit this instead:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
+</pre></div>
+</div></div>
+`x` is not a very meaningful name, so we call it `arrow` instead. Then we call
+a new `remove` method on the sprite group. No more reaching into internal
+fields and modifying them.
+
+The sprite group looks like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SpriteGroup</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+</pre></div>
+</div></div>
+We also ensure that `get_sprites` returns a new list so that the internal list
+is never exposed. This has two benefits:
+
+1. The sprite group is in control of its own collection. No one on the outside
+   can modify it.
+
+2. It is safe to call `remove` at any time. Before we removed sprites from the
+   collection we were iterating over. That is, in general, is a bad idea.
+
+I didn't cover how the collision detection works or what `space` is. If you are
+curious, check out the details in [this
+commit](https://github.com/rickardlindberg/agdpp/commit/4956769829b3426c9f0bb3fbe48ccde3150ca5a7).
+The complete source code from this episode is on
+[GitHub](https://github.com/rickardlindberg/agdpp/tree/shoot-multiple-arrows).
 
 ## Summary
+
+The big breakthrough in this episode was the realization that it's ok to write
+getters to expose internal state for testing purposes. We saw that one of those
+getters turned out to be useful for the production code as well. I think this
+will make testing easier, and we will try to write as few getters as possible
+and only expose "sane" state. We still want to do good object oriented design.
 
 See you in the next episode!
