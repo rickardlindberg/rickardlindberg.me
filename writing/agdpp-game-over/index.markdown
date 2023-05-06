@@ -1,17 +1,15 @@
 ---
-title: 'DRAFT: Game over?'
-date: 2023-05-05
-tags: agdpp,draft
+title: Game over?
+date: 2023-05-06
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 When we worked on [shooting the
 arrow](/writing/agdpp-shooting-arrow/index.html) we concluded that it was
 tedious to restart the game after each shot. When the arrow goes outside the
-screen, we want the game to be over instead and the arrow reset. Let's work on
-that in this episode.
+screen, we want the game to be over instead and the arrow to be reset. Let's
+work on that in this episode.
 
 ## Do we really need game over?
 
@@ -73,7 +71,7 @@ out what is needed next. Working software. In the hands of its users. Powerful.
 Let's work on spawning arrows now so that we can enjoy shooting arrows for a
 longer time without having to restart our game.
 
-## Acceptance
+## Acceptance criteria
 
 I can think of two test:
 
@@ -81,14 +79,14 @@ I can think of two test:
 * When an arrow goes outside the screen, we stop rendering it
 
 The second test is kind of internal. If we render thousands of arrows outside
-the visible screen, no one will notice. Until there is a performance issue or
-an out of memory crash or something like that.
+the screen, no one will notice. Until there is a performance issue or an out of
+memory crash or something like that.
 
 On the other hand, it makes sense, from a gameplay perspective, to talk about
 arrows going off the screen as being deactivated. Otherwise it might be that
 they come back after a while, but now instead move downwards.
 
-## How to write the test?
+## How to write the tests?
 
 All tests for our game are currently written at the top-level. Here is the test
 that checks for behavior when we press the space key:
@@ -461,7 +459,7 @@ At this point we can actually shoot multiple arrows in the game:
 ![Multiple arrows.](multiple-arrows.png)
 </center>
 
-## Remove behavior
+## Remove arrows outside screen
 
 We are almost there. But if we keep running the game for long enough, we will
 get an out of memory error. So we need to remove arrows that go outside the
@@ -530,8 +528,8 @@ The sprite group looks like this:
         <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
 </pre></div>
 </div></div>
-We also ensure that `get_sprites` returns a new list so that the internal list
-is never exposed. This has two benefits:
+We ensure that `get_sprites` returns a new list so that the internal list is
+never exposed. This has two benefits:
 
 1. The sprite group is in control of its own collection. No one on the outside
    can modify it.
@@ -547,7 +545,7 @@ The complete source code from this episode is on
 
 ## Summary
 
-The big breakthrough in this episode was the realization that it's ok to write
+The big breakthrough in this episode was the realization that it's OK to write
 getters to expose internal state for testing purposes. We saw that one of those
 getters turned out to be useful for the production code as well. I think this
 will make testing easier, and we will try to write as few getters as possible
