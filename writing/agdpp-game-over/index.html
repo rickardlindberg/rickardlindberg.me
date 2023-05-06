@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Game over? | Rickard's personal homepage
+      Game over? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,12 +53,11 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Game over?</h1>
+      <h1>Game over?</h1>
 
-<p><em>Published on  5 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on  6 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>When we worked on <a href="../../writing/agdpp-shooting-arrow/">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow reset. Let’s work on that in this episode.</p>
+<p>When we worked on <a href="../../writing/agdpp-shooting-arrow/">shooting the arrow</a> we concluded that it was tedious to restart the game after each shot. When the arrow goes outside the screen, we want the game to be over instead and the arrow to be reset. Let’s work on that in this episode.</p>
 <h2 id="do-we-really-need-game-over">Do we really need game over?</h2>
 <p>If we implement game over now, there will be game over after every shot. Because there is no way to hit the balloon just yet.</p>
 <p>If you play a game where it is game over immediately, would you enjoy it?</p>
@@ -104,15 +103,15 @@
 </ul>
 <p>We can always make something smaller. And what we initially thought we needed, we don’t need. At least not yet. When we play the game, we quite quickly find out what is needed next. Working software. In the hands of its users. Powerful.</p>
 <p>Let’s work on spawning arrows now so that we can enjoy shooting arrows for a longer time without having to restart our game.</p>
-<h2 id="acceptance">Acceptance</h2>
+<h2 id="acceptance-criteria">Acceptance criteria</h2>
 <p>I can think of two test:</p>
 <ul>
 <li>You get a new arrow when you shoot the current one</li>
 <li>When an arrow goes outside the screen, we stop rendering it</li>
 </ul>
-<p>The second test is kind of internal. If we render thousands of arrows outside the visible screen, no one will notice. Until there is a performance issue or an out of memory crash or something like that.</p>
+<p>The second test is kind of internal. If we render thousands of arrows outside the screen, no one will notice. Until there is a performance issue or an out of memory crash or something like that.</p>
 <p>On the other hand, it makes sense, from a gameplay perspective, to talk about arrows going off the screen as being deactivated. Otherwise it might be that they come back after a while, but now instead move downwards.</p>
-<h2 id="how-to-write-the-test">How to write the test?</h2>
+<h2 id="how-to-write-the-tests">How to write the tests?</h2>
 <p>All tests for our game are currently written at the top-level. Here is the test that checks for behavior when we press the space key:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -445,7 +444,7 @@
 <center>
 <img src="multiple-arrows.png" title="fig:" alt="Multiple arrows." />
 </center>
-<h2 id="remove-behavior">Remove behavior</h2>
+<h2 id="remove-arrows-outside-screen">Remove arrows outside screen</h2>
 <p>We are almost there. But if we keep running the game for long enough, we will get an out of memory error. So we need to remove arrows that go outside the screen.</p>
 <p>We write this test:</p>
 <div class="rliterate-code">
@@ -513,14 +512,14 @@
 </div>
 </div>
 </div>
-<p>We also ensure that <code>get_sprites</code> returns a new list so that the internal list is never exposed. This has two benefits:</p>
+<p>We ensure that <code>get_sprites</code> returns a new list so that the internal list is never exposed. This has two benefits:</p>
 <ol type="1">
 <li><p>The sprite group is in control of its own collection. No one on the outside can modify it.</p></li>
 <li><p>It is safe to call <code>remove</code> at any time. Before we removed sprites from the collection we were iterating over. That is, in general, is a bad idea.</p></li>
 </ol>
 <p>I didn’t cover how the collision detection works or what <code>space</code> is. If you are curious, check out the details in <a href="https://github.com/rickardlindberg/agdpp/commit/4956769829b3426c9f0bb3fbe48ccde3150ca5a7">this commit</a>. The complete source code from this episode is on <a href="https://github.com/rickardlindberg/agdpp/tree/shoot-multiple-arrows">GitHub</a>.</p>
 <h2 id="summary">Summary</h2>
-<p>The big breakthrough in this episode was the realization that it’s ok to write getters to expose internal state for testing purposes. We saw that one of those getters turned out to be useful for the production code as well. I think this will make testing easier, and we will try to write as few getters as possible and only expose “sane” state. We still want to do good object oriented design.</p>
+<p>The big breakthrough in this episode was the realization that it’s OK to write getters to expose internal state for testing purposes. We saw that one of those getters turned out to be useful for the production code as well. I think this will make testing easier, and we will try to write as few getters as possible and only expose “sane” state. We still want to do good object oriented design.</p>
 <p>See you in the next episode!</p>
 
       <hr>
