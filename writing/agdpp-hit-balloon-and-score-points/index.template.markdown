@@ -1,5 +1,5 @@
 ---
-title: Arrow can hit balloon and score point
+title: Hit balloon and score points
 date: 2023-05-06
 tags: agdpp,draft
 agdpp: true
@@ -462,5 +462,8 @@ The state based testing approach continues to work well. Tests are easy to
 write, and I don't think the getters that we add to expose internal state are
 too problematic.
 
-In the next episode we will look at how to add a score, after which I think we
-have the first version of a balloon shooter ready. See you then!
+We now have a first version of a balloon shooter game. Now we have to show it
+to our customers, have them play it, gather feedback, and keep improving. One
+story at a time.
+
+See you in the next episode!
