@@ -1,25 +1,25 @@
 ---
-title: Arrow can hit balloon
+title: Arrow can hit balloon and score point
 date: 2023-05-06
 tags: agdpp,draft
 agdpp: true
 ---
 
-We have two stories left before we think we have a first version of a balloon
-shooter game:
+We have two stories left before we think we have a first, minimal version of a
+balloon shooter game:
 
 * Arrow can hit balloon
 * Point is given for hit
 
-In this episode we will work on making an arrow hit a balloon.
+In this episode we will work on both of them. We will start with collision
+detection between arrow and balloon.
 
-## Acceptance criteria
+## Clarify behavior with test
 
-What do we mean by arrow can hit balloon?
-
-* balloon disappears after hit?
-
-## The test
+To clarify what we mean by arrow can hit balloon, we want to write a test first
+that shows the lacking behavior. Then implement the thing. So we use the test
+both as a design tool to figure out what we are actually going to implement and
+as a testing tool to verify that behavior.
 
 Our game scene object currently inits like this:
 
@@ -139,7 +139,11 @@ $:END
 We place the arrow at the center of the balloon, invoke the collision detection
 code with update, and assert that there are no longer any balloons.
 
-## Implementing arrow hit
+## Implement arrow hit
+
+In the game update, we already loop over the arrows to remove the ones that are
+outside the screen. We add a loop that checks if any arrow hits any of the
+balloons. If so, we remove that balloon:
 
 $:output:python:
 class GameScene(SpriteGroup):
@@ -155,6 +159,8 @@ class GameScene(SpriteGroup):
     ...
 $:END
 
+We add `hits_baloon` to arrow:
+
 $:output:python:
 class Arrow:
 
@@ -164,6 +170,8 @@ class Arrow:
     ...
 $:END
 
+And implement `inside` in balloon like this:
+
 $:output:python:
 class Balloon:
 
@@ -172,6 +180,28 @@ class Balloon:
 
     ...
 $:END
+
+This is a bit of a trick in OOP that I learned some time ago that I'm not sure
+what I think about. Let me explain.
+
+We could have written the test like this instead:
+
+$:output:python:
+if balloon.inside(arrow.x, arrow.y):
+    self.balloons.remove(balloon)
+$:END
+
+But then the game scene object would have to reach into the arrow object to
+access the x and y coordinates.
+
+With `hits_baloon` we introduce one more step in the chain where the arrow
+itself pass its coordinates along to `inside`. No need to expose them to the
+outside.
+
+I like this because objects can expose less details about themselves. I dislike
+this because I think the code sometimes becomes a little harder to read. I
+guess the solution is good naming. And I think `arrow.hits_balloon(balloon)`
+reads pretty well.
 
 ## Demo trick
 
@@ -183,20 +213,20 @@ We had a situation like this [before](/writing/agdpp-shooting-arrow/index.html)
 where you shot the arrow and you could only get a new one by restarting the
 game.
 
-One trick I used when I demoed this for this customer was to run the game in a
+One trick I used when I demoed this for the customer was to run the game in a
 loop like this:
 
     $ while true; do ./zero.py rundev; done
 
-So when you have no more arrow to shoot or no more balloons to hit, you close
+So when you have no more arrows to shoot or no more balloons to hit, you close
 the game window and a new one will immediately pop up.
 
 That way, it is a little smoother to gather feedback on the current game
 functionality.
 
-We fixed so that you get more arrows to shoot, let's also fix so that a new
-balloon is spawned after one is hit so we don't need to restart the game in a
-loop anymore.
+We fixed so that you get more arrows to shoot before. Let's also fix so that a
+new balloon is spawned after one is hit so we don't need to restart the game in
+a loop anymore.
 
 ## Primitive obsession refactoring
 
@@ -204,7 +234,7 @@ Before we start adding new functionality, let's have a look at the code and see
 if there is anything that we can improve to make it more clear and make the
 future a little smoother.
 
-One thing I notice is that we are not passing around (x, y) coordinates in a
+One thing I notice is that we are passing around (x, y) coordinates in a
 lot of places, and objects keep track of the x and y coordinates. Here is the
 balloon class for example:
 
@@ -273,6 +303,20 @@ class Point:
     ...
 $:END
 
+If we are concerned about the performance of the square root, we could write
+`inside` like this (equivalent to what we had before):
+
+$:output:python:
+class Balloon:
+
+    def inside(self, position):
+        return self.position.distance_squared_to(position) <= self.radius**2
+
+    ...
+$:END
+
+I think this reads a little worse, and we don't have performance issues yet.
+
 What usually happens when you extract a concept like the point is that it
 starts attracting new functionality. Suddenly, there is a logical place to
 implement something instead of spreading it across the code base.
@@ -339,7 +383,78 @@ $:END
 This now works, but it is a little hard to actually notice that we hit a
 balloon. It should be more clear if we include a score.
 
-## TODO: add score?
+## Add score
+
+We have a place in the code where we have hit a balloon. When that happens we
+would also like to increase a score. What is the simplest implementation of
+that?
+
+What if we just maintain a list of sprites where each sprites represents a
+point? Let's see.
+
+$:output:python:
+class GameScene(SpriteGroup):
+
+    ...
+
+    def __init__(self, space, balloons=[(50, 50)], arrows=[]):
+        ...
+        self.points = self.add(SpriteGroup())
+
+    def update(self, dt):
+        ...
+        for arrow in self.flying_arrows.get_sprites():
+            ...
+            for balloon in self.balloons.get_sprites():
+                if arrow.hits_baloon(balloon):
+                    ...
+                    self.points.add(PointMarker(position=Point(x=700, y=50+len(self.points.get_sprites())*10)))
+$:END
+
+We use the length of the points sprites to calculate that position of the next
+point marker.
+
+We also add a getter for the points so that we can test this behavior:
+
+$:output:python:
+class GameScene(SpriteGroup):
+
+    ...
+
+    def get_points(self):
+        return self.points.get_sprites()
+$:END
+
+And here is the `PointMarker` that draws a circle at the given position:
+
+$:output:python:
+class PointMarker:
+
+    def __init__(self, position):
+        self.position = position
+
+    def update(self, dt):
+        pass
+
+    def draw(self, loop):
+        loop.draw_circle(position=self.position, radius=5, color="yellow")
+$:END
+
+This is what it looks like after a few balloons have been hit:
+
+<center>
+![Point markers.](points.png)
+</center>
+
+When I showed this to my son, he thought it was a little fun when point markers
+appeared on the screen. He also wanted to make the point markers go all across
+the screen, and also wanted me to count how many points we had about half way
+through. I don't like counting, so we probably need a better solution for
+displaying points. We make a note about that.
+
+If you want to try this version or look at the complete source code from this
+episode, it is on
+[GitHub](https://github.com/rickardlindberg/agdpp/tree/hit-balloon-and-score-points).
 
 ## Summary
 
