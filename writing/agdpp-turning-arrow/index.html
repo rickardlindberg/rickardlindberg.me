@@ -62,11 +62,73 @@
 <center>
 <img src="points.png" title="fig:" alt="Arrow shooting straight." />
 </center>
-<p>When I play the game now, I feel like I want to turn the arrow. I think that will make the game a little more fun. Then you have to control both angle and timing instead of just timing to hit a balloon.</p>
-<h2 id="approach">Approach</h2>
-<ul>
-<li>refactor first to make the implementation easy</li>
-</ul>
+<p>When I play the game now, I want to turn the arrow. I think that will make the game a little more fun. Then you have to control both angle and timing instead of just timing to hit a balloon. (If we implement that balloons fall downwards instead, turning will also be necessary to hit balloons that are not straight above the arrow.)</p>
+<h2 id="how-does-arrow-movement-work">How does arrow movement work?</h2>
+<p>Arrows move first when we press the space key to shoot. Then we create a new arrow and set its shooting attribute to true:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>An arrow that has the shooting attribute set to true moves like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, it moves straight up in increments of <code>dt</code>. There is no concept of direction yet.</p>
+<p>What we would like to have is some kind of direction attribute on the arrow that we can change. When we shoot, the arrow that we create should get that direction attribute so that it flies in the same direction that we aimed.</p>
+<p>Let’s see if we can refactor towards that.</p>
+<h2 id="clone-shooting">Clone shooting</h2>
+<p>We start by creating a method <code>clone_shooting</code> on the arrow that should return a copy of itself (including all attributes) and have the shooting attribute set to true:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We modify how a flying arrow is added like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">- self.flying_arrows.add(Arrow(shooting=True))</span>
+<span class="gi">+ self.flying_arrows.add(self.arrow.clone_shooting())</span>
+</pre>
+</div>
+</div>
+</div>
+<p>One change here is that we also clone the arrows position attribute. The position of the arrow is always the same. Only when we shoot it it changes. But should we choose to move the arrow to a different start position, the code now takes that into account and places shooting arrows at the right start positions.</p>
+<p>I think this is still a pure refactoring. There is no change in visible behavior, but the code is more robust because we can now change the start position of the arrow, and it will shoot from the right position without we having to modify any other piece of code. The design is better.</p>
+<h2 id="work-towards-arrow-velocity">Work towards arrow velocity</h2>
+<h2 id="derive-velocity-from-angle">Derive velocity from angle</h2>
+<h2 id="base-drawing-on-angle">Base drawing on angle</h2>
+<h2 id="changing-angle-with-leftright">Changing angle with left/right</h2>
 <h2 id="result">Result</h2>
 <center>
 <img src="turning-arrow.png" title="fig:" alt="Turning arrow." />
@@ -75,6 +137,14 @@
 <p>Full source code from this episode on <a href="https://github.com/rickardlindberg/agdpp/tree/turning-arrow">GitHub</a>.</p>
 <p>See you in the next episode!</p>
 <h1 id="todo">TODO</h1>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>
+</pre>
+</div>
+</div>
+</div>
 <pre><code>commit b08065975c2233f27916a049c75529d1be3295c5
 Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
 Date:   Thu Apr 27 07:03:44 2023 +0200
