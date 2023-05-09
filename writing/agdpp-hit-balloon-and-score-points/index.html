@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Hit balloon and score points | Rickard's personal homepage
+      Hit balloon and score points | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Hit balloon and score points</h1>
+      <h1>Hit balloon and score points</h1>
 
-<p><em>Published on  8 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on  9 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>We have two stories left before we think we have a first, minimal version of a balloon shooter game:</p>
 <ul>
 <li>Arrow can hit balloon</li>
@@ -65,7 +64,7 @@
 </ul>
 <p>In this episode we will work on both of them. We will start with collision detection between arrow and balloon.</p>
 <h2 id="clarify-behavior-with-test">Clarify behavior with test</h2>
-<p>To clarify what we mean by arrow can hit balloon, we want to write a test first that shows the lacking behavior. Then implement the thing. So we use the test both as a design tool to figure out what we are actually going to implement and as a testing tool to verify that behavior.</p>
+<p>To clarify what we mean by arrow can hit balloon, we want to write a test first that shows the lacking behavior. Then implement the thing. We use the test both as a design tool to figure out what we are actually going to implement and as a testing tool to verify that behavior.</p>
 <p>Our game scene object currently inits like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -124,7 +123,7 @@
 </div>
 </div>
 </div>
-<p>That is, we make it possible the create a game scene object where we specify where all the balloons should be and where all the flying arrows should be. We also change the balloon from a single object to a sprite group. This is not strictly necessary, but it will make removing hit balloons easier. The default values for the balloons and arrows mimics the current default. We have one balloon that starts at (50, 50) and zero flying arrows.</p>
+<p>That is, we make it possible to create a game scene object where we specify where all the balloons should be and where all the flying arrows should be. We also change the balloon from a single object to a sprite group. This is not strictly necessary, but it will make removing hit balloons easier. The default values for the balloons and arrows mimics the current default. We have one balloon that starts at (50, 50) and zero flying arrows.</p>
 <p>Here is the test that checks initial state:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -244,18 +243,25 @@
 </div>
 <p>But then the game scene object would have to reach into the arrow object to access the x and y coordinates.</p>
 <p>With <code>hits_baloon</code> we introduce one more step in the chain where the arrow itself pass its coordinates along to <code>inside</code>. No need to expose them to the outside.</p>
-<p>I like this because objects can expose less details about themselves. I dislike this because I think the code sometimes becomes a little harder to read. I guess the solution is good naming. And I think <code>arrow.hits_balloon(balloon)</code> reads pretty well.</p>
+<p>I like this because objects can expose less details about themselves. I dislike this because I think the code sometimes becomes a little harder to read. I guess the solution is good naming. And I think <code>arrow.hits_baloon(balloon)</code> reads pretty well.</p>
 <h2 id="demo-trick">Demo trick</h2>
-<p>The game works and if we manage to hit a balloon, it disappears. Again, bummer. We can shoot infinitely many arrows, but if there is no more balloons to hit, the game is not that interesting.</p>
+<p>The game works and if we manage to hit a balloon, it disappears. Again, bummer. We can shoot infinitely many arrows, but if there are no more balloons to hit, the game is not that interesting.</p>
 <p>We had a situation like this <a href="../../writing/agdpp-shooting-arrow/">before</a> where you shot the arrow and you could only get a new one by restarting the game.</p>
 <p>One trick I used when I demoed this for the customer was to run the game in a loop like this:</p>
-<pre><code>$ while true; do ./zero.py rundev; done</code></pre>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ <span class="k">while</span> true<span class="p">;</span> <span class="k">do</span> ./zero.py rundev<span class="p">;</span> <span class="k">done</span>
+</pre>
+</div>
+</div>
+</div>
 <p>So when you have no more arrows to shoot or no more balloons to hit, you close the game window and a new one will immediately pop up.</p>
 <p>That way, it is a little smoother to gather feedback on the current game functionality.</p>
 <p>We fixed so that you get more arrows to shoot before. Let’s also fix so that a new balloon is spawned after one is hit so we don’t need to restart the game in a loop anymore.</p>
 <h2 id="primitive-obsession-refactoring">Primitive obsession refactoring</h2>
 <p>Before we start adding new functionality, let’s have a look at the code and see if there is anything that we can improve to make it more clear and make the future a little smoother.</p>
-<p>One thing I notice is that we are passing around (x, y) coordinates in a lot of places, and objects keep track of the x and y coordinates. Here is the balloon class for example:</p>
+<p>One thing that I notice is that we are passing around (x, y) coordinates in a lot of places, and objects keep track of the x and y coordinates. Here is the balloon class for example:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -274,7 +280,7 @@
 </div>
 </div>
 </div>
-<p>This smell is called primitive obsession. It is when you pass around primitive objects (integers, strings encoding information, etc) instead of an abstraction. That leads to lots of duplicated logic. Say for example that we want to move an object, we might do something like this:</p>
+<p>This smell is called primitive obsession. It is when you pass around primitive objects (integers, strings encoding information, etc) instead of an abstraction. That leads to duplicated logic. Say for example that we want to move an object, we might do something like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -298,7 +304,7 @@
 </div>
 </div>
 </div>
-<p>We refactor in small tiny steps to make use of this point.</p>
+<p>We refactor in small, tiny steps to make use of this point.</p>
 <p>Eventually, the inside check in the balloon looks like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -314,7 +320,7 @@
 </div>
 </div>
 <p>We are no longer dealing with separate x and y coordinates. We are dealing with positions.</p>
-<p>A big chunk of the hit test has also move into the new point class:</p>
+<p>A big chunk of the hit test has also moved into the new point class:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -343,10 +349,10 @@
 </div>
 </div>
 <p>I think this reads a little worse, and we don’t have performance issues yet.</p>
-<p>What usually happens when you extract a concept like the point is that it starts attracting new functionality. Suddenly, there is a logical place to implement something instead of spreading it across the code base.</p>
-<p>Another benefit of this abstraction is that we can now more easily test the behavior of <code>distance_to</code> in isolation. No need to involve balloons and arrows.</p>
-<h2 id="spawning-new-balloons">Spawning new balloons</h2>
-<p>So it’s no fun the play the game after you hit the balloon, because then there are no more balloons to hit. We want to spawn a new balloon.</p>
+<p>What usually happens when you extract a concept like this point is that it starts attracting new functionality. Suddenly, there is a logical place to implement something instead of spreading it across the code base.</p>
+<p>Another benefit of this abstraction is that we can now more easily test the behavior of <code>distance_to</code> in isolation. No need to involve a balloon.</p>
+<h2 id="spawn-new-balloons">Spawn new balloons</h2>
+<p>So it’s no fun to play the game after you hit the balloon, because then there are no more balloons to hit. We want to spawn new balloons.</p>
 <p>We need to modify our test. It looks like this now:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -363,7 +369,7 @@
 </div>
 </div>
 </div>
-<p>We don’t want the balloon list to be empty. We still want it to contain a balloon. But not the balloon that we just shot down, another one.</p>
+<p>We don’t want the balloon list to be empty. We still want it to contain a balloon. But not the balloon that we just shot down, but another one.</p>
 <p>I think we can do it like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -384,7 +390,7 @@
 </div>
 </div>
 </div>
-<p>The fix is easy, just add another balloon after the one that has been shot down has been removed:</p>
+<p>We can make the test pass by adding another balloon after the one that has been shot down has been removed:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -431,7 +437,7 @@
 </div>
 </div>
 </div>
-<p>We use the length of the points sprites to calculate that position of the next point marker.</p>
+<p>We use the length of the point sprites to calculate the position of the next point marker.</p>
 <p>We also add a getter for the points so that we can test this behavior:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -468,7 +474,7 @@
 <center>
 <img src="points.png" title="fig:" alt="Point markers." />
 </center>
-<p>When I showed this to my son, he thought it was a little fun when point markers appeared on the screen. He also wanted to make the point markers go all across the screen, and also wanted me to count how many points we had about half way through. I don’t like counting, so we probably need a better solution for displaying points. We make a note about that.</p>
+<p>When I showed this to my son, he thought it was a little fun when point markers appeared on the screen. He also wanted to make the point markers go all across the screen, and also wanted me to count how many points we had about half way through. I don’t like counting small yellow circles, so we probably need a better solution for displaying points. We make a note about that.</p>
 <p>If you want to try this version or look at the complete source code from this episode, it is on <a href="https://github.com/rickardlindberg/agdpp/tree/hit-balloon-and-score-points">GitHub</a>.</p>
 <h2 id="summary">Summary</h2>
 <p>The state based testing approach continues to work well. Tests are easy to write, and I don’t think the getters that we add to expose internal state are too problematic.</p>
