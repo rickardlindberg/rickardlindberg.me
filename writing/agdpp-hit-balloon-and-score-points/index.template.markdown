@@ -1,7 +1,7 @@
 ---
 title: Hit balloon and score points
-date: 2023-05-06
-tags: agdpp,draft
+date: 2023-05-09
+tags: agdpp
 agdpp: true
 ---
 
@@ -17,7 +17,7 @@ detection between arrow and balloon.
 ## Clarify behavior with test
 
 To clarify what we mean by arrow can hit balloon, we want to write a test first
-that shows the lacking behavior. Then implement the thing. So we use the test
+that shows the lacking behavior. Then implement the thing. We use the test
 both as a design tool to figure out what we are actually going to implement and
 as a testing tool to verify that behavior.
 
@@ -79,7 +79,7 @@ class GameScene(SpriteGroup):
     ...
 $:END
 
-That is, we make it possible the create a game scene object where we specify
+That is, we make it possible to create a game scene object where we specify
 where all the balloons should be and where all the flying arrows should be. We
 also change the balloon from a single object to a sprite group. This is not
 strictly necessary, but it will make removing hit balloons easier. The default
@@ -200,13 +200,13 @@ outside.
 
 I like this because objects can expose less details about themselves. I dislike
 this because I think the code sometimes becomes a little harder to read. I
-guess the solution is good naming. And I think `arrow.hits_balloon(balloon)`
+guess the solution is good naming. And I think `arrow.hits_baloon(balloon)`
 reads pretty well.
 
 ## Demo trick
 
 The game works and if we manage to hit a balloon, it disappears. Again, bummer.
-We can shoot infinitely many arrows, but if there is no more balloons to hit,
+We can shoot infinitely many arrows, but if there are no more balloons to hit,
 the game is not that interesting.
 
 We had a situation like this [before](/writing/agdpp-shooting-arrow/index.html)
@@ -216,7 +216,9 @@ game.
 One trick I used when I demoed this for the customer was to run the game in a
 loop like this:
 
-    $ while true; do ./zero.py rundev; done
+$:output:bash:
+$ while true; do ./zero.py rundev; done
+$:END
 
 So when you have no more arrows to shoot or no more balloons to hit, you close
 the game window and a new one will immediately pop up.
@@ -234,7 +236,7 @@ Before we start adding new functionality, let's have a look at the code and see
 if there is anything that we can improve to make it more clear and make the
 future a little smoother.
 
-One thing I notice is that we are passing around (x, y) coordinates in a
+One thing that I notice is that we are passing around (x, y) coordinates in a
 lot of places, and objects keep track of the x and y coordinates. Here is the
 balloon class for example:
 
@@ -254,8 +256,8 @@ $:END
 
 This smell is called primitive obsession. It is when you pass around primitive
 objects (integers, strings encoding information, etc) instead of an
-abstraction. That leads to lots of duplicated logic. Say for example that we
-want to move an object, we might do something like this:
+abstraction. That leads to duplicated logic. Say for example that we want to
+move an object, we might do something like this:
 
 $:output:python:
 self.x += 1
@@ -276,7 +278,7 @@ class Point:
         self.y = y
 $:END
 
-We refactor in small tiny steps to make use of this point.
+We refactor in small, tiny steps to make use of this point.
 
 Eventually, the inside check in the balloon looks like this:
 
@@ -292,7 +294,7 @@ $:END
 We are no longer dealing with separate x and y coordinates. We are dealing with
 positions.
 
-A big chunk of the hit test has also move into the new point class:
+A big chunk of the hit test has also moved into the new point class:
 
 $:output:python:
 class Point:
@@ -317,17 +319,17 @@ $:END
 
 I think this reads a little worse, and we don't have performance issues yet.
 
-What usually happens when you extract a concept like the point is that it
+What usually happens when you extract a concept like this point is that it
 starts attracting new functionality. Suddenly, there is a logical place to
 implement something instead of spreading it across the code base.
 
 Another benefit of this abstraction is that we can now more easily test the
-behavior of `distance_to` in isolation. No need to involve balloons and arrows.
+behavior of `distance_to` in isolation. No need to involve a balloon.
 
-## Spawning new balloons
+## Spawn new balloons
 
-So it's no fun the play the game after you hit the balloon, because then there
-are no more balloons to hit. We want to spawn a new balloon.
+So it's no fun to play the game after you hit the balloon, because then there
+are no more balloons to hit. We want to spawn new balloons.
 
 We need to modify our test. It looks like this now:
 
@@ -343,7 +345,7 @@ $:output:python:
 $:END
 
 We don't want the balloon list to be empty. We still want it to contain a
-balloon. But not the balloon that we just shot down, another one.
+balloon. But not the balloon that we just shot down, but another one.
 
 I think we can do it like this:
 
@@ -362,8 +364,8 @@ False
 """
 $:END
 
-The fix is easy, just add another balloon after the one that has been shot down
-has been removed:
+We can make the test pass by adding another balloon after the one that has been
+shot down has been removed:
 
 $:output:python:
 class GameScene(SpriteGroup):
@@ -411,7 +413,7 @@ class GameScene(SpriteGroup):
                     self.points.add(PointMarker(position=Point(x=700, y=50+len(self.points.get_sprites())*10)))
 $:END
 
-We use the length of the points sprites to calculate that position of the next
+We use the length of the point sprites to calculate the position of the next
 point marker.
 
 We also add a getter for the points so that we can test this behavior:
@@ -449,8 +451,8 @@ This is what it looks like after a few balloons have been hit:
 When I showed this to my son, he thought it was a little fun when point markers
 appeared on the screen. He also wanted to make the point markers go all across
 the screen, and also wanted me to count how many points we had about half way
-through. I don't like counting, so we probably need a better solution for
-displaying points. We make a note about that.
+through. I don't like counting small yellow circles, so we probably need a
+better solution for displaying points. We make a note about that.
 
 If you want to try this version or look at the complete source code from this
 episode, it is on
