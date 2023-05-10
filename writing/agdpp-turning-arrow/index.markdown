@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Turning arrow'
-date: 2023-05-09
+date: 2023-05-10
 tags: agdpp,draft
 agdpp: true
 ---
@@ -88,40 +88,225 @@ having to modify any other piece of code. The design is better.
 
 ## Work towards arrow velocity
 
+Next we take a small step towards having an arrow velocity. We change the
+update method to this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span>
+</pre></div>
+</div></div>
+Our relatively new `Point` class attracts more and more behavior. Here we added
+the `add` method:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; Point(0, 5).add(Point(1, 1))</span>
+<span class="sd">        Point(1, 6)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div></div>
 ## Derive velocity from angle
 
+Now we could modify the velocity of the arrow and the update method would move
+it in the right direction.
+
+However, I think it is better if we have a concept of an arrow angle that we
+can adjust left and right. That would fit our use case better.
+
+We add and angle attribute to the arrow and derive the velocity vector from it:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shooting</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">90</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+The `Point` class again attracts functionality for converting angles to a unit
+vector (length one) and for magnifying vectors:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_angle</span><span class="p">(</span><span class="n">degrees</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(-90)</span>
+<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
+<span class="sd">        0</span>
+<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
+<span class="sd">        -1</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(0)</span>
+<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
+<span class="sd">        1</span>
+<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
+<span class="sd">        0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)),</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnification</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; Point(1, 5).times(2)</span>
+<span class="sd">        Point(2, 10)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">magnification</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">magnification</span><span class="p">)</span>
+</pre></div>
+</div></div>
 ## Base drawing on angle
+
+The arrow now moves correctly based on the angle, but it doesn't draw its three
+circles correctly. It looks like this now:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div></div>
+That is, it draws the second two circles by moving them downwards, assuming
+that the arrow is pointing up.
+
+Let's instead draw them offset by the opposite direction of what the arrow
+points:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div></div>
+We get the reverse angle by turning it 180 degrees.
+
+Perhaps angle is another case of primitive obsession. If we had an angle class,
+we could have a `reverse` method that did this and we would no longer be
+required to know about degrees (the angle could be implemented with radians
+instead for example). We make a note about that.
+
+Anyway, we can change the angle attribute of the arrow and it will fly in the
+right direction and draw correctly. Now there is only one thing left: control
+the angle with arrow keys.
 
 ## Changing angle with left/right
 
+Here is the test we write for changing arrow angle:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
+<span class="sd">-90</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_left())</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
+<span class="sd">-95</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_right())</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
+<span class="sd">-90</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+For this to work we need to create new event wrappers for keydown left/right
+and add a getter to expose the arrow angle. We have done that before. Same
+procedure this time.
+
+We make it pass by handling the events and changing the angle:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">()</span>
+</pre></div>
+</div></div>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">angle_left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">-=</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">angle_right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+=</span> <span class="mi">5</span>
+</pre></div>
+</div></div>
+This almost works, but when we turn and arrow and shoot it, it still goes
+straight up. We need to fix the `clone_shooting` method to also clone the
+angle.
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It preserves position and angle and set it to shooting:</span>
+
+<span class="sd">        &gt;&gt;&gt; arrow = Arrow(position=Point(x=5, y=5), angle=-45)</span>
+<span class="sd">        &gt;&gt;&gt; new_arrow = arrow.clone_shooting()</span>
+<span class="sd">        &gt;&gt;&gt; new_arrow.get_position()</span>
+<span class="sd">        (5, 5)</span>
+<span class="sd">        &gt;&gt;&gt; new_arrow.angle</span>
+<span class="sd">        -45</span>
+<span class="sd">        &gt;&gt;&gt; new_arrow.shooting</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
+</pre></div>
+</div></div>
 ## Result
+
+Now we can turn the arrow with left/right keys and shoot it in different
+directions. It looks like this:
 
 <center>
 ![Turning arrow.](turning-arrow.png)
 </center>
 
-## Summary
-
-Full source code from this episode on
+If you want to try it out, the full source code from this episode on
 [GitHub](https://github.com/rickardlindberg/agdpp/tree/turning-arrow).
 
+## Summary
+
+Testing continues to go smooth with state based testing and getters to expose
+internal state.
+
+What I like to do after implementing a feature it to take a break and then come
+back later to review to code for possible improvements. Often times it is small
+things like renaming a variable to make it more clear. In this episode we also
+noted that angle might benefit being wrapped in an abstraction.
+
 See you in the next episode!
-
-# TODO
-
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
-</pre></div>
-</div></div>
-    commit b08065975c2233f27916a049c75529d1be3295c5
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Thu Apr 27 07:03:44 2023 +0200
-
-        Add Arrow.clone_shooting.
-
-    ...
-
-    commit e2f869113c37b91086888d262c22dd4376d47395
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Fri Apr 28 06:51:48 2023 +0200
-
-        Arrow angle can be changed with keys.
