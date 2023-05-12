@@ -1,7 +1,7 @@
 ---
 title: Turning arrow
-date: 2023-05-09
-tags: agdpp,draft
+date: 2023-05-12
+tags: agdpp
 agdpp: true
 ---
 
@@ -78,10 +78,11 @@ $:output:diff:
 + self.flying_arrows.add(self.arrow.clone_shooting())
 $:END
 
-One change here is that we also clone the arrows position attribute. The
-position of the arrow is always the same. Only when we shoot it it changes. But
-should we choose to move the arrow to a different start position, the code now takes
-that into account and places shooting arrows at the right start positions.
+One change here is that we also clone the arrow's position attribute. The
+position of the arrow is always the same. Only when we shoot it, it changes.
+But should we choose to move the arrow to a different start position, the code
+now takes that into account and places shooting arrows at the right start
+positions.
 
 I think this is still a pure refactoring.  There is no change in visible
 behavior, but the code is more robust because we can now change the start
@@ -144,8 +145,8 @@ class Arrow:
     ...
 $:END
 
-The `Point` class again attracts functionality for converting angles to a unit
-vector (length one) and for magnifying vectors:
+The `Point` class again attracts functionality. This time for converting angles
+to unit vectors (vectors of length one) and for magnifying vectors:
 
 $:output:python:
 class Point:
@@ -244,8 +245,8 @@ $:output:python:
 $:END
 
 For this to work we need to create new event wrappers for keydown left/right
-and add a getter to expose the arrow angle. We have done that before. Same
-procedure this time.
+and add a getter to expose the arrow angle. We have done similar things before.
+Same procedure this time.
 
 We make it pass by handling the events and changing the angle:
 
@@ -316,9 +317,10 @@ If you want to try it out, the full source code from this episode on
 Testing continues to go smooth with state based testing and getters to expose
 internal state.
 
-What I like to do after implementing a feature it to take a break and then come
+What I like to do after implementing a feature is to take a break and then come
 back later to review to code for possible improvements. Often times it is small
 things like renaming a variable to make it more clear. In this episode we also
-noted that angle might benefit being wrapped in an abstraction.
+noted that angle might benefit being wrapped in an abstraction. Not sure they
+are too interesting to write about. Let me know if you think otherwise.
 
 See you in the next episode!
