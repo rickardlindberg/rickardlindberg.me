@@ -7,20 +7,23 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 12 May 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 14 May 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Programming a Logitech controller</title>
     <link>http://rickardlindberg.me/writing/agdpp-logitech-controller/</link>
     <description><![CDATA[<h1>DRAFT: Programming a Logitech controller</h1>
 
-<p><em>Published on 12 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 14 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>I recently bought a pair of Logitech Xbox-style controllers that me and my son has used to play Super Tux Kart.</p>
-<p>I want to be able to use those controllers in the balloon shooter as well. My suspicion is that the balloon shooter will feel many times more as a “real” game if we can control it using a real game controller. Even though we are all about having fun here and learning, we still want this to feel like a real game, not some toy example. So let’s get started.</p>
+<p>I recently bought a pair of Logitech Xbox-style controllers that me and my son use to play <a href="https://supertuxkart.net/Main_Page">SuperTuxKart</a>.</p>
+<center>
+<img src="logitech-controller.png" title="fig:" alt="Logitech controller." />
+</center>
+<p>I want to be able to use those controllers in the balloon shooter as well. My suspicion is that the balloon shooter will feel many times more as a “real” game if we can control it using a “real” game controller. Even though we are all about having fun here and learning, we still want this to feel like a real game, not some toy example. So let’s get started.</p>
 <h2 id="learning-about-events">Learning about events</h2>
 <p>How do we capture events from a Logitech controller?</p>
-<p>One way to find out is to print all the events that pygame generates. we can for example do that here:</p>
+<p>One way to find out is to print all the events that pygame generates. We can for example do that in the <code>tick</code> method:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -37,7 +40,7 @@
 </div>
 </div>
 <p>This makes the test suite fail since the print statement is outputting event information that the test does not expect to find.</p>
-<p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the logic of the code, so it should be fine.</p>
+<p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the logic of the game, so it should be fine.</p>
 <p>On the other hand, if we use print statements for debugging, maybe it’s a good thing that out test suite fails so that we are remembered to keep the debug session short and remove it once we are done.</p>
 <p>Anyway, if we run the game now and press keys we can see things like this in the output:</p>
 <div class="rliterate-code">
@@ -53,7 +56,7 @@
 </div>
 <p>So we can clearly see what pygame thinks is happening.</p>
 <p>But when we press a key on the Logitech controller, nothing happens.</p>
-<p>But we see something about a joystick further up:</p>
+<p>However, if we look at the beginning of the event log, we see this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -62,9 +65,164 @@
 </div>
 </div>
 </div>
+<p>So it seems that pygame detects our joystick.</p>
 <h2 id="initializing-joysticks">Initializing joysticks</h2>
-<p>We read about joysticks in the <a href="">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
+<p>We read about joysticks in the <a href="https://www.pygame.org/docs/ref/joystick.html">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
 <p>…</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="n">joysticks</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">pygame_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame_events</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">JOYDEVICEADDED</span><span class="p">:</span>
+                        <span class="n">joy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">Joystick</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">device_index</span><span class="p">)</span>
+                        <span class="n">joysticks</span><span class="p">[</span><span class="n">joy</span><span class="o">.</span><span class="n">get_instance_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">joy</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">game</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+                <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We don’t handle <code>JOYDEVICEREMOVED</code> yet. We probably should, but unless we unplug the controller while running the game, we should be fine.</p>
+<p>This change passes all the tests. However, we are never simulating the <code>JOYDEVICEADDED</code> event, so the code is never executed.</p>
+<p>I think we will get faster feedback by just testing this thing for real. We can come back and describe the joystick handling code in the form of tests later on if we feel the need. And maybe test the <code>JOYDEVICEREMOVED</code> as well.</p>
+<p>Anyway, if we run the game now and press keys on the joystick, we see events like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>...
+</pre>
+</div>
+</div>
+</div>
+<p>I feel an unproportional sense of excitement and joy over this. We can now get input from the Logitech controller. A real game controller! Now it’s just a matter of mapping events to actions in our game.</p>
+<h2 id="isolating-input-handling">Isolating input handling</h2>
+<p>For now we want to be able to play our game with both the keyboard and the Logitech controller. I will most likely use the Logitech controller 99% of the time, but if you don’t have such controller, we still want you to be able to play the game.</p>
+<p>Input handling is therefore something that is starting to become a little complicated. It’s not just a matter of mapping one event to one action.</p>
+<p>Now we have this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is a one to one mapping between events and actions.</p>
+<p>We still want this code to look similar but allow multiple events to generate the same actions.</p>
+<p>Here is what we come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So we pass along events to the input handler, then we query it in the <code>update</code> method, asking it if a shot action as triggered (from either input device), and if so, modify <code>flying_arrows</code> as before. We do something similar for turning the arrow. But instead of asking the input handler if a left/right action was triggered, we ask it for an angle that we should turn the arrow. Since the arrow can be turned with variable speed with the Logitech controller, this makes more sense.</p>
+<p>Before we move on to the input handler, I want to discuss another new thing here which is the bow.</p>
+<h2 id="bow">Bow</h2>
+<p>Instead of doing <code>arrow.angle_*()</code> we do <code>bow.turn(...)</code>. We have extracted a concept called bow.</p>
+<p>Right now it is a wrapper around an arrow, but the idea is that you might want to draw more graphics for the bow.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Bow</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">turn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">()</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I’m not sure bow is the right name. Do we shoot arrows with a bow in our game? Or is it some kind of cannon? I think we need to ask our product owner.</p>
+<p>At the moment we are not doing any drawing except the arrow, so it just acts as a placeholder to attract new functionality. And the concept of a bow makes sense. You need to shoot the arrow with something. And when you shoot, the arrow leaves the bow and goes into the list of flying arrows.</p>
+<h2 id="input-handler">Input handler</h2>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span>
+
+    <span class="k">def</span> <span class="nf">get_turn_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">get_and_reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span> <span class="o">=</span> <span class="n">Angle</span><span class="o">.</span><span class="n">fraction_of_whole</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="mi">2000</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">)</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keyup</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_RIGHT</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keyup</span><span class="p">(</span><span class="n">KEY_RIGHT</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_motion</span><span class="p">()</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="angle-class">Angle class</h2>
+<h2 id="many-refactorings">Many refactorings</h2>
+<ul>
+<li>work towards a nice input handler (mocks vs state based)</li>
+</ul>
 <h2 id="summary">Summary</h2>
 <p>See you in the next episode!</p>
 <h2 id="todo">TODO</h2>
@@ -76,33 +234,21 @@
 </div>
 </div>
 </div>
-<center>
-<img src="negative-x-draw-bug.png" title="fig:" alt="Bug with drawing circles on negative x values." />
-</center>
-<ul>
-<li><p>Joystick</p>
-<ul>
-<li>work towards a nice input handler (mocks vs state based)</li>
-<li>Angle class</li>
-</ul>
-<p>commit 3b17692a64e48fc8712c0c085cdf94e063926251 Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Sat Apr 29 06:08:41 2023 +0200</p>
-<pre><code>  Event looping is done in loop.</code></pre>
-<p>…</p>
-<p>commit 1e6d7ba35e721c591a7246a71af633ccbe17e0df Author: Rickard Lindberg <script type="text/javascript">
-<!--
-h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#32;&#x61;&#116;&#32;&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x65;</noscript> Date: Tue May 2 06:41:55 2023 +0200</p>
-<pre><code>  InputHandler does not now arrow angle, just the turn angle.</code></pre></li>
-</ul>
+<pre><code>commit 3b17692a64e48fc8712c0c085cdf94e063926251
+Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
+Date:   Sat Apr 29 06:08:41 2023 +0200
+
+    Event looping is done in loop.
+
+...
+
+commit 1e6d7ba35e721c591a7246a71af633ccbe17e0df
+Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
+Date:   Tue May 2 06:41:55 2023 +0200
+
+    InputHandler does not now arrow angle, just the turn angle.</code></pre>
 ]]></description>
-    <pubDate>Fri, 12 May 2023 00:00:00 UT</pubDate>
+    <pubDate>Sun, 14 May 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/agdpp-logitech-controller/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
