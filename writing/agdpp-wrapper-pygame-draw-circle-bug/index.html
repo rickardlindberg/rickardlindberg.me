@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: A case for the infrastructure wrapper | Rickard's personal homepage
+      A case for the infrastructure wrapper | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: A case for the infrastructure wrapper</h1>
+      <h1>A case for the infrastructure wrapper</h1>
 
-<p><em>Published on 13 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 14 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>I noticed something strange when playing the game.</p>
 <p>When shooting arrows out the left side of the screen, a blue horizontal line is drawn. It looks something like this:</p>
 <center>
@@ -67,7 +66,7 @@
 <h2 id="troubleshooting">Troubleshooting</h2>
 <p>We troubleshoot by playing the game and shooting wildly in different directions.</p>
 <p>It seems like the blue horizontal line only appears when we shoot arrows to the left–not when we shoot up or to the right.</p>
-<p>So why does is it only show for a split second? Most likely because arrows outside the screen are removed. But they are only removed if they are far enough outside the screen. The idea is that arrows are only removed if they are completely outside the screen. However, I don’t think it’s working quite like that at the moment. But arrows can be partially outside the screen before being removed.</p>
+<p>So why does it only show for a split second? Most likely because arrows outside the screen are removed. But they are only removed if they are far enough outside the screen. The idea is that arrows are only removed if they are completely outside the screen. However, I don’t think it’s working quite like that at the moment. But arrows can be partially outside the screen before being removed.</p>
 <p>We modify the code to draw a static arrow just outside the screen to the left, and indeed the blue horizontal line stays on the screen forever. (That’s how I managed to get the screenshot. It was not timing.)</p>
 <p>The problem can now be consistently reproduced. Good!</p>
 <h2 id="bug-in-pygame">Bug in Pygame?</h2>

@@ -8,8 +8,109 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-05-12T00:00:00Z</updated>
+    <updated>2023-05-14T00:00:00Z</updated>
     <entry>
+    <title>A case for the infrastructure wrapper</title>
+    <link href="http://rickardlindberg.me/writing/agdpp-wrapper-pygame-draw-circle-bug/" />
+    <id>http://rickardlindberg.me/writing/agdpp-wrapper-pygame-draw-circle-bug/</id>
+    <published>2023-05-14T00:00:00Z</published>
+    <updated>2023-05-14T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>A case for the infrastructure wrapper</h1>
+
+<p><em>Published on 14 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>I noticed something strange when playing the game.</p>
+<p>When shooting arrows out the left side of the screen, a blue horizontal line is drawn. It looks something like this:</p>
+<center>
+<img src="negative-x-draw-bug.png" title="fig:" alt="Bug with drawing circles on negative x positions." />
+</center>
+<p>But it only shows for a split second and then disappears. What’s going on?</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>We troubleshoot by playing the game and shooting wildly in different directions.</p>
+<p>It seems like the blue horizontal line only appears when we shoot arrows to the left–not when we shoot up or to the right.</p>
+<p>So why does it only show for a split second? Most likely because arrows outside the screen are removed. But they are only removed if they are far enough outside the screen. The idea is that arrows are only removed if they are completely outside the screen. However, I don’t think it’s working quite like that at the moment. But arrows can be partially outside the screen before being removed.</p>
+<p>We modify the code to draw a static arrow just outside the screen to the left, and indeed the blue horizontal line stays on the screen forever. (That’s how I managed to get the screenshot. It was not timing.)</p>
+<p>The problem can now be consistently reproduced. Good!</p>
+<h2 id="bug-in-pygame">Bug in Pygame?</h2>
+<p>At first I thought we might use Pygame wrong in some way. But now I’m starting to think that there might actually be an issue with Pygame.</p>
+<p>Let’s ask DuckDuckGo.</p>
+<p>It came back with this: <a href="https://github.com/pygame/pygame/issues/3778">Circles drawn using pygame.draw.circle with negative x positions are drawn as a horizontal line across the whole screen.</a></p>
+<p>Ha! A bug in Pygame. It all makes sense now. And we are not at fault.</p>
+<p>However, we still have an ugly, annoying graphics artifact in our game that we want to get rid of. How?</p>
+<h2 id="infrastructure-to-the-rescue">Infrastructure to the rescue</h2>
+<p>Any place in the code where we draw a circle we have to modify it to handle negative x values.</p>
+<p>Let’s see how.</p>
+<p>We have used the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern in our game. That means that every time our code interacts with the outside world, it does so via an infrastructure wrapper.</p>
+<p>Anytime we draw something on the screen, we do it via the game loop infrastructure wrapper. Here is how the arrow draws itself:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>draw_circle</code> above is part of the infrastructure wrapper. In code that we control. It in turn makes calls to Pygame like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+            <span class="n">color</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+            <span class="n">radius</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So we are actually only calling Pygame’s <code>draw_circle</code> in one place in our code.</p>
+<p>We patch it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># https://github.com/pygame/pygame/issues/3778</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+                <span class="n">color</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+                <span class="n">radius</span>
+            <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This means that circles drawn partially outside the screen to the left will not be drawn at all. Not ideal. But I very much prefer that to an annoying blue horizontal line.</p>
+<p>And when I play the game, I don’t notice circles of the arrow disappearing a little to early. They move so fast anyway.</p>
+<p>We could do something more fancy like checking for specific versions of Pygame where we know this bug exists. But this will do for now.</p>
+<h2 id="summary">Summary</h2>
+<p>We were able to fix an annoying graphics artifact by adding a single if-statement to our infrastructure wrapper.</p>
+<p>Wrapping third party libraries might seem like unnecessary overhead sometimes, but the benefit shown in this episode makes me think that we should do it more often.</p>
+<p>See you in the next episode!</p>
+]]></summary>
+</entry>
+<entry>
     <title>Turning arrow</title>
     <link href="http://rickardlindberg.me/writing/agdpp-turning-arrow/" />
     <id>http://rickardlindberg.me/writing/agdpp-turning-arrow/</id>
@@ -3649,30 +3750,6 @@ parallel {
 <li><p>I got interested in building a game using <a href="https://www.pygame.org">Pygame</a>. I’ve started playing computer games with my son, so I thought it would be a fun challenge to see if I can build a game that we both enjoy playing. I think this will be my next side project.</p></li>
 <li><p>I watched <a href="https://youtu.be/guycIP56YeY">Kent Beck On The FIRST Testing Frameworks, TDD, Waterfall &amp; MORE | The Engineering Room Ep. 16</a>. Listening to Kent Beck is always interesting since many of the practices in the software world come from him.</p></li>
 <li><p>I published no programming videos on my <a href="https://www.youtube.com/channel/UC4XI09URnsM_YYTSizAMliA">Youtube channel</a>. But I suspect upcoming ones will be about agile game development.</p></li>
-</ul>
-]]></summary>
-</entry>
-<entry>
-    <title>February 2023 Update</title>
-    <link href="http://rickardlindberg.me/writing/newsletter/february-2023/" />
-    <id>http://rickardlindberg.me/writing/newsletter/february-2023/</id>
-    <published>2023-03-05T00:00:00Z</published>
-    <updated>2023-03-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>February 2023 Update</h1>
-
-<p><em>Published on  5 March 2023.</em></p>
-
-<p>This is what I’ve been up to in February 2023:</p>
-<ul>
-<li><p>I started reading <a href="https://joyofagility.com/">Joy of Agility</a>. It has many interesting stories that provide valuable lessons.</p></li>
-<li><p>I continued writing my blog post <a href="/writing/what-should-a-ci-server-do/index.html">What should a Continuous Integration (CI) server do?</a>. I also asked for feedback on <a href="https://www.jamesshore.com/">James’</a> Discord server and got many useful responses. In particular i learned about <a href="https://www.eficode.com/blog/pre-tested-integration">pre-tested integration</a> which looks very similar to what I tried to describe. I will update my blog post with feedback, and then I will call it done.</p></li>
-<li><p>I <a href="https://hachyderm.io/@rickardlindberg/109846707922919650">asked Allen Holub</a> how to think about work that is not a story. Agile is about constantly providing value via stories, but what about work that needs to be done that doesn’t fit that category?</p></li>
-<li><p>I read <a href="https://computerhistory.org/blog/postscript-a-digital-printing-press/">PostScript: A Digital Printing Press</a>. It was a bit of computer history that I enjoyed.</p></li>
-<li><p>I published another two programming videos on my <a href="https://www.youtube.com/channel/UC4XI09URnsM_YYTSizAMliA">Youtube channel</a>:</p>
-<ul>
-<li><a href="https://youtu.be/2VrKIIMTFUI">What should a Continuous Integration (CI) server do?</a></li>
-<li><a href="https://youtu.be/_uB1KGPjJjw">How TDD helps me solve programming problems.</a></li>
-</ul></li>
 </ul>
 ]]></summary>
 </entry>
