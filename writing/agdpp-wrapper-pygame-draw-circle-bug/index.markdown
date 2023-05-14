@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: A case for the infrastructure wrapper'
-date: 2023-05-13
-tags: agdpp,draft
+title: A case for the infrastructure wrapper
+date: 2023-05-14
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 I noticed something strange when playing the game.
 
@@ -26,7 +24,7 @@ directions.
 It seems like the blue horizontal line only appears when we shoot arrows
 to the left--not when we shoot up or to the right.
 
-So why does is it only show for a split second? Most likely because arrows
+So why does it only show for a split second? Most likely because arrows
 outside the screen are removed. But they are only removed if they are far
 enough outside the screen. The idea is that arrows are only removed if they are
 completely outside the screen. However, I don't think it's working quite like
