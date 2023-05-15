@@ -5,8 +5,8 @@ tags: agdpp,draft
 agdpp: true
 ---
 
-I recently bought a pair of Logitech gamepads that me and my son use to play
-[SuperTuxKart](https://supertuxkart.net/Main_Page):
+I recently bought a pair of Logitech gamepads that me and my son use when
+playing [SuperTuxKart](https://supertuxkart.net/Main_Page):
 
 <p>
 <center>
@@ -39,10 +39,10 @@ class BalloonShooter:
 $:END
 
 This makes the test suite fail since the print statement is outputting event
-information that the test does not expect to find.
+information that the tests do not expect to find.
 
 This might be a downside of doctest, that it captures stdout and asserts on it.
-Normally a print statement should not affect the logic of the game, so it
+Normally a print statement should not affect the function of the code, so it
 should be fine.
 
 On the other hand, if we use print statements for debugging, maybe it's a good
@@ -59,17 +59,15 @@ $:output:text:
 <Event(768-KeyDown {'unicode': '', 'key': 1073742050, 'mod': 257, 'scancode': 226, 'window': None})>
 $:END
 
-So we can clearly see what pygame thinks is happening.
-
 But when we press a key on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
 $:output:text:
-...
+<Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})>
 $:END
 
-So it seems that pygame detects our joystick.
+So it seems that pygame has detected our gamepad.
 
 ## Initializing joysticks
 
@@ -77,7 +75,11 @@ We read about joysticks in the [pygame
 documentation](https://www.pygame.org/docs/ref/joystick.html). It seems like
 they must be initialized before events are generated for them.
 
-...
+> Joysticks are initialised on creation and are shut down when deallocated.
+> Once the device is initialized the pygame event queue will start receiving
+> events about its input.
+
+We try to mimic the example in the documentation to initialize a joystick:
 
 $:output:python:
 class GameLoop(Observable):
@@ -100,7 +102,7 @@ class GameLoop(Observable):
 $:END
 
 We don't handle `JOYDEVICEREMOVED` yet. We probably should, but unless we
-unplug the controller while running the game, we should be fine.
+unplug the gamepad while running the game, we should be fine.
 
 This change passes all the tests. However, we are never simulating the
 `JOYDEVICEADDED` event, so the code is never executed.
@@ -109,24 +111,25 @@ I think we will get faster feedback by just testing this thing for real. We can
 come back and describe the joystick handling code in the form of tests later on
 if we feel the need. And maybe test the `JOYDEVICEREMOVED` as well.
 
-Anyway, if we run the game now and press keys on the joystick, we see events
+Anyway, if we run the game now and press keys on the gamepad, we see events
 like this:
 
 $:output:text:
-...
+<Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})>
+<Event(1539-JoyButtonDown {'joy': 0, 'instance_id': 0, 'button': 0})>
+<Event(1540-JoyButtonUp {'joy': 0, 'instance_id': 0, 'button': 0})>
 $:END
 
-I feel an unproportional sense of excitement and joy over this. We can now get
-input from the Logitech controller. Kudos to Pygame for making this relatively
+I feel a disproportional sense of excitement and joy over this. We can now get
+input from the Logitech gamepad. Kudos to pygame for making this relatively
 straight forward. We are real game developers now! Now it's just a matter of
 mapping events to actions in our game.
 
 ## Isolating input handling
 
 For now we want to be able to play our game with both the keyboard and the
-Logitech controller. I will most likely use the Logitech controller 99% of the
-time, but if you don't have such controller, we still want you to be able to
-play the game.
+Logitech gamepad. I will most likely use the gamepad 99% of the time, but if
+you don't have it, we still want you to be able to play the game.
 
 Input handling is therefore something that is starting to become a little
 complicated. It's not just a matter of mapping one event to one action.
@@ -153,7 +156,7 @@ That is a one to one mapping between events and actions.
 We still want this code to look similar but allow multiple events to generate
 the same actions.
 
-Here is what we come up with:
+Here is what we end up with:
 
 $:output:python:
 class GameScene(SpriteGroup):
@@ -170,12 +173,12 @@ class GameScene(SpriteGroup):
         self.bow.turn(self.input_handler.get_turn_angle())
 $:END
 
-So we pass along events to the input handler, then we query it in the `update`
+So we pass along events to an input handler, then we query it in the `update`
 method, asking it if a shot action as triggered (from either input device), and
 if so, modify `flying_arrows` as before. We do something similar for turning
 the arrow. But instead of asking the input handler if a left/right action was
 triggered, we ask it for an angle that we should turn the arrow. Since the
-arrow can be turned with variable speed with the Logitech controller, this
+arrow can be turned with variable speed with the Logitech gamepad, this
 makes more sense.
 
 Before we move on to the input handler, I want to discuss another new thing
@@ -183,8 +186,8 @@ here which is the bow.
 
 ## Bow
 
-Instead of doing `arrow.angle_*()` we do `bow.turn(...)`. We have extracted a
-concept called bow.
+Instead of doing `arrow.angle_left/right()` we do `bow.turn(angle)`. We have
+extracted a concept called bow.
 
 Right now it is a wrapper around an arrow, but the idea is that you might want
 to draw more graphics for the bow.
@@ -208,10 +211,10 @@ $:END
 I'm not sure bow is the right name. Do we shoot arrows with a bow in our game?
 Or is it some kind of cannon? I think we need to ask our product owner.
 
-At the moment we are not doing any drawing except the arrow, so it just acts as
-a placeholder to attract new functionality. And the concept of a bow makes
-sense. You need to shoot the arrow with something. And when you shoot, the
-arrow leaves the bow and goes into the list of flying arrows.
+At the moment we are not doing any drawing except the arrow, so the bow just
+acts as a placeholder to attract new functionality. And the concept of a bow
+makes sense. You need to shoot the arrow with something. And when you shoot,
+the arrow leaves the bow and goes into the list of flying arrows.
 
 ## Input handler
 
@@ -278,3 +281,5 @@ $:END
     Date:   Tue May 2 06:41:55 2023 +0200
 
         InputHandler does not now arrow angle, just the turn angle.
+
+* device_index vs instance id
