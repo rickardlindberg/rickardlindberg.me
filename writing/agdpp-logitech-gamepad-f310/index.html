@@ -58,7 +58,7 @@
 <p><em>Published on 15 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>I recently bought a pair of Logitech gamepads that me and my son use to play <a href="https://supertuxkart.net/Main_Page">SuperTuxKart</a>:</p>
+<p>I recently bought a pair of Logitech gamepads that me and my son use when playing <a href="https://supertuxkart.net/Main_Page">SuperTuxKart</a>:</p>
 <p>
 <center>
 <img src="logitech-gamepad-f310.png" title="fig:" alt="Logitech Gamepad F310." />
@@ -83,8 +83,8 @@
 </div>
 </div>
 </div>
-<p>This makes the test suite fail since the print statement is outputting event information that the test does not expect to find.</p>
-<p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the logic of the game, so it should be fine.</p>
+<p>This makes the test suite fail since the print statement is outputting event information that the tests do not expect to find.</p>
+<p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the function of the code, so it should be fine.</p>
 <p>On the other hand, if we use print statements for debugging, maybe it’s a good thing that out test suite fails so that we are remembered to keep the debug session short and remove it once we are done.</p>
 <p>Anyway, if we run the game now and press keys we can see things like this in the output:</p>
 <div class="rliterate-code">
@@ -98,21 +98,23 @@
 </div>
 </div>
 </div>
-<p>So we can clearly see what pygame thinks is happening.</p>
 <p>But when we press a key on the Logitech gamepad, nothing happens.</p>
 <p>However, if we look at the beginning of the event log, we see this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span>...
+<pre><span></span>&lt;Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})&gt;
 </pre>
 </div>
 </div>
 </div>
-<p>So it seems that pygame detects our joystick.</p>
+<p>So it seems that pygame has detected our gamepad.</p>
 <h2 id="initializing-joysticks">Initializing joysticks</h2>
 <p>We read about joysticks in the <a href="https://www.pygame.org/docs/ref/joystick.html">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
-<p>…</p>
+<blockquote>
+<p>Joysticks are initialised on creation and are shut down when deallocated. Once the device is initialized the pygame event queue will start receiving events about its input.</p>
+</blockquote>
+<p>We try to mimic the example in the documentation to initialize a joystick:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -137,21 +139,23 @@
 </div>
 </div>
 </div>
-<p>We don’t handle <code>JOYDEVICEREMOVED</code> yet. We probably should, but unless we unplug the controller while running the game, we should be fine.</p>
+<p>We don’t handle <code>JOYDEVICEREMOVED</code> yet. We probably should, but unless we unplug the gamepad while running the game, we should be fine.</p>
 <p>This change passes all the tests. However, we are never simulating the <code>JOYDEVICEADDED</code> event, so the code is never executed.</p>
 <p>I think we will get faster feedback by just testing this thing for real. We can come back and describe the joystick handling code in the form of tests later on if we feel the need. And maybe test the <code>JOYDEVICEREMOVED</code> as well.</p>
-<p>Anyway, if we run the game now and press keys on the joystick, we see events like this:</p>
+<p>Anyway, if we run the game now and press keys on the gamepad, we see events like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span>...
+<pre><span></span>&lt;Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})&gt;
+&lt;Event(1539-JoyButtonDown {'joy': 0, 'instance_id': 0, 'button': 0})&gt;
+&lt;Event(1540-JoyButtonUp {'joy': 0, 'instance_id': 0, 'button': 0})&gt;
 </pre>
 </div>
 </div>
 </div>
-<p>I feel an unproportional sense of excitement and joy over this. We can now get input from the Logitech controller. Kudos to Pygame for making this relatively straight forward. We are real game developers now! Now it’s just a matter of mapping events to actions in our game.</p>
+<p>I feel a disproportional sense of excitement and joy over this. We can now get input from the Logitech gamepad. Kudos to pygame for making this relatively straight forward. We are real game developers now! Now it’s just a matter of mapping events to actions in our game.</p>
 <h2 id="isolating-input-handling">Isolating input handling</h2>
-<p>For now we want to be able to play our game with both the keyboard and the Logitech controller. I will most likely use the Logitech controller 99% of the time, but if you don’t have such controller, we still want you to be able to play the game.</p>
+<p>For now we want to be able to play our game with both the keyboard and the Logitech gamepad. I will most likely use the gamepad 99% of the time, but if you don’t have it, we still want you to be able to play the game.</p>
 <p>Input handling is therefore something that is starting to become a little complicated. It’s not just a matter of mapping one event to one action.</p>
 <p>Now we have this:</p>
 <div class="rliterate-code">
@@ -175,7 +179,7 @@
 </div>
 <p>That is a one to one mapping between events and actions.</p>
 <p>We still want this code to look similar but allow multiple events to generate the same actions.</p>
-<p>Here is what we come up with:</p>
+<p>Here is what we end up with:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -195,10 +199,10 @@
 </div>
 </div>
 </div>
-<p>So we pass along events to the input handler, then we query it in the <code>update</code> method, asking it if a shot action as triggered (from either input device), and if so, modify <code>flying_arrows</code> as before. We do something similar for turning the arrow. But instead of asking the input handler if a left/right action was triggered, we ask it for an angle that we should turn the arrow. Since the arrow can be turned with variable speed with the Logitech controller, this makes more sense.</p>
+<p>So we pass along events to an input handler, then we query it in the <code>update</code> method, asking it if a shot action as triggered (from either input device), and if so, modify <code>flying_arrows</code> as before. We do something similar for turning the arrow. But instead of asking the input handler if a left/right action was triggered, we ask it for an angle that we should turn the arrow. Since the arrow can be turned with variable speed with the Logitech gamepad, this makes more sense.</p>
 <p>Before we move on to the input handler, I want to discuss another new thing here which is the bow.</p>
 <h2 id="bow">Bow</h2>
-<p>Instead of doing <code>arrow.angle_*()</code> we do <code>bow.turn(...)</code>. We have extracted a concept called bow.</p>
+<p>Instead of doing <code>arrow.angle_left/right()</code> we do <code>bow.turn(angle)</code>. We have extracted a concept called bow.</p>
 <p>Right now it is a wrapper around an arrow, but the idea is that you might want to draw more graphics for the bow.</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -221,7 +225,7 @@
 </div>
 </div>
 <p>I’m not sure bow is the right name. Do we shoot arrows with a bow in our game? Or is it some kind of cannon? I think we need to ask our product owner.</p>
-<p>At the moment we are not doing any drawing except the arrow, so it just acts as a placeholder to attract new functionality. And the concept of a bow makes sense. You need to shoot the arrow with something. And when you shoot, the arrow leaves the bow and goes into the list of flying arrows.</p>
+<p>At the moment we are not doing any drawing except the arrow, so the bow just acts as a placeholder to attract new functionality. And the concept of a bow makes sense. You need to shoot the arrow with something. And when you shoot, the arrow leaves the bow and goes into the list of flying arrows.</p>
 <h2 id="input-handler">Input handler</h2>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -291,6 +295,9 @@ Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
 Date:   Tue May 2 06:41:55 2023 +0200
 
     InputHandler does not now arrow angle, just the turn angle.</code></pre>
+<ul>
+<li>device_index vs instance id</li>
+</ul>
 
       <hr>
       <center>
