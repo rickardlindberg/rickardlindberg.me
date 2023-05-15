@@ -1,26 +1,28 @@
 ---
-title: Programming a Logitech controller
+title: Programming a Logitech Gamepad F310
 date: 2023-05-12
 tags: agdpp,draft
 agdpp: true
 ---
 
-I recently bought a pair of Logitech Xbox-style controllers that me and my son
-use to play [SuperTuxKart](https://supertuxkart.net/Main_Page).
+I recently bought a pair of Logitech gamepads that me and my son use to play
+[SuperTuxKart](https://supertuxkart.net/Main_Page):
 
+<p>
 <center>
-![Logitech controller.](logitech-controller.png)
+![Logitech Gamepad F310.](logitech-gamepad-f310.png)
 </center>
+</p>
 
-I want to be able to use those controllers in the balloon shooter as well. My
+I want to be able to use those gamepads in the balloon shooter as well. My
 suspicion is that the balloon shooter will feel many times more as a "real"
-game if we can control it using a "real" game controller. Even though we are
-all about having fun here and learning, we still want this to feel like a real
+game if we can control it using "real" game controllers. Even though we are all
+about having fun here and learning, we still want this to feel like a real
 game, not some toy example. So let's get started.
 
 ## Learning about events
 
-How do we capture events from a Logitech controller?
+How do we capture events from a Logitech gamepad?
 
 One way to find out is to print all the events that pygame generates. We can
 for example do that in the `tick` method:
@@ -59,7 +61,7 @@ $:END
 
 So we can clearly see what pygame thinks is happening.
 
-But when we press a key on the Logitech controller, nothing happens.
+But when we press a key on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
