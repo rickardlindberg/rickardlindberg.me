@@ -115,8 +115,9 @@ $:output:text:
 $:END
 
 I feel an unproportional sense of excitement and joy over this. We can now get
-input from the Logitech controller. A real game controller! Now it's just a
-matter of mapping events to actions in our game.
+input from the Logitech controller. Kudos to Pygame for making this relatively
+straight forward. We are real game developers now! Now it's just a matter of
+mapping events to actions in our game.
 
 ## Isolating input handling
 
