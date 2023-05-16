@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 15 May 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 16 May 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Programming a Logitech Gamepad F310</title>
     <link>http://rickardlindberg.me/writing/agdpp-logitech-gamepad-f310/</link>
     <description><![CDATA[<h1>DRAFT: Programming a Logitech Gamepad F310</h1>
 
-<p><em>Published on 15 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 16 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>I recently bought a pair of Logitech gamepads that me and my son use when playing <a href="https://supertuxkart.net/Main_Page">SuperTuxKart</a>:</p>
@@ -22,7 +22,7 @@
 <img src="logitech-gamepad-f310.png" title="fig:" alt="Logitech Gamepad F310." />
 </center>
 </p>
-<p>I want to be able to use those gamepads in the balloon shooter as well. My suspicion is that the balloon shooter will feel many times more as a “real” game if we can control it using “real” game controllers. Even though we are all about having fun here and learning, we still want this to feel like a real game, not some toy example. So let’s get started.</p>
+<p>I want to be able to use those gamepads in the balloon shooter as well. My suspicion is that the balloon shooter will feel many times more like a “real” game if we can control it using “real” game controllers. Even though we are all about having fun here and learning, we still want this to feel like a real game, not some toy example. So let’s get started.</p>
 <h2 id="learning-about-events">Learning about events</h2>
 <p>How do we capture events from a Logitech gamepad?</p>
 <p>One way to find out is to print all the events that pygame generates. We can for example do that in the <code>tick</code> method:</p>
@@ -66,13 +66,13 @@
 </div>
 </div>
 </div>
-<p>So it seems that pygame has detected our gamepad.</p>
+<p>Is this our Logitech gamepad?</p>
 <h2 id="initializing-joysticks">Initializing joysticks</h2>
 <p>We read about joysticks in the <a href="https://www.pygame.org/docs/ref/joystick.html">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
 <blockquote>
 <p>Joysticks are initialised on creation and are shut down when deallocated. Once the device is initialized the pygame event queue will start receiving events about its input.</p>
 </blockquote>
-<p>We try to mimic the example in the documentation to initialize a joystick:</p>
+<p>We try to mimic the example in the documentation to initialize joysticks:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -97,7 +97,7 @@
 </div>
 </div>
 </div>
-<p>We don’t handle <code>JOYDEVICEREMOVED</code> yet. We probably should, but unless we unplug the gamepad while running the game, we should be fine.</p>
+<p>We don’t handle <code>JOYDEVICEREMOVED</code> yet. We probably should, but unless we unplug the gamepad while running the game, we should be fine I think.</p>
 <p>This change passes all the tests. However, we are never simulating the <code>JOYDEVICEADDED</code> event, so the code is never executed.</p>
 <p>I think we will get faster feedback by just testing this thing for real. We can come back and describe the joystick handling code in the form of tests later on if we feel the need. And maybe test the <code>JOYDEVICEREMOVED</code> as well.</p>
 <p>Anyway, if we run the game now and press keys on the gamepad, we see events like this:</p>
@@ -111,11 +111,11 @@
 </div>
 </div>
 </div>
-<p>I feel a disproportional sense of excitement and joy over this. We can now get input from the Logitech gamepad. Kudos to pygame for making this relatively straight forward. We are real game developers now! Now it’s just a matter of mapping events to actions in our game.</p>
+<p>I feel a disproportional sense of excitement and joy over this. We can now get input from the Logitech gamepad. We are real game developers now! Now it’s a matter of mapping events to actions in our game.</p>
 <h2 id="isolating-input-handling">Isolating input handling</h2>
-<p>For now we want to be able to play our game with both the keyboard and the Logitech gamepad. I will most likely use the gamepad 99% of the time, but if you don’t have it, we still want you to be able to play the game.</p>
+<p>For now, we want to be able to play our game with both the keyboard and the Logitech gamepad. I will most likely use the gamepad 99% of the time, but if you don’t have it, we still want you to be able to play the game.</p>
 <p>Input handling is therefore something that is starting to become a little complicated. It’s not just a matter of mapping one event to one action.</p>
-<p>Now we have this:</p>
+<p>Now, we have this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -137,7 +137,7 @@
 </div>
 <p>That is a one to one mapping between events and actions.</p>
 <p>We still want this code to look similar but allow multiple events to generate the same actions.</p>
-<p>Here is what we end up with:</p>
+<p>Here is what we come up with:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -157,11 +157,12 @@
 </div>
 </div>
 </div>
-<p>So we pass along events to an input handler, then we query it in the <code>update</code> method, asking it if a shot action as triggered (from either input device), and if so, modify <code>flying_arrows</code> as before. We do something similar for turning the arrow. But instead of asking the input handler if a left/right action was triggered, we ask it for an angle that we should turn the arrow. Since the arrow can be turned with variable speed with the Logitech gamepad, this makes more sense.</p>
-<p>Before we move on to the input handler, I want to discuss another new thing here which is the bow.</p>
+<p>So we pass along events to an input handler, then we query it in the <code>update</code> method, asking it if a shot action was triggered (from either input device), and if so, modify <code>flying_arrows</code> as before. We do something similar for turning the arrow. But instead of asking the input handler if a left/right action was triggered, we ask it for an angle that we should turn the arrow. Since the arrow can be turned with variable speed with the Logitech gamepad, this makes more sense.</p>
+<p>Before we move on to the input handler, I want to discuss another thing that is new here: the bow.</p>
 <h2 id="bow">Bow</h2>
 <p>Instead of doing <code>arrow.angle_left/right()</code> we do <code>bow.turn(angle)</code>. We have extracted a concept called bow.</p>
 <p>Right now it is a wrapper around an arrow, but the idea is that you might want to draw more graphics for the bow.</p>
+<p>Here is what it looks like:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -182,9 +183,79 @@
 </div>
 </div>
 </div>
-<p>I’m not sure bow is the right name. Do we shoot arrows with a bow in our game? Or is it some kind of cannon? I think we need to ask our product owner.</p>
+<p>I’m not sure that bow is the right name. Do we shoot arrows with a bow in our game? Or is it some kind of cannon? I think we need to ask our product owner.</p>
 <p>At the moment we are not doing any drawing except the arrow, so the bow just acts as a placeholder to attract new functionality. And the concept of a bow makes sense. You need to shoot the arrow with something. And when you shoot, the arrow leaves the bow and goes into the list of flying arrows.</p>
 <h2 id="input-handler">Input handler</h2>
+<p>Ok, on to the input handler.</p>
+<p>It is responsible for handling events and keeping some state of that those events should result in.</p>
+<p>Let’s look at how it handles shooting:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">get_and_reset</span><span class="p">()</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">)</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It will be called by the game scene like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>shoot_down</code> variable remembers if a shoot key/button has been pressed since the last call to <code>update</code>. We only want <code>get_shoot</code> to return true one time when we press a shoot key/button.</p>
+<p>The resettable value looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ResettableValue</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">get_and_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>is_joystick_down</code> method on the event is new. We have added wrappers for new events <a href="/writing/agdpp-shooting-arrow/index.html">before</a>, and this is done the same way.</p>
+<p>The logic for the turn angle is a little more complicated. The input handler remembers what state the keyboard and gamepad is in. For the keyboard, it is if a turn key is currently pressed or not. For the gamepad, it is the current x position of the joystick. We store that state in <code>arrow_turn_factor</code>. It is a value between -1 and 1. -1 means turn full speed to the left. 1 means turn full speed to the right. The keyboard can only turn with full speed but the gamepad can turn with variable speed by moving the joystick into different x positions. (We could imagine that the turn factor for the keyboard increase over time. So the speed increases the longer you have held a turn button down. That kind of logic would go in here and the game would still only query for the turn angle.)</p>
+<p>Here is the implementation:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -192,7 +263,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">...</span>
 
     <span class="k">def</span> <span class="nf">get_shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span>
@@ -201,12 +272,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span>
 
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">get_and_reset</span><span class="p">()</span>
+        <span class="o">...</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span> <span class="o">=</span> <span class="n">Angle</span><span class="o">.</span><span class="n">fraction_of_whole</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="mi">2000</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">)</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">...</span>
         <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keyup</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
@@ -224,14 +294,12 @@
 </div>
 </div>
 </div>
-<h2 id="angle-class">Angle class</h2>
-<h2 id="many-refactorings">Many refactorings</h2>
+<p>We also have extracted an <code>Angle</code> class.</p>
+<h2 id="design-note">Design note</h2>
+<p>It took me a few refactorings and experimentation to end up with this design for the input handler.</p>
 <ul>
 <li>work towards a nice input handler (mocks vs state based)</li>
 </ul>
-<h2 id="summary">Summary</h2>
-<p>See you in the next episode!</p>
-<h2 id="todo">TODO</h2>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -240,24 +308,10 @@
 </div>
 </div>
 </div>
-<pre><code>commit 3b17692a64e48fc8712c0c085cdf94e063926251
-Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
-Date:   Sat Apr 29 06:08:41 2023 +0200
-
-    Event looping is done in loop.
-
-...
-
-commit 1e6d7ba35e721c591a7246a71af633ccbe17e0df
-Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
-Date:   Tue May 2 06:41:55 2023 +0200
-
-    InputHandler does not now arrow angle, just the turn angle.</code></pre>
-<ul>
-<li>device_index vs instance id</li>
-</ul>
+<h2 id="summary">Summary</h2>
+<p>See you in the next episode!</p>
 ]]></description>
-    <pubDate>Mon, 15 May 2023 00:00:00 UT</pubDate>
+    <pubDate>Tue, 16 May 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/agdpp-logitech-gamepad-f310/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
