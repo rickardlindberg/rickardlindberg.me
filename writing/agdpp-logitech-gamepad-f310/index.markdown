@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Programming a Logitech Gamepad F310'
-date: 2023-05-16
+date: 2023-05-17
 tags: agdpp,draft
 agdpp: true
 ---
@@ -8,7 +8,7 @@ agdpp: true
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 I recently bought a pair of Logitech gamepads that me and my son use when
-playing [SuperTuxKart](https://supertuxkart.net/Main_Page):
+playing [SuperTuxKart](https://supertuxkart.net/Main_Page).
 
 <p>
 <center>
@@ -50,8 +50,8 @@ On the other hand, if we use print statements for debugging, maybe it's a good
 thing that out test suite fails so that we are remembered to keep the debug
 session short and remove it once we are done.
 
-Anyway, if we run the game now and press keys we can see things like this in
-the output:
+Anyway, if we run the game now and press keys on the keyboard we can see things
+like this in the output:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>&lt;Event(771-TextInput {&#39;text&#39;: &#39; &#39;, &#39;window&#39;: None})&gt;
 &lt;Event(769-KeyUp {&#39;unicode&#39;: &#39; &#39;, &#39;key&#39;: 32, &#39;mod&#39;: 0, &#39;scancode&#39;: 44, &#39;window&#39;: None})&gt;
@@ -59,7 +59,7 @@ the output:
 &lt;Event(768-KeyDown {&#39;unicode&#39;: &#39;&#39;, &#39;key&#39;: 1073742050, &#39;mod&#39;: 257, &#39;scancode&#39;: 226, &#39;window&#39;: None})&gt;
 </pre></div>
 </div></div>
-But when we press a key on the Logitech gamepad, nothing happens.
+But when we press keys on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
@@ -118,14 +118,15 @@ like this:
 </pre></div>
 </div></div>
 I feel a disproportional sense of excitement and joy over this. We can now get
-input from the Logitech gamepad. We are real game developers now! Now it's a
-matter of mapping events to actions in our game.
+input from the Logitech gamepad. We are real game developers now! Thanks pygame
+for making this relatively straight forward. Now it's a matter of mapping
+events to actions in our game.
 
 ## Isolating input handling
 
-For now, we want to be able to play our game with both the keyboard and the
-Logitech gamepad. I will most likely use the gamepad 99% of the time, but if
-you don't have it, we still want you to be able to play the game.
+We want to be able to play our game with both the keyboard and the Logitech
+gamepad. I will most likely use the gamepad 99% of the time, but if you don't
+have it, we still want you to be able to play the game.
 
 Input handling is therefore something that is starting to become a little
 complicated. It's not just a matter of mapping one event to one action.
@@ -149,7 +150,7 @@ Now, we have this:
 That is a one to one mapping between events and actions.
 
 We still want this code to look similar but allow multiple events to generate
-the same actions.
+the same action.
 
 Here is what we come up with:
 
@@ -175,7 +176,7 @@ action was triggered, we ask it for an angle that we should turn the arrow.
 Since the arrow can be turned with variable speed with the Logitech gamepad,
 this makes more sense.
 
-Before we move on to the input handler, I want to discuss another thing that is
+Before we look at the input handler, I want to discuss another thing that is
 new here: the bow.
 
 ## Bow
@@ -215,7 +216,7 @@ the arrow leaves the bow and goes into the list of flying arrows.
 
 Ok, on to the input handler.
 
-It is responsible for handling events and keeping some state of that those
+It is responsible for handling events and keeping some state of what those
 events should result in.
 
 Let's look at how it handles shooting:
@@ -249,9 +250,8 @@ It will be called by the game scene like this:
 </div></div>
 The `shoot_down` variable remembers if a shoot key/button has been pressed
 since the last call to `update`. We only want `get_shoot` to return true one
-time when we press a shoot key/button.
-
-The resettable value looks like this:
+time when we press a shoot key/button. That's why we use a resettable value,
+which looks like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ResettableValue</span><span class="p">:</span>
 
@@ -297,9 +297,6 @@ Here is the implementation:
         <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">get_shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span>
-
     <span class="k">def</span> <span class="nf">get_turn_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span>
 
@@ -324,18 +321,167 @@ Here is the implementation:
                 <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </pre></div>
 </div></div>
-We also have extracted an `Angle` class.
+We can test the details of this in isolation. The only thing we need to test in
+the game scene is that it turns the arrow by the amount that it gets from the
+input handler.
 
-## Design note
+Also notice the new `Angle` class. We continue down the path of eliminating
+primitive obsession. I'm sure it will attract some functions.
 
-It took me a few refactorings and experimentation to end up with this design
-for the input handler.
+## Design discussion
 
-* work towards a nice input handler (mocks vs state based)
+Let's have a look at the game scene again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
 </pre></div>
 </div></div>
+How do we test this? What is the behavior? This is what I think of:
+
+* Flying arrows stays the same if no shoot key is pressed
+* Flying arrows increment if shoot key is pressed
+* Bow turns with an angle indicated by input
+
+In order to test this, we need to simulate real events. But now that we allow
+multiple events for shooting for example, do we need to test them all? No. We
+can select any of them.
+
+This is overlapping, sociable testing. (I think.)
+
+Then we can write specific tests for the input handler that tests that all
+shoot keys result in `get_shoot` being true:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Space shoots and resets:</span>
+
+<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
+<span class="sd">&gt;&gt;&gt; i.action(GameLoop.create_event_keydown(KEY_SPACE))</span>
+<span class="sd">&gt;&gt;&gt; i.update(1)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; i.update(1)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
+<span class="sd">False</span>
+
+<span class="sd">Xbox A shoots and resets:</span>
+
+<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
+<span class="sd">&gt;&gt;&gt; i.action(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">&gt;&gt;&gt; i.update(1)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; i.update(1)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
+<span class="sd">False</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+The process to get to this design was a squiggly one with many refactorings. I
+initially had a different approach that I want to mention and talk about. It
+looked like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">quit</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;quit&quot;</span><span class="p">:</span> <span class="n">quit</span><span class="p">,</span>
+            <span class="s2">&quot;shoot&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">()),</span>
+            <span class="s2">&quot;turn_left&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">(),</span>
+            <span class="s2">&quot;turn_right&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
+            <span class="n">actions</span><span class="p">[</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]]()</span>
+
+<span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;quit&#39;</span><span class="p">,)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shoot&#39;</span><span class="p">,)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;turn_left&#39;</span><span class="p">,)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;turn_right&#39;</span><span class="p">,)</span>
+</pre></div>
+</div></div>
+In this design, the input handler returns the name of the action to perform.
+Then the game scene looks up that action, and if it finds it, runs it.
+
+This makes the input handler easy to test, which was my goal.
+
+The question is what to test in the game scene. I think I would like to test
+all cases here as well to make sure the right action names are used. So
+simulate any shooting event and make sure that flying arrows are added, and so
+on.
+
+However, what if we use the keyboard event for that test, and then write our
+input handler like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shoot&#39;</span><span class="p">,)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shot&#39;</span><span class="p">,)</span>
+        <span class="o">...</span>
+</pre></div>
+</div></div>
+That is, we misspell the action name for the joystick case. We even misspell it
+in the input handler test. All tests will pass, but the arrow will not shoot
+when using the joystick.
+
+Do we need to test all cases in the game scene to ensure that? I really don't
+want to do that. The whole point of the input handler was to be able to test
+details of input handling in isolation.
+
+That's when I slowly moved in the direction that I presented first:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
+</pre></div>
+</div></div>
+In this design it is still possible for `get_shoot` to return an incorrect
+boolean value for the joystick. But the likelihood of that happening, I think,
+is much less than we misspell an action.
+
+This design is also cleaner I think. No need for an "action language" where
+strings are mapped to actions to do.
+
 ## Summary
+
+Testing is hard. You don't want to test everything from the outside since that
+gives difficult to read tests. But you *do* want to test from the outside to make
+sure things actually work for real. So you need to make a tradeoff. I suspect
+there is no "right" answer. One measure you can use is this: are you worried
+that things are not working? Test more or test smarter.
+
+With the first design of the input handler, I was worried that the input
+handler returned "invalid" actions. Instead of testing more from the outside, I
+modified the design to reduce my worry. I'm no longer worried that the input
+handler returns the wrong things. I feel better.
 
 See you in the next episode!

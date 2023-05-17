@@ -6,7 +6,7 @@ agdpp: true
 ---
 
 I recently bought a pair of Logitech gamepads that me and my son use when
-playing [SuperTuxKart](https://supertuxkart.net/Main_Page):
+playing [SuperTuxKart](https://supertuxkart.net/Main_Page).
 
 <p>
 <center>
@@ -49,8 +49,8 @@ On the other hand, if we use print statements for debugging, maybe it's a good
 thing that out test suite fails so that we are remembered to keep the debug
 session short and remove it once we are done.
 
-Anyway, if we run the game now and press keys we can see things like this in
-the output:
+Anyway, if we run the game now and press keys on the keyboard we can see things
+like this in the output:
 
 $:output:text:
 <Event(771-TextInput {'text': ' ', 'window': None})>
@@ -59,7 +59,7 @@ $:output:text:
 <Event(768-KeyDown {'unicode': '', 'key': 1073742050, 'mod': 257, 'scancode': 226, 'window': None})>
 $:END
 
-But when we press a key on the Logitech gamepad, nothing happens.
+But when we press keys on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
@@ -121,14 +121,15 @@ $:output:text:
 $:END
 
 I feel a disproportional sense of excitement and joy over this. We can now get
-input from the Logitech gamepad. We are real game developers now! Now it's a
-matter of mapping events to actions in our game.
+input from the Logitech gamepad. We are real game developers now! Thanks pygame
+for making this relatively straight forward. Now it's a matter of mapping
+events to actions in our game.
 
 ## Isolating input handling
 
-For now, we want to be able to play our game with both the keyboard and the
-Logitech gamepad. I will most likely use the gamepad 99% of the time, but if
-you don't have it, we still want you to be able to play the game.
+We want to be able to play our game with both the keyboard and the Logitech
+gamepad. I will most likely use the gamepad 99% of the time, but if you don't
+have it, we still want you to be able to play the game.
 
 Input handling is therefore something that is starting to become a little
 complicated. It's not just a matter of mapping one event to one action.
@@ -153,7 +154,7 @@ $:END
 That is a one to one mapping between events and actions.
 
 We still want this code to look similar but allow multiple events to generate
-the same actions.
+the same action.
 
 Here is what we come up with:
 
@@ -180,7 +181,7 @@ action was triggered, we ask it for an angle that we should turn the arrow.
 Since the arrow can be turned with variable speed with the Logitech gamepad,
 this makes more sense.
 
-Before we move on to the input handler, I want to discuss another thing that is
+Before we look at the input handler, I want to discuss another thing that is
 new here: the bow.
 
 ## Bow
@@ -221,7 +222,7 @@ the arrow leaves the bow and goes into the list of flying arrows.
 
 Ok, on to the input handler.
 
-It is responsible for handling events and keeping some state of that those
+It is responsible for handling events and keeping some state of what those
 events should result in.
 
 Let's look at how it handles shooting:
@@ -257,9 +258,8 @@ $:END
 
 The `shoot_down` variable remembers if a shoot key/button has been pressed
 since the last call to `update`. We only want `get_shoot` to return true one
-time when we press a shoot key/button.
-
-The resettable value looks like this:
+time when we press a shoot key/button. That's why we use a resettable value,
+which looks like this:
 
 $:output:python:
 class ResettableValue:
@@ -307,9 +307,6 @@ class InputHandler:
         self.arrow_turn_factor = ResettableValue(0)
         ...
 
-    def get_shoot(self):
-        return self.shoot
-
     def get_turn_angle(self):
         return self.turn_angle
 
@@ -334,19 +331,172 @@ class InputHandler:
                 self.arrow_turn_factor.reset()
 $:END
 
-We also have extracted an `Angle` class.
+We can test the details of this in isolation. The only thing we need to test in
+the game scene is that it turns the arrow by the amount that it gets from the
+input handler.
 
-## Design note
+Also notice the new `Angle` class. We continue down the path of eliminating
+primitive obsession. I'm sure it will attract some functions.
 
-It took me a few refactorings and experimentation to end up with this design
-for the input handler.
+## Design discussion
 
-* work towards a nice input handler (mocks vs state based)
+Let's have a look at the game scene again:
 
 $:output:python:
+class GameScene(SpriteGroup):
 
+    ...
+
+    def event(self, event):
+        self.input_handler.action(event)
+
+    def update(self, dt):
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.flying_arrows.add(self.bow.clone_shooting())
+        self.bow.turn(self.input_handler.get_turn_angle())
 $:END
 
+How do we test this? What is the behavior? This is what I think of:
+
+* Flying arrows stays the same if no shoot key is pressed
+* Flying arrows increment if shoot key is pressed
+* Bow turns with an angle indicated by input
+
+In order to test this, we need to simulate real events. But now that we allow
+multiple events for shooting for example, do we need to test them all? No. We
+can select any of them.
+
+This is overlapping, sociable testing. (I think.)
+
+Then we can write specific tests for the input handler that tests that all
+shoot keys result in `get_shoot` being true:
+
+$:output:python:
+"""
+Space shoots and resets:
+
+>>> i = InputHandler()
+>>> i.action(GameLoop.create_event_keydown(KEY_SPACE))
+>>> i.update(1)
+>>> i.get_shoot()
+True
+>>> i.update(1)
+>>> i.get_shoot()
+False
+
+Xbox A shoots and resets:
+
+>>> i = InputHandler()
+>>> i.action(GameLoop.create_event_joystick_down(XBOX_A))
+>>> i.update(1)
+>>> i.get_shoot()
+True
+>>> i.update(1)
+>>> i.get_shoot()
+False
+"""
+$:END
+
+The process to get to this design was a squiggly one with many refactorings. I
+initially had a different approach that I want to mention and talk about. It
+looked like this:
+
+$:output:python:
+class GameScene(SpriteGroup):
+
+    ...
+
+    def event(self, event):
+        def quit():
+            raise ExitGameLoop()
+        actions = {
+            "quit": quit,
+            "shoot": lambda: self.flying_arrows.add(self.arrow.clone_shooting()),
+            "turn_left": lambda: self.arrow.angle_left(),
+            "turn_right": lambda: self.arrow.angle_right(),
+        }
+        action = self.input_handler.action(event)
+        if action:
+            actions[action[0]]()
+
+class InputHandler:
+
+    def action(self, event):
+        if event.is_user_closed_window():
+            return ('quit',)
+        elif event.is_keydown_space() or event.is_joystick_down(0):
+            return ('shoot',)
+        elif event.is_keydown_left():
+            return ('turn_left',)
+        elif event.is_keydown_right():
+            return ('turn_right',)
+$:END
+
+In this design, the input handler returns the name of the action to perform.
+Then the game scene looks up that action, and if it finds it, runs it.
+
+This makes the input handler easy to test, which was my goal.
+
+The question is what to test in the game scene. I think I would like to test
+all cases here as well to make sure the right action names are used. So
+simulate any shooting event and make sure that flying arrows are added, and so
+on.
+
+However, what if we use the keyboard event for that test, and then write our
+input handler like this:
+
+$:output:python:
+class InputHandler:
+
+    def action(self, event):
+        if event.is_keydown_space():
+            return ('shoot',)
+        elif event.is_joystick_down(0):
+            return ('shot',)
+        ...
+$:END
+
+That is, we misspell the action name for the joystick case. We even misspell it
+in the input handler test. All tests will pass, but the arrow will not shoot
+when using the joystick.
+
+Do we need to test all cases in the game scene to ensure that? I really don't
+want to do that. The whole point of the input handler was to be able to test
+details of input handling in isolation.
+
+That's when I slowly moved in the direction that I presented first:
+
+$:output:python:
+class GameScene(SpriteGroup):
+
+    ...
+
+    def update(self, dt):
+        ...
+        if self.input_handler.get_shoot():
+            self.flying_arrows.add(self.bow.clone_shooting())
+        self.bow.turn(self.input_handler.get_turn_angle())
+$:END
+
+In this design it is still possible for `get_shoot` to return an incorrect
+boolean value for the joystick. But the likelihood of that happening, I think,
+is much less than we misspell an action.
+
+This design is also cleaner I think. No need for an "action language" where
+strings are mapped to actions to do.
+
 ## Summary
+
+Testing is hard. You don't want to test everything from the outside since that
+gives difficult to read tests. But you *do* want to test from the outside to make
+sure things actually work for real. So you need to make a tradeoff. I suspect
+there is no "right" answer. One measure you can use is this: are you worried
+that things are not working? Test more or test smarter.
+
+With the first design of the input handler, I was worried that the input
+handler returned "invalid" actions. Instead of testing more from the outside, I
+modified the design to reduce my worry. I'm no longer worried that the input
+handler returns the wrong things. I feel better.
 
 See you in the next episode!
