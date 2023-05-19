@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Programming a Logitech Gamepad F310'
-date: 2023-05-17
-tags: agdpp,draft
+title: Programming a Logitech Gamepad F310
+date: 2023-05-19
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 I recently bought a pair of Logitech gamepads that me and my son use when
 playing [SuperTuxKart](https://supertuxkart.net/Main_Page).
@@ -47,7 +45,7 @@ Normally a print statement should not affect the function of the code, so it
 should be fine.
 
 On the other hand, if we use print statements for debugging, maybe it's a good
-thing that out test suite fails so that we are remembered to keep the debug
+thing that our test suite fails so that we are remembered to keep the debug
 session short and remove it once we are done.
 
 Anyway, if we run the game now and press keys on the keyboard we can see things
@@ -208,7 +206,7 @@ I'm not sure that bow is the right name. Do we shoot arrows with a bow in our
 game? Or is it some kind of cannon? I think we need to ask our product owner.
 
 At the moment we are not doing any drawing except the arrow, so the bow just
-acts as a placeholder to attract new functionality. And the concept of a bow
+acts as a placeholder to attract new functionality. But the concept of a bow
 makes sense. You need to shoot the arrow with something. And when you shoot,
 the arrow leaves the bow and goes into the list of flying arrows.
 
@@ -346,7 +344,9 @@ Let's have a look at the game scene again:
         <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
 </pre></div>
 </div></div>
-How do we test this? What is the behavior? This is what I think of:
+How do we test this? What is the behavior?
+
+This is what I think of:
 
 * Flying arrows stays the same if no shoot key is pressed
 * Flying arrows increment if shoot key is pressed
