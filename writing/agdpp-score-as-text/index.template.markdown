@@ -1,7 +1,7 @@
 ---
 title: Score as text
-date: 2023-05-21
-tags: agdpp,draft
+date: 2023-05-24
+tags: agdpp
 agdpp: true
 ---
 
@@ -15,7 +15,7 @@ One for each point:
 </p>
 
 I find it tedious to count them when my son wants to know the score, and I
-think he also expressed that he wanted to have the score as a number in the
+think he also expressed that he wants to have the score as a number in the
 upper right corner.
 
 That's what we will work on in this episode. The end result will look like

@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Score as text'
-date: 2023-05-23
-tags: agdpp,draft
+title: Score as text
+date: 2023-05-24
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 Currently, the game keeps track of the score by drawing yellow point markers.
 One for each point:
@@ -17,7 +15,7 @@ One for each point:
 </p>
 
 I find it tedious to count them when my son wants to know the score, and I
-think he also expressed that he wanted to have the score as a number in the
+think he also expressed that he wants to have the score as a number in the
 upper right corner.
 
 That's what we will work on in this episode. The end result will look like
