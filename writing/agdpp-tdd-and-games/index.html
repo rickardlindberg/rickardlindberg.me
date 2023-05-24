@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      Agile Game Development with Python and Pygame | Rickard's personal homepage
+      DRAFT: Does TDD work when building a game? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,45 +53,61 @@
     </nav>
 
     <div class="container">
-      <h1>Agile Game Development with Python and Pygame</h1>
+      <h1>DRAFT: Does TDD work when building a game?</h1>
 
-<p>I challenge myself to create a computer game that me and my son will enjoy
-playing together.</p>
+<p><em>Published on 24 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p>I document this journey in a series of blog posts and videos.</p>
-
-<p>Source code is available at <a href="https://github.com/rickardlindberg/agdpp">https://github.com/rickardlindberg/agdpp</a>.</p>
-
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>When I <a href="../../writing/agdpp-introduction/">started</a> this series, one of the points I wanted to explore was how well TDD has worked when building a game.</p>
+<p>The short answer is yes, it absolutely works.</p>
+<p>The longer answer is …</p>
+<h2 id="summary">Summary</h2>
+<p>See you in the next episode!</p>
+<h2 id="todo">TODO</h2>
 <ul>
-
-<li><a href="../../writing/agdpp-tdd-and-games/">DRAFT: Does TDD work when building a game?</a> - 24 May 2023</li>
-
-<li><a href="../../writing/agdpp-score-as-text/">Score as text</a> - 24 May 2023</li>
-
-<li><a href="../../writing/agdpp-logitech-gamepad-f310/">Programming a Logitech Gamepad F310</a> - 19 May 2023</li>
-
-<li><a href="../../writing/agdpp-wrapper-pygame-draw-circle-bug/">A case for the infrastructure wrapper</a> - 14 May 2023</li>
-
-<li><a href="../../writing/agdpp-turning-arrow/">Turning arrow</a> - 12 May 2023</li>
-
-<li><a href="../../writing/agdpp-hit-balloon-and-score-points/">Hit balloon and score points</a> -  9 May 2023</li>
-
-<li><a href="../../writing/agdpp-game-over/">Game over?</a> -  6 May 2023</li>
-
-<li><a href="../../writing/agdpp-thinking-about-test-setup/">Thinking about test design</a> - 28 April 2023</li>
-
-<li><a href="../../writing/agdpp-shooting-arrow/">Shooting the arrow</a> - 27 April 2023</li>
-
-<li><a href="../../writing/agdpp-demo-and-game-idea/">Demo and game idea</a> - 24 April 2023</li>
-
-<li><a href="../../writing/agdpp-pygame-separation-design/">Separating pygame completely from the rest of the game</a> - 20 April 2023</li>
-
-<li><a href="../../writing/agdpp-game-loop/">Test driving the game loop</a> - 19 April 2023</li>
-
-<li><a href="../../writing/agdpp-introduction/">Introducing Agile Game Development with Python and Pygame</a> -  9 April 2023</li>
-
+<li><p>TDD did not work for joystick movement. I needed to “feel” what was right. I did it as a spike.</p></li>
+<li><p>Make tests independent of specifics speeds/angles so that they can be adjusted until they feel good without tests failing.</p></li>
+<li><p>Marick quite</p></li>
 </ul>
-
+<p>commit 7ff61c0ab2fd736bc75e32ba0ff109e838dcd716 Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Fri Apr 28 06:57:39 2023 +0200</p>
+<pre><code>Modify speed and positions for better gameplay.</code></pre>
+<p>commit 328fb9829ec1cd93a108e6cdadf730207975bdbd (HEAD -&gt; main, origin/main) Author: Rickard Lindberg <script type="text/javascript">
+<!--
+h='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;&#108;&#x69;&#110;&#100;&#98;&#x65;&#114;&#x67;&#46;&#x6d;&#x65;';a='&#64;';n='&#114;&#x69;&#x63;&#x6b;&#x61;&#114;&#100;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>rickard at rickardlindberg dot me</noscript> Date: Tue May 2 07:24:37 2023 +0200</p>
+<pre><code>Make tests independent of turn speed and adjust until it felt good in game.</code></pre>
+<ul>
+<li>Learning about events
+<ul>
+<li>Test applications
+<ul>
+<li>Quickly takes you to a scene in a game</li>
+<li>Test specific function that don’t fit TDD</li>
+<li>Test look and feel of level 99</li>
+<li>Test look and feel of level progression speed</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>
+<center>
+<img src="score-text.png" title="fig:" alt="Score text." />
+</center>
+</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>
+</pre>
+</div>
+</div>
+</div>
 
       <hr>
       <center>
