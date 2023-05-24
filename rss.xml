@@ -7,8 +7,160 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 20 May 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 24 May 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Score as text</title>
+    <link>http://rickardlindberg.me/writing/agdpp-score-as-text/</link>
+    <description><![CDATA[<h1>Score as text</h1>
+
+<p><em>Published on 24 May 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>Currently, the game keeps track of the score by drawing yellow point markers. One for each point:</p>
+<p>
+<center>
+<img src="points.png" title="fig:" alt="Point markers." />
+</center>
+</p>
+<p>I find it tedious to count them when my son wants to know the score, and I think he also expressed that he wants to have the score as a number in the upper right corner.</p>
+<p>That’s what we will work on in this episode. The end result will look like this:</p>
+<p>
+<center>
+<img src="score-text.png" title="fig:" alt="Score text." />
+</center>
+</p>
+<h2 id="drawing-text">Drawing text</h2>
+<p>The reason that we implemented score display with point markers was that it was quicker. There was no way to draw text and it was therefore quicker to use point markers. But that has to change now. Let’s see if we can draw some text.</p>
+<p>We start by adding a test case to the top-level, initial state test that asserts that the text ‘0’ is drawn on the screen:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I am a balloon shooter game!</span>
+
+<span class="sd">    Initial state</span>
+<span class="sd">    =============</span>
+
+<span class="sd">    We run the game for a few frames, then quit:</span>
+
+<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">    ...     events=[</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">    ...     ]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    The score is drawn:</span>
+
+<span class="sd">    &gt;&gt;&gt; set(events.filter(&quot;DRAW_TEXT&quot;).collect(&quot;text&quot;))</span>
+<span class="sd">    {(&#39;0&#39;,)}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This fails because there is no event <code>DRAW_TEXT</code> yet.</p>
+<p>We add a method to draw text and have it emit a <code>DRAW_TEXT</code> event like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_TEXT&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We test the pygame code manually to ensure that we use the text drawing api correctly and that text appears on the screen.</p>
+<h2 id="keeping-track-of-score-to-draw">Keeping track of score to draw</h2>
+<p>Before we kept track of the score by adding point markers to a sprite group. We replace this sprite group with a new <code>Score</code> object:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        self.points = self.add(SpriteGroup())</span>
+<span class="gi">+        self.score = self.add(Score())</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Instead of adding point markers, we just add a number to increase the score:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-                    self.points.add(PointMarker(position=Point(</span>
+<span class="gd">-                        x=20+len(self.points.get_sprites())*12,</span>
+<span class="gd">-                        y=700</span>
+<span class="gd">-                    )))</span>
+<span class="gi">+                    self.score.add(1)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>Score</code> class looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Score</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="adapting-tests">Adapting tests</h2>
+<p>We already have tests that make sure that we count the score correctly. We have to modify them slightly to look at the score number instead of counting point markers in the sprite group. We change them like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-    &gt;&gt;&gt; game.get_points()</span>
+<span class="gd">-    []</span>
+<span class="gi">+    &gt;&gt;&gt; game.get_score()</span>
+<span class="gi">+    0</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now all tests pass and the score is displayed with text instead of point markers. Success!</p>
+<h2 id="summary">Summary</h2>
+<p>This change went rather smoothly. Adding functionality to draw text was not that much work. Perhaps we could just as well have done that from the start. But point markers felt easier at the time.</p>
+<p>Our customer is happy with the new score display. When we play the game, we sometimes decide to go for 100 points, then stop. Perhaps that could become a competitive aspect? How fast can you get to 100 points? And the time will be the “final” score? We’ll see.</p>
+<p>See you in the next episode!</p>
+]]></description>
+    <pubDate>Wed, 24 May 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/agdpp-score-as-text/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>How to test a router?</title>
     <link>http://rickardlindberg.me/writing/how-to-test-a-router/</link>
     <description><![CDATA[<h1>How to test a router?</h1>
@@ -4143,57 +4295,6 @@ pytest
 ]]></description>
     <pubDate>Mon, 17 Apr 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/tdd-fake-it/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Introducing Agile Game Development with Python and Pygame</title>
-    <link>http://rickardlindberg.me/writing/agdpp-introduction/</link>
-    <description><![CDATA[<h1>Introducing Agile Game Development with Python and Pygame</h1>
-
-<p><em>Published on  9 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>I recently started playing computer games with my son. That sparked an interest in me to create a game myself that we can play together. Mostly because I think this will be a <strong>fun project</strong>, but also to show my son that you can actually make your own games. It’s not something that you <em>only</em> consume.</p>
-<p>I thought I would also document this journey in a series of blog posts and videos.</p>
-<h2 id="video-version">Video version</h2>
-<p>The video version of this episode:</p>
-<center>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/9DZ81lOPfmo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
-encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-</iframe>
-</center>
-<h2 id="the-challenge">The challenge</h2>
-<p>The challenge is to create a game that me and my son will enjoy playing together.</p>
-<h2 id="the-method">The method</h2>
-<p>I want to develop this game using Agile methodology.</p>
-<p>It means that instead of first figuring out what game I want to write, I will develop it incrementally and guide development by feedback.</p>
-<p>It also means that I will rely heavily on self-testing code and TDD.</p>
-<h2 id="my-background-in-games">My background in games</h2>
-<p>I’m by no means an expert in creating games. I don’t even play games that much. But I have enjoyed creating some simple games in the past, like a Tetris clone and some kind of Asteroids.</p>
-<p>I was actually able to restore an old copy of one of my Tetris games. It is written using Python and Pygame (which I also plan to use for my new game). I just needed to make a few small adjustments to make it work with Python 3. This is what it looks like:</p>
-<center>
-<img src="tetris1.png" title="fig:" alt="Intro screen of my Tetris game." />
-</center>
-<center>
-<img src="tetris2.png" title="fig:" alt="Gameplay screen of my Tetris game." />
-</center>
-<h2 id="series-overview">Series overview</h2>
-<p>So this series will cover how to create a game from the perspective of someone who has much experience programming, but not that much knowledge in the game domain.</p>
-<p>Here is a list of topics off the top of my head that I imagine I will cover:</p>
-<ul>
-<li>Game loop and how to test it</li>
-<li>Can you really use TDD for games?</li>
-<li>Learn to capture events from Logitech controller</li>
-<li>How to come up with an idea for a game?</li>
-<li>Performance: background erase vs redraw?</li>
-<li>Resolution: what to choose?</li>
-<li>How to incrementally develop a game idea?</li>
-<li>Particle effects</li>
-</ul>
-<p>This list is just the beginning of my journey. I hope will enjoy following along.</p>
-<p>See you in the next episode!</p>
-]]></description>
-    <pubDate>Sun, 09 Apr 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/agdpp-introduction/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
