@@ -27,17 +27,19 @@ See you in the next episode!
 
 * Marick quite
 
-commit 7ff61c0ab2fd736bc75e32ba0ff109e838dcd716
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Fri Apr 28 06:57:39 2023 +0200
+* Examples
 
-    Modify speed and positions for better gameplay.
+    commit 7ff61c0ab2fd736bc75e32ba0ff109e838dcd716
 
-commit 328fb9829ec1cd93a108e6cdadf730207975bdbd (HEAD -> main, origin/main)
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Tue May 2 07:24:37 2023 +0200
+        Modify speed and positions for better gameplay.
 
-    Make tests independent of turn speed and adjust until it felt good in game.
+    commit 328fb9829ec1cd93a108e6cdadf730207975bdbd (HEAD -> main, origin/main)
+
+        Make tests independent of turn speed and adjust until it felt good in game.
+
+    commit 1f50d4deb34226531fdb50df2ea4f5db3c2d2906 (HEAD -> main)
+
+        Create balloon particles that "look good".
 
 * Learning about events
     * Test applications
