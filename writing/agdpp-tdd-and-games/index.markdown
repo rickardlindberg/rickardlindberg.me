@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Does TDD work when building a game?'
-date: 2023-05-29
+date: 2023-05-30
 tags: agdpp,draft
 agdpp: true
 ---
