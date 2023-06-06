@@ -8,12 +8,14 @@ agdpp: true
 **This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 When I [started](/writing/agdpp-introduction/index.html) this series, one of
-the points I wanted to explore was how well TDD has worked when building a
-game.
+the areas that I wanted to explore was how well TDD works when building a game.
 
-The short answer is yes, it absolutely works.
+The short answer is that I find that it works as well as on any other project
+I've done.
 
-The longer answer is ...
+The longer answer is that TDD might not be enough. There are some things which
+are hard to test in a game. That's what I want to talk about in this blog post
+and also how we can overcome the limit of TDD in those situations.
 
 ## Summary
 
@@ -55,6 +57,8 @@ See you in the next episode!
 > discover a problem.
 
 https://ronjeffries.com/articles/-y023/python/-o110/110/
+
+* Timeline GUI preview
 
 <p>
 <center>
