@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Does TDD work when building a game?'
-date: 2023-05-30
+date: 2023-06-06
 tags: agdpp,draft
 agdpp: true
 ---
@@ -49,6 +49,12 @@ See you in the next episode!
         * Test specific function that don't fit TDD
         * Test look and feel of level 99
         * Test look and feel of level progression speed
+
+> And it seems to me that with a video-oriented game, we always wind up needing
+> to watch it run, both for confidence and because, every now and then, we
+> discover a problem.
+
+https://ronjeffries.com/articles/-y023/python/-o110/110/
 
 <p>
 <center>
