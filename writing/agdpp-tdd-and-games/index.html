@@ -55,19 +55,58 @@
     <div class="container">
       <h1>DRAFT: Does TDD work when building a game?</h1>
 
-<p><em>Published on  6 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on  7 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>When I <a href="../../writing/agdpp-introduction/">started</a> this series, one of the areas that I wanted to explore was how well TDD works when building a game.</p>
 <p>The short answer is that I find that it works as well as on any other project I’ve done.</p>
-<p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limit of TDD in those situations.</p>
+<p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limits of TDD in those situations.</p>
+<h2 id="example-joystick-movement">Example: joystick movement</h2>
+<p>A <a href="../../writing/agdpp-logitech-gamepad-f310/">few episodes ago</a>, we worked on controlling the game with a gamepad. The gamepad has a little joystick (correct name?) and when we turn it left, we want the arrow to turn left, and likewise for right. That logic works well to implement with TDD, however, that is not enough. It is also important that it “feels good” to turn the arrow. That it responds fast enough, that it turns with an appropriate speed, and so on. That part, I think, is impossible to work out with TDD since we don’t know the correct answer. The only way to get the correct answer is to experiment. Try turning with different parameters set and see which one feels better.</p>
+<p>We can still use TDD for the first part if we relax the assertions. For example, we can’t assert that the arrow was turned by a specific amount, but we can assert that it is turned more to the left than before. Here is an example of that:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_LEFT))</span>
+<span class="sd">&gt;&gt;&gt; game.update(1)</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and no change in test will be required.</p>
+<h2 id="a-reflection-on-test-automation">A reflection on test automation</h2>
+<p>This kind of reasoning about tests reminds me of something that Dale Emery <a href="https://mstdn.social/@dhemery/109298626455434624">said</a>:</p>
+<blockquote>
+<p>Half of the art of #TestAutomation is making the test code sensitive to things you care about and insensitive to things you don’t care about.</p>
+</blockquote>
+<p>and</p>
+<blockquote>
+<p>The other half of the art of #TestAutomation is deciding which things to care about.</p>
+</blockquote>
+<h2 id="testing-in-game">Testing in-game</h2>
+<p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to find the correct answer? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you scored 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>
+<p>You certainly need to play the game to be able to get some details right. But we should not need to play “unnecessary parts” over and over again until we reach the point in the game that we are interested in testing.</p>
+<p>So far, the balloon shooter is not that complex. If we want to test turn speed, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and require more interaction to get to where we want to go, I think we should approach it differently.</p>
+<h2 id="test-applications">Test applications</h2>
+<ul>
+<li>Quickly takes you to a scene in a game</li>
+<li>Test specific function that don’t fit TDD</li>
+<li>Test look and feel of level 99</li>
+<li>Test look and feel of level progression speed</li>
+</ul>
+<h2 id="applications-outside-games">Applications outside games</h2>
+<ul>
+<li>Timeline GUI preview</li>
+</ul>
 <h2 id="summary">Summary</h2>
 <p>See you in the next episode!</p>
 <h2 id="todo">TODO</h2>
 <ul>
-<li><p>TDD did not work for joystick movement. I needed to “feel” what was right. I did it as a spike.</p></li>
-<li><p>Make tests independent of specifics speeds/angles so that they can be adjusted until they feel good without tests failing.</p></li>
-<li><p>Marick quite</p></li>
 <li><p>Examples</p>
 <p>commit 7ff61c0ab2fd736bc75e32ba0ff109e838dcd716</p>
 <pre><code>  Modify speed and positions for better gameplay.</code></pre>
@@ -75,24 +114,11 @@
 <pre><code>  Make tests independent of turn speed and adjust until it felt good in game.</code></pre>
 <p>commit 1f50d4deb34226531fdb50df2ea4f5db3c2d2906 (HEAD -&gt; main)</p>
 <pre><code>  Create balloon particles that &quot;look good&quot;.</code></pre></li>
-<li><p>Learning about events</p>
-<ul>
-<li>Test applications
-<ul>
-<li>Quickly takes you to a scene in a game</li>
-<li>Test specific function that don’t fit TDD</li>
-<li>Test look and feel of level 99</li>
-<li>Test look and feel of level progression speed</li>
-</ul></li>
-</ul></li>
 </ul>
 <blockquote>
 <p>And it seems to me that with a video-oriented game, we always wind up needing to watch it run, both for confidence and because, every now and then, we discover a problem.</p>
 </blockquote>
 <p>https://ronjeffries.com/articles/-y023/python/-o110/110/</p>
-<ul>
-<li>Timeline GUI preview</li>
-</ul>
 <p>
 <center>
 <img src="score-text.png" title="fig:" alt="Score text." />
