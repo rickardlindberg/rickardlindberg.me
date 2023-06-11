@@ -8,8 +8,8 @@ agdpp: true
 When I [started](/writing/agdpp-introduction/index.html) this series, one of
 the areas that I wanted to explore was how well TDD works when building a game.
 
-The short answer is that I find that it works as well as on any other project
-I've done.
+The short answer is that I find that it works equally well as on any other
+project I've done.
 
 The longer answer is that TDD might not be enough. There are some things which
 are hard to test in a game. That's what I want to talk about in this blog post
@@ -27,7 +27,7 @@ however, that is not enough. It is also important that it "feels good" to turn
 the arrow. That it responds fast enough, that it turns with an appropriate
 speed, and so on. That part, I think, is impossible to work out with TDD since
 we don't know the correct answer. The only way to get the correct answer is to
-experiment. Try turning with different parameters set and see which ones feel
+experiment. Try turning with different parameters and see which ones feel
 better.
 
 We can still use TDD for the first part if we relax the assertions. For
@@ -38,7 +38,7 @@ of that:
 $:output:python:
 """
 >>> initial_angle = game.get_arrow_angle()
->>> game.event(GameLoop.create_event_keydown(KEY_LEFT))
+>>> game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))
 >>> game.update(1)
 >>> game.get_arrow_angle() < initial_angle
 True
@@ -49,25 +49,12 @@ We assert the basic functionality in the test, and then we can play the game
 and adjust parameters for turning until it feels good, and this test will
 continue to work.
 
-## A reflection on test automation
-
-This kind of reasoning about tests reminds me of something that
-Dale Emery [wrote](https://mstdn.social/@dhemery/109298626455434624):
-
-> Half of the art of #TestAutomation is making the test code sensitive to
-> things you care about and insensitive to things you don't care about.
-
-and
-
-> The other half of the art of #TestAutomation is deciding which things to care
-> about.
-
-## Testing in-game
+## Testing in-game?
 
 What are you saying Rickard? That we can't verify the behavior of the game with
 tests and that we need to play the game to make sure it works? And do this
 repeatedly? That sounds like a very long feedback loop. What about if we have
-to tweak numbers for an effect that only happens after you scored 100 points?
+to tweak numbers for an effect that only happens after you score 100 points?
 Should we play the game, score 100 points, look at the effect, tweak a
 parameter, and do it all over again?
 
@@ -83,21 +70,27 @@ I think we should approach it differently.
 
 ## Test applications
 
-* Quickly takes you to a scene in a game
-* Test specific function that don't fit TDD
-* Test look and feel of level 99
-* Test look and feel of level progression speed
+The idea that I have, that I have not yet tested, is to create small test
+applications or sub-games that can only be run in development.
 
-## Application outside games
+For the case with the effect after 100 points, perhaps we can create a custom
+game that starts immediately with 99 points. We can shoot down one more balloon
+and observe the effect. That is a faster feedback loop.
 
-I have used this approach in [Timeline](/projects/timeline/index.html) as well.
-Timeline is a GUI application, so a different domain from games. But the GUI
-elements have the same problem: you can't assert in a test that they look good.
+This approach might require our design to change a bit. It must be easy to
+start the game with a particular scene and configuration for example.
+
+## Applications outside games
+
+I have used this approach in [Timeline](/projects/timeline/index.html).
+Timeline is a GUI application, so a different domain than games. But the GUI
+elements have the same problem: you can't assert in tests that they "look
+good".
 
 Instead of running the application and opening the correct dialog, we
 implemented a `--halt-gui` flag in our test runner. When that flag is present,
 the tests will open GUI dialogs with mock data and you can visually inspect
-that it looks good:
+that they look good:
 
 <p>
 <center>
@@ -105,7 +98,7 @@ that it looks good:
 </center>
 </p>
 
-Your workflow can than be
+Your workflow for modifying a dialog can than be
 
 1. run test suite with specific test and `--halt-gui` flag
 2. inspect the dialog
@@ -115,23 +108,31 @@ Your workflow can than be
 This makes the feedback loop a little faster. There is no need to constantly
 run the application and click your way to the correct dialog.
 
-## 
+## What about real application testing?
 
-Should we never run our application? Should we only get feedback from tests and
-small test applications?
+Should we never run our application for real? Should we only get feedback from
+tests and test applications?
 
-No, it is important to use the application as well to get a sense of what needs
-improving.
+No, I believe it is also important to use the application to get a sense of
+what needs improving.
 
-In [...](https://ronjeffries.com/articles/-y023/python/-o110/110/), Ron writes
+In [Python 110 - Now
+Fleets?](https://ronjeffries.com/articles/-y023/python/-o110/110/), Ron writes
 
 > And it seems to me that with a video-oriented game, we always wind up needing
 > to watch it run, both for confidence and because, every now and then, we
 > discover a problem.
 
+My goal is to not have to run the game for confidence. I want faster feedback
+for confidence.
+
+However, I do agree that you will discover problems when running the game. But
+I think that is true for any kind of application, not just games.
+
 ## Summary
 
-Those are my reflections on using TDD for a game so far. Do you have similar
-experiences? Please let me know.
+Those are my reflections on using TDD for a game so far. Do you believe that
+creating test applications for faster feedback is a good idea?  Please [let me
+know](/contact/index.html).
 
 See you in the next episode!
