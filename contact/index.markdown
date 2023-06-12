@@ -3,7 +3,8 @@ title: Contact
 ---
 
 The preferred way to contact me is to send an email to
-[rickard@rickardlindberg.me](mailto:rickard@rickardlindberg.me).
+[rickard@rickardlindberg.me](mailto:rickard@rickardlindberg.me) or a message on
+[Mastodon](https://hachyderm.io/@rickardlindberg).
 
 ## Me elsewhere
 

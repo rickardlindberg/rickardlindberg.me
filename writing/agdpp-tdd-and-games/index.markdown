@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Does TDD work when building a game?'
-date: 2023-06-11
-tags: agdpp,draft
+title: Does TDD work when building a game?
+date: 2023-06-12
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 When I [started](/writing/agdpp-introduction/index.html) this series, one of
 the areas that I wanted to explore was how well TDD works when building a game.
@@ -48,7 +46,7 @@ of that:
 </div></div>
 We assert the basic functionality in the test, and then we can play the game
 and adjust parameters for turning until it feels good, and this test will
-continue to work.
+continue to work without modification.
 
 ## Testing in-game?
 
@@ -66,7 +64,7 @@ reach the point in the game that we are interested in testing.
 So far, the balloon shooter is not that complex. If we want to test turn speed
 for example, we can start the game and start turning. No additional steps
 needed. However, when the game becomes more complex (start screen, player
-selection, etc) and require more interaction to get to where we want to go,
+selection, etc) and requires more interaction to get to where we want to go,
 I think we should approach it differently.
 
 ## Test applications
