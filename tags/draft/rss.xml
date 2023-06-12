@@ -7,79 +7,8 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 11 Jun 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 20 May 2020 00:00:00 UT</lastBuildDate>
         <item>
-    <title>DRAFT: Does TDD work when building a game?</title>
-    <link>http://rickardlindberg.me/writing/agdpp-tdd-and-games/</link>
-    <description><![CDATA[<h1>DRAFT: Does TDD work when building a game?</h1>
-
-<p><em>Published on 11 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>When I <a href="/writing/agdpp-introduction/index.html">started</a> this series, one of the areas that I wanted to explore was how well TDD works when building a game.</p>
-<p>The short answer is that I find that it works equally well as on any other project I’ve done.</p>
-<p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limits of TDD in those situations.</p>
-<h2 id="example-joystick-movement">Example: joystick movement</h2>
-<p>What is hard to test with TDD? Here is an example.</p>
-<p>A <a href="/writing/agdpp-logitech-gamepad-f310/index.html">few episodes ago</a>, we worked on controlling the game with a gamepad. The gamepad has a little joystick (correct name?) and when we push it to the left, we want the arrow to turn left, and likewise for right. That logic works well to implement with TDD, however, that is not enough. It is also important that it “feels good” to turn the arrow. That it responds fast enough, that it turns with an appropriate speed, and so on. That part, I think, is impossible to work out with TDD since we don’t know the correct answer. The only way to get the correct answer is to experiment. Try turning with different parameters and see which ones feel better.</p>
-<p>We can still use TDD for the first part if we relax the assertions. For example, we can’t assert that the arrow is turned by a specific amount, but we can assert that it is turned more to the left than before. Here is an example of that:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span>
-<span class="sd">&gt;&gt;&gt; game.update(1)</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work.</p>
-<h2 id="testing-in-game">Testing in-game?</h2>
-<p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to make sure it works? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you score 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>
-<p>You certainly need to play the game to be able to get some details right. But we should not need to play “unnecessary parts” over and over again until we reach the point in the game that we are interested in testing.</p>
-<p>So far, the balloon shooter is not that complex. If we want to test turn speed for example, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and require more interaction to get to where we want to go, I think we should approach it differently.</p>
-<h2 id="test-applications">Test applications</h2>
-<p>The idea that I have, that I have not yet tested, is to create small test applications or sub-games that can only be run in development.</p>
-<p>For the case with the effect after 100 points, perhaps we can create a custom game that starts immediately with 99 points. We can shoot down one more balloon and observe the effect. That is a faster feedback loop.</p>
-<p>This approach might require our design to change a bit. It must be easy to start the game with a particular scene and configuration for example.</p>
-<h2 id="applications-outside-games">Applications outside games</h2>
-<p>I have used this approach in <a href="/projects/timeline/index.html">Timeline</a>. Timeline is a GUI application, so a different domain than games. But the GUI elements have the same problem: you can’t assert in tests that they “look good”.</p>
-<p>Instead of running the application and opening the correct dialog, we implemented a <code>--halt-gui</code> flag in our test runner. When that flag is present, the tests will open GUI dialogs with mock data and you can visually inspect that they look good:</p>
-<p>
-<center>
-<img src="timeline-halt-gui.png" title="fig:" alt="Timeline halt GUI." />
-</center>
-</p>
-<p>Your workflow for modifying a dialog can than be</p>
-<ol type="1">
-<li>run test suite with specific test and <code>--halt-gui</code> flag</li>
-<li>inspect the dialog</li>
-<li>tweak layout</li>
-<li>repeat</li>
-</ol>
-<p>This makes the feedback loop a little faster. There is no need to constantly run the application and click your way to the correct dialog.</p>
-<h2 id="what-about-real-application-testing">What about real application testing?</h2>
-<p>Should we never run our application for real? Should we only get feedback from tests and test applications?</p>
-<p>No, I believe it is also important to use the application to get a sense of what needs improving.</p>
-<p>In <a href="https://ronjeffries.com/articles/-y023/python/-o110/110/">Python 110 - Now Fleets?</a>, Ron writes</p>
-<blockquote>
-<p>And it seems to me that with a video-oriented game, we always wind up needing to watch it run, both for confidence and because, every now and then, we discover a problem.</p>
-</blockquote>
-<p>My goal is to not have to run the game for confidence. I want faster feedback for confidence.</p>
-<p>However, I do agree that you will discover problems when running the game. But I think that is true for any kind of application, not just games.</p>
-<h2 id="summary">Summary</h2>
-<p>Those are my reflections on using TDD for a game so far. Do you believe that creating test applications for faster feedback is a good idea? Please <a href="/contact/index.html">let me know</a>.</p>
-<p>See you in the next episode!</p>
-]]></description>
-    <pubDate>Sun, 11 Jun 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/agdpp-tdd-and-games/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
     <title>DRAFT: Compiling expressions to x86 machine code</title>
     <link>http://rickardlindberg.me/writing/expr-to-x86-compiler/</link>
     <description><![CDATA[<h1>DRAFT: Compiling expressions to x86 machine code</h1>

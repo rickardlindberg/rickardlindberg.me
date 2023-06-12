@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Does TDD work when building a game? | Rickard's personal homepage
+      Does TDD work when building a game? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Does TDD work when building a game?</h1>
+      <h1>Does TDD work when building a game?</h1>
 
-<p><em>Published on 11 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 12 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>When I <a href="../../writing/agdpp-introduction/">started</a> this series, one of the areas that I wanted to explore was how well TDD works when building a game.</p>
 <p>The short answer is that I find that it works equally well as on any other project I’ve done.</p>
 <p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limits of TDD in those situations.</p>
@@ -79,11 +78,11 @@
 </div>
 </div>
 </div>
-<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work.</p>
+<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work without modification.</p>
 <h2 id="testing-in-game">Testing in-game?</h2>
 <p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to make sure it works? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you score 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>
 <p>You certainly need to play the game to be able to get some details right. But we should not need to play “unnecessary parts” over and over again until we reach the point in the game that we are interested in testing.</p>
-<p>So far, the balloon shooter is not that complex. If we want to test turn speed for example, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and require more interaction to get to where we want to go, I think we should approach it differently.</p>
+<p>So far, the balloon shooter is not that complex. If we want to test turn speed for example, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and requires more interaction to get to where we want to go, I think we should approach it differently.</p>
 <h2 id="test-applications">Test applications</h2>
 <p>The idea that I have, that I have not yet tested, is to create small test applications or sub-games that can only be run in development.</p>
 <p>For the case with the effect after 100 points, perhaps we can create a custom game that starts immediately with 99 points. We can shoot down one more balloon and observe the effect. That is a faster feedback loop.</p>
