@@ -7,22 +7,22 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 12 Jun 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 15 Jun 2023 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Spawn multiple balloons</title>
     <link>http://rickardlindberg.me/writing/agdpp-spawn-multiple-balloons/</link>
     <description><![CDATA[<h1>DRAFT: Spawn multiple balloons</h1>
 
-<p><em>Published on 12 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 15 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>We <a href="/writing/agdpp-game-over/index.html">previously</a> had a story about balloons moving downwards. We scratched that because other stories were more important for the first version of the balloon shooter. With those stories done, I think a more realistic balloon spawning and movement pattern is the most valuable think we can work on.</p>
+<p>We <a href="/writing/agdpp-game-over/index.html">previously</a> had a story about balloons moving downwards. We scratched that because other stories were more important for the first version of the balloon shooter. With those stories done, I think a more realistic balloon spawning and movement pattern is the most valuable thing we can work on.</p>
 <h2 id="video-version">Video version</h2>
 <p>The video version of this episode:</p>
 <pre><code>TODO</code></pre>
 <h2 id="code-review">Code review</h2>
 <p>Let’s review our code and look at how balloons are managed.</p>
-<p>Our game scene has a sprite group for balloons which by default only contains one balloon:</p>
+<p>Our game scene has a sprite group for balloons which by default contains only one balloon:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -60,6 +60,7 @@
 </div>
 </div>
 </div>
+<p>So the hit balloon is removed, and a new one is added.</p>
 <p>How do balloons move?</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -82,41 +83,109 @@
 </div>
 </div>
 <p>They move from left to right and wrap around at x=1200.</p>
-<h2 id="stories">Stories</h2>
-<p>…</p>
-<h2 id="summary">Summary</h2>
-<p>See you in the next episode!</p>
-<h2 id="todo">TODO</h2>
+<h2 id="strategy">Strategy</h2>
+<p>To be able to write more isolated tests for balloon behavior, I want to start with a few refactorings. I want to extract a <code>Balloons</code> class which contains most logic related to balloons. Then I want to write tests for new behavior. This is also known as make the change easy, then make the easy change.</p>
+<p>We begin by creating the class and using it like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span>
+<pre><span></span><span class="gd">-        self.balloons = self.add(SpriteGroup([</span>
+<span class="gd">-            Balloon(Point(x=x, y=y)) for (x, y) in balloons</span>
+<span class="gd">-        ]))</span>
+<span class="gi">+        self.balloons = self.add(Balloons(balloons))</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span>
+            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">positions</span>
+        <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We continue to move some behavior into this new class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_balloon_hit_by_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">balloon</span>
+
+    <span class="k">def</span> <span class="nf">spawn_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>With that in place, we can simplify the update code to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-            for balloon in self.balloons.get_sprites():</span>
+<span class="gd">-                if arrow.hits_baloon(balloon):</span>
+<span class="gd">-                    self.balloons.remove(balloon)</span>
+<span class="gd">-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))</span>
+<span class="gd">-                    self.score.add(1)</span>
+<span class="gi">+            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)</span>
+<span class="gi">+            if hit_balloon:</span>
+<span class="gi">+                self.balloons.remove(hit_balloon)</span>
+<span class="gi">+                self.balloons.spawn_new()</span>
+<span class="gi">+                self.score.add(1)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>There is probably some more functionality that we can move into the new balloons class, but let’s stop here for now and focus on the new behavior.</p>
+<p>(If you want to see this refactoring happening in smaller steps in real time, check out the video version.)</p>
+<h2 id="stories">Stories</h2>
+<p>Here is some new behavior that we would like to have:</p>
+<ul>
+<li>balloons move downwards</li>
+<li>balloons appear at different x positions</li>
+<li>multiple balloons are in the air at the same time</li>
+</ul>
+<p>If we move them into a test, it looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Balloons move downwards (move to Balloon?):</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    It spawns up to 3 balloons:</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    Balloons outside the screen is removed:</span>
+
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 </pre>
 </div>
 </div>
 </div>
 <p>
 <center>
-<img src="timeline-halt-gui.png" title="fig:" alt="Timeline halt GUI." />
+<img src="multiple-balloons.png" title="fig:" alt="Multiple balloons." />
 </center>
 </p>
-<pre><code>* refactor to make the change easy
-
-commit b0a34cb7e542aeff0a49a146576986390f1d7d1f
-Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
-Date:   Sun May 7 08:41:34 2023 +0200
-
-    Extract Balloons.
-
-...
-
-commit c6f3debba566e6cf1f69d300077d8a16483efc82
-Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
-Date:   Sun May 7 09:24:55 2023 +0200
-
-    Spawn multiple balloons and remove the ones outside the screen.
-
-* then hammock + refactoring cleanup
+<h2 id="break-and-cleanup">Break and cleanup</h2>
+<pre><code>* then hammock + refactoring cleanup
     * cleaning up feels so good
     * get feature out fast, the cover up the imperfections
 
@@ -133,8 +202,10 @@ Author: Rickard Lindberg &lt;rickard@rickardlindberg.me&gt;
 Date:   Sun May 7 14:19:21 2023 +0200
 
     Clean up shooting arrow tests.</code></pre>
+<h2 id="summary">Summary</h2>
+<p>See you in the next episode!</p>
 ]]></description>
-    <pubDate>Mon, 12 Jun 2023 00:00:00 UT</pubDate>
+    <pubDate>Thu, 15 Jun 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/agdpp-spawn-multiple-balloons/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
