@@ -9,7 +9,7 @@ We [previously](/writing/agdpp-game-over/index.html) had a story about balloons
 moving downwards. We scratched that because other stories were more important
 for the first version of the balloon shooter. With those stories done, I think
 a more realistic balloon spawning and movement pattern is the most valuable
-think we can work on.
+thing we can work on.
 
 ## Video version
 
@@ -21,7 +21,7 @@ The video version of this episode:
 
 Let's review our code and look at how balloons are managed.
 
-Our game scene has a sprite group for balloons which by default only contains
+Our game scene has a sprite group for balloons which by default contains only
 one balloon:
 
 $:output:python:
@@ -55,6 +55,8 @@ class GameScene(SpriteGroup):
                     ...
 $:END
 
+So the hit balloon is removed, and a new one is added.
+
 How do balloons move?
 
 $:output:python:
@@ -75,40 +77,103 @@ $:END
 
 They move from left to right and wrap around at x=1200.
 
-## Stories
+## Strategy
 
-...
+To be able to write more isolated tests for balloon behavior, I want to start
+with a few refactorings. I want to extract a `Balloons` class which contains
+most logic related to balloons. Then I want to write tests for new behavior.
+This is also known as make the change easy, then make the easy change.
 
-## Summary
+We begin by creating the class and using it like this:
 
-See you in the next episode!
-
-## TODO
+$:output:diff:
+-        self.balloons = self.add(SpriteGroup([
+-            Balloon(Point(x=x, y=y)) for (x, y) in balloons
+-        ]))
++        self.balloons = self.add(Balloons(balloons))
+$:END
 
 $:output:python:
+class Balloons(SpriteGroup):
+
+    def __init__(self, positions):
+        SpriteGroup.__init__(self, [
+            Balloon(Point(x=x, y=y)) for (x, y) in positions
+        ])
+$:END
+
+We continue to move some behavior into this new class:
+
+$:output:python:
+class Balloons(SpriteGroup):
+
+    ...
+
+    def get_balloon_hit_by_arrow(self, arrow):
+        for balloon in self.get_sprites():
+            if arrow.hits_baloon(balloon):
+                return balloon
+
+    def spawn_new(self):
+        self.add(Balloon(position=Point(x=50, y=50)))
+$:END
+
+With that in place, we can simplify the update code to this:
+
+$:output:diff:
+-            for balloon in self.balloons.get_sprites():
+-                if arrow.hits_baloon(balloon):
+-                    self.balloons.remove(balloon)
+-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))
+-                    self.score.add(1)
++            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)
++            if hit_balloon:
++                self.balloons.remove(hit_balloon)
++                self.balloons.spawn_new()
++                self.score.add(1)
+$:END
+
+There is probably some more functionality that we can move into the new
+balloons class, but let's stop here for now and focus on the new behavior.
+
+(If you want to see this refactoring happening in smaller steps in real time,
+check out the video version.)
+
+## Stories
+
+Here is some new behavior that we would like to have:
+
+* balloons move downwards
+* balloons appear at different x positions
+* multiple balloons are in the air at the same time
+
+If we move them into a test, it looks like this:
+
+$:output:python:
+class Balloons(SpriteGroup):
+
+    """
+    Balloons move downwards (move to Balloon?):
+
+    ...
+
+    It spawns up to 3 balloons:
+
+    ...
+
+    Balloons outside the screen is removed:
+
+    ...
+    """
 $:END
 
 <p>
 <center>
-![Timeline halt GUI.](timeline-halt-gui.png)
+![Multiple balloons.](multiple-balloons.png)
 </center>
 </p>
 
-    * refactor to make the change easy
-
-    commit b0a34cb7e542aeff0a49a146576986390f1d7d1f
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 08:41:34 2023 +0200
-
-        Extract Balloons.
-
-    ...
-
-    commit c6f3debba566e6cf1f69d300077d8a16483efc82
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 09:24:55 2023 +0200
-
-        Spawn multiple balloons and remove the ones outside the screen.
+## Break and cleanup
 
     * then hammock + refactoring cleanup
         * cleaning up feels so good
@@ -128,3 +193,6 @@ $:END
 
         Clean up shooting arrow tests.
 
+## Summary
+
+See you in the next episode!
