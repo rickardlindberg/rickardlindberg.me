@@ -118,7 +118,7 @@ class Balloons(SpriteGroup):
         self.add(Balloon(position=Point(x=50, y=50)))
 $:END
 
-With that in place, we can simplify the update code to this:
+With that in place, we can simplify the update code like this:
 
 $:output:diff:
 -            for balloon in self.balloons.get_sprites():
@@ -136,8 +136,8 @@ $:END
 There is probably some more functionality that we can move into the new
 balloons class, but let's stop here for now and focus on the new behavior.
 
-(If you want to see this refactoring happening in smaller steps in real time,
-check out the video version.)
+(If you want to see this refactoring happening in smaller steps and in real
+time, check out the video version.)
 
 ## Stories
 
@@ -147,25 +147,151 @@ Here is some new behavior that we would like to have:
 * balloons appear at different x positions
 * multiple balloons are in the air at the same time
 
-If we move them into a test, it looks like this:
+Let's start with the first one and write a test for the new movement pattern:
 
 $:output:python:
 class Balloons(SpriteGroup):
 
     """
-    Balloons move downwards (move to Balloon?):
-
-    ...
-
-    It spawns up to 3 balloons:
-
-    ...
-
-    Balloons outside the screen is removed:
-
-    ...
+    >>> balloons = Balloons([(50, 50)])
+    >>> balloons.get_sprites()[0].get_position()
+    (50, 50)
+    >>> balloons.update(5)
+    >>> x, y = balloons.get_sprites()[0].get_position()
+    >>> x
+    50
+    >>> y > 50
+    True
     """
+
+    ...
 $:END
+
+First we make sure that the first balloon in the sprite group is at the initial
+position that we gave it. Then we assert that it has moved downward after an
+update.
+
+To make this test pass, we make this change:
+
+$:output:diff:
+ class Balloon:
+
+     ...
+
+     def update(self, dt):
+-       if self.position.x > 1200:
+-           self.position = self.position.set(x=50)
+-       else:
+-           self.position = self.position.move(dx=dt*0.3)
++       self.position = self.position.move(dy=dt*self.speed)
+$:END
+
+We only needed to modify the `Balloon` class. Does that mean that we should
+put the test in this class instead? I don't know. For now, I think it's nice if
+we can keep all balloon related tests in the same place.
+
+If we run the game now, a single balloon will move downwards and then disappear
+at the bottom of the screen. That's no fun. No more balloon to shoot down.
+Let's fix that.
+
+Here is a test that checks that there are always 3 balloons in the air:
+
+$:output:python:
+"""
+>>> balloons = Balloons([(50, 50)], space)
+>>> len(balloons.get_sprites())
+1
+>>> balloons.update(5)
+>>> len(balloons.get_sprites())
+3
+"""
+$:END
+
+We make this pass by adding spawn logic in the update method:
+
+$:output:python:
+class Balloons(SpriteGroup):
+
+    ...
+
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        while len(self.get_sprites()) < 3:
+            self.spawn_new()
+$:END
+
+As long as we shoot down balloons, new ones will be spawned. But if we miss
+three balloons, they will continue to move downwards outside the screen, and no
+new balloons will be spawned. Let's work on removing balloons outside the
+screen.
+
+Here is a test describing this behavior:
+
+$:output:python:
+"""
+>>> space = OutsideScreenSpace(500, 500)
+>>> balloons = Balloons([(1000, 1000)], space)
+>>> (balloon,) = balloons.get_sprites()
+>>> balloons.update(5)
+>>> balloon in balloons.get_sprites()
+False
+"""
+$:END
+
+The idea is that we place a balloon outside the screen. Then we call update and
+make sure that it is no longer in the sprite group.
+
+We have used the `OutsideScreenSpace` before to remove arrows that are outside
+the screen. When we add it here to `Balloons` we have to update all
+instantiations of it to include it. Once that is done, we make the test pass
+like this:
+
+$:output:diff:
+ class Balloons(SpriteGroup):
+
+     ...
+
+     def update(self, dt):
+         SpriteGroup.update(self, dt)
++        for balloon in self.get_sprites():
++            if self.space.hits(Point(*balloon.get_position()), 10):
++                self.remove(balloon)
+         while len(self.get_sprites()) < 3:
+             self.spawn_new()
+$:END
+
+The game now plays without problems, however, it's a little boring that
+balloons are always spawned at the same position.
+
+We modify the spawning code like this:
+
+$:output:diff:
+ class Balloons(SpriteGroup):
+
+     ...
+
+     def spawn_new(self):
+-        self.add(Balloon(position=Point(x=50, y=50)))
++        self.add(Balloon(position=Point(x=self.space.get_random_x(50), y=50)))
+$:END
+
+And add the corresponding method in `OutsideScreenSpace`:
+
+$:output:python:
+class OutsideScreenSpace:
+
+    ...
+
+    def get_random_x(self, margin):
+        return random.randint(margin, self.width-margin*2)
+$:END
+
+We don't write any tests for this. Why? I guess because I feel confident that
+this will work. And maybe because testing random is not straight forward.
+Perhaps we should add a test for `get_random_x` that checks that the x we get
+back is within the with minus margin. We make a note of that.
+
+Here is what the game looks like now:
 
 <p>
 <center>
@@ -173,26 +299,34 @@ $:END
 </center>
 </p>
 
-## Break and cleanup
-
-    * then hammock + refactoring cleanup
-        * cleaning up feels so good
-        * get feature out fast, the cover up the imperfections
-
-    commit 782cda7032896b15d89058b0fe3bc4ccbb54da8c
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 10:12:49 2023 +0200
-
-        Replace (x, y) with position in Arrow and Balloon.
-
-    ...
-
-    commit 18a9a5af49966f9b2c7e8841495687181e7fedfb
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 14:19:21 2023 +0200
-
-        Clean up shooting arrow tests.
+We have accomplished what we set out to do. I think the game is a little more
+fun to play now. Success!
 
 ## Summary
+
+We began by doing some refactoring to make the new behavior easy to add.
+It was easy to add and it went smoothly. However, after adding new
+functionality and working with an area of the code, we have probably noticed
+things that can improve. We might have even ignored it to focus on adding the
+new behavior.
+
+What I like to do in those situations is to take a break and come back and
+review the code a little later.
+
+This time I came up with many small changes to improve the clarity of the code.
+Here are some examples from that session:
+
+* [Replace (x, y) with position in Arrow and Balloon.](https://github.com/rickardlindberg/agdpp/commit/782cda7032896b15d89058b0fe3bc4ccbb54da8c)
+* [Move balloon space hit check to balloon where radius can be used for better hit test.](https://github.com/rickardlindberg/agdpp/commit/7d6c884d727bef96b1efcc524e4c8956cfd41c72)
+* [Replace OutsideScreenSpace with a more generic Rectangle.](https://github.com/rickardlindberg/agdpp/commit/fe4b477a7ad4c89a56af58dceac84cfc100b2f8f)
+* [Make spawning unaware of where its region is (no hard coded y=50).](https://github.com/rickardlindberg/agdpp/commit/c4f8ff4924f1ee4a83ece0d0360ed44e512af194)
+* [No need to spawn balloon when shot down since it happens anyway.](https://github.com/rickardlindberg/agdpp/commit/7faddca9ad82c1bde8d6ea0d00bbbc8cfb5d6fbf)
+* [Balloons positions are points instead of tuples.](https://github.com/rickardlindberg/agdpp/commit/19e51efe110e81e398a5f9a7401608f870afb4ff)
+* [Clean up shooting arrow tests.](https://github.com/rickardlindberg/agdpp/commit/18a9a5af49966f9b2c7e8841495687181e7fedfb)
+
+Making these tiny improvements feels so good. They are all quite small changes,
+but they make a huge impact. Ok, maybe not huge, but the improvements compound.
+The point is that if you keep making tiny improvements, the code base gets
+easier and easier to work with.
 
 See you in the next episode!
