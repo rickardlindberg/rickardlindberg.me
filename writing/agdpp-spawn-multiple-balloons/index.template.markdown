@@ -1,7 +1,7 @@
 ---
 title: Spawn multiple balloons
-date: 2023-06-12
-tags: agdpp,draft
+date: 2023-06-17
+tags: agdpp
 agdpp: true
 ---
 
@@ -15,7 +15,13 @@ thing we can work on.
 
 The video version of this episode:
 
-    TODO
+<center>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/unYD_bPyadc" title="YouTube video player"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share"
+allowfullscreen></iframe>
+</center>
 
 ## Code review
 
@@ -289,7 +295,7 @@ $:END
 We don't write any tests for this. Why? I guess because I feel confident that
 this will work. And maybe because testing random is not straight forward.
 Perhaps we should add a test for `get_random_x` that checks that the x we get
-back is within the with minus margin. We make a note of that.
+back is within the width minus margin. We make a note of that.
 
 Here is what the game looks like now:
 
@@ -307,7 +313,7 @@ fun to play now. Success!
 We began by doing some refactoring to make the new behavior easy to add.
 It was easy to add and it went smoothly. However, after adding new
 functionality and working with an area of the code, we have probably noticed
-things that can improve. We might have even ignored it to focus on adding the
+things that can improve. We might even have ignored it to focus on adding the
 new behavior.
 
 What I like to do in those situations is to take a break and come back and
