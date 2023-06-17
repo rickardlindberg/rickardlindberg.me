@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Spawn multiple balloons | Rickard's personal homepage
+      Spawn multiple balloons | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,15 +53,18 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Spawn multiple balloons</h1>
+      <h1>Spawn multiple balloons</h1>
 
-<p><em>Published on 16 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 17 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>We <a href="../../writing/agdpp-game-over/">previously</a> had a story about balloons moving downwards. We scratched that because other stories were more important for the first version of the balloon shooter. With those stories done, I think a more realistic balloon spawning and movement pattern is the most valuable thing we can work on.</p>
 <h2 id="video-version">Video version</h2>
 <p>The video version of this episode:</p>
-<pre><code>TODO</code></pre>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/unYD_bPyadc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
+</center>
 <h2 id="code-review">Code review</h2>
 <p>Let’s review our code and look at how balloons are managed.</p>
 <p>Our game scene has a sprite group for balloons which by default contains only one balloon:</p>
@@ -341,7 +344,7 @@
 </div>
 </div>
 </div>
-<p>We don’t write any tests for this. Why? I guess because I feel confident that this will work. And maybe because testing random is not straight forward. Perhaps we should add a test for <code>get_random_x</code> that checks that the x we get back is within the with minus margin. We make a note of that.</p>
+<p>We don’t write any tests for this. Why? I guess because I feel confident that this will work. And maybe because testing random is not straight forward. Perhaps we should add a test for <code>get_random_x</code> that checks that the x we get back is within the width minus margin. We make a note of that.</p>
 <p>Here is what the game looks like now:</p>
 <p>
 <center>
@@ -350,7 +353,7 @@
 </p>
 <p>We have accomplished what we set out to do. I think the game is a little more fun to play now. Success!</p>
 <h2 id="summary">Summary</h2>
-<p>We began by doing some refactoring to make the new behavior easy to add. It was easy to add and it went smoothly. However, after adding new functionality and working with an area of the code, we have probably noticed things that can improve. We might have even ignored it to focus on adding the new behavior.</p>
+<p>We began by doing some refactoring to make the new behavior easy to add. It was easy to add and it went smoothly. However, after adding new functionality and working with an area of the code, we have probably noticed things that can improve. We might even have ignored it to focus on adding the new behavior.</p>
 <p>What I like to do in those situations is to take a break and come back and review the code a little later.</p>
 <p>This time I came up with many small changes to improve the clarity of the code. Here are some examples from that session:</p>
 <ul>
