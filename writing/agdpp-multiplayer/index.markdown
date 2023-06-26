@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Multiplayer'
-date: 2023-06-25
+date: 2023-06-26
 tags: agdpp,draft
 agdpp: true
 ---
@@ -9,9 +9,9 @@ agdpp: true
 
 For every story that we work on, the balloon shooter feels more and more like a
 real game. The initial goal of this project was to create a game that me and my
-son will enjoy playing together. At this point, I think the most valuable thing
-we can work on towards that goal is adding support for multiplayer. That's what
-we will work on in this episode.
+son will enjoy playing *together*. At this point, I think the most valuable
+thing we can work on towards that goal is adding support for multiplayer.
+That's what we will work on in this episode.
 
 ## A new layer
 
@@ -42,7 +42,8 @@ This means that as soon as we start the game, we enter the gameplay mode and
 can start playing right away.
 
 I imagine that multiplayer mode works by first selecting which players should
-participate in shooting balloons, and after that, the gameplay mode is entered.
+participate in shooting balloons, and after that, the gameplay mode is entered
+and each player get their own bow to shoot with.
 
 We want to go from this structure:
 
@@ -59,9 +60,10 @@ To something like this:
 </pre></div>
 </div></div>
 We want to add another level that first directs calls to a start screen (or
-player select screen) and once that is done, initializes the game scene.
+player select screen) and once players are selected, initializes the game scene
+and directs call to that.
 
-Current tests for `GameScene` should pass unchanged, but tests for
+The current tests for `GameScene` should pass unchanged, but tests for
 `BalloonShooter` will need some modifications. I imagine that those tests need
 to select a player before asserting something from the gameplay mode. We'll see
 later.
@@ -148,9 +150,10 @@ We write the initial version of the start scene like this:
             <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;one&quot;</span><span class="p">]</span>
 </pre></div>
 </div></div>
-The idea is that a player (keyboard, gamepad) selects to be part of the game by
-shooting. When all players have entered, one of them can shoot again to start
-the game. This is not yet complete.
+The idea is that a player (keyboard or gamepad) selects to be part of the game
+by shooting. When all players have entered, one of them can shoot again to
+start the game. This functionality is not yet fully implemented. But this will
+do for now.
 
 When writing this blog post and looking at the code, I notice two problems.
 First of all "on" should be "one" in the test description. Second of all, the
@@ -177,7 +180,7 @@ be the same:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-I wonder how common the event + update pattern is in our test. Perhaps we can
+I wonder how common the event + update pattern is in our tests. Perhaps we can
 benefit from a test helper something like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[],</span> <span class="n">dt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -187,8 +190,8 @@ benefit from a test helper something like this:
     <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div></div>
-We might try it in a few places and see if the tests read better. But now now.
-The modification to the tests force us to check events. We do it like this:
+We might try it in a few places and see if the tests read better. But not now.
+The modification to the tests forces us to check events. We do it like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
 
@@ -241,7 +244,7 @@ scene uses the real start scene, and not a mock, the only way to make it return
 something is to perform the same actions as we did in the start scene tests.
 
 To make this test pass, we initialize an active scene variable to the start
-scene and switch it to the gameplay scene once we have enough players:
+scene and switch it to the gameplay scene once we have selected players:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
 
@@ -261,16 +264,20 @@ scene and switch it to the gameplay scene once we have enough players:
 The test talks about switching to a gameplay scene, but it only asserts that
 the start scene is *not* active anymore. We could probably clarify that.
 
-When we run the game now it will show a blank purple screen. If we shoot twice
-we will enter the gameplay scene and the game starts as before. Perfect!
+I'm also not sure how I feel about the assertions that checks the type of the
+active scene. But I don't have any ideas for a better way to express that. If
+you do, please let me know.
+
+When we run the game now it shows a blank purple screen. If we shoot twice we
+enter the gameplay scene and the game starts as before. Perfect!
 
 We do not yet take players into account and we can still not have multiple
 players. What we do have is a skeleton with a few more pieces where this new
 functionality will fit.
 
-The game works fine now (if we know that we have to shoot twice to get pass the
-start screen), but a test fails. It is the test for the balloon shooter. Here
-it is:
+The game works fine now (if we know that we have to shoot twice to get passed
+the start screen), but a test fails. It is the test for the balloon shooter.
+Here it is:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
 
@@ -330,13 +337,15 @@ end up in the gameplay scene:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
+And, we are back to green!
+
 Here is yet another example of overlapping, sociable testing. We yet again have
 to simulate two shoot events to select players.
 
 One downside of this approach is that if we were to change the logic for
 selecting players. Say that we first need to shoot and the turn left. Then we
-would have to modify 3 test I think. One way to make that less of a problem in
-this particular situation is to create a test helper something like this:
+would have to modify three test I think. One way to make that less of a problem
+in this particular situation is to create a test helper something like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">events_to_select_one_player</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">[</span>
@@ -351,6 +360,10 @@ from the start scene to the gameplay scene with one player.
 
 ## Players to game scene
 
+Our skeleton for the new feature is not quite complete. The gameplay scene does
+not know about players. Let's fix that by passing the players from the start
+scene to the gameplay scene like this:
+
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -162,7 +162,10 @@ class GameScene:</span>
          self.active_scene.update(dt)
          if isinstance(self.active_scene, StartScene):
@@ -362,54 +375,87 @@ from the start scene to the gameplay scene with one player.
 <span class="gi">+                )</span>
 </pre></div>
 </div></div>
+To make this work we also add that argument to the constructor:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):</span>
+     []
+     &quot;&quot;&quot;
+
+<span class="gd">-    def __init__(self, screen_area, balloons=[], arrows=[]):</span>
+<span class="gi">+    def __init__(self, screen_area, balloons=[], arrows=[], players=[&quot;default&quot;]):</span>
+</pre></div>
+</div></div>
+Now, I think our skeleton is complete. What do I mean by that? I mean that all
+the pieces are connected they way we think they should be. Now we can work
+individually on the start scene and the gameplay scene. The start scene needs
+to be able to select multiple players and should return those players in the
+list. The gameplay scene should take players into account and create one bow
+per player that it can control.
+
 ## Flesh out
 
 * Start scene can select multiple players.
+* Game scene creates multiple bows.
+* Input handler handles multiple players.
+
+```
+commit 9804dce5d6f789274161a7b2c84a36f43cd33c23
+Author: Rickard Lindberg <rickard@rickardlindberg.me>
+Date:   Sun May 7 14:31:38 2023 +0200
+
+    Rename GameScene -> GameplayScene (so that we can create a StartScene and a GameScene to coordinate the two.)
+
+...
+
+commit af8d01b4ba7cce46dcd223309e26a79a43515348
+Author: Rickard Lindberg <rickard@rickardlindberg.me>
+Date:   Sun May 7 17:01:46 2023 +0200
+
+    Bows are layed out evenly at the bottom of the screen.
+```
+
+When we run the game now, it greets us with an empty start scene:
+
+<p>
+<center>
+![Empty start scene.](empty-start.png)
+</center>
+</p>
+
+I shoot once with the keyboard, then twice with the gamepad and am taken to
+this scene where the keyboard and the gamepad can control their own bow:
+
+<p>
+<center>
+![First version of multiplayer.](multiplayer-first.png)
+</center>
+</p>
+
+And we have the first version of a working multiplayer mode!
+
+## Polishing
+
+* got carried away and improved the start screen
+    * was able to reuse Balloons just for the animation!
+
+<p>
+<center>
+![Start scene with instructions.](start-instructions.png)
+</center>
+</p>
+
+<p>
+<center>
+![Players with different colors.](multiplayer-colors.png)
+</center>
+</p>
 
 ## Summary
 
+* want to go play sometimes
+    * that feeling when you have created something and want to go have a
+      look at it
+    * same feeling as when I made websites 20 years ago
+    * that feeling!
+
 See you in the next episode!
-
-## TODO
-
-    commit 9804dce5d6f789274161a7b2c84a36f43cd33c23
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 14:31:38 2023 +0200
-
-        Rename GameScene -> GameplayScene (so that we can create a StartScene and a GameScene to coordinate the two.)
-
-    ...
-
-    commit af8d01b4ba7cce46dcd223309e26a79a43515348
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 17:01:46 2023 +0200
-
-        Bows are layed out evenly at the bottom of the screen.
-
-    * got carried away and improved the start screen
-
-        * was able to reuse Balloons just for the animation!
-
-    commit bc7d1ca865a51b47e8efd0004dca288ebcc9ec33
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 17:20:36 2023 +0200
-
-        Start screen draws helpful text.
-
-    ...
-
-    commit 4b03cc6b896b716e2ccbf546f600e49913cbfada (HEAD -> main, origin/main)
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Sun May 7 17:58:33 2023 +0200
-
-        Nicer looking start screen.
-
-    * want to go play sometimes
-        * that feeling when you have created something and want to go have a
-          look at it
-        * same feeling as when I made websites 20 years ago
-        * that feeling!
-
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
-</pre></div>
-</div></div>
