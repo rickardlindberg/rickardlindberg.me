@@ -407,29 +407,72 @@ to be able to select multiple players and should return those players in the
 list. The gameplay scene should take players into account and create one bow
 per player that it can control.
 
-## Flesh out
+## Make input handler player aware
 
-* Start scene can select multiple players.
-* Game scene creates multiple bows.
-* Input handler handles multiple players.
+The start scene uses the input handler to detect shots:
 
-```
-commit 9804dce5d6f789274161a7b2c84a36f43cd33c23
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Sun May 7 14:31:38 2023 +0200
+$:output:python:
+class StartScene(SpriteGroup):
 
-    Rename GameScene -> GameplayScene (so that we can create a StartScene and a GameScene to coordinate the two.)
+    ...
 
-...
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.shots += 1
+$:END
 
-commit af8d01b4ba7cce46dcd223309e26a79a43515348
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Sun May 7 17:01:46 2023 +0200
+However, to select multiple players, the start scene must know *who* shot.
+Let's modify the input handler to support that. We write this test:
 
-    Bows are layed out evenly at the bottom of the screen.
-```
+$:output:python:
+"""
+>>> i = InputHandler()
 
-When we run the game now, it greets us with an empty start scene:
+>>> i.update(0)
+>>> i.get_shots()
+[]
+
+>>> i.event(GameLoop.create_event_keydown(KEY_SPACE))
+>>> i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> i.update(0)
+>>> i.get_shots()
+['keyboard', 'joystick7']
+
+>>> i.update(0)
+>>> i.get_shots()
+[]
+"""
+$:END
+
+We create a new `get_shots` method that returns a list of player/input
+identifiers. If the shot is triggered by the keyboard, the player identifier is
+`keyboard`.  If the shot is triggered by a gamepad, the player identifier is
+`joystick` plus the unique id of that joystick.
+
+## Start scene ...
+
+Now we can use this new method in the start scene. But, as usual, let's start
+by modifying the test:
+
+$:output:python:
+"""
+>>> start = StartScene(screen_area=Rectangle.from_size(500, 500))
+>>> start.get_players() is None
+True
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> start.update(0)
+>>> start.update(0)
+>>> start.get_players()
+['joystick7']
+"""
+$:END
+
+## Game scene multiple bows
+
+## End result
 
 <p>
 <center>
@@ -437,8 +480,8 @@ When we run the game now, it greets us with an empty start scene:
 </center>
 </p>
 
-I shoot once with the keyboard, then twice with the gamepad and am taken to
-this scene where the keyboard and the gamepad can control their own bow:
+If we shoot once with the keyboard, then twice with the gamepad, we are taken
+to this scene where the keyboard and the gamepad can control their own bow:
 
 <p>
 <center>
@@ -448,16 +491,87 @@ this scene where the keyboard and the gamepad can control their own bow:
 
 And we have the first version of a working multiplayer mode!
 
+## A reflection on stories
+
+How many stories have we worked on in this episode?
+
+Well, we have added support for multiplayer, isn't that just one story?
+
+But we also did some polishing. Polishing could easily be its own story. Polish
+adds value to the players of the game.
+
+So the stories might be
+
+* Add multiplayer support
+* Nicer looking, more informative start scene
+* Different player colors
+
+The first one is a lot bigger than the others. Is it possible to split it so
+that all stories that we work on have roughly the same size? I'm not sure.
+Let's think about it.
+
+Let's think about the state the game was in when we had a start scene, but the
+players could not be selected. We had visible change in behavior. There was now
+a start scene that wasn't there before. But had we added value? Players
+expecting multiplayer would be disappointed. Other players would have to shoot
+a couple of times extra before they can play the game. That doesn't seem like
+value. However, players could see this new start scene and ask questions like
+"what is this?" and "what am I supposed to do here?" We can tell them our idea
+and they can give us feedback if we are on the right track. Perhaps they want
+to start a multiplayer session in a different way? Perhaps they think a
+descriptive text on the start scene is more important? That has value.
+
 ## Polishing
 
-* got carried away and improved the start screen
-    * was able to reuse Balloons just for the animation!
+An empty start scene does not feel polished. Let's add some instruction text to
+tell players how to get passed it. It mostly involves doing `loop.draw_text` in
+the draw method. Not very interesting. However, let's also add some animated
+balloons in the background to make the scene a little more interesting. Thanks
+to the extraction of `Balloons` that we did in the
+[previous](/writing/agdpp-spawn-multiple-balloons/index.html) episode, we can
+do this with the following lines:
+
+$:output:python:
+class StartScene(SpriteGroup):
+
+    def __init__(self, screen_area):
+        SpriteGroup.__init__(self)
+        positions = [
+            Point(
+                x=screen_area.get_random_x(),
+                y=random.randint(screen_area.topleft.y, screen_area.bottomright.y)
+            )
+            for x in range(15)
+        ]
+        self.add(Balloons(
+            positions=positions,
+            number_of_balloons=len(positions),
+            screen_area=screen_area
+        ))
+        ...
+
+    ...
+$:END
+
+I really should have created `screen_area.get_random_x()` or even
+`screen_area.get_random_position()`. But I got carried away and wanted a
+result quickly. We add a note about that and might address it in a future
+refactoring.
+
+Anyway, here is the final result of the start scene:
 
 <p>
 <center>
 ![Start scene with instructions.](start-instructions.png)
 </center>
 </p>
+
+Here we have selected two players: one with the keyboard and one with a
+gamepad. If any of them shoot again, we enter the gameplay mode, or we can
+continue to add players by shooting with a different gamepad.
+
+As a final polish we will make different players have different colors. The
+result:
 
 <p>
 <center>
@@ -467,10 +581,15 @@ And we have the first version of a working multiplayer mode!
 
 ## Summary
 
-* want to go play sometimes
-    * that feeling when you have created something and want to go have a
-      look at it
-    * same feeling as when I made websites 20 years ago
-    * that feeling!
+With the new start scene, the balloon shooter feels even more like a real game.
+I find myself wanting to go play the game and enjoy what we have created. That
+is a really nice feeling.
+
+I am a bit surprised what you can achieve with the only graphics primitives
+being circles and text. I mean, the look of the game is pretty bad, the colors
+are horrible, and yet the idea comes across nicely and game mechanics can be
+felt anyway. I wonder how much of an improvement it would be to improve
+graphics. Probably a lot. But I am still surprised how far circles and text
+have take us.
 
 See you in the next episode!

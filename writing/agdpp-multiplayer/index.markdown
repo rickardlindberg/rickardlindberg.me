@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Multiplayer'
-date: 2023-06-26
+date: 2023-06-27
 tags: agdpp,draft
 agdpp: true
 ---
@@ -392,29 +392,69 @@ to be able to select multiple players and should return those players in the
 list. The gameplay scene should take players into account and create one bow
 per player that it can control.
 
-## Flesh out
+## Make input handler player aware
 
-* Start scene can select multiple players.
-* Game scene creates multiple bows.
-* Input handler handles multiple players.
+The start scene uses the input handler to detect shots:
 
-```
-commit 9804dce5d6f789274161a7b2c84a36f43cd33c23
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Sun May 7 14:31:38 2023 +0200
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
 
-    Rename GameScene -> GameplayScene (so that we can create a StartScene and a GameScene to coordinate the two.)
+    <span class="o">...</span>
 
-...
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div></div>
+However, to select multiple players, the start scene must know *who* shot.
+Let's modify the input handler to support that. We write this test:
 
-commit af8d01b4ba7cce46dcd223309e26a79a43515348
-Author: Rickard Lindberg <rickard@rickardlindberg.me>
-Date:   Sun May 7 17:01:46 2023 +0200
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
 
-    Bows are layed out evenly at the bottom of the screen.
-```
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[]</span>
 
-When we run the game now, it greets us with an empty start scene:
+<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
+<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[&#39;keyboard&#39;, &#39;joystick7&#39;]</span>
+
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+We create a new `get_shots` method that returns a list of player/input
+identifiers. If the shot is triggered by the keyboard, the player identifier is
+`keyboard`.  If the shot is triggered by a gamepad, the player identifier is
+`joystick` plus the unique id of that joystick.
+
+## Start scene ...
+
+Now we can use this new method in the start scene. But, as usual, let's start
+by modifying the test:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
+<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.get_players()</span>
+<span class="sd">[&#39;joystick7&#39;]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+## Game scene multiple bows
+
+## End result
 
 <p>
 <center>
@@ -422,8 +462,8 @@ When we run the game now, it greets us with an empty start scene:
 </center>
 </p>
 
-I shoot once with the keyboard, then twice with the gamepad and am taken to
-this scene where the keyboard and the gamepad can control their own bow:
+If we shoot once with the keyboard, then twice with the gamepad, we are taken
+to this scene where the keyboard and the gamepad can control their own bow:
 
 <p>
 <center>
@@ -433,16 +473,86 @@ this scene where the keyboard and the gamepad can control their own bow:
 
 And we have the first version of a working multiplayer mode!
 
+## A reflection on stories
+
+How many stories have we worked on in this episode?
+
+Well, we have added support for multiplayer, isn't that just one story?
+
+But we also did some polishing. Polishing could easily be its own story. Polish
+adds value to the players of the game.
+
+So the stories might be
+
+* Add multiplayer support
+* Nicer looking, more informative start scene
+* Different player colors
+
+The first one is a lot bigger than the others. Is it possible to split it so
+that all stories that we work on have roughly the same size? I'm not sure.
+Let's think about it.
+
+Let's think about the state the game was in when we had a start scene, but the
+players could not be selected. We had visible change in behavior. There was now
+a start scene that wasn't there before. But had we added value? Players
+expecting multiplayer would be disappointed. Other players would have to shoot
+a couple of times extra before they can play the game. That doesn't seem like
+value. However, players could see this new start scene and ask questions like
+"what is this?" and "what am I supposed to do here?" We can tell them our idea
+and they can give us feedback if we are on the right track. Perhaps they want
+to start a multiplayer session in a different way? Perhaps they think a
+descriptive text on the start scene is more important? That has value.
+
 ## Polishing
 
-* got carried away and improved the start screen
-    * was able to reuse Balloons just for the animation!
+An empty start scene does not feel polished. Let's add some instruction text to
+tell players how to get passed it. It mostly involves doing `loop.draw_text` in
+the draw method. Not very interesting. However, let's also add some animated
+balloons in the background to make the scene a little more interesting. Thanks
+to the extraction of `Balloons` that we did in the
+[previous](/writing/agdpp-spawn-multiple-balloons/index.html) episode, we can
+do this with the following lines:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Point</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">screen_area</span><span class="o">.</span><span class="n">get_random_x</span><span class="p">(),</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">screen_area</span><span class="o">.</span><span class="n">topleft</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">screen_area</span><span class="o">.</span><span class="n">bottomright</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloons</span><span class="p">(</span>
+            <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
+            <span class="n">number_of_balloons</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">),</span>
+            <span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span>
+        <span class="p">))</span>
+        <span class="o">...</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+I really should have created `screen_area.get_random_x()` or even
+`screen_area.get_random_position()`. But I got carried away and wanted a
+result quickly. We add a note about that and might address it in a future
+refactoring.
+
+Anyway, here is the final result of the start scene:
 
 <p>
 <center>
 ![Start scene with instructions.](start-instructions.png)
 </center>
 </p>
+
+Here we have selected two players: one with the keyboard and one with a
+gamepad. If any of them shoot again, we enter the gameplay mode, or we can
+continue to add players by shooting with a different gamepad.
+
+As a final polish we will make different players have different colors. The
+result:
 
 <p>
 <center>
@@ -452,10 +562,15 @@ And we have the first version of a working multiplayer mode!
 
 ## Summary
 
-* want to go play sometimes
-    * that feeling when you have created something and want to go have a
-      look at it
-    * same feeling as when I made websites 20 years ago
-    * that feeling!
+With the new start scene, the balloon shooter feels even more like a real game.
+I find myself wanting to go play the game and enjoy what we have created. That
+is a really nice feeling.
+
+I am a bit surprised what you can achieve with the only graphics primitives
+being circles and text. I mean, the look of the game is pretty bad, the colors
+are horrible, and yet the idea comes across nicely and game mechanics can be
+felt anyway. I wonder how much of an improvement it would be to improve
+graphics. Probably a lot. But I am still surprised how far circles and text
+have take us.
 
 See you in the next episode!
