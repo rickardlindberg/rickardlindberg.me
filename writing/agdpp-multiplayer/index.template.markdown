@@ -9,7 +9,7 @@ For every story that we work on, the balloon shooter feels more and more like a
 real game. The initial goal of this project was to create a game that me and my
 son will enjoy playing *together*. At this point, I think the most valuable
 thing we can work on towards that goal is adding support for multiplayer.
-That's what we will work on in this episode.
+So that's the topic for this episode.
 
 ## A new layer
 
@@ -43,7 +43,7 @@ can start playing right away.
 
 I imagine that multiplayer mode works by first selecting which players should
 participate in shooting balloons, and after that, the gameplay mode is entered
-and each player get their own bow to shoot with.
+and each player gets their own bow to shoot with.
 
 We want to go from this structure:
 
@@ -61,8 +61,8 @@ BalloonShooter
         GameScene
 $:END
 
-We want to add another level that first directs calls to a start screen (or
-player select screen) and once players are selected, initializes the game scene
+We want to add another level that first directs calls to a start scene (or
+player select scene) and once players are selected, initializes the game scene
 and directs call to that.
 
 The current tests for `GameScene` should pass unchanged, but tests for
@@ -77,7 +77,7 @@ our tests as a safety net to give us feedback about how we're doing.
 
 I want to call the new layer `GameScene`, but that name is already taken. The
 current game scene is really the gameplay scene, so we rename it to that. Then
-we create the new `GameScene` which just forwards its calls to the gameplay
+we create the new game scene which just forwards its calls to the gameplay
 scene:
 
 $:output:python:
@@ -165,7 +165,7 @@ First of all "on" should be "one" in the test description. Second of all, the
 implementation does not check events at all, so a test that does not simulate
 any events will still pass.  So if we were to take this start scene into play
 now, we just need to wait for two iterations (2/60th of a second) and it would
-report players `['one'`]. That does not seem correct.
+report players `['one']`. That does not seem correct.
 
 Let's fix that. We modify the test to do two updates and the assertions should
 be the same:
@@ -286,7 +286,7 @@ players. What we do have is a skeleton with a few more pieces where this new
 functionality will fit.
 
 The game works fine now (if we know that we have to shoot twice to get passed
-the start screen), but a test fails. It is the test for the balloon shooter.
+the start scene), but a test fails. It is the test for the balloon shooter.
 Here it is:
 
 $:output:python:
@@ -355,7 +355,7 @@ Here is yet another example of overlapping, sociable testing. We yet again have
 to simulate two shoot events to select players.
 
 One downside of this approach is that if we were to change the logic for
-selecting players. Say that we first need to shoot and the turn left. Then we
+selecting players. Say that we first need to shoot and then turn left. Then we
 would have to modify three test I think. One way to make that less of a problem
 in this particular situation is to create a test helper something like this:
 
@@ -389,7 +389,8 @@ $:output:diff:
 +                )
 $:END
 
-To make this work we also add that argument to the constructor:
+To make this work we also add that argument to the constructor of the gameplay
+scene:
 
 $:output:diff:
 @@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):
@@ -409,7 +410,7 @@ per player that it can control.
 
 ## Make input handler player aware
 
-The start scene uses the input handler to detect shots:
+The start scene uses the input handler's `get_shoot` to detect shots:
 
 $:output:python:
 class StartScene(SpriteGroup):
@@ -451,10 +452,40 @@ identifiers. If the shot is triggered by the keyboard, the player identifier is
 `keyboard`.  If the shot is triggered by a gamepad, the player identifier is
 `joystick` plus the unique id of that joystick.
 
-## Start scene ...
+We implement it like this:
 
-Now we can use this new method in the start scene. But, as usual, let's start
-by modifying the test:
+$:output:python:
+class InputHandler:
+
+    def __init__(self):
+        self.shots_triggered = []
+        ...
+
+    def event(self, event):
+        if event.is_keydown(KEY_SPACE):
+            self.shots_triggered.append("keyboard")
+        elif event.is_joystick_down(XBOX_A):
+            self.shots_triggered.append(self.joystick_id(event))
+        ...
+
+    def joystick_id(self, event):
+        return f"joystick{event.get_instance_id()}"
+
+    def update(self, dt):
+        self.shots = self.shots_triggered
+        self.shots_triggered = []
+        ...
+
+    def get_shots(self):
+        return self.shots
+
+    ...
+$:END
+
+## Start scene returns players
+
+Now, let's see if we can make `StartScene.get_players` to return actual player
+identifiers instead of hard coded `['one']`. As usual, we start with a test:
 
 $:output:python:
 """
@@ -464,15 +495,91 @@ True
 >>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
 >>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
 >>> start.update(0)
->>> start.update(0)
 >>> start.get_players()
 ['joystick7']
 """
 $:END
 
+We make the test pass like this:
+
+$:output:python:
+class StartScene(SpriteGroup):
+
+    def __init__(self, screen_area):
+        ...
+        self.pending_players = []
+        self.players = None
+
+    def update(self, dt):
+        ...
+        for player in self.input_handler.get_shots():
+            if player in self.pending_players:
+                self.players = self.pending_players
+            else:
+                self.pending_players.append(player)
+
+    def get_players(self):
+        return self.players
+
+    ...
+$:END
+
 ## Game scene multiple bows
 
+At this point, the start scene returns a correct list of players selected and
+the only piece missing is for the gameplay scene to create multiple bows and
+direct events to the correct bow.
+
+Instead of having just a single bow, we create multiple bows like this:
+
+$:output:diff:
+-        self.bow = self.add(Bow())
++        self.bows = {}
++        bow_position = self.screen_area.bottomleft.move(dy=-120)
++        bow_increment = self.screen_area.width / (len(players)+1)
++        for player in players:
++            bow_position = bow_position.move(dx=bow_increment)
++            self.bows[player] = self.add(Bow(position=bow_position))
+$:END
+
+Then we forward events to the correct bow like this:
+
+$:output:diff:
+-        if self.input_handler.get_shoot():
+-            self.flying_arrows.add(self.bow.shoot())
+-        self.bow.turn(self.input_handler.get_turn_angle())
++        for player in self.input_handler.get_shots():
++            self.flying_arrows.add(self.bow_for_player(player).shoot())
++        for player, turn_angle in self.input_handler.get_turn_angles().items():
++            self.bow_for_player(player).turn(turn_angle)
+$:END
+
+Here we use `InputHandler.get_turn_angles` to get turn angles per player. It is
+implemented similarly to how we implemented `InputHandler.get_shots`.
+
+To get the correct bow, we use this:
+
+$:output:python:
+def bow_for_player(self, player):
+    for input_id, bow in self.bows.items():
+        if input_id == player:
+            return bow
+    return bow
+$:END
+
+If no player is found, the last bow is returned. So if you attach another
+gamepad after the gameplay mode has enter, it will control the last bow. Not
+sure if that is right. We'll have to ask our product owner.
+
+We didn't write any tests for this new behavior. We do have tests that check
+that a single player can shoot and turn. That gives us confidence that the new
+for loops work. There could be an error in `bow_for_player` so that an input
+event controls the wrong bow. The tests would not catch that. But I find
+that unlikely, and I'm not worried about it happening.
+
 ## End result
+
+If we start the game now, we are greeted, again, with a blank purple screen:
 
 <p>
 <center>
@@ -491,41 +598,11 @@ to this scene where the keyboard and the gamepad can control their own bow:
 
 And we have the first version of a working multiplayer mode!
 
-## A reflection on stories
-
-How many stories have we worked on in this episode?
-
-Well, we have added support for multiplayer, isn't that just one story?
-
-But we also did some polishing. Polishing could easily be its own story. Polish
-adds value to the players of the game.
-
-So the stories might be
-
-* Add multiplayer support
-* Nicer looking, more informative start scene
-* Different player colors
-
-The first one is a lot bigger than the others. Is it possible to split it so
-that all stories that we work on have roughly the same size? I'm not sure.
-Let's think about it.
-
-Let's think about the state the game was in when we had a start scene, but the
-players could not be selected. We had visible change in behavior. There was now
-a start scene that wasn't there before. But had we added value? Players
-expecting multiplayer would be disappointed. Other players would have to shoot
-a couple of times extra before they can play the game. That doesn't seem like
-value. However, players could see this new start scene and ask questions like
-"what is this?" and "what am I supposed to do here?" We can tell them our idea
-and they can give us feedback if we are on the right track. Perhaps they want
-to start a multiplayer session in a different way? Perhaps they think a
-descriptive text on the start scene is more important? That has value.
-
 ## Polishing
 
-An empty start scene does not feel polished. Let's add some instruction text to
-tell players how to get passed it. It mostly involves doing `loop.draw_text` in
-the draw method. Not very interesting. However, let's also add some animated
+An empty start scene does not feel polished. Let's add some instructions to
+inform players how to get passed it. It mostly involves doing `loop.draw_text`
+in the draw method. Not very interesting. However, let's also add some animated
 balloons in the background to make the scene a little more interesting. Thanks
 to the extraction of `Balloons` that we did in the
 [previous](/writing/agdpp-spawn-multiple-balloons/index.html) episode, we can
@@ -579,17 +656,54 @@ result:
 </center>
 </p>
 
+## A reflection on stories
+
+How many stories have we worked on in this episode?
+
+Well, we have added support for multiplayer, isn't that just one story?
+
+But we also did some polishing. Polishing could easily be its own story. Polish
+adds value to the players of the game.
+
+So the stories might be
+
+* Add multiplayer support
+* Nicer looking, more informative start scene
+* Different player colors
+
+The first one is a lot bigger than the others. Is it possible to split it so
+that all stories that we work on have roughly the same size? I'm not sure.
+Let's think about it.
+
+Let's think about the state that the game was in when we had a start scene but
+the players could not be selected. We had visible change in behavior. There was
+now a start scene that wasn't there before. But had we added value? Players
+expecting multiplayer would be disappointed. Other players would have to shoot
+a couple of times extra before they can play the game. That doesn't seem like
+value. However, players could see this new start scene and ask questions like
+"what is this?" and "what am I supposed to do here?" We can tell them our idea
+and they can give us feedback if we are on the right track. Perhaps they want
+to start a multiplayer session in a different way? Perhaps they think a
+descriptive text on the start scene is more important? That feedback has value.
+
+So we could at least split the first story into two:
+
+* Player selection start scene
+* One bow per player
+
+As long as we can show visible progress, I think the story has value.
+
 ## Summary
 
-With the new start scene, the balloon shooter feels even more like a real game.
-I find myself wanting to go play the game and enjoy what we have created. That
-is a really nice feeling.
+With the new start scene and multiplayer mode, the balloon shooter feels even
+more like a real game.  I find myself wanting to go play the game and enjoy
+what we have created. That is a really nice feeling.
 
 I am a bit surprised what you can achieve with the only graphics primitives
 being circles and text. I mean, the look of the game is pretty bad, the colors
 are horrible, and yet the idea comes across nicely and game mechanics can be
 felt anyway. I wonder how much of an improvement it would be to improve
 graphics. Probably a lot. But I am still surprised how far circles and text
-have take us.
+have taken us.
 
 See you in the next episode!
