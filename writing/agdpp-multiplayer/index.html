@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Multiplayer | Rickard's personal homepage
+      Multiplayer | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Multiplayer</h1>
+      <h1>Multiplayer</h1>
 
-<p><em>Published on 28 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 29 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>For every story that we work on, the balloon shooter feels more and more like a real game. The initial goal of this project was to create a game that me and my son will enjoy playing <em>together</em>. At this point, I think the most valuable thing we can work on towards that goal is adding support for multiplayer. So that’s the topic for this episode.</p>
 <h2 id="a-new-layer">A new layer</h2>
 <p>The entry point for the balloon shooter looks like this:</p>
@@ -199,8 +198,8 @@
 </div>
 </div>
 </div>
-<p>The idea is that a player (keyboard or gamepad) selects to be part of the game by shooting. When all players have entered, one of them can shoot again to start the game. This functionality is not yet fully implemented. But this will do for now.</p>
-<p>When writing this blog post and looking at the code, I notice two problems. First of all “on” should be “one” in the test description. Second of all, the implementation does not check events at all, so a test that does not simulate any events will still pass. So if we were to take this start scene into play now, we just need to wait for two iterations (2/60th of a second) and it would report players <code>['one']</code>. That does not seem correct.</p>
+<p>The idea is that a player (keyboard or gamepad) selects to be part of the game by shooting. When all players have entered, one of them can shoot again to start the game. This functionality is not yet fully implemented above. But this will do for now.</p>
+<p>When writing this blog post and looking at the code, I notice two problems. First of all “on” should be “one” in the test description. Second of all, the implementation does not check events at all, so if the test does not simulate any events, it will still pass. If we were to take this start scene into play now, we just need to wait for two iterations (2/60th of a second) and it would report players <code>['one']</code>. That does not seem correct.</p>
 <p>Let’s fix that. We modify the test to do two updates and the assertions should be the same:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -308,8 +307,8 @@
 </div>
 <p>The test talks about switching to a gameplay scene, but it only asserts that the start scene is <em>not</em> active anymore. We could probably clarify that.</p>
 <p>I’m also not sure how I feel about the assertions that checks the type of the active scene. But I don’t have any ideas for a better way to express that. If you do, please let me know.</p>
-<p>When we run the game now it shows a blank purple screen. If we shoot twice we enter the gameplay scene and the game starts as before. Perfect!</p>
-<p>We do not yet take players into account and we can still not have multiple players. What we do have is a skeleton with a few more pieces where this new functionality will fit.</p>
+<p>When we run the game now, it shows a blank purple screen. If we shoot twice we enter the gameplay scene and the game starts as before. Perfect!</p>
+<p>We do not yet take players into account and we can still not have multiple players. What we do have is a skeleton with a few more places where this new functionality can be added.</p>
 <p>The game works fine now (if we know that we have to shoot twice to get passed the start scene), but a test fails. It is the test for the balloon shooter. Here it is:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -371,7 +370,7 @@
 </div>
 <p>And, we are back to green!</p>
 <p>Here is yet another example of overlapping, sociable testing. We yet again have to simulate two shoot events to select players.</p>
-<p>One downside of this approach is that if we were to change the logic for selecting players. Say that we first need to shoot and then turn left. Then we would have to modify three test I think. One way to make that less of a problem in this particular situation is to create a test helper something like this:</p>
+<p>One downside of this approach is that if we were to change the logic for selecting players, say that we first need to shoot and then turn left, then we would have to modify three test I think. One way to make that less of a problem in this particular situation is to create a test helper something like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -385,7 +384,7 @@
 </div>
 </div>
 <p>We could use that test helper in all tests (with some modification) and now there is only one place in the tests that knows about what events that gets us from the start scene to the gameplay scene with one player.</p>
-<h2 id="players-to-game-scene">Players to game scene</h2>
+<h2 id="pass-players-to-game-scene">Pass players to game scene</h2>
 <p>Our skeleton for the new feature is not quite complete. The gameplay scene does not know about players. Let’s fix that by passing the players from the start scene to the gameplay scene like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -461,8 +460,7 @@
 </div>
 </div>
 </div>
-<p>We create a new <code>get_shots</code> method that returns a list of player/input identifiers. If the shot is triggered by the keyboard, the player identifier is <code>keyboard</code>. If the shot is triggered by a gamepad, the player identifier is <code>joystick</code> plus the unique id of that joystick.</p>
-<p>We implement it like this:</p>
+<p>We create a new <code>get_shots</code> method that returns a list of player/input identifiers. If the shot is triggered by the keyboard, the player identifier is <code>keyboard</code>. If the shot is triggered by a gamepad, the player identifier is <code>joystick</code> plus the unique id of that joystick. We implement it like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -541,7 +539,7 @@
 </div>
 </div>
 </div>
-<h2 id="game-scene-multiple-bows">Game scene multiple bows</h2>
+<h2 id="multiple-bows-in-game-scene">Multiple bows in game scene</h2>
 <p>At this point, the start scene returns a correct list of players selected and the only piece missing is for the gameplay scene to create multiple bows and direct events to the correct bow.</p>
 <p>Instead of having just a single bow, we create multiple bows like this:</p>
 <div class="rliterate-code">
@@ -587,7 +585,7 @@
 </div>
 </div>
 </div>
-<p>If no player is found, the last bow is returned. So if you attach another gamepad after the gameplay mode has enter, it will control the last bow. Not sure if that is right. We’ll have to ask our product owner.</p>
+<p>If no player is found, the last bow is returned. So if you attach another gamepad after the gameplay mode has entered, it will control the last bow. Not sure if that is right. We’ll have to ask our product owner.</p>
 <p>We didn’t write any tests for this new behavior. We do have tests that check that a single player can shoot and turn. That gives us confidence that the new for loops work. There could be an error in <code>bow_for_player</code> so that an input event controls the wrong bow. The tests would not catch that. But I find that unlikely, and I’m not worried about it happening.</p>
 <h2 id="end-result">End result</h2>
 <p>If we start the game now, we are greeted, again, with a blank purple screen:</p>

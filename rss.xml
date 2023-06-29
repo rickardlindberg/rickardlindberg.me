@@ -7,8 +7,628 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 18 Jun 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Thu, 29 Jun 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Multiplayer</title>
+    <link>http://rickardlindberg.me/writing/agdpp-multiplayer/</link>
+    <description><![CDATA[<h1>Multiplayer</h1>
+
+<p><em>Published on 29 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>For every story that we work on, the balloon shooter feels more and more like a real game. The initial goal of this project was to create a game that me and my son will enjoy playing <em>together</em>. At this point, I think the most valuable thing we can work on towards that goal is adding support for multiplayer. So that’s the topic for this episode.</p>
+<h2 id="a-new-layer">A new layer</h2>
+<p>The entry point for the balloon shooter looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The balloon shooter class instantiates a game scene which implements the logic of our game:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">(</span><span class="n">Rectangle</span><span class="o">.</span><span class="n">from_size</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This means that as soon as we start the game, we enter the gameplay mode and can start playing right away.</p>
+<p>I imagine that multiplayer mode works by first selecting which players should participate in shooting balloons, and after that, the gameplay mode is entered and each player gets their own bow to shoot with.</p>
+<p>We want to go from this structure:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>BalloonShooter
+    GameScene
+</pre>
+</div>
+</div>
+</div>
+<p>To something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>BalloonShooter
+    NewGameScene
+        StartScene
+        GameScene
+</pre>
+</div>
+</div>
+</div>
+<p>We want to add another level that first directs calls to a start scene (or player select scene) and once players are selected, initializes the game scene and directs call to that.</p>
+<p>The current tests for <code>GameScene</code> should pass unchanged, but tests for <code>BalloonShooter</code> will need some modifications. I imagine that those tests need to select a player before asserting something from the gameplay mode. We’ll see later.</p>
+<h2 id="refactor-to-new-structure">Refactor to new structure</h2>
+<p>Let’s start by slowly and carefully refactor towards this new structure, using our tests as a safety net to give us feedback about how we’re doing.</p>
+<p>I want to call the new layer <code>GameScene</code>, but that name is already taken. The current game scene is really the gameplay scene, so we rename it to that. Then we create the new game scene which just forwards its calls to the gameplay scene:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We insert this new layer in <code>BalloonShooter</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -113,7 +113,7 @@ class BalloonShooter:</span>
+     def __init__(self, loop):
+         self.loop = loop
+         self.resolution = (1280, 720)
+<span class="gd">-        self.game_scene = GameplayScene(Rectangle.from_size(*self.resolution))</span>
+<span class="gi">+        self.game_scene = GameScene(screen_area=Rectangle.from_size(*self.resolution))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The new layer is now added, all tests are passing, and we have a point in our code (<code>GameScene</code>) where we can put functionality to choose between a start scene and a gameplay scene.</p>
+<p>Before we can work on that behavior, we need a start scene.</p>
+<h2 id="start-scene">Start scene</h2>
+<p>We write the initial version of the start scene like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I report players when on player has shot twice:</span>
+
+<span class="sd">    &gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
+<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
+<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
+<span class="sd">    &gt;&gt;&gt; start.get_players()</span>
+<span class="sd">    [&#39;one&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">InputHandler</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;one&quot;</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The idea is that a player (keyboard or gamepad) selects to be part of the game by shooting. When all players have entered, one of them can shoot again to start the game. This functionality is not yet fully implemented above. But this will do for now.</p>
+<p>When writing this blog post and looking at the code, I notice two problems. First of all “on” should be “one” in the test description. Second of all, the implementation does not check events at all, so if the test does not simulate any events, it will still pass. If we were to take this start scene into play now, we just need to wait for two iterations (2/60th of a second) and it would report players <code>['one']</code>. That does not seem correct.</p>
+<p>Let’s fix that. We modify the test to do two updates and the assertions should be the same:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
+<span class="sd">True</span>
+
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.get_players()</span>
+<span class="sd">[&#39;one&#39;]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I wonder how common the event + update pattern is in our tests. Perhaps we can benefit from a test helper something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[],</span> <span class="n">dt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">sprite</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We might try it in a few places and see if the tests read better. But not now. The modification to the tests forces us to check events. We do it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>With that fix out of the way, let’s work on integrating the start scene.</p>
+<h2 id="take-start-scene-into-play">Take start scene into play</h2>
+<p>The game scene currently forwards all calls to the gameplay scene. To take the start scene into play, we first want the start scene to be active, and have the game scene forward calls to it. Once players have been selected, we want the game scene to switch the active scene to the gameplay scene.</p>
+<p>We express that in the following test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initially, I draw the start scene:</span>
+
+<span class="sd">    &gt;&gt;&gt; game = GameScene(screen_area=Rectangle.from_size(500, 500))</span>
+<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    When players have been selected, I draw the gameplay scene:</span>
+
+<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
+<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
+<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
+<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
+<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
+<span class="sd">    False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is an example of an overlapping, sociable test. To make the scene switch happen, we need <code>StartScene.get_players</code> to return something. Since the game scene uses the real start scene, and not a mock, the only way to make it return something is to perform the same actions as we did in the start scene tests.</p>
+<p>To make this test pass, we initialize an active scene variable to the start scene and switch it to the gameplay scene once we have selected players:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span> <span class="o">=</span> <span class="n">screen_area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">StartScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="p">,</span> <span class="n">StartScene</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">get_players</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test talks about switching to a gameplay scene, but it only asserts that the start scene is <em>not</em> active anymore. We could probably clarify that.</p>
+<p>I’m also not sure how I feel about the assertions that checks the type of the active scene. But I don’t have any ideas for a better way to express that. If you do, please let me know.</p>
+<p>When we run the game now, it shows a blank purple screen. If we shoot twice we enter the gameplay scene and the game starts as before. Perfect!</p>
+<p>We do not yet take players into account and we can still not have multiple players. What we do have is a skeleton with a few more places where this new functionality can be added.</p>
+<p>The game works fine now (if we know that we have to shoot twice to get passed the start scene), but a test fails. It is the test for the balloon shooter. Here it is:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    We run the game for a few frames, then quit:</span>
+
+<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">    ...     events=[</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">    ...     ]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    The game loop is initialized and cleaned up:</span>
+
+<span class="sd">    &gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
+<span class="sd">    GAMELOOP_INIT =&gt;</span>
+<span class="sd">        resolution: (1280, 720)</span>
+<span class="sd">        fps: 60</span>
+<span class="sd">    GAMELOOP_QUIT =&gt;</span>
+
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test is at the outermost level, so it includes all objects. Before, the gameplay scene received the events from the test, but now the start scene receives them. The start scene does not handle the user closed window event which results in this test just hanging.</p>
+<p>That failure teaches us that we can’t quit the application when we are in the start scene, only when we are in the gameplay scene. That is probably not correct. Thank you test for pointing that out. However, the assertions that follow check for example that a balloon is drawn, so the test expects to be in the gameplay mode. We modify the test to include two shoot events so that we end up in the gameplay scene:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
+<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And, we are back to green!</p>
+<p>Here is yet another example of overlapping, sociable testing. We yet again have to simulate two shoot events to select players.</p>
+<p>One downside of this approach is that if we were to change the logic for selecting players, say that we first need to shoot and then turn left, then we would have to modify three test I think. One way to make that less of a problem in this particular situation is to create a test helper something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">events_to_select_one_player</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
+        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We could use that test helper in all tests (with some modification) and now there is only one place in the tests that knows about what events that gets us from the start scene to the gameplay scene with one player.</p>
+<h2 id="pass-players-to-game-scene">Pass players to game scene</h2>
+<p>Our skeleton for the new feature is not quite complete. The gameplay scene does not know about players. Let’s fix that by passing the players from the start scene to the gameplay scene like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -162,7 +162,10 @@ class GameScene:</span>
+         self.active_scene.update(dt)
+         if isinstance(self.active_scene, StartScene):
+             if self.active_scene.get_players():
+<span class="gd">-                self.active_scene = GameplayScene(screen_area=self.screen_area)</span>
+<span class="gi">+                self.active_scene = GameplayScene(</span>
+<span class="gi">+                    screen_area=self.screen_area,</span>
+<span class="gi">+                    players=self.active_scene.get_players()</span>
+<span class="gi">+                )</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To make this work we also add that argument to the constructor of the gameplay scene:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):</span>
+     []
+     &quot;&quot;&quot;
+
+<span class="gd">-    def __init__(self, screen_area, balloons=[], arrows=[]):</span>
+<span class="gi">+    def __init__(self, screen_area, balloons=[], arrows=[], players=[&quot;default&quot;]):</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now, I think our skeleton is complete. What do I mean by that? I mean that all the pieces are connected they way we think they should be. Now we can work individually on the start scene and the gameplay scene. The start scene needs to be able to select multiple players and should return those players in the list. The gameplay scene should take players into account and create one bow per player that it can control.</p>
+<h2 id="make-input-handler-player-aware">Make input handler player aware</h2>
+<p>The start scene uses the input handler’s <code>get_shoot</code> to detect shots:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre>
+</div>
+</div>
+</div>
+<p>However, to select multiple players, the start scene must know <em>who</em> shot. Let’s modify the input handler to support that. We write this test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
+
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[]</span>
+
+<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
+<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[&#39;keyboard&#39;, &#39;joystick7&#39;]</span>
+
+<span class="sd">&gt;&gt;&gt; i.update(0)</span>
+<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We create a new <code>get_shots</code> method that returns a list of player/input identifiers. If the shot is triggered by the keyboard, the player identifier is <code>keyboard</code>. If the shot is triggered by a gamepad, the player identifier is <code>joystick</code> plus the unique id of that joystick. We implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick_id</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">joystick_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;joystick</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">get_instance_id</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_shots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="start-scene-returns-players">Start scene returns players</h2>
+<p>Now, let’s see if we can make <code>StartScene.get_players</code> to return actual player identifiers instead of hard coded <code>['one']</code>. As usual, we start with a test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
+<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
+<span class="sd">&gt;&gt;&gt; start.update(0)</span>
+<span class="sd">&gt;&gt;&gt; start.get_players()</span>
+<span class="sd">[&#39;joystick7&#39;]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We make the test pass like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shots</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="multiple-bows-in-game-scene">Multiple bows in game scene</h2>
+<p>At this point, the start scene returns a correct list of players selected and the only piece missing is for the gameplay scene to create multiple bows and direct events to the correct bow.</p>
+<p>Instead of having just a single bow, we create multiple bows like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        self.bow = self.add(Bow())</span>
+<span class="gi">+        self.bows = {}</span>
+<span class="gi">+        bow_position = self.screen_area.bottomleft.move(dy=-120)</span>
+<span class="gi">+        bow_increment = self.screen_area.width / (len(players)+1)</span>
+<span class="gi">+        for player in players:</span>
+<span class="gi">+            bow_position = bow_position.move(dx=bow_increment)</span>
+<span class="gi">+            self.bows[player] = self.add(Bow(position=bow_position))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Then we forward events to the correct bow like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        if self.input_handler.get_shoot():</span>
+<span class="gd">-            self.flying_arrows.add(self.bow.shoot())</span>
+<span class="gd">-        self.bow.turn(self.input_handler.get_turn_angle())</span>
+<span class="gi">+        for player in self.input_handler.get_shots():</span>
+<span class="gi">+            self.flying_arrows.add(self.bow_for_player(player).shoot())</span>
+<span class="gi">+        for player, turn_angle in self.input_handler.get_turn_angles().items():</span>
+<span class="gi">+            self.bow_for_player(player).turn(turn_angle)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here we use <code>InputHandler.get_turn_angles</code> to get turn angles per player. It is implemented similarly to how we implemented <code>InputHandler.get_shots</code>.</p>
+<p>To get the correct bow, we use this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">bow_for_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">bow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">input_id</span> <span class="o">==</span> <span class="n">player</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">bow</span>
+    <span class="k">return</span> <span class="n">bow</span>
+</pre>
+</div>
+</div>
+</div>
+<p>If no player is found, the last bow is returned. So if you attach another gamepad after the gameplay mode has entered, it will control the last bow. Not sure if that is right. We’ll have to ask our product owner.</p>
+<p>We didn’t write any tests for this new behavior. We do have tests that check that a single player can shoot and turn. That gives us confidence that the new for loops work. There could be an error in <code>bow_for_player</code> so that an input event controls the wrong bow. The tests would not catch that. But I find that unlikely, and I’m not worried about it happening.</p>
+<h2 id="end-result">End result</h2>
+<p>If we start the game now, we are greeted, again, with a blank purple screen:</p>
+<p>
+<center>
+<img src="empty-start.png" title="fig:" alt="Empty start scene." />
+</center>
+</p>
+<p>If we shoot once with the keyboard, then twice with the gamepad, we are taken to this scene where the keyboard and the gamepad can control their own bow:</p>
+<p>
+<center>
+<img src="multiplayer-first.png" title="fig:" alt="First version of multiplayer." />
+</center>
+</p>
+<p>And we have the first version of a working multiplayer mode!</p>
+<h2 id="polishing">Polishing</h2>
+<p>An empty start scene does not feel polished. Let’s add some instructions to inform players how to get passed it. It mostly involves doing <code>loop.draw_text</code> in the draw method. Not very interesting. However, let’s also add some animated balloons in the background to make the scene a little more interesting. Thanks to the extraction of <code>Balloons</code> that we did in the <a href="/writing/agdpp-spawn-multiple-balloons/index.html">previous</a> episode, we can do this with the following lines:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Point</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">screen_area</span><span class="o">.</span><span class="n">get_random_x</span><span class="p">(),</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">screen_area</span><span class="o">.</span><span class="n">topleft</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">screen_area</span><span class="o">.</span><span class="n">bottomright</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloons</span><span class="p">(</span>
+            <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
+            <span class="n">number_of_balloons</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">),</span>
+            <span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span>
+        <span class="p">))</span>
+        <span class="o">...</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I really should have created <code>screen_area.get_random_x()</code> or even <code>screen_area.get_random_position()</code>. But I got carried away and wanted a result quickly. We add a note about that and might address it in a future refactoring.</p>
+<p>Anyway, here is the final result of the start scene:</p>
+<p>
+<center>
+<img src="start-instructions.png" title="fig:" alt="Start scene with instructions." />
+</center>
+</p>
+<p>Here we have selected two players: one with the keyboard and one with a gamepad. If any of them shoot again, we enter the gameplay mode, or we can continue to add players by shooting with a different gamepad.</p>
+<p>As a final polish we will make different players have different colors. The result:</p>
+<p>
+<center>
+<img src="multiplayer-colors.png" title="fig:" alt="Players with different colors." />
+</center>
+</p>
+<h2 id="a-reflection-on-stories">A reflection on stories</h2>
+<p>How many stories have we worked on in this episode?</p>
+<p>Well, we have added support for multiplayer, isn’t that just one story?</p>
+<p>But we also did some polishing. Polishing could easily be its own story. Polish adds value to the players of the game.</p>
+<p>So the stories might be</p>
+<ul>
+<li>Add multiplayer support</li>
+<li>Nicer looking, more informative start scene</li>
+<li>Different player colors</li>
+</ul>
+<p>The first one is a lot bigger than the others. Is it possible to split it so that all stories that we work on have roughly the same size? I’m not sure. Let’s think about it.</p>
+<p>Let’s think about the state that the game was in when we had a start scene but the players could not be selected. We had visible change in behavior. There was now a start scene that wasn’t there before. But had we added value? Players expecting multiplayer would be disappointed. Other players would have to shoot a couple of times extra before they can play the game. That doesn’t seem like value. However, players could see this new start scene and ask questions like “what is this?” and “what am I supposed to do here?” We can tell them our idea and they can give us feedback if we are on the right track. Perhaps they want to start a multiplayer session in a different way? Perhaps they think a descriptive text on the start scene is more important? That feedback has value.</p>
+<p>So we could at least split the first story into two:</p>
+<ul>
+<li>Player selection start scene</li>
+<li>One bow per player</li>
+</ul>
+<p>As long as we can show visible progress, I think the story has value.</p>
+<h2 id="summary">Summary</h2>
+<p>With the new start scene and multiplayer mode, the balloon shooter feels even more like a real game. I find myself wanting to go play the game and enjoy what we have created. That is a really nice feeling.</p>
+<p>I am a bit surprised what you can achieve with the only graphics primitives being circles and text. I mean, the look of the game is pretty bad, the colors are horrible, and yet the idea comes across nicely and game mechanics can be felt anyway. I wonder how much of an improvement it would be to improve graphics. Probably a lot. But I am still surprised how far circles and text have taken us.</p>
+<p>See you in the next episode!</p>
+]]></description>
+    <pubDate>Thu, 29 Jun 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/agdpp-multiplayer/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>High-level or micro-tests? A discussion with Ron.</title>
     <link>http://rickardlindberg.me/writing/high-level-low-level-ron-reply/</link>
     <description><![CDATA[<h1>High-level or micro-tests? A discussion with Ron.</h1>
@@ -3446,271 +4066,6 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 ]]></description>
     <pubDate>Thu, 27 Apr 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/agdpp-shooting-arrow/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Demo and game idea</title>
-    <link>http://rickardlindberg.me/writing/agdpp-demo-and-game-idea/</link>
-    <description><![CDATA[<h1>Demo and game idea</h1>
-
-<p><em>Published on 24 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>In this episode we demo the “game” for our customer. We get some feedback on it and start evolving the game to meet our customer’s vision.</p>
-<h2 id="video-version">Video version</h2>
-<p>The video version of this episode:</p>
-<center>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/z20IocFrKLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
-encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-</iframe>
-</center>
-<h2 id="demo">Demo</h2>
-<p>I mentioned to my son that I had started working on a game. He wanted to see it. I told him that there isn’t much to play yet, but that I can show him what it looks like.</p>
-<p>I started the “game” and he watched the circle going back and forth.</p>
-<p>For reference, this is what the “game” looks like now:</p>
-<center>
-<img src="animation.png" title="fig:" alt="Animated circle." />
-</center>
-<p>Then he tried to interact with the circle. He grabbed the mouse and clicked away and was disappointed that nothing happened. I told him that you can’t do anything yet, that it’s just an animation.</p>
-<p>He looked at me sad and said “Dad, this game is boring.”</p>
-<p>Initially I wasn’t planning on showing him the game because in this early stage there is not much to play, and I knew he was not going to like it. Did I ruin it?</p>
-<p>Then I asked him, “What would you like to do with the circle?”</p>
-<p>The sadness in his face disappeared and he started talking about balloons. He said that he wanted the circle to be a balloon and that he wanted to shoot down balloons with arrows.</p>
-<p>I think we have an idea for a game.</p>
-<h2 id="on-early-feedback">On early feedback</h2>
-<p>My initial idea for the game was some kind of tetris variant. I was thinking that you have two boards and that you could help each other out by clearing blocks on each other’s boards. Cooperation seems more fun that competition.</p>
-<p>Turns out, the customer wants a balloon shooter. If we hadn’t shown the demo, we might have never found that out.</p>
-<h2 id="simplest-possible-version">Simplest possible version</h2>
-<p>In the spirit of <a href="https://www.artima.com/articles/the-simplest-thing-that-could-possibly-work#part3">Ward</a> we ask ourselves what the simplest possible balloon shooter could look like. What is the absolute minimum version that I can give to my son and he can somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is to create a game that <em>we</em> can enjoy playing together. That means some kind of multiplayer mode. But that is another for a later story.)</p>
-<p>Here is what I’m thinking:</p>
-<ul>
-<li>1 balloon falling down the screen</li>
-<li>1 arrow pointing in a fixed direction</li>
-<li>1 button to shoot that single arrow</li>
-<li>Then game over</li>
-</ul>
-<p>So the only challenge will be to fire the arrow at the right time for it to hit the balloon. You will either hit and get a point or miss and it’ll be game over.</p>
-<p>Oh, and circles for the graphics is probably fine. The balloon can be drawn with one big circle, and the arrow maybe with three smaller circles in a row. If I tell my son to imagine they are balloons and arrows, I think he’ll accept that.</p>
-<h2 id="first-story">First story</h2>
-<p>To make progress towards a balloon shooter, I want to work on a story that is about drawing a balloon and an arrow. Create the initial scene of the game sort of.</p>
-<p>Our game already animates a circle. Let’s put all behavior related to that circle into its own class called <code>Balloon</code>. Here is how our game <code>tick</code> method looks like now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>After we extract the balloon class, it looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>And here is the balloon class:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Any behavior that the balloon should have, we can now test at this lower level. We can instantiate a balloon, call its tick method, and observe that the right thing happens. There is no need to involve the game or the game loop. (At least if we accept exposing somewhat internal state like the x variable.)</p>
-<p>With the balloon object in place, it is natural to create a new object called <code>Arrow</code> for our other piece in the balloon shooter game. We create a version that just draws a circle:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We make sure it is included in the game by modifying the tick method of the game to also tick and draw the arrow:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tick</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We notice a pattern here. It seems like the responsibility of the game is to call tick and draw on a set of objects. In games (or in Pygame) those objects are referred to as sprites. My understanding is that a sprite is any visual element that shows up in the game.</p>
-<p>We refactor our game to reflect this new understanding:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Is our game class just becoming a thing layer of loops? Can we move some of that responsibility to the game loop? I’m not certain yet, so we will leave it like this for now.</p>
-<p>If we run the game now, this is what we see:</p>
-<center>
-<img src="scene1.png" title="fig:" alt="First scene of balloon shooter." />
-</center>
-<p>Not very pretty. What is that?</p>
-<p>Let’s see if we can improve the drawing of the arrow. But remember, not perfection, but improvement. If I look at the game now, I don’t get an idea what the game is about. We just want to make the arrow slightly more realistic to convey the meaning of the object. We are still restricted to drawing circles. The current <code>draw_circle</code> looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>That’s stupid! Why is there no ability to specify anything but the x-coordinate? Well, until now, we haven’t needed that. Now that we do need it, let’s add it. No biggie:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We experiment with three circles for the arrow and tweak the numbers until we think it looks good. Here is the result:</p>
-<center>
-<img src="scene2.png" title="fig:" alt="Improved drawing of arrow." />
-</center>
-<p>I don’t know about you, but when I see this, I want to press a button to fire that arrow so it hits the balloon. I’m convinced this is a balloon shooter now. I hope our customer is as well.</p>
-<p>Right, balloon shooter. Before we didn’t know what game we should write, so our game class was just called <code>Game</code>. Let’s fix that:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span> from gameloop import GameLoop
- 
-<span class="gd">-class Game:</span>
-<span class="gi">+class BalloonShooter:</span>
-</pre>
-</div>
-</div>
-</div>
-<p>There! Now the code more accurately represent the ideas that we have in our minds about this game.</p>
-<p>I forget to mention anything about testing. (For the complete workflow, check out the video.) But here is what the test for the balloon shooter looks like now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
-<span class="sd">arrow and quit when the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 520</span>
-<span class="sd">    radius: 15</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 540</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We both changed the description, becasue we have a balloon shooter now, not a generic game, and added checks for it drawing both the balloon and the arrow.</p>
-<p>It might be too specific to assert on exact coordinates here. We have to visually inspect the output and see if we think it looks good. That’s what I did here. And when I was happy, I copied the coordinates into the test.</p>
-<h2 id="summary">Summary</h2>
-<p>We have completed a first vertical slice of our balloon shooter. There is now a balloon and an arrow on the screen. This is new behavior that we could show to our customer and get feedback on. Perhaps he doesn’t like the position of the arrow. If so, we can adjust. Perhaps he can’t imagine that the circle is actually a balloon. If so, we can work on improving the graphics.</p>
-<p>What else do we think we need before we have the first version of the balloon shooter?</p>
-<ul>
-<li>Balloon moves downwards</li>
-<li>Arrow animates when shot</li>
-<li>Arrow can hit balloon</li>
-<li>Point is given for hit</li>
-<li>Game over when miss</li>
-<li>Real graphics instead of circles</li>
-</ul>
-<p>Which one is the most important one to work on next? We’ll tackle that one in the next episode!</p>
-<p>You can browse the <a href="https://github.com/rickardlindberg/agdpp/tree/initial-balloon-shooter-story">complete source code</a> from this episode.</p>
-<p>See you!</p>
-]]></description>
-    <pubDate>Mon, 24 Apr 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/agdpp-demo-and-game-idea/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
