@@ -1,11 +1,9 @@
 ---
-title: 'DRAFT: Multiplayer'
-date: 2023-06-28
-tags: agdpp,draft
+title: Multiplayer
+date: 2023-06-29
+tags: agdpp
 agdpp: true
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 For every story that we work on, the balloon shooter feels more and more like a
 real game. The initial goal of this project was to create a game that me and my
@@ -152,13 +150,13 @@ We write the initial version of the start scene like this:
 </div></div>
 The idea is that a player (keyboard or gamepad) selects to be part of the game
 by shooting. When all players have entered, one of them can shoot again to
-start the game. This functionality is not yet fully implemented. But this will
-do for now.
+start the game. This functionality is not yet fully implemented above. But this
+will do for now.
 
 When writing this blog post and looking at the code, I notice two problems.
 First of all "on" should be "one" in the test description. Second of all, the
-implementation does not check events at all, so a test that does not simulate
-any events will still pass.  So if we were to take this start scene into play
+implementation does not check events at all, so if the test does not simulate
+any events, it will still pass. If we were to take this start scene into play
 now, we just need to wait for two iterations (2/60th of a second) and it would
 report players `['one']`. That does not seem correct.
 
@@ -268,12 +266,12 @@ I'm also not sure how I feel about the assertions that checks the type of the
 active scene. But I don't have any ideas for a better way to express that. If
 you do, please let me know.
 
-When we run the game now it shows a blank purple screen. If we shoot twice we
+When we run the game now, it shows a blank purple screen. If we shoot twice we
 enter the gameplay scene and the game starts as before. Perfect!
 
 We do not yet take players into account and we can still not have multiple
-players. What we do have is a skeleton with a few more pieces where this new
-functionality will fit.
+players. What we do have is a skeleton with a few more places where this new
+functionality can be added.
 
 The game works fine now (if we know that we have to shoot twice to get passed
 the start scene), but a test fails. It is the test for the balloon shooter.
@@ -343,7 +341,7 @@ Here is yet another example of overlapping, sociable testing. We yet again have
 to simulate two shoot events to select players.
 
 One downside of this approach is that if we were to change the logic for
-selecting players. Say that we first need to shoot and then turn left. Then we
+selecting players, say that we first need to shoot and then turn left, then we
 would have to modify three test I think. One way to make that less of a problem
 in this particular situation is to create a test helper something like this:
 
@@ -358,7 +356,7 @@ We could use that test helper in all tests (with some modification) and now
 there is only one place in the tests that knows about what events that gets us
 from the start scene to the gameplay scene with one player.
 
-## Players to game scene
+## Pass players to game scene
 
 Our skeleton for the new feature is not quite complete. The gameplay scene does
 not know about players. Let's fix that by passing the players from the start
@@ -433,9 +431,7 @@ Let's modify the input handler to support that. We write this test:
 We create a new `get_shots` method that returns a list of player/input
 identifiers. If the shot is triggered by the keyboard, the player identifier is
 `keyboard`.  If the shot is triggered by a gamepad, the player identifier is
-`joystick` plus the unique id of that joystick.
-
-We implement it like this:
+`joystick` plus the unique id of that joystick. We implement it like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
 
@@ -504,7 +500,7 @@ We make the test pass like this:
     <span class="o">...</span>
 </pre></div>
 </div></div>
-## Game scene multiple bows
+## Multiple bows in game scene
 
 At this point, the start scene returns a correct list of players selected and
 the only piece missing is for the gameplay scene to create multiple bows and
@@ -545,7 +541,7 @@ To get the correct bow, we use this:
 </pre></div>
 </div></div>
 If no player is found, the last bow is returned. So if you attach another
-gamepad after the gameplay mode has enter, it will control the last bow. Not
+gamepad after the gameplay mode has entered, it will control the last bow. Not
 sure if that is right. We'll have to ask our product owner.
 
 We didn't write any tests for this new behavior. We do have tests that check
