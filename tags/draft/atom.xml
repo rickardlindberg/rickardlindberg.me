@@ -8,8 +8,103 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-06-29T00:00:00Z</updated>
+    <updated>2023-07-04T00:00:00Z</updated>
     <entry>
+    <title>DRAFT: Writing my own video editor software</title>
+    <link href="http://rickardlindberg.me/writing/writing-my-own-video-editor-software/" />
+    <id>http://rickardlindberg.me/writing/writing-my-own-video-editor-software/</id>
+    <published>2023-07-04T00:00:00Z</published>
+    <updated>2023-07-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DRAFT: Writing my own video editor software</h1>
+
+<p><em>Published on  4 July 2023.</em></p>
+
+<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<h2 id="todo">TODO</h2>
+<p>16th of June:</p>
+<p>
+<center>
+<img src="sketch-initial.png" title="fig:" alt="Initial sketch of a timeline." />
+</center>
+</p>
+<p>28th of June:</p>
+<p>
+<center>
+<img src="sketch-timeline-visualization.png" title="fig:" alt="Sketch of a timeline visualization of overlap." />
+</center>
+</p>
+<p>30th of June:</p>
+<p>
+<center>
+<img src="sketch-split-sections.png" title="fig:" alt="Sketch of a timeline splits." />
+</center>
+</p>
+<p>3rd of July:</p>
+<p>
+<center>
+<img src="current-status.png" title="fig:" alt="Current look of application." />
+</center>
+</p>
+<ul>
+<li><p>rlvideo</p>
+<ul>
+<li>spike MLT june 28</li>
+<li>Timeline.get_groups (first version)</li>
+</ul></li>
+</ul>
+<p>May 28, 2023:</p>
+<blockquote>
+<p>Got the urge to write my own video editor. Tired of kdenlive’s instability. And I don’t need something that advanced. Reading a bit about the MLT framework makes me think that it might actually be possible to do in a reasonable time.</p>
+<p>Sometimes I feel bad for starting more projects than i finish. On the other hand, every project I do teach me something. And I do this (believe it or not) for my enjoyment.</p>
+</blockquote>
+<ul>
+<li>Can overlap clips. Only one visible track. Editor figures out what tracks to put things on in the background.</li>
+</ul>
+<p>June 26, 2023:</p>
+<ul>
+<li><p>Found https://github.com/jliljebl/flowblade</p>
+<ul>
+<li>Written in Python</li>
+<li>Good reference</li>
+</ul></li>
+<li><p>Example Python: https://github.com/mltframework/mlt/blob/master/src/swig/python/play.py</p></li>
+<li><p>My hello world</p>
+<pre><code>def hello1():
+    mlt.Factory().init()
+    profile = mlt.Profile()
+    producer = mlt.Producer(profile, &quot;VID_20230611_115932.mp4&quot;)
+    consumer = mlt.Consumer(profile, &quot;sdl&quot;)
+    consumer.set(&quot;rescale&quot;, &quot;none&quot;)
+    consumer.connect(producer)
+    consumer.start()
+    while consumer.is_stopped() == 0:
+        time.sleep(1)
+
+def hello2():
+    mlt.Factory().init()
+    profile = mlt.Profile()
+    playlist = mlt.Playlist()
+    playlist.append(mlt.Producer(profile, &quot;VID_20230611_120041.mp4&quot;))
+    playlist.append(mlt.Producer(profile, &quot;VID_20230611_115932.mp4&quot;))
+    consumer = mlt.Consumer(profile, &quot;sdl&quot;)
+    consumer.set(&quot;rescale&quot;, &quot;none&quot;)
+    consumer.connect(playlist)
+    consumer.start()
+    while consumer.is_stopped() == 0:
+        time.sleep(1)</code></pre></li>
+<li><p>Tutorial: https://www.mltframework.org/docs/framework/</p></li>
+<li><p>Wrap my head around basic primitives and how to map that to what I want</p>
+<ul>
+<li>Use my structure for clips</li>
+<li>Turn that into mlt primitives</li>
+</ul></li>
+<li><p>Embed SDL window (got idea from flowblade source code)</p></li>
+<li><p>How to use in app: https://www.mltframework.org/docs/opengl/</p></li>
+<li><p>I think I know enough. Next I want to explore how I would like to organize clips and work with a timeline.</p></li>
+</ul>
+]]></summary>
+</entry>
+<entry>
     <title>DRAFT: Balloon particle effect</title>
     <link href="http://rickardlindberg.me/writing/agdpp-balloon-particle-effect/" />
     <id>http://rickardlindberg.me/writing/agdpp-balloon-particle-effect/</id>
