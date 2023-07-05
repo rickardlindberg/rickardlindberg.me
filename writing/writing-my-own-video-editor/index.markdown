@@ -1,8 +1,10 @@
 ---
-title: Writing my own video editor software
-date: 2023-07-04
+title: 'DRAFT: Writing my own video editor'
+date: 2023-07-05
 tags: rlvideo,draft
 ---
+
+**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 ## TODO
 
