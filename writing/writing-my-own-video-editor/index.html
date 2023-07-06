@@ -55,7 +55,7 @@
     <div class="container">
       <h1>DRAFT: Writing my own video editor</h1>
 
-<p><em>Published on  5 July 2023.</em></p>
+<p><em>Published on  6 July 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>On May 28 I <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">wrote</a> this:</p>
@@ -66,14 +66,14 @@
 <p>It happens to me from time to time. I get an idea for something I want to build. Sometimes the urge goes away. This time it didn’t. Here is the story so far.</p>
 <h2 id="why-write-a-video-editor">Why write a video editor?</h2>
 <p>I like to build things. In particular I like to build things that I have a use for myself.</p>
-<p>Today, I use <a href="https://kdenlive.org/en/">Kdenlive</a> when I edit various videos that I make. The program has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me. It often feels slow. There are certain things I want to do that I don’t know how.</p>
+<p>Currently, I use <a href="https://kdenlive.org/en/">Kdenlive</a> as my video editor. It has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me. It often feels slow. There are certain things I want to do that I don’t know how.</p>
 <p>The normal way of solving these problems I think would include</p>
 <ul>
-<li>Buy a faster computer</li>
 <li>Try the latest version of Kdenlive (would require me to upgrade Fedora version as well)</li>
+<li>Buy a faster computer</li>
 <li>Learn Kdenlive better</li>
 </ul>
-<p>But I am a programmer, and I like to build things. So from that point of view, the obvious solution to my problems is to build my own video editor specifically for my needs.</p>
+<p>But I am a programmer, and I like to build things. So from that point of view, the obvious solution to my problem is to build my own video editor specifically for my needs.</p>
 <h2 id="more-ideas">More ideas</h2>
 <p>On June 16 I sketched the following in my notebook:</p>
 <p>
@@ -81,13 +81,13 @@
 <img src="sketch-initial.png" title="fig:" alt="Initial sketch of a timeline." />
 </center>
 </p>
-<p>I wanted to think about how to represent clips on the timeline. This sketch also told me that the urge had not gone away.</p>
+<p>I wanted to think about how to represent clips on the timeline in my ideal video editor. This sketch also told me that the urge had not gone away.</p>
 <h2 id="researching-mlt">Researching MLT</h2>
-<p>Writing a video editor seems like a daunting task. The only reason that I think will make it possible is the <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
+<p>Writing a video editor seems like a daunting task. The only reason I think it will be possible is with help from <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
 <blockquote>
 <p>MLT is an open source multimedia framework, designed and developed for television broadcasting. It provides a toolkit for broadcasters, video editors, media players, transcoders, web streamers and many more types of applications.</p>
 </blockquote>
-<p>So a lot of the heavy lifting of a video editor can be done by MLT. (That is my guess anyway.) What I can focus on is writing a nice frontend for it.</p>
+<p>So a lot of the heavy lifting of a video editor can be done by MLT. That is my guess and hope anyway. What I can focus on is writing a nice frontend for it.</p>
 <p>Instead of speculating, I did some spikes to learn how to use MLT from Python.</p>
 <p>Here is one example how to put two clips next to each other on a timeline and preview the result:</p>
 <div class="rliterate-code">
@@ -111,19 +111,22 @@
 </div>
 </div>
 </div>
-<p>More examples of my spikes can be found <a href="https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py">here</a>.</p>
+<p>More examples from my spikes can be found <a href="https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py">here</a>.</p>
 <p>To help me do the spikes, I used the following resources:</p>
 <ul>
 <li><p><a href="https://www.mltframework.org/docs/framework/">MLT Framework Design</a>: A good introduction to how MLT works.</p></li>
-<li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python.</p></li>
-<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and uses MLT.</p></li>
+<li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python. They are quite limited, but gives you a good starting point.</p></li>
 <li><p><a href="https://www.mltframework.org/doxygen/annotated.html">MLT API documentation</a>: The C API documentation. Translating this to Python has been mostly straight forward.</p></li>
-<li><p>Wrap my head around basic primitives and how to map that to what I want</p>
+<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT.</p></li>
+</ul>
+<h2 id="design-idea">Design idea</h2>
+<ul>
+<li>Wrap my head around basic primitives and how to map that to what I want
 <ul>
 <li>Use my structure for clips</li>
 <li>Turn that into mlt primitives</li>
 </ul></li>
-<li><p>Can overlap clips. Only one visible track. Editor figures out what tracks to put things on in the background.</p></li>
+<li>Can overlap clips. Only one visible track. Editor figures out what tracks to put things on in the background.</li>
 </ul>
 <h2 id="timeline-representation">Timeline representation</h2>
 <ul>
