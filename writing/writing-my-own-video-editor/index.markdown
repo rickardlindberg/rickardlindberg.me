@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Writing my own video editor'
-date: 2023-07-05
+date: 2023-07-06
 tags: rlvideo,draft
 ---
 
@@ -27,21 +27,21 @@ far.
 I like to build things. In particular I like to build things that I have a use
 for myself.
 
-Today, I use [Kdenlive](https://kdenlive.org/en/) when I edit various videos
-that I make. The program has served me well. However, every time I work with
-it, I get a little frustrated. It often crashes on me. It often feels slow.
-There are certain things I want to do that I don't know how.
+Currently, I use [Kdenlive](https://kdenlive.org/en/) as my video editor.  It
+has served me well. However, every time I work with it, I get a little
+frustrated. It often crashes on me. It often feels slow.  There are certain
+things I want to do that I don't know how.
 
 The normal way of solving these problems I think would include
 
-* Buy a faster computer
 * Try the latest version of Kdenlive (would require me to upgrade Fedora
   version as well)
+* Buy a faster computer
 * Learn Kdenlive better
 
 But I am a programmer, and I like to build things. So from that point of view,
-the obvious solution to my problems is to build my own video editor
-specifically for my needs.
+the obvious solution to my problem is to build my own video editor specifically
+for my needs.
 
 ## More ideas
 
@@ -53,22 +53,22 @@ On June 16 I sketched the following in my notebook:
 </center>
 </p>
 
-I wanted to think about how to represent clips on the timeline.  This sketch
-also told me that the urge had not gone away.
+I wanted to think about how to represent clips on the timeline in my ideal
+video editor. This sketch also told me that the urge had not gone away.
 
 ## Researching MLT
 
-Writing a video editor seems like a daunting task. The only reason that I think
-will make it possible is the [MLT](https://www.mltframework.org/). From their
-website:
+Writing a video editor seems like a daunting task. The only reason I think it
+will be possible is with help from [MLT](https://www.mltframework.org/). From
+their website:
 
 > MLT is an open source multimedia framework, designed and developed for
 > television broadcasting. It provides a toolkit for broadcasters, video
 > editors, media players, transcoders, web streamers and many more types of
 > applications.
 
-So a lot of the heavy lifting of a video editor can be done by MLT. (That is my
-guess anyway.) What I can focus on is writing a nice frontend for it.
+So a lot of the heavy lifting of a video editor can be done by MLT. That is my
+guess and hope anyway. What I can focus on is writing a nice frontend for it.
 
 Instead of speculating, I did some spikes to learn how to use MLT from Python.
 
@@ -91,7 +91,7 @@ preview the result:
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div></div>
-More examples of my spikes can be found
+More examples from my spikes can be found
 [here](https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py).
 
 To help me do the spikes, I used the following resources:
@@ -101,14 +101,17 @@ To help me do the spikes, I used the following resources:
 
 * [Python
   examples](https://github.com/mltframework/mlt/tree/master/src/swig/python):
-  Examples how to use MLT from Python.
-
-* [Flowblade](https://github.com/jliljebl/flowblade): Another video editor that
-  is written in Python and uses MLT.
+  Examples how to use MLT from Python. They are quite limited, but gives you a
+  good starting point.
 
 * [MLT API documentation](https://www.mltframework.org/doxygen/annotated.html):
   The C API documentation. Translating this to Python has been mostly straight
   forward.
+
+* [Flowblade](https://github.com/jliljebl/flowblade): Another video editor that
+  is written in Python and MLT.
+
+## Design idea
 
 * Wrap my head around basic primitives and how to map that to what I want
     * Use my structure for clips
