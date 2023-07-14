@@ -4,8 +4,8 @@ date: 2023-07-04
 tags: rlvideo,draft
 ---
 
-On May 28 I
-[wrote](https://hachyderm.io/@rickardlindberg/110447282439624451) this:
+On May 28 I wrote
+[this](https://hachyderm.io/@rickardlindberg/110447282439624451):
 
 > Got the urge to write my own video editor. Tired of kdenlive's instability.
 > And I don't need something that advanced. Reading a bit about the MLT
@@ -16,9 +16,8 @@ On May 28 I
 > hand, every project I do teach me something. And I do this (believe it or
 > not) for my enjoyment.
 
-It happens to me from time to time. I get an idea for something I want to
-build. Sometimes the urge goes away. This time it didn't. Here is the story so
-far.
+It happens to me from time to time. I get an idea for something that I want to
+build. Sometimes the urge goes away. This time it didn't.
 
 ## Why write a video editor?
 
@@ -27,8 +26,8 @@ for myself.
 
 Currently, I use [Kdenlive](https://kdenlive.org/en/) as my video editor.  It
 has served me well. However, every time I work with it, I get a little
-frustrated. It often crashes on me. It often feels slow.  There are certain
-things I want to do that I don't know how.
+frustrated. It often crashes on me, it often feels slow, and there are certain
+things that I want to do that I don't know how.
 
 The normal way of solving these problems I think would include
 
@@ -37,9 +36,9 @@ The normal way of solving these problems I think would include
 * Buy a faster computer
 * Learn Kdenlive better
 
-But I am a programmer, and I like to build things. So from that point of view,
-the obvious solution to my problem is to build my own video editor specifically
-for my needs.
+But I can program, and I like to build things. So from that point of view, the
+obvious solution to my problem is to build my own video editor specifically for
+my needs.
 
 ## More ideas
 
@@ -51,7 +50,7 @@ On June 16 I sketched the following in my notebook:
 </center>
 </p>
 
-I wanted to think about how to represent clips on the timeline in my ideal
+I wanted to think about how to represent clips on a timeline in my ideal
 video editor. This sketch also told me that the urge had not gone away.
 
 ## Researching MLT
@@ -108,23 +107,48 @@ To help me do the spikes, I used the following resources:
   forward.
 
 * [Flowblade](https://github.com/jliljebl/flowblade): Another video editor that
-  is written in Python and MLT.
+  is written in Python and MLT. So far, I've used it mainly to figure out how
+  to embed the video preview window in an gui application.
 
 ## Design idea
 
-* Wrap my head around basic primitives and how to map that to what I want
-    * Use my structure for clips
-    * Turn that into mlt primitives
+By doing the spikes, I have a basic understanding how to use MLT and how it
+could be used to build a video editor.
 
-* Can overlap clips. Only one visible track. Editor figures out what tracks to
-  put things on in the background.
+The design I have in mind for the video editor looks something like this:
+
+$:output:python:
+class Timeline:
+
+    def __init__(self):
+        self.clips = []
+
+    def add(self, clip):
+        self.clips.add(clip)
+
+    def to_mlt_producer(self, ...):
+        ...
+
+    def draw(self, ...):
+        ...
+$:END
+
+I want to use my own data structures for representing clips on a timeline. I
+think that will give me a design which is clean and easy to work with. I can
+design those structures to be good for the kinds of operations that I want to
+perform.
+
+However, somehow that structure must be turned into an MLT producer. That is
+what `to_mlt_producer` is for. Transforming from my world into the MLT world.
+When we have an MLT producer, we can preview the composition and render a final
+result.
 
 ## Timeline representation
 
-* I think I know enough. Next I want to explore how I would like to organize
-  clips and work with a timeline.
+So what representation of clips is best? It depends on how it's going to be
+used. How do I want to work with clips on a timeline in my ideal video editor?
 
-28th of June:
+On June 28 I sketch this:
 
 <p>
 <center>
@@ -132,7 +156,7 @@ To help me do the spikes, I used the following resources:
 </center>
 </p>
 
-30th of June:
+And on June 30 I sketch this:
 
 <p>
 <center>
@@ -140,7 +164,74 @@ To help me do the spikes, I used the following resources:
 </center>
 </p>
 
+I don't think that I want to use multiple tracks in my timeline. There should
+only be one track. When clips overlap, multiple tracks might be created in the
+background, but it shouldn't be visible to the user.
+
+The sketches help me figure this out.
+
+I think we can have one structure will all the clips and their positions. Then
+we can split those up into sections. One type of section has no overlaps, and
+the other do. Overlaps must be handled differently. They both render
+differently (stacked on top of eachother) and they must produce multiple MLT
+tracks in the background.
+
+I work on this section splitting code and end up with this:
+
+$:output:python:
+"""
+>>> a = Source("A").create_cut(0, 20).at(0)
+>>> b = Source("b").create_cut(0, 20).at(10)
+>>> cuts = Cuts()
+>>> cuts = cuts.add(a)
+>>> cuts = cuts.add(b)
+>>> cuts.split_into_sections().to_ascii_canvas()
+|<-A0------|--A10---->|--b10---->|
+|          |<-b0------|          |
+>>> cuts.modify(b, lambda cut: cut.move(1)).split_into_sections().to_ascii_canvas()
+|<-A0-------|--A11--->|--b9------>|
+|           |<-b0-----|           |
+"""
+$:END
+
 ## Putting it together
+
+$:output:python:
+class Section:
+
+    ...
+
+    def to_mlt_producer(self, profile):
+        if len(self.section_cuts) == 1:
+            return self.section_cuts[0].cut.to_mlt_producer(profile)
+        else:
+            tractor = mlt.Tractor()
+            for section_cut in self.section_cuts:
+                tractor.insert_track(
+                    section_cut.cut.to_mlt_producer(profile),
+                    0
+                )
+            for clip_index in reversed(range(len(self.section_cuts))):
+                if clip_index > 0:
+                    transition = mlt.Transition(profile, "luma")
+                    transition.set("in", 0)
+                    transition.set("out", self.section_cuts[clip_index].cut.length-1)
+                    tractor.plant_transition(transition, clip_index, clip_index-1)
+            return tractor
+
+    def draw(self, context, height, x_factor, rectangle_map):
+        sub_height = height // len(self.section_cuts)
+        rest = height % len(self.section_cuts)
+        y = 0
+        for index, section_cut in enumerate(self.section_cuts):
+            if rest:
+                rest -= 1
+                h = sub_height + 1
+            else:
+                h = sub_height
+            section_cut.draw(context, y, h, x_factor, rectangle_map)
+            y += h
+$:END
 
 3rd of July:
 
@@ -149,11 +240,6 @@ To help me do the spikes, I used the following resources:
 ![Current look of application.](current-status.png)
 </center>
 </p>
-
-* rlvideo
-
-    * spike MLT june 28
-    * Timeline.get_groups (first version)
 
 * Embed SDL window (got idea from flowblade source code)
 
