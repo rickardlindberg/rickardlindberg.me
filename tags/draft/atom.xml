@@ -8,34 +8,34 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-07-06T00:00:00Z</updated>
+    <updated>2023-07-14T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Writing my own video editor</title>
     <link href="http://rickardlindberg.me/writing/writing-my-own-video-editor/" />
     <id>http://rickardlindberg.me/writing/writing-my-own-video-editor/</id>
-    <published>2023-07-06T00:00:00Z</published>
-    <updated>2023-07-06T00:00:00Z</updated>
+    <published>2023-07-14T00:00:00Z</published>
+    <updated>2023-07-14T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Writing my own video editor</h1>
 
-<p><em>Published on  6 July 2023.</em></p>
+<p><em>Published on 14 July 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>On May 28 I <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">wrote</a> this:</p>
+<p>On May 28 I wrote <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">this</a>:</p>
 <blockquote>
 <p>Got the urge to write my own video editor. Tired of kdenlive’s instability. And I don’t need something that advanced. Reading a bit about the MLT framework makes me think that it might actually be possible to do in a reasonable time.</p>
 <p>Sometimes I feel bad for starting more projects than i finish. On the other hand, every project I do teach me something. And I do this (believe it or not) for my enjoyment.</p>
 </blockquote>
-<p>It happens to me from time to time. I get an idea for something I want to build. Sometimes the urge goes away. This time it didn’t. Here is the story so far.</p>
+<p>It happens to me from time to time. I get an idea for something that I want to build. Sometimes the urge goes away. This time it didn’t.</p>
 <h2 id="why-write-a-video-editor">Why write a video editor?</h2>
 <p>I like to build things. In particular I like to build things that I have a use for myself.</p>
-<p>Currently, I use <a href="https://kdenlive.org/en/">Kdenlive</a> as my video editor. It has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me. It often feels slow. There are certain things I want to do that I don’t know how.</p>
+<p>Currently, I use <a href="https://kdenlive.org/en/">Kdenlive</a> as my video editor. It has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me, it often feels slow, and there are certain things that I want to do that I don’t know how.</p>
 <p>The normal way of solving these problems I think would include</p>
 <ul>
 <li>Try the latest version of Kdenlive (would require me to upgrade Fedora version as well)</li>
 <li>Buy a faster computer</li>
 <li>Learn Kdenlive better</li>
 </ul>
-<p>But I am a programmer, and I like to build things. So from that point of view, the obvious solution to my problem is to build my own video editor specifically for my needs.</p>
+<p>But I can program, and I like to build things. So from that point of view, the obvious solution to my problem is to build my own video editor specifically for my needs.</p>
 <h2 id="more-ideas">More ideas</h2>
 <p>On June 16 I sketched the following in my notebook:</p>
 <p>
@@ -43,7 +43,7 @@
 <img src="sketch-initial.png" title="fig:" alt="Initial sketch of a timeline." />
 </center>
 </p>
-<p>I wanted to think about how to represent clips on the timeline in my ideal video editor. This sketch also told me that the urge had not gone away.</p>
+<p>I wanted to think about how to represent clips on a timeline in my ideal video editor. This sketch also told me that the urge had not gone away.</p>
 <h2 id="researching-mlt">Researching MLT</h2>
 <p>Writing a video editor seems like a daunting task. The only reason I think it will be possible is with help from <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
 <blockquote>
@@ -79,34 +79,113 @@
 <li><p><a href="https://www.mltframework.org/docs/framework/">MLT Framework Design</a>: A good introduction to how MLT works.</p></li>
 <li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python. They are quite limited, but gives you a good starting point.</p></li>
 <li><p><a href="https://www.mltframework.org/doxygen/annotated.html">MLT API documentation</a>: The C API documentation. Translating this to Python has been mostly straight forward.</p></li>
-<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT.</p></li>
+<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT. So far, I’ve used it mainly to figure out how to embed the video preview window in an gui application.</p></li>
 </ul>
 <h2 id="design-idea">Design idea</h2>
-<ul>
-<li>Wrap my head around basic primitives and how to map that to what I want
-<ul>
-<li>Use my structure for clips</li>
-<li>Turn that into mlt primitives</li>
-</ul></li>
-<li>Can overlap clips. Only one visible track. Editor figures out what tracks to put things on in the background.</li>
-</ul>
+<p>By doing the spikes, I have a basic understanding how to use MLT and how it could be used to build a video editor.</p>
+<p>The design I have in mind for the video editor looks something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I want to use my own data structures for representing clips on a timeline. I think that will give me a design which is clean and easy to work with. I can design those structures to be good for the kinds of operations that I want to perform.</p>
+<p>However, somehow that structure must be turned into an MLT producer. That is what <code>to_mlt_producer</code> is for. Transforming from my world into the MLT world. When we have an MLT producer, we can preview the composition and render a final result.</p>
 <h2 id="timeline-representation">Timeline representation</h2>
-<ul>
-<li>I think I know enough. Next I want to explore how I would like to organize clips and work with a timeline.</li>
-</ul>
-<p>28th of June:</p>
+<p>So what representation of clips is best? It depends on how it’s going to be used. How do I want to work with clips on a timeline in my ideal video editor?</p>
+<p>On June 28 I sketch this:</p>
 <p>
 <center>
 <img src="sketch-timeline-visualization.png" title="fig:" alt="Sketch of a timeline visualization of overlap." />
 </center>
 </p>
-<p>30th of June:</p>
+<p>And on June 30 I sketch this:</p>
 <p>
 <center>
 <img src="sketch-split-sections.png" title="fig:" alt="Sketch of a timeline splits." />
 </center>
 </p>
+<p>I don’t think that I want to use multiple tracks in my timeline. There should only be one track. When clips overlap, multiple tracks might be created in the background, but it shouldn’t be visible to the user.</p>
+<p>The sketches help me figure this out.</p>
+<p>I think we can have one structure will all the clips and their positions. Then we can split those up into sections. One type of section has no overlaps, and the other do. Overlaps must be handled differently. They both render differently (stacked on top of eachother) and they must produce multiple MLT tracks in the background.</p>
+<p>I work on this section splitting code and end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; a = Source(&quot;A&quot;).create_cut(0, 20).at(0)</span>
+<span class="sd">&gt;&gt;&gt; b = Source(&quot;b&quot;).create_cut(0, 20).at(10)</span>
+<span class="sd">&gt;&gt;&gt; cuts = Cuts()</span>
+<span class="sd">&gt;&gt;&gt; cuts = cuts.add(a)</span>
+<span class="sd">&gt;&gt;&gt; cuts = cuts.add(b)</span>
+<span class="sd">&gt;&gt;&gt; cuts.split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-A0------|--A10----&gt;|--b10----&gt;|</span>
+<span class="sd">|          |&lt;-b0------|          |</span>
+<span class="sd">&gt;&gt;&gt; cuts.modify(b, lambda cut: cut.move(1)).split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-A0-------|--A11---&gt;|--b9------&gt;|</span>
+<span class="sd">|           |&lt;-b0-----|           |</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="putting-it-together">Putting it together</h2>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Section</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">to_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tractor</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Tractor</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">section_cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">:</span>
+                <span class="n">tractor</span><span class="o">.</span><span class="n">insert_track</span><span class="p">(</span>
+                    <span class="n">section_cut</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
+                    <span class="mi">0</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">clip_index</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">))):</span>
+                <span class="k">if</span> <span class="n">clip_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">transition</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Transition</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;luma&quot;</span><span class="p">)</span>
+                    <span class="n">transition</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">transition</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">[</span><span class="n">clip_index</span><span class="p">]</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">tractor</span><span class="o">.</span><span class="n">plant_transition</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">clip_index</span><span class="p">,</span> <span class="n">clip_index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tractor</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">x_factor</span><span class="p">,</span> <span class="n">rectangle_map</span><span class="p">):</span>
+        <span class="n">sub_height</span> <span class="o">=</span> <span class="n">height</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="n">height</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">section_cut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rest</span><span class="p">:</span>
+                <span class="n">rest</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">sub_height</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">sub_height</span>
+            <span class="n">section_cut</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x_factor</span><span class="p">,</span> <span class="n">rectangle_map</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">+=</span> <span class="n">h</span>
+</pre>
+</div>
+</div>
+</div>
 <p>3rd of July:</p>
 <p>
 <center>
@@ -114,12 +193,7 @@
 </center>
 </p>
 <ul>
-<li><p>rlvideo</p>
-<ul>
-<li>spike MLT june 28</li>
-<li>Timeline.get_groups (first version)</li>
-</ul></li>
-<li><p>Embed SDL window (got idea from flowblade source code)</p></li>
+<li>Embed SDL window (got idea from flowblade source code)</li>
 </ul>
 <h2 id="struggles">Struggles</h2>
 <h2 id="future">Future</h2>
