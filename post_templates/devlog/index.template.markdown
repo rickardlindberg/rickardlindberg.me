@@ -1,5 +1,5 @@
 ---
-title: DevLog NUMBER: TITLE
+title: 'DevLog NUMBER: TITLE'
 date: DATE
 tags: devlog
 devlog: true
