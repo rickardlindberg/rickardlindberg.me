@@ -8,49 +8,50 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-07-14T00:00:00Z</updated>
+    <updated>2023-07-27T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Writing my own video editor</title>
     <link href="http://rickardlindberg.me/writing/writing-my-own-video-editor/" />
     <id>http://rickardlindberg.me/writing/writing-my-own-video-editor/</id>
-    <published>2023-07-14T00:00:00Z</published>
-    <updated>2023-07-14T00:00:00Z</updated>
+    <published>2023-07-27T00:00:00Z</published>
+    <updated>2023-07-27T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Writing my own video editor</h1>
 
-<p><em>Published on 14 July 2023.</em></p>
+<p><em>Published on 27 July 2023.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>On May 28 I wrote <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">this</a>:</p>
+<p>On May 28 I write <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">this</a>:</p>
 <blockquote>
 <p>Got the urge to write my own video editor. Tired of kdenlive’s instability. And I don’t need something that advanced. Reading a bit about the MLT framework makes me think that it might actually be possible to do in a reasonable time.</p>
 <p>Sometimes I feel bad for starting more projects than i finish. On the other hand, every project I do teach me something. And I do this (believe it or not) for my enjoyment.</p>
 </blockquote>
-<p>It happens to me from time to time. I get an idea for something that I want to build. Sometimes the urge goes away. This time it didn’t.</p>
+<p>It happens to me from time to time. I get an idea for something that I want to build. Sometimes the urge goes away. This time it doesn’t.</p>
 <h2 id="why-write-a-video-editor">Why write a video editor?</h2>
 <p>I like to build things. In particular I like to build things that I have a use for myself.</p>
 <p>Currently, I use <a href="https://kdenlive.org/en/">Kdenlive</a> as my video editor. It has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me, it often feels slow, and there are certain things that I want to do that I don’t know how.</p>
-<p>The normal way of solving these problems I think would include</p>
+<p>The normal way of solving those problems I think would include</p>
 <ul>
-<li>Try the latest version of Kdenlive (would require me to upgrade Fedora version as well)</li>
-<li>Buy a faster computer</li>
-<li>Learn Kdenlive better</li>
+<li>Trying the latest version of Kdenlive (would require me to upgrade Fedora version as well)</li>
+<li>Buying a faster computer</li>
+<li>Learning Kdenlive better</li>
 </ul>
-<p>But I can program, and I like to build things. So from that point of view, the obvious solution to my problem is to build my own video editor specifically for my needs.</p>
+<p>But I can program, and I like to build things. So from that point of view, the obvious solution is to build my own video editor specifically for my needs.</p>
+<p>Even if it ends up being unusable as my video editor, I will have had a good time working on it and most likely learned a thing or two.</p>
 <h2 id="more-ideas">More ideas</h2>
-<p>On June 16 I sketched the following in my notebook:</p>
+<p>On June 16 I sketch the following in my notebook:</p>
 <p>
 <center>
 <img src="sketch-initial.png" title="fig:" alt="Initial sketch of a timeline." />
 </center>
 </p>
-<p>I wanted to think about how to represent clips on a timeline in my ideal video editor. This sketch also told me that the urge had not gone away.</p>
+<p>I think about how to represent clips on a timeline in my ideal video editor. This sketch also tells me that the urge has not gone away.</p>
 <h2 id="researching-mlt">Researching MLT</h2>
-<p>Writing a video editor seems like a daunting task. The only reason I think it will be possible is with help from <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
+<p>Writing a video editor seems like a daunting task. The only reason that I think it will be possible is with help from <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
 <blockquote>
 <p>MLT is an open source multimedia framework, designed and developed for television broadcasting. It provides a toolkit for broadcasters, video editors, media players, transcoders, web streamers and many more types of applications.</p>
 </blockquote>
 <p>So a lot of the heavy lifting of a video editor can be done by MLT. That is my guess and hope anyway. What I can focus on is writing a nice frontend for it.</p>
-<p>Instead of speculating, I did some spikes to learn how to use MLT from Python.</p>
+<p>Instead of speculating, I do some spikes to learn how to use MLT from Python.</p>
 <p>Here is one example how to put two clips next to each other on a timeline and preview the result:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -74,15 +75,15 @@
 </div>
 </div>
 <p>More examples from my spikes can be found <a href="https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py">here</a>.</p>
-<p>To help me do the spikes, I used the following resources:</p>
+<p>To help me do the spikes, I use the following resources:</p>
 <ul>
 <li><p><a href="https://www.mltframework.org/docs/framework/">MLT Framework Design</a>: A good introduction to how MLT works.</p></li>
-<li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python. They are quite limited, but gives you a good starting point.</p></li>
+<li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python. They are quite limited, but give you a good starting point.</p></li>
 <li><p><a href="https://www.mltframework.org/doxygen/annotated.html">MLT API documentation</a>: The C API documentation. Translating this to Python has been mostly straight forward.</p></li>
-<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT. So far, I’ve used it mainly to figure out how to embed the video preview window in an gui application.</p></li>
+<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT.</p></li>
 </ul>
 <h2 id="design-idea">Design idea</h2>
-<p>By doing the spikes, I have a basic understanding how to use MLT and how it could be used to build a video editor.</p>
+<p>By doing the spikes, I have a basic understanding of how to use MLT and how it could be used to build a video editor.</p>
 <p>The design I have in mind for the video editor looks something like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -104,8 +105,8 @@
 </div>
 </div>
 </div>
-<p>I want to use my own data structures for representing clips on a timeline. I think that will give me a design which is clean and easy to work with. I can design those structures to be good for the kinds of operations that I want to perform.</p>
-<p>However, somehow that structure must be turned into an MLT producer. That is what <code>to_mlt_producer</code> is for. Transforming from my world into the MLT world. When we have an MLT producer, we can preview the composition and render a final result.</p>
+<p>That is, I want to use custom data structures for representing clips on a timeline. I think that will give us a design which is clean and easy to work with. We can design those structures to be good for the kinds of operations that we want to perform.</p>
+<p>However, somehow those structures must be turned into an MLT producer. That is what <code>to_mlt_producer</code> is for. Transforming from our world into the MLT world. When we have an MLT producer, we can preview the composition and render a final result. But all the edit operations will be done on our custom data structures.</p>
 <h2 id="timeline-representation">Timeline representation</h2>
 <p>So what representation of clips is best? It depends on how it’s going to be used. How do I want to work with clips on a timeline in my ideal video editor?</p>
 <p>On June 28 I sketch this:</p>
@@ -120,9 +121,9 @@
 <img src="sketch-split-sections.png" title="fig:" alt="Sketch of a timeline splits." />
 </center>
 </p>
-<p>I don’t think that I want to use multiple tracks in my timeline. There should only be one track. When clips overlap, multiple tracks might be created in the background, but it shouldn’t be visible to the user.</p>
+<p>I don’t think that I want to have multiple tracks in the timeline. There should only be one track. When clips overlap, multiple tracks might be created in the background, but the user should not need to create tracks manually.</p>
 <p>The sketches help me figure this out.</p>
-<p>I think we can have one structure will all the clips and their positions. Then we can split those up into sections. One type of section has no overlaps, and the other do. Overlaps must be handled differently. They both render differently (stacked on top of eachother) and they must produce multiple MLT tracks in the background.</p>
+<p>I think that we can have one structure with all the clips and their positions. Then we can split those up into sections. One type of section has no overlaps, and the other do. Overlaps must be handled differently. They both render differently (stacked on top of each other) and they must produce multiple MLT tracks in the background.</p>
 <p>I work on this section splitting code and end up with this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -144,59 +145,53 @@
 </div>
 </div>
 </div>
+<p>The <code>to_ascii_canvas</code> is only used in tests to give me faster feedback on the splitting code. It also documents quite nicely what the timeline would look like in different situations.</p>
 <h2 id="putting-it-together">Putting it together</h2>
+<p>I spend quite some time getting the splitting of cuts to work. Even before I know if this design will work out. (Not very smart.) We know if it will work out when we put everything together.</p>
+<p>I first try to put everything together in a Pygame application, but it gives me all kinds of problems, so I decide to try GTK instead.</p>
+<p>The application has two parts: one that shows the timeline, and one that shows the preview window.</p>
+<p>The timeline is created something like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Section</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">to_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">tractor</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Tractor</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">section_cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">:</span>
-                <span class="n">tractor</span><span class="o">.</span><span class="n">insert_track</span><span class="p">(</span>
-                    <span class="n">section_cut</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
-                    <span class="mi">0</span>
-                <span class="p">)</span>
-            <span class="k">for</span> <span class="n">clip_index</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">))):</span>
-                <span class="k">if</span> <span class="n">clip_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">transition</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Transition</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;luma&quot;</span><span class="p">)</span>
-                    <span class="n">transition</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="n">transition</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">[</span><span class="n">clip_index</span><span class="p">]</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="n">tractor</span><span class="o">.</span><span class="n">plant_transition</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">clip_index</span><span class="p">,</span> <span class="n">clip_index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">tractor</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">x_factor</span><span class="p">,</span> <span class="n">rectangle_map</span><span class="p">):</span>
-        <span class="n">sub_height</span> <span class="o">=</span> <span class="n">height</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span>
-        <span class="n">rest</span> <span class="o">=</span> <span class="n">height</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">section_cut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">section_cuts</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">rest</span><span class="p">:</span>
-                <span class="n">rest</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">h</span> <span class="o">=</span> <span class="n">sub_height</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">h</span> <span class="o">=</span> <span class="n">sub_height</span>
-            <span class="n">section_cut</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x_factor</span><span class="p">,</span> <span class="n">rectangle_map</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">+=</span> <span class="n">h</span>
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_draw</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">sections</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">timeline_draw</span><span class="p">)</span>
 </pre>
 </div>
 </div>
 </div>
-<p>3rd of July:</p>
+<p>It hooks up the draw event and lets the sections (created by <code>split_into_sections</code>) do all the drawing.</p>
+<p>The preview window is created something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">preview</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">putenv</span><span class="p">(</span><span class="s2">&quot;SDL_WINDOWID&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">preview</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span><span class="o">.</span><span class="n">get_xid</span><span class="p">()))</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;sdl&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It connects the SDL consumer to the preview window and the producer (created by <code>to_mlt_producer</code>) to the consumer. I learn how to make the SDL consumer draw its output inside a GTK window by looking at the Flowblade source code.</p>
+<p>I get a basic version of <code>Sections.draw</code> and <code>Sections.to_mlt_producer</code> and end up with this on July 3:</p>
 <p>
 <center>
 <img src="current-status.png" title="fig:" alt="Current look of application." />
 </center>
 </p>
-<ul>
-<li>Embed SDL window (got idea from flowblade source code)</li>
-</ul>
-<h2 id="struggles">Struggles</h2>
 <h2 id="future">Future</h2>
+<p>At this point we have a sort of proof of concept of the design. We can now</p>
+<ul>
+<li>Programmaticlly load clips into a timeline data structure.</li>
+<li>This structure can draw itself onto a Cairo context which we can use to render it inside a GTK application.</li>
+<li>This structure can also generate an MLT producer which we can use to preview the composition using the SDL consumer and have the output shown in a window in our GTK application via <code>SDL_WINDOWID</code>.</li>
+</ul>
+<p>One thing that I worry about with this design is performance. Every time we modify the timeline, we have to generate a new sections object and from that generate a new MLT producer. That might take time. My hope and guess is that we can do smart things to get good enough performance. But it is worth looking into to quite soon to ensure that this design will hold even for larger projects.</p>
+<p>There for sure are many, many more details to flesh out before we have a functioning video editor. But I’m quite pleased that we have gotten this far in this quite short amount of time.</p>
 ]]></summary>
 </entry>
 <entry>
