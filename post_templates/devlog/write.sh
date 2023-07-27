@@ -6,6 +6,6 @@ set -e
 
 git add -u .
 
-git commit -m 'Write.'
+git commit -m 'Write TITLE.'
 
 (cd ../../ && ./bin/publish && git push --all)

@@ -22,11 +22,13 @@ new_devlog() {
     name="$1"
     number="$(next_devlog)"
     dir="$ROOT/devlog-$number-$name"
-    template="$dir/index.template.markdown"
     cp -r ./post_templates/devlog "$dir"
+    template="$dir/index.template.markdown"
+    write_template="$dir/write.sh"
     sed -i "s/NUMBER/$number/" "$template"
     sed -i "s/TITLE/$name/" "$template"
     sed -i "s/DATE/$(today)/" "$template"
+    sed -i "s/TITLE/devlog $number/" "$write_template"
     echo $dir
 }
 
