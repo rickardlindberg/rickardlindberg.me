@@ -7,3 +7,9 @@ devlog: true
 
 $:output:python:
 $:END
+
+<p>
+<center>
+![Alternative text.](image.png)
+</center>
+</p>
