@@ -3,7 +3,7 @@
 ROOT=./writing
 
 increment() {
-    python -c 'import sys; print(str(int(sys.argv[1])+1).zfill(3))' "$1"
+    python -c 'import sys; print(str(int(sys.argv[1] or "0")+1).zfill(3))' "$1"
 }
 
 max_devlog() {
