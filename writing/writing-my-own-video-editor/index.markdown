@@ -1,10 +1,8 @@
 ---
-title: 'DRAFT: Writing my own video editor'
-date: 2023-07-27
-tags: rlvideo,draft
+title: Writing my own video editor
+date: 2023-07-28
+tags: rlvideo
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 On May 28 I write
 [this](https://hachyderm.io/@rickardlindberg/110447282439624451):
@@ -264,3 +262,6 @@ projects.
 There for sure are many, many more details to flesh out before we have a
 functioning video editor. But I'm quite pleased that we have gotten this far in
 this quite short amount of time.
+
+You can find the source code on
+[GitHub](https://github.com/rickardlindberg/rlvideo).

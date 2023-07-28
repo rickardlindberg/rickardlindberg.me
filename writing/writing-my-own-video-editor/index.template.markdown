@@ -1,7 +1,7 @@
 ---
 title: Writing my own video editor
-date: 2023-07-04
-tags: rlvideo,draft
+date: 2023-07-28
+tags: rlvideo
 ---
 
 On May 28 I write
@@ -267,3 +267,6 @@ projects.
 There for sure are many, many more details to flesh out before we have a
 functioning video editor. But I'm quite pleased that we have gotten this far in
 this quite short amount of time.
+
+You can find the source code on
+[GitHub](https://github.com/rickardlindberg/rlvideo).
