@@ -370,6 +370,7 @@ patternPostIndexPandoc =
     .||. "writing/what-is-programming/index.markdown"
     .||. "writing/agdpp-*/index.markdown"
     .||. "writing/devlog-*/index.markdown"
+    .||. "writing/fast-feedback-on-graphical-code/index.markdown"
     .||. "writing/high-level-low-level-ron-reply/index.markdown"
     .||. "writing/trying-rons-python-asteroids/index.markdown"
     .||. "writing/how-to-test-a-router/index.markdown"
