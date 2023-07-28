@@ -1,12 +1,10 @@
 ---
-title: 'DRAFT: How to get fast feedback on graphical code?'
+title: How to get fast feedback on graphical code?
 date: 2023-07-28
-tags: rlvideo,draft
+tags: rlvideo
 ---
 
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
-
-I am working on [own video
+I am working on [my own video
 editor](/writing/writing-my-own-video-editor/index.html). It currently looks
 like this:
 
@@ -77,8 +75,8 @@ In this workflow, this is my typical setup:
 I have my editor to the right, the automatic test suite runner in the top
 left, and the timeline image in the bottom left.
 
-In this example a draw two timelines with different zoom levels so that I can
-quickly see how it looks.
+In this example I draw two timelines with different zoom levels so that I can
+quickly see how that looks.
 
 Then I can make a change to some color for example, and within a second or two,
 my test suite has automatically run and my desktop looks like this:
