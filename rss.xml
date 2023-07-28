@@ -7,8 +7,193 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 04 Jul 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Fri, 28 Jul 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Writing my own video editor</title>
+    <link>http://rickardlindberg.me/writing/writing-my-own-video-editor/</link>
+    <description><![CDATA[<h1>Writing my own video editor</h1>
+
+<p><em>Published on 28 July 2023.</em></p>
+
+<p>On May 28 I write <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">this</a>:</p>
+<blockquote>
+<p>Got the urge to write my own video editor. Tired of kdenlive’s instability. And I don’t need something that advanced. Reading a bit about the MLT framework makes me think that it might actually be possible to do in a reasonable time.</p>
+<p>Sometimes I feel bad for starting more projects than i finish. On the other hand, every project I do teach me something. And I do this (believe it or not) for my enjoyment.</p>
+</blockquote>
+<p>It happens to me from time to time. I get an idea for something that I want to build. Sometimes the urge goes away. This time it doesn’t.</p>
+<h2 id="why-write-a-video-editor">Why write a video editor?</h2>
+<p>I like to build things. In particular I like to build things that I have a use for myself.</p>
+<p>Currently, I use <a href="https://kdenlive.org/en/">Kdenlive</a> as my video editor. It has served me well. However, every time I work with it, I get a little frustrated. It often crashes on me, it often feels slow, and there are certain things that I want to do that I don’t know how.</p>
+<p>The normal way of solving those problems I think would include</p>
+<ul>
+<li>Trying the latest version of Kdenlive (would require me to upgrade Fedora version as well)</li>
+<li>Buying a faster computer</li>
+<li>Learning Kdenlive better</li>
+</ul>
+<p>But I can program, and I like to build things. So from that point of view, the obvious solution is to build my own video editor specifically for my needs.</p>
+<p>Even if it ends up being unusable as my video editor, I will have had a good time working on it and most likely learned a thing or two.</p>
+<h2 id="more-ideas">More ideas</h2>
+<p>On June 16 I sketch the following in my notebook:</p>
+<p>
+<center>
+<img src="sketch-initial.png" title="fig:" alt="Initial sketch of a timeline." />
+</center>
+</p>
+<p>I think about how to represent clips on a timeline in my ideal video editor. This sketch also tells me that the urge has not gone away.</p>
+<h2 id="researching-mlt">Researching MLT</h2>
+<p>Writing a video editor seems like a daunting task. The only reason that I think it will be possible is with help from <a href="https://www.mltframework.org/">MLT</a>. From their website:</p>
+<blockquote>
+<p>MLT is an open source multimedia framework, designed and developed for television broadcasting. It provides a toolkit for broadcasters, video editors, media players, transcoders, web streamers and many more types of applications.</p>
+</blockquote>
+<p>So a lot of the heavy lifting of a video editor can be done by MLT. That is my guess and hope anyway. What I can focus on is writing a nice frontend for it.</p>
+<p>Instead of speculating, I do some spikes to learn how to use MLT from Python.</p>
+<p>Here is one example how to put two clips next to each other on a timeline and preview the result:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">mlt</span>
+
+<span class="n">mlt</span><span class="o">.</span><span class="n">Factory</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+<span class="n">playlist</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Playlist</span><span class="p">()</span>
+<span class="n">playlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;VID_20230611_120041.mp4&quot;</span><span class="p">))</span>
+<span class="n">playlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;VID_20230611_115932.mp4&quot;</span><span class="p">))</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;sdl&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;rescale&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">playlist</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>More examples from my spikes can be found <a href="https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py">here</a>.</p>
+<p>To help me do the spikes, I use the following resources:</p>
+<ul>
+<li><p><a href="https://www.mltframework.org/docs/framework/">MLT Framework Design</a>: A good introduction to how MLT works.</p></li>
+<li><p><a href="https://github.com/mltframework/mlt/tree/master/src/swig/python">Python examples</a>: Examples how to use MLT from Python. They are quite limited, but give you a good starting point.</p></li>
+<li><p><a href="https://www.mltframework.org/doxygen/annotated.html">MLT API documentation</a>: The C API documentation. Translating this to Python has been mostly straight forward.</p></li>
+<li><p><a href="https://github.com/jliljebl/flowblade">Flowblade</a>: Another video editor that is written in Python and MLT.</p></li>
+</ul>
+<h2 id="design-idea">Design idea</h2>
+<p>By doing the spikes, I have a basic understanding of how to use MLT and how it could be used to build a video editor.</p>
+<p>The design I have in mind for the video editor looks something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, I want to use custom data structures for representing clips on a timeline. I think that will give us a design which is clean and easy to work with. We can design those structures to be good for the kinds of operations that we want to perform.</p>
+<p>However, somehow those structures must be turned into an MLT producer. That is what <code>to_mlt_producer</code> is for. Transforming from our world into the MLT world. When we have an MLT producer, we can preview the composition and render a final result. But all the edit operations will be done on our custom data structures.</p>
+<h2 id="timeline-representation">Timeline representation</h2>
+<p>So what representation of clips is best? It depends on how it’s going to be used. How do I want to work with clips on a timeline in my ideal video editor?</p>
+<p>On June 28 I sketch this:</p>
+<p>
+<center>
+<img src="sketch-timeline-visualization.png" title="fig:" alt="Sketch of a timeline visualization of overlap." />
+</center>
+</p>
+<p>And on June 30 I sketch this:</p>
+<p>
+<center>
+<img src="sketch-split-sections.png" title="fig:" alt="Sketch of a timeline splits." />
+</center>
+</p>
+<p>I don’t think that I want to have multiple tracks in the timeline. There should only be one track. When clips overlap, multiple tracks might be created in the background, but the user should not need to create tracks manually.</p>
+<p>The sketches help me figure this out.</p>
+<p>I think that we can have one structure with all the clips and their positions. Then we can split those up into sections. One type of section has no overlaps, and the other do. Overlaps must be handled differently. They both render differently (stacked on top of each other) and they must produce multiple MLT tracks in the background.</p>
+<p>I work on this section splitting code and end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; a = Source(&quot;A&quot;).create_cut(0, 20).at(0)</span>
+<span class="sd">&gt;&gt;&gt; b = Source(&quot;b&quot;).create_cut(0, 20).at(10)</span>
+<span class="sd">&gt;&gt;&gt; cuts = Cuts()</span>
+<span class="sd">&gt;&gt;&gt; cuts = cuts.add(a)</span>
+<span class="sd">&gt;&gt;&gt; cuts = cuts.add(b)</span>
+<span class="sd">&gt;&gt;&gt; cuts.split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-A0------|--A10----&gt;|--b10----&gt;|</span>
+<span class="sd">|          |&lt;-b0------|          |</span>
+<span class="sd">&gt;&gt;&gt; cuts.modify(b, lambda cut: cut.move(1)).split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-A0-------|--A11---&gt;|--b9------&gt;|</span>
+<span class="sd">|           |&lt;-b0-----|           |</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>to_ascii_canvas</code> is only used in tests to give me faster feedback on the splitting code. It also documents quite nicely what the timeline would look like in different situations.</p>
+<h2 id="putting-it-together">Putting it together</h2>
+<p>I spend quite some time getting the splitting of cuts to work. Even before I know if this design will work out. (Not very smart.) We know if it will work out when we put everything together.</p>
+<p>I first try to put everything together in a Pygame application, but it gives me all kinds of problems, so I decide to try GTK instead.</p>
+<p>The application has two parts: one that shows the timeline, and one that shows the preview window.</p>
+<p>The timeline is created something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_draw</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">sections</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">timeline_draw</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It hooks up the draw event and lets the sections (created by <code>split_into_sections</code>) do all the drawing.</p>
+<p>The preview window is created something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">preview</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">putenv</span><span class="p">(</span><span class="s2">&quot;SDL_WINDOWID&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">preview</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span><span class="o">.</span><span class="n">get_xid</span><span class="p">()))</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;sdl&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It connects the SDL consumer to the preview window and the producer (created by <code>to_mlt_producer</code>) to the consumer. I learn how to make the SDL consumer draw its output inside a GTK window by looking at the Flowblade source code.</p>
+<p>I get a basic version of <code>Sections.draw</code> and <code>Sections.to_mlt_producer</code> and end up with this on July 3:</p>
+<p>
+<center>
+<img src="current-status.png" title="fig:" alt="Current look of application." />
+</center>
+</p>
+<h2 id="future">Future</h2>
+<p>At this point we have a sort of proof of concept of the design. We can now</p>
+<ul>
+<li>Programmaticlly load clips into a timeline data structure.</li>
+<li>This structure can draw itself onto a Cairo context which we can use to render it inside a GTK application.</li>
+<li>This structure can also generate an MLT producer which we can use to preview the composition using the SDL consumer and have the output shown in a window in our GTK application via <code>SDL_WINDOWID</code>.</li>
+</ul>
+<p>One thing that I worry about with this design is performance. Every time we modify the timeline, we have to generate a new sections object and from that generate a new MLT producer. That might take time. My hope and guess is that we can do smart things to get good enough performance. But it is worth looking into to quite soon to ensure that this design will hold even for larger projects.</p>
+<p>There for sure are many, many more details to flesh out before we have a functioning video editor. But I’m quite pleased that we have gotten this far in this quite short amount of time.</p>
+<p>You can find the source code on <a href="https://github.com/rickardlindberg/rlvideo">GitHub</a>.</p>
+]]></description>
+    <pubDate>Fri, 28 Jul 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/writing-my-own-video-editor/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>June 2023 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/june-2023/</link>
     <description><![CDATA[<h1>June 2023 Update</h1>
@@ -3475,277 +3660,6 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 ]]></description>
     <pubDate>Wed, 03 May 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/april-2023/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Thinking about test design</title>
-    <link>http://rickardlindberg.me/writing/agdpp-thinking-about-test-setup/</link>
-    <description><![CDATA[<h1>Thinking about test design</h1>
-
-<p><em>Published on 28 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>In the <a href="/writing/agdpp-shooting-arrow/index.html">previous</a> episode we were not quite happy with the design of our tests. Are we testing things at the right level? Do we see any smells? Are we missing tests? We will take some time in this episode to reflect on those questions so that things will go smooth(er), testing wise, when working on the next story.</p>
-<h2 id="a-concrete-problem">A concrete problem</h2>
-<p>In the previous episode I had a feeling that everything was not alright with the tests. I poked around a bit and noticed that I could change some vital production code that would break the game without my tests noticing.</p>
-<p>Let’s have a look.</p>
-<p>The event handling in the game now looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>If we skip the check for the space key and always shoot the arrow, like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Then the arrow goes off immediately when the game starts, which is obviously not correct, but all tests still pass.</p>
-<h2 id="coverage-and-expectation">Coverage and expectation</h2>
-<p>The promise of TDD and automated testing is that you can have very high test coverage. What I aspire to is to create a test suite that within seconds tells me if I broke the production code with my change. It might not be realistic, but when I find a case where I could break my production code without my tests noticing, I want to look more closely.</p>
-<p>Testing can for sure be seen as a trade off. At some point it probably costs more to test than what you gain.</p>
-<p>One reason to not test is that you don’t know how. That can be solved by practicing. Another reason might be that you decide that the cost is not worth it. However, the cost of testing goes down the better you get at it.</p>
-<p>And in this series I’m trying to learn as well and document that process. So let’s analyze the problem with the gap in the test suite and see what we can come up with.</p>
-<h2 id="what-test-is-missing">What test is missing?</h2>
-<p>The balloon shooter has two tests. Here are their descriptions:</p>
-<ol type="1">
-<li><p>I draw the initial scene of the game which consists of a balloon and an arrow and quit when the user closes the window.</p></li>
-<li><p>The arrow moves when it is shot by pressing the space key.</p></li>
-</ol>
-<p>The first test is checking that the initial frame is drawn correctly.</p>
-<p>The second test is checking that the arrow moves when we press space.</p>
-<p>But there is no test checking that the arrow stays still if we don’t press space.</p>
-<p>I think we tried to remedy that in the previous episode by adding these two “lower-level tests” to the arrow:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I stay still if I&#39;ve not been fired:</span>
-
-<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; initial_y == arrow.y</span>
-<span class="sd">    True</span>
-
-<span class="sd">    I move upwards when fired:</span>
-
-<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">    &gt;&gt;&gt; arrow.shoot()</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.y &lt; initial_y</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The problem is that the event checking logic is not in the <code>Arrow</code> class, but in the <code>BalloonShooter</code> class. So what we want to test can’t be tested at this level.</p>
-<h2 id="where-to-test">Where to test?</h2>
-<p>Writing all tests as “top-level tests” which includes all objects is not a good idea. The test setup will get complicated. The asserts will get difficult to write. The test will be slower.</p>
-<p>So we want to test at as a low level as possible.</p>
-<p>So if we want to test the initial state of the arrow in the <code>Arrow</code> class, we need to move event handling logic into it, so that it’s its responsibility and does not need to be tested in <code>BalloonShooter</code>.</p>
-<p>On the other hand, when you start writing tests for smaller subsystems, those subsystems become harder to refactor. Suppose you are not happy with the subsystems that you have created, and you want a different design. If you do that refactoring, you also have to modify the tests to fit. That makes refactoring and design harder. So you don’t want to do it too early.</p>
-<p>In our case, I think we did it too early. Our game class only has one test, and we already started extracting subsystems and writing tests there.</p>
-<p>Let’s see if we can fix that.</p>
-<h2 id="testing-initial-state">Testing initial state</h2>
-<p>Before we had this test for the initial state:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
-<span class="sd">arrow and quit when the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 520</span>
-<span class="sd">    radius: 15</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 540</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This only captures the initial frame. Let’s see if we can rewrite this.</p>
-<p>We start with this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I am a balloon shooter game!</span>
-
-<span class="sd">Initial state</span>
-<span class="sd">=============</span>
-
-<span class="sd">We run the game for a few frames, then quit:</span>
-
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This is just the setup. We simulate that we start the game, run it for a couple of frames, then quit.</p>
-<p>What are some behaviors that we expect to see here?</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The game loop is initialized and cleaned up:</span>
-
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The balloon is drawn animated:</span>
-
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=40).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">[(50, 50), (51, 50), (52, 50)]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The arrow is drawn in a fixed position:</span>
-
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 500)}</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=15).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 520)}</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=20).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 540)}</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>These new cases cover all the cases in the old test, so we can remove the old. Furthermore it also checks that the arrow doesn’t move so that we no longer can do the mistake of always shooting the arrow. Success!</p>
-<h2 id="reflecting-on-new-test-setup">Reflecting on new test setup</h2>
-<p>The test for the initial state is structured by simulating a run of the game, collecting events of what happened, and then making specific assertions about those events to check different behavior.</p>
-<p>Let’s structure the rests of the test that way too:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">User presses space key</span>
-<span class="sd">======================</span>
-
-<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
-<span class="sd">frames, then quit:</span>
-
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-
-<span class="sd">The arrow moves:</span>
-
-<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>If there are more things that should happen when we press the space key, we can add asserts for it. But for now, I don’t think there is any.</p>
-<h2 id="summary">Summary</h2>
-<p>All our tests for the game are now written at the top-level. They include all the objects. And they are written close to the acceptance criteria for stories. Don’t we need lower-level tests as well?</p>
-<p>We for sure can’t keep testing all aspects of the game with top-level tests. Subsystems must for sure emerge that are easier to test. We will keep that in mind for the future and look extra carefully at what those subsystems might be. But for now, we are happy that we closed the gap in our test suite.</p>
-<p>See you in the next episode!</p>
-]]></description>
-    <pubDate>Fri, 28 Apr 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/agdpp-thinking-about-test-setup/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 

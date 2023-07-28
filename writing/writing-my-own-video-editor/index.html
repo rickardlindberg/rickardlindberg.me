@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: Writing my own video editor | Rickard's personal homepage
+      Writing my own video editor | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,11 +53,10 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: Writing my own video editor</h1>
+      <h1>Writing my own video editor</h1>
 
-<p><em>Published on 27 July 2023.</em></p>
+<p><em>Published on 28 July 2023.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>On May 28 I write <a href="https://hachyderm.io/@rickardlindberg/110447282439624451">this</a>:</p>
 <blockquote>
 <p>Got the urge to write my own video editor. Tired of kdenlive’s instability. And I don’t need something that advanced. Reading a bit about the MLT framework makes me think that it might actually be possible to do in a reasonable time.</p>
@@ -230,6 +229,7 @@
 </ul>
 <p>One thing that I worry about with this design is performance. Every time we modify the timeline, we have to generate a new sections object and from that generate a new MLT producer. That might take time. My hope and guess is that we can do smart things to get good enough performance. But it is worth looking into to quite soon to ensure that this design will hold even for larger projects.</p>
 <p>There for sure are many, many more details to flesh out before we have a functioning video editor. But I’m quite pleased that we have gotten this far in this quite short amount of time.</p>
+<p>You can find the source code on <a href="https://github.com/rickardlindberg/rlvideo">GitHub</a>.</p>
 
       <hr>
       <center>
