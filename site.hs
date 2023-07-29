@@ -135,6 +135,8 @@ rulesPageIndexHtmlTemplate isBuildTargetWebserver = do
         process $ contextRelatedPosts isBuildTargetWebserver "rlmeta"
     match "projects/agdpp/index.html" $
         process $ contextRelatedPosts isBuildTargetWebserver "agdpp"
+    match "projects/rlvideo/index.html" $
+        process $ contextRelatedPosts isBuildTargetWebserver "rlvideo"
     where
         process context = do
             route idRoute
