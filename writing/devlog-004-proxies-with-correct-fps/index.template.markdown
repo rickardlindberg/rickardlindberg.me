@@ -1,7 +1,7 @@
 ---
 title: 'DevLog 004: Proxies with correct FPS'
 date: 2023-07-30
-tags: devlog
+tags: devlog,rlvideo,mlt
 devlog: true
 ---
 
