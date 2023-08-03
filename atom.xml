@@ -8,8 +8,219 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-08-02T00:00:00Z</updated>
+    <updated>2023-08-03T00:00:00Z</updated>
     <entry>
+    <title>DevLog 009: Improve timeline scrubbing</title>
+    <link href="http://rickardlindberg.me/writing/devlog-009-improve-timeline-scrubbing/" />
+    <id>http://rickardlindberg.me/writing/devlog-009-improve-timeline-scrubbing/</id>
+    <published>2023-08-03T00:00:00Z</published>
+    <updated>2023-08-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 009: Improve timeline scrubbing</h1>
+
+<p><em>Published on  3 August 2023.</em></p>
+
+<p>As a try to edit some footage with my <a href="/projects/rlvideo/index.html">video editor</a>, I get annoyed by a timeline scrubbing issue.</p>
+<p>Scrubbing the timeline means clicking and dragging the playhead and then the frame at that position will play. This works fine today if you click and drag, but if you only click, nothing happens:</p>
+<p>
+<center>
+<img src="scrub-problem.png" title="fig:" alt="Scrub problem." />
+</center>
+</p>
+<p>Sometimes I just want to place the playhead at a certain position. And then I just want to click.</p>
+<p>That’s what we’ll work on fixing today.</p>
+<h2 id="reviewing-the-scrub-action">Reviewing the scrub action</h2>
+<p>Here is the scrub action:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ScrubAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">player</span> <span class="o">=</span> <span class="n">player</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">scrub</span><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">content_start</span>
+                    <span class="o">+</span>
+                    <span class="n">x</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">one_length_in_pixels</span>
+                <span class="p">))</span>
+            <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can see that the scrubbing is happening only when we move the mouse, not if we just left click.</p>
+<p>The solution seems obvious: make sure to scrub on the click as well.</p>
+<p>Let’s see how we can move slowly and carefully and pay attention to design as we go along. Let’s start with a test.</p>
+<h2 id="testing-new-functionality">Testing new functionality</h2>
+<p>This is the test that I come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I scrub the player when clicked:</span>
+
+<span class="sd">&gt;&gt;&gt; class MockPlayer:</span>
+<span class="sd">...     def scrub(self, position):</span>
+<span class="sd">...         print(f&quot;scrub {position}&quot;)</span>
+<span class="sd">&gt;&gt;&gt; class MockScrollbar:</span>
+<span class="sd">...     content_start = 0</span>
+<span class="sd">...     one_length_in_pixels = 1</span>
+<span class="sd">&gt;&gt;&gt; action = ScrubAction(player=MockPlayer(), scrollbar=MockScrollbar())</span>
+<span class="sd">&gt;&gt;&gt; action.simulate_click(x=10)</span>
+<span class="sd">scrub 10</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>left_mouse_down</code> currently takes both the x and y coordinates. In this test, we only care about the x coordinate. That’s why I introduced <code>Action.simulate_click</code>. The idea is that it should simulate the calls that GTK does when a left click happens. My idea is to extend this further with something like <code>Action.simulate_drag</code> which will fire <code>left_mouse_down</code>, <code>mouse_move</code>, and <code>mouse_up</code> in the same way that GTK would do it.</p>
+<p>I implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">simulate_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To make the test pass, I call <code>self.player.scrub</code> in the <code>left_mouse_down</code> event as well. I extract it to a common method to remove the duplication.</p>
+<p>This passes the tests, and when I try it in the application, it works as intended.</p>
+<p>Are we done?</p>
+<h2 id="a-concern">A concern</h2>
+<p>Let’s take a moment to think about some design issues.</p>
+<p>One thing that worry me is that <code>Action.simulate_click</code> does not actually simulate clicks in the right way. That is, when we hook this up with GTK, the same kinds of events will not be generated.</p>
+<p>Let’s have a look at how it works today.</p>
+<p>Here is how <code>*_mouse_down</code> is handled:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="n">timeline_button</span><span class="p">)</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
+    <span class="n">timeline</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="c1"># TODO: clarify what translate_coordinates do</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">))</span>
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">),</span> <span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This code exists in a method which has a bunch of other GTK setup code and is quite long.</p>
+<p>Let’s see if we can extract a GTK widget that has all the mechanisms for custom drawing and event handling.</p>
+<p>I slowly start to extract pieces, and eventually end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">CustomDrawWidget</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_window</span><span class="p">,</span> <span class="n">custom_draw_handler</span><span class="p">):</span>
+        <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_draw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_press_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-release-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_release_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;motion-notify-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_motion_notify_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span> <span class="o">=</span> <span class="n">RectangleMap</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span> <span class="o">=</span> <span class="n">custom_draw_handler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span> <span class="o">=</span> <span class="n">main_window</span>
+
+    <span class="k">def</span> <span class="nf">on_draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_button_press_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">on_motion_notify_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_button_release_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">get_coordinates_relative_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The timeline is then created like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">CustomDrawWidget</span><span class="p">(</span>
+    <span class="n">main_window</span><span class="o">=</span><span class="n">main_window</span><span class="p">,</span>
+    <span class="n">custom_draw_handler</span><span class="o">=</span><span class="n">timeline_draw</span><span class="p">,</span>
+<span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This part of the code base does not have many tests. I therefore moved slowly and tested my changes manually after each small step.</p>
+<p>Let’s discuss some aspects of this and what we have done:</p>
+<ul>
+<li><p>The <code>CustomDrawWidget</code> now owns the rectangle map. (The timeline gets a reference to it, but there it only one instance, and it is created by <code>CustomDrawWidget</code>.)</p></li>
+<li><p>The <code>CustomDrawWidget</code> can handle clearing of the rectangle map on redraw, something that the timeline previously did.</p></li>
+<li><p>The <code>CustomDrawWidget</code> can handle mouse events and take the appropriate action by using the rectangle map.</p></li>
+<li><p>The timeline widget no longer knows about mouse events. It just has a rectangle map that it can fill with actions to be performed.</p></li>
+</ul>
+<p>When I look at this, I feel like there are so many more things to improve. However, I will practice stopping here and think that I made a bit of improvement.</p>
+<p>We can now see a bit more clearly the connection between GTK events, the rectangle map, and what methods are called on the action. And, if we need a second component that does custom drawing and handles events with a rectangle map, we can re-use <code>CustomDrawWidget</code> and do not need to duplicate as much.</p>
+<h2 id="summary">Summary</h2>
+<p>We improved the application a tiny bit by allowing click on the timeline to position the playhead. We also cleaned up the code base in the area we touched. It now reflects a little better the ideas that we have about the code. I’m happy with this progress.</p>
+]]></summary>
+</entry>
+<entry>
     <title>DevLog 008: How to overcome lack of motivation?</title>
     <link href="http://rickardlindberg.me/writing/devlog-008-how-to-overcome-lack-of-motivation/" />
     <id>http://rickardlindberg.me/writing/devlog-008-how-to-overcome-lack-of-motivation/</id>
@@ -4693,76 +4904,6 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <li><a href="https://github.com/rickardlindberg/agdpp/commit/18a9a5af49966f9b2c7e8841495687181e7fedfb">Clean up shooting arrow tests.</a></li>
 </ul>
 <p>Making these tiny improvements feels so good. They are all quite small changes, but they make a huge impact. Ok, maybe not huge, but the improvements compound. The point is that if you keep making tiny improvements, the code base gets easier and easier to work with.</p>
-<p>See you in the next episode!</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Does TDD work when building a game?</title>
-    <link href="http://rickardlindberg.me/writing/agdpp-tdd-and-games/" />
-    <id>http://rickardlindberg.me/writing/agdpp-tdd-and-games/</id>
-    <published>2023-06-12T00:00:00Z</published>
-    <updated>2023-06-12T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Does TDD work when building a game?</h1>
-
-<p><em>Published on 12 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>When I <a href="/writing/agdpp-introduction/index.html">started</a> this series, one of the areas that I wanted to explore was how well TDD works when building a game.</p>
-<p>The short answer is that I find that it works equally well as on any other project I’ve done.</p>
-<p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limits of TDD in those situations.</p>
-<h2 id="example-joystick-movement">Example: joystick movement</h2>
-<p>What is hard to test with TDD? Here is an example.</p>
-<p>A <a href="/writing/agdpp-logitech-gamepad-f310/index.html">few episodes ago</a>, we worked on controlling the game with a gamepad. The gamepad has a little joystick (correct name?) and when we push it to the left, we want the arrow to turn left, and likewise for right. That logic works well to implement with TDD, however, that is not enough. It is also important that it “feels good” to turn the arrow. That it responds fast enough, that it turns with an appropriate speed, and so on. That part, I think, is impossible to work out with TDD since we don’t know the correct answer. The only way to get the correct answer is to experiment. Try turning with different parameters and see which ones feel better.</p>
-<p>We can still use TDD for the first part if we relax the assertions. For example, we can’t assert that the arrow is turned by a specific amount, but we can assert that it is turned more to the left than before. Here is an example of that:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span>
-<span class="sd">&gt;&gt;&gt; game.update(1)</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work without modification.</p>
-<h2 id="testing-in-game">Testing in-game?</h2>
-<p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to make sure it works? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you score 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>
-<p>You certainly need to play the game to be able to get some details right. But we should not need to play “unnecessary parts” over and over again until we reach the point in the game that we are interested in testing.</p>
-<p>So far, the balloon shooter is not that complex. If we want to test turn speed for example, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and requires more interaction to get to where we want to go, I think we should approach it differently.</p>
-<h2 id="test-applications">Test applications</h2>
-<p>The idea that I have, that I have not yet tested, is to create small test applications or sub-games that can only be run in development.</p>
-<p>For the case with the effect after 100 points, perhaps we can create a custom game that starts immediately with 99 points. We can shoot down one more balloon and observe the effect. That is a faster feedback loop.</p>
-<p>This approach might require our design to change a bit. It must be easy to start the game with a particular scene and configuration for example.</p>
-<h2 id="applications-outside-games">Applications outside games</h2>
-<p>I have used this approach in <a href="/projects/timeline/index.html">Timeline</a>. Timeline is a GUI application, so a different domain than games. But the GUI elements have the same problem: you can’t assert in tests that they “look good”.</p>
-<p>Instead of running the application and opening the correct dialog, we implemented a <code>--halt-gui</code> flag in our test runner. When that flag is present, the tests will open GUI dialogs with mock data and you can visually inspect that they look good:</p>
-<p>
-<center>
-<img src="timeline-halt-gui.png" title="fig:" alt="Timeline halt GUI." />
-</center>
-</p>
-<p>Your workflow for modifying a dialog can than be</p>
-<ol type="1">
-<li>run test suite with specific test and <code>--halt-gui</code> flag</li>
-<li>inspect the dialog</li>
-<li>tweak layout</li>
-<li>repeat</li>
-</ol>
-<p>This makes the feedback loop a little faster. There is no need to constantly run the application and click your way to the correct dialog.</p>
-<h2 id="what-about-real-application-testing">What about real application testing?</h2>
-<p>Should we never run our application for real? Should we only get feedback from tests and test applications?</p>
-<p>No, I believe it is also important to use the application to get a sense of what needs improving.</p>
-<p>In <a href="https://ronjeffries.com/articles/-y023/python/-o110/110/">Python 110 - Now Fleets?</a>, Ron writes</p>
-<blockquote>
-<p>And it seems to me that with a video-oriented game, we always wind up needing to watch it run, both for confidence and because, every now and then, we discover a problem.</p>
-</blockquote>
-<p>My goal is to not have to run the game for confidence. I want faster feedback for confidence.</p>
-<p>However, I do agree that you will discover problems when running the game. But I think that is true for any kind of application, not just games.</p>
-<h2 id="summary">Summary</h2>
-<p>Those are my reflections on using TDD for a game so far. Do you believe that creating test applications for faster feedback is a good idea? Please <a href="/contact/index.html">let me know</a>.</p>
 <p>See you in the next episode!</p>
 ]]></summary>
 </entry>
