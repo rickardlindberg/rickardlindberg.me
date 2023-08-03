@@ -10,6 +10,356 @@
     </author>
     <updated>2023-08-03T00:00:00Z</updated>
     <entry>
+    <title>DevLog 010: Debugging MLT/GTK segfault</title>
+    <link href="http://rickardlindberg.me/writing/devlog-010-debugging-mlt-gtk-segfault/" />
+    <id>http://rickardlindberg.me/writing/devlog-010-debugging-mlt-gtk-segfault/</id>
+    <published>2023-08-03T00:00:00Z</published>
+    <updated>2023-08-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 010: Debugging MLT/GTK segfault</h1>
+
+<p><em>Published on  3 August 2023.</em></p>
+
+<p>I try to edit some footage with my <a href="/projects/rlvideo/index.html">video editor</a>. Actually, it is footage from <a href="/writing/devlog-009-improve-timeline-scrubbing/index.html">DevLog 009</a> that I hope to put together. Everything is going quite well. After I add a split-cut-at-playhead operation to the editor, in addition to the previously added ripple delete, I am actually able to do some useful edits.</p>
+<p>However, after a while I notice that a cut does not seem to render the correct frame. I decide to restart the application, and then it happens. Segfault!</p>
+<p>This time, the segfault reproduces consistently. I’m excited to debug this and see how we can resolve it. I’ve got my cup of coffee, and I’m ready to go.</p>
+<p>
+<center>
+<img src="coffee.png" title="fig:" alt="Coffee." />
+</center>
+</p>
+<h2 id="gdb-output">GDB output</h2>
+<p>Because this is not the first time I see segfaults in this application, I have added a command to run the application in GDB. Here is how to use it:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ~/rlvideo/make.py gdb devlog-009.rlvideo
+...
+Starting program: /usr/bin/python3 /home/rick/rlvideo/rlvideo.py devlog-009.rlvideo
+...
+Thread 1 &quot;python3&quot; received signal SIGSEGV, Segmentation fault.
+..
+(gdb) bt
+#0  0x00007ffff7a64474 in pthread_mutex_lock () at /lib64/libpthread.so.0
+#1  0x00007fffe96866af in XrmQGetResource () at /lib64/libX11.so.6
+#2  0x00007fffe9667fca in XGetDefault () at /lib64/libX11.so.6
+#3  0x00007fffe9a5ae8a in _cairo_xlib_surface_get_font_options () at /lib64/libcairo.so.2
+...
+</pre>
+</div>
+</div>
+</div>
+<h2 id="analysis-and-ideas">Analysis and ideas</h2>
+<p>The segfault seems to happen inside some Cairo drawing code. That is most likely happening because GTK is trying to show a widget that tries to draw itself. I think GTK calls were further down in the backrace.</p>
+<p>I find it very unlikely that this can happen from the Python GTK bindings. My suspicion is that this has something to do with MLT. Why? Because the segfault only happens for some projects.</p>
+<p>I know that many MLT calls return status codes that I never check. Perhaps I should.</p>
+<p>There is also a way to serialize an MLT producer to an XML file which can then be played with <code>melt</code>. That way we can see if MLT has the same problems as we are having given the same MLT producer.</p>
+<p>This might be useful for other types of debugging as well.</p>
+<p>Let’s see if we can implement that XML export and see if <code>melt</code> segfaults as well or if that works.</p>
+<h2 id="debugging-mlt-producers">Debugging MLT producers</h2>
+<p>I add this to the main function:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_profile</span><span class="p">(),</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can run it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py rundev --export-melt test.xml
+Exporting test.xml
+Done
+</pre>
+</div>
+</div>
+</div>
+<p>Then we can feed it to <code>melt</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ mlt-melt test.xml
+</pre>
+</div>
+</div>
+</div>
+<p>When I do, I get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>[producer_xml] parse fatal: Input is not proper UTF-8, indicate encoding !
+Bytes: 0xC0 0xF3 0x68 0x0E
+	row: 3	col: 25
+[producer_xml] parse fatal: invalid character in attribute value
+...
+</pre>
+</div>
+</div>
+</div>
+<p>There seems to be an encoding issue. I look at the file and see that the profile description looks weird.</p>
+<p>I fix it manually, and then get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ mlt-melt test.xml
++-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
+|1=-10| |2= -5| |3= -2| |4= -1| |5=  0| |6=  1| |7=  2| |8=  5| |9= 10|
++-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
++---------------------------------------------------------------------+
+|               H = back 1 minute,  L = forward 1 minute              |
+|                 h = previous frame,  l = next frame                 |
+|           g = start of clip, j = next clip, k = previous clip       |
+|                0 = restart, q = quit, space = play                  |
++---------------------------------------------------------------------+
+Segmentation fault (core dumped)
+</pre>
+</div>
+</div>
+</div>
+<p>Hmm. Now I’m not using the project that I had problems with. Now I’m just using the default test project which works fine otherwise.</p>
+<p>When I look closer at the profile in the XML file, other things seem off as well. The width and height don’t seem to be correct either. I try to use the project profile instead of the preview profile in the XML export code. This works better. However, the player only shows a couple of frames where there should be more. What is going on?</p>
+<p>Then I notice this at the end of the XML file:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>  <span class="nt">&lt;playlist</span> <span class="na">id=</span><span class="s">&quot;playlist0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;playlist1&quot;</span> <span class="na">in=</span><span class="s">&quot;&quot;</span> <span class="na">out=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;producer4&quot;</span> <span class="na">in=</span><span class="s">&quot;0&quot;</span> <span class="na">out=</span><span class="s">&quot;0&quot;</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/playlist&gt;</span>
+<span class="nt">&lt;/mlt&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The first item in the playlist, which is another playlist, seems to lack in and out arguments. If I change to the following, the file plays ok:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;playlist1&quot;</span> <span class="na">in=</span><span class="s">&quot;0&quot;</span> <span class="na">out=</span><span class="s">&quot;43&quot;</span><span class="nt">/&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I print in and out points for all playlists that we create, and they seem to have valid numbers. Time to dig into the MLT XML export code.</p>
+<p>I find this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kt">char</span> <span class="o">*</span><span class="nf">mlt_properties_get_time</span><span class="p">(</span><span class="n">mlt_properties</span> <span class="n">self</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">mlt_time_format</span> <span class="n">format</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">mlt_profile</span> <span class="n">profile</span> <span class="o">=</span> <span class="n">mlt_properties_get_data</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s">&quot;_profile&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">double</span> <span class="n">fps</span> <span class="o">=</span> <span class="n">mlt_profile_fps</span><span class="p">(</span><span class="n">profile</span><span class="p">);</span>
+        <span class="n">mlt_property</span> <span class="n">value</span> <span class="o">=</span> <span class="n">mlt_properties_find</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+        <span class="n">property_list</span> <span class="o">*</span><span class="n">list</span> <span class="o">=</span> <span class="n">self</span><span class="o">-&gt;</span><span class="n">local</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">?</span> <span class="nb">NULL</span> <span class="o">:</span> <span class="n">mlt_property_get_time</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">list</span><span class="o">-&gt;</span><span class="n">locale</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>mlt_properties_get_time</code> functions seems to be used in the XML export. And it seems to work only if there is a profile.</p>
+<p>My playlists don’t have profiles.</p>
+<p>I add it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gh">diff --git a/rlvideolib/domain/section.py b/rlvideolib/domain/section.py</span>
+<span class="gh">index 4c50d6d..78a0683 100644</span>
+<span class="gd">--- a/rlvideolib/domain/section.py</span>
+<span class="gi">+++ b/rlvideolib/domain/section.py</span>
+<span class="gu">@@ -33,7 +33,7 @@ class Sections:</span>
+         return canvas
+
+     def to_mlt_producer(self, profile, cache):
+<span class="gd">-        playlist = mlt.Playlist()</span>
+<span class="gi">+        playlist = mlt.Playlist(profile)</span>
+         for section in self.sections:
+             playlist.append(section.to_mlt_producer(profile, cache))
+         assert playlist.get_playtime() == self.length
+<span class="gu">@@ -71,7 +71,7 @@ class PlaylistSection:</span>
+         return canvas
+
+     def to_mlt_producer(self, profile, cache):
+<span class="gd">-        playlist = mlt.Playlist()</span>
+<span class="gi">+        playlist = mlt.Playlist(profile)</span>
+         for part in self.parts:
+             part.add_to_mlt_playlist(profile, cache, playlist)
+         assert playlist.get_playtime() == self.length
+</pre>
+</div>
+</div>
+</div>
+<p>Now the export works fine!</p>
+<p>Let’s export the XML file for the project that segfaults.</p>
+<p>I examine the XML file and notice the same problem for <code>mlt.Tractor</code>. It is also missing in and out arguments. I add profiles to those as well.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Pass profile to mlt.Tractor so that XML export works properly with in/out points.&#39;
+...........................................................
+----------------------------------------------------------------------
+Ran 59 tests in 3.024s
+
+OK
+[main a5db808] Pass profile to mlt.Tractor so that XML export works properly with in/out points.
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+</pre>
+</div>
+</div>
+</div>
+<p>The export works fine and it plays fine in the <code>melt</code> player.</p>
+<p>I think that the fixes we made for the XML export only affects the XML export. But it is nice that we now have the ability to play our projects with <code>melt</code>. I suspect it might come in handy in the future as well.</p>
+<p>So there doesn’t seem to be anything wrong with the producer that we create. Melt can play it just fine. That is good news, I guess, but what to do next?</p>
+<h2 id="weird-cuts">Weird cuts</h2>
+<p>I mentioned in the beginning that the reason that I restarted the application was that I thought a cut rendered the wrong frame.</p>
+<p>I see this problem when playing the XML file with melt as well.</p>
+<p>This is most likely something wrong in our code. However, it doesn’t seem to contribute to the segfault.</p>
+<p>I add a TODO in the code in a place where I think the problem is. Let’s deal with that later. We are on the hunt for segfault reasons now.</p>
+<h2 id="more-ideas">More ideas</h2>
+<p>We have concluded that the producer that we create is probably fine.</p>
+<p>My suspicion is that there is something in the combination of MLT and GTK that causes the segfault. MLT and GTK are running in the same process, so it might be possible that they interfere with each other somehow. The backtrace got segfaulted inside the pthread library. So perhaps this is also timing related.</p>
+<p>Let’s try a few things out.</p>
+<h2 id="removing-the-player">Removing the player</h2>
+<p>The thing that connects MLT and GTK is the player. We start an MLT SDL consumer and have it display it’s output in a GTK window.</p>
+<p>I try to remove the player like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1">#mlt_player = MltPlayer(self.project, preview.get_window().get_xid())</span>
+<span class="k">class</span> <span class="nc">MockPlayer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+<span class="n">mlt_player</span> <span class="o">=</span> <span class="n">MockPlayer</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And now the application starts!</p>
+<p>But of course it doesn’t work properly.</p>
+<p>However, it tells me that there is something about this combination that causes the segfault.</p>
+<h2 id="timing">Timing</h2>
+<p>I then try this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gh">diff --git a/rlvideolib/gui/gtk.py b/rlvideolib/gui/gtk.py</span>
+<span class="gh">index cb13bef..3feaf87 100644</span>
+<span class="gd">--- a/rlvideolib/gui/gtk.py</span>
+<span class="gi">+++ b/rlvideolib/gui/gtk.py</span>
+<span class="gu">@@ -160,6 +160,9 @@ class MltPlayer:</span>
+         # TODO: figure out why SDL consumer seems to produce brighter images (black -&gt; grey)
+         self.project = project
+         os.putenv(&quot;SDL_WINDOWID&quot;, str(window_id))
+<span class="gi">+        GLib.idle_add(self.init_player)</span>
+<span class="gi">+</span>
+<span class="gi">+    def init_player(self):</span>
+         self.consumer = mlt.Consumer(self.project.get_preview_profile(), &quot;sdl&quot;)
+         self.consumer.start()
+         self.producer = None
+</pre>
+</div>
+</div>
+</div>
+<p>That is, I create the MLT consumer a little later, once GTK has had time to start up a bit more.</p>
+<p>And wow, this actually works!</p>
+<p>I though about this idea because I had come across this comment in the <a href="https://github.com/jliljebl/flowblade">Flowblade</a> source code:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1"># SDL 2 consumer needs to created after Gtk.main() has run enough for window to be visible</span>
+<span class="c1">#if editorstate.get_sdl_version() == editorstate.SDL_2: # needs more state consideration still</span>
+<span class="c1">#    print &quot;SDL2 timeout launch&quot;</span>
+<span class="c1">#    global sdl2_timeout_id</span>
+<span class="c1">#    sdl2_timeout_id = GLib.timeout_add(1500, create_sdl_2_consumer)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The comment was for SDL2, and we are using SDL1, but I thought it was worth a try anyway.</p>
+<p>Here is one reason that I think it is valuable documenting my work. I was able to get an idea from Flowblade. From a comment written in the source code. That was valuable to me. Maybe others will find similar value in what I write about. Maybe.</p>
+<h2 id="solution-too-soon">Solution too soon?</h2>
+<p>I try the <code>idle_add</code> solution a couple of times, and it seems like I was too fast to declare victory. It seems like it still segfaults sometimes.</p>
+<p>Then I try to take the SDL consumer out of the picture by replacing it with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">DummyConsumer</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">disconnect_all_producers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dummy disconnect&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">producer</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dummy connect&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And it still segfaults sometimes.</p>
+<h2 id="delay-all-mlt-operations">Delay all MLT operations</h2>
+<p>I’m thinking that we need to delay all MLT operations until GTK is properly initialized.</p>
+<p>I try to get this to work, but I don’t manage. The code is too tangled together.</p>
+<p>Many hours pass, and I don’t seem to be making any progress.</p>
+<h2 id="overlap">Overlap</h2>
+<p>I’m thinking that this segfault might have to do with the bug I talked about in the beginning about the wrong frame being rendered.</p>
+<p>I find the problem in the code, write a test that exposes the bug, and then fix it.</p>
+<p>That was good, but it did not resolve the segfault.</p>
+<p>I keep scratching my head, thinking of things to try. Hours pass. Then I have a breakthrough.</p>
+<h2 id="breakthrough">Breakthrough</h2>
+<p>But some lucky guess, I find out that the segfault only happens when we have overlapping clips in our project. I decide to comment out transitions (the code that merges multiple, overlapping frames together), and suddenly, the reproducible segfault goes away. The problem seems to be with the <code>qtblend</code> transition. There is another one called <code>frei0r.cairoblend</code> which works as well for our purposes. I switch to that one and write this comment in the code about it.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1"># &#39;qtblend&#39; that was first used first seems to give problems</span>
+<span class="c1"># when used in a GTK context. The application segfaults when</span>
+<span class="c1"># started.</span>
+<span class="c1">#</span>
+<span class="c1"># Steps to reproduce:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. ./make.py rundev foo.rlvideo resources/*mp4</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Move a cut so that there is a overlap somewhere</span>
+<span class="c1">#</span>
+<span class="c1"># 3. ./make.py rundev foo.rlvideo</span>
+<span class="c1">#</span>
+<span class="c1"># Boom! Stacktrace:</span>
+<span class="c1">#</span>
+<span class="c1">#     (gdb) bt</span>
+<span class="c1">#     #0  0x00007ffff7a64474 in pthread_mutex_lock () at /lib64/libpthread.so.0</span>
+<span class="c1">#     #1  0x00007fffe96866af in XrmQGetResource () at /lib64/libX11.so.6</span>
+<span class="c1">#     #2  0x00007fffe9667fca in XGetDefault () at /lib64/libX11.so.6</span>
+<span class="c1">#     #3  0x00007fffe9a5ae8a in _cairo_xlib_surface_get_font_options () at /lib64/libcairo.so.2</span>
+<span class="c1">#     ...</span>
+<span class="c1">#</span>
+<span class="c1"># frei0r.cairoblend seems to work better.</span>
+<span class="c1">#</span>
+<span class="c1"># TODO: How to fix this problem? Is qtblend just incompatible?</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>I am extremely satisfied that we found the reason for the segfault and were able to fix it.</p>
+<p>In the process we also found a couple of other bugs that we fixed and added the XML export for easier debugging.</p>
+<p>After fixing the segfault I continue to edit. Unfortunately, I get other segfaults now. This time not reproducible, but more random. I conclude that I must learn better the internals of MLT to figure out what I’m doing wrong in the Python code. And after the things I learned from this session, I’m more prepared.</p>
+]]></summary>
+</entry>
+<entry>
     <title>DevLog 009: Improve timeline scrubbing</title>
     <link href="http://rickardlindberg.me/writing/devlog-009-improve-timeline-scrubbing/" />
     <id>http://rickardlindberg.me/writing/devlog-009-improve-timeline-scrubbing/</id>
@@ -4583,328 +4933,6 @@ OK
 <p>My concern with this implementation is mainly that it is difficult to write those correctly. (You have to implement and call the correct <code>interact_with_*</code>.) I think that my suggestion to write a higher-lever tests for interactions partly solves that problem.</p>
 <p>If we can come up with a better scheme for this mechanism in Python, I might be less inclined to write high-level test.</p>
 <p>But currently, I think I still like higher-level tests. At least some. I like overlapping, sociable tests. That means tests at many different levels. And if testing at a higher level is not inconvenient (it quickly becomes), I <em>think</em> I prefer that. First of all because it gives me greater confidence that the code works, and second because it allows refactoring without changing tests.</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Spawn multiple balloons</title>
-    <link href="http://rickardlindberg.me/writing/agdpp-spawn-multiple-balloons/" />
-    <id>http://rickardlindberg.me/writing/agdpp-spawn-multiple-balloons/</id>
-    <published>2023-06-17T00:00:00Z</published>
-    <updated>2023-06-17T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Spawn multiple balloons</h1>
-
-<p><em>Published on 17 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>We <a href="/writing/agdpp-game-over/index.html">previously</a> had a story about balloons moving downwards. We scratched that because other stories were more important for the first version of the balloon shooter. With those stories done, I think a more realistic balloon spawning and movement pattern is the most valuable thing we can work on.</p>
-<h2 id="video-version">Video version</h2>
-<p>The video version of this episode:</p>
-<center>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/unYD_bPyadc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
-encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-</iframe>
-</center>
-<h2 id="code-review">Code review</h2>
-<p>Let’s review our code and look at how balloons are managed.</p>
-<p>Our game scene has a sprite group for balloons which by default contains only one balloon:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balloons</span><span class="o">=</span><span class="p">[(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)],</span> <span class="o">...</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">([</span>
-            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">balloons</span>
-        <span class="p">]))</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This sprite group is modified in the <code>update</code> method if an arrows hits a balloon:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-            <span class="o">...</span>
-            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
-                    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>So the hit balloon is removed, and a new one is added.</p>
-<p>How do balloons move?</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1200</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">dt</span><span class="o">*</span><span class="mf">0.3</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>They move from left to right and wrap around at x=1200.</p>
-<h2 id="strategy">Strategy</h2>
-<p>To be able to write more isolated tests for balloon behavior, I want to start with a few refactorings. I want to extract a <code>Balloons</code> class which contains most logic related to balloons. Then I want to write tests for new behavior. This is also known as make the change easy, then make the easy change.</p>
-<p>We begin by creating the class and using it like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gd">-        self.balloons = self.add(SpriteGroup([</span>
-<span class="gd">-            Balloon(Point(x=x, y=y)) for (x, y) in balloons</span>
-<span class="gd">-        ]))</span>
-<span class="gi">+        self.balloons = self.add(Balloons(balloons))</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span>
-            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">positions</span>
-        <span class="p">])</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We continue to move some behavior into this new class:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">get_balloon_hit_by_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">balloon</span>
-
-    <span class="k">def</span> <span class="nf">spawn_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
-</pre>
-</div>
-</div>
-</div>
-<p>With that in place, we can simplify the update code like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gd">-            for balloon in self.balloons.get_sprites():</span>
-<span class="gd">-                if arrow.hits_baloon(balloon):</span>
-<span class="gd">-                    self.balloons.remove(balloon)</span>
-<span class="gd">-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))</span>
-<span class="gd">-                    self.score.add(1)</span>
-<span class="gi">+            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)</span>
-<span class="gi">+            if hit_balloon:</span>
-<span class="gi">+                self.balloons.remove(hit_balloon)</span>
-<span class="gi">+                self.balloons.spawn_new()</span>
-<span class="gi">+                self.score.add(1)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>There is probably some more functionality that we can move into the new balloons class, but let’s stop here for now and focus on the new behavior.</p>
-<p>(If you want to see this refactoring happening in smaller steps and in real time, check out the video version.)</p>
-<h2 id="stories">Stories</h2>
-<p>Here is some new behavior that we would like to have:</p>
-<ul>
-<li>balloons move downwards</li>
-<li>balloons appear at different x positions</li>
-<li>multiple balloons are in the air at the same time</li>
-</ul>
-<p>Let’s start with the first one and write a test for the new movement pattern:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; balloons = Balloons([(50, 50)])</span>
-<span class="sd">    &gt;&gt;&gt; balloons.get_sprites()[0].get_position()</span>
-<span class="sd">    (50, 50)</span>
-<span class="sd">    &gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">    &gt;&gt;&gt; x, y = balloons.get_sprites()[0].get_position()</span>
-<span class="sd">    &gt;&gt;&gt; x</span>
-<span class="sd">    50</span>
-<span class="sd">    &gt;&gt;&gt; y &gt; 50</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>First we make sure that the first balloon in the sprite group is at the initial position that we gave it. Then we assert that it has moved downward after an update.</p>
-<p>To make this test pass, we make this change:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span> class Balloon:
-
-     ...
-
-     def update(self, dt):
-<span class="gd">-       if self.position.x &gt; 1200:</span>
-<span class="gd">-           self.position = self.position.set(x=50)</span>
-<span class="gd">-       else:</span>
-<span class="gd">-           self.position = self.position.move(dx=dt*0.3)</span>
-<span class="gi">+       self.position = self.position.move(dy=dt*self.speed)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We only needed to modify the <code>Balloon</code> class. Does that mean that we should put the test in this class instead? I don’t know. For now, I think it’s nice if we can keep all balloon related tests in the same place.</p>
-<p>If we run the game now, a single balloon will move downwards and then disappear at the bottom of the screen. That’s no fun. No more balloon to shoot down. Let’s fix that.</p>
-<p>Here is a test that checks that there are always 3 balloons in the air:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; balloons = Balloons([(50, 50)], space)</span>
-<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
-<span class="sd">1</span>
-<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
-<span class="sd">3</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We make this pass by adding spawn logic in the update method:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">spawn_new</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
-<p>As long as we shoot down balloons, new ones will be spawned. But if we miss three balloons, they will continue to move downwards outside the screen, and no new balloons will be spawned. Let’s work on removing balloons outside the screen.</p>
-<p>Here is a test describing this behavior:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; space = OutsideScreenSpace(500, 500)</span>
-<span class="sd">&gt;&gt;&gt; balloons = Balloons([(1000, 1000)], space)</span>
-<span class="sd">&gt;&gt;&gt; (balloon,) = balloons.get_sprites()</span>
-<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">&gt;&gt;&gt; balloon in balloons.get_sprites()</span>
-<span class="sd">False</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The idea is that we place a balloon outside the screen. Then we call update and make sure that it is no longer in the sprite group.</p>
-<p>We have used the <code>OutsideScreenSpace</code> before to remove arrows that are outside the screen. When we add it here to <code>Balloons</code> we have to update all instantiations of it to include it. Once that is done, we make the test pass like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span> class Balloons(SpriteGroup):
-
-     ...
-
-     def update(self, dt):
-         SpriteGroup.update(self, dt)
-<span class="gi">+        for balloon in self.get_sprites():</span>
-<span class="gi">+            if self.space.hits(Point(*balloon.get_position()), 10):</span>
-<span class="gi">+                self.remove(balloon)</span>
-         while len(self.get_sprites()) &lt; 3:
-             self.spawn_new()
-</pre>
-</div>
-</div>
-</div>
-<p>The game now plays without problems, however, it’s a little boring that balloons are always spawned at the same position.</p>
-<p>We modify the spawning code like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span> class Balloons(SpriteGroup):
-
-     ...
-
-     def spawn_new(self):
-<span class="gd">-        self.add(Balloon(position=Point(x=50, y=50)))</span>
-<span class="gi">+        self.add(Balloon(position=Point(x=self.space.get_random_x(50), y=50)))</span>
-</pre>
-</div>
-</div>
-</div>
-<p>And add the corresponding method in <code>OutsideScreenSpace</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">OutsideScreenSpace</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">get_random_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="n">margin</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We don’t write any tests for this. Why? I guess because I feel confident that this will work. And maybe because testing random is not straight forward. Perhaps we should add a test for <code>get_random_x</code> that checks that the x we get back is within the width minus margin. We make a note of that.</p>
-<p>Here is what the game looks like now:</p>
-<p>
-<center>
-<img src="multiple-balloons.png" title="fig:" alt="Multiple balloons." />
-</center>
-</p>
-<p>We have accomplished what we set out to do. I think the game is a little more fun to play now. Success!</p>
-<h2 id="summary">Summary</h2>
-<p>We began by doing some refactoring to make the new behavior easy to add. It was easy to add and it went smoothly. However, after adding new functionality and working with an area of the code, we have probably noticed things that can improve. We might even have ignored it to focus on adding the new behavior.</p>
-<p>What I like to do in those situations is to take a break and come back and review the code a little later.</p>
-<p>This time I came up with many small changes to improve the clarity of the code. Here are some examples from that session:</p>
-<ul>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/782cda7032896b15d89058b0fe3bc4ccbb54da8c">Replace (x, y) with position in Arrow and Balloon.</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/7d6c884d727bef96b1efcc524e4c8956cfd41c72">Move balloon space hit check to balloon where radius can be used for better hit test.</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/fe4b477a7ad4c89a56af58dceac84cfc100b2f8f">Replace OutsideScreenSpace with a more generic Rectangle.</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/c4f8ff4924f1ee4a83ece0d0360ed44e512af194">Make spawning unaware of where its region is (no hard coded y=50).</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/7faddca9ad82c1bde8d6ea0d00bbbc8cfb5d6fbf">No need to spawn balloon when shot down since it happens anyway.</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/19e51efe110e81e398a5f9a7401608f870afb4ff">Balloons positions are points instead of tuples.</a></li>
-<li><a href="https://github.com/rickardlindberg/agdpp/commit/18a9a5af49966f9b2c7e8841495687181e7fedfb">Clean up shooting arrow tests.</a></li>
-</ul>
-<p>Making these tiny improvements feels so good. They are all quite small changes, but they make a huge impact. Ok, maybe not huge, but the improvements compound. The point is that if you keep making tiny improvements, the code base gets easier and easier to work with.</p>
-<p>See you in the next episode!</p>
 ]]></summary>
 </entry>
 
