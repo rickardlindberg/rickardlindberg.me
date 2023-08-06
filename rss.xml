@@ -7,8 +7,420 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sat, 05 Aug 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 06 Aug 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>DevLog 011: Modifying cut out point</title>
+    <link>http://rickardlindberg.me/writing/devlog-011-modifying-cut-out-point/</link>
+    <description><![CDATA[<h1>DevLog 011: Modifying cut out point</h1>
+
+<p><em>Published on  6 August 2023.</em></p>
+
+<p>I’ve added a few more timeline edit operations to the <a href="/projects/rlvideo/index.html">video editor</a>. For example, it is now possible to change the speed of a cut with ctrl+drag on the right hand side and modify the in point with drag on the left hand side.</p>
+<p>
+<center>
+<img src="move-right.png" title="fig:" alt="Move right." />
+</center>
+</p>
+<p>However, changing the out point of a cut by dragging the right hand side does not yet work. It prints the following in the console:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>TODO: implement move_right!
+</pre>
+</div>
+</div>
+</div>
+<p>It is a bit trickier to get working than changing the in point as we will see in a second.</p>
+<h2 id="the-call-chain">The call chain</h2>
+<p>Here is roughly what happens when you drag the right hand side of a cut:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">transaction</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span>
+<span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move_right</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+<span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>Transaction.modify</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span><span class="o">.</span><span class="n">modify_cut</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>ProjectData.modify_cut</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>Cuts.modify</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">old_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span>
+    <span class="n">new_cut</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">old_cut</span><span class="p">)</span>
+    <span class="n">new_cuts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">)</span>
+    <span class="n">new_cuts</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cut</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+        <span class="n">cut_map</span><span class="o">=</span><span class="n">new_cuts</span><span class="p">,</span>
+        <span class="n">region_to_cuts</span><span class="o">=...</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And it is here that the lambda gets called to modify the cut.</p>
+<p>The problem is that when we modify the out point, we can’t place it outside the length of the source. And the cut itself does not know how long the source is. It just has a source id where it can be looked up, but only in the <code>ProjectData</code> structure, which is two levels above.</p>
+<h2 id="data-structure-consistency">Data structure consistency</h2>
+<p>Let’s have a look at the data structures and what they contain:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ProjectData</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ProjectData&quot;</span><span class="p">,</span> <span class="s2">&quot;sources,cuts&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Sources</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Sources&quot;</span><span class="p">,</span> <span class="s2">&quot;id_to_source&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;FileSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,path,length&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">TextSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;TextSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,text&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Cuts</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cuts&quot;</span><span class="p">,</span> <span class="s2">&quot;cut_map,region_to_cuts,region_group_size&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Cut</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cut&quot;</span><span class="p">,</span> <span class="s2">&quot;source,in_out,position,id,mix_strategy,volume,speed&quot;</span><span class="p">)):</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Put in a more hierarchical format:</p>
+<ul>
+<li>ProjectData
+<ul>
+<li>sources (Sources)</li>
+<li>cuts (Cuts)</li>
+</ul></li>
+<li>Sources
+<ul>
+<li>id_to_source (id -&gt; source)</li>
+</ul></li>
+<li>Source
+<ul>
+<li>FileSource</li>
+<li>TextSource</li>
+</ul></li>
+<li>Cuts
+<ul>
+<li>cut_map (id -&gt; Cut)</li>
+<li>region_to_cuts</li>
+<li>region_group_size</li>
+</ul></li>
+<li>Cut
+<ul>
+<li>source (id)</li>
+<li>in_out</li>
+<li>position</li>
+<li>id</li>
+<li>mix_strategy</li>
+<li>volume</li>
+<li>speed</li>
+</ul></li>
+</ul>
+<p>To make sure that a cut’s out point does not exceed the length of the source, we have to make the check in ProjectData since that is the only structure that has both the source information and the cut information.</p>
+<h2 id="modify-cut">Modify cut</h2>
+<p>Let’s have a look at <code>ProjectData.modify_cut</code> again:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>How about if we did something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">limit_out_point</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, we let the original lambda modify the out point beyond the length of the source. Then in the wrapper above we get the source of the clip and have it adjust the out point to not exceed the length.</p>
+<p>I think this will actually work.</p>
+<h2 id="reflections">Reflections</h2>
+<p>When first thinking about this problem I had a much more complicated solution in mind. I was annoyed that the cut itself did not know about the maximum length. I was thinking that <code>Cut.modify</code> somehow has to be passed a length so that it could do the limiting itself.</p>
+<p>Then I started writing about it, and I thought that each data structure should be responsible for validating itself. Since a cut has no information about length, it is ok to specify any length. But when a cut is put into a <code>ProjectData</code> and is associated with a source, the validation must happen.</p>
+<p>This makes a lot of sense to me, and I feel like a made a breakthrough.</p>
+<p>You could argue that the design of the data structure is wrong. Perhaps a cut should have more information about its source so that it can do more validation.</p>
+<p>But when it looks as it does, I think this will be fine.</p>
+<p>Let’s see if we can test this.</p>
+<h2 id="testing-limiting-out-point">Testing limiting out point</h2>
+<p>Here is the test that I come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A cut&#39;s out point is adjusted if going outside the limit:</span>
+
+<span class="sd">&gt;&gt;&gt; data = ProjectData.empty()</span>
+<span class="sd">&gt;&gt;&gt; data = data.add_source(FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5))</span>
+<span class="sd">&gt;&gt;&gt; data = data.add_cut(Cut.test_instance(name=&quot;source_a&quot;, start=0, end=3, id=&quot;cut_a&quot;))</span>
+<span class="sd">&gt;&gt;&gt; data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))</span>
+<span class="sd">&gt;&gt;&gt; data.get_cut(&quot;cut_a&quot;).in_out</span>
+<span class="sd">Region(start=0, end=5)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We create project data with one source and one cut. The source is of length 5 and the cut is of length 3. We can extend it two more frames before we have reached the end of the source.</p>
+<p>Then we modify the cut by trying to extend it by 10 frames.</p>
+<p>Then we assert that the end point is limited to 5.</p>
+<p>This fails with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))
+Differences (ndiff with -expected +actual):
+    + TODO: implement move_right!
+</pre>
+</div>
+</div>
+</div>
+<p>I implement <code>Cut.move_right</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">move_right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+        <span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">move_end</span><span class="p">(</span><span class="n">amount</span><span class="p">),</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Then we get this failure:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    data.get_cut(&quot;cut_a&quot;).in_out
+Differences (ndiff with -expected +actual):
+    - Region(start=0, end=5)
+    ?                     ^
+    + Region(start=0, end=13)
+    ?                     ^^
+</pre>
+</div>
+</div>
+</div>
+<p>I expected this. We don’t do any limiting yet.</p>
+<p>Let’s modify <code>ProjectData.modify_cut</code> to what we had in mind. I write this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We now get this error:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>AttributeError: &#39;TextSource&#39; object has no attribute &#39;limit_in_out&#39;
+</pre>
+</div>
+</div>
+</div>
+<p>This is also to be expected. Now we need to implement <code>limit_in_out</code> on every type of source. At the moment those are <code>TextSource</code> and <code>FileSource</code>. Let’s see if we have coverage for both. We get a failure for <code>TextSource</code> now, so let’s start there.</p>
+<p>A text source does not have a length. It is infinite. So <code>limit_in_out</code> just becomes this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cut</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we get the same error for the file source.</p>
+<p>I implement <code>FileSource.limit_in_out</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test now complains about this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>AttributeError: &#39;Cut&#39; object has no attribute &#39;limit_out&#39;
+</pre>
+</div>
+</div>
+</div>
+<p>I implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_out</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">limit_end</span><span class="p">(</span><span class="n">max_out</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And <code>Region.limit_end</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    <span class="k">def</span> <span class="nf">limit_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_end</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">max_end</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And wow, that actually works.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;ProjectData.modify_cut ensures that in_out is withing source limit.&#39;
+...................................................................
+----------------------------------------------------------------------
+Ran 67 tests in 3.925s
+
+OK
+[main a9eb857] ProjectData.modify_cut ensures that in_out is withing source limit.
+ 4 files changed, 29 insertions(+), 3 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="improving-design">Improving design</h2>
+<p>Right above <code>modify_cut</code> I see <code>add_cut</code> which also has a TODO:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">add_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="c1"># TODO: assert that source id exists (even for json loading)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now that we have touched this area of the code, let’s have a closer look if we can make something cleaner with our new insights.</p>
+<p>The <code>add_cut</code> could probably also benefit from having the in and out points limited.</p>
+<p>However, it is not used by the JSON loading mechanism.</p>
+<p>I move the JSON loading part of the comment to here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+    <span class="c1"># TODO: validate the cuts point to valid sources and that they have</span>
+    <span class="c1"># valid in/out points.</span>
+    <span class="k">return</span> <span class="n">ProjectData</span><span class="p">(</span>
+        <span class="n">sources</span><span class="o">=</span><span class="n">Sources</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]),</span>
+        <span class="n">cuts</span><span class="o">=</span><span class="n">Cuts</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;cuts&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I’m not sure that we want to adjust cuts that are invalid. We could remove cuts that don’t have a corresponding source, and we could adjust in and out points of cuts with valid sources. But that would change the project. So a load + save will save something else without the user having done any changes. Unless manually modified, a JSON export should never have these problems. So validation should be ok. But I said <strong>should</strong>. If we make a mistake somewhere, we could export invalid JSON. So a load that fixes bad input it probably a good idea. However, in such cases the user should probably be informed about the changes made and a backup file with the old contents should probably be written. I think this work is for a later time. Not really prioritized now.</p>
+<p>Let’s go back to <code>ProjectData.add_cut</code>. It is only used when the user actively adds a cut somehow. At that point the cut does not exists yet, and if we modify the in and out points, there is no obvious change.</p>
+<p>Let’s modify it guided by this test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">In/Out is modified according to source:</span>
+
+<span class="sd">&gt;&gt;&gt; ProjectData.empty(</span>
+<span class="sd">... ).add_source(</span>
+<span class="sd">...     FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
+<span class="sd">... ).add_cut(</span>
+<span class="sd">...     Cut.test_instance(name=&quot;source_a&quot;, start=0, end=10, id=&quot;cut_a&quot;)</span>
+<span class="sd">... ).get_cut(&quot;cut_a&quot;).in_out</span>
+<span class="sd">Region(start=0, end=5)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It fails with this message:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Differences (ndiff with -expected +actual):
+    - Region(start=0, end=5)
+    ?                     ^
+    + Region(start=0, end=10)
+    ?                     ^^
+</pre>
+</div>
+</div>
+</div>
+<p>We fix it in a similar way to before:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">cut</span><span class="p">)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That passes all the tests.</p>
+<h2 id="speed-issue">Speed issue</h2>
+<p>I also noticed an issue with the limiting for cuts that had a changed speed. I modify <code>FileSource.limit_in_out</code> to take speed into account:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; source = FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
+
+<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=10)).in_out</span>
+<span class="sd">    Region(start=0, end=5)</span>
+
+<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=20, speed=0.5)).in_out</span>
+<span class="sd">    Region(start=0, end=10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">/</span><span class="n">cut</span><span class="o">.</span><span class="n">speed</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>We added a feature to the application. It is now possible to move the out point of a cut and it is properly limited to not exceed the length of the underlying source.</p>
+<p>I was surprised at how elegant the solution came out. The realisation that made this possible was that validation should happen at the point where all data exists. Each data entity validates itself. If parent attributes are needed for the validation, do the validation higher up the hierarchy.</p>
+<p>This also makes me wonder if the limit of in point should also be done by the source. Right now the cut assumes that in point &gt;= 0 is ok. It doesn’t need to know anything about the source. But it makes assumptions about the source. I think this assumption is always correct, but I don’t think it hurts to not assume anything and let the source do the decision.</p>
+<p>I will probably try that refactoring out. My suspicion is that the code base will be a little cleaner then.</p>
+<p>But not in this session. This is it for now. See you next time!</p>
+]]></description>
+    <pubDate>Sun, 06 Aug 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/devlog-011-modifying-cut-out-point/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>July 2023 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/july-2023/</link>
     <description><![CDATA[<h1>July 2023 Update</h1>
@@ -4084,626 +4496,6 @@ OK
 ]]></description>
     <pubDate>Tue, 04 Jul 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/newsletter/june-2023/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>Multiplayer</title>
-    <link>http://rickardlindberg.me/writing/agdpp-multiplayer/</link>
-    <description><![CDATA[<h1>Multiplayer</h1>
-
-<p><em>Published on 29 June 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>For every story that we work on, the balloon shooter feels more and more like a real game. The initial goal of this project was to create a game that me and my son will enjoy playing <em>together</em>. At this point, I think the most valuable thing we can work on towards that goal is adding support for multiplayer. So that’s the topic for this episode.</p>
-<h2 id="a-new-layer">A new layer</h2>
-<p>The entry point for the balloon shooter looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The balloon shooter class instantiates a game scene which implements the logic of our game:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">(</span><span class="n">Rectangle</span><span class="o">.</span><span class="n">from_size</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This means that as soon as we start the game, we enter the gameplay mode and can start playing right away.</p>
-<p>I imagine that multiplayer mode works by first selecting which players should participate in shooting balloons, and after that, the gameplay mode is entered and each player gets their own bow to shoot with.</p>
-<p>We want to go from this structure:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>BalloonShooter
-    GameScene
-</pre>
-</div>
-</div>
-</div>
-<p>To something like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>BalloonShooter
-    NewGameScene
-        StartScene
-        GameScene
-</pre>
-</div>
-</div>
-</div>
-<p>We want to add another level that first directs calls to a start scene (or player select scene) and once players are selected, initializes the game scene and directs call to that.</p>
-<p>The current tests for <code>GameScene</code> should pass unchanged, but tests for <code>BalloonShooter</code> will need some modifications. I imagine that those tests need to select a player before asserting something from the gameplay mode. We’ll see later.</p>
-<h2 id="refactor-to-new-structure">Refactor to new structure</h2>
-<p>Let’s start by slowly and carefully refactor towards this new structure, using our tests as a safety net to give us feedback about how we’re doing.</p>
-<p>I want to call the new layer <code>GameScene</code>, but that name is already taken. The current game scene is really the gameplay scene, so we rename it to that. Then we create the new game scene which just forwards its calls to the gameplay scene:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We insert this new layer in <code>BalloonShooter</code> like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gu">@@ -113,7 +113,7 @@ class BalloonShooter:</span>
-     def __init__(self, loop):
-         self.loop = loop
-         self.resolution = (1280, 720)
-<span class="gd">-        self.game_scene = GameplayScene(Rectangle.from_size(*self.resolution))</span>
-<span class="gi">+        self.game_scene = GameScene(screen_area=Rectangle.from_size(*self.resolution))</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The new layer is now added, all tests are passing, and we have a point in our code (<code>GameScene</code>) where we can put functionality to choose between a start scene and a gameplay scene.</p>
-<p>Before we can work on that behavior, we need a start scene.</p>
-<h2 id="start-scene">Start scene</h2>
-<p>We write the initial version of the start scene like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I report players when on player has shot twice:</span>
-
-<span class="sd">    &gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">    True</span>
-
-<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">    True</span>
-
-<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players()</span>
-<span class="sd">    [&#39;one&#39;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">InputHandler</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;one&quot;</span><span class="p">]</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The idea is that a player (keyboard or gamepad) selects to be part of the game by shooting. When all players have entered, one of them can shoot again to start the game. This functionality is not yet fully implemented above. But this will do for now.</p>
-<p>When writing this blog post and looking at the code, I notice two problems. First of all “on” should be “one” in the test description. Second of all, the implementation does not check events at all, so if the test does not simulate any events, it will still pass. If we were to take this start scene into play now, we just need to wait for two iterations (2/60th of a second) and it would report players <code>['one']</code>. That does not seem correct.</p>
-<p>Let’s fix that. We modify the test to do two updates and the assertions should be the same:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">True</span>
-
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players()</span>
-<span class="sd">[&#39;one&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>I wonder how common the event + update pattern is in our tests. Perhaps we can benefit from a test helper something like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[],</span> <span class="n">dt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="n">sprite</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We might try it in a few places and see if the tests read better. But not now. The modification to the tests forces us to check events. We do it like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>With that fix out of the way, let’s work on integrating the start scene.</p>
-<h2 id="take-start-scene-into-play">Take start scene into play</h2>
-<p>The game scene currently forwards all calls to the gameplay scene. To take the start scene into play, we first want the start scene to be active, and have the game scene forward calls to it. Once players have been selected, we want the game scene to switch the active scene to the gameplay scene.</p>
-<p>We express that in the following test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initially, I draw the start scene:</span>
-
-<span class="sd">    &gt;&gt;&gt; game = GameScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    True</span>
-
-<span class="sd">    When players have been selected, I draw the gameplay scene:</span>
-
-<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    True</span>
-
-<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    False</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This is an example of an overlapping, sociable test. To make the scene switch happen, we need <code>StartScene.get_players</code> to return something. Since the game scene uses the real start scene, and not a mock, the only way to make it return something is to perform the same actions as we did in the start scene tests.</p>
-<p>To make this test pass, we initialize an active scene variable to the start scene and switch it to the gameplay scene once we have selected players:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span> <span class="o">=</span> <span class="n">screen_area</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">StartScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="p">,</span> <span class="n">StartScene</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">get_players</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The test talks about switching to a gameplay scene, but it only asserts that the start scene is <em>not</em> active anymore. We could probably clarify that.</p>
-<p>I’m also not sure how I feel about the assertions that checks the type of the active scene. But I don’t have any ideas for a better way to express that. If you do, please let me know.</p>
-<p>When we run the game now, it shows a blank purple screen. If we shoot twice we enter the gameplay scene and the game starts as before. Perfect!</p>
-<p>We do not yet take players into account and we can still not have multiple players. What we do have is a skeleton with a few more places where this new functionality can be added.</p>
-<p>The game works fine now (if we know that we have to shoot twice to get passed the start scene), but a test fails. It is the test for the balloon shooter. Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    We run the game for a few frames, then quit:</span>
-
-<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">    ...     events=[</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">    ...     ]</span>
-<span class="sd">    ... )</span>
-
-<span class="sd">    The game loop is initialized and cleaned up:</span>
-
-<span class="sd">    &gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
-<span class="sd">    GAMELOOP_INIT =&gt;</span>
-<span class="sd">        resolution: (1280, 720)</span>
-<span class="sd">        fps: 60</span>
-<span class="sd">    GAMELOOP_QUIT =&gt;</span>
-
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>This test is at the outermost level, so it includes all objects. Before, the gameplay scene received the events from the test, but now the start scene receives them. The start scene does not handle the user closed window event which results in this test just hanging.</p>
-<p>That failure teaches us that we can’t quit the application when we are in the start scene, only when we are in the gameplay scene. That is probably not correct. Thank you test for pointing that out. However, the assertions that follow check for example that a balloon is drawn, so the test expects to be in the gameplay mode. We modify the test to include two shoot events so that we end up in the gameplay scene:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
-<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>And, we are back to green!</p>
-<p>Here is yet another example of overlapping, sociable testing. We yet again have to simulate two shoot events to select players.</p>
-<p>One downside of this approach is that if we were to change the logic for selecting players, say that we first need to shoot and then turn left, then we would have to modify three test I think. One way to make that less of a problem in this particular situation is to create a test helper something like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">events_to_select_one_player</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
-        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
-    <span class="p">]</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We could use that test helper in all tests (with some modification) and now there is only one place in the tests that knows about what events that gets us from the start scene to the gameplay scene with one player.</p>
-<h2 id="pass-players-to-game-scene">Pass players to game scene</h2>
-<p>Our skeleton for the new feature is not quite complete. The gameplay scene does not know about players. Let’s fix that by passing the players from the start scene to the gameplay scene like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gu">@@ -162,7 +162,10 @@ class GameScene:</span>
-         self.active_scene.update(dt)
-         if isinstance(self.active_scene, StartScene):
-             if self.active_scene.get_players():
-<span class="gd">-                self.active_scene = GameplayScene(screen_area=self.screen_area)</span>
-<span class="gi">+                self.active_scene = GameplayScene(</span>
-<span class="gi">+                    screen_area=self.screen_area,</span>
-<span class="gi">+                    players=self.active_scene.get_players()</span>
-<span class="gi">+                )</span>
-</pre>
-</div>
-</div>
-</div>
-<p>To make this work we also add that argument to the constructor of the gameplay scene:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gu">@@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):</span>
-     []
-     &quot;&quot;&quot;
-
-<span class="gd">-    def __init__(self, screen_area, balloons=[], arrows=[]):</span>
-<span class="gi">+    def __init__(self, screen_area, balloons=[], arrows=[], players=[&quot;default&quot;]):</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Now, I think our skeleton is complete. What do I mean by that? I mean that all the pieces are connected they way we think they should be. Now we can work individually on the start scene and the gameplay scene. The start scene needs to be able to select multiple players and should return those players in the list. The gameplay scene should take players into account and create one bow per player that it can control.</p>
-<h2 id="make-input-handler-player-aware">Make input handler player aware</h2>
-<p>The start scene uses the input handler’s <code>get_shoot</code> to detect shots:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
-</pre>
-</div>
-</div>
-</div>
-<p>However, to select multiple players, the start scene must know <em>who</em> shot. Let’s modify the input handler to support that. We write this test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
-
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[]</span>
-
-<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[&#39;keyboard&#39;, &#39;joystick7&#39;]</span>
-
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We create a new <code>get_shots</code> method that returns a list of player/input identifiers. If the shot is triggered by the keyboard, the player identifier is <code>keyboard</code>. If the shot is triggered by a gamepad, the player identifier is <code>joystick</code> plus the unique id of that joystick. We implement it like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick_id</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">joystick_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;joystick</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">get_instance_id</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">get_shots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<h2 id="start-scene-returns-players">Start scene returns players</h2>
-<p>Now, let’s see if we can make <code>StartScene.get_players</code> to return actual player identifiers instead of hard coded <code>['one']</code>. As usual, we start with a test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players()</span>
-<span class="sd">[&#39;joystick7&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We make the test pass like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shots</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<h2 id="multiple-bows-in-game-scene">Multiple bows in game scene</h2>
-<p>At this point, the start scene returns a correct list of players selected and the only piece missing is for the gameplay scene to create multiple bows and direct events to the correct bow.</p>
-<p>Instead of having just a single bow, we create multiple bows like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gd">-        self.bow = self.add(Bow())</span>
-<span class="gi">+        self.bows = {}</span>
-<span class="gi">+        bow_position = self.screen_area.bottomleft.move(dy=-120)</span>
-<span class="gi">+        bow_increment = self.screen_area.width / (len(players)+1)</span>
-<span class="gi">+        for player in players:</span>
-<span class="gi">+            bow_position = bow_position.move(dx=bow_increment)</span>
-<span class="gi">+            self.bows[player] = self.add(Bow(position=bow_position))</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Then we forward events to the correct bow like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gd">-        if self.input_handler.get_shoot():</span>
-<span class="gd">-            self.flying_arrows.add(self.bow.shoot())</span>
-<span class="gd">-        self.bow.turn(self.input_handler.get_turn_angle())</span>
-<span class="gi">+        for player in self.input_handler.get_shots():</span>
-<span class="gi">+            self.flying_arrows.add(self.bow_for_player(player).shoot())</span>
-<span class="gi">+        for player, turn_angle in self.input_handler.get_turn_angles().items():</span>
-<span class="gi">+            self.bow_for_player(player).turn(turn_angle)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Here we use <code>InputHandler.get_turn_angles</code> to get turn angles per player. It is implemented similarly to how we implemented <code>InputHandler.get_shots</code>.</p>
-<p>To get the correct bow, we use this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">bow_for_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">bow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">input_id</span> <span class="o">==</span> <span class="n">player</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bow</span>
-    <span class="k">return</span> <span class="n">bow</span>
-</pre>
-</div>
-</div>
-</div>
-<p>If no player is found, the last bow is returned. So if you attach another gamepad after the gameplay mode has entered, it will control the last bow. Not sure if that is right. We’ll have to ask our product owner.</p>
-<p>We didn’t write any tests for this new behavior. We do have tests that check that a single player can shoot and turn. That gives us confidence that the new for loops work. There could be an error in <code>bow_for_player</code> so that an input event controls the wrong bow. The tests would not catch that. But I find that unlikely, and I’m not worried about it happening.</p>
-<h2 id="end-result">End result</h2>
-<p>If we start the game now, we are greeted, again, with a blank purple screen:</p>
-<p>
-<center>
-<img src="empty-start.png" title="fig:" alt="Empty start scene." />
-</center>
-</p>
-<p>If we shoot once with the keyboard, then twice with the gamepad, we are taken to this scene where the keyboard and the gamepad can control their own bow:</p>
-<p>
-<center>
-<img src="multiplayer-first.png" title="fig:" alt="First version of multiplayer." />
-</center>
-</p>
-<p>And we have the first version of a working multiplayer mode!</p>
-<h2 id="polishing">Polishing</h2>
-<p>An empty start scene does not feel polished. Let’s add some instructions to inform players how to get passed it. It mostly involves doing <code>loop.draw_text</code> in the draw method. Not very interesting. However, let’s also add some animated balloons in the background to make the scene a little more interesting. Thanks to the extraction of <code>Balloons</code> that we did in the <a href="/writing/agdpp-spawn-multiple-balloons/index.html">previous</a> episode, we can do this with the following lines:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Point</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">=</span><span class="n">screen_area</span><span class="o">.</span><span class="n">get_random_x</span><span class="p">(),</span>
-                <span class="n">y</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">screen_area</span><span class="o">.</span><span class="n">topleft</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">screen_area</span><span class="o">.</span><span class="n">bottomright</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloons</span><span class="p">(</span>
-            <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
-            <span class="n">number_of_balloons</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">),</span>
-            <span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span>
-        <span class="p">))</span>
-        <span class="o">...</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>I really should have created <code>screen_area.get_random_x()</code> or even <code>screen_area.get_random_position()</code>. But I got carried away and wanted a result quickly. We add a note about that and might address it in a future refactoring.</p>
-<p>Anyway, here is the final result of the start scene:</p>
-<p>
-<center>
-<img src="start-instructions.png" title="fig:" alt="Start scene with instructions." />
-</center>
-</p>
-<p>Here we have selected two players: one with the keyboard and one with a gamepad. If any of them shoot again, we enter the gameplay mode, or we can continue to add players by shooting with a different gamepad.</p>
-<p>As a final polish we will make different players have different colors. The result:</p>
-<p>
-<center>
-<img src="multiplayer-colors.png" title="fig:" alt="Players with different colors." />
-</center>
-</p>
-<h2 id="a-reflection-on-stories">A reflection on stories</h2>
-<p>How many stories have we worked on in this episode?</p>
-<p>Well, we have added support for multiplayer, isn’t that just one story?</p>
-<p>But we also did some polishing. Polishing could easily be its own story. Polish adds value to the players of the game.</p>
-<p>So the stories might be</p>
-<ul>
-<li>Add multiplayer support</li>
-<li>Nicer looking, more informative start scene</li>
-<li>Different player colors</li>
-</ul>
-<p>The first one is a lot bigger than the others. Is it possible to split it so that all stories that we work on have roughly the same size? I’m not sure. Let’s think about it.</p>
-<p>Let’s think about the state that the game was in when we had a start scene but the players could not be selected. We had visible change in behavior. There was now a start scene that wasn’t there before. But had we added value? Players expecting multiplayer would be disappointed. Other players would have to shoot a couple of times extra before they can play the game. That doesn’t seem like value. However, players could see this new start scene and ask questions like “what is this?” and “what am I supposed to do here?” We can tell them our idea and they can give us feedback if we are on the right track. Perhaps they want to start a multiplayer session in a different way? Perhaps they think a descriptive text on the start scene is more important? That feedback has value.</p>
-<p>So we could at least split the first story into two:</p>
-<ul>
-<li>Player selection start scene</li>
-<li>One bow per player</li>
-</ul>
-<p>As long as we can show visible progress, I think the story has value.</p>
-<h2 id="summary">Summary</h2>
-<p>With the new start scene and multiplayer mode, the balloon shooter feels even more like a real game. I find myself wanting to go play the game and enjoy what we have created. That is a really nice feeling.</p>
-<p>I am a bit surprised what you can achieve with the only graphics primitives being circles and text. I mean, the look of the game is pretty bad, the colors are horrible, and yet the idea comes across nicely and game mechanics can be felt anyway. I wonder how much of an improvement it would be to improve graphics. Probably a lot. But I am still surprised how far circles and text have taken us.</p>
-<p>See you in the next episode!</p>
-]]></description>
-    <pubDate>Thu, 29 Jun 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/agdpp-multiplayer/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
