@@ -8,6 +8,18 @@ agdpp: true
 When I started this series, my intention was to document my journey of creating
 a game using agile methods.
 
+I think I have mostly succeeded in this regard, but at the moment I've done
+some development that I have not documented. Furthermore, I did that
+development many months ago, so documenting it gets harder and harder because I
+forget what I was thinking when I did the development.
+
+Recently though, I've experimented with a new format which I call DevLogs. It
+is basically the same thing but a little less polished. I write a DevLog while
+doing the development, so there is no risk of falling behind.
+
+In this post I will briefly mention the development that I've done but not
+documented and talk a little about future plans.
+
 ## Particle effects
 
     commit f2a95556aa992affa2fe8b2c3af92f35c0f88f86
@@ -34,5 +46,6 @@ a game using agile methods.
 
 ## Summary
 
-When I continue this project, it will be in the form of a
-[DevLog](/tags/devlog/index.html). See you there!
+This post probably marks the end of this series as we know it.  When I continue
+this project, it will be in the form of a [DevLog](/tags/devlog/index.html).
+See you there!
