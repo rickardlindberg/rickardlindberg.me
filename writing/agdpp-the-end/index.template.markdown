@@ -22,25 +22,92 @@ documented and talk a little about future plans.
 
 ## Particle effects
 
-    commit f2a95556aa992affa2fe8b2c3af92f35c0f88f86
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Thu May 25 06:37:58 2023 +0200
+I polish the game a little by adding a particle effect system that I use to
+render a splashing animation when a balloon is shot.
 
-        New ParticleEffects class.
+It looks a little something like this (although it is hard to show in a single
+image):
+
+<p>
+<center>
+![Particles when shooting a balloon.](particles.png)
+</center>
+</p>
+
+The most interesting piece of code is this:
+
+$:output:python:
+class Balloon:
 
     ...
 
-    commit 7533ec079dbdeba713526469535a1cc0fc915449
-    Author: Rickard Lindberg <rickard@rickardlindberg.me>
-    Date:   Thu May 25 07:15:02 2023 +0200
+    def get_hit_particles(self):
+        number_of_particles = random.randint(4, 8)
+        return [
+            BalloonParticle(
+                position=self.position.move(
+                    dx=random.randint(0, self.radius),
+                    dy=random.randint(0, self.radius)
+                ),
+                radius=self.radius*(random.randint(30, 70)/100),
+                velocity=Angle.fraction_of_whole(random.random()).to_unit_point().times(self.speed*2)
+            )
+            for x
+            in range(number_of_particles)
+        ]
+$:END
 
-        Tweak numbers to make balloon particle effect look and feel good.
+It generates a list of particles when a balloon is hit. The particles have a
+little randomized position, radius, and velocity.
+
+The radius keeps decreasing as time passes, and when it reaches a low value,
+the particle is removed.
+
+The complete diff for this change can be seen on
+[GitHub](https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449).
 
 ## Sound!
 
+Me and my son recorded sound effects that are played when shooting a balloon.
+We went to the store, bought some balloons, rigged the mic, and popped them.
+
+It was much fun.
+
+The code for integrating the sound is here:
+
+[GitHub](https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce).
+
 ## Medals
 
-* Test scene
+When I asked my son what he wanted to work on next, he said he wanted to get a
+medal for every 100 balloon that you shoot down.
+
+I added a fun little particle effect again for the animation when you get a
+medal:
+
+<p>
+<center>
+![Medal animation.](medal1.png)
+</center>
+</p>
+
+The medals stack up in the upper left corner like this:
+
+<p>
+<center>
+![Medals stacking up.](medal2.png)
+</center>
+</p>
+
+[GitHub](https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c).
+
+## Test scene
+
+<p>
+<center>
+![Test scene.](test-scene.png)
+</center>
+</p>
 
 ## Next: double dispatch, decentralized?
 
