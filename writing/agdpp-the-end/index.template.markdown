@@ -13,12 +13,13 @@ some development that I have not documented. Furthermore, I did that
 development many months ago, so documenting it gets harder and harder because I
 forget what I was thinking when I did the development.
 
-Recently though, I've experimented with a new format which I call DevLogs. It
-is basically the same thing but a little less polished. I write a DevLog while
-doing the development, so there is no risk of falling behind.
+Recently though, I've experimented with a new format which I call
+[DevLog](/tags/devlog/index.html). It is basically the same thing but a little
+less polished. I write a DevLog while doing the development, so there is no
+risk of falling behind.
 
 In this post I will briefly mention the development that I've done but not
-documented and talk a little about future plans.
+documented and then talk a little about future plans for this project.
 
 ## Particle effects
 
@@ -60,29 +61,43 @@ $:END
 It generates a list of particles when a balloon is hit. The particles have a
 little randomized position, radius, and velocity.
 
-The radius keeps decreasing as time passes, and when it reaches a low value,
-the particle is removed.
+The radius keeps decreasing as time passes, and when it reaches a low enough
+value, the particle is removed.
 
 The complete diff for this change can be seen on
 [GitHub](https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449).
 
-## Sound!
+## Sound effects
 
-Me and my son recorded sound effects that are played when shooting a balloon.
-We went to the store, bought some balloons, rigged the mic, and popped them.
+Me and my son record sound effects that are played when a balloon is hit.  We
+go to the store, buy some balloons, rig the mic, and pop them.  It is much
+fun.
 
-It was much fun.
-
-The code for integrating the sound is here:
-
+The code for integrating the sound can be seen on
 [GitHub](https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce).
+
+This change include adding the `load_sound` method to `GameLoop`:
+
+$:output:python:
+class GameLoop(Observable):
+
+    ...
+
+    def load_sound(self, path):
+        return Sound(self.pygame.mixer.Sound(path))
+$:END
+
+Does it really make sense that you load a sound from the game loop? I'm not
+sure. The game loop is the only abstraction that we have for accessing pygame.
+That's why it ended up there. But the design here feels a little off to me.
+Something to keep an eye on in the future.
 
 ## Medals
 
-When I asked my son what he wanted to work on next, he said he wanted to get a
-medal for every 100 balloon that you shoot down.
+When I ask my son what he wants to work on next, he said that he wants to
+get a medal for every 100 balloon that you shoot down.
 
-I added a fun little particle effect again for the animation when you get a
+I add a fun little particle effect again for the animation when you get a
 medal:
 
 <p>
@@ -102,6 +117,18 @@ The medals stack up in the upper left corner like this:
 [GitHub](https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c).
 
 ## Test scene
+
+Testing the medal particle effect is tedious. You have to shoot down 100
+balloons, then you can see the effect for a split second, then you have to
+shoot down 100 more.
+
+When I have done that enough times, I come up with a better idea. And that is
+to allow the game to be started in "test mode" where we can trigger the
+animation with a press of a button.
+
+$:output:text:
+$ ./make.py rundev test-scene-score
+$:END
 
 <p>
 <center>
