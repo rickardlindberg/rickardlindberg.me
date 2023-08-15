@@ -8,22 +8,22 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-08-09T00:00:00Z</updated>
+    <updated>2023-08-15T00:00:00Z</updated>
     <entry>
     <title>DRAFT: The end?</title>
     <link href="http://rickardlindberg.me/writing/agdpp-the-end/" />
     <id>http://rickardlindberg.me/writing/agdpp-the-end/</id>
-    <published>2023-08-09T00:00:00Z</published>
-    <updated>2023-08-09T00:00:00Z</updated>
+    <published>2023-08-15T00:00:00Z</published>
+    <updated>2023-08-15T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: The end?</h1>
 
-<p><em>Published on  9 August 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 15 August 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>When I started this series, my intention was to document my journey of creating a game using agile methods.</p>
 <p>I think I have mostly succeeded in this regard, but at the moment I’ve done some development that I have not documented. Furthermore, I did that development many months ago, so documenting it gets harder and harder because I forget what I was thinking when I did the development.</p>
-<p>Recently though, I’ve experimented with a new format which I call DevLogs. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind.</p>
-<p>In this post I will briefly mention the development that I’ve done but not documented and talk a little about future plans.</p>
+<p>Recently though, I’ve experimented with a new format which I call <a href="/tags/devlog/index.html">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind.</p>
+<p>In this post I will briefly mention the development that I’ve done but not documented and then talk a little about future plans for this project.</p>
 <h2 id="particle-effects">Particle effects</h2>
 <p>I polish the game a little by adding a particle effect system that I use to render a splashing animation when a balloon is shot.</p>
 <p>It looks a little something like this (although it is hard to show in a single image):</p>
@@ -59,16 +59,29 @@
 </div>
 </div>
 <p>It generates a list of particles when a balloon is hit. The particles have a little randomized position, radius, and velocity.</p>
-<p>The radius keeps decreasing as time passes, and when it reaches a low value, the particle is removed.</p>
+<p>The radius keeps decreasing as time passes, and when it reaches a low enough value, the particle is removed.</p>
 <p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449">GitHub</a>.</p>
-<h2 id="sound">Sound!</h2>
-<p>Me and my son recorded sound effects that are played when shooting a balloon. We went to the store, bought some balloons, rigged the mic, and popped them.</p>
-<p>It was much fun.</p>
-<p>The code for integrating the sound is here:</p>
-<p><a href="https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce">GitHub</a>.</p>
+<h2 id="sound-effects">Sound effects</h2>
+<p>Me and my son record sound effects that are played when a balloon is hit. We go to the store, buy some balloons, rig the mic, and pop them. It is much fun.</p>
+<p>The code for integrating the sound can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce">GitHub</a>.</p>
+<p>This change include adding the <code>load_sound</code> method to <code>GameLoop</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">load_sound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Sound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">Sound</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Does it really make sense that you load a sound from the game loop? I’m not sure. The game loop is the only abstraction that we have for accessing pygame. That’s why it ended up there. But the design here feels a little off to me. Something to keep an eye on in the future.</p>
 <h2 id="medals">Medals</h2>
-<p>When I asked my son what he wanted to work on next, he said he wanted to get a medal for every 100 balloon that you shoot down.</p>
-<p>I added a fun little particle effect again for the animation when you get a medal:</p>
+<p>When I ask my son what he wants to work on next, he said that he wants to get a medal for every 100 balloon that you shoot down.</p>
+<p>I add a fun little particle effect again for the animation when you get a medal:</p>
 <p>
 <center>
 <img src="medal1.png" title="fig:" alt="Medal animation." />
@@ -82,6 +95,16 @@
 </p>
 <p><a href="https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c">GitHub</a>.</p>
 <h2 id="test-scene">Test scene</h2>
+<p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, then you have to shoot down 100 more.</p>
+<p>When I have done that enough times, I come up with a better idea. And that is to allow the game to be started in “test mode” where we can trigger the animation with a press of a button.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py rundev test-scene-score
+</pre>
+</div>
+</div>
+</div>
 <p>
 <center>
 <img src="test-scene.png" title="fig:" alt="Test scene." />
