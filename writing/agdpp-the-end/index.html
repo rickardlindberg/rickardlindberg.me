@@ -55,19 +55,19 @@
     <div class="container">
       <h1>DRAFT: The end?</h1>
 
-<p><em>Published on 15 August 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 16 August 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>When I started this series, my intention was to document my journey of creating a game using agile methods.</p>
 <p>I think I have mostly succeeded in this regard, but at the moment I’ve done some development that I have not documented. Furthermore, I did that development many months ago, so documenting it gets harder and harder because I forget what I was thinking when I did the development.</p>
-<p>Recently though, I’ve experimented with a new format which I call <a href="../../tags/devlog/">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind.</p>
+<p>Recently though, I’ve experimented with a new format which I call <a href="../../tags/devlog/">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind. I write about what is going on in my mind as I do the development.</p>
 <p>In this post I will briefly mention the development that I’ve done but not documented and then talk a little about future plans for this project.</p>
 <h2 id="particle-effects">Particle effects</h2>
-<p>I polish the game a little by adding a particle effect system that I use to render a splashing animation when a balloon is shot.</p>
+<p>I polish the game a little by adding a particle effect system that I use to render a splashing animation when a balloon is hit.</p>
 <p>It looks a little something like this (although it is hard to show in a single image):</p>
 <p>
 <center>
-<img src="particles.png" title="fig:" alt="Particles when shooting a balloon." />
+<img src="particles.png" title="fig:" alt="Particles when a balloon is hit." />
 </center>
 </p>
 <p>The most interesting piece of code is this:</p>
@@ -96,8 +96,7 @@
 </div>
 </div>
 </div>
-<p>It generates a list of particles when a balloon is hit. The particles have a little randomized position, radius, and velocity.</p>
-<p>The radius keeps decreasing as time passes, and when it reaches a low enough value, the particle is removed.</p>
+<p>It generates a list of particles when a balloon is hit. The particles have a randomized position, radius, and velocity. The radius keeps decreasing as time passes, and when it reaches a low enough value, the particle is removed.</p>
 <p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449">GitHub</a>.</p>
 <h2 id="sound-effects">Sound effects</h2>
 <p>Me and my son record sound effects that are played when a balloon is hit. We go to the store, buy some balloons, rig the mic, and pop them. It is much fun.</p>
@@ -116,9 +115,9 @@
 </div>
 </div>
 </div>
-<p>Does it really make sense that you load a sound from the game loop? I’m not sure. The game loop is the only abstraction that we have for accessing pygame. That’s why it ended up there. But the design here feels a little off to me. Something to keep an eye on in the future.</p>
+<p>Does it really make sense that you load a sound from the game loop? I’m not sure. The game loop is the only abstraction that we have for accessing pygame. That’s why it ended up there. But the design here feels a little off to me. Something to keep in mind for the future. Next time we touch this area of the code, we might feel the same thing again and have an idea about how to improve.</p>
 <h2 id="medals">Medals</h2>
-<p>When I ask my son what he wants to work on next, he said that he wants to get a medal for every 100 balloon that you shoot down.</p>
+<p>When I ask my son what he wants the game to do next, he says that he wants to get a medal for every 100 balloon that you shoot down.</p>
 <p>I add a fun little particle effect again for the animation when you get a medal:</p>
 <p>
 <center>
@@ -135,6 +134,7 @@
 <h2 id="test-scene">Test scene</h2>
 <p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, then you have to shoot down 100 more.</p>
 <p>When I have done that enough times, I come up with a better idea. And that is to allow the game to be started in “test mode” where we can trigger the animation with a press of a button.</p>
+<p>I can do it like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -143,12 +143,56 @@
 </div>
 </div>
 </div>
+<p>Instead of starting the game, it starts a test scene:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;test-scene-score&quot;</span><span class="p">]:</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">TestSceneScore</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test scene is only used for test purposes and looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">TestSceneScore</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">Score</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It uses the score object (which is used in the real game) and adds 100 points when we press the space key.</p>
+<p>It looks like this:</p>
 <p>
 <center>
 <img src="test-scene.png" title="fig:" alt="Test scene." />
 </center>
 </p>
+<p>This way, I can quickly exercise the animation and validate that it looks good.</p>
 <h2 id="next-double-dispatch-decentralized">Next: double dispatch, decentralized?</h2>
+<p>This project has been stalled for a few months. With these side projects, I follow my interest. And my interest has lately been about writing my own <a href="../../projects/rlvideo/">video editor</a>. And also, after the medal, my son said that the game was finished. :)</p>
+<p>However, right now, I have two ideas that I’m interested in doing. One is trying a decentralized design that <a href="https://www.ronjeffries.com/">Ron</a> has been writing about and doing in his Asteroids Python series.</p>
+<p>Another is to create a “game console pc” where I customize this game to first show a start screen where the game to play can be selected. One game will be the balloon shooter. Another will be <a href="https://www.supertux.org/">SuperTux</a> (which me and my son have played a lot).</p>
 <h2 id="summary">Summary</h2>
 <p>This post probably marks the end of this series as we know it. When I continue this project, it will be in the form of a <a href="../../tags/devlog/">DevLog</a>. See you there!</p>
 
