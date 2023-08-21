@@ -8,8 +8,156 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2023-06-29T00:00:00Z</updated>
+    <updated>2023-08-21T00:00:00Z</updated>
     <entry>
+    <title>The end?</title>
+    <link href="http://rickardlindberg.me/writing/agdpp-the-end/" />
+    <id>http://rickardlindberg.me/writing/agdpp-the-end/</id>
+    <published>2023-08-21T00:00:00Z</published>
+    <updated>2023-08-21T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>The end?</h1>
+
+<p><em>Published on 21 August 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>When I started this series, my intention was to document my journey of creating a game using agile methods. I think I have mostly succeeded in this regard, but at the moment I’ve done some development that I have not documented. Furthermore, I did that development many months ago, so documenting it gets harder and harder because I forget what I was thinking when I did the development.</p>
+<p>Recently though, I’ve experimented with a new format which I call <a href="/tags/devlog/index.html">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind. I write about what is going on in my mind as I do the development. Also, I’m not strict about documenting everything in a DevLog. It’s OK to do something and not write about it.</p>
+<p>In this post I will briefly mention the development that I’ve done on the balloon shooter but not documented and then talk a little about future plans for this project.</p>
+<h2 id="particle-effects">Particle effects</h2>
+<p>I polish the game a little by adding a particle effect system that I use to render a splashing animation when a balloon is hit.</p>
+<p>It looks a little something like this (although it is hard to show in a single image):</p>
+<p>
+<center>
+<img src="particles.png" title="fig:" alt="Particles when a balloon is hit." />
+</center>
+</p>
+<p>The most interesting piece of code is this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_hit_particles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">number_of_particles</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">BalloonParticle</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span>
+                    <span class="n">dx</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">),</span>
+                    <span class="n">dy</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">*</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">),</span>
+                <span class="n">velocity</span><span class="o">=</span><span class="n">Angle</span><span class="o">.</span><span class="n">fraction_of_whole</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span><span class="o">.</span><span class="n">to_unit_point</span><span class="p">()</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">x</span>
+            <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_particles</span><span class="p">)</span>
+        <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It generates a list of particles when a balloon is hit. The particles have a randomized position, radius, and velocity. The radius keeps decreasing as time passes, and when it reaches a low enough value, the particle is removed.</p>
+<p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449">GitHub</a>.</p>
+<h2 id="sound-effects">Sound effects</h2>
+<p>Me and my son record sound effects that are played when a balloon is hit. We go to the store, buy some balloons, rig up the mic, and pop them. It is much fun.</p>
+<p>The code for integrating the sound can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce">GitHub</a>.</p>
+<p>This change include adding the <code>load_sound</code> method to <code>GameLoop</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">load_sound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Sound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">Sound</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Does it really make sense that you load a sound from the game loop? I’m not sure. The game loop is the only abstraction that we have for accessing pygame. That’s why it ended up there. But the design here feels a little off to me. Something to keep in mind for the future. Next time we touch this area of the code, we might feel the same thing again and have an idea about how to improve.</p>
+<h2 id="medals">Medals</h2>
+<p>When I ask my son what he wants the game to do next, he says that he wants to get a medal for every 100 balloon that you shoot down.</p>
+<p>I add a fun little particle effect again for the animation when you get a medal:</p>
+<p>
+<center>
+<img src="medal1.png" title="fig:" alt="Medal animation." />
+</center>
+</p>
+<p>The medals stack up in the upper left corner like this:</p>
+<p>
+<center>
+<img src="medal2.png" title="fig:" alt="Medals stacking up." />
+</center>
+</p>
+<p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c">GitHub</a>.</p>
+<h2 id="test-scene">Test scene</h2>
+<p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, and then you have to shoot down 100 more.</p>
+<p>When I have done that enough times, I come up with a better idea. And that is to allow the game to be started in “test mode” where we can trigger the animation with a press of a button.</p>
+<p>We can do it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py rundev test-scene-score
+</pre>
+</div>
+</div>
+</div>
+<p>Instead of starting the game, it starts a test scene:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;test-scene-score&quot;</span><span class="p">]:</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">TestSceneScore</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test scene is only used for test purposes and looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">TestSceneScore</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">Score</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It uses the score object (which is used in the real game) and adds 100 points when we press the space key.</p>
+<p>It looks like this:</p>
+<p>
+<center>
+<img src="test-scene.png" title="fig:" alt="Test scene." />
+</center>
+</p>
+<p>This way, I can quickly exercise the animation and validate that it looks good.</p>
+<h2 id="future-plans">Future plans</h2>
+<p>This project has been inactive for a few months. With my hobby projects, I follow my interest. And my interest has lately been about writing my own <a href="/projects/rlvideo/index.html">video editor</a>. And also, after the medals in place, my son said that the game was finished.</p>
+<p>However, right now, I have two ideas that I’m interested in doing. One is trying a decentralized design that <a href="https://www.ronjeffries.com/categories/python/">Ron</a> has been writing about and doing in his Asteroids Python series.</p>
+<p>Another is to create a “game console PC” where I customize this game to first show a start screen where the game to play can be selected. One game will be the balloon shooter. Another will be <a href="https://www.supertux.org/">SuperTux</a> (which me and my son have played a lot).</p>
+<h2 id="summary">Summary</h2>
+<p>This post probably marks the end of this series in the current format. When I continue this project, it will be in the form of a <a href="/tags/devlog/index.html">DevLog</a>. See you there!</p>
+]]></summary>
+</entry>
+<entry>
     <title>Multiplayer</title>
     <link href="http://rickardlindberg.me/writing/agdpp-multiplayer/" />
     <id>http://rickardlindberg.me/writing/agdpp-multiplayer/</id>
@@ -4677,57 +4825,6 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <h2 id="summary">Summary</h2>
 <p>We have now recreated the functionality that we had in the spike, added the ability to test it, and improved the design with the safety net of our tests. Great success!</p>
 <p>You can browse the <a href="https://github.com/rickardlindberg/agdpp/tree/initial-game-loop">complete source code</a> from this episode.</p>
-<p>See you in the next episode!</p>
-]]></summary>
-</entry>
-<entry>
-    <title>Introducing Agile Game Development with Python and Pygame</title>
-    <link href="http://rickardlindberg.me/writing/agdpp-introduction/" />
-    <id>http://rickardlindberg.me/writing/agdpp-introduction/</id>
-    <published>2023-04-09T00:00:00Z</published>
-    <updated>2023-04-09T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>Introducing Agile Game Development with Python and Pygame</h1>
-
-<p><em>Published on  9 April 2023 in <a href="/projects/agdpp/index.html">Agile Game Development with Python and Pygame</a>.</em></p>
-
-<p>I recently started playing computer games with my son. That sparked an interest in me to create a game myself that we can play together. Mostly because I think this will be a <strong>fun project</strong>, but also to show my son that you can actually make your own games. It’s not something that you <em>only</em> consume.</p>
-<p>I thought I would also document this journey in a series of blog posts and videos.</p>
-<h2 id="video-version">Video version</h2>
-<p>The video version of this episode:</p>
-<center>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/9DZ81lOPfmo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
-encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-</iframe>
-</center>
-<h2 id="the-challenge">The challenge</h2>
-<p>The challenge is to create a game that me and my son will enjoy playing together.</p>
-<h2 id="the-method">The method</h2>
-<p>I want to develop this game using Agile methodology.</p>
-<p>It means that instead of first figuring out what game I want to write, I will develop it incrementally and guide development by feedback.</p>
-<p>It also means that I will rely heavily on self-testing code and TDD.</p>
-<h2 id="my-background-in-games">My background in games</h2>
-<p>I’m by no means an expert in creating games. I don’t even play games that much. But I have enjoyed creating some simple games in the past, like a Tetris clone and some kind of Asteroids.</p>
-<p>I was actually able to restore an old copy of one of my Tetris games. It is written using Python and Pygame (which I also plan to use for my new game). I just needed to make a few small adjustments to make it work with Python 3. This is what it looks like:</p>
-<center>
-<img src="tetris1.png" title="fig:" alt="Intro screen of my Tetris game." />
-</center>
-<center>
-<img src="tetris2.png" title="fig:" alt="Gameplay screen of my Tetris game." />
-</center>
-<h2 id="series-overview">Series overview</h2>
-<p>So this series will cover how to create a game from the perspective of someone who has much experience programming, but not that much knowledge in the game domain.</p>
-<p>Here is a list of topics off the top of my head that I imagine I will cover:</p>
-<ul>
-<li>Game loop and how to test it</li>
-<li>Can you really use TDD for games?</li>
-<li>Learn to capture events from Logitech controller</li>
-<li>How to come up with an idea for a game?</li>
-<li>Performance: background erase vs redraw?</li>
-<li>Resolution: what to choose?</li>
-<li>How to incrementally develop a game idea?</li>
-<li>Particle effects</li>
-</ul>
-<p>This list is just the beginning of my journey. I hope will enjoy following along.</p>
 <p>See you in the next episode!</p>
 ]]></summary>
 </entry>

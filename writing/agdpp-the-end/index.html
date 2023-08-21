@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>
-      DRAFT: The end? | Rickard's personal homepage
+      The end? | Rickard's personal homepage
     </title>
 
     <!-- Bootstrap -->
@@ -53,15 +53,13 @@
     </nav>
 
     <div class="container">
-      <h1>DRAFT: The end?</h1>
+      <h1>The end?</h1>
 
-<p><em>Published on 16 August 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+<p><em>Published on 21 August 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
 
-<p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>When I started this series, my intention was to document my journey of creating a game using agile methods.</p>
-<p>I think I have mostly succeeded in this regard, but at the moment I’ve done some development that I have not documented. Furthermore, I did that development many months ago, so documenting it gets harder and harder because I forget what I was thinking when I did the development.</p>
-<p>Recently though, I’ve experimented with a new format which I call <a href="../../tags/devlog/">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind. I write about what is going on in my mind as I do the development.</p>
-<p>In this post I will briefly mention the development that I’ve done but not documented and then talk a little about future plans for this project.</p>
+<p>When I started this series, my intention was to document my journey of creating a game using agile methods. I think I have mostly succeeded in this regard, but at the moment I’ve done some development that I have not documented. Furthermore, I did that development many months ago, so documenting it gets harder and harder because I forget what I was thinking when I did the development.</p>
+<p>Recently though, I’ve experimented with a new format which I call <a href="../../tags/devlog/">DevLog</a>. It is basically the same thing but a little less polished. I write a DevLog while doing the development, so there is no risk of falling behind. I write about what is going on in my mind as I do the development. Also, I’m not strict about documenting everything in a DevLog. It’s OK to do something and not write about it.</p>
+<p>In this post I will briefly mention the development that I’ve done on the balloon shooter but not documented and then talk a little about future plans for this project.</p>
 <h2 id="particle-effects">Particle effects</h2>
 <p>I polish the game a little by adding a particle effect system that I use to render a splashing animation when a balloon is hit.</p>
 <p>It looks a little something like this (although it is hard to show in a single image):</p>
@@ -99,7 +97,7 @@
 <p>It generates a list of particles when a balloon is hit. The particles have a randomized position, radius, and velocity. The radius keeps decreasing as time passes, and when it reaches a low enough value, the particle is removed.</p>
 <p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/b5261a939505c203cd1ffb21462a6772f0381faf...7533ec079dbdeba713526469535a1cc0fc915449">GitHub</a>.</p>
 <h2 id="sound-effects">Sound effects</h2>
-<p>Me and my son record sound effects that are played when a balloon is hit. We go to the store, buy some balloons, rig the mic, and pop them. It is much fun.</p>
+<p>Me and my son record sound effects that are played when a balloon is hit. We go to the store, buy some balloons, rig up the mic, and pop them. It is much fun.</p>
 <p>The code for integrating the sound can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/7533ec079dbdeba713526469535a1cc0fc915449...fcb1757f9b219be55d65d8588c259b96b9dc26ce">GitHub</a>.</p>
 <p>This change include adding the <code>load_sound</code> method to <code>GameLoop</code>:</p>
 <div class="rliterate-code">
@@ -130,11 +128,11 @@
 <img src="medal2.png" title="fig:" alt="Medals stacking up." />
 </center>
 </p>
-<p><a href="https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c">GitHub</a>.</p>
+<p>The complete diff for this change can be seen on <a href="https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c">GitHub</a>.</p>
 <h2 id="test-scene">Test scene</h2>
-<p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, then you have to shoot down 100 more.</p>
+<p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, and then you have to shoot down 100 more.</p>
 <p>When I have done that enough times, I come up with a better idea. And that is to allow the game to be started in “test mode” where we can trigger the animation with a press of a button.</p>
-<p>I can do it like this:</p>
+<p>We can do it like this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -189,12 +187,12 @@
 </center>
 </p>
 <p>This way, I can quickly exercise the animation and validate that it looks good.</p>
-<h2 id="next-double-dispatch-decentralized">Next: double dispatch, decentralized?</h2>
-<p>This project has been stalled for a few months. With these side projects, I follow my interest. And my interest has lately been about writing my own <a href="../../projects/rlvideo/">video editor</a>. And also, after the medal, my son said that the game was finished. :)</p>
-<p>However, right now, I have two ideas that I’m interested in doing. One is trying a decentralized design that <a href="https://www.ronjeffries.com/">Ron</a> has been writing about and doing in his Asteroids Python series.</p>
-<p>Another is to create a “game console pc” where I customize this game to first show a start screen where the game to play can be selected. One game will be the balloon shooter. Another will be <a href="https://www.supertux.org/">SuperTux</a> (which me and my son have played a lot).</p>
+<h2 id="future-plans">Future plans</h2>
+<p>This project has been inactive for a few months. With my hobby projects, I follow my interest. And my interest has lately been about writing my own <a href="../../projects/rlvideo/">video editor</a>. And also, after the medals in place, my son said that the game was finished.</p>
+<p>However, right now, I have two ideas that I’m interested in doing. One is trying a decentralized design that <a href="https://www.ronjeffries.com/categories/python/">Ron</a> has been writing about and doing in his Asteroids Python series.</p>
+<p>Another is to create a “game console PC” where I customize this game to first show a start screen where the game to play can be selected. One game will be the balloon shooter. Another will be <a href="https://www.supertux.org/">SuperTux</a> (which me and my son have played a lot).</p>
 <h2 id="summary">Summary</h2>
-<p>This post probably marks the end of this series as we know it. When I continue this project, it will be in the form of a <a href="../../tags/devlog/">DevLog</a>. See you there!</p>
+<p>This post probably marks the end of this series in the current format. When I continue this project, it will be in the form of a <a href="../../tags/devlog/">DevLog</a>. See you there!</p>
 
       <hr>
       <center>
