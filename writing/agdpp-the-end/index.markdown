@@ -1,28 +1,27 @@
 ---
-title: 'DRAFT: The end?'
-date: 2023-08-16
-tags: agdpp,draft
+title: The end?
+date: 2023-08-21
+tags: agdpp
 agdpp: true
 ---
 
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
-
 When I started this series, my intention was to document my journey of creating
-a game using agile methods.
-
-I think I have mostly succeeded in this regard, but at the moment I've done
-some development that I have not documented. Furthermore, I did that
-development many months ago, so documenting it gets harder and harder because I
-forget what I was thinking when I did the development.
+a game using agile methods. I think I have mostly succeeded in this regard, but
+at the moment I've done some development that I have not documented.
+Furthermore, I did that development many months ago, so documenting it gets
+harder and harder because I forget what I was thinking when I did the
+development.
 
 Recently though, I've experimented with a new format which I call
 [DevLog](/tags/devlog/index.html). It is basically the same thing but a little
 less polished. I write a DevLog while doing the development, so there is no
 risk of falling behind. I write about what is going on in my mind as I do the
-development.
+development. Also, I'm not strict about documenting everything in a DevLog.
+It's OK to do something and not write about it.
 
-In this post I will briefly mention the development that I've done but not
-documented and then talk a little about future plans for this project.
+In this post I will briefly mention the development that I've done on the
+balloon shooter but not documented and then talk a little about future plans
+for this project.
 
 ## Particle effects
 
@@ -70,7 +69,7 @@ The complete diff for this change can be seen on
 ## Sound effects
 
 Me and my son record sound effects that are played when a balloon is hit.  We
-go to the store, buy some balloons, rig the mic, and pop them.  It is much
+go to the store, buy some balloons, rig up the mic, and pop them.  It is much
 fun.
 
 The code for integrating the sound can be seen on
@@ -114,19 +113,20 @@ The medals stack up in the upper left corner like this:
 </center>
 </p>
 
+The complete diff for this change can be seen on
 [GitHub](https://github.com/rickardlindberg/agdpp/compare/fcb1757f9b219be55d65d8588c259b96b9dc26ce...0c8e713a6d938898ddb92164cc86dcb1db19aa0c).
 
 ## Test scene
 
 Testing the medal particle effect is tedious. You have to shoot down 100
-balloons, then you can see the effect for a split second, then you have to
+balloons, then you can see the effect for a split second, and then you have to
 shoot down 100 more.
 
 When I have done that enough times, I come up with a better idea. And that is
 to allow the game to be started in "test mode" where we can trigger the
 animation with a press of a button.
 
-I can do it like this:
+We can do it like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py rundev test-scene-score
 </pre></div>
@@ -174,24 +174,25 @@ It looks like this:
 
 This way, I can quickly exercise the animation and validate that it looks good.
 
-## Next: double dispatch, decentralized?
+## Future plans
 
-This project has been stalled for a few months. With these side projects, I follow
-my interest. And my interest has lately been about writing my own [video
-editor](/projects/rlvideo/index.html). And also, after the medal, my son said
-that the game was finished. :)
+This project has been inactive for a few months. With my hobby projects, I
+follow my interest. And my interest has lately been about writing my own [video
+editor](/projects/rlvideo/index.html). And also, after the medals in place, my
+son said that the game was finished.
 
 However, right now, I have two ideas that I'm interested in doing. One is
-trying a decentralized design that [Ron](https://www.ronjeffries.com/) has been
-writing about and doing in his Asteroids Python series.
+trying a decentralized design that
+[Ron](https://www.ronjeffries.com/categories/python/) has been writing about
+and doing in his Asteroids Python series.
 
-Another is to create a "game console pc" where I customize this game to first
+Another is to create a "game console PC" where I customize this game to first
 show a start screen where the game to play can be selected. One game will be
 the balloon shooter. Another will be [SuperTux](https://www.supertux.org/)
 (which me and my son have played a lot).
 
 ## Summary
 
-This post probably marks the end of this series as we know it.  When I continue
-this project, it will be in the form of a [DevLog](/tags/devlog/index.html).
-See you there!
+This post probably marks the end of this series in the current format.  When I
+continue this project, it will be in the form of a
+[DevLog](/tags/devlog/index.html).  See you there!
