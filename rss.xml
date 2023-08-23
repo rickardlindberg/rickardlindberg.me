@@ -7,8 +7,149 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Mon, 21 Aug 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 23 Aug 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>DevLog 012: Investigating export crash</title>
+    <link>http://rickardlindberg.me/writing/devlog-012-investigating-export-crash/</link>
+    <description><![CDATA[<h1>DevLog 012: Investigating export crash</h1>
+
+<p><em>Published on 23 August 2023.</em></p>
+
+<p>I have managed to edit some footage using my own <a href="/projects/rlvideo/index.html">video editor</a>. When I tried to export it, it took forever and eventually crashed. In this DevLog, we will investigate why that might be.</p>
+<h2 id="how-export-works">How export works</h2>
+<p>When we press the export button, the following code is run:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export.mp4&quot;</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+            <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">background_worker</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">work</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It creates an MLT producer with the real clips, and not the proxy clips. The <code>work</code> function is called in a thread, and this code does the actual export:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>As I remember, this is the code that takes forever and eventually crash. I also think its memory consumption steadily increase.</p>
+<h2 id="the-test">The test</h2>
+<p>There is not much Python code in here. Just the loop that queries the consumer. So my guess is that something in MLT consumes memory and eventually crashes. We had a similar problem, I think, before when we created proxies using MLT in this way. On the other hand, it seems unlikely that MLT would crash when exporting a “small” project.</p>
+<p>What I want to try today is to export my project as an MLT XML file and try to render it using melt. It should do roughly the same thing as my Python code, but will avoid using the Python binding for MLT.</p>
+<p>If there is something wrong with MLT, which I doubt, the export will fail here as well. If not, well, then I don’t know what is wrong, but we can at least rule out MLT (core).</p>
+<h2 id="the-test-1">The test</h2>
+<p>We have this code that enables us to export MLT XML:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>However, it creates the preview MLT producer which uses the proxy clips.</p>
+<p>Since this is just a test, not intended to be committed, I modify this code to instead create an MLT producer with the real clips.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">ExportSourceLoader</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+    <span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we can export the XML like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
+Exporting test.xml
+...
+Done
+</pre>
+</div>
+</div>
+</div>
+<p>I verify that the XML file has references to the real clips. It does. Perfect!</p>
+<p>We can now do the equivalent export with this command:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>mlt-melt test.xml -consumer avformat target=export.mp4
+</pre>
+</div>
+</div>
+</div>
+<p>And now, it’s just to wait and see what happens.</p>
+<h2 id="a-few-minutes-later">A few minutes later</h2>
+<p>The memory consumption seems to be quite stable. Unless there is a memory leak, this is what I expect. If the memory consumption keeps increasing for every frame that is exported, that would mean that you can only export longer videos by getting more memory. That does not seem right.</p>
+<p>I should probably also verify that the export in the application keeps increasing memory consumption. If it does, then there might be a memory leak in the Python binding for MLT. Or I might use the binding incorrectly.</p>
+<p>Using threads (which is used in the export) has also been problematic. I’ve experienced that the Python threads interfere with the MLT threads. I’m don’t understand the problem fully, it’s just a feeling. So that might be something to look into. Try the export with threading disabled.</p>
+<h2 id="a-few-hours-later">A few hours later</h2>
+<p>I might have mistaken. The memory consumption seems to keep increasing. However, the export finish without crashing and the final result looks fine.</p>
+<h2 id="summary">Summary</h2>
+<p>It seems that MLT consumes more and more memory the longer the exported video. To confirm this, I should probably do some more precise measures. Maybe using something like <a href="https://github.com/astrofrog/psrecord">psrecord</a>? However, memory consumption might not be problematic in itself. Perhaps it allocates more memory to speed things up, but will not allocated more than what is available. Perhaps the crash that I experienced before was not related to memory.</p>
+<p>We have learned something today, and this knowledge will make us better prepared for the future.</p>
+<p>Here are a few things I think of as possible next steps in this area:</p>
+<ul>
+<li>Measure memory consumption properly</li>
+<li>Compare memory consumption from MLT and rlvideo</li>
+<li>Try disabling threading in rlvideo</li>
+<li>“Optimize” the generated producer. It has many unnecessary tracks which I think will slow rendering down. (Should measure this to confirm.)</li>
+</ul>
+<p>We’ll see if we work on any of these the next time or something else.</p>
+]]></description>
+    <pubDate>Wed, 23 Aug 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/devlog-012-investigating-export-crash/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>The end?</title>
     <link>http://rickardlindberg.me/writing/agdpp-the-end/</link>
     <description><![CDATA[<h1>The end?</h1>
@@ -4474,141 +4615,6 @@ OK
 ]]></description>
     <pubDate>Fri, 28 Jul 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/fast-feedback-on-graphical-code/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>DevLog 001: J-cuts and L-cuts in my video editor?</title>
-    <link>http://rickardlindberg.me/writing/devlog-001-jcut-lcut/</link>
-    <description><![CDATA[<h1>DevLog 001: J-cuts and L-cuts in my video editor?</h1>
-
-<p><em>Published on 28 July 2023.</em></p>
-
-<h2 id="about-devlogs">About DevLogs</h2>
-<p>DevLogs is an experiment to try to document development that I do on various projects. I will try to write what is going on in my head as I do various development tasks.</p>
-<h2 id="todays-problem">Today’s problem</h2>
-<p>In my video editor, there is a problem with overlapping clips. How they overlap appears to be almost random.</p>
-<p>In this edit, the <code>two.mp4</code> clip is rendered below:</p>
-<p>
-<center>
-<img src="edit1.png" title="fig:" alt="Alternative text." />
-</center>
-</p>
-<p>If we edit the <code>one.mp4</code> clip, then the two switch order.</p>
-<p>
-<center>
-<img src="edit2.png" title="fig:" alt="Alternative text." />
-</center>
-</p>
-<p>So the order depends on the modification times of clips.</p>
-<p>That is not very good.</p>
-<h2 id="plan">Plan</h2>
-<p>My idea for how to solve this is that each clip can specify how it should be cut into the previous one.</p>
-<p>I imagine a library of cuts such as:</p>
-<ul>
-<li>over</li>
-<li>under</li>
-<li>j-cut</li>
-<li>l-cut</li>
-<li>overlay (with priority)</li>
-<li>background (with priority)</li>
-</ul>
-<p>To make progress on this, we can probably assume a default cut (maybe under) and make sure it works. Then we can extend the library of cuts.</p>
-<h2 id="writing-a-test">Writing a test</h2>
-<p>The relevant code for this is mostly here:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">extract_mix_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; cuts = Cuts.from_list([</span>
-<span class="sd">    ...     Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1),</span>
-<span class="sd">    ...     Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5),</span>
-<span class="sd">    ... ])</span>
-<span class="sd">    &gt;&gt;&gt; cuts.to_ascii_canvas()</span>
-<span class="sd">    | &lt;-A0---&gt;    |</span>
-<span class="sd">    |     &lt;-B0---&gt;|</span>
-<span class="sd">    &gt;&gt;&gt; cuts.extract_mix_section(Region(start=0, end=15)).to_ascii_canvas()</span>
-<span class="sd">    %&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">    %%%%%&lt;-B0---&gt;%%</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: sort based on cut (j-cut, l-cut, overlay, background).</span>
-    <span class="n">playlists</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_cut</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">playlists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cuts</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">extract_playlist_section</span><span class="p">(</span><span class="n">region</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">MixSection</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">playlists</span><span class="o">=</span><span class="n">playlists</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Let’s write a test that shows the current behavior first:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; region = Region(start=0, end=15)</span>
-<span class="sd">&gt;&gt;&gt; a_cut = Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1)</span>
-<span class="sd">&gt;&gt;&gt; b_cut = Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5)</span>
-
-<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
-<span class="sd">...     a_cut,</span>
-<span class="sd">...     b_cut,</span>
-<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
-<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
-
-<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
-<span class="sd">...     b_cut,</span>
-<span class="sd">...     a_cut,</span>
-<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
-<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
-<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>So depending on the order in which cuts are added, they mix differently. This is exactly the behavior that we want to change. We want them to mix the same no matter what order they are added in.</p>
-<p>Let’s commit this as a baseline:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">&#39;Pinpoint current behavior of mixing cuts.&#39;</span>
-</pre>
-</div>
-</div>
-</div>
-<p>The <code>./make.py commit</code> script is a wrapper around <code>git commit</code> that also runs the tests and makes sure there are no untracked files. A real handy tool to make sure we don’t commit “bad” code.</p>
-<h2 id="cut-the-same">Cut the same</h2>
-<p>I modify the test above to assert that the same mix is created even when the cuts are in the reverse order.</p>
-<p>I make it pass by sorting the clips by start time, making “later” clips appear below which would be the equivalent of having the cut on the second b clip set to “under”:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">sort_cuts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cuts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">get_source_cut</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>That works as intended in the application as well. Let’s commit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">&#39;Always mix cuts below previous cut.&#39;</span>
-</pre>
-</div>
-</div>
-</div>
-<h2 id="clips-with-the-same-start">Clips with the same start</h2>
-<p>If two cuts have the same start, the sorting will have no effect and we still have the same problem.</p>
-<p>First of all, I don’t think this scenario will be that common in a real situation.</p>
-<p>I’m thinking we can handle it with a warning. If such situation appears, the user has to resolve the issue by hinting how the mix should be done.</p>
-<p>We can also take the end position into account. Then only cuts with the same start and end has the problem. In which case the user must explicitly tell which should be on top somehow.</p>
-<h2 id="summary">Summary</h2>
-<p>We made progress towards mixing cuts in a better way. Next step in this area I think is to allow the type of cut to be specified per clip and take that into account when sorting cuts. I think it should be quite easy to write tests for this and we should be able to move steady and carefully using TDD.</p>
-]]></description>
-    <pubDate>Fri, 28 Jul 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/devlog-001-jcut-lcut/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
