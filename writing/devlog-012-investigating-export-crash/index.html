@@ -106,11 +106,11 @@
 </div>
 </div>
 <p>As I remember, this is the code that takes forever and eventually crash. I also think its memory consumption steadily increase.</p>
-<h2 id="the-test">The test</h2>
+<h2 id="way-forward">Way forward</h2>
 <p>There is not much Python code in here. Just the loop that queries the consumer. So my guess is that something in MLT consumes memory and eventually crashes. We had a similar problem, I think, before when we created proxies using MLT in this way. On the other hand, it seems unlikely that MLT would crash when exporting a “small” project.</p>
 <p>What I want to try today is to export my project as an MLT XML file and try to render it using melt. It should do roughly the same thing as my Python code, but will avoid using the Python binding for MLT.</p>
 <p>If there is something wrong with MLT, which I doubt, the export will fail here as well. If not, well, then I don’t know what is wrong, but we can at least rule out MLT (core).</p>
-<h2 id="the-test-1">The test</h2>
+<h2 id="the-test">The test</h2>
 <p>We have this code that enables us to export MLT XML:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
