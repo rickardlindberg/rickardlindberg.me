@@ -1,7 +1,7 @@
 ---
 title: 'DevLog 012: Investigating export crash'
 date: 2023-08-23
-tags: devlog,rlvideo
+tags: devlog,rlvideo,mlt
 devlog: true
 ---
 
@@ -54,7 +54,7 @@ It creates an MLT producer with the real clips, and not the proxy clips. The
 As I remember, this is the code that takes forever and eventually crash. I also
 think its memory consumption steadily increase.
 
-## The test
+## Way forward
 
 There is not much Python code in here. Just the loop that queries the consumer.
 So my guess is that something in MLT consumes memory and eventually crashes. We
