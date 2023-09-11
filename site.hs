@@ -377,6 +377,7 @@ patternPostIndexPandoc =
     .||. "writing/trying-rons-python-asteroids/index.markdown"
     .||. "writing/how-to-test-a-router/index.markdown"
     .||. "writing/writing-my-own-video-editor/index.markdown"
+    .||. "writing/what-is-a-user-story/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
