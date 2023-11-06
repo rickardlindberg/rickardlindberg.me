@@ -7,8 +7,35 @@
         <description><![CDATA[Rickard's personal homepage: latest posts]]></description>
         <atom:link href="http://rickardlindberg.me/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 10 Oct 2023 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 06 Nov 2023 00:00:00 UT</lastBuildDate>
         <item>
+    <title>October 2023 Update</title>
+    <link>http://rickardlindberg.me/writing/newsletter/october-2023/</link>
+    <description><![CDATA[<h1>October 2023 Update</h1>
+
+<p><em>Published on  6 November 2023.</em></p>
+
+<p>This is what I’ve been up to in October 2023:</p>
+<ul>
+<li><p>Somehow videos from <a href="https://computerhistory.org/">Computer History Museum</a> showed up in my Youtube feed and I once again got sucked into the world of <a href="/writing/alan-kay-notes/index.html">Alan Kay</a> and Smalltalk. Here are (some of?) the videos that I watched:</p>
+<ul>
+<li><a href="https://youtu.be/PaOMiNku1_M">CHM Live | Making Smalltalk</a></li>
+<li><a href="https://youtu.be/loEREmEPEOY">CHM Live | Making Smalltalk: Member Event</a></li>
+<li><a href="https://youtu.be/uknEhXyZgsg">Alto System Project: Dan Ingalls demonstrates Smalltalk</a></li>
+</ul></li>
+<li><p>I found the <a href="https://archive.org/details/byte-magazine-1981-08">Byte Magazine Volume 06 Number 08 - Smalltalk</a> online which covers many topics from Smalltalk. So interesting.</p></li>
+<li><p>I played with some Smalltalks from <a href="https://smalltalkzoo.thechm.org/">the Smalltalk zoo</a>, and also with <a href="https://squeak.org/">Squeak</a>.</p></li>
+<li><p>I played with RLMeta and worked on a <a href="https://github.com/rickardlindberg/rlmeta/tree/main/simpler_base">simpler base version</a>.</p></li>
+<li><p>Revisiting Alan Kay, I once again was inspired by his ideas. What triggered it this time was re-watching <a href="https://www.youtube.com/watch?v=fhOHn9TClXY">Joe Armstrong &amp; Alan Kay - Joe Armstrong interviews Alan Kay</a>. In it, he mentions the <a href="https://en.wikipedia.org/wiki/Linda_(coordination_language)">Linda programming language</a> and how it relates to META II (which I’ve previously explored in <a href="/projects/rlmeta/index.html">RLMeta</a>). I decided to try to explore those ideas further in a new project: <a href="https://github.com/rickardlindberg/linda-meta-oop">https://github.com/rickardlindberg/linda-meta-oop</a>. Perhaps more to come there soon.</p></li>
+<li><p>I watched <a href="https://youtu.be/CmIGPGPdxTI">Is Software Engineering Real Engineering? • Hillel Wayne • YOW! 2023</a>. What I remember from it now is that other engineering disciplines envy that software engineering has version control.</p></li>
+<li><p>I had the realization that creating a DSL <em>might</em> be like science. You observe how a certain problem is solved or how a certain thing works. Then you try to <strong>describe</strong> that <strong>phenomena</strong> in a new language, the <strong>DSL</strong>. Then you make it run by <strong>writing a compiler</strong>. The new language allow people to solve problems that they might not have been able to do before. It allows them to think in a different way. The group of people who can <strong>create</strong> a DSL is most likely smaller than the group of people who can do useful work with one. Similar to how many people can use math today to solve useful problems, but might not have been able to invent math itself.</p></li>
+</ul>
+]]></description>
+    <pubDate>Mon, 06 Nov 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/newsletter/october-2023/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+<item>
     <title>September 2023 Update</title>
     <link>http://rickardlindberg.me/writing/newsletter/september-2023/</link>
     <description><![CDATA[<h1>September 2023 Update</h1>
@@ -4799,261 +4826,6 @@ OK
 ]]></description>
     <pubDate>Sun, 30 Jul 2023 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/devlog-004-proxies-with-correct-fps/</guid>
-    <dc:creator>Rickard Lindberg</dc:creator>
-</item>
-<item>
-    <title>DevLog 003: Clarify GUI separation</title>
-    <link>http://rickardlindberg.me/writing/devlog-003-clarify-gui-separation/</link>
-    <description><![CDATA[<h1>DevLog 003: Clarify GUI separation</h1>
-
-<p><em>Published on 29 July 2023.</em></p>
-
-<p>In the <a href="/projects/rlvideo/index.html">video editor</a>, there is the idea that we want to isolate the GTK code and have as few classes as possible depend on it. However, this idea is not clearly expressed in the code. So new readers of the code base will not necessarily understand that this separation is intentional and something that we want to do.</p>
-<p>In this episode I want to refactor the code to make that more clear.</p>
-<h2 id="current-state">Current state</h2>
-<p>The current layout of the Python files looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>.
-├── rlvideolib
-│   ├── asciicanvas.py
-│   ├── debug.py
-│   ├── domain
-│   │   ├── cut.py
-│   │   ├── __init__.py
-│   │   ├── project.py
-│   │   ├── region.py
-│   │   ├── section.py
-│   │   └── source.py
-│   ├── events.py
-│   ├── graphics
-│   │   ├── __init__.py
-│   │   └── rectangle.py
-│   ├── __init__.py
-│   ├── jobs.py
-│   └── testing.py
-└── rlvideo.py
-</pre>
-</div>
-</div>
-</div>
-<p>There is the “main” file <code>rlvideo.py</code> and the <code>rlvideolib</code> package.</p>
-<p>The main file is sort of the default place where new things go that don’t fit anywhere else. It currently has a mix of classes with different areas of responsibility:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">FakeGui</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">GtkGui</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">MltPlayer</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Some of these classes deal with GTK. Others with GUI code that does not depend on GTK directly.</p>
-<p>I would like to create a new <code>rlvideolib.gui</code> package that has three modules:</p>
-<ul>
-<li>gtk</li>
-<li>generic</li>
-<li>testing</li>
-</ul>
-<h2 id="testing">Testing</h2>
-<p>I extract a new testing module like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ mkdir rlvideolib/gui
-$ touch rlvideolib/gui/__init__.py
-$ touch rlvideolib/gui/testing.py
-</pre>
-</div>
-</div>
-</div>
-<p>Then I move the <code>FakeGui</code> class to that module and also rename it to <code>TestGui</code> as I think that is a more descriptive name. I also make sure to import it from <code>rlvideo.py</code>.</p>
-<p>Let’s commit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">&#39;Extract rlvideolib.gui.testing.&#39;</span>
-................................................
-----------------------------------------------------------------------
-Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.931s
-
-OK
-<span class="o">[</span>main 91b63c2<span class="o">]</span> Extract rlvideolib.gui.testing.
- <span class="m">4</span> files changed, <span class="m">14</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">12</span> deletions<span class="o">(</span>-<span class="o">)</span>
- create mode <span class="m">100644</span> rlvideolib/gui/__init__.py
- create mode <span class="m">100644</span> rlvideolib/gui/testing.py
-</pre>
-</div>
-</div>
-</div>
-<h2 id="generic">Generic</h2>
-<p>Let’s do the same thing for generic GUI code:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ touch rlvideolib/gui/generic.py
-</pre>
-</div>
-</div>
-</div>
-<p>I move over the following classes:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
-<span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
-</pre>
-</div>
-</div>
-</div>
-<p>If we look at the imports for the generic GUI module, we see this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-
-<span class="kn">import</span> <span class="nn">cairo</span>
-<span class="kn">import</span> <span class="nn">mlt</span>
-
-<span class="kn">from</span> <span class="nn">rlvideolib.debug</span> <span class="kn">import</span> <span class="n">timeit</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">Project</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.graphics.rectangle</span> <span class="kn">import</span> <span class="n">RectangleMap</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.graphics.rectangle</span> <span class="kn">import</span> <span class="n">Rectangle</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.events</span> <span class="kn">import</span> <span class="n">Event</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.domain.region</span> <span class="kn">import</span> <span class="n">Region</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.gui.testing</span> <span class="kn">import</span> <span class="n">TestGui</span>
-<span class="kn">from</span> <span class="nn">rlvideolib.domain.cut</span> <span class="kn">import</span> <span class="n">Cut</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We can see that it depends on Cairo. That is ok. The drawing of generic GUI components is done with Cairo. I don’t see as big a reason to abstract that compared to GTK. Cairo can also most likely be used with other GUI frameworks. The important thing here is that there is no import of GTK.</p>
-<p>Let’s commit this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">&#39;Extract timelinelib.gui.generic.&#39;</span>
-................................................
-----------------------------------------------------------------------
-Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.937s
-
-OK
-<span class="o">[</span>main e392173<span class="o">]</span> Extract timelinelib.gui.generic.
- <span class="m">3</span> files changed, <span class="m">220</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">819</span> deletions<span class="o">(</span>-<span class="o">)</span>
- rewrite rlvideo.py <span class="o">(</span><span class="m">64</span>%<span class="o">)</span>
- copy rlvideo.py <span class="o">=</span>&gt; rlvideolib/gui/generic.py <span class="o">(</span><span class="m">65</span>%<span class="o">)</span>
-</pre>
-</div>
-</div>
-</div>
-<p>We should probably also run the application to see that I didn’t mess up anything major. I get this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>Traceback (most recent call last):
-  File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 213, in &lt;module&gt;
-    App().run()
-  File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 156, in run
-    self.timeline = Timeline(project=self.project, player=mlt_player)
-NameError: name &#39;Timeline&#39; is not defined
-</pre>
-</div>
-</div>
-</div>
-<p>Woopsie.</p>
-<p>I add the missing import to <code>rlvideo.py</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.gui.generic</span> <span class="kn">import</span> <span class="n">Timeline</span>
-</pre>
-</div>
-</div>
-</div>
-<p>If we want to catch this error in the test suite, we must run the whole application which incudes starting the GTK main loop.</p>
-<p>I’m thinking that we can separate the construction of the GUI from the actual main loop, something like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-        <span class="n">Gtk</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
-<p>And then we can run <code>App().init()</code> in a test to make sure that construction of the GUI works.</p>
-<p>I try this, but run into all kinds of issues.</p>
-<p>I decide to leave this as is for now.</p>
-<h2 id="gui">GUI</h2>
-<p>All classes that are left in <code>rlvideo.py</code> are now related to GTK. Let’s move them to its own module, leaving only this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.gui.gtk</span> <span class="kn">import</span> <span class="n">App</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">App</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
-<p>Let’s commit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Extract timelinelib.gui.gtk.&#39;
-................................................
-----------------------------------------------------------------------
-Ran 48 tests in 1.941s
-
-OK
-[main c4702cc] Extract timelinelib.gui.gtk.
- 3 files changed, 5 insertions(+), 217 deletions(-)
- rewrite rlvideo.py (99%)
- copy rlvideo.py =&gt; rlvideolib/gui/gtk.py (99%)
-</pre>
-</div>
-</div>
-</div>
-<h2 id="summary">Summary</h2>
-<p>The new structure looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">testing</span><span class="o">.</span><span class="n">py</span>
-<span class="mi">1</span><span class="p">:</span><span class="k">class</span> <span class="nc">TestGui</span><span class="p">:</span>
-
-<span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">generic</span><span class="o">.</span><span class="n">py</span>
-<span class="mi">17</span><span class="p">:</span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
-<span class="mi">312</span><span class="p">:</span><span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
-<span class="mi">400</span><span class="p">:</span><span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
-
-<span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">gtk</span><span class="o">.</span><span class="n">py</span>
-<span class="mi">16</span><span class="p">:</span><span class="k">class</span> <span class="nc">GtkGui</span><span class="p">:</span>
-<span class="mi">41</span><span class="p">:</span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
-<span class="mi">163</span><span class="p">:</span><span class="k">class</span> <span class="nc">MltPlayer</span><span class="p">:</span>
-</pre>
-</div>
-</div>
-</div>
-<p>I think this structure tells the reader that there is a clear separation between GTK related GUI code and generic GUI code and that this separation is intentional.</p>
-<p>The <code>MltPlayer</code> that we see in the GTK module has only very little to do with GTK. Most of it just works with an MLT producer. GTK is needed for the embedding of the video display from the MLT consumer inside a GTK window.</p>
-<p>I think part of <code>MltPlayer</code> should probably be extracted to a new class and be put in the generic GUI module or somewhere else. This refactoring to separate the different GUI modules revealed that to me. I find that is often the case. You make one refactoring to clarify something and you discover something else that is unclear.</p>
-]]></description>
-    <pubDate>Sat, 29 Jul 2023 00:00:00 UT</pubDate>
-    <guid>http://rickardlindberg.me/writing/devlog-003-clarify-gui-separation/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
 
