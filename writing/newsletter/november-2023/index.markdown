@@ -19,7 +19,7 @@ This is what I've been up to in November 2023:
       paradigm and started to evolve the code base in that direction.
 
     * I plan on solving [Advent of Code](https://adventofcode.com/) puzzles
-      using this langauge to see how problems from different domains can be
+      using this language to see how problems from different domains can be
       expressed.
 
     * I really should document this language and my work on it better.
