@@ -1,16 +1,16 @@
 ---
 title: November 2023 Update
-date: 2023-12-11
+date: 2023-12-12
 tags: newsletter
 ---
 
 This is what I've been up to in November 2023:
 
-* Continued work on my [experimental programming
+* I continued work on my [experimental programming
   language](https://github.com/rickardlindberg/linda-meta-oop) which is based
   on [RLMeta](/writing/rlmeta/index.html).
 
-    * I did more research of the paradigm of
+    * I did more research on the paradigm of the
       [Linda programming language](https://en.wikipedia.org/wiki/Linda_(coordination_language))
       and how it would fit together with RLMeta.
 
