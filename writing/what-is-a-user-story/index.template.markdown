@@ -56,9 +56,3 @@ AI chronicels: stories show progress towards a larger goal.
 
 $:output:python:
 $:END
-
-<p>
-<center>
-![Alternative text.](image.png)
-</center>
-</p>
