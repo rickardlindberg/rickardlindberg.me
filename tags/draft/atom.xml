@@ -8,24 +8,50 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2024-04-02T00:00:00Z</updated>
+    <updated>2024-04-03T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Output Tracking vs Mocks</title>
     <link href="http://rickardlindberg.me/writing/output-tracking-vs-mocks/" />
     <id>http://rickardlindberg.me/writing/output-tracking-vs-mocks/</id>
-    <published>2024-04-02T00:00:00Z</published>
-    <updated>2024-04-02T00:00:00Z</updated>
+    <published>2024-04-03T00:00:00Z</published>
+    <updated>2024-04-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Output Tracking vs Mocks</h1>
 
-<p><em>Published on  2 April 2024.</em></p>
+<p><em>Published on  3 April 2024.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
+<p>In this blog post I’m going to explore how to write and test a Git front-end using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically I want to focus on <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> and explore how to apply it to this example.</p>
+<h2 id="git-front-end">Git front-end</h2>
+<p>https://gut-cli.dev/</p>
+<pre><code>myscm save -&gt; git commit
+
+myscm share -&gt; git push</code></pre>
+<h2 id="architecture">Architecture</h2>
+<pre><code>App --+--&gt; SaveCommand --+--&gt; Process
+      |                  |
+      |                  +--&gt; Filesystem
+      |
+      +--&gt; ShareCommand ----&gt; Process
+      |
+      +--&gt; Args</code></pre>
+<h2 id="notes">Notes</h2>
 <p>See also <a href="/writing/how-to-test-a-router/index.html">How to test a router?</a></p>
 <p>See also <a href="https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/">Favor real dependencies for unit testing</a></p>
 <ul>
-<li><p>App -&gt; Command -&gt; Coordination of -&gt; Dep 1 -&gt; Dep … -&gt; Dep n -&gt; Dep n_1 -&gt; Dep n_2</p></li>
 <li><p>Don’t mock internal dependencies vs output tracking</p></li>
+<li><p>p.117</p>
+<ul>
+<li><p>Event: the action that is performed.</p></li>
+<li><p>Output tracking (invisible writes). Write to external system.</p></li>
+<li><p>Track writes in terms of behaviors your callers care about.</p>
+<ul>
+<li><p>Logger writes to stdout. (Write string.)</p></li>
+<li><p>Callers care about data written. (Track data.)</p></li>
+</ul></li>
+</ul></li>
+<li><p>p.123</p></li>
 </ul>
+<h2 id="template">Template</h2>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
