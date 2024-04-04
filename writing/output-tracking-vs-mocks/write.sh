@@ -8,4 +8,4 @@ git add -u .
 
 git commit -m 'Write.'
 
-(cd ../../ && ./bin/publish && git push --all)
+(cd ../../ && ./bin/publish && git push origin gh-pages && git push)

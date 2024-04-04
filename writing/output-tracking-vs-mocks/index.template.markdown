@@ -4,19 +4,23 @@ date: 2024-04-02
 tags: draft
 ---
 
-In this blog post I'm going to explore how to write and test a Git front-end
+In this blog post we're going to explore how to write and test a Git client
 using the [Testing Without
 Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks)
-approach. Specifically I want to focus on [Output
+approach. Specifically we're going to focus on [Output
 Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking)
 and explore how to apply it to this example.
 
-## Git front-end
+## Example Git client
 
-https://gut-cli.dev/
+The example Git client is a CLI-application that provides a simplified
+interface to Git. This represents a [real world scenario](https://gut-cli.dev/)
+yet can be made small enough for an example.
+
+For the purposes of this example, we will implement two commands:
 
 ```
-myscm save -> git commit
+myscm save  -> git commit
 
 myscm share -> git push
 ```
@@ -31,6 +35,8 @@ App --+--> SaveCommand --+--> Process
       +--> ShareCommand ----> Process
       |
       +--> Args
+      |
+      +--> Terminal
 ```
 
 ## Notes
