@@ -56,17 +56,18 @@
     <title>DRAFT: Output Tracking vs Mocks</title>
     <link href="http://rickardlindberg.me/writing/output-tracking-vs-mocks/" />
     <id>http://rickardlindberg.me/writing/output-tracking-vs-mocks/</id>
-    <published>2024-04-03T00:00:00Z</published>
-    <updated>2024-04-03T00:00:00Z</updated>
+    <published>2024-04-04T00:00:00Z</published>
+    <updated>2024-04-04T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Output Tracking vs Mocks</h1>
 
-<p><em>Published on  3 April 2024.</em></p>
+<p><em>Published on  4 April 2024.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>In this blog post I’m going to explore how to write and test a Git front-end using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically I want to focus on <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> and explore how to apply it to this example.</p>
-<h2 id="git-front-end">Git front-end</h2>
-<p>https://gut-cli.dev/</p>
-<pre><code>myscm save -&gt; git commit
+<p>In this blog post we’re going to explore how to write and test a Git client using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically we’re going to focus on <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> and explore how to apply it to this example.</p>
+<h2 id="example-git-client">Example Git client</h2>
+<p>The example Git client is a CLI-application that provides a simplified interface to Git. This represents a <a href="https://gut-cli.dev/">real world scenario</a> yet can be made small enough for an example.</p>
+<p>For the purposes of this example, we will implement two commands:</p>
+<pre><code>myscm save  -&gt; git commit
 
 myscm share -&gt; git push</code></pre>
 <h2 id="architecture">Architecture</h2>
@@ -76,7 +77,9 @@ myscm share -&gt; git push</code></pre>
       |
       +--&gt; ShareCommand ----&gt; Process
       |
-      +--&gt; Args</code></pre>
+      +--&gt; Args
+      |
+      +--&gt; Terminal</code></pre>
 <h2 id="notes">Notes</h2>
 <p>See also <a href="/writing/how-to-test-a-router/index.html">How to test a router?</a></p>
 <p>See also <a href="https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/">Favor real dependencies for unit testing</a></p>
