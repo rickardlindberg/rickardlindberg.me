@@ -1,6 +1,6 @@
 ---
 title: "DRAFT: 'What is a user story?'"
-date: 2023-09-11
+date: 2024-04-04
 tags: agile,draft
 ---
 
@@ -59,8 +59,3 @@ AI chronicels: stories show progress towards a larger goal.
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
 </pre></div>
 </div></div>
-<p>
-<center>
-![Alternative text.](image.png)
-</center>
-</p>
