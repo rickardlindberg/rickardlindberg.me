@@ -1,4 +1,5 @@
 import doctest
+import sys
 
 class Trackable:
 
@@ -113,16 +114,37 @@ class Terminal(Trackable):
 
     @classmethod
     def create(cls):
-        return cls()
+        return cls(sys=sys)
 
     @classmethod
     def create_null(cls):
-        return cls()
+        class NullStream:
+            def write(self, text):
+                pass
+            def flush(self):
+                pass
+        class NullSysModule:
+            stdout = NullStream()
+        return cls(sys=NullSysModule())
+
+    def __init__(self, sys):
+        Trackable.__init__(self)
+        self.sys = sys
 
     def write(self, text):
         """
+        >>> events = Events()
+        >>> terminal = Terminal.create()
+        >>> terminal.track_events(events)
+        >>> terminal.write("hello")
+        hello
+        >>> events
+        TERMINAL_WRITE 'hello'
+
+        >>> Terminal.create_null().write("hello")
         """
         self.notify(f"TERMINAL_WRITE {text!r}")
+        print(text, file=self.sys.stdout, flush=True)
 
 if __name__ == "__main__":
     doctest.testmod()
