@@ -1,4 +1,5 @@
 import doctest
+import subprocess
 import sys
 
 class Trackable:
@@ -173,6 +174,35 @@ class Args(Trackable):
         ['test']
         """
         return self.sys.argv[1:]
+
+class Process(Trackable):
+
+    @classmethod
+    def create(cls):
+        return cls(subprocess=subprocess)
+
+    @classmethod
+    def create_null(cls):
+        class NullSubprocessModule:
+            def call(self, command):
+                pass
+        return cls(subprocess=NullSubprocessModule())
+
+    def __init__(self, subprocess):
+        Trackable.__init__(self)
+        self.subprocess = subprocess
+
+    def run(self, command):
+        """
+        >>> events = Events()
+        >>> Process.create().track_events(events).run(["echo", "hello"])
+        >>> events
+        PROCESS_RUN ['echo', 'hello']
+
+        >>> Process.create_null().run(["echo", "hello"])
+        """
+        self.notify(f"PROCESS_RUN {command!r}")
+        self.subprocess.call(command)
 
 if __name__ == "__main__":
     doctest.testmod()
