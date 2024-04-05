@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import doctest
 import subprocess
 import sys
@@ -193,10 +195,10 @@ class Args(Trackable):
     def get(self):
         """
         >>> Args.create().get()
-        []
+        ['--test']
 
-        >>> Args.create_null(args=["test"]).get()
-        ['test']
+        >>> Args.create_null(args=["configured", "args"]).get()
+        ['configured', 'args']
         """
         return self.sys.argv[1:]
 
@@ -230,5 +232,8 @@ class Process(Trackable):
         self.subprocess.call(command)
 
 if __name__ == "__main__":
-    doctest.testmod()
-    print("OK")
+    if Args.create().get() == ["--test"]:
+        doctest.testmod()
+        print("OK")
+    else:
+        App.create().run()
