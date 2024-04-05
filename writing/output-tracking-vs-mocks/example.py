@@ -105,7 +105,7 @@ class SaveCommand(Trackable):
     def run(self, args):
         """
         >>> events = Events()
-        >>> SaveCommand.create_null(events).run([])
+        >>> SaveCommand.create_null(events=events).run([])
         >>> events
         PROCESS_RUN ['git', 'commit']
         """
@@ -116,17 +116,29 @@ class ShareCommand(Trackable):
 
     @classmethod
     def create(cls):
-        return cls()
+        return cls(
+            process=Process.create()
+        )
 
     @classmethod
-    def create_null(cls):
-        return cls()
+    def create_null(cls, events=None):
+        return cls(
+            process=Process.create_null().track_events(events)
+        )
+
+    def __init__(self, process):
+        Trackable.__init__(self)
+        self.process = process
 
     def run(self, args):
         """
-        >>> ShareCommand.create_null().run([])
+        >>> events = Events()
+        >>> ShareCommand.create_null(events=events).run([])
+        >>> events
+        PROCESS_RUN ['git', 'push']
         """
         self.notify(f"SHARE_COMMAND {args!r}")
+        self.process.run(["git", "push"])
 
 class Terminal(Trackable):
 
