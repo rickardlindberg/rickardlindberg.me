@@ -8,7 +8,8 @@ class Trackable:
         self.events = []
 
     def track_events(self, events):
-        self.events.append(events)
+        if events:
+            self.events.append(events)
         return self
 
     def notify(self, event):
@@ -87,17 +88,29 @@ class SaveCommand(Trackable):
 
     @classmethod
     def create(cls):
-        return cls()
+        return cls(
+            process=Process.create()
+        )
 
     @classmethod
-    def create_null(cls):
-        return cls()
+    def create_null(cls, events=None):
+        return cls(
+            process=Process.create_null().track_events(events)
+        )
+
+    def __init__(self, process):
+        Trackable.__init__(self)
+        self.process = process
 
     def run(self, args):
         """
-        >>> SaveCommand.create_null().run([])
+        >>> events = Events()
+        >>> SaveCommand.create_null(events).run([])
+        >>> events
+        PROCESS_RUN ['git', 'commit']
         """
         self.notify(f"SAVE_COMMAND {args!r}")
+        self.process.run(["git", "commit"])
 
 class ShareCommand(Trackable):
 
