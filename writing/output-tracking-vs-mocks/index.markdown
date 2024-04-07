@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-04-05
+date: 2024-04-07
 tags: draft
 ---
 
@@ -19,7 +19,7 @@ The example Git client is a CLI-application that provides a simplified
 interface to Git. This represents a [real world scenario](https://gut-cli.dev/)
 yet can be made small enough for an example.
 
-For the purposes of this example, we will implement two commands:
+The application implements two commands:
 
 ```
 myscm save  -> git commit
@@ -28,6 +28,8 @@ myscm share -> git push
 ```
 
 ## Architecture
+
+The application consists of the following classes:
 
 ```
 App --+--> SaveCommand --+--> Process
@@ -41,6 +43,91 @@ App --+--> SaveCommand --+--> Process
       +--> Terminal
 ```
 
+* `Process`, `Filesystem`, `Args`, and `Terminal` are low-level [infrastructure
+  wrappers](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers)
+  that are made
+  [nullable](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables)
+  using [embedded
+  stubs](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub).
+
+    * `Process` is for running external processes. (`git` in this example.)
+    * `Filesystem` is for reading file contents from disk.
+    * `Args` is for reading command line arguments.
+    * `Terminal` is for writing text to the terminal.
+
+* `SaveCommand` and `ShareCommand` are application code that performs a
+  function in the domain of a Git client. They are made nullable using [fake it
+  once you make
+  it](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#fake-it).
+
+* `App` is also application code that routes commands to the correct
+  sub-command. It is also made nullable using "fake it once you make it".
+
+## How to test `App`?
+
+We want to write sociable, state-based test.
+
+What does that mean in the context of testing `App`?
+
+Sociable means that we should use its real dependencies. That is, we should
+inject a real `SaveCommand`, `ShareCommand`, `Args`, and `Terminal`. We should
+not inject test doubles like mocks or stubs.
+
+So the test setup will look something like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
+    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div></div>
+However, if we were to invoke methods on `app` now, it would interact with the
+outside world. It would read command line arguments, execute `git` commands,
+and write to the terminal.
+
+We don't want to do that. It takes a long time and is brittle. We therefore
+inject null versions of dependencies like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
+    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div></div>
+Creating a null version is exactly like creating a real version except that at
+the very edge of the application boundary, the communication with the outside
+world is turned off. We put this in a factory-method:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+Now, `App` only has one method, and the is `run`:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+So the only test we can write is this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div></div>
 ## Notes
 
 See also [How to test a router?](/writing/how-to-test-a-router/index.html)
@@ -64,8 +151,246 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 
 * p.123
 
-## Template
+## Appendix: myscm.py
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">hello</span>
+<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>myscm.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">doctest</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">class</span> <span class="nc">Trackable</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">track_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">events</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Events</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(App.create(), App)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_command</span><span class="p">,</span> <span class="n">share_command</span><span class="p">,</span> <span class="n">terminal</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span> <span class="o">=</span> <span class="n">save_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span>  <span class="o">=</span> <span class="n">share_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="n">terminal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        I dispatch to the correct sub-command:</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SAVE_COMMAND [&#39;message&#39;]</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SHARE_COMMAND []</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        TERMINAL_WRITE &#39;Unknown command.&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null(events=events).run([])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN [&#39;git&#39;, &#39;commit&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">ShareCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; ShareCommand.create_null(events=events).run([])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN [&#39;git&#39;, &#39;push&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHARE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;push&quot;</span><span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">Terminal</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullStream</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
+            <span class="n">stdout</span> <span class="o">=</span> <span class="n">NullStream</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; Terminal.create().track_events(events).write(&quot;hello&quot;)</span>
+<span class="sd">        hello</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        TERMINAL_WRITE &#39;hello&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; Terminal.create_null().write(&quot;hello&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TERMINAL_WRITE </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Args</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
+            <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;null program&quot;</span><span class="p">]</span><span class="o">+</span><span class="n">args</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; Args.create().get()</span>
+<span class="sd">        [&#39;--test&#39;]</span>
+
+<span class="sd">        &gt;&gt;&gt; Args.create_null(args=[&quot;configured&quot;, &quot;args&quot;]).get()</span>
+<span class="sd">        [&#39;configured&#39;, &#39;args&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+<span class="k">class</span> <span class="nc">Process</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullSubprocessModule</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocessModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; Process.create().track_events(events).run([&quot;echo&quot;, &quot;hello&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN [&#39;echo&#39;, &#39;hello&#39;]</span>
+
+<span class="sd">        &gt;&gt;&gt; Process.create_null().run([&quot;echo&quot;, &quot;hello&quot;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PROCESS_RUN </span><span class="si">{</span><span class="n">command</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--test&quot;</span><span class="p">]:</span>
+        <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">App</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div></div>
