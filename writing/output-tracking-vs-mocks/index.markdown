@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-04-07
+date: 2024-04-08
 tags: draft
 ---
 
@@ -116,7 +116,7 @@ world is turned off. We put this in a factory-method:
     <span class="o">...</span>
 </pre></div>
 </div></div>
-Now, `App` only has one method, and the is `run`:
+`App` has only one method, and that is `run`:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="o">...</span>
@@ -128,6 +128,68 @@ So the only test we can write is this:
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div></div>
+There is no way to control what the command line arguments are, and there is no
+way to observe what the application is doing.
+
+Here are two scenarios that would be useful to test:
+
+* When the application is called with `["save", "message]`, then `git commit -a
+  -m message` is called.
+
+* When the application is called with `["share"]`, then `git push` is called.
+
+In order to write those test, we need a way to control the outside world to
+simulate that a given set of command line arguments are present. We also need a
+way to observe what commands would be run (if we were not using the
+null-version).
+
+We can solve the first part by passing command line arguments to simulate to
+`create_null`. The test then becomes this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div></div>
+`App.create_null` is modified to this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="o">...</span>
+</pre></div>
+</div></div>
+`Args` supports [configuring
+responses](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses)
+when creating the null version. In that case it would return the configured
+command line arguments instead of the real ones. The communication with the
+outside world has been turned off, and we simulate the part of the outside
+world that reads command line arguments from the environment.
+
+Now we can write our two scenarios like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="c1"># How to assert that &quot;git commit&quot; was called?</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">])</span>
+<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="c1"># How to assert that &quot;git push&quot; was called?</span>
+</pre></div>
+</div></div>
+And now we come to the main topic of this blog post: output tracking.
+
+`App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
+of them takes the rest of the command line arguments and performs an action
+without returning anything. To observe ...
+
 ## Notes
 
 See also [How to test a router?](/writing/how-to-test-a-router/index.html)

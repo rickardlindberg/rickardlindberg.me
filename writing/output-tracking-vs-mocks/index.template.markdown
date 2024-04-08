@@ -117,7 +117,7 @@ class App:
     ...
 $:END
 
-Now, `App` only has one method, and the is `run`:
+`App` has only one method, and that is `run`:
 
 $:output:python:
 def run(self):
@@ -130,6 +130,71 @@ $:output:python:
 app = App.create_null()
 app.run()
 $:END
+
+There is no way to control what the command line arguments are, and there is no
+way to observe what the application is doing.
+
+Here are two scenarios that would be useful to test:
+
+* When the application is called with `["save", "message]`, then `git commit -a
+  -m message` is called.
+
+* When the application is called with `["share"]`, then `git push` is called.
+
+In order to write those test, we need a way to control the outside world to
+simulate that a given set of command line arguments are present. We also need a
+way to observe what commands would be run (if we were not using the
+null-version).
+
+We can solve the first part by passing command line arguments to simulate to
+`create_null`. The test then becomes this:
+
+$:output:python:
+app = App.create_null(args=["save", "message"])
+app.run()
+$:END
+
+`App.create_null` is modified to this:
+
+$:output:python:
+class App:
+
+    @classmethod
+    def create_null(cls, args):
+        return cls(
+            save_command=SaveCommand.create_null(),
+            share_command=ShareCommand.create_null(),
+            terminal=Terminal.create_null(),
+            args=Args.create_null(args=args),
+        )
+
+    ...
+$:END
+
+`Args` supports [configuring
+responses](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses)
+when creating the null version. In that case it would return the configured
+command line arguments instead of the real ones. The communication with the
+outside world has been turned off, and we simulate the part of the outside
+world that reads command line arguments from the environment.
+
+Now we can write our two scenarios like this:
+
+$:output:python:
+app = App.create_null(args=["save", "message"])
+app.run()
+# How to assert that "git commit" was called?
+
+app = App.create_null(args=["share"])
+app.run()
+# How to assert that "git push" was called?
+$:END
+
+And now we come to the main topic of this blog post: output tracking.
+
+`App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
+of them takes the rest of the command line arguments and performs an action
+without returning anything. To observe ...
 
 ## Notes
 
