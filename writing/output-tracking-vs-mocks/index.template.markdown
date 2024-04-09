@@ -194,7 +194,81 @@ And now we come to the main topic of this blog post: output tracking.
 
 `App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
 of them takes the rest of the command line arguments and performs an action
-without returning anything. To observe ...
+without returning anything. To observe With output tracking, we introduce state
+in the commands so that we can query them and see if they were run. A slightly
+more elegant solution, instead of introducing state, is to fire events. Here is
+how we implement it in `SaveCommand`:
+
+$:output:python:
+class SaveCommand(Trackable):
+
+    def run(self, args):
+        self.notify(f"SAVE_COMMAND {args!r}")
+        ...
+$:END
+
+To track events, we can do this:
+
+$:code:myscm.py
+>>> events = Events()
+>>> SaveCommand.create_null().track_events(events).run(["message"])
+>>> events
+SAVE_COMMAND ['message']
+$:END
+
+Bla bla bla:
+
+$:code:myscm.py
+class App:
+
+    @classmethod
+    def create_null(cls, events, args):
+        return cls(
+            save_command=SaveCommand.create_null().track_events(events),
+            share_command=ShareCommand.create_null().track_events(events),
+            terminal=Terminal.create_null().track_events(events),
+            args=Args.create_null(args=args),
+        )
+
+    ...
+$:END
+
+And now we can write our tests like this:
+
+$:code:myscm.py
+>>> events = Events()
+>>> App.create_null(events, args=["save", "message"]).run()
+>>> events
+SAVE_COMMAND ['message']
+
+>>> events = Events()
+>>> App.create_null(events, args=["share"]).run()
+>>> events
+SHARE_COMMAND []
+
+>>> events = Events()
+>>> App.create_null(events, args=["unknown", "sub", "command"]).run()
+>>> events
+TERMINAL_WRITE 'Unknown command.'
+$:END
+
+## Reflections
+
+Those test are similar to end-to-end-test in that the whole stack is executed,
+except right at the application boundary. So if we supply incorrect arguments
+to the save command for example, this test will blow up:
+
+$:code:myscm.py
+>>> App.create_null(Events(), args=["save"]).run()
+Traceback (most recent call last):
+  ...
+ValueError: Expected one argument as the message, but got [].
+$:END
+
+This is overlapping, sociable testing. We we actually testing that `App` calls
+`SaveCommand` correctly. However, the behavior of the save command is not
+tested here. We only test that application parses command line arguments
+correctly and calls the appropriate sub-command.
 
 ## Notes
 

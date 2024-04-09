@@ -68,6 +68,11 @@ class App:
         >>> events
         SAVE_COMMAND ['message']
 
+        >>> App.create_null(Events(), args=["save"]).run()
+        Traceback (most recent call last):
+          ...
+        ValueError: Expected one argument as the message, but got [].
+
         >>> events = Events()
         >>> App.create_null(events, args=["share"]).run()
         >>> events
@@ -107,12 +112,24 @@ class SaveCommand(Trackable):
     def run(self, args):
         """
         >>> events = Events()
-        >>> SaveCommand.create_null(events=events).run([])
+        >>> SaveCommand.create_null().track_events(events).run(["message"])
         >>> events
-        PROCESS_RUN ['git', 'commit']
+        SAVE_COMMAND ['message']
+
+        >>> events = Events()
+        >>> SaveCommand.create_null(events=events).run(['message'])
+        >>> events
+        PROCESS_RUN ['git', 'commit', '-a', '-m', 'message']
+
+        >>> SaveCommand.create_null().run(['message', '--force'])
+        Traceback (most recent call last):
+          ...
+        ValueError: Expected one argument as the message, but got ['message', '--force'].
         """
         self.notify(f"SAVE_COMMAND {args!r}")
-        self.process.run(["git", "commit"])
+        if len(args) != 1:
+            raise ValueError(f"Expected one argument as the message, but got {args!r}.")
+        self.process.run(["git", "commit", "-a", "-m", args[0]])
 
 class ShareCommand(Trackable):
 
