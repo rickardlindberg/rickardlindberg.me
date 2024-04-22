@@ -293,6 +293,9 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 
 * p.123
 
+* Functional Core / Imperative Shell. Functional core returns decision that
+  imperative shell executes.
+
 ## Appendix: myscm.py
 
 $:code:myscm.py

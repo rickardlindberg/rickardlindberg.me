@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-04-09
+date: 2024-04-22
 tags: draft
 ---
 
@@ -1313,6 +1313,9 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
         * Callers care about data written. (Track data.)
 
 * p.123
+
+* Functional Core / Imperative Shell. Functional core returns decision that
+  imperative shell executes.
 
 ## Appendix: myscm.py
 
