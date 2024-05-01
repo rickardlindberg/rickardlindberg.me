@@ -127,8 +127,10 @@ $:END
 So the only test we can write is this:
 
 $:output:python:
-app = App.create_null()
-app.run()
+"""
+>>> app = App.create_null()
+>>> app.run()
+"""
 $:END
 
 There is no way to control what the command line arguments are, and there is no
@@ -136,8 +138,8 @@ way to observe what the application is doing.
 
 Here are two scenarios that would be useful to test:
 
-* When the application is called with `["save", "message]`, then `git commit -a
-  -m message` is called.
+* When the application is called with `["save", "message"]`, then `git commit
+  -a -m message` is called.
 
 * When the application is called with `["share"]`, then `git push` is called.
 
@@ -150,8 +152,10 @@ We can solve the first part by passing command line arguments to simulate to
 `create_null`. The test then becomes this:
 
 $:output:python:
-app = App.create_null(args=["save", "message"])
-app.run()
+"""
+>>> app = App.create_null(args=["save", "message"])
+>>> app.run()
+"""
 $:END
 
 `App.create_null` is modified to this:
@@ -181,23 +185,25 @@ world that reads command line arguments from the environment.
 Now we can write our two scenarios like this:
 
 $:output:python:
-app = App.create_null(args=["save", "message"])
-app.run()
+"""
+>>> app = App.create_null(args=["save", "message"])
+>>> app.run()
 # How to assert that "git commit" was called?
 
-app = App.create_null(args=["share"])
-app.run()
+>>> app = App.create_null(args=["share"])
+>>> app.run()
 # How to assert that "git push" was called?
+"""
 $:END
 
 And now we come to the main topic of this blog post: output tracking.
 
 `App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
-of them takes the rest of the command line arguments and performs an action
-without returning anything. To observe With output tracking, we introduce state
-in the commands so that we can query them and see if they were run. A slightly
-more elegant solution, instead of introducing state, is to fire events. Here is
-how we implement it in `SaveCommand`:
+of them take the rest of the command line arguments and performs an action
+without returning anything. To observe that with output tracking, we introduce
+state in the commands so that we can query them and see if they were run. A
+slightly more elegant solution, instead of introducing state, is to fire
+events. Here is how we implement it in `SaveCommand`:
 
 $:output:python:
 class SaveCommand(Trackable):
@@ -210,13 +216,15 @@ $:END
 To track events, we can do this:
 
 $:output:python:
+"""
 >>> events = Events()
 >>> SaveCommand.create_null().track_events(events).run(["message"])
 >>> events
 SAVE_COMMAND ['message']
+"""
 $:END
 
-Bla bla bla:
+We use the event tracking pattern for both commands and the terminal like this:
 
 $:output:python:
 class App:
@@ -236,6 +244,7 @@ $:END
 And now we can write our tests like this:
 
 $:output:python:
+"""
 >>> events = Events()
 >>> App.create_null(events, args=["save", "message"]).run()
 >>> events
@@ -250,6 +259,7 @@ SHARE_COMMAND []
 >>> App.create_null(events, args=["unknown", "sub", "command"]).run()
 >>> events
 TERMINAL_WRITE 'Unknown command.'
+"""
 $:END
 
 ## Reflections

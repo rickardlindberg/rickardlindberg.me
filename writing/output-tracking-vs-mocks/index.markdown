@@ -124,8 +124,10 @@ world is turned off. We put this in a factory-method:
 </div></div>
 So the only test we can write is this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null()</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 There is no way to control what the command line arguments are, and there is no
@@ -133,8 +135,8 @@ way to observe what the application is doing.
 
 Here are two scenarios that would be useful to test:
 
-* When the application is called with `["save", "message]`, then `git commit -a
-  -m message` is called.
+* When the application is called with `["save", "message"]`, then `git commit
+  -a -m message` is called.
 
 * When the application is called with `["share"]`, then `git push` is called.
 
@@ -146,8 +148,10 @@ null-version).
 We can solve the first part by passing command line arguments to simulate to
 `create_null`. The test then becomes this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span>
-<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 `App.create_null` is modified to this:
@@ -175,23 +179,25 @@ world that reads command line arguments from the environment.
 
 Now we can write our two scenarios like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span>
-<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="c1"># How to assert that &quot;git commit&quot; was called?</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd"># How to assert that &quot;git commit&quot; was called?</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">])</span>
-<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="c1"># How to assert that &quot;git push&quot; was called?</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;share&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd"># How to assert that &quot;git push&quot; was called?</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 And now we come to the main topic of this blog post: output tracking.
 
 `App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
-of them takes the rest of the command line arguments and performs an action
-without returning anything. To observe With output tracking, we introduce state
-in the commands so that we can query them and see if they were run. A slightly
-more elegant solution, instead of introducing state, is to fire events. Here is
-how we implement it in `SaveCommand`:
+of them take the rest of the command line arguments and performs an action
+without returning anything. To observe that with output tracking, we introduce
+state in the commands so that we can query them and see if they were run. A
+slightly more elegant solution, instead of introducing state, is to fire
+events. Here is how we implement it in `SaveCommand`:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
 
@@ -202,13 +208,15 @@ how we implement it in `SaveCommand`:
 </div></div>
 To track events, we can do this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">Events</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span>
-<span class="n">SAVE_COMMAND</span> <span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; SaveCommand.create_null().track_events(events).run([&quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-Bla bla bla:
+We use the event tracking pattern for both commands and the terminal like this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
 
@@ -226,20 +234,22 @@ Bla bla bla:
 </div></div>
 And now we can write our tests like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">Events</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span>
-<span class="n">SAVE_COMMAND</span> <span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">Events</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span>
-<span class="n">SHARE_COMMAND</span> <span class="p">[]</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SHARE_COMMAND []</span>
 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span> <span class="o">=</span> <span class="n">Events</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span> <span class="s2">&quot;sub&quot;</span><span class="p">,</span> <span class="s2">&quot;command&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">events</span>
-<span class="n">TERMINAL_WRITE</span> <span class="s1">&#39;Unknown command.&#39;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">TERMINAL_WRITE &#39;Unknown command.&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 ## Reflections
