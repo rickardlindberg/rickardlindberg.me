@@ -74,12 +74,14 @@ not inject test doubles like mocks or stubs.
 So the test setup will look something like this:
 
 $:output:python:
-app = App(
-    save_command=SaveCommand(...),
-    share_command=ShareCommand(...),
-    terminal=Terminal(...),
-    args=Args(...),
-)
+"""
+>>> app = App(
+...     save_command=SaveCommand(...),
+...     share_command=ShareCommand(...),
+...     terminal=Terminal(...),
+...     args=Args(...),
+... )
+"""
 $:END
 
 However, if we were to invoke methods on `app` now, it would interact with the
@@ -90,12 +92,14 @@ We don't want to do that. It takes a long time and is brittle. We therefore
 inject null versions of dependencies like this:
 
 $:output:python:
-app = App(
-    save_command=SaveCommand.create_null(),
-    share_command=ShareCommand.create_null(),
-    terminal=Terminal.create_null(),
-    args=Args.create_null(),
-)
+"""
+>>> app = App(
+...     save_command=SaveCommand.create_null(),
+...     share_command=ShareCommand.create_null(),
+...     terminal=Terminal.create_null(),
+...     args=Args.create_null(),
+... )
+"""
 $:END
 
 Creating a null version is exactly like creating a real version except that at
@@ -262,10 +266,23 @@ TERMINAL_WRITE 'Unknown command.'
 """
 $:END
 
+The implementation looks like this:
+
+$:output:python:
+def run(self):
+    args = self.args.get()
+    if args[0:1] == ["save"]:
+        self.save_command.run(args[1:])
+    elif args[0:1] == ["share"]:
+        self.share_command.run([])
+    else:
+        self.terminal.write("Unknown command.")
+$:END
+
 ## Reflections
 
-The test for `App` are similar to end-to-end-test in that the whole stack is
-executed.  Except right at the application boundary. So if we supply incorrect
+The tests for `App` are similar to end-to-end-test in that the whole stack is
+executed. Except right at the application boundary. So if we supply incorrect
 arguments to the save command for example, this test will blow up:
 
 $:output:python:
@@ -281,6 +298,91 @@ This is overlapping, sociable testing. We we actually testing that `App` calls
 `SaveCommand` correctly. However, the behavior of the save command is not
 tested here. We only test that application parses command line arguments
 correctly and calls the appropriate sub-command.
+
+## The Mock version
+
+Let's contrast how the first test case can be written using mocks and stubs
+instead. Here it is again:
+
+$:output:python:
+"""
+>>> events = Events()
+>>> App.create_null(events, args=["save", "message"]).run()
+>>> events
+SAVE_COMMAND ['message']
+"""
+$:END
+
+And here is the mock/stub version:
+
+$:output:python:
+"""
+>>> save_command_mock = Mock()
+>>> App(
+...     save_command=save_command_mock,
+...     share_command=None,
+...     terminal=None,
+...     args=Mock(**{"get.return_value": ["save", "message"]})
+... ).run()
+>>> save_command_mock.run.call_args_list
+[call(['message'])]
+"""
+$:END
+
+The share command and terminal are not exercised in this test, so we just
+inject `None`. For `args` we inject a stub that is configured to return
+`["save", "message"]` when its `get` method is called. For the `save_command`,
+we inject a mock. After we call the `run` method on the application, we assert
+that the `run` method was called on the mock with the `['message']` argument.
+
+Let's contrast the two assertions:
+
+$:output:python:
+"""
+>>> events
+SAVE_COMMAND ['message']
+
+>>> save_command_mock.run.call_args_list
+[call(['message'])]
+"""
+$:END
+
+They look very similar. Almost to the point that output tracking feels like
+mocking.
+
+But there is one crucial difference:
+
+**The mock version creates isolated tests whereas the output tracking version
+creates sociable tests.**
+
+We have already seen what happens in the output tracking version when we call
+the save command with incorrect arguments. What happens in the mock based
+version? It happily passes:
+
+$:output:python:
+>>> save_command_mock = Mock()
+>>> App(
+...     save_command=save_command_mock,
+...     share_command=None,
+...     terminal=None,
+...     args=Mock(**{"get.return_value": ["save"]})
+... ).run()
+>>> save_command_mock.run.call_args_list
+[call([])]
+$:END
+
+To make the mock based test suite "equivalently powerful" we need to augment it
+with "contract tests". In this case we need a test saying something like when
+the save command is called with no arguments, it does not blow up. And we have
+to write such tests for every example in our test suite. When we assert that a
+dependency is called in a certain way or returns a certain thing under certain
+conditions, we also have to write a contract test that checks that the
+dependency can actually except those arguments and return those things under
+said conditions. That seems like a whole lot more work to me.
+
+## Recording function calls vs actions
+
+Another more subtle difference is..
 
 ## Notes
 

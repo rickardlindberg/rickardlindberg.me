@@ -75,12 +75,14 @@ not inject test doubles like mocks or stubs.
 
 So the test setup will look something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
-    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-<span class="p">)</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand(...),</span>
+<span class="sd">...     share_command=ShareCommand(...),</span>
+<span class="sd">...     terminal=Terminal(...),</span>
+<span class="sd">...     args=Args(...),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 However, if we were to invoke methods on `app` now, it would interact with the
@@ -90,12 +92,14 @@ and write to the terminal.
 We don't want to do that. It takes a long time and is brittle. We therefore
 inject null versions of dependencies like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
-    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-<span class="p">)</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand.create_null(),</span>
+<span class="sd">...     share_command=ShareCommand.create_null(),</span>
+<span class="sd">...     terminal=Terminal.create_null(),</span>
+<span class="sd">...     args=Args.create_null(),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 Creating a null version is exactly like creating a real version except that at
@@ -252,10 +256,22 @@ And now we can write our tests like this:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
+The implementation looks like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre></div>
+</div></div>
 ## Reflections
 
-The test for `App` are similar to end-to-end-test in that the whole stack is
-executed.  Except right at the application boundary. So if we supply incorrect
+The tests for `App` are similar to end-to-end-test in that the whole stack is
+executed. Except right at the application boundary. So if we supply incorrect
 arguments to the save command for example, this test will blow up:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -270,6 +286,87 @@ This is overlapping, sociable testing. We we actually testing that `App` calls
 `SaveCommand` correctly. However, the behavior of the save command is not
 tested here. We only test that application parses command line arguments
 correctly and calls the appropriate sub-command.
+
+## The Mock version
+
+Let's contrast how the first test case can be written using mocks and stubs
+instead. Here it is again:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+And here is the mock/stub version:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">&gt;&gt;&gt; App(</span>
+<span class="sd">...     save_command=save_command_mock,</span>
+<span class="sd">...     share_command=None,</span>
+<span class="sd">...     terminal=None,</span>
+<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">... ).run()</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call([&#39;message&#39;])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+The share command and terminal are not exercised in this test, so we just
+inject `None`. For `args` we inject a stub that is configured to return
+`["save", "message"]` when its `get` method is called. For the `save_command`,
+we inject a mock. After we call the `run` method on the application, we assert
+that the `run` method was called on the mock with the `['message']` argument.
+
+Let's contrast the two assertions:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call([&#39;message&#39;])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+They look very similar. Almost to the point that output tracking feels like
+mocking.
+
+But there is one crucial difference:
+
+**The mock version creates isolated tests whereas the output tracking version
+creates sociable tests.**
+
+We have already seen what happens in the output tracking version when we call
+the save command with incorrect arguments. What happens in the mock based
+version? It happily passes:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">save_command</span><span class="o">=</span><span class="n">save_command_mock</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">share_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">terminal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">args</span><span class="o">=</span><span class="n">Mock</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;get.return_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]})</span>
+<span class="o">...</span> <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">call_args_list</span>
+<span class="p">[</span><span class="n">call</span><span class="p">([])]</span>
+</pre></div>
+</div></div>
+To make the mock based test suite "equivalently powerful" we need to augment it
+with "contract tests". In this case we need a test saying something like when
+the save command is called with no arguments, it does not blow up. And we have
+to write such tests for every example in our test suite. When we assert that a
+dependency is called in a certain way or returns a certain thing under certain
+conditions, we also have to write a contract test that checks that the
+dependency can actually except those arguments and return those things under
+said conditions. That seems like a whole lot more work to me.
+
+## Recording function calls vs actions
+
+Another more subtle difference is..
 
 ## Notes
 
@@ -301,6 +398,7 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 
 <div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>myscm.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
 <span class="kn">import</span> <span class="nn">doctest</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -369,10 +467,30 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 <span class="sd">        &gt;&gt;&gt; events</span>
 <span class="sd">        SAVE_COMMAND [&#39;message&#39;]</span>
 
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call([&#39;message&#39;])]</span>
+
 <span class="sd">        &gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
 <span class="sd">        Traceback (most recent call last):</span>
 <span class="sd">          ...</span>
 <span class="sd">        ValueError: Expected one argument as the message, but got [].</span>
+
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call([])]</span>
 
 <span class="sd">        &gt;&gt;&gt; events = Events()</span>
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>

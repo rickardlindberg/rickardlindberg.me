@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from unittest.mock import Mock
 import doctest
 import subprocess
 import sys
@@ -68,10 +69,30 @@ class App:
         >>> events
         SAVE_COMMAND ['message']
 
+        >>> save_command_mock = Mock()
+        >>> App(
+        ...     save_command=save_command_mock,
+        ...     share_command=None,
+        ...     terminal=None,
+        ...     args=Mock(**{"get.return_value": ["save", "message"]})
+        ... ).run()
+        >>> save_command_mock.run.call_args_list
+        [call(['message'])]
+
         >>> App.create_null(Events(), args=["save"]).run()
         Traceback (most recent call last):
           ...
         ValueError: Expected one argument as the message, but got [].
+
+        >>> save_command_mock = Mock()
+        >>> App(
+        ...     save_command=save_command_mock,
+        ...     share_command=None,
+        ...     terminal=None,
+        ...     args=Mock(**{"get.return_value": ["save"]})
+        ... ).run()
+        >>> save_command_mock.run.call_args_list
+        [call([])]
 
         >>> events = Events()
         >>> App.create_null(events, args=["share"]).run()
