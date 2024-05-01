@@ -294,7 +294,7 @@ ValueError: Expected one argument as the message, but got [].
 """
 $:END
 
-This is overlapping, sociable testing. We we actually testing that `App` calls
+This is overlapping, sociable testing. We are actually testing that `App` calls
 `SaveCommand` correctly. However, the behavior of the save command is not
 tested here. We only test that application parses command line arguments
 correctly and calls the appropriate sub-command.
@@ -360,6 +360,7 @@ the save command with incorrect arguments. What happens in the mock based
 version? It happily passes:
 
 $:output:python:
+"""
 >>> save_command_mock = Mock()
 >>> App(
 ...     save_command=save_command_mock,
@@ -369,6 +370,7 @@ $:output:python:
 ... ).run()
 >>> save_command_mock.run.call_args_list
 [call([])]
+"""
 $:END
 
 To make the mock based test suite "equivalently powerful" we need to augment it

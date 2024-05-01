@@ -282,7 +282,7 @@ arguments to the save command for example, this test will blow up:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-This is overlapping, sociable testing. We we actually testing that `App` calls
+This is overlapping, sociable testing. We are actually testing that `App` calls
 `SaveCommand` correctly. However, the behavior of the save command is not
 tested here. We only test that application parses command line arguments
 correctly and calls the appropriate sub-command.
@@ -344,15 +344,17 @@ We have already seen what happens in the output tracking version when we call
 the save command with incorrect arguments. What happens in the mock based
 version? It happily passes:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="p">(</span>
-<span class="o">...</span>     <span class="n">save_command</span><span class="o">=</span><span class="n">save_command_mock</span><span class="p">,</span>
-<span class="o">...</span>     <span class="n">share_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="o">...</span>     <span class="n">terminal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="o">...</span>     <span class="n">args</span><span class="o">=</span><span class="n">Mock</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;get.return_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]})</span>
-<span class="o">...</span> <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">call_args_list</span>
-<span class="p">[</span><span class="n">call</span><span class="p">([])]</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">&gt;&gt;&gt; App(</span>
+<span class="sd">...     save_command=save_command_mock,</span>
+<span class="sd">...     share_command=None,</span>
+<span class="sd">...     terminal=None,</span>
+<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
+<span class="sd">... ).run()</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call([])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 To make the mock based test suite "equivalently powerful" we need to augment it
