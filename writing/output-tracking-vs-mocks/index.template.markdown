@@ -209,7 +209,7 @@ $:END
 
 To track events, we can do this:
 
-$:code:myscm.py
+$:output:python:
 >>> events = Events()
 >>> SaveCommand.create_null().track_events(events).run(["message"])
 >>> events
@@ -218,7 +218,7 @@ $:END
 
 Bla bla bla:
 
-$:code:myscm.py
+$:output:python:
 class App:
 
     @classmethod
@@ -235,7 +235,7 @@ $:END
 
 And now we can write our tests like this:
 
-$:code:myscm.py
+$:output:python:
 >>> events = Events()
 >>> App.create_null(events, args=["save", "message"]).run()
 >>> events
@@ -258,7 +258,7 @@ Those test are similar to end-to-end-test in that the whole stack is executed,
 except right at the application boundary. So if we supply incorrect arguments
 to the save command for example, this test will blow up:
 
-$:code:myscm.py
+$:output:python:
 >>> App.create_null(Events(), args=["save"]).run()
 Traceback (most recent call last):
   ...
