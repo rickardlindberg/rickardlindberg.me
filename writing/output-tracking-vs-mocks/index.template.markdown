@@ -264,15 +264,17 @@ $:END
 
 ## Reflections
 
-Those test are similar to end-to-end-test in that the whole stack is executed,
-except right at the application boundary. So if we supply incorrect arguments
-to the save command for example, this test will blow up:
+The test for `App` are similar to end-to-end-test in that the whole stack is
+executed.  Except right at the application boundary. So if we supply incorrect
+arguments to the save command for example, this test will blow up:
 
 $:output:python:
+"""
 >>> App.create_null(Events(), args=["save"]).run()
 Traceback (most recent call last):
   ...
 ValueError: Expected one argument as the message, but got [].
+"""
 $:END
 
 This is overlapping, sociable testing. We we actually testing that `App` calls

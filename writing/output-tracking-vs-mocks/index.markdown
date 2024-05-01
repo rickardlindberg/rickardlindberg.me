@@ -254,14 +254,16 @@ And now we can write our tests like this:
 </div></div>
 ## Reflections
 
-Those test are similar to end-to-end-test in that the whole stack is executed,
-except right at the application boundary. So if we supply incorrect arguments
-to the save command for example, this test will blow up:
+The test for `App` are similar to end-to-end-test in that the whole stack is
+executed.  Except right at the application boundary. So if we supply incorrect
+arguments to the save command for example, this test will blow up:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">Events</span><span class="p">(),</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-  <span class="o">...</span>
-<span class="ne">ValueError</span><span class="p">:</span> <span class="n">Expected</span> <span class="n">one</span> <span class="n">argument</span> <span class="k">as</span> <span class="n">the</span> <span class="n">message</span><span class="p">,</span> <span class="n">but</span> <span class="n">got</span> <span class="p">[]</span><span class="o">.</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">  ...</span>
+<span class="sd">ValueError: Expected one argument as the message, but got [].</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
 This is overlapping, sociable testing. We we actually testing that `App` calls
