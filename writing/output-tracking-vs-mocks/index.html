@@ -95,12 +95,14 @@ myscm share -&gt; git push</code></pre>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
-    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
-<span class="p">)</span>
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand(...),</span>
+<span class="sd">...     share_command=ShareCommand(...),</span>
+<span class="sd">...     terminal=Terminal(...),</span>
+<span class="sd">...     args=Args(...),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre>
 </div>
 </div>
@@ -110,12 +112,14 @@ myscm share -&gt; git push</code></pre>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
-<pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">(</span>
-    <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-    <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-<span class="p">)</span>
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand.create_null(),</span>
+<span class="sd">...     share_command=ShareCommand.create_null(),</span>
+<span class="sd">...     terminal=Terminal.create_null(),</span>
+<span class="sd">...     args=Args.create_null(),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre>
 </div>
 </div>
@@ -291,8 +295,24 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 </div>
+<p>The implementation looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="reflections">Reflections</h2>
-<p>The test for <code>App</code> are similar to end-to-end-test in that the whole stack is executed. Except right at the application boundary. So if we supply incorrect arguments to the save command for example, this test will blow up:</p>
+<p>The tests for <code>App</code> are similar to end-to-end-test in that the whole stack is executed. Except right at the application boundary. So if we supply incorrect arguments to the save command for example, this test will blow up:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -307,6 +327,79 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 <p>This is overlapping, sociable testing. We we actually testing that <code>App</code> calls <code>SaveCommand</code> correctly. However, the behavior of the save command is not tested here. We only test that application parses command line arguments correctly and calls the appropriate sub-command.</p>
+<h2 id="the-mock-version">The Mock version</h2>
+<p>Let’s contrast how the first test case can be written using mocks and stubs instead. Here it is again:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is the mock/stub version:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">&gt;&gt;&gt; App(</span>
+<span class="sd">...     save_command=save_command_mock,</span>
+<span class="sd">...     share_command=None,</span>
+<span class="sd">...     terminal=None,</span>
+<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">... ).run()</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call(['message'])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The share command and terminal are not exercised in this test, so we just inject <code>None</code>. For <code>args</code> we inject a stub that is configured to return <code>["save", "message"]</code> when its <code>get</code> method is called. For the <code>save_command</code>, we inject a mock. After we call the <code>run</code> method on the application, we assert that the <code>run</code> method was called on the mock with the <code>['message']</code> argument.</p>
+<p>Let’s contrast the two assertions:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call(['message'])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>They look very similar. Almost to the point that output tracking feels like mocking.</p>
+<p>But there is one crucial difference:</p>
+<p><strong>The mock version creates isolated tests whereas the output tracking version creates sociable tests.</strong></p>
+<p>We have already seen what happens in the output tracking version when we call the save command with incorrect arguments. What happens in the mock based version? It happily passes:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">App</span><span class="p">(</span>
+<span class="o">...</span>     <span class="n">save_command</span><span class="o">=</span><span class="n">save_command_mock</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">share_command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">terminal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="o">...</span>     <span class="n">args</span><span class="o">=</span><span class="n">Mock</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;get.return_value&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]})</span>
+<span class="o">...</span> <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">save_command_mock</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">call_args_list</span>
+<span class="p">[</span><span class="n">call</span><span class="p">([])]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a contract test that checks that the dependency can actually except those arguments and return those things under said conditions. That seems like a whole lot more work to me.</p>
+<h2 id="recording-function-calls-vs-actions">Recording function calls vs actions</h2>
+<p>Another more subtle difference is..</p>
 <h2 id="notes">Notes</h2>
 <p>See also <a href="../../writing/how-to-test-a-router/">How to test a router?</a></p>
 <p>See also <a href="https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/">Favor real dependencies for unit testing</a></p>
@@ -338,6 +431,7 @@ myscm.py
 <div class="highlight">
 <pre><span></span><span class="ch">#!/usr/bin/env python</span>
 
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
 <span class="kn">import</span> <span class="nn">doctest</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -406,10 +500,30 @@ myscm.py
 <span class="sd">        &gt;&gt;&gt; events</span>
 <span class="sd">        SAVE_COMMAND ['message']</span>
 
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call(['message'])]</span>
+
 <span class="sd">        &gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
 <span class="sd">        Traceback (most recent call last):</span>
 <span class="sd">          ...</span>
 <span class="sd">        ValueError: Expected one argument as the message, but got [].</span>
+
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call([])]</span>
 
 <span class="sd">        &gt;&gt;&gt; events = Events()</span>
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
