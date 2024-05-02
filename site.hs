@@ -379,6 +379,7 @@ patternPostIndexPandoc =
     .||. "writing/output-tracking-vs-mocks/index.markdown"
     .||. "writing/writing-my-own-video-editor/index.markdown"
     .||. "writing/what-is-a-user-story/index.markdown"
+    .||. "writing/function-to-oop-refactoring/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
