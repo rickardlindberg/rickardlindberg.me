@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-05-01
+date: 2024-05-04
 tags: draft
 ---
 
@@ -10,8 +10,9 @@ In this blog post we're going to explore how to write and test a Git client
 using the [Testing Without
 Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks)
 approach. Specifically we're going to focus on [Output
-Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking)
-and explore how to apply it to this example.
+Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking),
+explore how to apply it to this example, contrast it with mocks, and look at
+possible alternative solutions.
 
 ## Example Git client
 
@@ -139,17 +140,16 @@ way to observe what the application is doing.
 
 Here are two scenarios that would be useful to test:
 
-* When the application is called with `["save", "message"]`, then `git commit
-  -a -m message` is called.
+* When the application is called with `["save", "message"]`, then git commit
+  is performed.
 
-* When the application is called with `["share"]`, then `git push` is called.
+* When the application is called with `["share"]`, then git push is performed.
 
 In order to write those test, we need a way to control the outside world to
 simulate that a given set of command line arguments are present. We also need a
-way to observe what commands would be run (if we were not using the
-null-version).
+way to observe what commands were run.
 
-We can solve the first part by passing command line arguments to simulate to
+We can solve the first part by passing simulated command line arguments to
 `create_null`. The test then becomes this:
 
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -186,11 +186,11 @@ Now we can write our two scenarios like this:
 <div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
 <span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd"># How to assert that &quot;git commit&quot; was called?</span>
+<span class="sd"># How to assert that git commit was called?</span>
 
 <span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;share&quot;])</span>
 <span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd"># How to assert that &quot;git push&quot; was called?</span>
+<span class="sd"># How to assert that git push was called?</span>
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
@@ -315,7 +315,7 @@ And here is the mock/stub version:
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 </div></div>
-The share command and terminal are not exercised in this test, so we just
+The share command and terminal are not exercised in this test, so we
 inject `None`. For `args` we inject a stub that is configured to return
 `["save", "message"]` when its `get` method is called. For the `save_command`,
 we inject a mock. After we call the `run` method on the application, we assert
@@ -363,21 +363,12 @@ the save command is called with no arguments, it does not blow up. And we have
 to write such tests for every example in our test suite. When we assert that a
 dependency is called in a certain way or returns a certain thing under certain
 conditions, we also have to write a contract test that checks that the
-dependency can actually except those arguments and return those things under
+dependency can actually accept those arguments and return those things under
 said conditions. That seems like a whole lot more work to me.
 
 ## Recording function calls vs actions
 
 Another more subtle difference is..
-
-## Notes
-
-See also [How to test a router?](/writing/how-to-test-a-router/index.html)
-
-See also [Favor real dependencies for unit
-testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/)
-
-* Don't mock internal dependencies vs output tracking
 
 * p.117
 
@@ -391,10 +382,53 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 
         * Callers care about data written. (Track data.)
 
-* p.123
+## Functional core imperative shell
 
 * Functional Core / Imperative Shell. Functional core returns decision that
   imperative shell executes.
+
+* Don't mock internal dependencies vs output tracking
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre></div>
+</div></div>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">command</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; App.create_null().get_command([&quot;save&quot;, &quot;message&quot;]) # doctest: +ELLIPSIS</span>
+<span class="sd">    (&lt;__main__.SaveCommand object at ...&gt;, [&#39;message&#39;])</span>
+
+<span class="sd">    &gt;&gt;&gt; App.create_null().get_command([&quot;share&quot;]) # doctest: +ELLIPSIS</span>
+<span class="sd">    (&lt;__main__.ShareCommand object at ...&gt;, [])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre></div>
+</div></div>
+## Notes
+
+See also [How to test a router?](/writing/how-to-test-a-router/index.html)
+
+See also [Favor real dependencies for unit
+testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/)
 
 ## Appendix: myscm.py
 
@@ -446,7 +480,7 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
         <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
             <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
@@ -504,13 +538,27 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 <span class="sd">        &gt;&gt;&gt; events</span>
 <span class="sd">        TERMINAL_WRITE &#39;Unknown command.&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">command</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null().get_command([&quot;save&quot;, &quot;message&quot;]) # doctest: +ELLIPSIS</span>
+<span class="sd">        (&lt;__main__.SaveCommand object at ...&gt;, [&#39;message&#39;])</span>
+
+<span class="sd">        &gt;&gt;&gt; App.create_null().get_command([&quot;share&quot;]) # doctest: +ELLIPSIS</span>
+<span class="sd">        (&lt;__main__.ShareCommand object at ...&gt;, [])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
 

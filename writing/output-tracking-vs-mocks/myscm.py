@@ -46,7 +46,7 @@ class App:
         )
 
     @classmethod
-    def create_null(cls, events, args):
+    def create_null(cls, events=None, args=[]):
         return cls(
             save_command=SaveCommand.create_null().track_events(events),
             share_command=ShareCommand.create_null().track_events(events),
@@ -104,13 +104,27 @@ class App:
         >>> events
         TERMINAL_WRITE 'Unknown command.'
         """
-        args = self.args.get()
-        if args[0:1] == ["save"]:
-            self.save_command.run(args[1:])
-        elif args[0:1] == ["share"]:
-            self.share_command.run([])
+        try:
+            command, args = self.get_command(self.args.get())
+        except ValueError as e:
+            self.terminal.write(str(e))
         else:
-            self.terminal.write("Unknown command.")
+            command.run(args)
+
+    def get_command(self, args):
+        """
+        >>> App.create_null().get_command(["save", "message"]) # doctest: +ELLIPSIS
+        (<__main__.SaveCommand object at ...>, ['message'])
+
+        >>> App.create_null().get_command(["share"]) # doctest: +ELLIPSIS
+        (<__main__.ShareCommand object at ...>, [])
+        """
+        if args[0:1] == ["save"]:
+            return (self.save_command, args[1:])
+        elif args[0:1] == ["share"]:
+            return (self.share_command, [])
+        else:
+            raise ValueError("Unknown command.")
 
 class SaveCommand(Trackable):
 

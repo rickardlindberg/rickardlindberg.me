@@ -8,8 +8,9 @@ In this blog post we're going to explore how to write and test a Git client
 using the [Testing Without
 Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks)
 approach. Specifically we're going to focus on [Output
-Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking)
-and explore how to apply it to this example.
+Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking),
+explore how to apply it to this example, contrast it with mocks, and look at
+possible alternative solutions.
 
 ## Example Git client
 
@@ -142,17 +143,16 @@ way to observe what the application is doing.
 
 Here are two scenarios that would be useful to test:
 
-* When the application is called with `["save", "message"]`, then `git commit
-  -a -m message` is called.
+* When the application is called with `["save", "message"]`, then git commit
+  is performed.
 
-* When the application is called with `["share"]`, then `git push` is called.
+* When the application is called with `["share"]`, then git push is performed.
 
 In order to write those test, we need a way to control the outside world to
 simulate that a given set of command line arguments are present. We also need a
-way to observe what commands would be run (if we were not using the
-null-version).
+way to observe what commands were run.
 
-We can solve the first part by passing command line arguments to simulate to
+We can solve the first part by passing simulated command line arguments to
 `create_null`. The test then becomes this:
 
 $:output:python:
@@ -192,11 +192,11 @@ $:output:python:
 """
 >>> app = App.create_null(args=["save", "message"])
 >>> app.run()
-# How to assert that "git commit" was called?
+# How to assert that git commit was called?
 
 >>> app = App.create_null(args=["share"])
 >>> app.run()
-# How to assert that "git push" was called?
+# How to assert that git push was called?
 """
 $:END
 
@@ -329,7 +329,7 @@ $:output:python:
 """
 $:END
 
-The share command and terminal are not exercised in this test, so we just
+The share command and terminal are not exercised in this test, so we
 inject `None`. For `args` we inject a stub that is configured to return
 `["save", "message"]` when its `get` method is called. For the `save_command`,
 we inject a mock. After we call the `run` method on the application, we assert
@@ -379,21 +379,12 @@ the save command is called with no arguments, it does not blow up. And we have
 to write such tests for every example in our test suite. When we assert that a
 dependency is called in a certain way or returns a certain thing under certain
 conditions, we also have to write a contract test that checks that the
-dependency can actually except those arguments and return those things under
+dependency can actually accept those arguments and return those things under
 said conditions. That seems like a whole lot more work to me.
 
 ## Recording function calls vs actions
 
 Another more subtle difference is..
-
-## Notes
-
-See also [How to test a router?](/writing/how-to-test-a-router/index.html)
-
-See also [Favor real dependencies for unit
-testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/)
-
-* Don't mock internal dependencies vs output tracking
 
 * p.117
 
@@ -407,10 +398,55 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 
         * Callers care about data written. (Track data.)
 
-* p.123
+## Functional core imperative shell
 
 * Functional Core / Imperative Shell. Functional core returns decision that
   imperative shell executes.
+
+* Don't mock internal dependencies vs output tracking
+
+$:output:python:
+def run(self):
+    args = self.args.get()
+    if args[0:1] == ["save"]:
+        self.save_command.run(args[1:])
+    elif args[0:1] == ["share"]:
+        self.share_command.run([])
+    else:
+        self.terminal.write("Unknown command.")
+$:END
+
+$:output:python:
+def run(self):
+    try:
+        command, args = self.get_command(self.args.get())
+    except ValueError as e:
+        self.terminal.write(str(e))
+    else:
+        command.run(args)
+
+def get_command(self, args):
+    """
+    >>> App.create_null().get_command(["save", "message"]) # doctest: +ELLIPSIS
+    (<__main__.SaveCommand object at ...>, ['message'])
+
+    >>> App.create_null().get_command(["share"]) # doctest: +ELLIPSIS
+    (<__main__.ShareCommand object at ...>, [])
+    """
+    if args[0:1] == ["save"]:
+        return (self.save_command, args[1:])
+    elif args[0:1] == ["share"]:
+        return (self.share_command, [])
+    else:
+        raise ValueError("Unknown command.")
+$:END
+
+## Notes
+
+See also [How to test a router?](/writing/how-to-test-a-router/index.html)
+
+See also [Favor real dependencies for unit
+testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-testing/)
 
 ## Appendix: myscm.py
 
