@@ -417,7 +417,18 @@ def run(self):
 $:END
 
 $:output:python:
-def run(self):
+def run_shell(self):
+    """
+    >>> events = Events()
+    >>> App.create_null(events, args=["save", "message"]).run_shell()
+    >>> events
+    SAVE_COMMAND ['message']
+
+    >>> events = Events()
+    >>> App.create_null(events, args=["unknown", "sub", "command"]).run()
+    >>> events
+    TERMINAL_WRITE 'Unknown command.'
+    """
     try:
         command, args = self.get_command(self.args.get())
     except ValueError as e:

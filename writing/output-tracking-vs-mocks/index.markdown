@@ -399,7 +399,18 @@ Another more subtle difference is..
         <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
 </pre></div>
 </div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; events = Events()</span>
+<span class="sd">    &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run_shell()</span>
+<span class="sd">    &gt;&gt;&gt; events</span>
+<span class="sd">    SAVE_COMMAND [&#39;message&#39;]</span>
+
+<span class="sd">    &gt;&gt;&gt; events = Events()</span>
+<span class="sd">    &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">    &gt;&gt;&gt; events</span>
+<span class="sd">    TERMINAL_WRITE &#39;Unknown command.&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">command</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -532,6 +543,26 @@ testing](https://stackoverflow.blog/2022/01/03/favor-real-dependencies-for-unit-
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
 <span class="sd">        &gt;&gt;&gt; events</span>
 <span class="sd">        SHARE_COMMAND []</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        TERMINAL_WRITE &#39;Unknown command.&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run_shell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run_shell()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SAVE_COMMAND [&#39;message&#39;]</span>
 
 <span class="sd">        &gt;&gt;&gt; events = Events()</span>
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
