@@ -8,14 +8,61 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2024-06-08T00:00:00Z</updated>
+    <updated>2024-07-02T00:00:00Z</updated>
     <entry>
+    <title>Newsletter June 2024: Quines and Smalltalk</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/june-2024/" />
+    <id>http://rickardlindberg.me/writing/newsletter/june-2024/</id>
+    <published>2024-07-02T00:00:00Z</published>
+    <updated>2024-07-02T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Newsletter June 2024: Quines and Smalltalk</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
+<p><em>Published on  2 July 2024.</em></p>
+
+<p>I subscribe to <a href="https://avdi.codes/newsletters/">Avdi’s newsletter</a> because I find some of his writing and links interesting. I was clicking around on his site from one of the links in a newsletter and rediscovered <a href="https://avdi.codes/your-newsletter/">Your Newsletter (A Pattern Language of Banana Stands)</a>. This prompted me to try again to create a proper newsletter from these posts, and this one will be the first after a long break to also go out as en email.</p>
+<h2 id="quine-wiki">Quine Wiki</h2>
+<p>I came across <a href="https://merveilles.town/@m15o/112592228824944602">this toot</a> that says that the <a href="https://m15o.ichi.city/yon/">Yon</a> wiki is now implemented as a <a href="https://en.wikipedia.org/wiki/Quine_(computing)">quine</a> meaning that when you save a page in the wiki, it generates a new html file which is the new wiki, complete with source code for the wiki itself.</p>
+<p>If you want to edit pages, you can do it through the user interface, but if you want to change other parts of the wiki, you have to to edit the source code (html file with Javascript).</p>
+<p>That got me thinking. What would it take to make the whole wiki system editable from within itself? You would have to also embed the whole programming environment in the interface. Something like what Smalltalk did.</p>
+<h2 id="view-source-code">View Source Code</h2>
+<p>It also got be thinking of discoverable source code. If an application allowed modifications of itself from within itself, then source code must be present. “View source” in the browser was how I fist started learning programming. In Smalltalk you can “view source” for anything (almost). Wouldn’t that be a nicer (programming) world to live in?</p>
+<h2 id="readable-code">Readable Code</h2>
+<p>That led me to think about how to write code that is also easy to read. And I remembered <a href="https://viewsourcecode.org/snaptoken/kilo/">Build Your Own Text Editor</a> which is a sort of literate programming approach to explaining how to build a text editor. One problem with the literate programming approach is that is seems to take much more effort to create such programs and maintain them. Is there another way to make programs easier to understand?</p>
+<p>One idea that came to mind was stripping features. Smaller programs are easier to read and understand than bigger ones. What if we can remove all but the most basic features? That would be a much smaller codebase to study. Then we can gradually add features once we understand the base.</p>
+<p>One approach that I thought of to do this in practice is if test cases are somehow organized by feature. Then you can run the tests for the features that you are interested in, notice what code is covered, and delete all code which is not executed. Then you can study that.</p>
+<p>Another thing that came to mind was how to organize code by features.</p>
+<p>I might experiment with some of this for <a href="/projects/rlselect/index.html">rlselect</a>. I would like for people to know how this program works and be able to customize it to their needs. But I would like the customizations to be local to all users by forking instead of growing the code base for rlselect. This might be similar to what Kartik is doing with <a href="https://akkartik.name/freewheeling/">freewheeling apps</a>.</p>
+]]></summary>
+</entry>
+<entry>
     <title>May 2024 Update</title>
     <link href="http://rickardlindberg.me/writing/newsletter/may-2024/" />
     <id>http://rickardlindberg.me/writing/newsletter/may-2024/</id>
     <published>2024-06-08T00:00:00Z</published>
     <updated>2024-06-08T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>May 2024 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on  8 June 2024.</em></p>
 
@@ -39,6 +86,17 @@
     <updated>2024-05-01T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>April 2024 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  1 May 2024.</em></p>
 
 <p>This is what I’ve been up to in April 2024:</p>
@@ -55,6 +113,17 @@
     <published>2024-04-02T00:00:00Z</published>
     <updated>2024-04-02T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>March 2024 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on  2 April 2024.</em></p>
 
@@ -79,6 +148,17 @@
     <updated>2024-03-01T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>February 2024 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  1 March 2024.</em></p>
 
 <p>This is what I’ve been up to in February 2024:</p>
@@ -96,6 +176,17 @@
     <updated>2024-02-07T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>January 2024 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  7 February 2024.</em></p>
 
 <p>This is what I’ve been up to in January 2024:</p>
@@ -111,6 +202,17 @@
     <published>2024-01-02T00:00:00Z</published>
     <updated>2024-01-02T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>December 2023 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on  2 January 2024.</em></p>
 
@@ -130,6 +232,17 @@
     <published>2023-12-12T00:00:00Z</published>
     <updated>2023-12-12T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>November 2023 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on 12 December 2023.</em></p>
 
@@ -152,6 +265,17 @@
     <published>2023-11-06T00:00:00Z</published>
     <updated>2023-11-06T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>October 2023 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on  6 November 2023.</em></p>
 
@@ -180,6 +304,17 @@
     <updated>2023-10-10T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>September 2023 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on 10 October 2023.</em></p>
 
 <p>This is what I’ve been up to in September 2023:</p>
@@ -200,6 +335,17 @@
     <updated>2023-09-04T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>August 2023 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  4 September 2023.</em></p>
 
 <p>This is what I’ve been up to in August 2023:</p>
@@ -218,6 +364,17 @@
     <updated>2023-08-05T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>July 2023 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  5 August 2023.</em></p>
 
 <p>This is what I’ve been up to in July 2023:</p>
@@ -235,6 +392,17 @@
     <published>2023-07-04T00:00:00Z</published>
     <updated>2023-07-04T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>June 2023 Update</h1>
+
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
 
 <p><em>Published on  4 July 2023.</em></p>
 
@@ -271,6 +439,17 @@
     <updated>2023-06-06T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>May 2023 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  6 June 2023.</em></p>
 
 <p>This is what I’ve been up to in May 2023:</p>
@@ -298,6 +477,17 @@
     <updated>2023-05-03T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>April 2023 Update</h1>
 
+<p><strong>If you are reading this on the web, consider subscribing to my <a
+href="/writing/newsletter/index.html">newsletter</a> below to get these posts
+as emails and also have the ability to engage with me by hitting
+reply.</strong></p>
+
+<iframe
+scrolling="no"
+style="width:100%!important;height:220px;border:1px #ccc solid !important"
+src="https://buttondown.email/rickardlindberg?as_embed=true"
+></iframe>
+
 <p><em>Published on  3 May 2023.</em></p>
 
 <p>This is what I’ve been up to in April 2023:</p>
@@ -314,24 +504,6 @@
 <li><a href="https://youtu.be/z20IocFrKLY">Demo and game idea | Agile Game Development with Python and Pygame (part 3)</a></li>
 <li><a href="https://youtu.be/CfhEcp9Qghc">Shooting the arrow | Agile Game Development with Python and Pygame (part 4)</a></li>
 </ul></li>
-</ul>
-]]></summary>
-</entry>
-<entry>
-    <title>March 2023 Update</title>
-    <link href="http://rickardlindberg.me/writing/newsletter/march-2023/" />
-    <id>http://rickardlindberg.me/writing/newsletter/march-2023/</id>
-    <published>2023-04-02T00:00:00Z</published>
-    <updated>2023-04-02T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1>March 2023 Update</h1>
-
-<p><em>Published on  2 April 2023.</em></p>
-
-<p>This is what I’ve been up to in March 2023:</p>
-<ul>
-<li><p>I got interested in building a game using <a href="https://www.pygame.org">Pygame</a>. I’ve started playing computer games with my son, so I thought it would be a fun challenge to see if I can build a game that we both enjoy playing. I think this will be my next side project.</p></li>
-<li><p>I watched <a href="https://youtu.be/guycIP56YeY">Kent Beck On The FIRST Testing Frameworks, TDD, Waterfall &amp; MORE | The Engineering Room Ep. 16</a>. Listening to Kent Beck is always interesting since many of the practices in the software world come from him.</p></li>
-<li><p>I published no programming videos on my <a href="https://www.youtube.com/channel/UC4XI09URnsM_YYTSizAMliA">Youtube channel</a>. But I suspect upcoming ones will be about agile game development.</p></li>
 </ul>
 ]]></summary>
 </entry>
