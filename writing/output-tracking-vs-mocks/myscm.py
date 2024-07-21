@@ -112,40 +112,6 @@ class App:
         else:
             self.terminal.write("Unknown command.")
 
-    def run_shell(self):
-        """
-        >>> events = Events()
-        >>> App.create_null(events, args=["save", "message"]).run_shell()
-        >>> events
-        SAVE_COMMAND ['message']
-
-        >>> events = Events()
-        >>> App.create_null(events, args=["unknown", "sub", "command"]).run()
-        >>> events
-        TERMINAL_WRITE 'Unknown command.'
-        """
-        try:
-            command, args = self.get_command(self.args.get())
-        except ValueError as e:
-            self.terminal.write(str(e))
-        else:
-            command.run(args)
-
-    def get_command(self, args):
-        """
-        >>> App.create_null().get_command(["save", "message"]) # doctest: +ELLIPSIS
-        (<__main__.SaveCommand object at ...>, ['message'])
-
-        >>> App.create_null().get_command(["share"]) # doctest: +ELLIPSIS
-        (<__main__.ShareCommand object at ...>, [])
-        """
-        if args[0:1] == ["save"]:
-            return (self.save_command, args[1:])
-        elif args[0:1] == ["share"]:
-            return (self.share_command, [])
-        else:
-            raise ValueError("Unknown command.")
-
 class SaveCommand(Trackable):
 
     @classmethod
