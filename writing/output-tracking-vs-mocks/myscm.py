@@ -62,8 +62,6 @@ class App:
 
     def run(self):
         """
-        I dispatch to the correct sub-command:
-
         >>> events = Events()
         >>> App.create_null(events, args=["save", "message"]).run()
         >>> events

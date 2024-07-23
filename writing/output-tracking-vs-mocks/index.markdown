@@ -1,6 +1,6 @@
 ---
 title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-07-21
+date: 2024-07-23
 tags: draft
 ---
 
@@ -32,18 +32,16 @@ myscm share -> git push
 The application consists of the following classes:
 
 ```
-App --+--> SaveCommand --+--> Process
-      |                  |
-      |                  +--> Filesystem
+App --+--> SaveCommand ---> Process
       |
-      +--> ShareCommand ----> Process
+      +--> ShareCommand --> Process
       |
       +--> Args
       |
       +--> Terminal
 ```
 
-* `Process`, `Filesystem`, `Args`, and `Terminal` are low-level [infrastructure
+* `Process`, `Args`, and `Terminal` are low-level [infrastructure
   wrappers](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers)
   that are made
   [nullable](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables)
@@ -51,11 +49,10 @@ App --+--> SaveCommand --+--> Process
   stubs](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub).
 
     * `Process` is for running external processes. (`git` in this example.)
-    * `Filesystem` is for reading file contents from disk.
     * `Args` is for reading command line arguments.
     * `Terminal` is for writing text to the terminal.
 
-* `SaveCommand` and `ShareCommand` are application code that performs a
+* `SaveCommand` and `ShareCommand` are application code that perform a
   function in the domain of a Git client. They are made nullable using [fake it
   once you make
   it](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#fake-it).
@@ -196,7 +193,7 @@ Now we can write our two scenarios like this:
 And now we come to the main topic of this blog post: output tracking.
 
 `App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
-of them take the rest of the command line arguments and performs an action
+of them take the rest of the command line arguments and perform an action
 without returning anything. To observe that with output tracking, we introduce
 state in the commands so that we can query them and see if they were run. A
 slightly more elegant solution, instead of introducing state, is to fire
@@ -363,14 +360,20 @@ to write such tests for every example in our test suite. When we assert that a
 dependency is called in a certain way or returns a certain thing under certain
 conditions, we also have to write a "contract test" that checks that the
 dependency can actually accept those arguments and return those things under
-said conditions. (I'm not sure I use the term "contract test" entirely
-correctly here.) That seems like a whole lot more work to me.
+said conditions. (I think the term "contract test" is mostly used in the
+context of external services, but I think the reasoning is the same for two
+classes where one is a dependency. That's how J.B. Rainsberger uses the term in
+[J B Rainsberger Integrated Tests Are A Scam
+HD](https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&t=2315) and [Getting
+Started with Contract
+Tests](https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests).)
+That seems like a whole lot more work to me.
 
 ## Recording function calls vs actions
 
-Another more subtle difference is between output tracking and mocks is that
-output tracking tracks the action that was performed whereas mocks records
-function calls.
+Another more subtle difference between output tracking and mocks is that output
+tracking tracks the action that was performed whereas mocks record function
+calls.
 
 Here are the two assertions again:
 
@@ -384,7 +387,7 @@ Here are the two assertions again:
 </pre></div>
 </div></div>
 The save command emits an event that indicates that the save action was
-performed with the given message. We are free to rename individual functions
+performed with the given arguments. We are free to rename individual functions
 and the test will still pass.
 
 In the mock version we explicitly check that the `run` method was called. If we
@@ -433,12 +436,45 @@ In application code you call `info` and `error`. But in tests you don't need to
 care about which exact method was called. Only that the relevant `LOG ...`
 event was emitted.
 
+Perhaps the `SAVE_COMMAND` event should not include raw arguments? Here is the
+implementation:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+</pre></div>
+</div></div>
+Perhaps it makes more sense to record the event with an explicit message like
+this?
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND message=</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
+</pre></div>
+</div></div>
+An assertion would then look like this:
+
+<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND message=message</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div></div>
+Is this event more relevant from the point of view of the caller? Maybe. In any
+case, the event approach is more flexible compared to the mock version, and we
+are free to choose more freely.
+
 ## More on output tracking
 
-See also [How to test a router?](/writing/how-to-test-a-router/index.html)
+* [How to test a router?](/writing/how-to-test-a-router/index.html)
 
-[How Are Nullables Different From
-Mocks?](https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-different-from-mocks)
+* [How Are Nullables Different From
+  Mocks?](https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-different-from-mocks)
 
 ## Appendix: myscm.py
 
@@ -506,8 +542,6 @@ Mocks?](https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-diffe
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        I dispatch to the correct sub-command:</span>
-
 <span class="sd">        &gt;&gt;&gt; events = Events()</span>
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
 <span class="sd">        &gt;&gt;&gt; events</span>
