@@ -7,13 +7,13 @@
         <description><![CDATA[Rickard's personal homepage: latest posts tagged draft]]></description>
         <atom:link href="http://rickardlindberg.me/tags/draft/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 21 Jul 2024 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 23 Jul 2024 00:00:00 UT</lastBuildDate>
         <item>
     <title>DRAFT: Output Tracking vs Mocks</title>
     <link>http://rickardlindberg.me/writing/output-tracking-vs-mocks/</link>
     <description><![CDATA[<h1>DRAFT: Output Tracking vs Mocks</h1>
 
-<p><em>Published on 21 July 2024.</em></p>
+<p><em>Published on 23 July 2024.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
 <p>In this blog post we’re going to explore how to write and test a Git client using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically we’re going to explore how to apply <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> to this example and also contrast it with mocks.</p>
@@ -25,24 +25,21 @@
 myscm share -&gt; git push</code></pre>
 <h2 id="architecture">Architecture</h2>
 <p>The application consists of the following classes:</p>
-<pre><code>App --+--&gt; SaveCommand --+--&gt; Process
-      |                  |
-      |                  +--&gt; Filesystem
+<pre><code>App --+--&gt; SaveCommand ---&gt; Process
       |
-      +--&gt; ShareCommand ----&gt; Process
+      +--&gt; ShareCommand --&gt; Process
       |
       +--&gt; Args
       |
       +--&gt; Terminal</code></pre>
 <ul>
-<li><p><code>Process</code>, <code>Filesystem</code>, <code>Args</code>, and <code>Terminal</code> are low-level <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrappers</a> that are made <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables">nullable</a> using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub">embedded stubs</a>.</p>
+<li><p><code>Process</code>, <code>Args</code>, and <code>Terminal</code> are low-level <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrappers</a> that are made <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables">nullable</a> using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub">embedded stubs</a>.</p>
 <ul>
 <li><code>Process</code> is for running external processes. (<code>git</code> in this example.)</li>
-<li><code>Filesystem</code> is for reading file contents from disk.</li>
 <li><code>Args</code> is for reading command line arguments.</li>
 <li><code>Terminal</code> is for writing text to the terminal.</li>
 </ul></li>
-<li><p><code>SaveCommand</code> and <code>ShareCommand</code> are application code that performs a function in the domain of a Git client. They are made nullable using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#fake-it">fake it once you make it</a>.</p></li>
+<li><p><code>SaveCommand</code> and <code>ShareCommand</code> are application code that perform a function in the domain of a Git client. They are made nullable using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#fake-it">fake it once you make it</a>.</p></li>
 <li><p><code>App</code> is also application code that routes commands to the correct sub-command. It is also made nullable using “fake it once you make it”.</p></li>
 </ul>
 <h2 id="how-to-test-app">How to test <code>App</code>?</h2>
@@ -182,7 +179,7 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 <p>And now we come to the main topic of this blog post: output tracking.</p>
-<p><code>App</code> performs action by delegating to <code>SaveCommand</code> and <code>ShareCommand</code>. Both of them take the rest of the command line arguments and performs an action without returning anything. To observe that with output tracking, we introduce state in the commands so that we can query them and see if they were run. A slightly more elegant solution, instead of introducing state, is to fire events. Here is how we implement it in <code>SaveCommand</code>:</p>
+<p><code>App</code> performs action by delegating to <code>SaveCommand</code> and <code>ShareCommand</code>. Both of them take the rest of the command line arguments and perform an action without returning anything. To observe that with output tracking, we introduce state in the commands so that we can query them and see if they were run. A slightly more elegant solution, instead of introducing state, is to fire events. Here is how we implement it in <code>SaveCommand</code>:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
 <div class="highlight">
@@ -357,9 +354,9 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 </div>
-<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a “contract test” that checks that the dependency can actually accept those arguments and return those things under said conditions. (I’m not sure I use the term “contract test” entirely correctly here.) That seems like a whole lot more work to me.</p>
+<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a “contract test” that checks that the dependency can actually accept those arguments and return those things under said conditions. (I think the term “contract test” is mostly used in the context of external services, but I think the reasoning is the same for two classes where one is a dependency. That’s how J.B. Rainsberger uses the term in <a href="https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&amp;t=2315">J B Rainsberger Integrated Tests Are A Scam HD</a> and <a href="https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests">Getting Started with Contract Tests</a>.) That seems like a whole lot more work to me.</p>
 <h2 id="recording-function-calls-vs-actions">Recording function calls vs actions</h2>
-<p>Another more subtle difference is between output tracking and mocks is that output tracking tracks the action that was performed whereas mocks records function calls.</p>
+<p>Another more subtle difference between output tracking and mocks is that output tracking tracks the action that was performed whereas mocks record function calls.</p>
 <p>Here are the two assertions again:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -375,7 +372,7 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 </div>
-<p>The save command emits an event that indicates that the save action was performed with the given message. We are free to rename individual functions and the test will still pass.</p>
+<p>The save command emits an event that indicates that the save action was performed with the given arguments. We are free to rename individual functions and the test will still pass.</p>
 <p>In the mock version we explicitly check that the <code>run</code> method was called. If we want to rename it, we have to update the test as well.</p>
 <p>I struggle a bit with this difference. I think in most cases, the function call and the event should contain the same information.</p>
 <p>I <a href="https://hachyderm.io/@rickardlindberg/112174367523991295">asked</a> James about this:</p>
@@ -408,9 +405,51 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 <p>In application code you call <code>info</code> and <code>error</code>. But in tests you don’t need to care about which exact method was called. Only that the relevant <code>LOG ...</code> event was emitted.</p>
+<p>Perhaps the <code>SAVE_COMMAND</code> event should not include raw arguments? Here is the implementation:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Perhaps it makes more sense to record the event with an explicit message like this?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND message=</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>An assertion would then look like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND message=message</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Is this event more relevant from the point of view of the caller? Maybe. In any case, the event approach is more flexible compared to the mock version, and we are free to choose more freely.</p>
 <h2 id="more-on-output-tracking">More on output tracking</h2>
-<p>See also <a href="/writing/how-to-test-a-router/index.html">How to test a router?</a></p>
-<p><a href="https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-different-from-mocks">How Are Nullables Different From Mocks?</a></p>
+<ul>
+<li><p><a href="/writing/how-to-test-a-router/index.html">How to test a router?</a></p></li>
+<li><p><a href="https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-different-from-mocks">How Are Nullables Different From Mocks?</a></p></li>
+</ul>
 <h2 id="appendix-myscm.py">Appendix: myscm.py</h2>
 <div class="rliterate-code">
 <div class="rliterate-code-header">
@@ -486,8 +525,6 @@ myscm.py
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        I dispatch to the correct sub-command:</span>
-
 <span class="sd">        &gt;&gt;&gt; events = Events()</span>
 <span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
 <span class="sd">        &gt;&gt;&gt; events</span>
@@ -704,7 +741,7 @@ myscm.py
 </div>
 </div>
 ]]></description>
-    <pubDate>Sun, 21 Jul 2024 00:00:00 UT</pubDate>
+    <pubDate>Tue, 23 Jul 2024 00:00:00 UT</pubDate>
     <guid>http://rickardlindberg.me/writing/output-tracking-vs-mocks/</guid>
     <dc:creator>Rickard Lindberg</dc:creator>
 </item>
