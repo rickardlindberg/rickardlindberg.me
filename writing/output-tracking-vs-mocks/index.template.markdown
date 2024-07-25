@@ -9,7 +9,9 @@ using the [Testing Without
 Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks)
 approach. Specifically we're going to explore how to apply [Output
 Tracking](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking)
-to this example and also contrast it with mocks.
+to this example and also contrast it with mocks. All details about the example
+are not explained, but the full source code is included at the end. Check out
+James' article for more details about the testing without mocks approach.
 
 ## Example Git client
 
@@ -45,7 +47,6 @@ App --+--> SaveCommand ---> Process
   [nullable](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables)
   using [embedded
   stubs](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub).
-
     * `Process` is for running external processes. (`git` in this example.)
     * `Args` is for reading command line arguments.
     * `Terminal` is for writing text to the terminal.
@@ -146,7 +147,7 @@ Here are two scenarios that would be useful to test:
 
 In order to write those test, we need a way to control the outside world to
 simulate that a given set of command line arguments are present. We also need a
-way to observe what commands were run.
+way to observe what commands are run.
 
 We can solve the first part by passing simulated command line arguments to
 `create_null`. The test then becomes this:
@@ -376,14 +377,14 @@ to write such tests for every example in our test suite. When we assert that a
 dependency is called in a certain way or returns a certain thing under certain
 conditions, we also have to write a "contract test" that checks that the
 dependency can actually accept those arguments and return those things under
-said conditions. (I think the term "contract test" is mostly used in the
-context of external services, but I think the reasoning is the same for two
-classes where one is a dependency. That's how J.B. Rainsberger uses the term in
-[J B Rainsberger Integrated Tests Are A Scam
+said conditions. That seems like a whole lot more work to me. (I think the term
+"contract test" is mostly used in the context of external services, but I think
+the reasoning is the same for two classes where one is a dependency. That's how
+J.B. Rainsberger uses the term in [J B Rainsberger Integrated Tests Are A Scam
 HD](https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&t=2315) and [Getting
 Started with Contract
 Tests](https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests).)
-That seems like a whole lot more work to me.
+
 
 ## Recording function calls vs actions
 
@@ -487,8 +488,7 @@ SAVE_COMMAND message=message
 $:END
 
 Is this event more relevant from the point of view of the caller? Maybe. In any
-case, the event approach is more flexible compared to the mock version, and we
-are free to choose more freely.
+case, the event approach is more flexible compared to the mock version.
 
 ## More on output tracking
 
