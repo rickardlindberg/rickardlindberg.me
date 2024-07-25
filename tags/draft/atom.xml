@@ -8,19 +8,19 @@
         <name>Rickard Lindberg</name>
         <email>rickard@rickardlindberg.me</email>
     </author>
-    <updated>2024-07-23T00:00:00Z</updated>
+    <updated>2024-07-25T00:00:00Z</updated>
     <entry>
     <title>DRAFT: Output Tracking vs Mocks</title>
     <link href="http://rickardlindberg.me/writing/output-tracking-vs-mocks/" />
     <id>http://rickardlindberg.me/writing/output-tracking-vs-mocks/</id>
-    <published>2024-07-23T00:00:00Z</published>
-    <updated>2024-07-23T00:00:00Z</updated>
+    <published>2024-07-25T00:00:00Z</published>
+    <updated>2024-07-25T00:00:00Z</updated>
     <summary type="html"><![CDATA[<h1>DRAFT: Output Tracking vs Mocks</h1>
 
-<p><em>Published on 23 July 2024.</em></p>
+<p><em>Published on 25 July 2024.</em></p>
 
 <p><strong>This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.</strong></p>
-<p>In this blog post we’re going to explore how to write and test a Git client using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically we’re going to explore how to apply <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> to this example and also contrast it with mocks.</p>
+<p>In this blog post we’re going to explore how to write and test a Git client using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically we’re going to explore how to apply <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> to this example and also contrast it with mocks. All details about the example are not explained, but the full source code is included at the end. Check out James’ article for more details about the testing without mocks approach.</p>
 <h2 id="example-git-client">Example Git client</h2>
 <p>The example Git client is a CLI-application that provides a simplified interface to Git. This represents a <a href="https://gut-cli.dev/">real world scenario</a> yet can be made small enough for an example.</p>
 <p>The application implements two commands:</p>
@@ -131,7 +131,7 @@ myscm share -&gt; git push</code></pre>
 <li><p>When the application is called with <code>["save", "message"]</code>, then git commit is performed.</p></li>
 <li><p>When the application is called with <code>["share"]</code>, then git push is performed.</p></li>
 </ul>
-<p>In order to write those test, we need a way to control the outside world to simulate that a given set of command line arguments are present. We also need a way to observe what commands were run.</p>
+<p>In order to write those test, we need a way to control the outside world to simulate that a given set of command line arguments are present. We also need a way to observe what commands are run.</p>
 <p>We can solve the first part by passing simulated command line arguments to <code>create_null</code>. The test then becomes this:</p>
 <div class="rliterate-code">
 <div class="rliterate-code-body">
@@ -358,7 +358,7 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 </div>
-<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a “contract test” that checks that the dependency can actually accept those arguments and return those things under said conditions. (I think the term “contract test” is mostly used in the context of external services, but I think the reasoning is the same for two classes where one is a dependency. That’s how J.B. Rainsberger uses the term in <a href="https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&amp;t=2315">J B Rainsberger Integrated Tests Are A Scam HD</a> and <a href="https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests">Getting Started with Contract Tests</a>.) That seems like a whole lot more work to me.</p>
+<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a “contract test” that checks that the dependency can actually accept those arguments and return those things under said conditions. That seems like a whole lot more work to me. (I think the term “contract test” is mostly used in the context of external services, but I think the reasoning is the same for two classes where one is a dependency. That’s how J.B. Rainsberger uses the term in <a href="https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&amp;t=2315">J B Rainsberger Integrated Tests Are A Scam HD</a> and <a href="https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests">Getting Started with Contract Tests</a>.)</p>
 <h2 id="recording-function-calls-vs-actions">Recording function calls vs actions</h2>
 <p>Another more subtle difference between output tracking and mocks is that output tracking tracks the action that was performed whereas mocks record function calls.</p>
 <p>Here are the two assertions again:</p>
@@ -448,7 +448,7 @@ myscm share -&gt; git push</code></pre>
 </div>
 </div>
 </div>
-<p>Is this event more relevant from the point of view of the caller? Maybe. In any case, the event approach is more flexible compared to the mock version, and we are free to choose more freely.</p>
+<p>Is this event more relevant from the point of view of the caller? Maybe. In any case, the event approach is more flexible compared to the mock version.</p>
 <h2 id="more-on-output-tracking">More on output tracking</h2>
 <ul>
 <li><p><a href="/writing/how-to-test-a-router/index.html">How to test a router?</a></p></li>
