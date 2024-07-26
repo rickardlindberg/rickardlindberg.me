@@ -1,10 +1,7 @@
 ---
-title: 'DRAFT: Output Tracking vs Mocks'
-date: 2024-07-25
-tags: draft
+title: Output Tracking vs Mocks
+date: 2024-07-26
 ---
-
-**This is a work in progress that will change. Like to see it finished? Let me know by sending me an email.**
 
 In this blog post we're going to explore how to write and test a Git client
 using the [Testing Without
@@ -193,8 +190,8 @@ Now we can write our two scenarios like this:
 </div></div>
 And now we come to the main topic of this blog post: output tracking.
 
-`App` performs action by delegating to `SaveCommand` and `ShareCommand`. Both
-of them take the rest of the command line arguments and perform an action
+`App` performs an action by delegating to `SaveCommand` and `ShareCommand`.
+Both of them take the rest of the command line arguments and perform an action
 without returning anything. To observe that with output tracking, we introduce
 state in the commands so that we can query them and see if they were run. A
 slightly more elegant solution, instead of introducing state, is to fire
