@@ -190,8 +190,8 @@ Now we can write our two scenarios like this:
 </div></div>
 And now we come to the main topic of this blog post: output tracking.
 
-`App` performs an action by delegating to `SaveCommand` and `ShareCommand`.
-Both of them take the rest of the command line arguments and perform an action
+`App` performs actions by delegating to `SaveCommand` and `ShareCommand`.  Both
+of them take the rest of the command line arguments and perform an action
 without returning anything. To observe that with output tracking, we introduce
 state in the commands so that we can query them and see if they were run. A
 slightly more elegant solution, instead of introducing state, is to fire
