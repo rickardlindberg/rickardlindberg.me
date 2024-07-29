@@ -2,10 +2,10 @@
 title: Newsletter
 ---
 
-I write once a month what I've been up to. It's mostly related to programming.
+I write once a month what I've been up to.
 
-Consider subscribing below to get these posts as emails and also have the
-ability to engage with me by hitting reply.
+Subscribe below to get these posts as emails and also have the ability to
+engage with me by hitting reply.
 
 <iframe
 scrolling="no"
