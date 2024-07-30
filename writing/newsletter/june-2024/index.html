@@ -55,7 +55,23 @@
     <div class="container">
       <h1>Newsletter June 2024: Quines and Smalltalk</h1>
 
-<div class="jumbotron">
+<p><em>Published on  2 July 2024.</em></p>
+
+<p>I subscribe to <a href="https://avdi.codes/newsletters/">Avdi’s newsletter</a> because I find some of his writing and links interesting. I was clicking around on his site from one of the links in a newsletter and rediscovered <a href="https://avdi.codes/your-newsletter/">Your Newsletter (A Pattern Language of Banana Stands)</a>. This prompted me to try again to create a proper newsletter from these posts, and this one will be the first after a long break to also go out as en email.</p>
+<h2 id="quine-wiki">Quine Wiki</h2>
+<p>I came across <a href="https://merveilles.town/@m15o/112592228824944602">this toot</a> that says that the <a href="https://m15o.ichi.city/yon/">Yon</a> wiki is now implemented as a <a href="https://en.wikipedia.org/wiki/Quine_(computing)">quine</a> meaning that when you save a page in the wiki, it generates a new html file which is the new wiki, complete with source code for the wiki itself.</p>
+<p>If you want to edit pages, you can do it through the user interface, but if you want to change other parts of the wiki, you have to to edit the source code (html file with Javascript).</p>
+<p>That got me thinking. What would it take to make the whole wiki system editable from within itself? You would have to also embed the whole programming environment in the interface. Something like what Smalltalk did.</p>
+<h2 id="view-source-code">View Source Code</h2>
+<p>It also got be thinking of discoverable source code. If an application allowed modifications of itself from within itself, then source code must be present. “View source” in the browser was how I fist started learning programming. In Smalltalk you can “view source” for anything (almost). Wouldn’t that be a nicer (programming) world to live in?</p>
+<h2 id="readable-code">Readable Code</h2>
+<p>That led me to think about how to write code that is also easy to read. And I remembered <a href="https://viewsourcecode.org/snaptoken/kilo/">Build Your Own Text Editor</a> which is a sort of literate programming approach to explaining how to build a text editor. One problem with the literate programming approach is that is seems to take much more effort to create such programs and maintain them. Is there another way to make programs easier to understand?</p>
+<p>One idea that came to mind was stripping features. Smaller programs are easier to read and understand than bigger ones. What if we can remove all but the most basic features? That would be a much smaller codebase to study. Then we can gradually add features once we understand the base.</p>
+<p>One approach that I thought of to do this in practice is if test cases are somehow organized by feature. Then you can run the tests for the features that you are interested in, notice what code is covered, and delete all code which is not executed. Then you can study that.</p>
+<p>Another thing that came to mind was how to organize code by features.</p>
+<p>I might experiment with some of this for <a href="../../../projects/rlselect/">rlselect</a>. I would like for people to know how this program works and be able to customize it to their needs. But I would like the customizations to be local to all users by forking instead of growing the code base for rlselect. This might be similar to what Kartik is doing with <a href="https://akkartik.name/freewheeling/">freewheeling apps</a>.</p>
+
+      <div class="jumbotron">
 <div class="row">
 <div class="col-md-12">
 
@@ -76,27 +92,6 @@ me. Subscribe to it below.</p>
 </div>
 </div>
 
-
-<p><em>Published on  2 July 2024.</em></p>
-
-<p>I subscribe to <a href="https://avdi.codes/newsletters/">Avdi’s newsletter</a> because I find some of his writing and links interesting. I was clicking around on his site from one of the links in a newsletter and rediscovered <a href="https://avdi.codes/your-newsletter/">Your Newsletter (A Pattern Language of Banana Stands)</a>. This prompted me to try again to create a proper newsletter from these posts, and this one will be the first after a long break to also go out as en email.</p>
-<h2 id="quine-wiki">Quine Wiki</h2>
-<p>I came across <a href="https://merveilles.town/@m15o/112592228824944602">this toot</a> that says that the <a href="https://m15o.ichi.city/yon/">Yon</a> wiki is now implemented as a <a href="https://en.wikipedia.org/wiki/Quine_(computing)">quine</a> meaning that when you save a page in the wiki, it generates a new html file which is the new wiki, complete with source code for the wiki itself.</p>
-<p>If you want to edit pages, you can do it through the user interface, but if you want to change other parts of the wiki, you have to to edit the source code (html file with Javascript).</p>
-<p>That got me thinking. What would it take to make the whole wiki system editable from within itself? You would have to also embed the whole programming environment in the interface. Something like what Smalltalk did.</p>
-<h2 id="view-source-code">View Source Code</h2>
-<p>It also got be thinking of discoverable source code. If an application allowed modifications of itself from within itself, then source code must be present. “View source” in the browser was how I fist started learning programming. In Smalltalk you can “view source” for anything (almost). Wouldn’t that be a nicer (programming) world to live in?</p>
-<h2 id="readable-code">Readable Code</h2>
-<p>That led me to think about how to write code that is also easy to read. And I remembered <a href="https://viewsourcecode.org/snaptoken/kilo/">Build Your Own Text Editor</a> which is a sort of literate programming approach to explaining how to build a text editor. One problem with the literate programming approach is that is seems to take much more effort to create such programs and maintain them. Is there another way to make programs easier to understand?</p>
-<p>One idea that came to mind was stripping features. Smaller programs are easier to read and understand than bigger ones. What if we can remove all but the most basic features? That would be a much smaller codebase to study. Then we can gradually add features once we understand the base.</p>
-<p>One approach that I thought of to do this in practice is if test cases are somehow organized by feature. Then you can run the tests for the features that you are interested in, notice what code is covered, and delete all code which is not executed. Then you can study that.</p>
-<p>Another thing that came to mind was how to organize code by features.</p>
-<p>I might experiment with some of this for <a href="../../../projects/rlselect/">rlselect</a>. I would like for people to know how this program works and be able to customize it to their needs. But I would like the customizations to be local to all users by forking instead of growing the code base for rlselect. This might be similar to what Kartik is doing with <a href="https://akkartik.name/freewheeling/">freewheeling apps</a>.</p>
-
-      <hr>
-      <center>
-      <p class="small">Site proudly generated by <a href="http://jaspervdj.be/hakyll">Hakyll</a>.</p>
-      </center>
     </div><!-- /.container -->
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
