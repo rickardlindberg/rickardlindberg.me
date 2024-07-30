@@ -40,7 +40,7 @@ update_pages() {
     mv ../master/_site/* .
     echo "rickardlindberg.me" >> CNAME
     git add .
-    git commit -m "publishing $publish_rev_name"
+    git commit --allow-empty -m "publishing $publish_rev_name"
     cd ..
 }
 
