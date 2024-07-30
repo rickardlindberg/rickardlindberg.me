@@ -270,7 +270,7 @@ rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
     match patternPostIndexPandocNewsletter $ do
         route $ setExtension "html"
         compile $ myPandocCompiler
-            >>= loadAndApplyTemplate "templates/newsletter.html" context
+            >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
             >>= loadAndApplyTemplate "templates/default.html" context
             >>= processUrls isBuildTargetWebserver
