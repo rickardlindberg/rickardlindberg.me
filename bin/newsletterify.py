@@ -34,3 +34,6 @@ for line in sys.stdin.read().splitlines():
             line
         ))
 paragraph.flush()
+
+print("")
+print("<hr>Thank you for reading. Don't hesitate to hit reply and tell me your thoughts and comments. See you next month!")
