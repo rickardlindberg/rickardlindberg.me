@@ -28,11 +28,17 @@ for line in sys.stdin.read().splitlines():
     elif dividers == 2 and line == "":
         paragraph.flush()
     elif dividers == 2:
-        paragraph.add_markdown_line(re.sub(
-            r"[(]/(.*?)/index.html[)]",
-            r"(http://rickardlindberg.me/\1/)",
-            line
-        ))
+        paragraph.add_markdown_line(
+            re.sub(
+                r"[(]/(.*?)/index.html[)]",
+                r"(http://rickardlindberg.me/\1/)",
+                re.sub(
+                    r'src="/(.*?)"',
+                    r'src="http://rickardlindberg.me/\1"',
+                    line
+                )
+            )
+        )
 paragraph.flush()
 
 print("")

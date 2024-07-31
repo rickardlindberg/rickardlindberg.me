@@ -11,7 +11,7 @@ For the recreational part, I've spend a lot of time away from the computer. One
 thing I've been doing quite a lot more is running. Here I am participating in a
 trail race:
 
-<center><p><img src="kolmarden.jpg"></p></center>
+<center><p><img src="/writing/newsletter/july-2024/kolmarden.jpg"></p></center>
 
 For the working on things I enjoy part, I've done some development on my note
 taking application and practiced taking better notes. I also managed to finish
@@ -47,7 +47,8 @@ One area of interest to me is literate programming. I started collecting notes
 on the topic, organizing them in my program, reading more articles about
 literate programming, and taking more notes. Here is a current snapshot:
 
-<center><p><img src="smartnotes.png"></p></center>
+<center><p><img
+src="/writing/newsletter/july-2024/smartnotes.png"></p></center>
 
 I though I would write a blog post about literate programming. So I started to
 build a table of contents out of my different notes. But when I did that, I
@@ -63,7 +64,9 @@ one-file programs. I asked myself what makes programs easier to read and
 understand. I though of these characteristics:
 
 * Small: Fits in a single file
+
 * Standalone: With as few dependencies as possible
+
 * Custom for me: fork and make changes for yourself
 
 I'm currently experimenting with writing such programs, and you can find the
