@@ -1,0 +1,39 @@
+---
+title: Does TDD have less advantage in Haskell?
+---
+In his talk about [fast rails tests](https://vimeo.com/30893836), Corey
+Haines discusses the fundamental difference between test first
+programming and test driven development. The difference is how you
+respond to pain. If your tests are difficult to write or painful to run,
+do you change your tests or do you change your design? If you are doing
+TDD you let the pain from the tests drive a better design. The idea is
+that if your code is easy to test, it is better designed than if it's
+hard to test.
+
+So what makes something painful to test? In the talk, it was using a
+third party library (rails) which took a long time to both load and run.
+I think it took long to run mainly because it was interacting with a
+database. So if you write your code in such a way that it does not
+depend on external resources, it is easier to test, and therefore also
+better designed.
+
+In Haskell ([which I'm currently
+learning](/writing/reflections-on-programming/2011-10-10-learning-haskell/index.html)
+) you make a distinction between pure and impure functions. Pure
+functions do not have side effects and they always return the same value
+when called with the same arguments. Pure functions are therefore easy
+to test.
+
+Since it seems to be common in Haskell to divide your program into pure
+and impure parts, and to write as much as possible as pure code, I
+wonder if TDD has less advantage here than in object oriented languages.
+Perhaps it is easier to make a better design in Haskel because the
+language encourages you to use constructs that lead to a better design.
+I have a feeling that in object oriented languages you have to be
+careful to not do the wrong thing, whereas in Haskell, the right thing
+is easier to do.
+
+I'm not suggesting that you should skip writing test for your Haskell
+programs (I think you should). I'm just saying that perhaps it is easier
+to write better designed programs in Haskel than in object oriented
+languages.

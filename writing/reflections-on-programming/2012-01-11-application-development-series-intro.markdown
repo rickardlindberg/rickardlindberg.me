@@ -1,0 +1,62 @@
+---
+title: Introducing a series about the development of an application
+---
+This is the first post in a series where I will reflect on and document
+the process of developing a real application. You will find these posts
+interesting if you want to know how I develop applications and learn
+what I think about. You will also learn about the technologies used.
+
+The idea for the application
+----------------------------
+
+I got the idea for the application when I read [Pragmatic Thinking and
+Learning](http://pragprog.com/book/ahptl/pragmatic-thinking-and-learning).
+In it, Andy Hunt, describes the importance of collecting and organizing
+your ideas.
+
+I like using mind maps for storing thoughts outside my head, but lately
+I've experimented with recording thoughts on a portable audio recorder.
+
+I have a bunch of ideas stored in different formats, and I need a way to
+organize them.
+
+Organizing files in folders is limiting: you can not store files in
+multiple folders (unless you copy them) and you can only browse files
+based on one attribute: its location in the hierarchical folder
+structure.
+
+I thought a tool where you can import your files and tag them would be
+more useful.
+
+The user interface
+------------------
+
+After getting the idea, I drew some sketches of the interface and came
+up with this:
+
+![Sketch of the interface.](/writing/reflections-on-programming/2012-01-11-application-development-series-intro/org-app-sketch.png "Sketch of the interface.")
+
+The basic workflow is this: you import files into the application, they
+show up in the file list, and you can then open them from there. In
+addition, you can assign tags to files and then filter the file list on
+tags.
+
+All my ideas can be found on the [github
+wiki](https://github.com/rickardlindberg/orgapp/wiki).
+
+Vision
+------
+
+I envision myself using this application to organize many of my files. I
+also envision it being beautiful and fun to use. But unfortunately,
+implementing takes longer than imagining.
+
+I plan to add simple, small, working features incrementally so that I
+can play with the application and learn what I want it to become.
+
+Follow me
+---------
+
+This blog and the [github
+page](https://github.com/rickardlindberg/orgapp) are good places to
+follow me in the development process.

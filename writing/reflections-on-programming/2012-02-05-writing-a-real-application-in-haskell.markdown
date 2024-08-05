@@ -1,0 +1,76 @@
+---
+title: Writing a real application in Haskell
+---
+*24 September 2017: Fixed broken link to Mercurial.*
+
+In this post I explain why I choose to write the [file organization
+application](/writing/reflections-on-programming/2012-01-11-application-development-series-intro/index.html)
+in Haskell.
+
+Getting away from OOP
+---------------------
+
+I've spent most of my time programming in object oriented languages, but
+I've also been interested in functional programming ever since I was
+introduced to Lisp at university.
+
+It was in the Lisp course that I first learned about recursion (or at
+least came to understand it), and it also taught me a lot about
+programming in general.
+
+The solutions that we wrote had a different structure from what I was
+used to. I remember them as powerful and elegant. Somehow that elegance
+never made it outside the university and the Lisp course. That makes me
+a little sad.
+
+One big reason I find object oriented programs hard to understand is
+mutable state. Since that is less of a problem in functional programs, I
+keep thinking that functional programming must be better. Or at least
+yield less complicated programs.
+
+The paper [Why Functional Programming
+Matters](http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf)
+also makes some compelling cases for functional programming.
+
+So how come it's not used mainstream?
+
+Is it because it doesn't work in practice or is it because it's so
+fundamentally different that people are not willing to wrap their heads
+around it?
+
+I decided it was time for me to find out by trying to write a real
+application in a functional language.
+
+Why Haskell?
+------------
+
+I wanted to write a real application in a functional language. But why
+Haskell?
+
+I came across Haskell by accident. Because I was learning
+[Mercurial](https://www.mercurial-scm.org/), I was reading [Mercurial:
+The Definitive Guide](http://hgbook.red-bean.com/), written by Bryan
+O'Sullivan. I found out that he had also co-authored the book [Real
+World Haskell](http://book.realworldhaskell.org/). Since I liked his
+first book, I started reading the one about Haskell.
+
+I found Haskell interesting for two reasons: you can obviously build
+real things in it (and I had a book to show me how), and it's a purely
+functional language.
+
+Building real things was important because I didn't just want to play
+around in a [REPL](http://en.wikipedia.org/wiki/REPL). Purely functional
+was important so that had to force myself to adopt the functional
+paradigm.
+
+Another feature that makes Haskell different is lazy evaluation. It's a
+feature that allows programs to be structured in a way that would
+otherwise be impractical. It's also stated as one of the two advantages
+of functional programming in the paper mentioned above.
+
+Conclusion
+----------
+
+By writing the application in Haskell, I'm exploring a different way of
+structuring my programs. I'm expecting to learn a lot, and I will share
+what I learn on this blog.

@@ -349,7 +349,7 @@ patternThoughtOfTheDay2 =
 
 patternReflectionsOnProgramming :: Pattern
 patternReflectionsOnProgramming =
-    "writing/reflections-on-programming/*.textile"
+    "writing/reflections-on-programming/2*.markdown"
 
 patternPostIndexHtml :: Pattern
 patternPostIndexHtml =

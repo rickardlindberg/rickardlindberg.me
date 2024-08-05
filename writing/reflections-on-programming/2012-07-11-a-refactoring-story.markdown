@@ -1,0 +1,185 @@
+---
+layout: post
+title: A refactoring story
+---
+This story begins in a hotel lobby in Stockholm. That's where [Corey
+Haines](http://coreyhaines.com/) and I met a Monday afternoon to code
+some Haskell. I had invited Corey to a Haskell workshop I hosted the
+week before, but unfortunately he couldn't make it. I didn't want to
+miss the opportunity to get together with him, so that's why I found
+myself with a beer and my laptop, walking through the code for
+[codemonitor](http://github.com/rickardlindberg/codemonitor), explaining
+it to Corey, this Monday afternoon in a hotel lobby in Stockholm.
+
+Codemonitor is a Haskell application I've written that listens for file
+changes on disk. When a file changes, it runs a set of jobs that you
+configure. It can for example be used to automatically run your test
+suite whenever you change a source file.
+
+I had an idea for a feature we could work on this afternoon, but we
+ended up doing a big refactoring instead. In this post I explain how
+starting out slightly different helped us move forward.
+
+The goal of the refactoring
+---------------------------
+
+Internally, codemonitor maintains a list of jobs. The job data structure
+has the following fields:
+
+-   Id
+-   Name of executable
+-   Arguments to executable
+-   Match expression
+-   Status (either idle, working, or failed)
+-   Output
+-   Thread id
+
+The first four fields are static and describe the job. Match expression
+is a regular expression that is applied to a filename to determine if
+this job should run when a file changes.
+
+The three last fields are dynamic and change values as a job run. A job
+has different status depending on if it is running or if it has finished
+running and failed for example.
+
+Whenever a file changes on disk, we go through the list of jobs and
+update the ones for which the regular expression match. Pseudo code for
+a file change looks like this:
+
+``` {.python}
+def fileChanged(fileName):
+    for job in jobList:
+        if job.matchExpr matches fileName:
+            thredId = runExternalProcess(job.name, job.args)
+            job.status = working
+            job.output = ""
+            job.thread = threadId
+```
+
+Corey thought it would be better to split the job list into two parts:
+one that contained the static information about jobs, and one that
+contained the dynamic information about jobs. With this separation, when
+a file changes on disk we can first filter out the jobs for which the
+regular expression match, and then pass them to a function which run
+them. In pseudo code it looks like this:
+
+``` {.python}
+def fileChanged(fileName):
+    jobsToRun = filterJobsMatching(fileName)
+    for job in jobsToRun:
+        thredId = runExternalProcess(job.name, job.args)
+        runningJob = RunningJob(status=working, output="", thread=threadId)
+        updateRunningJobList(runningJob, job.id)
+```
+
+The refactoring process
+-----------------------
+
+We had codemonitor running on itself at all times while doing this
+refactoring. As soon as we made a change that broke the code (either so
+it did not compile or so that the tests didn't pass) we got notified
+with a big red screen and an error message.
+
+The initial attempt
+-------------------
+
+We started by creating a new data structure for the dynamic part of a
+job that we called running job info. It had the following fields:
+
+-   Status (either idle, working, or failed)
+-   Output
+-   Thread id
+
+We removed those fields from the job data structure so that it only
+contained the static part:
+
+-   Id
+-   Name of executable
+-   Arguments to executable
+-   Match expression
+
+Then we found the places in the source code where the job data structure
+was used. We examined those cases and figured out if only the static,
+only the dynamic, or both parts were needed. We found a few functions
+where only the dynamic part of a job was used. We selected one of those
+and changed the type to take the running job info data structure instead
+of the old job data structure.
+
+That of course led to compilation errors because the function was still
+called with the wrong data. (We had just changed the type signature.) So
+we followed the error messages and fixed the places where the calls were
+made.
+
+Unfortunately, this approach wasn't very successful. The compiler kept
+giving us new type checking errors. That first change had forced us to
+change in a lot of places in order to get it to compile. We kept
+thinking that we only needed to change these current errors, and
+everything would be fine. The problem was that we had been thinking that
+for the last hour or so.
+
+Starting out in a different way
+-------------------------------
+
+Clearly, the steps we had tried to take weren't small enough. So we
+decided to start over using a different approach.
+
+Instead of splitting the job data structure, we added another field to
+it containing the dynamic part. The addition of the additional field
+broke one place in the code where the job data structure was created,
+but other than that, we were green. We were relieved that we had a
+change that didn't break the build and we could do our first commit of
+the day. Whew!
+
+At this point our data structure for jobs looked like this:
+
+-   Id
+-   Name of executable
+-   Arguments to executable
+-   Match expression
+-   Status (either idle, working, or failed)
+-   Output
+-   Thread id
+-   **Running job info**
+
+And the data structure for running job info looked like this:
+
+-   Status (either idle, working, or failed)
+-   Output
+-   Thread id
+
+Notice that we chose to duplicate the dynamic part in running job info.
+If we instead had moved fields into running job info, we would have more
+compilation errors, but we wanted to minimize the errors so we could
+work in small steps.
+
+The next thing we did was to always update the running job info when we
+updated the dynamic fields in the job data structure. With this change,
+we could read the dynamic fields from the running job info instead of
+the job data structure. We did that, and eventually we had removed all
+dependencies on the dynamic fields in the job data structure, so they
+could be removed, leaving only these fields:
+
+-   Id
+-   Name of executable
+-   Arguments to executable
+-   Match expression
+-   Running job info
+
+Around this point we had to stop. It was time for dinner, and we were
+feeling happy about the progress we had made.
+
+The next day, I continued the refactoring on my own. Everything went
+smoothly following this path: I was able to pull the running job info
+out of the job data structure into its own list, realized that the
+running job info didn't need to contain all that information, shrunk it,
+and as a result I could simplify another subsystem.
+
+Conclusion
+----------
+
+Because we started the refactoring in a slightly different way the
+second time, we were able to take small steps towards the goal while all
+the time having working code.
+
+If you feel stuck with a refactoring, you might want to start it out in
+a different way to see what happens.

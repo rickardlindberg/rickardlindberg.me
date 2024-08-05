@@ -1,0 +1,205 @@
+---
+title: Setup and teardown in HUnit
+---
+I was pairing with [\@testobsessed](http://twitter.com/testobsessed) on
+the [file organization
+application](/writing/reflections-on-programming/2012-01-11-application-development-series-intro/index.html)
+and we were writing tests in HUnit (the xUnit framework for Haskell).
+
+We noticed that HUnit has no built-in support for `setUp` and
+`tearDown`.
+
+In this post I explain how it can be implemented in HUnit. I explain how
+it is different from traditional xUnit frameworks and highlight why I
+think it's more beautiful.
+
+Also, thanks to [this blog
+post](http://jasani.org/2007/12/05/unit-testing-with-hunit-in-haskell/)
+for giving us the idea how to implement it.
+
+Problem
+-------
+
+We were writing sort of like an acceptance test for importing files:
+when you import a file, it should be moved from its source directory to
+a new directory inside the destination directory. Additional meta data
+about the imported file should also be written.
+
+To write this test, we need a temporary directory where we can create
+files to import and also create the destination directory where the
+files should be imported to.
+
+When the test has run, we want the temporary directory to disappear so
+we don't fill up the file system with test files.
+
+Python implementation
+---------------------
+
+In Python, I would implement it like this:
+
+``` {.python}
+class TestOrgApp(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp_dir = tempfile.mkdtemp(prefix="org-app-test")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp_dir)
+
+    def testCanImportFile(self):
+        # Test that does something with self.tmp_dir
+```
+
+Before each test is run, we create a temporary directory somewhere in
+the file system. Each test can use that directory for any purpose. It is
+then automatically removed after each test is run. (`shutil.rmtree`
+removes the directory and all of its content.)
+
+It works similarly in other xUnit frameworks.
+
+A test case in HUnit
+--------------------
+
+Before I explain how you can achieve the same behavior in HUnit, let me
+show you what a simple test file can look like. Here is an example:
+
+``` {.haskell}
+import Test.HUnit
+
+tests = test
+    [ "can add small numbers" ~: do
+        (1 + 2) @?= 3
+
+    , "can add large numbers" ~: do
+        (10 + 20) @?= 30
+    ]
+
+main = runTestTT tests
+```
+
+Each test case is represented by a do-block. In this case, the do-block
+creates an IO action. You can think of it as a function that can perform
+IO operations such as reading a file from disk. A test can also be
+preceded with a label to give it a name.
+
+If we run this, we get
+
+    Cases: 2  Tried: 2  Errors: 0  Failures: 0
+    Counts {cases = 2, tried = 2, errors = 0, failures = 0}
+
+If we make a mistake, we get
+
+    ### Failure in: 1:can add large numbers
+    expected: 31
+     but got: 30
+    Cases: 2  Tried: 2  Errors: 0  Failures: 1
+    Counts {cases = 2, tried = 2, errors = 0, failures = 1}
+
+Notice that there is no notion of a test class or `setUp` and `tearDown`
+methods in this file. A test suite is just a list of functions which
+each performs a test.
+
+Haskell implementation
+----------------------
+
+The way you implement `setUp` and `tearDown` in a HUnit is to include it
+in every test function that needs it. Something like this:
+
+``` {.haskell}
+"can import file" ~: do
+    tmpDir <- createDirectory "/tmp/org-app-test"
+    -- Test that does something with tmpDir
+    removeDirectoryRecursive tmpDir
+```
+
+This almost works. It fails if an exception is thrown in the test code.
+Then `removeDirectoryRecursive` is never called. We need to fix that.
+
+We can extract this pattern into a function:
+
+``` {.haskell}
+withTemporaryDirectory :: (FilePath -> IO ()) -> IO ()
+withTemporaryDirectory = bracket setUp tearDown
+    where
+        tmpDir   = "/tmp/org-app-test"
+        setUp    = createDirectory tmpDir >> return tmpDir
+        tearDown = removeDirectoryRecursive
+```
+
+The
+[`bracket`](http://hackage.haskell.org/packages/archive/base/latest/doc/html/Control-Exception-Base.html#v:bracket)
+function is similar to a try-finally block. It will always run the
+`setUp` function. If that succeeds, it will run the function passed in
+(the test in our case), and then always run the `tearDown` function, no
+matter if the test throws and exception or not.
+
+It is roughly equivalent to this:
+
+``` {.python}
+tmpDir = setUp()
+try:
+    # Test that does something with tmpDir
+finally:
+    tearDown(tmpDir)
+```
+
+We can use `withTemporaryDirectory` like this:
+
+``` {.haskell}
+"can import file" ~: withTemporaryDirectory $ \tmpDir -> do
+    -- Test that does something with tmpDir
+```
+
+The backslash syntax introduces a lambda function. So the test calls
+`withTemporaryDirectory` with one argument which is a function. (The
+signature of the function is `FilePath -> IO ()`.) That function is run
+by `withTemporaryDirectory` in between the `setUp` and `tearDown`.
+
+So for every test that needs this setup, we just need to insert this
+snippet between the label and the do:
+
+``` {.haskell}
+withTemporaryDirectory $ \tmpDir ->
+```
+
+The beauty
+----------
+
+I think several aspects of this approach are more elegant than in
+traditional xUnit frameworks:
+
+-   The fixture has a name: `withTemporaryDirectory`; In the Python
+    example it doesn't.
+
+```{=html}
+<!-- -->
+```
+-   The fixture is encapsulated in `withTemporaryDirectory` instead of
+    being spread out in different methods in a class. It can be reused
+    by other tests in other files. We can achieve almost the same thing
+    in Python if we write only the test fixture in a class and then
+    tests that need that fixture inherit from than one instead of
+    `TestCase`. But it is not as flexible.
+
+```{=html}
+<!-- -->
+```
+-   It's clear which tests use this fixture; In the Python example it
+    might be all tests in the class, or it might be just a few, or none.
+
+```{=html}
+<!-- -->
+```
+-   Compared to traditional xUnit frameworks, you are more explicit
+    about what a test needs. You don't need to scroll up a page to find
+    what the `setUp` and `tearDown` actually do. It's all encapsulated
+    in the test function. Even though it's more explicit in Haskell,
+    it's not much less readable.
+
+```{=html}
+<!-- -->
+```
+-   To understand how `setUp` and `tearDown` works in traditional xUnit
+    frameworks, you probably have to read the manual. But in the example
+    above, you can figure out what's going on by just reading the test
+    function and `withTemporaryDirectory`.

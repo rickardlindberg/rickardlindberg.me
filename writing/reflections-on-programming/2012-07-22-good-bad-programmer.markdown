@@ -1,0 +1,74 @@
+---
+title: Good bad programmer
+---
+Sometimes when [\@kajgo](https://twitter.com/kajgo) and I meet at a café
+to hack on
+[Photobox](https://play.google.com/store/apps/details?id=com.photobox),
+we end up talking about various other interesting subjects. A few days
+ago was one of those days. I want to share what we talked about and also
+take a moment to reflect on it once more in this post.
+
+We have both felt frustrated over bad code and bad programmers, so we
+started discussing what the difference is between good programmers and
+bad programmers. But in order to compare programmers you need to know
+what programmers do.
+
+You might think of a programmer as someone who has great knowledge about
+the domain in which he solves problems. Someone that tries to understand
+customer needs so that he can build the right thing. And then uses this
+knowledge to write a program.
+
+I think the above description is not accurate. Not for a programmer.
+Perhaps it is better suited for a software developer. A programmer does
+something much more specific I think. Maybe a software developer must be
+able to work with customers and understand their needs, but a programmer
+is someone that can take an idea and implement it so that it can be
+executed on a computer. That's it.
+
+The difference between a good programmer and a bad programmer lies in
+how he implements an idea. Is it done in a way that others can
+understand? Is it done in a way that it can easily be adapted to new
+requirements? Is it done fast? Is it done so that execution performance
+is good? Can he only do it in a specific language or environment?
+
+So do we encounter bad software in the wild because programmers have
+done a poor job, or are there other parts in the software development
+process that can be held responsible? If programming is not the
+bottleneck, is it even worth it to try and become a better programmer?
+
+It is quite easy today to become a bad to average programmer. Anyone can
+figure out how to make an idea executable. But I think we can all agree
+that there is a big difference between a good programmer and a bad
+programmer. So probably they way in which a programmer implements an
+idea is important.
+
+It might be that if you want to become a really good programmer, you can
+not spend as much time on getting better at understanding customer needs
+and such. The question is if that matters? What if you compose a team of
+expert programmers and people that are good at other aspects of the
+software development process? When they collaborate, the programmers
+learn about the domain and what is important to the customer, but the
+programmers do not need to be experts on that aspect. If the programmers
+can focus on being good at making ideas execute on the computer,
+wouldn't we end up with better code?
+
+But perhaps you are not that attractive if you are only good at
+programming. Maybe getting a job with programming as only skill is hard.
+But maybe expert programmers are needed, even though people don't
+realize it?
+
+One thing that has been talked about in software craftsmanship circles
+is the idea of apprenticeships for making better programmers. With the
+definition that programmers make ideas execute on machines, programming
+is quite a specific activity. So you might be able to create an
+apprenticeship program that produces expert programmers. Programmers
+that can implement ideas in a variety of languages and paradigms.
+Programmers that can write code that is easily adaptable to requirement
+changes and so on. But what if they focus more on other aspects of
+software development. Then they would probably just yield slightly
+better than average programmers, but perhaps better software developers.
+Is it better to have a single person be a good software developer or
+have an expert programmer with supporting people in a team?
+
+I don't know the answer to any of this, but it felt like a useful
+discussion. Please join the discussion in the comments if you like.

@@ -1,0 +1,209 @@
+---
+title: Testing configuration
+---
+A while ago I fixed a bug in [simple
+review](https://github.com/rickardlindberg/simple-review) that had to do
+with escaping. The problem was that not all characters were escaped when
+converting a Python string to a JSON string.
+
+The tests I had at that point looked like this:
+
+``` {.python}
+def test_escapes_quotes_in_string_values(self):
+    self.assertEquals('"\\"hello\\""', simplereview.json.json_value('"hello"'))
+
+def test_escapes_backslash_in_string_values(self):
+    self.assertEquals('"hell\\\\o"', simplereview.json.json_value('hell\\o'))
+
+def test_escapes_all_correctly(self):
+    self.assertEquals('"he\\"ll\\\\o"', simplereview.json.json_value('he"ll\\o'))
+```
+
+And the implementation for the escaping part looked like this:
+
+``` {.python}
+def _string_escape(string):
+    return string.replace("\\", "\\\\").replace('"', '\\"')
+```
+
+Adding tests to expose the bug
+------------------------------
+
+To fix this problem, I started adding more tests, and ended up with the
+following:
+
+``` {.python}
+def test_escapes_quotes_in_string_values(self):
+    self.assertEquals('"hell\\"o"', json_value('hell"o'))
+
+def test_escapes_backslash_in_string_values(self):
+    self.assertEquals('"hell\\\\o"', json_value('hell\\o'))
+
+def test_escapes_forward_slash_in_string_values(self):
+    self.assertEquals('"hell\\/o"', json_value('hell/o'))
+
+def test_escapes_backspace_in_string_values(self):
+    self.assertEquals('"hell\\bo"', json_value('hell\bo'))
+
+def test_escapes_formfeed_in_string_values(self):
+    self.assertEquals('"hell\\fo"', json_value('hell\fo'))
+
+def test_escapes_newline_in_string_values(self):
+    self.assertEquals('"hell\\no"', json_value('hell\no'))
+
+def test_escapes_carriage_return_in_string_values(self):
+    self.assertEquals('"hell\\ro"', json_value('hell\ro'))
+
+def test_escapes_tab_in_string_values(self):
+    self.assertEquals('"hell\\to"', json_value('hell\to'))
+
+def test_escapes_all_correctly(self):
+    self.assertEquals('"he\\"ll\\\\o"', json_value('he"ll\\o'))
+```
+
+And I ended up with the following implementation:
+
+``` {.python}
+def _string_escape(string):
+    replacements = (
+        ('\\' , '\\\\'),
+        ('"'  , '\\"' ),
+        ('/'  , '\\/' ),
+        ('\b' , '\\b' ),
+        ('\f' , '\\f' ),
+        ('\n' , '\\n' ),
+        ('\r' , '\\r' ),
+        ('\t' , '\\t' ),
+    )
+    for (a, b) in replacements:
+        string = string.replace(a, b)
+    return string
+```
+
+Repetitive tests
+----------------
+
+Pretty soon (long before I had written tests for all characters to
+escape), I refactored the implementation to look like above: the strings
+to replace were configured in a list and the logic for doing the
+replacements was separate.
+
+I could have extracted the code that did the replacement to a function
+like `replace_in_order(replacements)` to make the distinction even more
+clear.
+
+When I wrote tests for the later characters to escape, the only thing I
+had to do to make them pass was to add a configuration line to the
+`replacements` variable.
+
+It felt like the benefit of writing the additional tests were not that
+big. I was certainly not driving the design in any direction and I'm not
+sure that I even tested the correctness. I could have written the wrong
+assert (messed up a backspace or read the JSON specification wrong for
+example) and then done the same mistake in the configuration.
+
+Different ways of testing
+-------------------------
+
+I started to think about a different way to test this functionality
+without writing repetitive tests. What if I extracted the
+`replace_in_order` function and then wrote tests for that one in
+isolation. (Those test would not necessarily have anything to do with
+escaping characters.)
+
+If I did that, then I would not have any tests for the configuration
+list itself. You can then argue that the configuration is really simple
+and the best way to verify that it is correct is to read the JSON
+specification and compare it to the configuration.
+
+We could also write a small integration test to make sure that the
+correct configuration is used with `replace_in_order`. I'm not sure if
+that is a good approach though.
+
+What is configuration anyway?
+-----------------------------
+
+We have treated the `replacements` list as configuration to
+`replace_in_order` and discussed whether writing unit tests for that
+particular configuration is worthwhile.
+
+But dividing code into configuration and non-configuration doesn't
+really make sense. In the same way that `replace_in_order` can be
+configured to work as a JSON string escape function, the Python
+interpreter can be configured to work as a web application by giving it
+some Python code that implements a web application.
+
+So there is really only configuration. The only difference is what it
+configures.
+
+A more relevant property to look at might be complexity.
+
+Order complexity
+----------------
+
+The JSON escape configuration might seem simple at first, but there is a
+hidden complexity: the order is important. Since all replacements adds a
+`\` in the output, we must have the configuration that escapes `\`
+first.
+
+Similarly, we could not write a configuration that replaced all "a" with
+"b" and all "b" with "a".
+
+To remove this complexity from this configuration we could implement the
+replacement function so that the order is not important. It would then
+have to scan the string only once and replace matches it finds on the
+way.
+
+Sub match complexity
+--------------------
+
+Assuming we remove the order complexity, there is still another
+complexity left that has to do with sub matches. What if we have the
+following configuration:
+
+-   "a" -\> "b"
+-   "ab" -\> "ba"
+
+Would the string "ab" be converted to "bb" or "ba"? The implementation
+can either search for matches in order (then "bb" is the result), search
+for the longest matching string (then "ba" is the result), or the
+shortest matching string (then "bb" is the result). No matter which, it
+has to be clear when writing the configuration.
+
+Reasons to break
+----------------
+
+Given the current implementation of the replacement logic, the JSON
+string escaping functionality can break for the following reasons:
+
+1.  There is a bug in `replace_in_order`
+2.  The order of the replacement strings is incorrect
+3.  The replacement strings does not match the JSON specification
+4.  The parts are not put together correctly (the correct configuration
+    is not passed to `replace_in_order` for example)
+
+The first reason to break can be controlled with unit tests for
+`replace_in_order`.
+
+The second reason to break can be removed by implementing
+`replace_in_order` differently so that the order of configuration
+strings is not important. (It would then also have to change name.)
+
+The third reason to break is a little tricky to test automatically. To
+do that you need to send an escaped string to some JSON library and then
+get it back and see that it looks the same. Perhaps reading the JSON
+specification and comparing it with the `replacements` list is an
+acceptable compromise.
+
+The fourth reason to break can be controlled by having a small
+integration test.
+
+Conclusions
+-----------
+
+To determine if it is worthwhile to write a unit test for a particular
+piece of code, you can reason about the different ways your code can
+break without your test suite catching it. If you conclude that the risk
+is low, you can perhaps skip writing unit tests. Perhaps it is better to
+test a particular functionality in another way. But it seems like a good
+idea to remove as much risk as possible.

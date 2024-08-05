@@ -1,0 +1,131 @@
+---
+title: Hello world in Haskell and GTK
+---
+In this post I explain how I got started writing code for the [file
+organization
+application](/writing/reflections-on-programming/2012-01-11-application-development-series-intro/index.html).
+I describe the first two commits and the thoughts behind them.
+
+Starting with a skeleton
+------------------------
+
+Since I was unfamiliar with the technologies that I had chosen, my first
+goal was to get a hello world program working. If I can get that
+working, I gain confidence that I can use the technologies together.
+
+In this case, the technologies were Haskell and GTK (with Haskell
+bindings). I had played with Haskell before but was completely new to
+GTK (although not to event-driven GUI programming).
+
+I copied a hello world example from the
+[Gtk2Hs](http://projects.haskell.org/gtk2hs/) website and pasted into a
+source file. It looked like this:
+
+``` {.haskell}
+import Graphics.UI.Gtk
+
+main = do
+    initGUI
+    window <- windowNew
+    button <- buttonNew
+    set window [ containerBorderWidth := 10, containerChild := button ]
+    set button [ buttonLabel := "Hello World" ]
+    onClicked button (putStrLn "Hello World")
+    onDestroy window mainQuit
+    widgetShowAll window
+    mainGUI
+```
+
+Compiling was easy once I had downloaded the required libraries. They
+were all available through the package management system on my GNU/Linux
+system. I made a script for compiling so that I wouldn't have to
+remember how to do it:
+
+``` {.bash}
+ghc --make Main.hs -o org-app
+```
+
+(The make flag tells `ghc` to figure out all dependencies so you only
+need to specify the top level program you want to compile. When you
+compile your project multiple times, `ghc` will only recompile files
+that have changed.)
+
+And that was the first commit: a working skeleton on which to build. I
+could now easily explore features of GTK and GUI programming in Haskell
+by playing around with the hello world program.
+
+Using Glade to design the GUI
+-----------------------------
+
+The hello world program constructs the GUI in code by creating widgets
+and manually placing them on a window:
+
+``` {.haskell}
+window <- windowNew
+button <- buttonNew
+set window [ containerBorderWidth := 10, containerChild := button ]
+set button [ buttonLabel := "Hello World" ]
+```
+
+I've had experiences designing GUIs like this and it's quite tedious. It
+takes a long time to get all parameters right so that your windows look
+the way you imagined. The code also becomes rather long and messy.
+
+For GTK, there is a tool called [Glade](http://glade.gnome.org/) which
+lets you design your widgets visually and then load them from an XML
+file in code.
+
+I wanted to try this approach. I decided to see if I could transform the
+hello world example from the first commit using Glade. I came up with
+this:
+
+``` {.haskell}
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Builder
+
+main = do
+    initGUI
+
+    builder <- builderNew
+    builderAddFromFile builder "interface.glade"
+
+    mainWindow <- builderGetObject builder castToWindow "main_window"
+    onDestroy mainWindow mainQuit
+
+    helloWorldButton <- builderGetObject builder castToButton "hello_world_button"
+    onClicked helloWorldButton (putStrLn "Hello World")
+
+    widgetShowAll mainWindow
+    mainGUI
+```
+
+Now the widgets are loaded from the XML file `interface.glade` and we
+only have to hook up the event handlers. The text and position of the
+hello world button is stored in the glade file. Instead of this:
+
+``` {.haskell}
+window <- windowNew
+button <- buttonNew
+set window [ containerBorderWidth := 10, containerChild := button ]
+set button [ buttonLabel := "Hello World" ]
+```
+
+We have this:
+
+``` {.haskell}
+mainWindow <- builderGetObject builder castToWindow "main_window"
+helloWorldButton <- builderGetObject builder castToButton "hello_world_button"
+```
+
+This doesn't look like less code (it's actually the exact same number of
+lines in total), but when the GUI gets more complex, I think this will
+pay off.
+
+And that was the second commit.
+
+Confident to move forward
+-------------------------
+
+At this point there are no tests or no code specific to the application.
+But the code proves that these technologies can be used together, and
+I've gained confidence that I can move forward.
