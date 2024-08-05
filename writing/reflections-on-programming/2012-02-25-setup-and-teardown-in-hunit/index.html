@@ -135,15 +135,19 @@ Counts {cases = 2, tried = 2, errors = 0, failures = 1}</code></pre>
 <ul>
 <li>The fixture has a name: <code>withTemporaryDirectory</code>; In the Python example it doesn’t.</li>
 </ul>
+<!-- -->
 <ul>
 <li>The fixture is encapsulated in <code>withTemporaryDirectory</code> instead of being spread out in different methods in a class. It can be reused by other tests in other files. We can achieve almost the same thing in Python if we write only the test fixture in a class and then tests that need that fixture inherit from than one instead of <code>TestCase</code>. But it is not as flexible.</li>
 </ul>
+<!-- -->
 <ul>
 <li>It’s clear which tests use this fixture; In the Python example it might be all tests in the class, or it might be just a few, or none.</li>
 </ul>
+<!-- -->
 <ul>
 <li>Compared to traditional xUnit frameworks, you are more explicit about what a test needs. You don’t need to scroll up a page to find what the <code>setUp</code> and <code>tearDown</code> actually do. It’s all encapsulated in the test function. Even though it’s more explicit in Haskell, it’s not much less readable.</li>
 </ul>
+<!-- -->
 <ul>
 <li>To understand how <code>setUp</code> and <code>tearDown</code> works in traditional xUnit frameworks, you probably have to read the manual. But in the example above, you can figure out what’s going on by just reading the test function and <code>withTemporaryDirectory</code>.</li>
 </ul>

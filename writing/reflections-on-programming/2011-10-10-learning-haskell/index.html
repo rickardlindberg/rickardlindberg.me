@@ -82,7 +82,9 @@
 <p>My first attempt at implementing a parser for JSON (a simpler problem to start with than JavaScript) was far from perfect. It was longer that it needed to be and contained some duplication. When I thought about how to refactor it to remove duplication and express the parsing logic in clearer way, the solution I discovered was a partition into two layers: one layer with primitives for building a parser and another layer to use those building blocks to build the JSON parser. (I had some help from <a href="http://phoenix.goucher.edu/~jillz/cs224/labs/parser.pdf">Parsing with Haskell Introduction</a> .)</p>
 <p>When this happened I thought about <a href="http://mitpress.mit.edu/sicp/">Structure and Interpretation of Computer Programs</a>. In particular how they described that a powerful way to solve a complex problem is to design a language in which that problem is trivial to solve. It felt like I had done exactly that, and it felt powerful.</p>
 <p>When reading the code for the parser, I can focus on one layer at a time. Compared to OOP where you have a web of objects communicating with each other, it feels like the layered structure is easier to understand:</p>
-<p><img src="../../../writing/reflections-on-programming/2011-10-10-learning-haskell/fp_oop_structure.png" title="Structure of FP and OOP." alt="Structure of FP and OOP." /></p>
+<figure>
+<img src="../../../writing/reflections-on-programming/2011-10-10-learning-haskell/fp_oop_structure.png" title="Structure of FP and OOP." alt /><figcaption>Structure of FP and OOP.</figcaption>
+</figure>
 <h2 id="reuse-of-code">Reuse of code</h2>
 <p>The reuse of code feels different in Haskell than in OOP. Firstly I think it is because the layered approach lends itself better to reuse than the web of objects. Secondly I think it is because you write pure functions with no side effects.</p>
 <h2 id="summary">Summary</h2>

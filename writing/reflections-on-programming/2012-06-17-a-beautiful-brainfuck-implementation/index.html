@@ -196,7 +196,7 @@
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>                                        <span class="kw">in</span>  loop</span></code></pre></div>
 <p>There is one special trick going on here, and that is in the last case where we create the loop instruction. <code>toByteCode'</code> takes as last argument the instruction that should be at the end. At the top level, we pass in <code>BEND</code>, but when creating the loop, we pass in the loop itself. So the last instruction of the loop links to the loop itself.</p>
 <p>Below is a picture of the byte code representation of this Brainfuck program “<code>.[-.]&gt;</code>” :</p>
-<p><img src="../../../writing/reflections-on-programming/2012-06-17-a-beautiful-brainfuck-implementation/brainfuck-byte-code.png" alt /></p>
+<p><img src="../../../writing/reflections-on-programming/2012-06-17-a-beautiful-brainfuck-implementation/brainfuck-byte-code.png" /></p>
 <p>Compiling the whole program is just a matter of combining the parsing with the byte code convertion:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">compile ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">ByteCode</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>compile <span class="ot">=</span> toByteCode <span class="op">.</span> parseTokens</span></code></pre></div>
