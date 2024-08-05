@@ -234,10 +234,8 @@ rulesPostIndexHtml isBuildTargetWebserver = do
     match patternPostIndexHtml $ do
         route idRoute
         compile $ getResourceBody
-            >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
+            >>= loadAndApplyTemplate "templates/export.data" context
     where
         context = contextBase isBuildTargetWebserver
 
@@ -246,10 +244,8 @@ rulesPostIndexPandoc isBuildTargetWebserver = do
     match patternPostIndexPandoc $ do
         route $ setExtension "html"
         compile $ myPandocCompiler
-            >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
+            >>= loadAndApplyTemplate "templates/export.data" context
     where
         context = contextPost isBuildTargetWebserver
 
@@ -258,10 +254,8 @@ rulesPostIndexPandocTocTemplate isBuildTargetWebserver = do
     match patternPostIndexPandocTocTemplate $ do
         route $ setExtension "html"
         compile $ myPandocCompilerToc
-            >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
+            >>= loadAndApplyTemplate "templates/export.data" context
     where
         context = contextPost isBuildTargetWebserver
 
@@ -270,10 +264,8 @@ rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
     match patternPostIndexPandocNewsletter $ do
         route $ setExtension "html"
         compile $ myPandocCompiler
-            >>= loadAndApplyTemplate "templates/title.html" context
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
+            >>= loadAndApplyTemplate "templates/export.data" context
     where
         context = contextPost isBuildTargetWebserver
 
@@ -296,10 +288,8 @@ rulesPostIndexUpOneUpPandoc isBuildTargetWebserver = do
         process = do
             route upIndex
             compile $ myPandocCompiler
-                >>= loadAndApplyTemplate "templates/title.html" context
                 >>= saveSnapshot "postContentOnly"
-                >>= loadAndApplyTemplate "templates/default.html" context
-                >>= processUrls isBuildTargetWebserver
+                >>= loadAndApplyTemplate "templates/export.data" context
         context = contextPost isBuildTargetWebserver
         upIndex = customRoute (\identifier ->
             let filePath = toFilePath identifier
@@ -314,9 +304,8 @@ rulesPostNamePandoc isBuildTargetWebserver = do
         process = do
             route routeIndex
             compile $ myPandocCompiler
-                >>= loadAndApplyTemplate "templates/title.html" (contextPost isBuildTargetWebserver)
                 >>= saveSnapshot "postContentOnly"
-                >>= loadAndApplyTemplate "templates/default.html" (contextBase isBuildTargetWebserver)
+                >>= loadAndApplyTemplate "templates/export.data" (contextPost isBuildTargetWebserver)
                 >>= processUrls isBuildTargetWebserver
         routeIndex = customRoute (\identifier ->
             let filePath = toFilePath identifier
@@ -429,7 +418,7 @@ contextFeed isBuildTargetWebserver =
 
 contextPost :: Bool -> Context String
 contextPost isBuildTargetWebserver =
-    dateField "date" "%e %B %Y"
+    dateField "date" "%Y-%m-%d"
     `mappend`
     (contextBase isBuildTargetWebserver)
 
