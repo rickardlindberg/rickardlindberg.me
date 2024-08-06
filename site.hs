@@ -40,7 +40,6 @@ rules isBuildTargetWebserver = do
     rulesPostIndexPandoc                   isBuildTargetWebserver
     rulesPostIndexPandocTocTemplate        isBuildTargetWebserver
     rulesPostIndexPandocNewsletter         isBuildTargetWebserver
-    rulesPostIndexPandocWithOwnTitle       isBuildTargetWebserver
     rulesPostIndexUpOneUpPandoc            isBuildTargetWebserver
     rulesPostNamePandoc                    isBuildTargetWebserver
 
@@ -277,17 +276,6 @@ rulesPostIndexPandocNewsletter isBuildTargetWebserver = do
     where
         context = contextPost isBuildTargetWebserver
 
-rulesPostIndexPandocWithOwnTitle :: Bool -> Rules ()
-rulesPostIndexPandocWithOwnTitle isBuildTargetWebserver = do
-    match patternPostIndexPandocWithOwnTitle $ do
-        route $ setExtension "html"
-        compile $ myPandocCompiler
-            >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
-    where
-        context = contextBase isBuildTargetWebserver
-
 rulesPostIndexUpOneUpPandoc :: Bool -> Rules ()
 rulesPostIndexUpOneUpPandoc isBuildTargetWebserver = do
     match patternThoughtOfTheDay1 $ process
@@ -333,7 +321,6 @@ patternAllPosts =
     .||. patternPostIndexPandoc
     .||. patternPostIndexPandocTocTemplate
     .||. patternPostIndexPandocNewsletter
-    .||. patternPostIndexPandocWithOwnTitle
 
 patternNewsletter :: Pattern
 patternNewsletter =
@@ -380,6 +367,7 @@ patternPostIndexPandoc =
     .||. "writing/writing-my-own-video-editor/index.markdown"
     .||. "writing/what-is-a-user-story/index.markdown"
     .||. "writing/function-to-oop-refactoring/index.markdown"
+    .||. "writing/ardour-latency-free-overdubbing/index.rst.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
@@ -392,10 +380,6 @@ patternPostIndexPandocTocTemplate =
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
          patternNewsletter
-
-patternPostIndexPandocWithOwnTitle :: Pattern
-patternPostIndexPandocWithOwnTitle =
-    "writing/ardour-latency-free-overdubbing/index.rst"
 
 contextRelatedPosts :: Bool -> String -> Context String
 contextRelatedPosts isBuildTargetWebserver tagName =
