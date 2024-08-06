@@ -8,7 +8,7 @@ converting a Python string to a JSON string.
 
 The tests I had at that point looked like this:
 
-``` {.python}
+```python
 def test_escapes_quotes_in_string_values(self):
     self.assertEquals('"\\"hello\\""', simplereview.json.json_value('"hello"'))
 
@@ -21,7 +21,7 @@ def test_escapes_all_correctly(self):
 
 And the implementation for the escaping part looked like this:
 
-``` {.python}
+```python
 def _string_escape(string):
     return string.replace("\\", "\\\\").replace('"', '\\"')
 ```
@@ -32,7 +32,7 @@ Adding tests to expose the bug
 To fix this problem, I started adding more tests, and ended up with the
 following:
 
-``` {.python}
+```python
 def test_escapes_quotes_in_string_values(self):
     self.assertEquals('"hell\\"o"', json_value('hell"o'))
 
@@ -63,7 +63,7 @@ def test_escapes_all_correctly(self):
 
 And I ended up with the following implementation:
 
-``` {.python}
+```python
 def _string_escape(string):
     replacements = (
         ('\\' , '\\\\'),

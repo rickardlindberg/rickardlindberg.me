@@ -21,7 +21,7 @@ I copied a hello world example from the
 [Gtk2Hs](http://projects.haskell.org/gtk2hs/) website and pasted into a
 source file. It looked like this:
 
-``` {.haskell}
+```haskell
 import Graphics.UI.Gtk
 
 main = do
@@ -41,7 +41,7 @@ were all available through the package management system on my GNU/Linux
 system. I made a script for compiling so that I wouldn't have to
 remember how to do it:
 
-``` {.bash}
+```bash
 ghc --make Main.hs -o org-app
 ```
 
@@ -60,7 +60,7 @@ Using Glade to design the GUI
 The hello world program constructs the GUI in code by creating widgets
 and manually placing them on a window:
 
-``` {.haskell}
+```haskell
 window <- windowNew
 button <- buttonNew
 set window [ containerBorderWidth := 10, containerChild := button ]
@@ -79,7 +79,7 @@ I wanted to try this approach. I decided to see if I could transform the
 hello world example from the first commit using Glade. I came up with
 this:
 
-``` {.haskell}
+```haskell
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Builder
 
@@ -103,7 +103,7 @@ Now the widgets are loaded from the XML file `interface.glade` and we
 only have to hook up the event handlers. The text and position of the
 hello world button is stored in the glade file. Instead of this:
 
-``` {.haskell}
+```haskell
 window <- windowNew
 button <- buttonNew
 set window [ containerBorderWidth := 10, containerChild := button ]
@@ -112,7 +112,7 @@ set button [ buttonLabel := "Hello World" ]
 
 We have this:
 
-``` {.haskell}
+```haskell
 mainWindow <- builderGetObject builder castToWindow "main_window"
 helloWorldButton <- builderGetObject builder castToButton "hello_world_button"
 ```

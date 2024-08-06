@@ -61,7 +61,7 @@ Sometimes we do: In Python, there is a module called
 us to embed test code in comments right next to functions. It looks like
 this:
 
-``` {.python}
+```python
 def factorial(n):
     """
     >>> [factorial(n) for n in range(6)]
@@ -87,7 +87,7 @@ the same source file. In the example above, it is pretty obvious that
 the test belongs to the factorial function because of the indentation,
 but consider this example:
 
-``` {.python}
+```python
 def implementation(...):
     ...
 
@@ -117,7 +117,7 @@ begins.
 
 One solution to this problem is to put section comments in our files:
 
-``` {.python}
+```python
 # Unit 1
 
 def implementation(...):

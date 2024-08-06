@@ -46,7 +46,7 @@ The interface for working with this data structure looks like this:
 
 A typical session looks like this:
 
-``` {.python}
+```python
 events = Events("path/to/events.txt")
 firstEvent = events.getAllEvents()[0]
 firstEvent.text = "a new text"
@@ -55,7 +55,7 @@ events.saveEvent(firstEvent)
 
 Or like this:
 
-``` {.python}
+```python
 events = Events("path/to/events.txt")
 firstEvent = events.getAllEvents()[0]
 events.deleteCategory(firstEvent.category)
@@ -69,7 +69,7 @@ The issue with mutable objects
 
 Consider the following session:
 
-``` {.python}
+```python
 events = Events("path/to/events.txt")
 firstCategory = events.getAllCategories()[0]
 firstCategory.name = "new name"
@@ -98,7 +98,7 @@ and `getAllCategories()` can never be changed.
 We could write helper methods like `setName` that returns a new `Event`
 that has all the values from the previous one but the name different:
 
-``` {.python}
+```python
 events = Events("path/to/events.txt")
 firstCategory = events.getAllCategories()[0]
 firstCategoryEdited = firstCategory.setName("new name")
@@ -137,7 +137,7 @@ This causes a problem with events. One rule was that we could have two
 events with the exact same fields. But when we edit one, the other
 should not be changed:
 
-``` {.python}
+```python
 events = Events("path/to/events.txt")
 events.saveEvent(Event("July 5", "my birthday"), original=None)
 events.saveEvent(Event("July 5", "my birthday"), original=None)

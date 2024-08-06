@@ -32,7 +32,7 @@ The main function
 
 The function we are implementing is this:
 
-``` {.haskell}
+```haskell
 execute :: String -> IO ()
 execute program = interact (run (compile program) emptyDataMap)
 ```
@@ -52,7 +52,7 @@ We represent the Brainfuck data tape with a typeclass. That allows us to
 experiment with different data structures without changing the
 interpreter. The typeclass looks like this:
 
-``` {.haskell}
+```haskell
 class Data d where
     emptyData       :: d
     dataGet         :: d -> Int
@@ -69,7 +69,7 @@ position itself.
 
 A concrete implementation of this typeclass is presented below:
 
-``` {.haskell}
+```haskell
 data DataMap = DataMap
     { currentPos :: Int
     , values     :: M.Map Int Int
@@ -102,7 +102,7 @@ just return the default value 0.
 To make it easier to work with the data tape, we have these general
 helper functions that only depend on the interface of the typeclass:
 
-``` {.haskell}
+```haskell
 dataMoveRight :: Data d => d -> d
 dataMoveRight = dataModifyPos inc
 
@@ -147,7 +147,7 @@ anything about how this later gets executed.
 
 The data structure for tokens looks like this:
 
-``` {.haskell}
+```haskell
 data Token
     = TInc
     | TDec
@@ -166,7 +166,7 @@ The function that converts a Brainfuck program to a list of tokens uses
 the [Parsec](https://hackage.haskell.org/package/parsec) library and
 looks like this:
 
-``` {.haskell}
+```haskell
 parseTokens :: String -> [Token]
 parseTokens input =
     case parse bfTokens fileName (removeComments input) of
@@ -208,7 +208,7 @@ Brainfuck.
 
 The byte code that `run` interprets looks like this:
 
-``` {.haskell}
+```haskell
 data ByteCode
     = BInc   ByteCode
     | BDec   ByteCode
@@ -228,7 +228,7 @@ continue after it.
 
 The function that converts tokens to byte code looks like this:
 
-``` {.haskell}
+```haskell
 toByteCode :: [Token] -> ByteCode
 toByteCode tokens = toByteCode' tokens BEND
     where
@@ -260,7 +260,7 @@ program "`.[-.]>`" :
 Compiling the whole program is just a matter of combining the parsing
 with the byte code convertion:
 
-``` {.haskell}
+```haskell
 compile :: String -> ByteCode
 compile = toByteCode . parseTokens
 ```
@@ -270,7 +270,7 @@ Running byte code
 
 The `run` function looks like this:
 
-``` {.haskell}
+```haskell
 run :: Data d => ByteCode -> d -> String -> String
 run BEND               dat input  = "done!\n"
 run (BInc   next)      dat input  =                      run next (dataIncValue dat)     input

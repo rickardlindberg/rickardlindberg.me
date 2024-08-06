@@ -123,9 +123,6 @@ Related reading elsewhere
     express more tests as types. If types are a form of tests, maybe
     tests should live in the source code?
 
-```{=html}
-<!-- -->
-```
 -   [Coding: Packaging by vertical
     slice](http://www.markhneedham.com/blog/2012/02/20/coding-packaging-by-vertical-slice/)
     by Mark Needham. Talks about two different ways to structure source

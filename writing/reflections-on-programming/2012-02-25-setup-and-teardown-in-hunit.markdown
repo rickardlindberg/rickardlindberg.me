@@ -37,7 +37,7 @@ Python implementation
 
 In Python, I would implement it like this:
 
-``` {.python}
+```python
 class TestOrgApp(unittest.TestCase):
 
     def setUp(self):
@@ -63,7 +63,7 @@ A test case in HUnit
 Before I explain how you can achieve the same behavior in HUnit, let me
 show you what a simple test file can look like. Here is an example:
 
-``` {.haskell}
+```haskell
 import Test.HUnit
 
 tests = test
@@ -105,7 +105,7 @@ Haskell implementation
 The way you implement `setUp` and `tearDown` in a HUnit is to include it
 in every test function that needs it. Something like this:
 
-``` {.haskell}
+```haskell
 "can import file" ~: do
     tmpDir <- createDirectory "/tmp/org-app-test"
     -- Test that does something with tmpDir
@@ -117,7 +117,7 @@ Then `removeDirectoryRecursive` is never called. We need to fix that.
 
 We can extract this pattern into a function:
 
-``` {.haskell}
+```haskell
 withTemporaryDirectory :: (FilePath -> IO ()) -> IO ()
 withTemporaryDirectory = bracket setUp tearDown
     where
@@ -135,7 +135,7 @@ matter if the test throws and exception or not.
 
 It is roughly equivalent to this:
 
-``` {.python}
+```python
 tmpDir = setUp()
 try:
     # Test that does something with tmpDir
@@ -145,7 +145,7 @@ finally:
 
 We can use `withTemporaryDirectory` like this:
 
-``` {.haskell}
+```haskell
 "can import file" ~: withTemporaryDirectory $ \tmpDir -> do
     -- Test that does something with tmpDir
 ```
@@ -158,7 +158,7 @@ by `withTemporaryDirectory` in between the `setUp` and `tearDown`.
 So for every test that needs this setup, we just need to insert this
 snippet between the label and the do:
 
-``` {.haskell}
+```haskell
 withTemporaryDirectory $ \tmpDir ->
 ```
 
@@ -171,9 +171,6 @@ traditional xUnit frameworks:
 -   The fixture has a name: `withTemporaryDirectory`; In the Python
     example it doesn't.
 
-```{=html}
-<!-- -->
-```
 -   The fixture is encapsulated in `withTemporaryDirectory` instead of
     being spread out in different methods in a class. It can be reused
     by other tests in other files. We can achieve almost the same thing
@@ -181,24 +178,15 @@ traditional xUnit frameworks:
     tests that need that fixture inherit from than one instead of
     `TestCase`. But it is not as flexible.
 
-```{=html}
-<!-- -->
-```
 -   It's clear which tests use this fixture; In the Python example it
     might be all tests in the class, or it might be just a few, or none.
 
-```{=html}
-<!-- -->
-```
 -   Compared to traditional xUnit frameworks, you are more explicit
     about what a test needs. You don't need to scroll up a page to find
     what the `setUp` and `tearDown` actually do. It's all encapsulated
     in the test function. Even though it's more explicit in Haskell,
     it's not much less readable.
 
-```{=html}
-<!-- -->
-```
 -   To understand how `setUp` and `tearDown` works in traditional xUnit
     frameworks, you probably have to read the manual. But in the example
     above, you can figure out what's going on by just reading the test

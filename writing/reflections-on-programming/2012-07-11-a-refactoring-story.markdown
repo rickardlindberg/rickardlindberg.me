@@ -46,7 +46,7 @@ Whenever a file changes on disk, we go through the list of jobs and
 update the ones for which the regular expression match. Pseudo code for
 a file change looks like this:
 
-``` {.python}
+```python
 def fileChanged(fileName):
     for job in jobList:
         if job.matchExpr matches fileName:
@@ -63,7 +63,7 @@ a file changes on disk we can first filter out the jobs for which the
 regular expression match, and then pass them to a function which run
 them. In pseudo code it looks like this:
 
-``` {.python}
+```python
 def fileChanged(fileName):
     jobsToRun = filterJobsMatching(fileName)
     for job in jobsToRun:
