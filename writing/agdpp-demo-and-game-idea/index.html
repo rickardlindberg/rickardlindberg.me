@@ -95,112 +95,70 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <h2 id="first-story">First story</h2>
 <p>To make progress towards a balloon shooter, I want to work on a story that is about drawing a balloon and an arrow. Create the initial scene of the game sort of.</p>
 <p>Our game already animates a circle. Let’s put all behavior related to that circle into its own class called <code>Balloon</code>. Here is how our game <code>tick</code> method looks like now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    ...</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="cf">if</span> <span class="va">self</span>.x <span class="op">&gt;</span> <span class="dv">500</span>:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">+=</span> dt</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_circle(<span class="va">self</span>.x)</span></code></pre></div>
 <p>After we extract the balloon class, it looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    ...</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="va">self</span>.balloon.tick(dt)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="va">self</span>.balloon.draw(<span class="va">self</span>.loop)</span></code></pre></div>
 <p>And here is the balloon class:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> Balloon:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.x <span class="op">&gt;</span> <span class="dv">500</span>:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>            <span class="va">self</span>.x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>            <span class="va">self</span>.x <span class="op">+=</span> dt</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.x)</span></code></pre></div>
 <p>Any behavior that the balloon should have, we can now test at this lower level. We can instantiate a balloon, call its tick method, and observe that the right thing happens. There is no need to involve the game or the game loop. (At least if we accept exposing somewhat internal state like the x variable.)</p>
 <p>With the balloon object in place, it is natural to create a new object called <code>Arrow</code> for our other piece in the balloon shooter game. We create a version that just draws a circle:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        loop.draw_circle(<span class="dv">10</span>)</span></code></pre></div>
 <p>We make sure it is included in the game by modifying the tick method of the game to also tick and draw the arrow:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tick</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    ...</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="va">self</span>.balloon.tick(dt)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    <span class="va">self</span>.arrow.tick(dt)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    <span class="va">self</span>.balloon.draw(<span class="va">self</span>.loop)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="va">self</span>.tick.draw(<span class="va">self</span>.loop)</span></code></pre></div>
 <p>We notice a pattern here. It seems like the responsibility of the game is to call tick and draw on a set of objects. In games (or in Pygame) those objects are referred to as sprites. My understanding is that a sprite is any visual element that shows up in the game.</p>
 <p>We refactor our game to reflect this new understanding:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>        ...</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>        <span class="va">self</span>.balloon <span class="op">=</span> Balloon()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>        <span class="va">self</span>.arrow <span class="op">=</span> Arrow()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>        <span class="va">self</span>.sprites <span class="op">=</span> [<span class="va">self</span>.balloon, <span class="va">self</span>.arrow]</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>        ...</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>        <span class="cf">for</span> sprite <span class="kw">in</span> <span class="va">self</span>.sprites:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>            sprite.tick(dt)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>        <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>        <span class="cf">for</span> sprite <span class="kw">in</span> <span class="va">self</span>.sprites:</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>            sprite.draw(<span class="va">self</span>.loop)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>Is our game class just becoming a thing layer of loops? Can we move some of that responsibility to the game loop? I’m not certain yet, so we will leave it like this for now.</p>
 <p>If we run the game now, this is what we see:</p>
 <center>
@@ -208,92 +166,64 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 </center>
 <p>Not very pretty. What is that?</p>
 <p>Let’s see if we can improve the drawing of the arrow. But remember, not perfection, but improvement. If I look at the game now, I don’t get an idea what the game is about. We just want to make the arrow slightly more realistic to convey the meaning of the object. We are still restricted to drawing circles. The current <code>draw_circle</code> looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">def</span> draw_circle(<span class="va">self</span>, x):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    <span class="va">self</span>.notify(<span class="st">&quot;DRAW_CIRCLE&quot;</span>, {<span class="st">&quot;x&quot;</span>: x})</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="va">self</span>.pygame.draw.circle(<span class="va">self</span>.screen, <span class="st">&quot;red&quot;</span>, (x, <span class="dv">50</span>), <span class="dv">40</span>)</span></code></pre></div>
 <p>That’s stupid! Why is there no ability to specify anything but the x-coordinate? Well, until now, we haven’t needed that. Now that we do need it, let’s add it. No biggie:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">def</span> draw_circle(<span class="va">self</span>, x, y<span class="op">=</span><span class="dv">50</span>, radius<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    <span class="va">self</span>.notify(<span class="st">&quot;DRAW_CIRCLE&quot;</span>, {<span class="st">&quot;x&quot;</span>: x, <span class="st">&quot;y&quot;</span>: y, <span class="st">&quot;radius&quot;</span>: radius, <span class="st">&quot;color&quot;</span>: color})</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    <span class="va">self</span>.pygame.draw.circle(<span class="va">self</span>.screen, color, (x, y), radius)</span></code></pre></div>
 <p>We experiment with three circles for the arrow and tweak the numbers until we think it looks good. Here is the result:</p>
 <center>
 <img src="scene2.png" title="fig:" alt="Improved drawing of arrow." />
 </center>
 <p>I don’t know about you, but when I see this, I want to press a button to fire that arrow so it hits the balloon. I’m convinced this is a balloon shooter now. I hope our customer is as well.</p>
 <p>Right, balloon shooter. Before we didn’t know what game we should write, so our game class was just called <code>Game</code>. Let’s fix that:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span> from gameloop import GameLoop
- 
-<span class="gd">-class Game:</span>
-<span class="gi">+class BalloonShooter:</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a> from gameloop import GameLoop</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="st">-class Game:</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="va">+class BalloonShooter:</span></span></code></pre></div>
 <p>There! Now the code more accurately represent the ideas that we have in our minds about this game.</p>
 <p>I forget to mention anything about testing. (For the complete workflow, check out the video.) But here is what the test for the balloon shooter looks like now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
-<span class="sd">arrow and quit when the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: 'red'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 520</span>
-<span class="sd">    radius: 15</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 540</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">I draw the initial scene of the game which consists of a balloon and an</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">arrow and quit when the user closes the window.</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; BalloonShooter(loop).run()</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true"></a><span class="co">    y: 50</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true"></a><span class="co">    radius: 40</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true"></a><span class="co">    color: 'red'</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true"></a><span class="co">    y: 520</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true"></a><span class="co">    radius: 15</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true"></a><span class="co">    y: 540</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>We both changed the description, becasue we have a balloon shooter now, not a generic game, and added checks for it drawing both the balloon and the arrow.</p>
 <p>It might be too specific to assert on exact coordinates here. We have to visually inspect the output and see if we think it looks good. That’s what I did here. And when I was happy, I copied the coordinates into the test.</p>
 <h2 id="summary">Summary</h2>
