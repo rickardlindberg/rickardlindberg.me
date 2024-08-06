@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import shutil
 
 def process_file(path):
@@ -49,8 +50,29 @@ def process_export_data_parsed(data):
             for key, value in header.items():
                 f_out.write(f"{key}: {value}")
             f_out.write("---\n")
-            f_out.write(f.read())
+            f_out.write(fix_image_links(f.read(), header["url"].strip()))
         print(export_dir)
+
+def fix_image_links(text, prefix):
+    def replace(x):
+        pre = x.group(1)
+        filename = x.group(2)
+        post = x.group(3)
+        if filename.startswith("/"):
+            return pre + filename + post
+        else:
+            return pre + prefix + filename + post
+    text = re.sub(
+        r'(")([^"]*[.](?:png|jpg|gif))(")',
+        replace,
+        text
+    )
+    text = re.sub(
+        r'([(])([^()]*[.](?:png|jpg|gif))([)])',
+        replace,
+        text
+    )
+    return text
 
 shutil.rmtree("./export", ignore_errors=True)
 for (path, dirs, files) in os.walk("_site"):
