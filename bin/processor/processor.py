@@ -741,10 +741,12 @@ def pre(header):
 
 def code(path, start=None, end=None):
     pygments_cmd = ["pygmentize"]
+    language = ""
     if path.endswith(".rlmeta"):
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:
-        pygments_cmd.extend(["-l", os.path.splitext(path)[1][1:]])
+        language = os.path.splitext(path)[1][1:]
+        pygments_cmd.extend(["-l", language])
     pygments_cmd.extend(["-f", "html"])
     with open(path) as f:
         lines = f.read().splitlines(True)
@@ -759,49 +761,25 @@ def code(path, start=None, end=None):
     joined = "".join(lines)
     if start is not None or end is not None:
         joined = textwrap.dedent(joined)
-    x = subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
-    return [
-        '<div class="rliterate-code">',
-        '<div class="rliterate-code-header">',
-        '<ol class="rliterate-code-path">',
-        '<li>',
-        path,
-        '</li>',
-        '</ol>',
-        '</div>',
-        '<div class="rliterate-code-body">',
-    ]+x+[
-        '</div>',
-        '</div>',
-    ]
+    assert joined.endswith("\n")
+    return f"```{language}\n{joined}```\n"
 
 def output(title, text, syntax="text"):
     pygments_cmd = ["pygmentize"]
     pygments_cmd.extend(["-f", "html"])
     pygments_cmd.extend(["-l", syntax])
     joined = text
-    x = subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    assert joined.endswith("\n")
     title_code = []
     if title.strip():
-        title_code = [
-            '<div class="rliterate-code-header">',
-            '<ol class="rliterate-code-path">',
-            '<li>',
-            '<span class="cp">',
-            title,
-            '</span>',
-            '</li>',
-            '</ol>',
-            '</div>',
-        ]
-    return [
-        '<div class="rliterate-code">',
-    ]+title_code+[
-        '<div class="rliterate-code-body">',
-    ]+x+[
-        '</div>',
-        '</div>',
-    ]
+        title_text = f"`{title}`:\n\n"
+    else:
+        title_text = ""
+    if syntax == "text":
+        language = ""
+    else:
+        language = syntax
+    return f"```{title_text}{language}\n{joined}```\n"
 
 if __name__ == "__main__":
     import sys
