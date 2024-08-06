@@ -34,6 +34,12 @@ def process_export_data_parsed(data):
         if "date" not in header:
             header["date"] = data["date"]
         header["url"] = f"{os.path.dirname(data['url'])}/\n"
+        header.pop("agdpp", None)
+        header.pop("devlog", None)
+        header.pop("layout", None)
+        for x in header.keys():
+            if x not in ["title", "date", "url", "tags"]:
+                raise ValueError(x)
         assert data["url"].endswith("index.html\n")
         assert data["url"].startswith("/")
         export_dir = f"./export{os.path.dirname(data['url'])}"
