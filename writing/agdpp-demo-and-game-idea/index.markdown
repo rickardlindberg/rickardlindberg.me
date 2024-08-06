@@ -97,42 +97,45 @@ Our game already animates a circle. Let's put all behavior related to that
 circle into its own class called `Balloon`. Here is how our game `tick` method
 looks like now:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt, events):
+    ...
+    if self.x > 500:
+        self.x = 50
+    else:
+        self.x += dt
+    self.loop.clear_screen()
+    self.loop.draw_circle(self.x)
+```
+
 After we extract the balloon class, it looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt, events):
+    ...
+    self.balloon.tick(dt)
+    self.loop.clear_screen()
+    self.balloon.draw(self.loop)
+```
+
 And here is the balloon class:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+```python
+class Balloon:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+    def __init__(self):
+        self.x = 50
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
+    def tick(self, dt):
+        if self.x > 500:
+            self.x = 50
+        else:
+            self.x += dt
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_circle(self.x)
+```
+
 Any behavior that the balloon should have, we can now test at this lower level.
 We can instantiate a balloon, call its tick method, and observe that the right
 thing happens. There is no need to involve the game or the game loop. (At least
@@ -142,27 +145,29 @@ With the balloon object in place, it is natural to create a new object called
 `Arrow` for our other piece in the balloon shooter game. We create a version
 that just draws a circle:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
+    def tick(self, dt):
+        pass
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_circle(10)
+```
+
 We make sure it is included in the game by modifying the tick method of the
 game to also tick and draw the arrow:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tick</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt, events):
+    ...
+    self.balloon.tick(dt)
+    self.arrow.tick(dt)
+    self.loop.clear_screen()
+    self.balloon.draw(self.loop)
+    self.tick.draw(self.loop)
+```
+
 We notice a pattern here. It seems like the responsibility of the game is to
 call tick and draw on a set of objects. In games (or in Pygame) those objects
 are referred to as sprites. My understanding is that a sprite is any visual
@@ -170,25 +175,26 @@ element that shows up in the game.
 
 We refactor our game to reflect this new understanding:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+```python
+class Game:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+    def __init__(self, loop):
+        ...
+        self.balloon = Balloon()
+        self.arrow = Arrow()
+        self.sprites = [self.balloon, self.arrow]
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    def tick(self, dt, events):
+        ...
+        for sprite in self.sprites:
+            sprite.tick(dt)
+        self.loop.clear_screen()
+        for sprite in self.sprites:
+            sprite.draw(self.loop)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 Is our game class just becoming a thing layer of loops? Can we move some of
 that responsibility to the game loop? I'm not certain yet, so we will leave it
 like this for now.
@@ -207,20 +213,22 @@ what the game is about. We just want to make the arrow slightly more realistic
 to convey the meaning of the object. We are still restricted to drawing
 circles. The current `draw_circle` looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def draw_circle(self, x):
+    self.notify("DRAW_CIRCLE", {"x": x})
+    self.pygame.draw.circle(self.screen, "red", (x, 50), 40)
+```
+
 That's stupid! Why is there no ability to specify anything but the
 x-coordinate? Well, until now, we haven't needed that. Now that we do need it,
 let's add it. No biggie:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def draw_circle(self, x, y=50, radius=40, color="red"):
+    self.notify("DRAW_CIRCLE", {"x": x, "y": y, "radius": radius, "color": color})
+    self.pygame.draw.circle(self.screen, color, (x, y), radius)
+```
+
 We experiment with three circles for the arrow and tweak the numbers until we
 think it looks good. Here is the result:
 
@@ -235,12 +243,13 @@ I hope our customer is as well.
 Right, balloon shooter. Before we didn't know what game we should write, so our
 game class was just called `Game`. Let's fix that:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span> from gameloop import GameLoop
+```diff
+ from gameloop import GameLoop
  
-<span class="gd">-class Game:</span>
-<span class="gi">+class BalloonShooter:</span>
-</pre></div>
-</div></div>
+-class Game:
++class BalloonShooter:
+```
+
 There! Now the code more accurately represent the ideas that we have in our
 minds about this game.
 
@@ -248,47 +257,48 @@ I forget to mention anything about testing. (For the complete workflow, check
 out the video.) But here is what the test for the balloon shooter looks like
 now:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
-<span class="sd">arrow and quit when the user closes the window.</span>
+```python
+"""
+I draw the initial scene of the game which consists of a balloon and an
+arrow and quit when the user closes the window.
 
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 520</span>
-<span class="sd">    radius: 15</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 540</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> loop = GameLoop.create_null(
+...     events=[
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+>>> events = loop.track_events()
+>>> BalloonShooter(loop).run()
+>>> events
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 520
+    radius: 15
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 540
+    radius: 20
+    color: 'blue'
+GAMELOOP_QUIT =>
+"""
+```
+
 We both changed the description, becasue we have a balloon shooter now, not a
 generic game, and added checks for it drawing both the balloon and the arrow.
 
