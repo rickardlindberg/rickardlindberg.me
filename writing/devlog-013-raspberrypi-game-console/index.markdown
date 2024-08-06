@@ -111,12 +111,13 @@ I search the internet for how to configure a startup application for the Pi.
 I find an article that says that you can put a file in the autostart
 directory. I try this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ cat /etc/xdg/autostart/game_console_start.desktop
+```
+$ cat /etc/xdg/autostart/game_console_start.desktop
 [Desktop Entry]
 Name=Game console start
 Exec=supertux2
-</pre></div>
-</div></div>
+```
+
 I restart the Pi, and SuperTux actually starts automatically and you can start
 playing it using the gamepad. Fantastic!
 
@@ -125,10 +126,11 @@ playing it using the gamepad. Fantastic!
 Let's move on to our custom startup application. Here is the idea that I have
 for it:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
-</pre></div>
-</div></div>
+```python
+while True:
+    subprocess.call(StartupApplication.create().run())
+```
+
 This code runs the startup application in a loop. Its `run` method should
 return the command to run. (The game to play or shutdown command.)
 
@@ -143,70 +145,74 @@ We'll see.
 
 I start with this in a new file:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an application select screen:</span>
+    """
+    I draw an application select screen:
 
-<span class="sd">    &gt;&gt;&gt; events = StartupApplication.run_in_test_mode(</span>
-<span class="sd">    ...     events=[</span>
-<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">    ...     ]</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+    >>> events = StartupApplication.run_in_test_mode(
+    ...     events=[
+    ...         [GameLoop.create_event_user_closed_window()],
+    ...     ]
+    ... )
+    """
+```
+
 I create the bare minimum that the test complains about and get this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="n">loop</span> <span class="o">=</span> <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span>
-            <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="o">+</span><span class="p">[</span>
-                <span class="p">[</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_user_closed_window</span><span class="p">()],</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">events</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">track_events</span><span class="p">()</span>
-        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">events</span>
+    @staticmethod
+    def run_in_test_mode(events=[]):
+        loop = GameLoop.create_null(
+            events=events+[
+                [GameLoop.create_event_user_closed_window()],
+            ]
+        )
+        events = loop.track_events()
+        StartupApplication(loop).run()
+        return events
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
+    def __init__(self, loop):
+        self.loop = loop
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    def run(self):
+        self.loop.run(self)
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">pass</span>
+    def event(self, event):
+        pass
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
-</pre></div>
-</div></div>
+    def tick(self, dt):
+        pass
+```
+
 Now it doesn't complain, but it seems to hang in an infinite loop.
 
 I modify `event` to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        if event.is_user_closed_window():
+            raise ExitGameLoop()
+```
+
 And we're green. Let's commit.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ git commit -a -m &#39;Emryo to new startup application.&#39;
+```
+$ git commit -a -m 'Emryo to new startup application.'
 [main a55d17e] Emryo to new startup application.
  2 files changed, 39 insertions(+)
  create mode 100644 startup.py
-</pre></div>
-</div></div>
+```
+
 The test is not yet fleshed out. It doesn't test what it says it tests. But it
 drove out the skeleton of the application.
 
@@ -220,31 +226,34 @@ in our game loop somewhere. I've always found testing infinite loops difficult.
 That's one reason why I hesitated testing the loop for the startup application.
 But now I get another idea. What if we create the loop like this instead?
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+```python
+while self.loop_condition.active():
+    ...
+```
+
 Then we can create different versions of the loop condition maybe something
 like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InfiniteLoopCondition</span><span class="p">:</span>
+```python
+class InfiniteLoopCondition:
 
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">True</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TestLoopCondition</span><span class="p">:</span>
+    def active(self):
+        return True
+```
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
+```python
+class TestLoopCondition:
 
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">flag</span>
-</pre></div>
-</div></div>
+    def __init__(self, iterations):
+        self.counter = 0
+        self.iterations = iterations
+
+    def active(self):
+        flag = self.counter >= self.iterations
+        self.iterations += 1
+        return flag
+```
+
 Let's see if we can try this out in the startup application. If it works out
 well, perhaps we can port it to the game loop as well?
 
@@ -253,21 +262,22 @@ well, perhaps we can port it to the game loop as well?
 The test that we wrote does not assert anything on the events. Let's fix that.
 I comment out the assignment of `events` and paste the expected test output:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an application select screen:</span>
+```python
+"""
+I draw an application select screen:
 
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> StartupApplication.run_in_test_mode(
+...     events=[
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+GAMELOOP_QUIT =>
+"""
+```
+
 ## The looping concept
 
 This startup application should run in an infinite loop. In each iteration it
@@ -279,38 +289,40 @@ Let's try the looping thing.
 
 I start by TDDing the loop conditions:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InifiteLoopCondition</span><span class="p">:</span>
+```python
+class InifiteLoopCondition:
 
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; InifiteLoopCondition().active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+    def active(self):
+        """
+        >>> InifiteLoopCondition().active()
+        True
+        """
+```
+
 That fails. Fix by return true. The other:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FiteLoopCondition</span><span class="p">:</span>
+```python
+class FiteLoopCondition:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    def __init__(self, iterations):
+        self.iterations = iterations
+        self.count = 0
 
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; condition = FiteLoopCondition(iterations=2)</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">flag</span>
-</pre></div>
-</div></div>
+    def active(self):
+        """
+        >>> condition = FiteLoopCondition(iterations=2)
+        >>> condition.active()
+        True
+        >>> condition.active()
+        True
+        >>> condition.active()
+        False
+        """
+        flag = self.count < self.iterations
+        self.count += 1
+        return flag
+```
+
 I actually got the condition wrong here at first. I'm glad I wrote a test for
 it. The previous example, `TestLoopCondition`, above is actually wrong. Even
 for really simple code like this, having tests is nice.
@@ -320,90 +332,98 @@ loops are actually made.
 
 I change
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="o">...</span>
-        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    @staticmethod
+    def run_in_test_mode(events=[]):
+        ...
+        StartupApplication(loop).run()
+        ...
+```
+
 to
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="o">...</span>
-        <span class="n">StartupApplication</span><span class="p">(</span>
-            <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span>
-            <span class="n">loop_condition</span><span class="o">=</span><span class="n">FiteLoopCondition</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    @staticmethod
+    def run_in_test_mode(events=[]):
+        ...
+        StartupApplication(
+            loop=loop,
+            loop_condition=FiteLoopCondition(2)
+        ).run()
+        ...
+```
+
 I also notice that i misspelled finite. I fix that and then add the parameter
 to the class. Test passes. Let's add an actual loop:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def run(self):
+        while self.loop_condition.active():
+            self.loop.run(self)
+```
+
 This, expectedly, output another loop which I add to the assertion. Perfect!
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>    GAMELOOP_INIT =&gt;
+```
+    GAMELOOP_INIT =>
         resolution: (1280, 720)
         fps: 60
-    GAMELOOP_QUIT =&gt;
-</pre></div>
-</div></div>
+    GAMELOOP_QUIT =>
+```
+
 We are not yet using the `InfiniteLoopCondition`. Let's change that by adding a
 `create` method:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; isinstance(StartupApplication.create(), StartupApplication)</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">StartupApplication</span><span class="p">(</span>
-            <span class="n">loop</span><span class="o">=</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-            <span class="n">loop_condition</span><span class="o">=</span><span class="n">InifiteLoopCondition</span><span class="p">()</span>
-        <span class="p">)</span>
-</pre></div>
-</div></div>
+    @staticmethod
+    def create():
+        """
+        >>> isinstance(StartupApplication.create(), StartupApplication)
+        True
+        """
+        return StartupApplication(
+            loop=GameLoop.create(),
+            loop_condition=InifiteLoopCondition()
+        )
+```
+
 I also add this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+if __name__ == "__main__":
+    StartupApplication.create().run()
+```
+
 And when I run
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python startup.py
-</pre></div>
-</div></div>
+```
+$ python startup.py
+```
+
 It indeed creates a new window every time I close it.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ git commit -a -m &#39;Add startup entry point and have it loop.&#39;
+```
+$ git commit -a -m 'Add startup entry point and have it loop.'
 [main aadd1a2] Add startup entry point and have it loop.
  1 file changed, 60 insertions(+), 5 deletions(-)
-</pre></div>
-</div></div>
+```
+
 ## Selecting a game
 
 What is the simplest possible solution for selecting a game?
@@ -413,12 +433,13 @@ Then you move a cursor over it and press a key to select it.
 
 I start by getting some games on the screen:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt):
+    self.loop.clear_screen()
+    self.loop.draw_text(Point(x=100, y=100), text="SuperTux")
+    self.loop.draw_text(Point(x=100, y=200), text="Balloon Shooter")
+```
+
 It looks like this:
 
 <p>
@@ -429,13 +450,14 @@ It looks like this:
 
 I think we also need a cursor:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt):
+    self.loop.clear_screen()
+    self.loop.draw_text(Point(x=100, y=100), text="SuperTux")
+    self.loop.draw_text(Point(x=100, y=200), text="Balloon Shooter")
+    self.loop.draw_circle(Point(x=500, y=500), radius=20, color="pink")
+```
+
 It looks like this:
 
 <p>
@@ -458,45 +480,48 @@ level is tedious and error prone. I would therefore like to start by
 refactoring and extracting a `StartupScene` maybe that has an interface that is
 easier to test. I end up with this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+    def event(self, event):
+        if event.is_user_closed_window():
+            raise ExitGameLoop()
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_text(Point(x=100, y=100), text="SuperTux")
+        loop.draw_text(Point(x=100, y=200), text="Balloon Shooter")
+        loop.draw_circle(Point(x=500, y=500), radius=20, color="pink")
+```
+
 I'm sure this refactoring works because I have tests to cover it.
 
 Commit!
 
 Now, let's see if we can write a test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">When XBOX_A is pressed, I start the game that is closest to the cursor:</span>
+```python
+"""
+When XBOX_A is pressed, I start the game that is closest to the cursor:
 
-<span class="sd">&gt;&gt;&gt; scene = StartupScene()</span>
-<span class="sd">&gt;&gt;&gt; scene.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">SuperTux</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> scene = StartupScene()
+>>> scene.event(GameLoop.create_event_joystick_down(XBOX_A))
+SuperTux
+"""
+```
+
 I make it pass like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        ...
+        elif event.is_joystick_down(XBOX_A):
+            print("SuperTux")
+```
+
 This is obviously faking it. It is not supposed to print the name of the game,
 it is supposed to run it, or, wait a minute. This class is not supposed to run
 it, the top-level class is.
@@ -507,204 +532,215 @@ Let's scratch this and start over.
 
 Let's have a look at the top-level test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an application select screen:</span>
+```python
+"""
+I draw an application select screen:
 
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 100</span>
-<span class="sd">    text: &#39;SuperTux&#39;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 200</span>
-<span class="sd">    text: &#39;Balloon Shooter&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 100</span>
-<span class="sd">    text: &#39;SuperTux&#39;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 200</span>
-<span class="sd">    text: &#39;Balloon Shooter&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> StartupApplication.run_in_test_mode(
+...     events=[
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_TEXT =>
+    x: 100
+    y: 100
+    text: 'SuperTux'
+DRAW_TEXT =>
+    x: 100
+    y: 200
+    text: 'Balloon Shooter'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 20
+    color: 'pink'
+GAMELOOP_QUIT =>
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_TEXT =>
+    x: 100
+    y: 100
+    text: 'SuperTux'
+DRAW_TEXT =>
+    x: 100
+    y: 200
+    text: 'Balloon Shooter'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 20
+    color: 'pink'
+GAMELOOP_QUIT =>
+"""
+```
+
 This shows our game loop runs twice, but there is no mention that a command is
 run. Let's modify
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def run(self):
+        while self.loop_condition.active():
+            self.loop.run(self)
+```
+
 to
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TODO: run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">get_command</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def run(self):
+        while self.loop_condition.active():
+            self.loop.run(self)
+            print(f"TODO: run {self.startup_scene.get_command()}")
+```
+
 It complains that `get_command` does not exist. Let's add it:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
+    def get_command(self):
+        return ["supertux2"]
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 We are now getting a somewhat expected test failure:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>Differences (ndiff with -expected +actual):
-    + TODO: run [&#39;supertux2&#39;]
-    + TODO: run [&#39;supertux2&#39;]
-      GAMELOOP_INIT =&gt;
+```
+Differences (ndiff with -expected +actual):
+    + TODO: run ['supertux2']
+    + TODO: run ['supertux2']
+      GAMELOOP_INIT =>
           resolution: (1280, 720)
           fps: 60
-      CLEAR_SCREEN =&gt;
-</pre></div>
-</div></div>
+      CLEAR_SCREEN =>
+```
+
 I was thinking to fake this and postpone running the actual command. To do it
 properly we need an infrastructure wrapper for running commands. I'll just do
 it.
 
 Here is a first faked version:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class Command(Observable):
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
+    @staticmethod
+    def create():
+        return Command()
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
+    @staticmethod
+    def create_null():
+        return Command()
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
-</pre></div>
-</div></div>
+    def run(self, command):
+        self.notify("COMMAND", {"command": command})
+```
+
 Instead of printing the command, it sends a notification so that we can assert
 that the event happens at the right time in the test. That is, we can assert
 that a command is run after the game loop is quit:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>...
-GAMELOOP_QUIT =&gt;
-COMMAND =&gt;
-    command: [&#39;supertux2&#39;]
+```
 ...
-</pre></div>
-</div></div>
+GAMELOOP_QUIT =>
+COMMAND =>
+    command: ['supertux2']
+...
+```
+
 This works. Let's commit:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ git commit -a -m &#39;Run command from StartupScene when game loop is quit.&#39;
+```
+$ git commit -a -m 'Run command from StartupScene when game loop is quit.'
 [main 4c47b18] Run command from StartupScene when game loop is quit.
  1 file changed, 31 insertions(+), 5 deletions(-)
-</pre></div>
-</div></div>
+```
+
 For this to actually do something, we need to flesh out `Command`. Here is what
 I end up with:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class Command(Observable):
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;echo&quot;, &quot;hello&quot;])</span>
+    """
+    >>> Command.create().run(["echo", "hello"])
 
-<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;command-that-does-not-exist&quot;])</span>
-<span class="sd">    Traceback (most recent call last):</span>
-<span class="sd">      ...</span>
-<span class="sd">    FileNotFoundError: [Errno 2] No such file or directory: &#39;command-that-does-not-exist&#39;</span>
+    >>> Command.create().run(["command-that-does-not-exist"])
+    Traceback (most recent call last):
+      ...
+    FileNotFoundError: [Errno 2] No such file or directory: 'command-that-does-not-exist'
 
-<span class="sd">    &gt;&gt;&gt; Command.create_null().run([&quot;command-that-does-not-exist&quot;])</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> Command.create_null().run(["command-that-does-not-exist"])
+    """
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
+    @staticmethod
+    def create():
+        return Command(subprocess=subprocess)
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">class</span> <span class="nc">NullSubprocess</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-                <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocess</span><span class="p">())</span>
+    @staticmethod
+    def create_null():
+        class NullSubprocess:
+            def run(self, command):
+                pass
+        return Command(subprocess=NullSubprocess())
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
-        <span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
+    def __init__(self, subprocess):
+        Observable.__init__(self)
+        self.subprocess = subprocess
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def run(self, command):
+        self.notify("COMMAND", {"command": command})
+        self.subprocess.run(command)
+```
+
 When the startup application is run and then quit, SuperTux is actually
 started.
 
 This is actually some real progress.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ git commit -a -m &#39;Command actually runs commands.&#39;
+```
+$ git commit -a -m 'Command actually runs commands.'
 [main 270440e] Command actually runs commands.
  1 file changed, 23 insertions(+), 2 deletions(-)
-</pre></div>
-</div></div>
+```
+
 ## Selection behavior
 
 Let's review the `StartupScene`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
+    def get_command(self):
+        return ["supertux2"]
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+    def event(self, event):
+        if event.is_user_closed_window():
+            raise ExitGameLoop()
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_text(Point(x=100, y=100), text="SuperTux")
+        loop.draw_text(Point(x=100, y=200), text="Balloon Shooter")
+        loop.draw_circle(Point(x=500, y=500), radius=20, color="pink")
+```
+
 We have higher-level tests in place that checks that whatever `get_command`
 returns is run when the game loop quits.
 
@@ -712,141 +748,149 @@ I think it should now be fairly easy to write tests for selection behavior.
 Let's first modify the event handler to also exit the game loop when `XBOX_A`
 is pressed:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_user_closed_window())</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        gameloop.ExitGameLoop</span>
+    def event(self, event):
+        """
+        >>> StartupScene().event(GameLoop.create_event_user_closed_window())
+        Traceback (most recent call last):
+          ...
+        gameloop.ExitGameLoop
 
-<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        gameloop.ExitGameLoop</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-</pre></div>
-</div></div>
+        >>> StartupScene().event(GameLoop.create_event_joystick_down(XBOX_A))
+        Traceback (most recent call last):
+          ...
+        gameloop.ExitGameLoop
+        """
+        if event.is_user_closed_window() or event.is_joystick_down(XBOX_A):
+            raise ExitGameLoop()
+```
+
 Now let's think about what `get_command` should return. It should return the
 command of the game that is closest to the cursor. Let's write two tests for
 that:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; scene = StartupScene()</span>
+    def get_command(self):
+        """
+        >>> scene = StartupScene()
 
-<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=100)</span>
-<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
-<span class="sd">        [&#39;supertux2&#39;]</span>
+        >>> scene.move_cursor(x=100, y=100)
+        >>> scene.get_command()
+        ['supertux2']
 
-<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=200)</span>
-<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
-<span class="sd">        [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+        >>> scene.move_cursor(x=100, y=200)
+        >>> scene.get_command()
+        ['python', '/home/.../agdpp/agdpp.py']
+        """
+```
+
 It complains that `move_cursor` does not exist. I add it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    def __init__(self):
+        self.cursor = Point(x=500, y=500)
 
-    <span class="k">def</span> <span class="nf">move_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+    def move_cursor(self, x, y):
+        self.cursor = Point(x=x, y=y)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 I also modify the drawing code to use this point for the cursor.
 
 Now the second test case fails:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>Failed example:
+```
+Failed example:
     scene.get_command()
 Differences (ndiff with -expected +actual):
-    - [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]
-    + [&#39;supertux2&#39;]
-</pre></div>
-</div></div>
+    - ['python', '/home/.../agdpp/agdpp.py']
+    + ['supertux2']
+```
+
 I make a quick and dirty fix, because I want to go quickly to green so that I
 can refactor and generalize the solution:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+    def get_command(self):
+        if self.cursor.y == 200:
+            return ["python", "/home/.../agdpp/agdpp.py"]
+        return ["supertux2"]
+```
+
 And this is my favorite state of programming. This is actually where some
 design happens. I have the safety net of the tests and I can push code around
 until I think it looks good and the next thing is easy to add.
 
 Here is what I come up with this time:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
+    def __init__(self):
+        self.cursor = Point(x=500, y=500)
+        self.games = [
+            Game(
+                name="SuperTux",
+                position=Point(x=100, y=100),
+                command=["supertux2"],
+            ),
+            Game(
+                name="Balloon Shooter",
+                position=Point(x=100, y=200),
+                command=["python", "/home/.../agdpp/agdpp.py"],
+            ),
+        ]
 
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">command</span>
+    def get_command(self):
+        return min(
+            self.games,
+            key=lambda game: game.distance_to(self.cursor)
+        ).command
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+    def draw(self, loop):
+        for game in self.games:
+            game.draw(loop)
+        loop.draw_circle(self.cursor, radius=20, color="pink")
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 And here is the `Game` class:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+```python
+class Game:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+    def __init__(self, name, position, command):
+        self.name = name
+        self.position = position
+        self.command = command
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    def draw(self, loop):
+        loop.draw_text(self.position, text=self.name)
 
-    <span class="k">def</span> <span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def distance_to(self, point):
+        return self.position.distance_to(point)
+```
+
 This implementation still passes all tests and is also generalized. Nice!
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ git commit -a -m &#39;Run the command closest to the cursor.&#39;
+```
+$ git commit -a -m 'Run the command closest to the cursor.'
 [main 921c71f] Run the command closest to the cursor.
  1 file changed, 64 insertions(+), 7 deletions(-)
-</pre></div>
-</div></div>
+```
+
 ## Cursor movement
 
 Next I want to work on cursor movement so that we can actually select
@@ -855,67 +899,70 @@ different games.
 I'm not quite sure how to write a low-level test for this in `GameScene`, so I
 write a top-level test instead:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_joystick_motion(axis=1, value=1.0)],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ],</span>
-<span class="sd">...     iterations=1</span>
-<span class="sd">... ).filter(&quot;DRAW_CIRCLE&quot;)</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 501</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> StartupApplication.run_in_test_mode(
+...     events=[
+...         [],
+...         [GameLoop.create_event_joystick_motion(axis=1, value=1.0)],
+...         [GameLoop.create_event_user_closed_window()],
+...     ],
+...     iterations=1
+... ).filter("DRAW_CIRCLE")
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 20
+    color: 'pink'
+DRAW_CIRCLE =>
+    x: 500
+    y: 501
+    radius: 20
+    color: 'pink'
+"""
+```
+
 We assert that the cursor is drawn in two different positions given a joystick
 motion event.
 
 The gist of the implementation is here:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_motion</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+    def event(self, event):
+        ...
+        elif event.is_joystick_motion():
+            if event.get_axis() == 0:
+                self.dx = event.get_value()
+            elif event.get_axis() == 1:
+                self.dy = event.get_value()
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">delta</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        delta = Point(x=self.dx, y=self.dy)
+        if delta.length() > 0.05:
+            self.cursor = self.cursor.add(delta.times(dt))
+```
+
 The `update` method did not exist on `StartupScene` before. The pattern how
 it is called is here:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+```python
+class StartupApplication:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def event(self, event):
+        self.startup_scene.event(event)
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def tick(self, dt):
+        self.loop.clear_screen()
+        self.startup_scene.update(dt)
+        self.startup_scene.draw(self.loop)
+```
+
 So the scene will receive these calls in order:
 
 * `event`
@@ -944,33 +991,35 @@ and when I press `XBOX_A` the game closest to the cursor is started.
 I want to visualize the game that is closest to the cursor. Let's do it with
 another color.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_closest_to_cursor</span><span class="p">())</span>
+    def draw(self, loop):
+        for game in self.games:
+            game.draw(loop, self.game_closest_to_cursor())
 
-    <span class="k">def</span> <span class="nf">game_closest_to_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
-        <span class="p">)</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+    def game_closest_to_cursor(self):
+        return min(
+            self.games,
+            key=lambda game: game.distance_to(self.cursor)
+        )
+```
 
-    <span class="o">...</span>
+```python
+class Game:
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">,</span> <span class="n">closest</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
-            <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span> <span class="k">if</span> <span class="n">closest</span> <span class="ow">is</span> <span class="bp">self</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
-        <span class="p">)</span>
-</pre></div>
-</div></div>
+    ...
+
+    def draw(self, loop, closest):
+        loop.draw_text(
+            self.position,
+            text=self.name,
+            color="lightblue" if closest is self else "black"
+        )
+```
+
 I modify tests to assert the correct color. This works perfectly.
 
 Next I want to fix the games that are configured. I want them to display
@@ -979,29 +1028,30 @@ command to shut down the Pi.
 
 Here it is:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+```python
+class StartupScene:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span> <span class="s2">&quot;agdpp.py&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QUIT&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">600</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shutdown&quot;</span><span class="p">,</span> <span class="s2">&quot;now&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-</pre></div>
-</div></div>
+    def __init__(self):
+        self.cursor = Point(x=400, y=300)
+        self.games = [
+            Game(
+                name="SuperTux",
+                position=Point(x=100, y=100),
+                command=["supertux2"],
+            ),
+            Game(
+                name="Balloon Shooter",
+                position=Point(x=400, y=300),
+                command=["python3", "agdpp.py"],
+            ),
+            Game(
+                name="QUIT",
+                position=Point(x=1000, y=600),
+                command=["shutdown", "now"],
+            ),
+        ]
+```
+
 And it looks like this:
 
 <p>
@@ -1015,36 +1065,38 @@ And it looks like this:
 I change the startup script, `/etc/xdg/autostart/game_console_start.desktop`,
 to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>[Desktop Entry]
+```
+[Desktop Entry]
 Name=Game console start
 Exec=/home/pi/game_console_pc.sh
-</pre></div>
-</div></div>
+```
+
 Where `/home/pi/game_console_pc.sh` is this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+```shell
+#!/usr/bin/env bash
 
-<span class="nb">exec</span> &gt; /home/pi/game_console_pc.log
+exec > /home/pi/game_console_pc.log
 
-<span class="nb">exec</span> <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+exec 2>&1
 
-<span class="nb">cd</span> /home/pi/agdpp
+cd /home/pi/agdpp
 
-<span class="k">for</span> retry <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">5</span> <span class="m">10</span> giveup<span class="p">;</span> <span class="k">do</span>
-	<span class="k">if</span> <span class="o">[</span> <span class="nv">$retry</span> <span class="o">=</span> giveup <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-		<span class="nb">echo</span> giving up
-		<span class="nb">break</span>
-	<span class="k">elif</span> git pull --ff-only<span class="p">;</span> <span class="k">then</span>
-		<span class="nb">break</span>
-	<span class="k">else</span>
-		<span class="nb">echo</span> Retrying <span class="k">in</span> <span class="nv">$retry</span>
-		sleep <span class="nv">$retry</span>
-	<span class="k">fi</span>
-<span class="k">done</span>
+for retry in 1 2 5 10 giveup; do
+	if [ $retry = giveup ]; then
+		echo giving up
+		break
+	elif git pull --ff-only; then
+		break
+	else
+		echo Retrying in $retry
+		sleep $retry
+	fi
+done
 
 python3 startup.py
-</pre></div>
-</div></div>
+```
+
 And it works beautifully.
 
 Why did I not test drive this startup script? Good question. I for sure spend
@@ -1052,16 +1104,17 @@ some time debugging the loop, which, by the way, is needed to give the Pi time
 to connect to the wireless network before it can download the latest version of
 the startup application and balloon shooter.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>pi@raspberrypi:~ $ cat game_console_pc.log
-fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
+```
+pi@raspberrypi:~ $ cat game_console_pc.log
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
 Retrying in 1
-fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
 Retrying in 2
-fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
 Retrying in 5
 Already up to date.
-</pre></div>
-</div></div>
+```
+
 I feel like this script is maybe not part of the game itself. So that is one
 reason why I just "hacked" it together on the Pi. But I'm not entirely happy
 that it exists only there, and not in some repo, and doesn't have any tests.
@@ -1074,21 +1127,23 @@ you are stuck in it.
 
 I modify `GameScene` by adding a check for `XBOX_START`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+```python
+class GameScene:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_START</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        if event.is_user_closed_window() or event.is_joystick_down(XBOX_START):
+            raise ExitGameLoop()
+        ...
+```
+
 And by printing events, I figure out the value of `XBOX_START`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">XBOX_START</span> <span class="o">=</span> <span class="mi">7</span>
-</pre></div>
-</div></div>
+```python
+XBOX_START = 7
+```
+
 ## Summary
 
 Finally, I have the first version of the setup that I had in mind.
