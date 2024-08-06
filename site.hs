@@ -367,7 +367,7 @@ patternPostIndexPandoc =
     .||. "writing/writing-my-own-video-editor/index.markdown"
     .||. "writing/what-is-a-user-story/index.markdown"
     .||. "writing/function-to-oop-refactoring/index.markdown"
-    .||. "writing/ardour-latency-free-overdubbing/index.rst.markdown"
+    .||. "writing/ardour-latency-free-overdubbing/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
