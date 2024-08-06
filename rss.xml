@@ -1264,358 +1264,211 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>Once we have that working, we can work on our own startup application that let us select the game, and then we can start that one instead.</p>
 <p>I search the internet for how to configure a startup application for the Pi.</p>
 <p>I find an article that says that you can put a file in the autostart directory. I try this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ cat /etc/xdg/autostart/game_console_start.desktop
+<pre><code>$ cat /etc/xdg/autostart/game_console_start.desktop
 [Desktop Entry]
 Name=Game console start
-Exec=supertux2
-</pre>
-</div>
-</div>
-</div>
+Exec=supertux2</code></pre>
 <p>I restart the Pi, and SuperTux actually starts automatically and you can start playing it using the gamepad. Fantastic!</p>
 <h2 id="startup-application-idea">Startup application idea</h2>
 <p>Let’s move on to our custom startup application. Here is the idea that I have for it:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    subprocess.call(StartupApplication.create().run())</span></code></pre></div>
 <p>This code runs the startup application in a loop. Its <code>run</code> method should return the command to run. (The game to play or shutdown command.)</p>
 <p>I think we can test drive the <code>StartupApplication</code> and then we can hook it up in the loop above.</p>
 <p>Perhaps we should even test drive the loop.</p>
 <p>We’ll see.</p>
 <h2 id="test-driving-the-application">Test driving the application</h2>
 <p>I start with this in a new file:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an application select screen:</span>
-
-<span class="sd">    &gt;&gt;&gt; events = StartupApplication.run_in_test_mode(</span>
-<span class="sd">    ...     events=[</span>
-<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">    ...     ]</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">    I draw an application select screen:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; events = StartupApplication.run_in_test_mode(</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co">    ...     events=[</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">    ...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">    ...     ]</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">    ... )</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span></code></pre></div>
 <p>I create the bare minimum that the test complains about and get this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="n">loop</span> <span class="o">=</span> <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span>
-            <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="o">+</span><span class="p">[</span>
-                <span class="p">[</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_user_closed_window</span><span class="p">()],</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">events</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">track_events</span><span class="p">()</span>
-        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">events</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    ...</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="kw">def</span> run_in_test_mode(events<span class="op">=</span>[]):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        loop <span class="op">=</span> GameLoop.create_null(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>            events<span class="op">=</span>events<span class="op">+</span>[</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>                [GameLoop.create_event_user_closed_window()],</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>            ]</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>        )</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>        events <span class="op">=</span> loop.track_events()</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>        StartupApplication(loop).run()</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>        <span class="cf">return</span> events</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>        <span class="va">self</span>.loop <span class="op">=</span> loop</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a>        <span class="va">self</span>.loop.run(<span class="va">self</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>        <span class="cf">pass</span></span></code></pre></div>
 <p>Now it doesn’t complain, but it seems to hang in an infinite loop.</p>
 <p>I modify <code>event</code> to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    ...</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span></code></pre></div>
 <p>And we’re green. Let’s commit.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ git commit -a -m &#39;Emryo to new startup application.&#39;
+<pre><code>$ git commit -a -m &#39;Emryo to new startup application.&#39;
 [main a55d17e] Emryo to new startup application.
  2 files changed, 39 insertions(+)
- create mode 100644 startup.py
-</pre>
-</div>
-</div>
-</div>
+ create mode 100644 startup.py</code></pre>
 <p>The test is not yet fleshed out. It doesn’t test what it says it tests. But it drove out the skeleton of the application.</p>
 <h2 id="reflecting-on-the-design">Reflecting on the design</h2>
 <p>It’s been a while since I worked on the balloon shooter. What do I think when I work in this design again?</p>
 <p>I got stuck in an infinite loop. That happens because we have a <code>while True:</code> in our game loop somewhere. I’ve always found testing infinite loops difficult. That’s one reason why I hesitated testing the loop for the startup application. But now I get another idea. What if we create the loop like this instead?</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>Then we can create different versions of the loop condition maybe something like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">InfiniteLoopCondition</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">True</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">TestLoopCondition</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
-
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">flag</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">class</span> InfiniteLoopCondition:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    <span class="kw">def</span> active(<span class="va">self</span>):</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">True</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">class</span> TestLoopCondition:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, iterations):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>        <span class="va">self</span>.counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>        <span class="va">self</span>.iterations <span class="op">=</span> iterations</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    <span class="kw">def</span> active(<span class="va">self</span>):</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>        flag <span class="op">=</span> <span class="va">self</span>.counter <span class="op">&gt;=</span> <span class="va">self</span>.iterations</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>        <span class="va">self</span>.iterations <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>        <span class="cf">return</span> flag</span></code></pre></div>
 <p>Let’s see if we can try this out in the startup application. If it works out well, perhaps we can port it to the game loop as well?</p>
 <h2 id="a-mistake">A mistake</h2>
 <p>The test that we wrote does not assert anything on the events. Let’s fix that. I comment out the assignment of <code>events</code> and paste the expected test output:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an application select screen:</span>
-
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">I draw an application select screen:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <h2 id="the-looping-concept">The looping concept</h2>
 <p>This startup application should run in an infinite loop. In each iteration it should init the game loop and show the game selection screen. Once the selection has been made, it should quit the game loop and run the command. Then it starts all over.</p>
 <p>Let’s try the looping thing.</p>
 <p>I start by TDDing the loop conditions:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">InifiteLoopCondition</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; InifiteLoopCondition().active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> InifiteLoopCondition:</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    <span class="kw">def</span> active(<span class="va">self</span>):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; InifiteLoopCondition().active()</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span></code></pre></div>
 <p>That fails. Fix by return true. The other:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">FiteLoopCondition</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; condition = FiteLoopCondition(iterations=2)</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; condition.active()</span>
-<span class="sd">        False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">flag</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">class</span> FiteLoopCondition:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, iterations):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>        <span class="va">self</span>.iterations <span class="op">=</span> iterations</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>        <span class="va">self</span>.count <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    <span class="kw">def</span> active(<span class="va">self</span>):</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; condition = FiteLoopCondition(iterations=2)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; condition.active()</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; condition.active()</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; condition.active()</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a><span class="co">        False</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true"></a>        flag <span class="op">=</span> <span class="va">self</span>.count <span class="op">&lt;</span> <span class="va">self</span>.iterations</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true"></a>        <span class="va">self</span>.count <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true"></a>        <span class="cf">return</span> flag</span></code></pre></div>
 <p>I actually got the condition wrong here at first. I’m glad I wrote a test for it. The previous example, <code>TestLoopCondition</code>, above is actually wrong. Even for really simple code like this, having tests is nice.</p>
 <p>Let’s see if we can use a loop condition and have the test show us that two loops are actually made.</p>
 <p>I change</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="o">...</span>
-        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    ...</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>    <span class="kw">def</span> run_in_test_mode(events<span class="op">=</span>[]):</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>        ...</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>        StartupApplication(loop).run()</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>        ...</span></code></pre></div>
 <p>to</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="o">...</span>
-        <span class="n">StartupApplication</span><span class="p">(</span>
-            <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span>
-            <span class="n">loop_condition</span><span class="o">=</span><span class="n">FiteLoopCondition</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    ...</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>    <span class="kw">def</span> run_in_test_mode(events<span class="op">=</span>[]):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>        ...</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a>        StartupApplication(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>            loop<span class="op">=</span>loop,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>            loop_condition<span class="op">=</span>FiteLoopCondition(<span class="dv">2</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>        ).run()</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a>        ...</span></code></pre></div>
 <p>I also notice that i misspelled finite. I fix that and then add the parameter to the class. Test passes. Let’s add an actual loop:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    ...</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>            <span class="va">self</span>.loop.run(<span class="va">self</span>)</span></code></pre></div>
 <p>This, expectedly, output another loop which I add to the assertion. Perfect!</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>    GAMELOOP_INIT =&gt;
+<pre><code>    GAMELOOP_INIT =&gt;
         resolution: (1280, 720)
         fps: 60
-    GAMELOOP_QUIT =&gt;
-</pre>
-</div>
-</div>
-</div>
+    GAMELOOP_QUIT =&gt;</code></pre>
 <p>We are not yet using the <code>InfiniteLoopCondition</code>. Let’s change that by adding a <code>create</code> method:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; isinstance(StartupApplication.create(), StartupApplication)</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">StartupApplication</span><span class="p">(</span>
-            <span class="n">loop</span><span class="o">=</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-            <span class="n">loop_condition</span><span class="o">=</span><span class="n">InifiteLoopCondition</span><span class="p">()</span>
-        <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>    ...</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>    <span class="kw">def</span> create():</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; isinstance(StartupApplication.create(), StartupApplication)</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a>        <span class="cf">return</span> StartupApplication(</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a>            loop<span class="op">=</span>GameLoop.create(),</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>            loop_condition<span class="op">=</span>InifiteLoopCondition()</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a>        )</span></code></pre></div>
 <p>I also add this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>    StartupApplication.create().run()</span></code></pre></div>
 <p>And when I run</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ python startup.py
-</pre>
-</div>
-</div>
-</div>
+<pre><code>$ python startup.py</code></pre>
 <p>It indeed creates a new window every time I close it.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ git commit -a -m &#39;Add startup entry point and have it loop.&#39;
+<pre><code>$ git commit -a -m &#39;Add startup entry point and have it loop.&#39;
 [main aadd1a2] Add startup entry point and have it loop.
- 1 file changed, 60 insertions(+), 5 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 60 insertions(+), 5 deletions(-)</code></pre>
 <h2 id="selecting-a-game">Selecting a game</h2>
 <p>What is the simplest possible solution for selecting a game?</p>
 <p>I imagine that the display shows an icon for each game that can be selected. Then you move a cursor over it and press a key to select it.</p>
 <p>I start by getting some games on the screen:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>), text<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">200</span>), text<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>)</span></code></pre></div>
 <p>It looks like this:</p>
 <p>
 <center>
@@ -1623,18 +1476,11 @@ Exec=supertux2
 </center>
 </p>
 <p>I think we also need a cursor:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>), text<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">200</span>), text<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_circle(Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>), radius<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">&quot;pink&quot;</span>)</span></code></pre></div>
 <p>It looks like this:</p>
 <p>
 <center>
@@ -1645,530 +1491,355 @@ Exec=supertux2
 <p>I think working on movement is secondary. It is more important to be able to start <strong>one</strong> game instead of nothing. So let’s work on that first.</p>
 <h2 id="starting-a-game">Starting a game</h2>
 <p>I want to write a test for the new behavior, but I find that testing at the top level is tedious and error prone. I would therefore like to start by refactoring and extracting a <code>StartupScene</code> maybe that has an interface that is easier to test. I end up with this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true"></a>        loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>), text<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a>        loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">200</span>), text<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a>        loop.draw_circle(Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>), radius<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">&quot;pink&quot;</span>)</span></code></pre></div>
 <p>I’m sure this refactoring works because I have tests to cover it.</p>
 <p>Commit!</p>
 <p>Now, let’s see if we can write a test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">When XBOX_A is pressed, I start the game that is closest to the cursor:</span>
-
-<span class="sd">&gt;&gt;&gt; scene = StartupScene()</span>
-<span class="sd">&gt;&gt;&gt; scene.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">SuperTux</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a><span class="co">When XBOX_A is pressed, I start the game that is closest to the cursor:</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; scene = StartupScene()</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; scene.event(GameLoop.create_event_joystick_down(XBOX_A))</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a><span class="co">SuperTux</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>I make it pass like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>    ...</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true"></a>        ...</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_joystick_down(XBOX_A):</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;SuperTux&quot;</span>)</span></code></pre></div>
 <p>This is obviously faking it. It is not supposed to print the name of the game, it is supposed to run it, or, wait a minute. This class is not supposed to run it, the top-level class is.</p>
 <p>Let’s scratch this and start over.</p>
 <h2 id="starting-a-game-again">Starting a game (again)</h2>
 <p>Let’s have a look at the top-level test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an application select screen:</span>
-
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 100</span>
-<span class="sd">    text: &#39;SuperTux&#39;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 200</span>
-<span class="sd">    text: &#39;Balloon Shooter&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 100</span>
-<span class="sd">    text: &#39;SuperTux&#39;</span>
-<span class="sd">DRAW_TEXT =&gt;</span>
-<span class="sd">    x: 100</span>
-<span class="sd">    y: 200</span>
-<span class="sd">    text: &#39;Balloon Shooter&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a><span class="co">I draw an application select screen:</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true"></a><span class="co">DRAW_TEXT =&gt;</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true"></a><span class="co">    x: 100</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true"></a><span class="co">    y: 100</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true"></a><span class="co">    text: &#39;SuperTux&#39;</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true"></a><span class="co">DRAW_TEXT =&gt;</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true"></a><span class="co">    x: 100</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true"></a><span class="co">    y: 200</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true"></a><span class="co">    text: &#39;Balloon Shooter&#39;</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true"></a><span class="co">    color: &#39;pink&#39;</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true"></a><span class="co">DRAW_TEXT =&gt;</span></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true"></a><span class="co">    x: 100</span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true"></a><span class="co">    y: 100</span></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true"></a><span class="co">    text: &#39;SuperTux&#39;</span></span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true"></a><span class="co">DRAW_TEXT =&gt;</span></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true"></a><span class="co">    x: 100</span></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true"></a><span class="co">    y: 200</span></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true"></a><span class="co">    text: &#39;Balloon Shooter&#39;</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true"></a><span class="co">    color: &#39;pink&#39;</span></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>This shows our game loop runs twice, but there is no mention that a command is run. Let’s modify</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a>    ...</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a>            <span class="va">self</span>.loop.run(<span class="va">self</span>)</span></code></pre></div>
 <p>to</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TODO: run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">get_command</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a>    ...</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true"></a>            <span class="va">self</span>.loop.run(<span class="va">self</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="ss">f&quot;TODO: run </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>startup_scene<span class="sc">.</span>get_command()<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
 <p>It complains that <code>get_command</code> does not exist. Let’s add it:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true"></a>    <span class="kw">def</span> get_command(<span class="va">self</span>):</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true"></a>        <span class="cf">return</span> [<span class="st">&quot;supertux2&quot;</span>]</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>We are now getting a somewhat expected test failure:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>Differences (ndiff with -expected +actual):
+<pre><code>Differences (ndiff with -expected +actual):
     + TODO: run [&#39;supertux2&#39;]
     + TODO: run [&#39;supertux2&#39;]
       GAMELOOP_INIT =&gt;
           resolution: (1280, 720)
           fps: 60
-      CLEAR_SCREEN =&gt;
-</pre>
-</div>
-</div>
-</div>
+      CLEAR_SCREEN =&gt;</code></pre>
 <p>I was thinking to fake this and postpone running the actual command. To do it properly we need an infrastructure wrapper for running commands. I’ll just do it.</p>
 <p>Here is a first faked version:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="kw">class</span> Command(Observable):</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true"></a>    <span class="kw">def</span> create():</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true"></a>        <span class="cf">return</span> Command()</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true"></a>    <span class="kw">def</span> create_null():</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true"></a>        <span class="cf">return</span> Command()</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, command):</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;COMMAND&quot;</span>, {<span class="st">&quot;command&quot;</span>: command})</span></code></pre></div>
 <p>Instead of printing the command, it sends a notification so that we can assert that the event happens at the right time in the test. That is, we can assert that a command is run after the game loop is quit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>...
+<pre><code>...
 GAMELOOP_QUIT =&gt;
 COMMAND =&gt;
     command: [&#39;supertux2&#39;]
-...
-</pre>
-</div>
-</div>
-</div>
+...</code></pre>
 <p>This works. Let’s commit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ git commit -a -m &#39;Run command from StartupScene when game loop is quit.&#39;
+<pre><code>$ git commit -a -m &#39;Run command from StartupScene when game loop is quit.&#39;
 [main 4c47b18] Run command from StartupScene when game loop is quit.
- 1 file changed, 31 insertions(+), 5 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 31 insertions(+), 5 deletions(-)</code></pre>
 <p>For this to actually do something, we need to flesh out <code>Command</code>. Here is what I end up with:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;echo&quot;, &quot;hello&quot;])</span>
-
-<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;command-that-does-not-exist&quot;])</span>
-<span class="sd">    Traceback (most recent call last):</span>
-<span class="sd">      ...</span>
-<span class="sd">    FileNotFoundError: [Errno 2] No such file or directory: &#39;command-that-does-not-exist&#39;</span>
-
-<span class="sd">    &gt;&gt;&gt; Command.create_null().run([&quot;command-that-does-not-exist&quot;])</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">class</span> <span class="nc">NullSubprocess</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-                <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocess</span><span class="p">())</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
-        <span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true"></a><span class="kw">class</span> Command(Observable):</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; Command.create().run([&quot;echo&quot;, &quot;hello&quot;])</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; Command.create().run([&quot;command-that-does-not-exist&quot;])</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true"></a><span class="co">    Traceback (most recent call last):</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true"></a><span class="co">      ...</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true"></a><span class="co">    FileNotFoundError: [Errno 2] No such file or directory: &#39;command-that-does-not-exist&#39;</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; Command.create_null().run([&quot;command-that-does-not-exist&quot;])</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true"></a></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true"></a>    <span class="kw">def</span> create():</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true"></a>        <span class="cf">return</span> Command(subprocess<span class="op">=</span>subprocess)</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true"></a></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true"></a>    <span class="kw">def</span> create_null():</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true"></a>        <span class="kw">class</span> NullSubprocess:</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true"></a>            <span class="kw">def</span> run(<span class="va">self</span>, command):</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true"></a>                <span class="cf">pass</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true"></a>        <span class="cf">return</span> Command(subprocess<span class="op">=</span>NullSubprocess())</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true"></a></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, subprocess):</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true"></a>        Observable.<span class="fu">__init__</span>(<span class="va">self</span>)</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true"></a>        <span class="va">self</span>.subprocess <span class="op">=</span> subprocess</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true"></a></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, command):</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;COMMAND&quot;</span>, {<span class="st">&quot;command&quot;</span>: command})</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true"></a>        <span class="va">self</span>.subprocess.run(command)</span></code></pre></div>
 <p>When the startup application is run and then quit, SuperTux is actually started.</p>
 <p>This is actually some real progress.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ git commit -a -m &#39;Command actually runs commands.&#39;
+<pre><code>$ git commit -a -m &#39;Command actually runs commands.&#39;
 [main 270440e] Command actually runs commands.
- 1 file changed, 23 insertions(+), 2 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 23 insertions(+), 2 deletions(-)</code></pre>
 <h2 id="selection-behavior">Selection behavior</h2>
 <p>Let’s review the <code>StartupScene</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true"></a>    <span class="kw">def</span> get_command(<span class="va">self</span>):</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true"></a>        <span class="cf">return</span> [<span class="st">&quot;supertux2&quot;</span>]</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true"></a>        loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>), text<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true"></a>        loop.draw_text(Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">200</span>), text<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>)</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true"></a>        loop.draw_circle(Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>), radius<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">&quot;pink&quot;</span>)</span></code></pre></div>
 <p>We have higher-level tests in place that checks that whatever <code>get_command</code> returns is run when the game loop quits.</p>
 <p>I think it should now be fairly easy to write tests for selection behavior. Let’s first modify the event handler to also exit the game loop when <code>XBOX_A</code> is pressed:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_user_closed_window())</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        gameloop.ExitGameLoop</span>
-
-<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        gameloop.ExitGameLoop</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true"></a>    ...</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_user_closed_window())</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true"></a><span class="co">        Traceback (most recent call last):</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true"></a><span class="co">          ...</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true"></a><span class="co">        gameloop.ExitGameLoop</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_joystick_down(XBOX_A))</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true"></a><span class="co">        Traceback (most recent call last):</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true"></a><span class="co">          ...</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true"></a><span class="co">        gameloop.ExitGameLoop</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window() <span class="kw">or</span> event.is_joystick_down(XBOX_A):</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span></code></pre></div>
 <p>Now let’s think about what <code>get_command</code> should return. It should return the command of the game that is closest to the cursor. Let’s write two tests for that:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; scene = StartupScene()</span>
-
-<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=100)</span>
-<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
-<span class="sd">        [&#39;supertux2&#39;]</span>
-
-<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=200)</span>
-<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
-<span class="sd">        [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true"></a>    ...</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true"></a>    <span class="kw">def</span> get_command(<span class="va">self</span>):</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; scene = StartupScene()</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; scene.move_cursor(x=100, y=100)</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; scene.get_command()</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true"></a><span class="co">        [&#39;supertux2&#39;]</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; scene.move_cursor(x=100, y=200)</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; scene.get_command()</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true"></a><span class="co">        [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span></code></pre></div>
 <p>It complains that <code>move_cursor</code> does not exist. I add it like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">move_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true"></a>        <span class="va">self</span>.cursor <span class="op">=</span> Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true"></a>    <span class="kw">def</span> move_cursor(<span class="va">self</span>, x, y):</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true"></a>        <span class="va">self</span>.cursor <span class="op">=</span> Point(x<span class="op">=</span>x, y<span class="op">=</span>y)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>I also modify the drawing code to use this point for the cursor.</p>
 <p>Now the second test case fails:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>Failed example:
+<pre><code>Failed example:
     scene.get_command()
 Differences (ndiff with -expected +actual):
     - [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]
-    + [&#39;supertux2&#39;]
-</pre>
-</div>
-</div>
-</div>
+    + [&#39;supertux2&#39;]</code></pre>
 <p>I make a quick and dirty fix, because I want to go quickly to green so that I can refactor and generalize the solution:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true"></a>    <span class="kw">def</span> get_command(<span class="va">self</span>):</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.cursor.y <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true"></a>            <span class="cf">return</span> [<span class="st">&quot;python&quot;</span>, <span class="st">&quot;/home/.../agdpp/agdpp.py&quot;</span>]</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true"></a>        <span class="cf">return</span> [<span class="st">&quot;supertux2&quot;</span>]</span></code></pre></div>
 <p>And this is my favorite state of programming. This is actually where some design happens. I have the safety net of the tests and I can push code around until I think it looks good and the next thing is easy to add.</p>
 <p>Here is what I come up with this time:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">command</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true"></a>        <span class="va">self</span>.cursor <span class="op">=</span> Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true"></a>        <span class="va">self</span>.games <span class="op">=</span> [</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true"></a>            Game(</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true"></a>                name<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>,</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true"></a>                position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>),</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true"></a>                command<span class="op">=</span>[<span class="st">&quot;supertux2&quot;</span>],</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true"></a>            ),</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true"></a>            Game(</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true"></a>                name<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>,</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true"></a>                position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">200</span>),</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true"></a>                command<span class="op">=</span>[<span class="st">&quot;python&quot;</span>, <span class="st">&quot;/home/.../agdpp/agdpp.py&quot;</span>],</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true"></a>            ),</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true"></a>        ]</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true"></a></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true"></a>    <span class="kw">def</span> get_command(<span class="va">self</span>):</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true"></a>        <span class="cf">return</span> <span class="bu">min</span>(</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true"></a>            <span class="va">self</span>.games,</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true"></a>            key<span class="op">=</span><span class="kw">lambda</span> game: game.distance_to(<span class="va">self</span>.cursor)</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true"></a>        ).command</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true"></a></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true"></a>        <span class="cf">for</span> game <span class="kw">in</span> <span class="va">self</span>.games:</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true"></a>            game.draw(loop)</span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.cursor, radius<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">&quot;pink&quot;</span>)</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true"></a></span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>And here is the <code>Game</code> class:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, position, command):</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true"></a>        <span class="va">self</span>.position <span class="op">=</span> position</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true"></a>        <span class="va">self</span>.command <span class="op">=</span> command</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true"></a>        loop.draw_text(<span class="va">self</span>.position, text<span class="op">=</span><span class="va">self</span>.name)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true"></a></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true"></a>    <span class="kw">def</span> distance_to(<span class="va">self</span>, point):</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.position.distance_to(point)</span></code></pre></div>
 <p>This implementation still passes all tests and is also generalized. Nice!</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ git commit -a -m &#39;Run the command closest to the cursor.&#39;
+<pre><code>$ git commit -a -m &#39;Run the command closest to the cursor.&#39;
 [main 921c71f] Run the command closest to the cursor.
- 1 file changed, 64 insertions(+), 7 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 64 insertions(+), 7 deletions(-)</code></pre>
 <h2 id="cursor-movement">Cursor movement</h2>
 <p>Next I want to work on cursor movement so that we can actually select different games.</p>
 <p>I’m not quite sure how to write a low-level test for this in <code>GameScene</code>, so I write a top-level test instead:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_joystick_motion(axis=1, value=1.0)],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ],</span>
-<span class="sd">...     iterations=1</span>
-<span class="sd">... ).filter(&quot;DRAW_CIRCLE&quot;)</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 501</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;pink&#39;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_joystick_motion(axis=1, value=1.0)],</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true"></a><span class="co">...     ],</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true"></a><span class="co">...     iterations=1</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true"></a><span class="co">... ).filter(&quot;DRAW_CIRCLE&quot;)</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true"></a><span class="co">    color: &#39;pink&#39;</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true"></a><span class="co">    y: 501</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true"></a><span class="co">    color: &#39;pink&#39;</span></span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>We assert that the cursor is drawn in two different positions given a joystick motion event.</p>
 <p>The gist of the implementation is here:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_motion</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">delta</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true"></a>    ...</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true"></a>        ...</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_joystick_motion():</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true"></a>            <span class="cf">if</span> event.get_axis() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true"></a>                <span class="va">self</span>.dx <span class="op">=</span> event.get_value()</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true"></a>            <span class="cf">elif</span> event.get_axis() <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true"></a>                <span class="va">self</span>.dy <span class="op">=</span> event.get_value()</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true"></a></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true"></a>        delta <span class="op">=</span> Point(x<span class="op">=</span><span class="va">self</span>.dx, y<span class="op">=</span><span class="va">self</span>.dy)</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true"></a>        <span class="cf">if</span> delta.length() <span class="op">&gt;</span> <span class="fl">0.05</span>:</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true"></a>            <span class="va">self</span>.cursor <span class="op">=</span> <span class="va">self</span>.cursor.add(delta.times(dt))</span></code></pre></div>
 <p>The <code>update</code> method did not exist on <code>StartupScene</code> before. The pattern how it is called is here:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true"></a><span class="kw">class</span> StartupApplication:</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true"></a>    ...</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true"></a>        <span class="va">self</span>.startup_scene.event(event)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true"></a>        <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true"></a>        <span class="va">self</span>.startup_scene.update(dt)</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true"></a>        <span class="va">self</span>.startup_scene.draw(<span class="va">self</span>.loop)</span></code></pre></div>
 <p>So the scene will receive these calls in order:</p>
 <ul>
 <li><code>event</code></li>
@@ -2181,74 +1852,53 @@ Differences (ndiff with -expected +actual):
 <p>Anyway, when I try this out, it actually works. I can move the cursor around, and when I press <code>XBOX_A</code> the game closest to the cursor is started.</p>
 <h2 id="finishing-touches">Finishing touches</h2>
 <p>I want to visualize the game that is closest to the cursor. Let’s do it with another color.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_closest_to_cursor</span><span class="p">())</span>
-
-    <span class="k">def</span> <span class="nf">game_closest_to_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
-        <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">,</span> <span class="n">closest</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
-            <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span> <span class="k">if</span> <span class="n">closest</span> <span class="ow">is</span> <span class="bp">self</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
-        <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true"></a>    ...</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true"></a>        <span class="cf">for</span> game <span class="kw">in</span> <span class="va">self</span>.games:</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true"></a>            game.draw(loop, <span class="va">self</span>.game_closest_to_cursor())</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true"></a></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true"></a>    <span class="kw">def</span> game_closest_to_cursor(<span class="va">self</span>):</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true"></a>        <span class="cf">return</span> <span class="bu">min</span>(</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true"></a>            <span class="va">self</span>.games,</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true"></a>            key<span class="op">=</span><span class="kw">lambda</span> game: game.distance_to(<span class="va">self</span>.cursor)</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true"></a>        )</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true"></a>    ...</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop, closest):</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true"></a>        loop.draw_text(</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true"></a>            <span class="va">self</span>.position,</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true"></a>            text<span class="op">=</span><span class="va">self</span>.name,</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true"></a>            color<span class="op">=</span><span class="st">&quot;lightblue&quot;</span> <span class="cf">if</span> closest <span class="kw">is</span> <span class="va">self</span> <span class="cf">else</span> <span class="st">&quot;black&quot;</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true"></a>        )</span></code></pre></div>
 <p>I modify tests to assert the correct color. This works perfectly.</p>
 <p>Next I want to fix the games that are configured. I want them to display evenly on the screen, and I want to have a “QUIT” game that runs a shutdown command to shut down the Pi.</p>
 <p>Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span> <span class="s2">&quot;agdpp.py&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">Game</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QUIT&quot;</span><span class="p">,</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">600</span><span class="p">),</span>
-                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shutdown&quot;</span><span class="p">,</span> <span class="s2">&quot;now&quot;</span><span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true"></a><span class="kw">class</span> StartupScene:</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true"></a>        <span class="va">self</span>.cursor <span class="op">=</span> Point(x<span class="op">=</span><span class="dv">400</span>, y<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true"></a>        <span class="va">self</span>.games <span class="op">=</span> [</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true"></a>            Game(</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true"></a>                name<span class="op">=</span><span class="st">&quot;SuperTux&quot;</span>,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true"></a>                position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">100</span>, y<span class="op">=</span><span class="dv">100</span>),</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true"></a>                command<span class="op">=</span>[<span class="st">&quot;supertux2&quot;</span>],</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true"></a>            ),</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true"></a>            Game(</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true"></a>                name<span class="op">=</span><span class="st">&quot;Balloon Shooter&quot;</span>,</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true"></a>                position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">400</span>, y<span class="op">=</span><span class="dv">300</span>),</span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true"></a>                command<span class="op">=</span>[<span class="st">&quot;python3&quot;</span>, <span class="st">&quot;agdpp.py&quot;</span>],</span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true"></a>            ),</span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true"></a>            Game(</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true"></a>                name<span class="op">=</span><span class="st">&quot;QUIT&quot;</span>,</span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true"></a>                position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">1000</span>, y<span class="op">=</span><span class="dv">600</span>),</span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true"></a>                command<span class="op">=</span>[<span class="st">&quot;shutdown&quot;</span>, <span class="st">&quot;now&quot;</span>],</span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true"></a>            ),</span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true"></a>        ]</span></code></pre></div>
 <p>And it looks like this:</p>
 <p>
 <center>
@@ -2257,90 +1907,55 @@ Differences (ndiff with -expected +actual):
 </p>
 <h2 id="trying-on-the-pi">Trying on the Pi</h2>
 <p>I change the startup script, <code>/etc/xdg/autostart/game_console_start.desktop</code>, to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>[Desktop Entry]
+<pre><code>[Desktop Entry]
 Name=Game console start
-Exec=/home/pi/game_console_pc.sh
-</pre>
-</div>
-</div>
-</div>
+Exec=/home/pi/game_console_pc.sh</code></pre>
 <p>Where <code>/home/pi/game_console_pc.sh</code> is this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+<pre class="shell"><code>#!/usr/bin/env bash
 
-<span class="nb">exec</span> &gt; /home/pi/game_console_pc.log
+exec &gt; /home/pi/game_console_pc.log
 
-<span class="nb">exec</span> <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+exec 2&gt;&amp;1
 
-<span class="nb">cd</span> /home/pi/agdpp
+cd /home/pi/agdpp
 
-<span class="k">for</span> retry <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">5</span> <span class="m">10</span> giveup<span class="p">;</span> <span class="k">do</span>
-	<span class="k">if</span> <span class="o">[</span> <span class="nv">$retry</span> <span class="o">=</span> giveup <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-		<span class="nb">echo</span> giving up
-		<span class="nb">break</span>
-	<span class="k">elif</span> git pull --ff-only<span class="p">;</span> <span class="k">then</span>
-		<span class="nb">break</span>
-	<span class="k">else</span>
-		<span class="nb">echo</span> Retrying <span class="k">in</span> <span class="nv">$retry</span>
-		sleep <span class="nv">$retry</span>
-	<span class="k">fi</span>
-<span class="k">done</span>
+for retry in 1 2 5 10 giveup; do
+	if [ $retry = giveup ]; then
+		echo giving up
+		break
+	elif git pull --ff-only; then
+		break
+	else
+		echo Retrying in $retry
+		sleep $retry
+	fi
+done
 
-python3 startup.py
-</pre>
-</div>
-</div>
-</div>
+python3 startup.py</code></pre>
 <p>And it works beautifully.</p>
 <p>Why did I not test drive this startup script? Good question. I for sure spend some time debugging the loop, which, by the way, is needed to give the Pi time to connect to the wireless network before it can download the latest version of the startup application and balloon shooter.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>pi@raspberrypi:~ $ cat game_console_pc.log
+<pre><code>pi@raspberrypi:~ $ cat game_console_pc.log
 fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
 Retrying in 1
 fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
 Retrying in 2
 fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
 Retrying in 5
-Already up to date.
-</pre>
-</div>
-</div>
-</div>
+Already up to date.</code></pre>
 <p>I feel like this script is maybe not part of the game itself. So that is one reason why I just “hacked” it together on the Pi. But I’m not entirely happy that it exists only there, and not in some repo, and doesn’t have any tests.</p>
 <p>However, for now, it works fine, but there is another problem. It is not possible to quit the balloon shooter with the gamepad. So once you start it, you are stuck in it.</p>
 <h2 id="add-balloon-shooter-quit">Add balloon shooter quit</h2>
 <p>I modify <code>GameScene</code> by adding a check for <code>XBOX_START</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_START</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true"></a><span class="kw">class</span> GameScene:</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true"></a>    ...</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true"></a></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window() <span class="kw">or</span> event.is_joystick_down(XBOX_START):</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true"></a>        ...</span></code></pre></div>
 <p>And by printing events, I figure out the value of <code>XBOX_START</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">XBOX_START</span> <span class="o">=</span> <span class="mi">7</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true"></a>XBOX_START <span class="op">=</span> <span class="dv">7</span></span></code></pre></div>
 <h2 id="summary">Summary</h2>
 <p>Finally, I have the first version of the setup that I had in mind.</p>
 <p>I find it a little difficult to document all my thinking in this DevLog format. I feel like I make hundreds of decisions every minute when programming, and writing about all of them seems impossible. I think one solution would be to cover smaller changes in each DevLog. Your questions and commends are very welcome.</p>
