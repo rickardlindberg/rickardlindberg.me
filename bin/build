@@ -8,8 +8,14 @@ build_dir=_build
 
 mkdir -p $build_dir
 
-echo "Compile site.hs"
-ghc -O2 --make site.hs -outputdir $build_dir -o $build_dir/site
+if [ "$EXPORT" = "" ]; then
+    file=site.hs
+else
+    file=site-export.hs
+fi
+
+echo "Compile $file"
+ghc -O2 --make $file -outputdir $build_dir -o $build_dir/site
 
 echo "Rebuild site"
 $build_dir/site rebuild
