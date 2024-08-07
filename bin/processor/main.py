@@ -38,7 +38,7 @@ def code(path, start=None, end=None):
     if start is not None or end is not None:
         joined = textwrap.dedent(joined)
     assert joined.endswith("\n")
-    return f"`{path}`:\n\n```{language}\n{joined}```\n"
+    return f"```{language}\n{joined}```\n"
 
 def output(title, text, syntax="text"):
     pygments_cmd = ["pygmentize"]

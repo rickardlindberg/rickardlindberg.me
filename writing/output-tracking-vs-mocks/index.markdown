@@ -498,8 +498,6 @@ case, the event approach is more flexible compared to the mock version.
 
 ## Appendix: myscm.py
 
-`myscm.py`:
-
 ```py
 #!/usr/bin/env python
 
