@@ -369,14 +369,6 @@ patternPostIndexPandoc =
     .||. "writing/function-to-oop-refactoring/index.markdown"
     .||. "writing/ardour-latency-free-overdubbing/index.markdown"
     .||. "writing/wx-layout-update/index.markdown"
-
-patternPostIndexPandocTocTemplate :: Pattern
-patternPostIndexPandocTocTemplate =
-         "writing/rlmeta-poster-2/index.markdown"
-    .||. "writing/reliable-socket-servers/index.markdown"
-    .||. "writing/evolving-design-of-projectional-editor/index.markdown"
-    .||. "writing/what-should-a-ci-server-do/index.markdown"
-    .||. "writing/tdd-fake-it/index.markdown"
     .||. "writing/creating-rlmeta-poster/index.markdown"
     .||. "writing/expr-to-x86-compiler/index.markdown"
     .||. "writing/modifying-rlmeta/index.markdown"
@@ -388,6 +380,14 @@ patternPostIndexPandocTocTemplate =
     .||. "writing/rlmeta/index.markdown"
     .||. "writing/timeline-doctest-wxpython/index.markdown"
     .||. "writing/timeline-segfault-wxpython/index.markdown"
+
+patternPostIndexPandocTocTemplate :: Pattern
+patternPostIndexPandocTocTemplate =
+         "writing/rlmeta-poster-2/index.markdown"
+    .||. "writing/reliable-socket-servers/index.markdown"
+    .||. "writing/evolving-design-of-projectional-editor/index.markdown"
+    .||. "writing/what-should-a-ci-server-do/index.markdown"
+    .||. "writing/tdd-fake-it/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
