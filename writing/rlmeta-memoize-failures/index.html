@@ -57,16 +57,6 @@
 
 <p><em>Published on 11 January 2020.</em></p>
 
-<ul>
-<li><a href="#optimized-version"><span id="a9a4166e943a4d2c974c443cef1da5a9"></span>Optimized version</a></li>
-<li><a href="#vm-based-version"><span id="fe17638693e344ad9e521e55bf0676f3"></span>VM based version</a></li>
-<li><a href="#ae6babf74d427880f831bd14109002performance-measurements">[]{#42ae6babf74d427880f831bd14109002}Performance measurements</a></li>
-<li><a href="#d4832e92c48349da9e4fe0a73f955appendix">[]{#042d4832e92c48349da9e4fe0a73f955}Appendix</a>
-<ul>
-<li><a href="#support-library-optimized"><span id="ea9e60e51c034b99b32520af593fa2c0"></span>Support library (optimized)</a></li>
-<li><a href="#ac5a5f243c4bd69cec58758e92eaddsupport-library-vm">[]{#46ac5a5f243c4bd69cec58758e92eadd}Support library (VM)</a></li>
-</ul></li>
-</ul>
 <p>After reading <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a> I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, matching has to be tried again, even though it will fail. In the article, Guido writes</p>
 <blockquote>
 <p>It is important to cache negative results too - in fact most calls to parsing methods will be negative results.</p>

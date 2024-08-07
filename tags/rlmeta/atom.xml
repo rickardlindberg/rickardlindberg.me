@@ -1182,28 +1182,6 @@ bar()</code></pre>
 
 <p><em>Published on 24 May 2020.</em></p>
 
-<ul>
-<li><a href="#b34b481dd40c797d64d7d4dc1c83aposter-design">[]{#822b34b481dd40c797d64d7d4dc1c83a}Poster design</a></li>
-<li><a href="#a05deecde41ad94738cb5cde516a0rlmeta-version">[]{#227a05deecde41ad94738cb5cde516a0}RLMeta version</a>
-<ul>
-<li><a href="#e83db1fb82b47c087bf7a6eb93d9440remove-string-builder">[]{#2e83db1fb82b47c087bf7a6eb93d9440}Remove string builder</a></li>
-<li><a href="#move-error-reporting-out-of-support"><span id="b391fa9375a5457cb91d265a597c6f0a"></span>Move error reporting out of support</a></li>
-<li><a href="#move-assemble-function-to-support"><span id="aeb916fedcdd47d5bb42e8d21b198c5b"></span>Move assemble function to support</a></li>
-<li><a href="#compact-and-modify-formatting"><span id="eb05ba1c676e4061a91f61e7c6234957"></span>Compact and modify formatting</a></li>
-<li><a href="#have-only-one-semantic-action-class"><span id="d2ab43bf941642b68c5af6af5937b17d"></span>Have only one semantic action class</a></li>
-<li><a href="#f769c882b84649bcac36fe7401ce73allow-unlimited-splice">[]{#49f769c882b84649bcac36fe7401ce73}Allow unlimited splice</a></li>
-<li><a href="#c6116aa5449d691284a7fe3d36f9eredefine-matching-of-character-sequences">[]{#789c6116aa5449d691284a7fe3d36f9e}Redefine matching of character sequences</a></li>
-</ul></li>
-<li><a href="#future-posters"><span id="b070abcd2f134cf894e33e63188a9fee"></span>Future posters</a></li>
-<li><a href="#eea3f33b24e07b3714ef4c1981fd1code-listings-for-rlmeta">[]{#730eea3f33b24e07b3714ef4c1981fd1}Code listings for RLMeta</a>
-<ul>
-<li><a href="#ce22f137e4a4bf3b4080f4803f3205dparser.rlmeta">[]{#9ce22f137e4a4bf3b4080f4803f3205d}parser.rlmeta</a></li>
-<li><a href="#codegenerator.rlmeta"><span id="af73e151e4a847e98832b2460fd43cc1"></span>codegenerator.rlmeta</a></li>
-<li><a href="#d15a72ff31485ea0204c8f79d3a641support.py">[]{#79d15a72ff31485ea0204c8f79d3a641}support.py</a></li>
-<li><a href="#a9c9c93e4aa2aaf35c7962eb3c88compile.sh">[]{#7142a9c9c93e4aa2aaf35c7962eb3c88}compile.sh</a></li>
-<li><a href="#c47ff964a3f43a29a4413bbf5b0132dmeta_compile.sh">[]{#8c47ff964a3f43a29a4413bbf5b0132d}meta_compile.sh</a></li>
-</ul></li>
-</ul>
 <p>RLMeta is the most interesting program I've written. I find the grammar syntax beautiful to read and the meta-approach intriguing. To me, it approaches art. I wanted to showcase it by putting the whole implementation on a poster. Here is a preview:</p>
 <p><img src="image1.png" /></p>
 <!-- image text -->
@@ -1885,16 +1863,6 @@ rule2 = &#39;h&#39; &#39;e&#39; &#39;l&#39; &#39;l&#39; &#39;o&#39; -&gt; &quot;
 
 <p><em>Published on 11 January 2020.</em></p>
 
-<ul>
-<li><a href="#optimized-version"><span id="a9a4166e943a4d2c974c443cef1da5a9"></span>Optimized version</a></li>
-<li><a href="#vm-based-version"><span id="fe17638693e344ad9e521e55bf0676f3"></span>VM based version</a></li>
-<li><a href="#ae6babf74d427880f831bd14109002performance-measurements">[]{#42ae6babf74d427880f831bd14109002}Performance measurements</a></li>
-<li><a href="#d4832e92c48349da9e4fe0a73f955appendix">[]{#042d4832e92c48349da9e4fe0a73f955}Appendix</a>
-<ul>
-<li><a href="#support-library-optimized"><span id="ea9e60e51c034b99b32520af593fa2c0"></span>Support library (optimized)</a></li>
-<li><a href="#ac5a5f243c4bd69cec58758e92eaddsupport-library-vm">[]{#46ac5a5f243c4bd69cec58758e92eadd}Support library (VM)</a></li>
-</ul></li>
-</ul>
 <p>After reading <a href="https://medium.com/@gvanrossum_83706/generating-a-peg-parser-520057d642a9">Generating a PEG Parser</a> I realized that RLMeta has a flaw in its its memoization logic: It only memoizes results when a rule matches. If a rule fails, it is not recorded in the memoization table. Therefore, if that rule is tried again at the same position, matching has to be tried again, even though it will fail. In the article, Guido writes</p>
 <blockquote>
 <p>It is important to cache negative results too - in fact most calls to parsing methods will be negative results.</p>
@@ -2599,18 +2567,6 @@ class _MatchError(Exception):
 
 <p><em>Published on  7 September 2019.</em></p>
 
-<ul>
-<li><a href="#d09790c48a3bbdc3485473b5416what-is-operator-associativity">[]{#37144d09790c48a3bbdc3485473b5416}What is operator associativity?</a></li>
-<li><a href="#right-associative-calculator"><span id="cb24f5d3a7df423e9081889d4a2d3785"></span>Right associative calculator</a></li>
-<li><a href="#ac579e1e4be9930317242abd5dd6left-associative-calculator">[]{#8366ac579e1e4be9930317242abd5dd6}Left associative calculator</a></li>
-<li><a href="#b50c552e54c0895128e7e86da55e9correct-left-associative-calculator">[]{#855b50c552e54c0895128e7e86da55e9}Correct left associative calculator</a></li>
-<li><a href="#ed0c3c4fea922cc4f14c5cda38right-associative-calculator-without-recursion">[]{#736626ed0c3c4fea922cc4f14c5cda38}Right associative calculator without recursion</a></li>
-<li><a href="#calculator-combining-operators"><span id="ae39c406658e4cd287411ab2c76710f8"></span>Calculator combining operators</a></li>
-<li><a href="#f23a343574259bf31debb9b8425bfcleaner-handling-of-precedence">[]{#063f23a343574259bf31debb9b8425bf}Cleaner handling of precedence</a></li>
-<li><a href="#d9bf94e3b64dfba2841df8b3cf00b1comparison-of-operator-parsers">[]{#24d9bf94e3b64dfba2841df8b3cf00b1}Comparison of operator parsers</a></li>
-<li><a href="#cca99df2e2c4c78ab4bfe4cb946d89aresources">[]{#5cca99df2e2c4c78ab4bfe4cb946d89a}Resources</a></li>
-<li><a href="#appendix-test-script"><span id="c1716e6e63034983a86a1c9f621b2a52"></span>Appendix: Test script</a></li>
-</ul>
 <p>The <a href="/writing/rlmeta/index.html">first article</a> about RLMeta has this example grammar implementing a simple calculator:</p>
 <pre class="text"><code>Calculator {
   expression =
@@ -3013,66 +2969,6 @@ class _MatchError(Exception):
 
 <p><em>Published on  6 August 2019.</em></p>
 
-<ul>
-<li><a href="#df386e2afb1452b87a29185c2de0673big-picture-difference">[]{#3df386e2afb1452b87a29185c2de0673}Big picture difference</a></li>
-<li><a href="#parser"><span id="d1a2d050fcc444cfa4991b968a02a315"></span>Parser</a></li>
-<li><a href="#aa83d59704475dba2a010f1b5d3eb0code-generator">[]{#24aa83d59704475dba2a010f1b5d3eb0}Code generator</a>
-<ul>
-<li><a href="#fc432da8cb94c91baeba2ee6b69f40bgrammar">[]{#8fc432da8cb94c91baeba2ee6b69f40b}Grammar</a></li>
-<li><a href="#b77f7c8a594757a67ef61f9502f8e9rule">[]{#72b77f7c8a594757a67ef61f9502f8e9}Rule</a></li>
-<li><a href="#d04f41a3e4521ad022a3d4e0237eaor">[]{#613d04f41a3e4521ad022a3d4e0237ea}Or</a></li>
-<li><a href="#scope"><span id="e0d721aa4fae40af8de5a54253243cb0"></span>Scope</a></li>
-<li><a href="#ee0862096d4fd4aa3342c4b3b6c294and">[]{#34ee0862096d4fd4aa3342c4b3b6c294}And</a></li>
-<li><a href="#c4d4e16c483f84be55f550e3d39cbind">[]{#8275c4d4e16c483f84be55f550e3d39c}Bind</a></li>
-<li><a href="#d53648b304544be75045e59c6e183star">[]{#963d53648b304544be75045e59c6e183}Star</a></li>
-<li><a href="#efe424b680f477a9bb8c1b9f679ff84not">[]{#0efe424b680f477a9bb8c1b9f679ff84}Not</a></li>
-<li><a href="#b6707284a99ba3d3cb17b60e3f2matchcallrule">[]{#24675b6707284a99ba3d3cb17b60e3f2}MatchCallRule</a></li>
-<li><a href="#b7ffad2d54725ad0af4e73bf434d8label">[]{#629b7ffad2d54725ad0af4e73bf434d8}Label</a></li>
-<li><a href="#ddebcb41511403c8b3fa5c96f14c8f4semanticaction">[]{#4ddebcb41511403c8b3fa5c96f14c8f4}SemanticAction</a></li>
-<li><a href="#matchrule"><span id="fc62b5be27fd4e40978d415ba4070a05"></span>MatchRule</a></li>
-<li><a href="#matchrange"><span id="ce3171f9336a4f1a961f4d6fd6665361"></span>MatchRange</a></li>
-<li><a href="#fcdbbabfe44b009d3f405060a2055fmatchstring">[]{#40fcdbbabfe44b009d3f405060a2055f}MatchString</a></li>
-<li><a href="#matchcharseq"><span id="c6e2326b6b774601b761538455918bbe"></span>MatchCharseq</a></li>
-<li><a href="#matchany"><span id="de0847d410c6495d9a8ee4e75a0423cc"></span>MatchAny</a></li>
-<li><a href="#dc829aba4484ed399eb025d01ed843ematchlist">[]{#1dc829aba4484ed399eb025d01ed843e}MatchList</a></li>
-<li><a href="#cc83570ba674d71bccd12660fddefccexample-revisited">[]{#6cc83570ba674d71bccd12660fddefcc}Example revisited</a></li>
-</ul></li>
-<li><a href="#vm"><span id="e66f8cec6206420abe4736ae32849c53"></span>VM</a>
-<ul>
-<li><a href="#f0fffeab7084a1d9b01d928be4878a8match_any">[]{#8f0fffeab7084a1d9b01d928be4878a8}MATCH_ANY</a></li>
-<li><a href="#match_string"><span id="a8160d30b886418882ada3a2a884e580"></span>MATCH_STRING</a></li>
-<li><a href="#match_range"><span id="d8dcb57d5da141908f28f8c52983d1a6"></span>MATCH_RANGE</a></li>
-<li><a href="#match_charseq"><span id="df5dc1b5e5054e548d5c3606daba0d55"></span>MATCH_CHARSEQ</a></li>
-<li><a href="#ca0a2fa665466cb90c8c128d5cc835push_scope">[]{#49ca0a2fa665466cb90c8c128d5cc835}PUSH_SCOPE</a></li>
-<li><a href="#pop_scope"><span id="b2510846e20d4cd08f9b0cd2dfb5c01d"></span>POP_SCOPE</a></li>
-<li><a href="#e4aa99dd00ec5b524b1bind">[]{#1315305641224e4aa99dd00ec5b524b1}BIND</a></li>
-<li><a href="#fde86e4c7290b0f99850917ba8action">[]{#738356fde86e4c7290b0f99850917ba8}ACTION</a></li>
-<li><a href="#label"><span id="d7d285d9586b437ca7d7f51b5deb6193"></span>LABEL</a></li>
-<li><a href="#list_start"><span id="b3562467300348028f04ae5034db0f34"></span>LIST_START</a></li>
-<li><a href="#list_append"><span id="b4aacd38dec8406c9db784e0823c3554"></span>LIST_APPEND</a></li>
-<li><a href="#cd44d7fe4777b1c12e335bac33aelist_end">[]{#9940cd44d7fe4777b1c12e335bac33ae}LIST_END</a></li>
-<li><a href="#push_stream"><span id="fee2dcf573f04ac3a9e7cfd92adbe0c8"></span>PUSH_STREAM</a></li>
-<li><a href="#a1eee2cfb94e1a9463a6561c226012pop_stream">[]{#87a1eee2cfb94e1a9463a6561c226012}POP_STREAM</a></li>
-<li><a href="#cae29994179abbe19f2f7e4c267fail">[]{#34915cae29994179abbe19f2f7e4c267}FAIL</a></li>
-<li><a href="#e19cbb2e71c412f95c7e241a69f0901call">[]{#8e19cbb2e71c412f95c7e241a69f0901}CALL</a></li>
-<li><a href="#match_call_rule"><span id="d42df29209bf475280ac510d9ae31182"></span>MATCH_CALL_RULE</a></li>
-<li><a href="#return"><span id="d104aa6d6b8e43818f662498f6566e38"></span>RETURN</a></li>
-<li><a href="#e124874b2975d0ae23f034fbacktrack">[]{#542906286e124874b2975d0ae23f034f}BACKTRACK</a></li>
-<li><a href="#b99ed36fbde45989829fde6e17d4821commit">[]{#5b99ed36fbde45989829fde6e17d4821}COMMIT</a></li>
-<li><a href="#edfc243204447ba84468c78f05d8e5handling-failure">[]{#77edfc243204447ba84468c78f05d8e5}Handling failure</a></li>
-<li><a href="#ffb1abf59546e1972c78ee7159b758optimizations">[]{#95ffb1abf59546e1972c78ee7159b758}Optimizations</a></li>
-</ul></li>
-<li><a href="#e3ad1de345642658be2e5910ab5be4enote-on-size">[]{#2e3ad1de345642658be2e5910ab5be4e}Note on size</a></li>
-<li><a href="#note-on-performance"><span id="c490369b053247c0b7761f324658aa15"></span>Note on performance</a></li>
-<li><a href="#e7b4c5318ff4c849c6e98e9ddeaacf0code-listings-for-rlmeta">[]{#7e7b4c5318ff4c849c6e98e9ddeaacf0}Code listings for RLMeta</a>
-<ul>
-<li><a href="#f0708b231b468d844291df3fe17cf2parser.rlmeta">[]{#53f0708b231b468d844291df3fe17cf2}parser.rlmeta</a></li>
-<li><a href="#bf51f7e8d94bcba1747edb477137efcodegenerator.rlmeta">[]{#74bf51f7e8d94bcba1747edb477137ef}codegenerator.rlmeta</a></li>
-<li><a href="#ff77cb85fa455589e3e45cdeac8160support.py">[]{#60ff77cb85fa455589e3e45cdeac8160}support.py</a></li>
-<li><a href="#ad257e61e4025b8859d610a475c6acompile.sh">[]{#338ad257e61e4025b8859d610a475c6a}compile.sh</a></li>
-<li><a href="#d17f2d55749b59d7e5ec7b9b8e0ecmeta_compile.sh">[]{#272d17f2d55749b59d7e5ec7b9b8e0ec}meta_compile.sh</a></li>
-</ul></li>
-</ul>
 <p>In this article I present an alternative implementation of <a href="/writing/rlmeta/index.html">RLMeta</a> in which grammars are compiled into instructions for a virtual machine (VM).</p>
 <p>The VM based version builds upon the <a href="/writing/optimizing-rlmeta/index.html">optimized version</a> and the implementation is inspired by <a href="https://swtch.com/~rsc/regexp/regexp2.html">Regular Expression Matching: the Virtual Machine Approach</a> and <a href="http://www.inf.puc-rio.br/%7Eroberto/docs/peg.pdf">A Text Pattern-Matching Tool based on Parsing Expression Grammars</a>.</p>
 <ul>
@@ -4647,29 +4543,6 @@ class _MatchError(Exception):
 
 <p><em>Published on 28 June 2019.</em></p>
 
-<ul>
-<li><a href="#e3c712b4ce4f16bb8e5d352e76fb0ewhat-to-measure">[]{#31e3c712b4ce4f16bb8e5d352e76fb0e}What to measure?</a></li>
-<li><a href="#ac127d411b749919b45ae11c1e47975andor-optimization">[]{#2ac127d411b749919b45ae11c1e47975}And/Or optimization</a></li>
-<li><a href="#avoid-slicing-input"><span id="f4741ec692124b31af139231151e3a29"></span>Avoid slicing input</a></li>
-<li><a href="#deb8e7f493a474d8555eb7db34a89dcfaster-string-concatenation">[]{#8deb8e7f493a474d8555eb7db34a89dc}Faster string concatenation</a></li>
-<li><a href="#ce805fef64eb88c4b8214d7e85495andor-again">[]{#006ce805fef64eb88c4b8214d7e85495}And/Or again</a></li>
-<li><a href="#remove-newlines-and-indentation"><span id="a06ba4a722cc461f9f3eabe2c0f60e53"></span>Remove newlines and indentation</a></li>
-<li><a href="#match-call-rule"><span id="e7f710aa99bc4a7c895e905f60b4beb8"></span>Match call rule</a></li>
-<li><a href="#cbceeb9f45bb992c65cc688c3c18dont-memoize-code-generator">[]{#5160cbceeb9f45bb992c65cc688c3c18}Don't memoize code generator</a></li>
-<li><a href="#optimize-position"><span id="f0338cf15ddb49099abf6a135a0961d7"></span>Optimize position</a></li>
-<li><a href="#make-fail-messages-lazy"><span id="a5f5f3907de04b28bdf52a8ba57b4a71"></span>Make fail messages lazy</a></li>
-<li><a href="#ec92a13304692857a6d4de445e4d2peek">[]{#898ec92a13304692857a6d4de445e4d2}Peek</a></li>
-<li><a href="#d9e890742c41d48fc1afc2009815c7no-exception-for-last-or">[]{#84d9e890742c41d48fc1afc2009815c7}No exception for last or</a></li>
-<li><a href="#eda03f5c40458ac9439def097739conclusions">[]{#3616eda03f5c40458ac9439def097739}Conclusions</a></li>
-<li><a href="#aafb64996414339b01b0d407e6e1810code-listings-for-rlmeta">[]{#3aafb64996414339b01b0d407e6e1810}Code listings for RLMeta</a>
-<ul>
-<li><a href="#e1c4c119f90be842c1b9577parser.rlmeta">[]{#496100180e1c4c119f90be842c1b9577}parser.rlmeta</a></li>
-<li><a href="#bd8846187ad478aa17439370f0da1e6codegenerator.rlmeta">[]{#7bd8846187ad478aa17439370f0da1e6}codegenerator.rlmeta</a></li>
-<li><a href="#support.py"><span id="ecfe26a58495420b8871e522c6859a4a"></span>support.py</a></li>
-<li><a href="#ee923adb0ed4f3b8a5cc72700aad2ddcompile.sh">[]{#1ee923adb0ed4f3b8a5cc72700aad2dd}compile.sh</a></li>
-<li><a href="#meta_compile.sh"><span id="d09466ef920844788d5e63457decfd86"></span>meta_compile.sh</a></li>
-</ul></li>
-</ul>
 <p>In this article we optimize <a href="/writing/rlmeta/index.html">RLMeta</a> to run faster. The first version did not take performance into account, so it is not surprising that we will get it to run roughly twice as fast.</p>
 <ul>
 <li><a href="#31e3c712b4ce4f16bb8e5d352e76fb0e">What to measure?</a></li>
@@ -5770,24 +5643,6 @@ EOF</code></pre>
 
 <p><em>Published on 28 May 2019.</em></p>
 
-<ul>
-<li><a href="#efe623ff374daba9830984300fcde2meta-what">[]{#39efe623ff374daba9830984300fcde2}Meta what?</a></li>
-<li><a href="#d9030e0e4849c5a8d8ca0fffdf7592modifying-a-metacompiler">[]{#93d9030e0e4849c5a8d8ca0fffdf7592}Modifying a metacompiler</a></li>
-<li><a href="#compiling-rlmeta"><span id="bf2e6a99e41f478f884dd15ea243c111"></span>Compiling RLMeta</a></li>
-<li><a href="#ad82923a2142789d01ca5be1d11942verifying-metacompiler">[]{#75ad82923a2142789d01ca5be1d11942}Verifying metacompiler</a></li>
-<li><a href="#f6a1c91143146dbb3b865ac42562135modifying-format-of-generated-code">[]{#5f6a1c91143146dbb3b865ac42562135}Modifying format of generated code</a></li>
-<li><a href="#meta-compile-script"><span id="d54bbeda3d9846bca027f2c2995775a5"></span>Meta compile script</a></li>
-<li><a href="#bfdc073cd4041238b169caa671c9652breaking-modification">[]{#6bfdc073cd4041238b169caa671c9652}Breaking modification</a></li>
-<li><a href="#b76cb3d24f458bb47debb6fc2780modifying-support-library">[]{#0130b76cb3d24f458bb47debb6fc2780}Modifying support library</a></li>
-<li><a href="#a090bb868154140a167968d8b4b15dcextending-parser-escape-codes">[]{#1a090bb868154140a167968d8b4b15dc}Extending parser escape codes</a></li>
-<li><a href="#e574102e394218b874f03bb879c92fmodifying-parser">[]{#22e574102e394218b874f03bb879c92f}Modifying parser</a></li>
-<li><a href="#cb5d0ff4ca4d94920bfe635ffd2142code-listings-for-rlmeta">[]{#60cb5d0ff4ca4d94920bfe635ffd2142}Code listings for RLMeta</a>
-<ul>
-<li><a href="#compile.sh"><span id="df676d8cca604142bd1049c5e86c68a2"></span>compile.sh</a></li>
-<li><a href="#ee00b5ef7c40f79d24fa61f052368fmeta_compile.sh">[]{#38ee00b5ef7c40f79d24fa61f052368f}meta_compile.sh</a></li>
-<li><a href="#acbaab3614dc787158be918bd9d32is_metacompiler.sh">[]{#596acbaab3614dc787158be918bd9d32}is_metacompiler.sh</a></li>
-</ul></li>
-</ul>
 <p>In the first article about <a href="/writing/rlmeta/index.html">RLMeta</a> I wrote that its small implementation makes it feasible to understand and modify. But modifying the RLMeta metacompiler differs from modifying a regular program. In this article I explain how it differs and show examples of how different parts of RLMeta can be modified.</p>
 <ul>
 <li><a href="#39efe623ff374daba9830984300fcde2">Meta what?</a></li>
@@ -6384,27 +6239,6 @@ fi</code></pre>
 
 <p><em>Published on  2 December 2018.</em></p>
 
-<ul>
-<li><a href="#f00cf52d91a411d941312539a15cc32metalanguages">[]{#3f00cf52d91a411d941312539a15cc32}Metalanguages</a></li>
-<li><a href="#interpreting-expressions"><span id="ee16dcaf86a7402e9ca78edc620caacb"></span>Interpreting expressions</a></li>
-<li><a href="#e10d1de6624255a4406572fef4b413compiling-expressions">[]{#61e10d1de6624255a4406572fef4b413}Compiling expressions</a></li>
-<li><a href="#rlmeta-implementation"><span id="f5f122c94d3d4fa0b3a7e64a7fa0a724"></span>RLMeta implementation</a>
-<ul>
-<li><a href="#e01a8bdd22d48f2a7e8533d552bc264parser">[]{#1e01a8bdd22d48f2a7e8533d552bc264}Parser</a></li>
-<li><a href="#code-generator"><span id="c3f29fa523f341a487ebc07209c471f9"></span>Code generator</a></li>
-<li><a href="#c78e9d9104c4bddbdd1dfe6314506c9putting-it-together">[]{#2c78e9d9104c4bddbdd1dfe6314506c9}Putting it together</a></li>
-<li><a href="#b147a2f574ea09d76d9c7371bdf18bootstrapping">[]{#313b147a2f574ea09d76d9c7371bdf18}Bootstrapping</a></li>
-</ul></li>
-<li><a href="#f558623cfce441fb3e61033299d1419implementing-programming-languages">[]{#5f558623cfce441fb3e61033299d1419}Implementing programming languages</a></li>
-<li><a href="#c6af1a11ed440d2bf31a497032c9c0bresources">[]{#4c6af1a11ed440d2bf31a497032c9c0b}Resources</a></li>
-<li><a href="#bb1e8ccbd4d55b89b391c08452c33code-listings-for-rlmeta">[]{#388bb1e8ccbd4d55b89b391c08452c33}Code listings for RLMeta</a>
-<ul>
-<li><a href="#parser.rlmeta"><span id="a56c54f42c00473091d7c8295ff4e0f1"></span>parser.rlmeta</a></li>
-<li><a href="#codegenerator.rlmeta"><span id="d9ea64bbdad3465897667ebec9d5ace1"></span>codegenerator.rlmeta</a></li>
-<li><a href="#e606587034a0a9c8e8b5c714e7ef8support.py">[]{#983e606587034a0a9c8e8b5c714e7ef8}support.py</a></li>
-<li><a href="#d8f0ff47f4edcb201139df8cd9520compile.sh">[]{#193d8f0ff47f4edcb201139df8cd9520}compile.sh</a></li>
-</ul></li>
-</ul>
 <p><em>28 May 2019: Added link to next article in</em> <a href="#2c78e9d9104c4bddbdd1dfe6314506c9"><em>Putting it together</em></a>.</p>
 <p>How does the computer know what to do with the following expression?</p>
 <pre class="text"><code>1+2*3</code></pre>
