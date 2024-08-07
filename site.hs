@@ -368,6 +368,7 @@ patternPostIndexPandoc =
     .||. "writing/what-is-a-user-story/index.markdown"
     .||. "writing/function-to-oop-refactoring/index.markdown"
     .||. "writing/ardour-latency-free-overdubbing/index.markdown"
+    .||. "writing/wx-layout-update/index.markdown"
 
 patternPostIndexPandocTocTemplate :: Pattern
 patternPostIndexPandocTocTemplate =
@@ -376,6 +377,17 @@ patternPostIndexPandocTocTemplate =
     .||. "writing/evolving-design-of-projectional-editor/index.markdown"
     .||. "writing/what-should-a-ci-server-do/index.markdown"
     .||. "writing/tdd-fake-it/index.markdown"
+    .||. "writing/creating-rlmeta-poster/index.markdown"
+    .||. "writing/expr-to-x86-compiler/index.markdown"
+    .||. "writing/modifying-rlmeta/index.markdown"
+    .||. "writing/optimizing-rlmeta/index.markdown"
+    .||. "writing/rlmeta-cpp/index.markdown"
+    .||. "writing/rlmeta-left-associativity/index.markdown"
+    .||. "writing/rlmeta-memoize-failures/index.markdown"
+    .||. "writing/rlmeta-vm/index.markdown"
+    .||. "writing/rlmeta/index.markdown"
+    .||. "writing/timeline-doctest-wxpython/index.markdown"
+    .||. "writing/timeline-segfault-wxpython/index.markdown"
 
 patternPostIndexPandocNewsletter :: Pattern
 patternPostIndexPandocNewsletter =
