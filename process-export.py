@@ -50,8 +50,14 @@ def process_export_data_parsed(data):
             for key, value in header.items():
                 f_out.write(f"{key}: {value}")
             f_out.write("---\n")
-            f_out.write(fix_image_links(f.read(), header["url"].strip()))
+            f_out.write(filter_rliterate(fix_image_links(f.read(), header["url"].strip())))
         print(export_dir)
+
+def filter_rliterate(text):
+    if '"rliterate-code"' in text:
+        return "TODO: fix this import"
+    else:
+        return text
 
 def fix_image_links(text, prefix):
     def replace(x):
