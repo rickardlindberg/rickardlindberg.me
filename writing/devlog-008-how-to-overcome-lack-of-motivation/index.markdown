@@ -93,23 +93,24 @@ Let's get started.
 
 Let's start with the context menu for a cut.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CutAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+```python
+class CutAction(Action):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">mix_strategy_updater</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
-                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
-                    <span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span>
-                        <span class="n">cut</span><span class="o">.</span><span class="n">with_mix_strategy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">update</span>
-        <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
-            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
-            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
-        <span class="p">])</span>
-</pre></div>
-</div></div>
+    def right_mouse_down(self, x, y, gui):
+        def mix_strategy_updater(value):
+            def update():
+                with self.project.new_transaction() as transaction:
+                    transaction.modify(self.cut.id, lambda cut:
+                        cut.with_mix_strategy(value))
+            return update
+        gui.show_context_menu([
+            MenuItem(label="over", action=mix_strategy_updater("over")),
+            MenuItem(label="under", action=mix_strategy_updater("under")),
+        ])
+```
+
 Aha, we are back to the `CutAction` that we worked on in the previous DevLog.
 This is an opportunity to make design improvements to it while still focusing
 on the new ripple delete feature.
@@ -118,22 +119,23 @@ Making design improvements is always easier when we have tests, and it is many
 times my preferred way of adding new functionality. So let's start there. This
 is what I come up with:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I show a menu item for ripple delete:</span>
+```python
+"""
+I show a menu item for ripple delete:
 
-<span class="sd">&gt;&gt;&gt; project = None</span>
-<span class="sd">&gt;&gt;&gt; cut = None</span>
-<span class="sd">&gt;&gt;&gt; scrollbar = None</span>
-<span class="sd">&gt;&gt;&gt; action = CutAction(project, cut, scrollbar)</span>
-<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
-<span class="sd">&gt;&gt;&gt; action.right_mouse_down(x=None, y=None, gui=gui)</span>
-<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
-<span class="sd">over</span>
-<span class="sd">under</span>
-<span class="sd">ripple delete</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> project = None
+>>> cut = None
+>>> scrollbar = None
+>>> action = CutAction(project, cut, scrollbar)
+>>> gui = TestGui()
+>>> action.right_mouse_down(x=None, y=None, gui=gui)
+>>> gui.print_context_menu_items()
+over
+under
+ripple delete
+"""
+```
+
 At this point, I just want to assert that we have a ripple delete menu item.
 
 I null out any parameters that are not used.
@@ -141,41 +143,44 @@ I null out any parameters that are not used.
 To make this test run, I also have to extend `TestGui` with
 `print_context_menu_items`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gh">diff --git a/rlvideolib/gui/testing.py b/rlvideolib/gui/testing.py</span>
-<span class="gh">index aaba74d..0df0dda 100644</span>
-<span class="gd">--- a/rlvideolib/gui/testing.py</span>
-<span class="gi">+++ b/rlvideolib/gui/testing.py</span>
-<span class="gu">@@ -4,7 +4,12 @@ class TestGui:</span>
+```diff
+diff --git a/rlvideolib/gui/testing.py b/rlvideolib/gui/testing.py
+index aaba74d..0df0dda 100644
+--- a/rlvideolib/gui/testing.py
++++ b/rlvideolib/gui/testing.py
+@@ -4,7 +4,12 @@ class TestGui:
          self.click_context_menu = click_context_menu
 
      def show_context_menu(self, menu):
-<span class="gi">+        self.last_context_menu = menu</span>
++        self.last_context_menu = menu
          for item in menu:
              if item.label == self.click_context_menu:
                  item.action()
                  return
-<span class="gi">+</span>
-<span class="gi">+    def print_context_menu_items(self):</span>
-<span class="gi">+        for item in self.last_context_menu:</span>
-<span class="gi">+            print(item.label)</span>
-</pre></div>
-</div></div>
++
++    def print_context_menu_items(self):
++        for item in self.last_context_menu:
++            print(item.label)
+```
+
 Let's make it pass:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -290,6 +305,7 @@ class CutAction(Action):</span>
+```diff
+@@ -290,6 +305,7 @@ class CutAction(Action):
          gui.show_context_menu([
-             MenuItem(label=&quot;over&quot;, action=mix_strategy_updater(&quot;over&quot;)),
-             MenuItem(label=&quot;under&quot;, action=mix_strategy_updater(&quot;under&quot;)),
-<span class="gi">+            MenuItem(label=&quot;ripple delete&quot;, action=lambda: None),</span>
+             MenuItem(label="over", action=mix_strategy_updater("over")),
+             MenuItem(label="under", action=mix_strategy_updater("under")),
++            MenuItem(label="ripple delete", action=lambda: None),
          ])
 
      def mouse_up(self):
-</pre></div>
-</div></div>
+```
+
 Just enough to make the test pass. We now have a context menu item that will do
 nothing when we click on it.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;New ripple delete context menu item that does nothing.&#39;
+```
+$ ./make.py commit -m 'New ripple delete context menu item that does nothing.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.893s
@@ -183,21 +188,22 @@ Ran 53 tests in 2.893s
 OK
 [main 2659383] New ripple delete context menu item that does nothing.
  2 files changed, 21 insertions(+)
-</pre></div>
-</div></div>
+```
+
 ## Moving slowly
 
 The `TestGui` that we had to modify for this test lives in the
 `rlvideolib.gui.testing` module. The `rlvideolib.gui` package looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>rlvideolib/gui
+```
+rlvideolib/gui
 ├── framework.py
 ├── generic.py
 ├── gtk.py
 ├── __init__.py
 └── testing.py
-</pre></div>
-</div></div>
+```
+
 We recently extracted the framework module. It contains framework related GUI
 code that does not depend on GTK and does not depend on our application. It
 makes sense for a framework to include facilities to help testing, right?
@@ -205,7 +211,8 @@ makes sense for a framework to include facilities to help testing, right?
 Let's get rid of the testing module and move its contents to the framework
 module.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Move TestGui to rlvideolib.gui.framework and get rid of the testing module.&#39;
+```
+$ ./make.py commit -m 'Move TestGui to rlvideolib.gui.framework and get rid of the testing module.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.896s
@@ -213,9 +220,9 @@ Ran 53 tests in 2.896s
 OK
 [main 3ea95fc] Move TestGui to rlvideolib.gui.framework and get rid of the testing module.
  4 files changed, 21 insertions(+), 3 deletions(-)
- rename rlvideolib/gui/{testing.py =&gt; framework.py} (58%)
-</pre></div>
-</div></div>
+ rename rlvideolib/gui/{testing.py => framework.py} (58%)
+```
+
 We have made small progress towards the ripple delete feature and made the code
 base a little cleaner by indicating that test helpers are part of the GUI
 framework. Nice!
@@ -227,26 +234,28 @@ will take a break and have some breakfast.
 
 Let's go back to the test. This is what we have:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; project = None</span>
-<span class="sd">&gt;&gt;&gt; cut = None</span>
-<span class="sd">&gt;&gt;&gt; scrollbar = None</span>
-<span class="sd">&gt;&gt;&gt; action = CutAction(project, cut, scrollbar)</span>
-<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
-<span class="sd">&gt;&gt;&gt; action.right_mouse_down(x=None, y=None, gui=gui)</span>
-<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
-<span class="sd">over</span>
-<span class="sd">under</span>
-<span class="sd">ripple delete</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> project = None
+>>> cut = None
+>>> scrollbar = None
+>>> action = CutAction(project, cut, scrollbar)
+>>> gui = TestGui()
+>>> action.right_mouse_down(x=None, y=None, gui=gui)
+>>> gui.print_context_menu_items()
+over
+under
+ripple delete
+"""
+```
+
 That feels like a lot of set up to me. And many of the parameters are `None`.
 
 I take a closer look at the x and y coordinates. As far as I can tell, no
 action is using those in the `right_mouse_down` method. Let's get rid of them.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Get rid of x and y coordinates in Action.right_mouse_down since they are never used.&#39;
+```
+$ ./make.py commit -m 'Get rid of x and y coordinates in Action.right_mouse_down since they are never used.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.403s
@@ -254,27 +263,29 @@ Ran 53 tests in 3.403s
 OK
 [main 2c4c80e] Get rid of x and y coordinates in Action.right_mouse_down since they are never used.
  3 files changed, 4 insertions(+), 4 deletions(-)
-</pre></div>
-</div></div>
+```
+
 Let's further refactor the test to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I show cut menu items on right click:</span>
+```python
+"""
+I show cut menu items on right click:
 
-<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
-<span class="sd">&gt;&gt;&gt; action = CutAction(project=None, cut=None, scrollbar=None)</span>
-<span class="sd">&gt;&gt;&gt; action.right_mouse_down(gui=gui)</span>
-<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
-<span class="sd">over</span>
-<span class="sd">under</span>
-<span class="sd">ripple delete</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> gui = TestGui()
+>>> action = CutAction(project=None, cut=None, scrollbar=None)
+>>> action.right_mouse_down(gui=gui)
+>>> gui.print_context_menu_items()
+over
+under
+ripple delete
+"""
+```
+
 This indicates that the showing of the menu does not depend on the project,
 cut, or scrollbar. I think that it reads quite nicely.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Change cut action test to be assertion for menu items shown.&#39;
+```
+$ ./make.py commit -m 'Change cut action test to be assertion for menu items shown.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.411s
@@ -282,44 +293,47 @@ Ran 53 tests in 3.411s
 OK
 [main 1708e0c] Change cut action test to be assertion for menu items shown.
  1 file changed, 2 insertions(+), 5 deletions(-)
-</pre></div>
-</div></div>
+```
+
 Now we need a new test for clicking the ripple delete menu item.
 
 ## Ripple delete test
 
 I write this test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I ripple delete:</span>
+```python
+"""
+I ripple delete:
 
-<span class="sd">&gt;&gt;&gt; gui = TestGui(click_context_menu=&quot;ripple delete&quot;)</span>
-<span class="sd">&gt;&gt;&gt; action = CutAction(project=None, cut=None, scrollbar=None)</span>
-<span class="sd">&gt;&gt;&gt; action.right_mouse_down(gui=gui)</span>
-<span class="sd">do ripple delete</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> gui = TestGui(click_context_menu="ripple delete")
+>>> action = CutAction(project=None, cut=None, scrollbar=None)
+>>> action.right_mouse_down(gui=gui)
+do ripple delete
+"""
+```
+
 That is, I assert that "do ripple delete" is printed when we press that menu
 item. Baby steps.
 
 I make it pass like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -299,10 +306,12 @@ class CutAction(Action):</span>
+```diff
+@@ -299,10 +306,12 @@ class CutAction(Action):
                      transaction.modify(self.cut.id, lambda cut:
                          cut.with_mix_strategy(value))
              return update
-<span class="gi">+        def ripple_delete():</span>
-<span class="gi">+            print(&quot;do ripple delete&quot;)</span>
++        def ripple_delete():
++            print("do ripple delete")
          gui.show_context_menu([
-             MenuItem(label=&quot;over&quot;, action=mix_strategy_updater(&quot;over&quot;)),
-             MenuItem(label=&quot;under&quot;, action=mix_strategy_updater(&quot;under&quot;)),
-<span class="gd">-            MenuItem(label=&quot;ripple delete&quot;, action=lambda: None),</span>
-<span class="gi">+            MenuItem(label=&quot;ripple delete&quot;, action=ripple_delete),</span>
+             MenuItem(label="over", action=mix_strategy_updater("over")),
+             MenuItem(label="under", action=mix_strategy_updater("under")),
+-            MenuItem(label="ripple delete", action=lambda: None),
++            MenuItem(label="ripple delete", action=ripple_delete),
          ])
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Add non-empty action for ripple delete.&#39;
+```
+
+```
+$ ./make.py commit -m 'Add non-empty action for ripple delete.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.909s
@@ -327,37 +341,38 @@ Ran 53 tests in 2.909s
 OK
 [main 4c4e272] Add non-empty action for ripple delete.
  1 file changed, 10 insertions(+), 1 deletion(-)
-</pre></div>
-</div></div>
+```
+
 ## The next step
 
 Let's take the next step and assert that it actually does a ripple delete.
 
 I modify the test to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I ripple delete:</span>
+```python
+"""
+I ripple delete:
 
-<span class="sd">&gt;&gt;&gt; from rlvideolib.domain.project import Project</span>
-<span class="sd">&gt;&gt;&gt; project = Project.new()</span>
-<span class="sd">&gt;&gt;&gt; with project.new_transaction() as transaction:</span>
-<span class="sd">...     hello_id = transaction.add_text_clip(&quot;hello&quot;, length=10, id=&quot;A&quot;)</span>
-<span class="sd">...     _        = transaction.add_text_clip(&quot;there&quot;, length=10, id=&quot;B&quot;)</span>
-<span class="sd">&gt;&gt;&gt; project.split_into_sections().to_ascii_canvas()</span>
-<span class="sd">|&lt;-A0-----&gt;&lt;-B0-----&gt;|</span>
+>>> from rlvideolib.domain.project import Project
+>>> project = Project.new()
+>>> with project.new_transaction() as transaction:
+...     hello_id = transaction.add_text_clip("hello", length=10, id="A")
+...     _        = transaction.add_text_clip("there", length=10, id="B")
+>>> project.split_into_sections().to_ascii_canvas()
+|<-A0-----><-B0----->|
 
-<span class="sd">&gt;&gt;&gt; CutAction(</span>
-<span class="sd">...     project=project,</span>
-<span class="sd">...     cut=project.project_data.get_cut(hello_id),</span>
-<span class="sd">...     scrollbar=None</span>
-<span class="sd">... ).right_mouse_down(</span>
-<span class="sd">...     gui=TestGui(click_context_menu=&quot;ripple delete&quot;)</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; project.split_into_sections().to_ascii_canvas()</span>
-<span class="sd">|&lt;-B0-----&gt;|</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> CutAction(
+...     project=project,
+...     cut=project.project_data.get_cut(hello_id),
+...     scrollbar=None
+... ).right_mouse_down(
+...     gui=TestGui(click_context_menu="ripple delete")
+... )
+>>> project.split_into_sections().to_ascii_canvas()
+|<-B0----->|
+"""
+```
+
 This got quite messy. Let's see if we can break it down. First we setup a new
 project with two clips next to each other. Then we simulate that the ripple
 delete menu item is clicked and assert that the first clip is removed and the
@@ -374,25 +389,27 @@ above. I promise.
 
 I make this change:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>         def ripple_delete():
-<span class="gd">-            print(&quot;do ripple delete&quot;)</span>
-<span class="gi">+            self.project.ripple_delete(self.cut.id)</span>
+```diff
+         def ripple_delete():
+-            print("do ripple delete")
++            self.project.ripple_delete(self.cut.id)
          gui.show_context_menu([
-</pre></div>
-</div></div>
+```
+
 That tells me that 'Project' object has no attribute 'ripple_delete'.
 
 I add it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
+```python
+class Project:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
-            <span class="n">transaction</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def ripple_delete(self, cut_id):
+        with self.new_transaction() as transaction:
+            transaction.ripple_delete(cut_id)
+```
+
 That tells med that 'Transaction' object has no attribute 'ripple_delete'.
 
 We're getting closer.
@@ -400,20 +417,22 @@ We're getting closer.
 I can't come up with the general solution for ripple delete, so I hard code a
 solution for the particular case where we only have two cuts in the project:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+```python
+class Transaction:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">remove_cut</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">modify_cut</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def ripple_delete(self, cut_id):
+        data = self.project.project_data
+        data = data.remove_cut(cut_id)
+        data = data.modify_cut(list(data.cuts.cut_map.keys())[0], lambda cut: cut.move(-10))
+        self.project.set_project_data(data)
+```
+
 And also make a quick and dirty version of `remove_cut`.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Quick and dirty version of ripple delete that works in one case.&#39;
+```
+$ ./make.py commit -m 'Quick and dirty version of ripple delete that works in one case.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.902s
@@ -421,8 +440,8 @@ Ran 53 tests in 3.902s
 OK
 [main 7ba45c9] Quick and dirty version of ripple delete that works in one case.
  2 files changed, 43 insertions(+), 5 deletions(-)
-</pre></div>
-</div></div>
+```
+
 Here is the example project:
 
 <p>
@@ -453,38 +472,42 @@ ripple delete only affects the cuts. I make that clear by just forwarding
 
 Transaction forwards to project data:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+```python
+class Transaction:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def ripple_delete(self, cut_id):
+        self.project.set_project_data(self.project.project_data.ripple_delete(cut_id))
+```
+
 And project data forwards to cuts:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProjectData</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ProjectData&quot;</span><span class="p">,</span> <span class="s2">&quot;sources,cuts&quot;</span><span class="p">)):</span>
+```python
+class ProjectData(namedtuple("ProjectData", "sources,cuts")):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def ripple_delete(self, cut_id):
+        return self._replace(cuts=self.cuts.ripple_delete(cut_id))
+```
+
 And finally, the hard coded ripple delete is here:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Cuts</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cuts&quot;</span><span class="p">,</span> <span class="s2">&quot;cut_map,region_to_cuts,region_group_size&quot;</span><span class="p">)):</span>
+```python
+class Cuts(namedtuple("Cuts", "cut_map,region_to_cuts,region_group_size")):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">data</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;Move ripple_delete down to Cuts.&#39;
+    def ripple_delete(self, cut_id):
+        data = self
+        data = data.remove(cut_id)
+        data = data.modify(list(data.cut_map.keys())[0], lambda cut: cut.move(-10))
+        return data
+```
+
+```
+$ ./make.py commit -m 'Move ripple_delete down to Cuts.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.397s
@@ -492,8 +515,8 @@ Ran 53 tests in 3.397s
 OK
 [main c5deb77] Move ripple_delete down to Cuts.
  2 files changed, 10 insertions(+), 7 deletions(-)
-</pre></div>
-</div></div>
+```
+
 If we can just get that one working properly, I think our feature is done.
 
 ## Endless sidetracks?

@@ -56,6 +56,6 @@ Example: Moving hosting provider
 AI chronicels: stories show progress towards a larger goal.
 
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>
-</pre></div>
-</div></div>
+```python
+...
+```

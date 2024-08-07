@@ -27,22 +27,25 @@ allowfullscreen></iframe></center>
 
 To illustrate the problem with a crashing server, we use the example below:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+`server-listen.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 This is a TCP server, listening on port 9000, reading numbers from clients, and
 returning the product of the two numbers. It assumes that numbers can be parsed
@@ -50,33 +53,36 @@ as integers. If parsing fails, the server crashes.
 
 To test the behavior of the server, we use the following client:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>client.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">time</span>
+`client.py`:
 
-<span class="k">def</span> <span class="nf">make_request</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;five</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+```py
+import socket
+import time
 
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="n">make_request</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> (request took </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">ms)&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No response for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection failed for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
-</pre></div>
-</div></div>
+def make_request(number):
+    with socket.socket() as s:
+        s.connect(("localhost", 9000))
+        if number == 5:
+            s.sendall(b"five\n")
+        else:
+            s.sendall(f"{number}\n".encode("ascii"))
+        return s.recv(100).decode("ascii").rstrip()
+
+for i in range(20):
+    try:
+        time_start = time.perf_counter()
+        message = make_request(i)
+        time_end = time.perf_counter()
+        diff = int((time_end - time_start) * 1000)
+        if message:
+            print(f"{message} (request took {diff}ms)")
+        else:
+            print(f"No response for {i}")
+    except:
+        print(f"Connection failed for {i}")
+    time.sleep(0.01)
+```
+
 
 It sends 20 requests to the server with a 10ms delay between them. However, for
 request with number 5, instead of sending the number `5` it sends the string
@@ -84,8 +90,10 @@ request with number 5, instead of sending the number `5` it sends the string
 
 If we start the server, then the client, the output looks as follows:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen.py 
+`server output`:
+
+```
+$ python server-listen.py 
 listening on port 9000
 accepting connection
 accepting connection
@@ -94,13 +102,15 @@ accepting connection
 accepting connection
 accepting connection
 Traceback (most recent call last):
-  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
+  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py", line 13, in <module>
     number = int(data)
-ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
+ValueError: invalid literal for int() with base 10: b'five\n'
+```
+
+`client output`:
+
+```
+$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 0ms)
@@ -121,8 +131,8 @@ Connection failed for 16
 Connection failed for 17
 Connection failed for 18
 Connection failed for 19
-</pre></div>
-</div></div>
+```
+
 In the client output, we see that request with number 5 never receives a
 response from the server and that subsequent requests fail because the server
 has crashed, and there is no one listening on port 9000.
@@ -133,21 +143,26 @@ In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
 infinite loop using a script like the one below:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>loop.sh</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
-    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
-    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
-<span class="k">done</span>
-</pre></div>
-</div></div>
+`loop.sh`:
+
+```sh
+while true; do
+    echo "$@"
+    "$@" || true
+    echo "restarting"
+done
+```
+
 
 This Bash script takes a command to run as argument and runs that command in a
 loop, ignoring any exit code.
 
 Invoking the server and client again, we get the following output:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ bash loop.sh python server-listen.py
+`server output`:
+
+```
+$ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
 accepting connection
@@ -157,9 +172,9 @@ accepting connection
 accepting connection
 accepting connection
 Traceback (most recent call last):
-  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
+  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py", line 13, in <module>
     number = int(data)
-ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
+ValueError: invalid literal for int() with base 10: b'five\n'
 restarting
 python server-listen.py
 listening on port 9000
@@ -169,10 +184,12 @@ accepting connection
 accepting connection
 accepting connection
 accepting connection
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
+```
+
+`client output`:
+
+```
+$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 0ms)
@@ -193,8 +210,8 @@ Connection failed for 13
 17*17=289 (request took 0ms)
 18*18=324 (request took 0ms)
 19*19=361 (request took 1ms)
-</pre></div>
-</div></div>
+```
+
 In the server output, we see that the server starts again after the crash and
 starts listening on port 9000.
 
@@ -222,19 +239,22 @@ still stays open because it is managed by another process.
 Here is a program that listens on a socket and then spawns server processes in
 a loop to accept connections:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
+`server-listen-loop.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
-</pre></div>
-</div></div>
+```py
+import os
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    os.dup2(s.fileno(), 0)
+    os.close(s.fileno())
+    os.execvp("bash", ["bash", "loop.sh", "python", "server-accept.py"])
+```
+
 
 The first part of this program creates a socket and starts listening. This is
 what we had in the previous example.
@@ -253,23 +273,28 @@ passed to it as file descriptor 0 (stdin):
 
 Here is `server-accept.py`:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+`server-accept.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+
+with socket.socket(fileno=0) as s:
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 Invoking the server and client again, we get the following output:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">server output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python server-listen-loop.py
+`server output`:
+
+```
+$ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
 accepting connection
@@ -279,9 +304,9 @@ accepting connection
 accepting connection
 accepting connection
 Traceback (most recent call last):
-  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py&quot;, line 9, in &lt;module&gt;
+  File "/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py", line 9, in <module>
     number = int(data)
-ValueError: invalid literal for int() with base 10: b&#39;five\n&#39;
+ValueError: invalid literal for int() with base 10: b'five\n'
 restarting
 python server-accept.py
 accepting connection
@@ -298,10 +323,12 @@ accepting connection
 accepting connection
 accepting connection
 accepting connection
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ python client.py 
+```
+
+`client output`:
+
+```
+$ python client.py 
 0*0=0 (request took 0ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 1ms)
@@ -322,8 +349,8 @@ No response for 5
 17*17=289 (request took 0ms)
 18*18=324 (request took 0ms)
 19*19=361 (request took 1ms)
-</pre></div>
-</div></div>
+```
+
 Now all requests (except the one that causes a crash) get a response. We see
 that request with number six takes longer to complete. That is because
 `server-accept.py` needs time to start up (by the loop script) and call
@@ -340,25 +367,30 @@ restarts.
 I tried to modify the loop script to sleep for 60 seconds before restarting the
 server:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>loop-sleep.sh</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
-    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
-    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
-    sleep <span class="m">60</span>
-<span class="k">done</span>
-</pre></div>
-</div></div>
+`loop-sleep.sh`:
+
+```sh
+while true; do
+    echo "$@"
+    "$@" || true
+    echo "restarting"
+    sleep 60
+done
+```
+
 
 The client output looked like this:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">client output
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span>...
+`client output`:
+
+```
+...
 No response for 5
 6*6=36 (request took 60123ms)
 7*7=49 (request took 0ms)
 ...
-</pre></div>
-</div></div>
+```
+
 So it seems that the client got no errors even though the request took 60
 seconds to be responded to.
 
@@ -394,19 +426,22 @@ script starts a second server process, but it stops it right before calling
 accept. But then we would need a way to signal to the process to resume
 operation. Perhaps by sending it a signal?
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-standby.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+`server-accept-standby.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="c1"># wait for signal before proceeding</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+
+with socket.socket(fileno=0) as s:
+    # wait for signal before proceeding
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 Both of these make the loop script more complicated. And if it gets more
 complicated, it is more likely to crash. And if it crashes, the socket gets
@@ -429,19 +464,22 @@ post](https://relaxdiego.com/2017/02/load-balancing-sockets.html).
 In the middle of `server-listen-loop.py` we move the file descriptor of the
 socket, `s.fileno()`, to file descriptor 0 (stdin):
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
+`server-listen-loop.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
-</pre></div>
-</div></div>
+```py
+import os
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    os.dup2(s.fileno(), 0)
+    os.close(s.fileno())
+    os.execvp("bash", ["bash", "loop.sh", "python", "server-accept.py"])
+```
+
 
 We do that to make the file descriptor available to child processes so that
 they can create a socket using it and then call `accept`.
@@ -454,35 +492,41 @@ why we have to move it to file descriptor 0 (stdin) which is inherited.
 Another option might be to make the file descriptor inheritable. Something like
 this:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
+`server-listen-loop-inherit.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept-inherit.py&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())])</span>
-</pre></div>
-</div></div>
+```py
+import os
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    os.set_inheritable(s.fileno(), True)
+    os.execvp("bash", ["bash", "loop.sh", "python", "server-accept-inherit.py", str(s.fileno())])
+```
+
 
 Then the file descriptor must also be passed to the server processes and used
 there instead of stdin:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept-inherit.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+`server-accept-inherit.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+import sys
+
+with socket.socket(fileno=int(sys.argv[1])) as s:
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 This seems to work as well.
 
@@ -497,19 +541,22 @@ preferable in some situations. I don't know.
 At the end of `server-listen-loop.py` we call `execvp` to start executing the
 loop script in the same process that started listening on the socket:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
+`server-listen-loop.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
-</pre></div>
-</div></div>
+```py
+import os
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    os.dup2(s.fileno(), 0)
+    os.close(s.fileno())
+    os.execvp("bash", ["bash", "loop.sh", "python", "server-accept.py"])
+```
+
 
 Why do we do that?
 
@@ -519,22 +566,25 @@ think about it, I think we can just as well inline the loop script in
 `server-listen-loop.py`. That, of course, requires the loop script to be
 written in Python. Something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen-loop-python.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
+`server-listen-loop-python.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;restarting&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```py
+import os
+import socket
+import subprocess
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    os.dup2(s.fileno(), 0)
+    os.close(s.fileno())
+    while True:
+        subprocess.Popen(["python", "server-accept.py"]).wait()
+        print("restarting")
+```
+
 
 It seems to work as well.
 
@@ -546,22 +596,25 @@ to manage server processes, it makes sense to do the `execvp`.
 
 In `server-listen.py`, we set the socket option `SO_REUSEADDR`:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-listen.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+`server-listen.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+
+with socket.socket() as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("localhost", 9000))
+    s.listen()
+    print("listening on port 9000")
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 Why?
 
@@ -621,18 +674,21 @@ Well, yes.
 In fact, the accepting server doesn't know what kind of socket is passed to it.
 It could be either a Unix domain socket or a TCP socket:
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>server-accept.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+`server-accept.py`:
 
-<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```py
+import socket
+
+with socket.socket(fileno=0) as s:
+    while True:
+        conn, addr = s.accept()
+        print("accepting connection")
+        with conn:
+            data = conn.recv(100)
+            number = int(data)
+            conn.sendall(f"{number}*{number}={number*number}\n".encode("ascii"))
+```
+
 
 ([Unix domain sockets are probably faster than TCP sockets when running on the
 same machine.](https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/))

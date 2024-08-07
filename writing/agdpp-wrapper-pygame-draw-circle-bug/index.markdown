@@ -67,55 +67,58 @@ the outside world, it does so via an infrastructure wrapper.
 Anytime we draw something on the screen, we do it via the game loop
 infrastructure wrapper. Here is how the arrow draws itself:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        v = Point.from_angle(self.angle + 180)
+        loop.draw_circle(self.position, color="blue", radius=10)
+        loop.draw_circle(self.position.add(v.times(20)), color="blue", radius=15)
+        loop.draw_circle(self.position.add(v.times(40)), color="blue", radius=20)
+```
+
 `draw_circle` above is part of the infrastructure wrapper. In code that we
 control. It in turn makes calls to Pygame like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
-            <span class="n">color</span><span class="p">,</span>
-            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
-            <span class="n">radius</span>
-        <span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw_circle(self, position, radius=40, color="red"):
+        ...
+        self.pygame.draw.circle(
+            self.screen,
+            color,
+            (int(position.x), int(position.y)),
+            radius
+        )
+```
+
 So we are actually only calling Pygame's `draw_circle` in one place in our
 code.
 
 We patch it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># https://github.com/pygame/pygame/issues/3778</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
-                <span class="n">color</span><span class="p">,</span>
-                <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
-                <span class="n">radius</span>
-            <span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw_circle(self, position, radius=40, color="red"):
+        ...
+        if position.x >= 0:
+            # https://github.com/pygame/pygame/issues/3778
+            self.pygame.draw.circle(
+                self.screen,
+                color,
+                (int(position.x), int(position.y)),
+                radius
+            )
+```
+
 This means that circles drawn partially outside the screen to the left will not
 be drawn at all.  Not ideal. But I very much prefer that to an annoying blue
 horizontal line.

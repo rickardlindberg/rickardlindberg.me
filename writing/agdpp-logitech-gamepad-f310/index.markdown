@@ -27,16 +27,17 @@ How do we capture events from a Logitech gamepad?
 One way to find out is to print all the events that pygame generates. We can
 for example do that in the `tick` method:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-            <span class="o">...</span>
-</pre></div>
-</div></div>
+    def tick(self, dt, events):
+        for event in events:
+            print(event)
+            ...
+```
+
 This makes the test suite fail since the print statement is outputting event
 information that the tests do not expect to find.
 
@@ -51,19 +52,21 @@ session short and remove it once we are done.
 Anyway, if we run the game now and press keys on the keyboard we can see things
 like this in the output:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>&lt;Event(771-TextInput {&#39;text&#39;: &#39; &#39;, &#39;window&#39;: None})&gt;
-&lt;Event(769-KeyUp {&#39;unicode&#39;: &#39; &#39;, &#39;key&#39;: 32, &#39;mod&#39;: 0, &#39;scancode&#39;: 44, &#39;window&#39;: None})&gt;
-&lt;Event(768-KeyDown {&#39;unicode&#39;: &#39;&#39;, &#39;key&#39;: 1073742049, &#39;mod&#39;: 1, &#39;scancode&#39;: 225, &#39;window&#39;: None})&gt;
-&lt;Event(768-KeyDown {&#39;unicode&#39;: &#39;&#39;, &#39;key&#39;: 1073742050, &#39;mod&#39;: 257, &#39;scancode&#39;: 226, &#39;window&#39;: None})&gt;
-</pre></div>
-</div></div>
+```
+<Event(771-TextInput {'text': ' ', 'window': None})>
+<Event(769-KeyUp {'unicode': ' ', 'key': 32, 'mod': 0, 'scancode': 44, 'window': None})>
+<Event(768-KeyDown {'unicode': '', 'key': 1073742049, 'mod': 1, 'scancode': 225, 'window': None})>
+<Event(768-KeyDown {'unicode': '', 'key': 1073742050, 'mod': 257, 'scancode': 226, 'window': None})>
+```
+
 But when we press keys on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>&lt;Event(1541-JoyDeviceAdded {&#39;device_index&#39;: 0, &#39;guid&#39;: &#39;030000006d0400001dc2000014400000&#39;})&gt;
-</pre></div>
-</div></div>
+```
+<Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})>
+```
+
 Is this our Logitech gamepad?
 
 ## Initializing joysticks
@@ -78,25 +81,26 @@ they must be initialized before events are generated for them.
 
 We try to mimic the example in the documentation to initialize joysticks:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="n">joysticks</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">pygame_events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame_events</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">JOYDEVICEADDED</span><span class="p">:</span>
-                        <span class="n">joy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">joystick</span><span class="o">.</span><span class="n">Joystick</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">device_index</span><span class="p">)</span>
-                        <span class="n">joysticks</span><span class="p">[</span><span class="n">joy</span><span class="o">.</span><span class="n">get_instance_id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">joy</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">game</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">Event</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
-                <span class="o">...</span>
-</pre></div>
-</div></div>
+    def run(self, game, resolution=(1280, 720), fps=60):
+        ...
+        joysticks = {}
+        try:
+            while True:
+                pygame_events = self.pygame.event.get()
+                for event in pygame_events:
+                    if event.type == pygame.JOYDEVICEADDED:
+                        joy = self.pygame.joystick.Joystick(event.device_index)
+                        joysticks[joy.get_instance_id()] = joy
+                    else:
+                        game.event(Event(event))
+                ...
+```
+
 We don't handle `JOYDEVICEREMOVED` yet. We probably should, but unless we
 unplug the gamepad while running the game, we should be fine I think.
 
@@ -110,11 +114,12 @@ if we feel the need. And maybe test the `JOYDEVICEREMOVED` as well.
 Anyway, if we run the game now and press keys on the gamepad, we see events
 like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>&lt;Event(1536-JoyAxisMotion {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;axis&#39;: 0, &#39;value&#39;: 0.003906369212927641})&gt;
-&lt;Event(1539-JoyButtonDown {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;button&#39;: 0})&gt;
-&lt;Event(1540-JoyButtonUp {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;button&#39;: 0})&gt;
-</pre></div>
-</div></div>
+```
+<Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})>
+<Event(1539-JoyButtonDown {'joy': 0, 'instance_id': 0, 'button': 0})>
+<Event(1540-JoyButtonUp {'joy': 0, 'instance_id': 0, 'button': 0})>
+```
+
 I feel a disproportional sense of excitement and joy over this. We can now get
 input from the Logitech gamepad. We are real game developers now! Thanks pygame
 for making this relatively straight forward. Now it's a matter of mapping
@@ -131,20 +136,21 @@ complicated. It's not just a matter of mapping one event to one action.
 
 Now, we have this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        ...
+        elif event.is_keydown_space():
+            self.flying_arrows.add(self.arrow.clone_shooting())
+        elif event.is_keydown_left():
+            self.arrow.angle_left()
+        elif event.is_keydown_right():
+            self.arrow.angle_right()
+```
+
 That is a one to one mapping between events and actions.
 
 We still want this code to look similar but allow multiple events to generate
@@ -152,20 +158,21 @@ the same action.
 
 Here is what we come up with:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def event(self, event):
+        self.input_handler.action(event)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.flying_arrows.add(self.bow.clone_shooting())
+        self.bow.turn(self.input_handler.get_turn_angle())
+```
+
 So we pass along events to an input handler, then we query it in the `update`
 method, asking it if a shot action was triggered (from either input device),
 and if so, modify `flying_arrows` as before. We do something similar for
@@ -187,21 +194,22 @@ to draw more graphics for the bow.
 
 Here is what it looks like:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bow</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class Bow(SpriteGroup):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+    def __init__(self):
+        SpriteGroup.__init__(self)
+        self.arrow = self.add(Arrow())
 
-    <span class="k">def</span> <span class="nf">turn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">set_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+    def turn(self, angle):
+        self.arrow.set_angle(self.arrow.angle.add(angle))
 
-    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">()</span>
+    def clone_shooting(self):
+        return self.arrow.clone_shooting()
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 I'm not sure that bow is the right name. Do we shoot arrows with a bow in our
 game? Or is it some kind of cannon? I think we need to ask our product owner.
 
@@ -219,59 +227,62 @@ events should result in.
 
 Let's look at how it handles shooting:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+```python
+class InputHandler:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    def __init__(self):
+        ...
+        self.shoot_down = ResettableValue(False)
 
-    <span class="k">def</span> <span class="nf">get_shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span>
+    def get_shoot(self):
+        return self.shoot
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shoot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">get_and_reset</span><span class="p">()</span>
-        <span class="o">...</span>
+    def update(self, dt):
+        self.shoot = self.shoot_down.get_and_reset()
+        ...
 
-    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">)</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shoot_down</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def action(self, event):
+        if event.is_keydown(KEY_SPACE) or event.is_joystick_down(XBOX_A):
+            self.shoot_down.set(True)
+        ...
+```
+
 It will be called by the game scene like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+```python
+self.input_handler.action(event)
+self.input_handler.update(dt)
+if self.input_handler.get_shoot():
+    ...
+```
+
 The `shoot_down` variable remembers if a shoot key/button has been pressed
 since the last call to `update`. We only want `get_shoot` to return true one
 time when we press a shoot key/button. That's why we use a resettable value,
 which looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ResettableValue</span><span class="p">:</span>
+```python
+class ResettableValue:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">default</span>
+    def __init__(self, default):
+        self.default = default
+        self.value = default
 
-    <span class="k">def</span> <span class="nf">get_and_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">x</span>
+    def get_and_reset(self):
+        x = self.get()
+        self.reset()
+        return x
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+    def get(self):
+        return self.value
 
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+    def set(self, value):
+        self.value = value
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
-</pre></div>
-</div></div>
+    def reset(self):
+        self.value = self.default
+```
+
 The `is_joystick_down` method on the event is new. We have added wrappers for
 new events [before](/writing/agdpp-shooting-arrow/index.html), and this is done
 the same way.
@@ -289,36 +300,37 @@ logic would go in here and the game would still only query for the turn angle.)
 
 Here is the implementation:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+```python
+class InputHandler:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span> <span class="o">=</span> <span class="n">ResettableValue</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="o">...</span>
+    def __init__(self):
+        self.arrow_turn_factor = ResettableValue(0)
+        ...
 
-    <span class="k">def</span> <span class="nf">get_turn_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span>
+    def get_turn_angle(self):
+        return self.turn_angle
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">turn_angle</span> <span class="o">=</span> <span class="n">Angle</span><span class="o">.</span><span class="n">fraction_of_whole</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="mi">1</span><span class="o">/</span><span class="mi">2000</span><span class="p">)</span>
+    def update(self, dt):
+        ...
+        self.turn_angle = Angle.fraction_of_whole(self.arrow_turn_factor.get()*dt*1/2000)
 
-    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keyup</span><span class="p">(</span><span class="n">KEY_LEFT</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_RIGHT</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keyup</span><span class="p">(</span><span class="n">KEY_RIGHT</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_motion</span><span class="p">()</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow_turn_factor</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def action(self, event):
+        ...
+        elif event.is_keydown(KEY_LEFT):
+            self.arrow_turn_factor.set(-1)
+        elif event.is_keyup(KEY_LEFT):
+            self.arrow_turn_factor.reset()
+        elif event.is_keydown(KEY_RIGHT):
+            self.arrow_turn_factor.set(1)
+        elif event.is_keyup(KEY_RIGHT):
+            self.arrow_turn_factor.reset()
+        elif event.is_joystick_motion() and event.get_axis() == 0:
+            if abs(event.get_value()) > 0.01:
+                self.arrow_turn_factor.set(event.get_value())
+            else:
+                self.arrow_turn_factor.reset()
+```
+
 We can test the details of this in isolation. The only thing we need to test in
 the game scene is that it turns the arrow by the amount that it gets from the
 input handler.
@@ -330,20 +342,21 @@ primitive obsession. I'm sure it will attract some functions.
 
 Let's have a look at the game scene again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def event(self, event):
+        self.input_handler.action(event)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.flying_arrows.add(self.bow.clone_shooting())
+        self.bow.turn(self.input_handler.get_turn_angle())
+```
+
 How do we test this? What is the behavior?
 
 This is what I think of:
@@ -361,65 +374,67 @@ This is overlapping, sociable testing. (I think.)
 Then we can write specific tests for the input handler that tests that all
 shoot keys result in `get_shoot` being true:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Space shoots and resets:</span>
+```python
+"""
+Space shoots and resets:
 
-<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
-<span class="sd">&gt;&gt;&gt; i.action(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">&gt;&gt;&gt; i.update(1)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; i.update(1)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
-<span class="sd">False</span>
+>>> i = InputHandler()
+>>> i.action(GameLoop.create_event_keydown(KEY_SPACE))
+>>> i.update(1)
+>>> i.get_shoot()
+True
+>>> i.update(1)
+>>> i.get_shoot()
+False
 
-<span class="sd">Xbox A shoots and resets:</span>
+Xbox A shoots and resets:
 
-<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
-<span class="sd">&gt;&gt;&gt; i.action(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">&gt;&gt;&gt; i.update(1)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; i.update(1)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shoot()</span>
-<span class="sd">False</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> i = InputHandler()
+>>> i.action(GameLoop.create_event_joystick_down(XBOX_A))
+>>> i.update(1)
+>>> i.get_shoot()
+True
+>>> i.update(1)
+>>> i.get_shoot()
+False
+"""
+```
+
 The process to get to this design was a squiggly one with many refactorings. I
 initially had a different approach that I want to mention and talk about. It
 looked like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">quit</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;quit&quot;</span><span class="p">:</span> <span class="n">quit</span><span class="p">,</span>
-            <span class="s2">&quot;shoot&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">()),</span>
-            <span class="s2">&quot;turn_left&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">(),</span>
-            <span class="s2">&quot;turn_right&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">(),</span>
-        <span class="p">}</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">action</span><span class="p">:</span>
-            <span class="n">actions</span><span class="p">[</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]]()</span>
+    def event(self, event):
+        def quit():
+            raise ExitGameLoop()
+        actions = {
+            "quit": quit,
+            "shoot": lambda: self.flying_arrows.add(self.arrow.clone_shooting()),
+            "turn_left": lambda: self.arrow.angle_left(),
+            "turn_right": lambda: self.arrow.angle_right(),
+        }
+        action = self.input_handler.action(event)
+        if action:
+            actions[action[0]]()
 
-<span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+class InputHandler:
 
-    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;quit&#39;</span><span class="p">,)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shoot&#39;</span><span class="p">,)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;turn_left&#39;</span><span class="p">,)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;turn_right&#39;</span><span class="p">,)</span>
-</pre></div>
-</div></div>
+    def action(self, event):
+        if event.is_user_closed_window():
+            return ('quit',)
+        elif event.is_keydown_space() or event.is_joystick_down(0):
+            return ('shoot',)
+        elif event.is_keydown_left():
+            return ('turn_left',)
+        elif event.is_keydown_right():
+            return ('turn_right',)
+```
+
 In this design, the input handler returns the name of the action to perform.
 Then the game scene looks up that action, and if it finds it, runs it.
 
@@ -433,16 +448,17 @@ on.
 However, what if we use the keyboard event for that test, and then write our
 input handler like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+```python
+class InputHandler:
 
-    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shoot&#39;</span><span class="p">,)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;shot&#39;</span><span class="p">,)</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def action(self, event):
+        if event.is_keydown_space():
+            return ('shoot',)
+        elif event.is_joystick_down(0):
+            return ('shot',)
+        ...
+```
+
 That is, we misspell the action name for the joystick case. We even misspell it
 in the input handler test. All tests will pass, but the arrow will not shoot
 when using the joystick.
@@ -453,17 +469,18 @@ details of input handling in isolation.
 
 That's when I slowly moved in the direction that I presented first:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">clone_shooting</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bow</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_turn_angle</span><span class="p">())</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        ...
+        if self.input_handler.get_shoot():
+            self.flying_arrows.add(self.bow.clone_shooting())
+        self.bow.turn(self.input_handler.get_turn_angle())
+```
+
 In this design it is still possible for `get_shoot` to return an incorrect
 boolean value for the joystick. But the likelihood of that happening, I think,
 is much less than we misspell an action.

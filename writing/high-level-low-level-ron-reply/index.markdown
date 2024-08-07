@@ -84,49 +84,52 @@ isolated part of the code.
 I will illustrate what I think is problematic with that with a calculator
 example that show the total on a display:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Calculator</span><span class="p">:</span>
+```python
+class Calculator:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="n">display</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    def __init__(self, display):
+        self.display = display
+        self.total = 0
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="n">amount</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    def add(self, amount):
+        self.total += amount
+        self.display.show(f"Total = {self.total}")
 
-<span class="k">class</span> <span class="nc">Display</span><span class="p">:</span>
+class Display:
 
-    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="c1"># gui stuff to show something on the screen</span>
-</pre></div>
-</div></div>
+    def show(self, text):
+        # gui stuff to show something on the screen
+```
+
 To test this, we might write one solitary test per class:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_calculator</span><span class="p">():</span>
-    <span class="n">mock_display</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="n">Display</span><span class="p">)</span>
-    <span class="n">calculator</span> <span class="o">=</span> <span class="n">Calculator</span><span class="p">(</span><span class="n">mock_display</span><span class="p">)</span>
-    <span class="n">calculator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">calculator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">mock_display</span><span class="o">.</span><span class="n">show</span><span class="o">.</span><span class="n">calls</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;Total = 3&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Total = 5&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
+```python
+def test_calculator():
+    mock_display = Mock(Display)
+    calculator = Calculator(mock_display)
+    calculator.add(3)
+    calculator.add(2)
+    assert mock_display.show.calls = [
+        "Total = 3",
+        "Total = 5",
+    ]
 
-<span class="k">def</span> <span class="nf">test_display</span><span class="p">():</span>
-    <span class="n">display</span> <span class="o">=</span> <span class="n">Display</span><span class="p">()</span>
-    <span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
-    <span class="c1"># assert that gui shows with text &#39;hello&#39;</span>
-</pre></div>
-</div></div>
+def test_display():
+    display = Display()
+    display.show("hello")
+    # assert that gui shows with text 'hello'
+```
+
 These two tests prove that the whole works. But I find them a bit fragile.
 Especially in a dynamically typed language like Python.
 
 What if we changed the signature of `show` to something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+```python
+def show(self, text, color):
+    ...
+```
+
 `test_display` would break, but what about `test_calculator`? At least in
 Python, I don't think the type checking is able to catch that the signature has
 changed. So `test_calculator` will continue to pass. But the application will
@@ -154,26 +157,27 @@ instantiating an asteroid, calling its update method, and assert that it moved.
 Ron continues to discuss another example where asteroids collide with missiles.
 He wish he had a test for scoring in that situation and writes this test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
-    <span class="n">fi</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">vel</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">asteroid</span> <span class="o">=</span> <span class="n">Asteroid</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
-    <span class="n">missile</span> <span class="o">=</span> <span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">)</span>
-    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
-    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
-    <span class="n">asteroid</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
-    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
-    <span class="n">asteroid</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
-    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def test_missile_vs_asteroid_scoring(self):
+    fleets = Fleets()
+    fi = FI(fleets)
+    pos = Vector2(100, 100)
+    vel = Vector2(0, 0)
+    asteroid = Asteroid(2, pos)
+    missile = Missile.from_ship(pos, vel)
+    asteroid.interact_with_missile(missile, fleets)
+    scores = fi.scores
+    assert scores[0].score == u.MISSILE_SCORE_LIST[asteroid.size]
+    asteroid.size = 1
+    asteroid.interact_with_missile(missile, fleets)
+    scores = fi.scores
+    assert scores[1].score == u.MISSILE_SCORE_LIST[asteroid.size]
+    asteroid.size = 0
+    asteroid.interact_with_missile(missile, fleets)
+    scores = fi.scores
+    assert scores[2].score == u.MISSILE_SCORE_LIST[asteroid.size]
+```
+
 And notes that
 
 > Now, since Rickard specifically mentions using interact_with in the tests
@@ -187,23 +191,24 @@ attempt here.
 I would not call `interact_with_*` in tests. I would write the test above like
 this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-        <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-        <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
-        <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Asteroid</span><span class="p">(</span>
-            <span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">,</span>
-            <span class="n">position</span><span class="o">=</span><span class="n">position</span>
-        <span class="p">))</span>
-        <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
-            <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
-            <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="p">))</span>
-        <span class="n">fleets</span><span class="o">.</span><span class="n">perform_interactions</span><span class="p">()</span>
-        <span class="p">(</span><span class="n">score</span><span class="p">,)</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span><span class="o">.</span><span class="n">scores</span>
-        <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def test_missile_vs_asteroid_scoring_rickard(self):
+    for asteroid_size in [2, 1, 0]:
+        position = Vector2(100, 100)
+        fleets = Fleets()
+        fleets.append(Asteroid(
+            size=asteroid_size,
+            position=position
+        ))
+        fleets.append(Missile.from_ship(
+            position=position,
+            velocity=Vector2(0, 0)
+        ))
+        fleets.perform_interactions()
+        (score,) = FI(fleets).scores
+        assert score.score == u.MISSILE_SCORE_LIST[asteroid_size]
+```
+
 To be able to test scoring, we have to include both an asteroid and a missile
 in the test. To also make sure that they interact correctly, I would write the
 test by putting them in `Fleets` and have fleets `perform_interactions`.
@@ -233,22 +238,23 @@ Had we implemented the wrong `interact_with_*`, this test would have failed.
 If I were to take a more micro-test approach to this, I would write multiple
 tests. First this one:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_high</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
-    <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Asteroid</span><span class="p">(</span>
-        <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">position</span><span class="o">=</span><span class="n">position</span>
-    <span class="p">))</span>
-    <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
-        <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
-        <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="p">))</span>
-    <span class="n">fleets</span><span class="o">.</span><span class="n">perform_interactions</span><span class="p">()</span>
-    <span class="p">(</span><span class="n">score</span><span class="p">,)</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span><span class="o">.</span><span class="n">scores</span>
-    <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def test_missile_vs_asteroid_scoring_rickard_micro_high(self):
+    position = Vector2(100, 100)
+    fleets = Fleets()
+    fleets.append(Asteroid(
+        size=2,
+        position=position
+    ))
+    fleets.append(Missile.from_ship(
+        position=position,
+        velocity=Vector2(0, 0)
+    ))
+    fleets.perform_interactions()
+    (score,) = FI(fleets).scores
+    assert score.score == u.MISSILE_SCORE_LIST[2]
+```
+
 This test ensures that the interactions work with regards to scoring. But
 it is only testing one score.
 
@@ -260,31 +266,33 @@ To test that we get correct scores back, I therefore don't think we need to
 test that via interactions, we can test it with a more lower-level,
 micro-test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_low</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-        <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">Asteroid</span><span class="p">(</span>
-            <span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">,</span>
-            <span class="n">position</span><span class="o">=</span><span class="n">position</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">score_for_hitting</span><span class="p">(</span>
-            <span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
-                <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
-                <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="p">)</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def test_missile_vs_asteroid_scoring_rickard_micro_low(self):
+    for asteroid_size in [2, 1, 0]:
+        position = Vector2(100, 100)
+        assert Asteroid(
+            size=asteroid_size,
+            position=position
+        ).score_for_hitting(
+            Missile.from_ship(
+                position=position,
+                velocity=Vector2(0, 0)
+            )
+        ) == u.MISSILE_SCORE_LIST[asteroid_size]
+```
+
 This test has lots of irrelevant details though. The positions and
 velocity don't matter, so it's annoying to have to specify them. It makes the
 test harder to read. I would think about how I could refactor the code so that
 the test could read something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_low</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-        <span class="k">assert</span> <span class="n">Asteroid</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">)</span><span class="o">.</span><span class="n">score_for_hitting</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">())</span> \
-            <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def test_missile_vs_asteroid_scoring_rickard_micro_low(self):
+    for asteroid_size in [2, 1, 0]:
+        assert Asteroid(size=asteroid_size).score_for_hitting(Missile.from_ship()) \
+            == u.MISSILE_SCORE_LIST[asteroid_size]
+```
+
 This is overlapping, sociable testing. An approach I've started appreciating
 more and more over the last year or so.
 

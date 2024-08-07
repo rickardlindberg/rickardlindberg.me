@@ -24,27 +24,29 @@ above the arrow.)
 Arrows move first when we press the space key to shoot. Then we create a new
 arrow and set its shooting attribute to true:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        ...
+        elif event.is_keydown_space():
+            self.flying_arrows.add(Arrow(shooting=True))
+```
+
 An arrow that has the shooting attribute set to true moves like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        if self.shooting:
+            self.position = self.position.move(dy=-dt)
+```
+
 That is, it moves straight up in increments of `dt`. There is no concept of
 direction yet.
 
@@ -60,20 +62,22 @@ We start by creating a method `clone_shooting` on the arrow that should return
 a copy of itself (including all attributes) and have the shooting attribute set
 to true:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def clone_shooting(self):
+        return Arrow(shooting=True, position=self.position)
+```
+
 We modify how a flying arrow is added like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">- self.flying_arrows.add(Arrow(shooting=True))</span>
-<span class="gi">+ self.flying_arrows.add(self.arrow.clone_shooting())</span>
-</pre></div>
-</div></div>
+```diff
+- self.flying_arrows.add(Arrow(shooting=True))
++ self.flying_arrows.add(self.arrow.clone_shooting())
+```
+
 One change here is that we also clone the arrow's position attribute. The
 position of the arrow is always the same. Only when we shoot it, it changes.
 But should we choose to move the arrow to a different start position, the code
@@ -90,31 +94,33 @@ having to modify any other piece of code. The design is better.
 Next we take a small step towards having an arrow velocity. We change the
 update method to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="n">velocity</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        if self.shooting:
+            velocity = Point(x=0, y=-dt)
+            self.position = self.position.add(velocity)
+```
+
 Our relatively new `Point` class attracts more and more behavior. Here we added
 the `add` method:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+```python
+class Point:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; Point(0, 5).add(Point(1, 1))</span>
-<span class="sd">        Point(1, 6)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def add(self, point):
+        """
+        >>> Point(0, 5).add(Point(1, 1))
+        Point(1, 6)
+        """
+        return self.move(dx=point.x, dy=point.y)
+```
+
 ## Derive velocity from angle
 
 Now we could modify the velocity of the arrow and the update method would move
@@ -125,86 +131,90 @@ can adjust left and right. That would fit our use case better.
 
 We add and angle attribute to the arrow and derive the velocity vector from it:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shooting</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">90</span>
+    def __init__(self, shooting=False, position=Point(x=500, y=500)):
+        ...
+        self.angle = -90
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+    def update(self, dt):
+        if self.shooting:
+            self.position = self.position.add(Point.from_angle(self.angle).times(dt))
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 The `Point` class again attracts functionality. This time for converting angles
 to unit vectors (vectors of length one) and for magnifying vectors:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+```python
+class Point:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_angle</span><span class="p">(</span><span class="n">degrees</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(-90)</span>
-<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
-<span class="sd">        0</span>
-<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
-<span class="sd">        -1</span>
+    @staticmethod
+    def from_angle(degrees):
+        """
+        >>> p = Point.from_angle(-90)
+        >>> int(p.x)
+        0
+        >>> int(p.y)
+        -1
 
-<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(0)</span>
-<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
-<span class="sd">        1</span>
-<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
-<span class="sd">        0</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span>
-            <span class="n">x</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)),</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">))</span>
-        <span class="p">)</span>
+        >>> p = Point.from_angle(0)
+        >>> int(p.x)
+        1
+        >>> int(p.y)
+        0
+        """
+        return Point(
+            x=math.cos(math.radians(degrees)),
+            y=math.sin(math.radians(degrees))
+        )
 
-    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnification</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; Point(1, 5).times(2)</span>
-<span class="sd">        Point(2, 10)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">magnification</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">magnification</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def times(self, magnification):
+        """
+        >>> Point(1, 5).times(2)
+        Point(2, 10)
+        """
+        return Point(x=self.x*magnification, y=self.y*magnification)
+```
+
 ## Base drawing on angle
 
 The arrow now moves correctly based on the angle, but it doesn't draw its three
 circles correctly. It looks like this now:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_circle(self.position, color="blue", radius=10)
+        loop.draw_circle(self.position.move(dy=20), color="blue", radius=15)
+        loop.draw_circle(self.position.move(dy=40), color="blue", radius=20)
+```
+
 That is, it draws the second two circles by moving them downwards, assuming
 that the arrow is pointing up.
 
 Let's instead draw them offset by the opposite direction of what the arrow
 points:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        v = Point.from_angle(self.angle + 180)
+        loop.draw_circle(self.position, color="blue", radius=10)
+        loop.draw_circle(self.position.add(v.times(20)), color="blue", radius=15)
+        loop.draw_circle(self.position.add(v.times(40)), color="blue", radius=20)
+```
+
 We get the reverse angle by turning it 180 degrees.
 
 Perhaps angle is another case of primitive obsession. If we had an angle class,
@@ -220,72 +230,76 @@ the angle with arrow keys.
 
 Here is the test we write for changing arrow angle:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-90</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_left())</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-95</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_right())</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-90</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> game = GameScene(space)
+>>> game.get_arrow_angle()
+-90
+>>> game.event(GameLoop.create_event_keydown_left())
+>>> game.get_arrow_angle()
+-95
+>>> game.event(GameLoop.create_event_keydown_right())
+>>> game.get_arrow_angle()
+-90
+"""
+```
+
 For this to work we need to create new event wrappers for keydown left/right
 and add a getter to expose the arrow angle. We have done similar things before.
 Same procedure this time.
 
 We make it pass by handling the events and changing the angle:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">()</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+    def event(self, event):
+        ...
+        elif event.is_keydown_left():
+            self.arrow.angle_left()
+        elif event.is_keydown_right():
+            self.arrow.angle_right()
+```
 
-    <span class="o">...</span>
+```python
+class Arrow:
 
-    <span class="k">def</span> <span class="nf">angle_left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">-=</span> <span class="mi">5</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">angle_right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+=</span> <span class="mi">5</span>
-</pre></div>
-</div></div>
+    def angle_left(self):
+        self.angle -= 5
+
+    def angle_right(self):
+        self.angle += 5
+```
+
 This almost works, but when we turn and arrow and shoot it, it still goes
 straight up. We need to fix the `clone_shooting` method to also clone the
 angle.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        It preserves position and angle and set it to shooting:</span>
+    def clone_shooting(self):
+        """
+        It preserves position and angle and set it to shooting:
 
-<span class="sd">        &gt;&gt;&gt; arrow = Arrow(position=Point(x=5, y=5), angle=-45)</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow = arrow.clone_shooting()</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.get_position()</span>
-<span class="sd">        (5, 5)</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.angle</span>
-<span class="sd">        -45</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.shooting</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
-</pre></div>
-</div></div>
+        >>> arrow = Arrow(position=Point(x=5, y=5), angle=-45)
+        >>> new_arrow = arrow.clone_shooting()
+        >>> new_arrow.get_position()
+        (5, 5)
+        >>> new_arrow.angle
+        -45
+        >>> new_arrow.shooting
+        True
+        """
+        return Arrow(shooting=True, position=self.position, angle=self.angle)
+```
+
 ## Result
 
 Now we can turn the arrow with left/right keys and shoot it in different

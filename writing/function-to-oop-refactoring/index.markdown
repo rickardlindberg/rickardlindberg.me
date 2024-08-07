@@ -26,169 +26,174 @@ given a set of existing versions numbers stored as git tags.
 In the first example, we ask for the next release version in the 1.0 series
 given that no tags exist. We get the default version 1.0.0.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[])</span>
-<span class="s1">&#39;1.0.0&#39;</span>
-</pre></div>
-</div></div>
+```python
+>>> nextversion(series="1.0", pre_release=False, tags=[])
+'1.0.0'
+```
+
 In the second example, version 1.0.0 already exists, and we therefore get
 version 1.0.1.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.1&#39;</span>
-</pre></div>
-</div></div>
+```python
+>>> nextversion(series="1.0", pre_release=False, tags=['1.0.0'])
+'1.0.1'
+```
+
 In the third example we ask for the next pre-release version. The next release
 version would be 1.0.2, and so the first pre-release version of that release is
 1.0.2-1.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.1&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.2-1&#39;</span>
-</pre></div>
-</div></div>
+```python
+>>> nextversion(series="1.0", pre_release=True, tags=['1.0.0', '1.0.1'])
+'1.0.2-1'
+```
+
 In the fourth example, pre-release 3 already exists, so the next pre-release is
 1.0.2-4.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.1&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.2-3&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.2-4&#39;</span>
-</pre></div>
-</div></div>
+```python
+>>> nextversion(series="1.0", pre_release=True, tags=['1.0.0', '1.0.1', '1.0.2-3'])
+'1.0.2-4'
+```
+
 The initial function looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">nextversion</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-    <span class="n">version_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-        <span class="sa">r</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-        <span class="sa">r</span><span class="s2">&quot;(?P&lt;version&gt;\d+)&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span>
-    <span class="p">])</span>
-    <span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pre_release_numbers</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version_pattern</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release&quot;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pre_release_numbers</span><span class="p">:</span>
-                    <span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release_number&quot;</span><span class="p">]))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-    <span class="n">next_version</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="o">+</span>
-        <span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">version</span> <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">]</span>
-        <span class="o">+</span>
-        <span class="nb">list</span><span class="p">(</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="p">)</span>
-    <span class="n">next_pre_release_number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="n">pre_release</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">next_version</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">next_pre_release_number</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">next_version</span><span class="si">}</span><span class="s2">&quot;</span>
-</pre></div>
-</div></div>
+```python
+def nextversion(series, pre_release, tags):
+    version_pattern = "".join([
+        r"^",
+        re.escape(series),
+        re.escape("."),
+        r"(?P<version>\d+)",
+        r"(?P<pre_release>-(?P<pre_release_number>(\d+)))?",
+        r"$",
+    ])
+    versions = []
+    pre_release_numbers = {}
+    for tag in tags:
+        match = re.match(version_pattern, tag)
+        if match:
+            version = int(match["version"])
+            if match["pre_release"]:
+                if version not in pre_release_numbers:
+                    pre_release_numbers[version] = []
+                pre_release_numbers[version].append(int(match["pre_release_number"]))
+            else:
+                versions.append(version)
+    next_version = max(
+        [0]
+        +
+        [1+version for version in versions]
+        +
+        list(pre_release_numbers.keys())
+    )
+    next_pre_release_number = 1 + max(pre_release_numbers.get(next_version, [0]))
+    if pre_release:
+        return f"{series}.{next_version}-{next_pre_release_number}"
+    else:
+        return f"{series}.{next_version}"
+```
+
 I refactor it to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">nextversion</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">get_next_version</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">)</span>
+```python
+def nextversion(series, pre_release, tags):
+    return Tags(tags).get_next_version(series, pre_release)
 
-<span class="k">class</span> <span class="nc">Tags</span><span class="p">:</span>
+class Tags:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span>
+    def __init__(self, tags):
+        self.tags = tags
 
-    <span class="k">def</span> <span class="nf">get_next_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">):</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-        <span class="n">versions</span> <span class="o">=</span> <span class="n">Versions</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-            <span class="n">series</span><span class="o">.</span><span class="n">parse_version</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">versions</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">versions</span><span class="o">.</span><span class="n">get_next_version</span><span class="p">(</span><span class="n">pre_release</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+    def get_next_version(self, series, pre_release):
+        series = Series(series)
+        versions = Versions()
+        for tag in self.tags:
+            series.parse_version(tag).add_to(versions)
+        return versions.get_next_version(pre_release).format(series)
 
-<span class="k">class</span> <span class="nc">Release</span><span class="p">:</span>
+class Release:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+    def __init__(self, version):
+        self.version = version
 
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="n">versions</span><span class="o">.</span><span class="n">add_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+    def add_to(self, versions):
+        versions.add_release(self.version)
 
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">format_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+    def format(self, series):
+        return series.format_release(self.version)
 
-<span class="k">class</span> <span class="nc">PreRelease</span><span class="p">:</span>
+class PreRelease:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span> <span class="o">=</span> <span class="n">pre_release_number</span>
+    def __init__(self, version, pre_release_number):
+        self.version = version
+        self.pre_release_number = pre_release_number
 
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="n">versions</span><span class="o">.</span><span class="n">add_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span><span class="p">)</span>
+    def add_to(self, versions):
+        versions.add_pre_release(self.version, self.pre_release_number)
 
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">format_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span><span class="p">)</span>
+    def format(self, series):
+        return series.format_pre_release(self.version, self.pre_release_number)
 
-<span class="k">class</span> <span class="nc">NoMatchVersion</span><span class="p">:</span>
+class NoMatchVersion:
 
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="k">pass</span>
+    def add_to(self, versions):
+        pass
 
-<span class="k">class</span> <span class="nc">Versions</span><span class="p">:</span>
+class Versions:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span> <span class="o">=</span> <span class="p">{}</span>
+    def __init__(self):
+        self.versions = []
+        self.pre_release_numbers = {}
 
-    <span class="k">def</span> <span class="nf">add_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+    def add_release(self, version):
+        self.versions.append(version)
 
-    <span class="k">def</span> <span class="nf">add_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pre_release_number</span><span class="p">)</span>
+    def add_pre_release(self, version, pre_release_number):
+        if version not in self.pre_release_numbers:
+            self.pre_release_numbers[version] = []
+        self.pre_release_numbers[version].append(pre_release_number)
 
-    <span class="k">def</span> <span class="nf">get_next_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">):</span>
-        <span class="n">next_version</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-            <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="o">+</span>
-            <span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">version</span> <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="p">]</span>
-            <span class="o">+</span>
-            <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="p">)</span>
-        <span class="n">next_pre_release_number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="n">pre_release</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">PreRelease</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="n">next_pre_release_number</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Release</span><span class="p">(</span><span class="n">next_version</span><span class="p">)</span>
+    def get_next_version(self, pre_release):
+        next_version = max(
+            [0]
+            +
+            [1+version for version in self.versions]
+            +
+            list(self.pre_release_numbers.keys())
+        )
+        next_pre_release_number = 1 + max(self.pre_release_numbers.get(next_version, [0]))
+        if pre_release:
+            return PreRelease(next_version, next_pre_release_number)
+        else:
+            return Release(next_version)
 
-<span class="k">class</span> <span class="nc">Series</span><span class="p">:</span>
+class Series:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">series</span> <span class="o">=</span> <span class="n">series</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-            <span class="sa">r</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
-            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-            <span class="sa">r</span><span class="s2">&quot;(?P&lt;version&gt;\d+)&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span>
-        <span class="p">])</span>
+    def __init__(self, series):
+        self.series = series
+        self.version_pattern = "".join([
+            r"^",
+            re.escape(series),
+            re.escape("."),
+            r"(?P<version>\d+)",
+            r"(?P<pre_release>-(?P<pre_release_number>(\d+)))?",
+            r"$",
+        ])
 
-    <span class="k">def</span> <span class="nf">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version_pattern</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release&quot;</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="n">PreRelease</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release_number&quot;</span><span class="p">]))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Release</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">NoMatchVersion</span><span class="p">()</span>
+    def parse_version(self, tag):
+        match = re.match(self.version_pattern, tag)
+        if match:
+            version = int(match["version"])
+            if match["pre_release"]:
+                return PreRelease(version, int(match["pre_release_number"]))
+            else:
+                return Release(version)
+        return NoMatchVersion()
 
-    <span class="k">def</span> <span class="nf">format_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+    def format_release(self, version):
+        return f"{self.series}.{version}"
 
-    <span class="k">def</span> <span class="nf">format_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">pre_release_number</span><span class="si">}</span><span class="s2">&quot;</span>
-</pre></div>
-</div></div>
+    def format_pre_release(self, version, pre_release_number):
+        return f"{self.series}.{version}-{pre_release_number}"
+```

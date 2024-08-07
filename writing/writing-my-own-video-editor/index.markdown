@@ -74,22 +74,23 @@ Instead of speculating, I do some spikes to learn how to use MLT from Python.
 Here is one example how to put two clips next to each other on a timeline and
 preview the result:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">mlt</span>
+```python
+import time
+import mlt
 
-<span class="n">mlt</span><span class="o">.</span><span class="n">Factory</span><span class="p">()</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
-<span class="n">playlist</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Playlist</span><span class="p">()</span>
-<span class="n">playlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;VID_20230611_120041.mp4&quot;</span><span class="p">))</span>
-<span class="n">playlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;VID_20230611_115932.mp4&quot;</span><span class="p">))</span>
-<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;sdl&quot;</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;rescale&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">playlist</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div></div>
+mlt.Factory().init()
+profile = mlt.Profile()
+playlist = mlt.Playlist()
+playlist.append(mlt.Producer(profile, "VID_20230611_120041.mp4"))
+playlist.append(mlt.Producer(profile, "VID_20230611_115932.mp4"))
+consumer = mlt.Consumer(profile, "sdl")
+consumer.set("rescale", "none")
+consumer.connect(playlist)
+consumer.start()
+while consumer.is_stopped() == 0:
+    time.sleep(1)
+```
+
 More examples from my spikes can be found
 [here](https://github.com/rickardlindberg/rlvideo/blob/91dd25a0d39cbe25e8ce85157115d023b4d2c78c/spikes/mlt_hello_world.py).
 
@@ -117,21 +118,22 @@ could be used to build a video editor.
 
 The design I have in mind for the video editor looks something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+```python
+class Timeline:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span> <span class="o">=</span> <span class="p">[]</span>
+    def __init__(self):
+        self.clips = []
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clips</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+    def add(self, clip):
+        self.clips.add(clip)
 
-    <span class="k">def</span> <span class="nf">to_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
-        <span class="o">...</span>
+    def to_mlt_producer(self, ...):
+        ...
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def draw(self, ...):
+        ...
+```
+
 That is, I want to use custom data structures for representing clips on a
 timeline. I think that will give us a design which is clean and easy to work
 with. We can design those structures to be good for the kinds of operations
@@ -177,21 +179,22 @@ tracks in the background.
 
 I work on this section splitting code and end up with this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; a = Source(&quot;A&quot;).create_cut(0, 20).at(0)</span>
-<span class="sd">&gt;&gt;&gt; b = Source(&quot;b&quot;).create_cut(0, 20).at(10)</span>
-<span class="sd">&gt;&gt;&gt; cuts = Cuts()</span>
-<span class="sd">&gt;&gt;&gt; cuts = cuts.add(a)</span>
-<span class="sd">&gt;&gt;&gt; cuts = cuts.add(b)</span>
-<span class="sd">&gt;&gt;&gt; cuts.split_into_sections().to_ascii_canvas()</span>
-<span class="sd">|&lt;-A0------|--A10----&gt;|--b10----&gt;|</span>
-<span class="sd">|          |&lt;-b0------|          |</span>
-<span class="sd">&gt;&gt;&gt; cuts.modify(b, lambda cut: cut.move(1)).split_into_sections().to_ascii_canvas()</span>
-<span class="sd">|&lt;-A0-------|--A11---&gt;|--b9------&gt;|</span>
-<span class="sd">|           |&lt;-b0-----|           |</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> a = Source("A").create_cut(0, 20).at(0)
+>>> b = Source("b").create_cut(0, 20).at(10)
+>>> cuts = Cuts()
+>>> cuts = cuts.add(a)
+>>> cuts = cuts.add(b)
+>>> cuts.split_into_sections().to_ascii_canvas()
+|<-A0------|--A10---->|--b10---->|
+|          |<-b0------|          |
+>>> cuts.modify(b, lambda cut: cut.move(1)).split_into_sections().to_ascii_canvas()
+|<-A0-------|--A11--->|--b9------>|
+|           |<-b0-----|           |
+"""
+```
+
 The `to_ascii_canvas` is only used in tests to give me faster feedback on the
 splitting code. It also documents quite nicely what the timeline would look
 like in different situations.
@@ -210,24 +213,26 @@ the preview window.
 
 The timeline is created something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">timeline_draw</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-    <span class="n">sections</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-<span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
-<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">timeline_draw</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def timeline_draw(widget, context):
+    sections.draw(context, ...)
+timeline = Gtk.DrawingArea()
+timeline.connect("draw", timeline_draw)
+```
+
 It hooks up the draw event and lets the sections (created by
 `split_into_sections`) do all the drawing.
 
 The preview window is created something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">preview</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
-<span class="n">os</span><span class="o">.</span><span class="n">putenv</span><span class="p">(</span><span class="s2">&quot;SDL_WINDOWID&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">preview</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span><span class="o">.</span><span class="n">get_xid</span><span class="p">()))</span>
-<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;sdl&quot;</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+preview = Gtk.DrawingArea()
+os.putenv("SDL_WINDOWID", str(preview.get_window().get_xid()))
+consumer = mlt.Consumer(profile, "sdl")
+consumer.start()
+consumer.connect(sections.to_mlt_producer(profile))
+```
+
 It connects the SDL consumer to the preview window and the producer (created by
 `to_mlt_producer`) to the consumer. I learn how to make the SDL consumer draw
 its output inside a GTK window by looking at the Flowblade source code.

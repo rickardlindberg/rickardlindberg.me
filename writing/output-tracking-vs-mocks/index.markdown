@@ -70,16 +70,17 @@ not inject test doubles like mocks or stubs.
 
 So the test setup will look something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; app = App(</span>
-<span class="sd">...     save_command=SaveCommand(...),</span>
-<span class="sd">...     share_command=ShareCommand(...),</span>
-<span class="sd">...     terminal=Terminal(...),</span>
-<span class="sd">...     args=Args(...),</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> app = App(
+...     save_command=SaveCommand(...),
+...     share_command=ShareCommand(...),
+...     terminal=Terminal(...),
+...     args=Args(...),
+... )
+"""
+```
+
 However, if we were to invoke methods on `app` now, it would interact with the
 outside world. It would read command line arguments, execute `git` commands,
 and write to the terminal.
@@ -87,48 +88,52 @@ and write to the terminal.
 We don't want to do that. It takes a long time and is brittle. We therefore
 inject null versions of dependencies like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; app = App(</span>
-<span class="sd">...     save_command=SaveCommand.create_null(),</span>
-<span class="sd">...     share_command=ShareCommand.create_null(),</span>
-<span class="sd">...     terminal=Terminal.create_null(),</span>
-<span class="sd">...     args=Args.create_null(),</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> app = App(
+...     save_command=SaveCommand.create_null(),
+...     share_command=ShareCommand.create_null(),
+...     terminal=Terminal.create_null(),
+...     args=Args.create_null(),
+... )
+"""
+```
+
 Creating a null version is exactly like creating a real version except that at
 the very edge of the application boundary, the communication with the outside
 world is turned off. We put this in a factory-method:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+```python
+class App:
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-        <span class="p">)</span>
+    @classmethod
+    def create_null(cls):
+        return cls(
+            save_command=SaveCommand.create_null(),
+            share_command=ShareCommand.create_null(),
+            terminal=Terminal.create_null(),
+            args=Args.create_null(),
+        )
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 `App` has only one method, and that is `run`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+```python
+def run(self):
+    ...
+```
+
 So the only test we can write is this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; app = App.create_null()</span>
-<span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> app = App.create_null()
+>>> app.run()
+"""
+```
+
 There is no way to control what the command line arguments are, and there is no
 way to observe what the application is doing.
 
@@ -146,28 +151,30 @@ way to observe what commands are run.
 We can solve the first part by passing simulated command line arguments to
 `create_null`. The test then becomes this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
-<span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> app = App.create_null(args=["save", "message"])
+>>> app.run()
+"""
+```
+
 `App.create_null` is modified to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+```python
+class App:
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
-        <span class="p">)</span>
+    @classmethod
+    def create_null(cls, args):
+        return cls(
+            save_command=SaveCommand.create_null(),
+            share_command=ShareCommand.create_null(),
+            terminal=Terminal.create_null(),
+            args=Args.create_null(args=args),
+        )
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 `Args` supports [configuring
 responses](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses)
 when creating the null version. In that case it would return the configured
@@ -177,17 +184,18 @@ world that reads command line arguments from the environment.
 
 Now we can write our two scenarios like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
-<span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd"># How to assert that git commit was called?</span>
+```python
+"""
+>>> app = App.create_null(args=["save", "message"])
+>>> app.run()
+# How to assert that git commit was called?
 
-<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;share&quot;])</span>
-<span class="sd">&gt;&gt;&gt; app.run()</span>
-<span class="sd"># How to assert that git push was called?</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> app = App.create_null(args=["share"])
+>>> app.run()
+# How to assert that git push was called?
+"""
+```
+
 And now we come to the main topic of this blog post: output tracking.
 
 `App` performs actions by delegating to `SaveCommand` and `ShareCommand`.  Both
@@ -197,85 +205,91 @@ state in the commands so that we can query them and see if they were run. A
 slightly more elegant solution, instead of introducing state, is to fire
 events. Here is how we implement it in `SaveCommand`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+```python
+class SaveCommand(Trackable):
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def run(self, args):
+        self.notify(f"SAVE_COMMAND {args!r}")
+        ...
+```
+
 To track events, we can do this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events = Events()</span>
-<span class="sd">&gt;&gt;&gt; SaveCommand.create_null().track_events(events).run([&quot;message&quot;])</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events = Events()
+>>> SaveCommand.create_null().track_events(events).run(["message"])
+>>> events
+SAVE_COMMAND ['message']
+"""
+```
+
 We use the event tracking pattern for both commands and the terminal like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+```python
+class App:
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
-        <span class="p">)</span>
+    @classmethod
+    def create_null(cls, events, args):
+        return cls(
+            save_command=SaveCommand.create_null().track_events(events),
+            share_command=ShareCommand.create_null().track_events(events),
+            terminal=Terminal.create_null().track_events(events),
+            args=Args.create_null(args=args),
+        )
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 And now we can write our tests like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events = Events()</span>
-<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+```python
+"""
+>>> events = Events()
+>>> App.create_null(events, args=["save", "message"]).run()
+>>> events
+SAVE_COMMAND ['message']
 
-<span class="sd">&gt;&gt;&gt; events = Events()</span>
-<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SHARE_COMMAND []</span>
+>>> events = Events()
+>>> App.create_null(events, args=["share"]).run()
+>>> events
+SHARE_COMMAND []
 
-<span class="sd">&gt;&gt;&gt; events = Events()</span>
-<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">TERMINAL_WRITE &#39;Unknown command.&#39;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> events = Events()
+>>> App.create_null(events, args=["unknown", "sub", "command"]).run()
+>>> events
+TERMINAL_WRITE 'Unknown command.'
+"""
+```
+
 The implementation looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def run(self):
+    args = self.args.get()
+    if args[0:1] == ["save"]:
+        self.save_command.run(args[1:])
+    elif args[0:1] == ["share"]:
+        self.share_command.run([])
+    else:
+        self.terminal.write("Unknown command.")
+```
+
 ## Reflections
 
 The tests for `App` are similar to end-to-end-test in that the whole stack is
 executed. Except right at the application boundary. So if we supply incorrect
 arguments to the save command for example, this test will blow up:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
-<span class="sd">Traceback (most recent call last):</span>
-<span class="sd">  ...</span>
-<span class="sd">ValueError: Expected one argument as the message, but got [].</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> App.create_null(Events(), args=["save"]).run()
+Traceback (most recent call last):
+  ...
+ValueError: Expected one argument as the message, but got [].
+"""
+```
+
 This is overlapping, sociable testing. We are actually testing that `App` calls
 `SaveCommand` correctly. However, the behavior of the save command is not
 tested here. We only test that application parses command line arguments
@@ -286,29 +300,31 @@ correctly and calls the appropriate sub-command.
 Let's contrast how the first test can be written using mocks and stubs instead.
 Here it is again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events = Events()</span>
-<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events = Events()
+>>> App.create_null(events, args=["save", "message"]).run()
+>>> events
+SAVE_COMMAND ['message']
+"""
+```
+
 And here is the mock/stub version:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
-<span class="sd">&gt;&gt;&gt; App(</span>
-<span class="sd">...     save_command=save_command_mock,</span>
-<span class="sd">...     share_command=None,</span>
-<span class="sd">...     terminal=None,</span>
-<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
-<span class="sd">... ).run()</span>
-<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">[call([&#39;message&#39;])]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> save_command_mock = Mock()
+>>> App(
+...     save_command=save_command_mock,
+...     share_command=None,
+...     terminal=None,
+...     args=Mock(**{"get.return_value": ["save", "message"]})
+... ).run()
+>>> save_command_mock.run.call_args_list
+[call(['message'])]
+"""
+```
+
 The share command and terminal are not exercised in this test, so we
 inject `None`. For `args` we inject a stub that is configured to return
 `["save", "message"]` when its `get` method is called. For the `save_command`,
@@ -317,15 +333,16 @@ that the `run` method was called on the mock with the `['message']` argument.
 
 Let's contrast the two assertions:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+```python
+"""
+>>> events
+SAVE_COMMAND ['message']
 
-<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">[call([&#39;message&#39;])]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> save_command_mock.run.call_args_list
+[call(['message'])]
+"""
+```
+
 They look very similar. Almost to the point that output tracking feels like
 mocking.
 
@@ -338,19 +355,20 @@ We have already seen what happens in the output tracking version when we call
 the save command with incorrect arguments. What happens in the mock based
 version? It happily passes:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
-<span class="sd">&gt;&gt;&gt; App(</span>
-<span class="sd">...     save_command=save_command_mock,</span>
-<span class="sd">...     share_command=None,</span>
-<span class="sd">...     terminal=None,</span>
-<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
-<span class="sd">... ).run()</span>
-<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">[call([])]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> save_command_mock = Mock()
+>>> App(
+...     save_command=save_command_mock,
+...     share_command=None,
+...     terminal=None,
+...     args=Mock(**{"get.return_value": ["save"]})
+... ).run()
+>>> save_command_mock.run.call_args_list
+[call([])]
+"""
+```
+
 To make the mock based test suite "equivalently powerful" we need to augment it
 with "contract tests". In this case we need a test saying something like when
 the save command is called with no arguments, it does not blow up. And we have
@@ -375,15 +393,16 @@ calls.
 
 Here are the two assertions again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND [&#39;message&#39;]</span>
+```python
+"""
+>>> events
+SAVE_COMMAND ['message']
 
-<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">[call([&#39;message&#39;])]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> save_command_mock.run.call_args_list
+[call(['message'])]
+"""
+```
+
 The save command emits an event that indicates that the save action was
 performed with the given arguments. We are free to rename individual functions
 and the test will still pass.
@@ -417,19 +436,20 @@ He replied
 I can see cases where tracking events can be a little more flexible. Take this
 logging class for example:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Logger</span><span class="p">:</span>
+```python
+class Logger:
 
-    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    def info(self, message):
+        self.log("INFO", message)
 
-    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    def error(self, message):
+        self.log("ERROR", message)
 
-    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LOG </span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def log(self, level, message):
+        self.notify(f"LOG {level} {message}")
+        ...
+```
+
 In application code you call `info` and `error`. But in tests you don't need to
 care about which exact method was called. Only that the relevant `LOG ...`
 event was emitted.
@@ -437,32 +457,35 @@ event was emitted.
 Perhaps the `SAVE_COMMAND` event should not include raw arguments? Here is the
 implementation:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-</pre></div>
-</div></div>
+```python
+def run(self, args):
+    self.notify(f"SAVE_COMMAND {args!r}")
+    if len(args) != 1:
+        raise ValueError(f"Expected one argument as the message, but got {args!r}.")
+    self.process.run(["git", "commit", "-a", "-m", args[0]])
+```
+
 Perhaps it makes more sense to record the event with an explicit message like
 this?
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND message=</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
-</pre></div>
-</div></div>
+```python
+def run(self, args):
+    if len(args) != 1:
+        raise ValueError(f"Expected one argument as the message, but got {args!r}.")
+    message = args[0]
+    self.notify(f"SAVE_COMMAND message={message}")
+    self.process.run(["git", "commit", "-a", "-m", message])
+```
+
 An assertion would then look like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">SAVE_COMMAND message=message</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events
+SAVE_COMMAND message=message
+"""
+```
+
 Is this event more relevant from the point of view of the caller? Maybe. In any
 case, the event approach is more flexible compared to the mock version.
 
@@ -475,280 +498,283 @@ case, the event approach is more flexible compared to the mock version.
 
 ## Appendix: myscm.py
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li>myscm.py</li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+`myscm.py`:
 
-<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
-<span class="kn">import</span> <span class="nn">doctest</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+```py
+#!/usr/bin/env python
 
-<span class="k">class</span> <span class="nc">Trackable</span><span class="p">:</span>
+from unittest.mock import Mock
+import doctest
+import subprocess
+import sys
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+class Trackable:
 
-    <span class="k">def</span> <span class="nf">track_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
+    def __init__(self):
+        self.events = []
 
-    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">events</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def track_events(self, events):
+        if events:
+            self.events.append(events)
+        return self
 
-<span class="k">class</span> <span class="nc">Events</span><span class="p">:</span>
+    def notify(self, event):
+        for events in self.events:
+            events.append(event)
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+class Events:
 
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def __init__(self):
+        self.events = []
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">)</span>
+    def append(self, event):
+        self.events.append(event)
 
-<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+    def __repr__(self):
+        return "\n".join(self.events)
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; isinstance(App.create(), App)</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
-        <span class="p">)</span>
+class App:
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
-            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
-        <span class="p">)</span>
+    @classmethod
+    def create(cls):
+        """
+        >>> isinstance(App.create(), App)
+        True
+        """
+        return cls(
+            save_command=SaveCommand.create(),
+            share_command=ShareCommand.create(),
+            terminal=Terminal.create(),
+            args=Args.create(),
+        )
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_command</span><span class="p">,</span> <span class="n">share_command</span><span class="p">,</span> <span class="n">terminal</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span> <span class="o">=</span> <span class="n">save_command</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span>  <span class="o">=</span> <span class="n">share_command</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="n">terminal</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+    @classmethod
+    def create_null(cls, events=None, args=[]):
+        return cls(
+            save_command=SaveCommand.create_null().track_events(events),
+            share_command=ShareCommand.create_null().track_events(events),
+            terminal=Terminal.create_null().track_events(events),
+            args=Args.create_null(args=args),
+        )
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        SAVE_COMMAND [&#39;message&#39;]</span>
+    def __init__(self, save_command, share_command, terminal, args):
+        self.save_command = save_command
+        self.share_command  = share_command
+        self.terminal = terminal
+        self.args = args
 
-<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
-<span class="sd">        &gt;&gt;&gt; App(</span>
-<span class="sd">        ...     save_command=save_command_mock,</span>
-<span class="sd">        ...     share_command=None,</span>
-<span class="sd">        ...     terminal=None,</span>
-<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
-<span class="sd">        ... ).run()</span>
-<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">        [call([&#39;message&#39;])]</span>
+    def run(self):
+        """
+        >>> events = Events()
+        >>> App.create_null(events, args=["save", "message"]).run()
+        >>> events
+        SAVE_COMMAND ['message']
 
-<span class="sd">        &gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        ValueError: Expected one argument as the message, but got [].</span>
+        >>> save_command_mock = Mock()
+        >>> App(
+        ...     save_command=save_command_mock,
+        ...     share_command=None,
+        ...     terminal=None,
+        ...     args=Mock(**{"get.return_value": ["save", "message"]})
+        ... ).run()
+        >>> save_command_mock.run.call_args_list
+        [call(['message'])]
 
-<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
-<span class="sd">        &gt;&gt;&gt; App(</span>
-<span class="sd">        ...     save_command=save_command_mock,</span>
-<span class="sd">        ...     share_command=None,</span>
-<span class="sd">        ...     terminal=None,</span>
-<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
-<span class="sd">        ... ).run()</span>
-<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
-<span class="sd">        [call([])]</span>
+        >>> App.create_null(Events(), args=["save"]).run()
+        Traceback (most recent call last):
+          ...
+        ValueError: Expected one argument as the message, but got [].
 
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        SHARE_COMMAND []</span>
+        >>> save_command_mock = Mock()
+        >>> App(
+        ...     save_command=save_command_mock,
+        ...     share_command=None,
+        ...     terminal=None,
+        ...     args=Mock(**{"get.return_value": ["save"]})
+        ... ).run()
+        >>> save_command_mock.run.call_args_list
+        [call([])]
 
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        TERMINAL_WRITE &#39;Unknown command.&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+        >>> events = Events()
+        >>> App.create_null(events, args=["share"]).run()
+        >>> events
+        SHARE_COMMAND []
 
-<span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+        >>> events = Events()
+        >>> App.create_null(events, args=["unknown", "sub", "command"]).run()
+        >>> events
+        TERMINAL_WRITE 'Unknown command.'
+        """
+        args = self.args.get()
+        if args[0:1] == ["save"]:
+            self.save_command.run(args[1:])
+        elif args[0:1] == ["share"]:
+            self.share_command.run([])
+        else:
+            self.terminal.write("Unknown command.")
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
-        <span class="p">)</span>
+class SaveCommand(Trackable):
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
-        <span class="p">)</span>
+    @classmethod
+    def create(cls):
+        return cls(
+            process=Process.create()
+        )
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
-        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+    @classmethod
+    def create_null(cls, events=None):
+        return cls(
+            process=Process.create_null().track_events(events)
+        )
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null().track_events(events).run([&quot;message&quot;])</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        SAVE_COMMAND [&#39;message&#39;]</span>
+    def __init__(self, process):
+        Trackable.__init__(self)
+        self.process = process
 
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null(events=events).run([&#39;message&#39;])</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        PROCESS_RUN [&#39;git&#39;, &#39;commit&#39;, &#39;-a&#39;, &#39;-m&#39;, &#39;message&#39;]</span>
+    def run(self, args):
+        """
+        >>> events = Events()
+        >>> SaveCommand.create_null().track_events(events).run(["message"])
+        >>> events
+        SAVE_COMMAND ['message']
 
-<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null().run([&#39;message&#39;, &#39;--force&#39;])</span>
-<span class="sd">        Traceback (most recent call last):</span>
-<span class="sd">          ...</span>
-<span class="sd">        ValueError: Expected one argument as the message, but got [&#39;message&#39;, &#39;--force&#39;].</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        >>> events = Events()
+        >>> SaveCommand.create_null(events=events).run(['message'])
+        >>> events
+        PROCESS_RUN ['git', 'commit', '-a', '-m', 'message']
 
-<span class="k">class</span> <span class="nc">ShareCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+        >>> SaveCommand.create_null().run(['message', '--force'])
+        Traceback (most recent call last):
+          ...
+        ValueError: Expected one argument as the message, but got ['message', '--force'].
+        """
+        self.notify(f"SAVE_COMMAND {args!r}")
+        if len(args) != 1:
+            raise ValueError(f"Expected one argument as the message, but got {args!r}.")
+        self.process.run(["git", "commit", "-a", "-m", args[0]])
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
-        <span class="p">)</span>
+class ShareCommand(Trackable):
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
-        <span class="p">)</span>
+    @classmethod
+    def create(cls):
+        return cls(
+            process=Process.create()
+        )
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
-        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+    @classmethod
+    def create_null(cls, events=None):
+        return cls(
+            process=Process.create_null().track_events(events)
+        )
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; ShareCommand.create_null(events=events).run([])</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        PROCESS_RUN [&#39;git&#39;, &#39;push&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHARE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;push&quot;</span><span class="p">])</span>
+    def __init__(self, process):
+        Trackable.__init__(self)
+        self.process = process
 
-<span class="k">class</span> <span class="nc">Terminal</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+    def run(self, args):
+        """
+        >>> events = Events()
+        >>> ShareCommand.create_null(events=events).run([])
+        >>> events
+        PROCESS_RUN ['git', 'push']
+        """
+        self.notify(f"SHARE_COMMAND {args!r}")
+        self.process.run(["git", "push"])
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+class Terminal(Trackable):
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">class</span> <span class="nc">NullStream</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-                <span class="k">pass</span>
-            <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">pass</span>
-        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
-            <span class="n">stdout</span> <span class="o">=</span> <span class="n">NullStream</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+    @classmethod
+    def create(cls):
+        return cls(sys=sys)
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
-        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+    @classmethod
+    def create_null(cls):
+        class NullStream:
+            def write(self, text):
+                pass
+            def flush(self):
+                pass
+        class NullSysModule:
+            stdout = NullStream()
+        return cls(sys=NullSysModule())
 
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; Terminal.create().track_events(events).write(&quot;hello&quot;)</span>
-<span class="sd">        hello</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        TERMINAL_WRITE &#39;hello&#39;</span>
+    def __init__(self, sys):
+        Trackable.__init__(self)
+        self.sys = sys
 
-<span class="sd">        &gt;&gt;&gt; Terminal.create_null().write(&quot;hello&quot;)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TERMINAL_WRITE </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    def write(self, text):
+        """
+        >>> events = Events()
+        >>> Terminal.create().track_events(events).write("hello")
+        hello
+        >>> events
+        TERMINAL_WRITE 'hello'
 
-<span class="k">class</span> <span class="nc">Args</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+        >>> Terminal.create_null().write("hello")
+        """
+        self.notify(f"TERMINAL_WRITE {text!r}")
+        print(text, file=self.sys.stdout, flush=True)
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+class Args(Trackable):
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
-            <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;null program&quot;</span><span class="p">]</span><span class="o">+</span><span class="n">args</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+    @classmethod
+    def create(cls):
+        return cls(sys=sys)
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
-        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+    @classmethod
+    def create_null(cls, args):
+        class NullSysModule:
+            argv = ["null program"]+args
+        return cls(sys=NullSysModule())
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; Args.create().get()</span>
-<span class="sd">        [&#39;--test&#39;]</span>
+    def __init__(self, sys):
+        Trackable.__init__(self)
+        self.sys = sys
 
-<span class="sd">        &gt;&gt;&gt; Args.create_null(args=[&quot;configured&quot;, &quot;args&quot;]).get()</span>
-<span class="sd">        [&#39;configured&#39;, &#39;args&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    def get(self):
+        """
+        >>> Args.create().get()
+        ['--test']
 
-<span class="k">class</span> <span class="nc">Process</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+        >>> Args.create_null(args=["configured", "args"]).get()
+        ['configured', 'args']
+        """
+        return self.sys.argv[1:]
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
+class Process(Trackable):
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="k">class</span> <span class="nc">NullSubprocessModule</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-                <span class="k">pass</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocessModule</span><span class="p">())</span>
+    @classmethod
+    def create(cls):
+        return cls(subprocess=subprocess)
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
-        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
+    @classmethod
+    def create_null(cls):
+        class NullSubprocessModule:
+            def call(self, command):
+                pass
+        return cls(subprocess=NullSubprocessModule())
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; events = Events()</span>
-<span class="sd">        &gt;&gt;&gt; Process.create().track_events(events).run([&quot;echo&quot;, &quot;hello&quot;])</span>
-<span class="sd">        &gt;&gt;&gt; events</span>
-<span class="sd">        PROCESS_RUN [&#39;echo&#39;, &#39;hello&#39;]</span>
+    def __init__(self, subprocess):
+        Trackable.__init__(self)
+        self.subprocess = subprocess
 
-<span class="sd">        &gt;&gt;&gt; Process.create_null().run([&quot;echo&quot;, &quot;hello&quot;])</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PROCESS_RUN </span><span class="si">{</span><span class="n">command</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+    def run(self, command):
+        """
+        >>> events = Events()
+        >>> Process.create().track_events(events).run(["echo", "hello"])
+        >>> events
+        PROCESS_RUN ['echo', 'hello']
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--test&quot;</span><span class="p">]:</span>
-        <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">App</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div></div>
+        >>> Process.create_null().run(["echo", "hello"])
+        """
+        self.notify(f"PROCESS_RUN {command!r}")
+        self.subprocess.call(command)
+
+if __name__ == "__main__":
+    if Args.create().get() == ["--test"]:
+        doctest.testmod()
+        print("OK")
+    else:
+        App.create().run()
+```
+

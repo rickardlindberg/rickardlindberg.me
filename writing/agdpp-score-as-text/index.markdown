@@ -36,58 +36,60 @@ point markers. But that has to change now. Let's see if we can draw some text.
 We start by adding a test case to the top-level, initial state test that
 asserts that the text '0' is drawn on the screen:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I am a balloon shooter game!</span>
+    """
+    I am a balloon shooter game!
 
-<span class="sd">    Initial state</span>
-<span class="sd">    =============</span>
+    Initial state
+    =============
 
-<span class="sd">    We run the game for a few frames, then quit:</span>
+    We run the game for a few frames, then quit:
 
-<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">    ...     events=[</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">    ...     ]</span>
-<span class="sd">    ... )</span>
+    >>> events = BalloonShooter.run_in_test_mode(
+    ...     events=[
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [GameLoop.create_event_user_closed_window()],
+    ...     ]
+    ... )
 
-<span class="sd">    ...</span>
+    ...
 
-<span class="sd">    The score is drawn:</span>
+    The score is drawn:
 
-<span class="sd">    &gt;&gt;&gt; set(events.filter(&quot;DRAW_TEXT&quot;).collect(&quot;text&quot;))</span>
-<span class="sd">    {(&#39;0&#39;,)}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> set(events.filter("DRAW_TEXT").collect("text"))
+    {('0',)}
+    """
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 This fails because there is no event `DRAW_TEXT` yet.
 
 We add a method to draw text and have it emit a `DRAW_TEXT` event like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_TEXT&quot;</span><span class="p">,</span> <span class="p">{</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
-        <span class="p">})</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-        <span class="n">surface</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def draw_text(self, position, text):
+        self.notify("DRAW_TEXT", {
+            "x": position.x,
+            "y": position.y,
+            "text": text,
+        })
+        f = self.pygame.font.Font(size=100)
+        surface = f.render(text, True, "black")
+        self.screen.blit(surface, (position.x, position.y))
+```
+
 We test the pygame code manually to ensure that we use the text drawing api
 correctly and that text appears on the screen.
 
@@ -96,48 +98,52 @@ correctly and that text appears on the screen.
 Before we kept track of the score by adding point markers to a sprite group. We
 replace this sprite group with a new `Score` object:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-        self.points = self.add(SpriteGroup())</span>
-<span class="gi">+        self.score = self.add(Score())</span>
-</pre></div>
-</div></div>
+```diff
+-        self.points = self.add(SpriteGroup())
++        self.score = self.add(Score())
+```
+
 Instead of adding point markers, we just add a number to increase the score:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-                    self.points.add(PointMarker(position=Point(</span>
-<span class="gd">-                        x=20+len(self.points.get_sprites())*12,</span>
-<span class="gd">-                        y=700</span>
-<span class="gd">-                    )))</span>
-<span class="gi">+                    self.score.add(1)</span>
-</pre></div>
-</div></div>
+```diff
+-                    self.points.add(PointMarker(position=Point(
+-                        x=20+len(self.points.get_sprites())*12,
+-                        y=700
+-                    )))
++                    self.score.add(1)
+```
+
 The `Score` class looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Score</span><span class="p">:</span>
+```python
+class Score:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+    def __init__(self):
+        self.score = 0
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="n">points</span>
+    def add(self, points):
+        self.score += points
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">pass</span>
+    def update(self, dt):
+        pass
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        loop.draw_text(position=Point(x=1100, y=20), text=str(self.score))
+```
+
 ## Adapting tests
 
 We already have tests that make sure that we count the score correctly. We have
 to modify them slightly to look at the score number instead of counting point
 markers in the sprite group. We change them like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-    &gt;&gt;&gt; game.get_points()</span>
-<span class="gd">-    []</span>
-<span class="gi">+    &gt;&gt;&gt; game.get_score()</span>
-<span class="gi">+    0</span>
-</pre></div>
-</div></div>
+```diff
+-    >>> game.get_points()
+-    []
++    >>> game.get_score()
++    0
+```
+
 Now all tests pass and the score is displayed with text instead of point
 markers. Success!
 

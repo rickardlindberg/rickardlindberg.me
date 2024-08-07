@@ -15,27 +15,29 @@ So that's the topic for this episode.
 
 The entry point for the balloon shooter looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+if __name__ == "__main__":
+    BalloonShooter.create().run()
+```
+
 The balloon shooter class instantiates a game scene which implements the logic
 of our game:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">(</span><span class="n">Rectangle</span><span class="o">.</span><span class="n">from_size</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">))</span>
+    def __init__(self, loop):
+        ...
+        self.game_scene = GameScene(Rectangle.from_size(*self.resolution))
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    def tick(self, dt):
+        self.game_scene.update(dt)
+        self.loop.clear_screen()
+        self.game_scene.draw(self.loop)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 This means that as soon as we start the game, we enter the gameplay mode and
 can start playing right away.
 
@@ -45,18 +47,20 @@ and each player gets their own bow to shoot with.
 
 We want to go from this structure:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>BalloonShooter
+```
+BalloonShooter
     GameScene
-</pre></div>
-</div></div>
+```
+
 To something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>BalloonShooter
+```
+BalloonShooter
     NewGameScene
         StartScene
         GameScene
-</pre></div>
-</div></div>
+```
+
 We want to add another level that first directs calls to a start scene (or
 player select scene) and once players are selected, initializes the game scene
 and directs call to that.
@@ -76,31 +80,33 @@ current game scene is really the gameplay scene, so we rename it to that. Then
 we create the new game scene which just forwards its calls to the gameplay
 scene:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+```python
+class GameScene:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span><span class="p">)</span>
+    def __init__(self, screen_area):
+        self.gameplay = GameplayScene(screen_area=screen_area)
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def event(self, event):
+        self.gameplay.event(event)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    def update(self, dt):
+        self.gameplay.update(dt)
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gameplay</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        self.gameplay.draw(loop)
+```
+
 We insert this new layer in `BalloonShooter` like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -113,7 +113,7 @@ class BalloonShooter:</span>
+```diff
+@@ -113,7 +113,7 @@ class BalloonShooter:
      def __init__(self, loop):
          self.loop = loop
          self.resolution = (1280, 720)
-<span class="gd">-        self.game_scene = GameplayScene(Rectangle.from_size(*self.resolution))</span>
-<span class="gi">+        self.game_scene = GameScene(screen_area=Rectangle.from_size(*self.resolution))</span>
-</pre></div>
-</div></div>
+-        self.game_scene = GameplayScene(Rectangle.from_size(*self.resolution))
++        self.game_scene = GameScene(screen_area=Rectangle.from_size(*self.resolution))
+```
+
 The new layer is now added, all tests are passing, and we have a point in our
 code (`GameScene`) where we can put functionality to choose between a start
 scene and a gameplay scene.
@@ -111,43 +117,44 @@ Before we can work on that behavior, we need a start scene.
 
 We write the initial version of the start scene like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class StartScene(SpriteGroup):
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I report players when on player has shot twice:</span>
+    """
+    I report players when on player has shot twice:
 
-<span class="sd">    &gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">    True</span>
+    >>> start = StartScene(screen_area=Rectangle.from_size(500, 500))
+    >>> start.get_players() is None
+    True
 
-<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">    True</span>
+    >>> start.event(GameLoop.create_event_joystick_down(XBOX_A))
+    >>> start.update(0)
+    >>> start.get_players() is None
+    True
 
-<span class="sd">    &gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">    &gt;&gt;&gt; start.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; start.get_players()</span>
-<span class="sd">    [&#39;one&#39;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> start.event(GameLoop.create_event_joystick_down(XBOX_A))
+    >>> start.update(0)
+    >>> start.get_players()
+    ['one']
+    """
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">InputHandler</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="mi">0</span>
+    def __init__(self, screen_area):
+        SpriteGroup.__init__(self)
+        self.input_handler = InputHandler()
+        self.shots = 0
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    def event(self, event):
+        self.input_handler.action(event)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        self.shots += 1
 
-    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;one&quot;</span><span class="p">]</span>
-</pre></div>
-</div></div>
+    def get_players(self):
+        if self.shots > 1:
+            return ["one"]
+```
+
 The idea is that a player (keyboard or gamepad) selects to be part of the game
 by shooting. When all players have entered, one of them can shoot again to
 start the game. This functionality is not yet fully implemented above. But this
@@ -163,45 +170,48 @@ report players `['one']`. That does not seem correct.
 Let's fix that. We modify the test to do two updates and the assertions should
 be the same:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">True</span>
+```python
+"""
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A))
+>>> start.update(0)
+>>> start.update(0)
+>>> start.get_players() is None
+True
 
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players()</span>
-<span class="sd">[&#39;one&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A))
+>>> start.update(0)
+>>> start.update(0)
+>>> start.get_players()
+['one']
+"""
+```
+
 I wonder how common the event + update pattern is in our tests. Perhaps we can
 benefit from a test helper something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cycle</span><span class="p">(</span><span class="n">sprite</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[],</span> <span class="n">dt</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="n">sprite</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="n">sprite</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def cycle(sprite, events=[], dt=0):
+    for event in events:
+        sprite.event(event)
+    sprite.update(dt)
+    sprite.update(dt)
+```
+
 We might try it in a few places and see if the tests read better. But not now.
 The modification to the tests forces us to check events. We do it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class StartScene(SpriteGroup):
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.shots += 1
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 With that fix out of the way, let's work on integrating the start scene.
 
 ## Take start scene into play
@@ -213,29 +223,30 @@ game scene to switch the active scene to the gameplay scene.
 
 We express that in the following test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+```python
+class GameScene:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initially, I draw the start scene:</span>
+    """
+    Initially, I draw the start scene:
 
-<span class="sd">    &gt;&gt;&gt; game = GameScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    True</span>
+    >>> game = GameScene(screen_area=Rectangle.from_size(500, 500))
+    >>> isinstance(game.active_scene, StartScene)
+    True
 
-<span class="sd">    When players have been selected, I draw the gameplay scene:</span>
+    When players have been selected, I draw the gameplay scene:
 
-<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    True</span>
+    >>> game.event(GameLoop.create_event_keydown(KEY_SPACE))
+    >>> game.update(0)
+    >>> isinstance(game.active_scene, StartScene)
+    True
 
-<span class="sd">    &gt;&gt;&gt; game.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">    &gt;&gt;&gt; game.update(0)</span>
-<span class="sd">    &gt;&gt;&gt; isinstance(game.active_scene, StartScene)</span>
-<span class="sd">    False</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+    >>> game.event(GameLoop.create_event_keydown(KEY_SPACE))
+    >>> game.update(0)
+    >>> isinstance(game.active_scene, StartScene)
+    False
+    """
+```
+
 This is an example of an overlapping, sociable test. To make the scene switch
 happen, we need `StartScene.get_players` to return something. Since the game
 scene uses the real start scene, and not a mock, the only way to make it return
@@ -244,21 +255,22 @@ something is to perform the same actions as we did in the start scene tests.
 To make this test pass, we initialize an active scene variable to the start
 scene and switch it to the gameplay scene once we have selected players:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+```python
+class GameScene:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span> <span class="o">=</span> <span class="n">screen_area</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">StartScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
+    def __init__(self, screen_area):
+        self.screen_area = screen_area
+        self.active_scene = StartScene(screen_area=self.screen_area)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="p">,</span> <span class="n">StartScene</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span><span class="o">.</span><span class="n">get_players</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">active_scene</span> <span class="o">=</span> <span class="n">GameplayScene</span><span class="p">(</span><span class="n">screen_area</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">screen_area</span><span class="p">)</span>
+    def update(self, dt):
+        self.active_scene.update(dt)
+        if isinstance(self.active_scene, StartScene):
+            if self.active_scene.get_players():
+                self.active_scene = GameplayScene(screen_area=self.screen_area)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 The test talks about switching to a gameplay scene, but it only asserts that
 the start scene is *not* active anymore. We could probably clarify that.
 
@@ -277,35 +289,36 @@ The game works fine now (if we know that we have to shoot twice to get passed
 the start scene), but a test fails. It is the test for the balloon shooter.
 Here it is:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    We run the game for a few frames, then quit:</span>
+    """
+    We run the game for a few frames, then quit:
 
-<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">    ...     events=[</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [],</span>
-<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">    ...     ]</span>
-<span class="sd">    ... )</span>
+    >>> events = BalloonShooter.run_in_test_mode(
+    ...     events=[
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [],
+    ...         [GameLoop.create_event_user_closed_window()],
+    ...     ]
+    ... )
 
-<span class="sd">    The game loop is initialized and cleaned up:</span>
+    The game loop is initialized and cleaned up:
 
-<span class="sd">    &gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
-<span class="sd">    GAMELOOP_INIT =&gt;</span>
-<span class="sd">        resolution: (1280, 720)</span>
-<span class="sd">        fps: 60</span>
-<span class="sd">    GAMELOOP_QUIT =&gt;</span>
+    >>> events.filter("GAMELOOP_INIT", "GAMELOOP_QUIT")
+    GAMELOOP_INIT =>
+        resolution: (1280, 720)
+        fps: 60
+    GAMELOOP_QUIT =>
 
-<span class="sd">    ...</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+    ...
+    """
+```
+
 This test is at the outermost level, so it includes all objects. Before, the
 gameplay scene received the events from the test, but now the start scene
 receives them. The start scene does not handle the user closed window event
@@ -318,23 +331,24 @@ follow check for example that a balloon is drawn, so the test expects to be in
 the gameplay mode. We modify the test to include two shoot events so that we
 end up in the gameplay scene:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
-<span class="sd">...         [GameLoop.create_event_keydown(KEY_SPACE)],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events = BalloonShooter.run_in_test_mode(
+...     events=[
+...         [GameLoop.create_event_keydown(KEY_SPACE)],
+...         [GameLoop.create_event_keydown(KEY_SPACE)],
+...         [],
+...         [],
+...         [],
+...         [],
+...         [],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+"""
+```
+
 And, we are back to green!
 
 Here is yet another example of overlapping, sociable testing. We yet again have
@@ -345,13 +359,14 @@ selecting players, say that we first need to shoot and then turn left, then we
 would have to modify three test I think. One way to make that less of a problem
 in this particular situation is to create a test helper something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">events_to_select_one_player</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
-        <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">),</span>
-    <span class="p">]</span>
-</pre></div>
-</div></div>
+```python
+def events_to_select_one_player():
+    return [
+        GameLoop.create_event_keydown(KEY_SPACE),
+        GameLoop.create_event_keydown(KEY_SPACE),
+    ]
+```
+
 We could use that test helper in all tests (with some modification) and now
 there is only one place in the tests that knows about what events that gets us
 from the start scene to the gameplay scene with one player.
@@ -362,28 +377,30 @@ Our skeleton for the new feature is not quite complete. The gameplay scene does
 not know about players. Let's fix that by passing the players from the start
 scene to the gameplay scene like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -162,7 +162,10 @@ class GameScene:</span>
+```diff
+@@ -162,7 +162,10 @@ class GameScene:
          self.active_scene.update(dt)
          if isinstance(self.active_scene, StartScene):
              if self.active_scene.get_players():
-<span class="gd">-                self.active_scene = GameplayScene(screen_area=self.screen_area)</span>
-<span class="gi">+                self.active_scene = GameplayScene(</span>
-<span class="gi">+                    screen_area=self.screen_area,</span>
-<span class="gi">+                    players=self.active_scene.get_players()</span>
-<span class="gi">+                )</span>
-</pre></div>
-</div></div>
+-                self.active_scene = GameplayScene(screen_area=self.screen_area)
++                self.active_scene = GameplayScene(
++                    screen_area=self.screen_area,
++                    players=self.active_scene.get_players()
++                )
+```
+
 To make this work we also add that argument to the constructor of the gameplay
 scene:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gu">@@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):</span>
+```diff
+@@ -333,11 +336,13 @@ class GameplayScene(SpriteGroup):
      []
-     &quot;&quot;&quot;
+     """
 
-<span class="gd">-    def __init__(self, screen_area, balloons=[], arrows=[]):</span>
-<span class="gi">+    def __init__(self, screen_area, balloons=[], arrows=[], players=[&quot;default&quot;]):</span>
-</pre></div>
-</div></div>
+-    def __init__(self, screen_area, balloons=[], arrows=[]):
++    def __init__(self, screen_area, balloons=[], arrows=[], players=["default"]):
+```
+
 Now, I think our skeleton is complete. What do I mean by that? I mean that all
 the pieces are connected they way we think they should be. Now we can work
 individually on the start scene and the gameplay scene. The start scene needs
@@ -395,111 +412,116 @@ per player that it can control.
 
 The start scene uses the input handler's `get_shoot` to detect shots:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class StartScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shoot</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">+=</span> <span class="mi">1</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        self.input_handler.update(dt)
+        if self.input_handler.get_shoot():
+            self.shots += 1
+```
+
 However, to select multiple players, the start scene must know *who* shot.
 Let's modify the input handler to support that. We write this test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; i = InputHandler()</span>
+```python
+"""
+>>> i = InputHandler()
 
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[]</span>
+>>> i.update(0)
+>>> i.get_shots()
+[]
 
-<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_keydown(KEY_SPACE))</span>
-<span class="sd">&gt;&gt;&gt; i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[&#39;keyboard&#39;, &#39;joystick7&#39;]</span>
+>>> i.event(GameLoop.create_event_keydown(KEY_SPACE))
+>>> i.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> i.update(0)
+>>> i.get_shots()
+['keyboard', 'joystick7']
 
-<span class="sd">&gt;&gt;&gt; i.update(0)</span>
-<span class="sd">&gt;&gt;&gt; i.get_shots()</span>
-<span class="sd">[]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> i.update(0)
+>>> i.get_shots()
+[]
+"""
+```
+
 We create a new `get_shots` method that returns a list of player/input
 identifiers. If the shot is triggered by the keyboard, the player identifier is
 `keyboard`.  If the shot is triggered by a gamepad, the player identifier is
 `joystick` plus the unique id of that joystick. We implement it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputHandler</span><span class="p">:</span>
+```python
+class InputHandler:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="o">...</span>
+    def __init__(self):
+        self.shots_triggered = []
+        ...
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;keyboard&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">joystick_id</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
-        <span class="o">...</span>
+    def event(self, event):
+        if event.is_keydown(KEY_SPACE):
+            self.shots_triggered.append("keyboard")
+        elif event.is_joystick_down(XBOX_A):
+            self.shots_triggered.append(self.joystick_id(event))
+        ...
 
-    <span class="k">def</span> <span class="nf">joystick_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;joystick</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">get_instance_id</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    def joystick_id(self, event):
+        return f"joystick{event.get_instance_id()}"
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shots_triggered</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="o">...</span>
+    def update(self, dt):
+        self.shots = self.shots_triggered
+        self.shots_triggered = []
+        ...
 
-    <span class="k">def</span> <span class="nf">get_shots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shots</span>
+    def get_shots(self):
+        return self.shots
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 ## Start scene returns players
 
 Now, let's see if we can make `StartScene.get_players` to return actual player
 identifiers instead of hard coded `['one']`. As usual, we start with a test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; start = StartScene(screen_area=Rectangle.from_size(500, 500))</span>
-<span class="sd">&gt;&gt;&gt; start.get_players() is None</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))</span>
-<span class="sd">&gt;&gt;&gt; start.update(0)</span>
-<span class="sd">&gt;&gt;&gt; start.get_players()</span>
-<span class="sd">[&#39;joystick7&#39;]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> start = StartScene(screen_area=Rectangle.from_size(500, 500))
+>>> start.get_players() is None
+True
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> start.event(GameLoop.create_event_joystick_down(XBOX_A, instance_id=7))
+>>> start.update(0)
+>>> start.get_players()
+['joystick7']
+"""
+```
+
 We make the test pass like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class StartScene(SpriteGroup):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="kc">None</span>
+    def __init__(self, screen_area):
+        ...
+        self.pending_players = []
+        self.players = None
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_shots</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pending_players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+    def update(self, dt):
+        ...
+        for player in self.input_handler.get_shots():
+            if player in self.pending_players:
+                self.players = self.pending_players
+            else:
+                self.pending_players.append(player)
 
-    <span class="k">def</span> <span class="nf">get_players</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span>
+    def get_players(self):
+        return self.players
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 ## Multiple bows in game scene
 
 At this point, the start scene returns a correct list of players selected and
@@ -508,38 +530,41 @@ direct events to the correct bow.
 
 Instead of having just a single bow, we create multiple bows like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-        self.bow = self.add(Bow())</span>
-<span class="gi">+        self.bows = {}</span>
-<span class="gi">+        bow_position = self.screen_area.bottomleft.move(dy=-120)</span>
-<span class="gi">+        bow_increment = self.screen_area.width / (len(players)+1)</span>
-<span class="gi">+        for player in players:</span>
-<span class="gi">+            bow_position = bow_position.move(dx=bow_increment)</span>
-<span class="gi">+            self.bows[player] = self.add(Bow(position=bow_position))</span>
-</pre></div>
-</div></div>
+```diff
+-        self.bow = self.add(Bow())
++        self.bows = {}
++        bow_position = self.screen_area.bottomleft.move(dy=-120)
++        bow_increment = self.screen_area.width / (len(players)+1)
++        for player in players:
++            bow_position = bow_position.move(dx=bow_increment)
++            self.bows[player] = self.add(Bow(position=bow_position))
+```
+
 Then we forward events to the correct bow like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-        if self.input_handler.get_shoot():</span>
-<span class="gd">-            self.flying_arrows.add(self.bow.shoot())</span>
-<span class="gd">-        self.bow.turn(self.input_handler.get_turn_angle())</span>
-<span class="gi">+        for player in self.input_handler.get_shots():</span>
-<span class="gi">+            self.flying_arrows.add(self.bow_for_player(player).shoot())</span>
-<span class="gi">+        for player, turn_angle in self.input_handler.get_turn_angles().items():</span>
-<span class="gi">+            self.bow_for_player(player).turn(turn_angle)</span>
-</pre></div>
-</div></div>
+```diff
+-        if self.input_handler.get_shoot():
+-            self.flying_arrows.add(self.bow.shoot())
+-        self.bow.turn(self.input_handler.get_turn_angle())
++        for player in self.input_handler.get_shots():
++            self.flying_arrows.add(self.bow_for_player(player).shoot())
++        for player, turn_angle in self.input_handler.get_turn_angles().items():
++            self.bow_for_player(player).turn(turn_angle)
+```
+
 Here we use `InputHandler.get_turn_angles` to get turn angles per player. It is
 implemented similarly to how we implemented `InputHandler.get_shots`.
 
 To get the correct bow, we use this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bow_for_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">input_id</span><span class="p">,</span> <span class="n">bow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bows</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">input_id</span> <span class="o">==</span> <span class="n">player</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bow</span>
-    <span class="k">return</span> <span class="n">bow</span>
-</pre></div>
-</div></div>
+```python
+def bow_for_player(self, player):
+    for input_id, bow in self.bows.items():
+        if input_id == player:
+            return bow
+    return bow
+```
+
 If no player is found, the last bow is returned. So if you attach another
 gamepad after the gameplay mode has entered, it will control the last bow. Not
 sure if that is right. We'll have to ask our product owner.
@@ -581,27 +606,28 @@ to the extraction of `Balloons` that we did in the
 [previous](/writing/agdpp-spawn-multiple-balloons/index.html) episode, we can
 do this with the following lines:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StartScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class StartScene(SpriteGroup):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_area</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Point</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">=</span><span class="n">screen_area</span><span class="o">.</span><span class="n">get_random_x</span><span class="p">(),</span>
-                <span class="n">y</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">screen_area</span><span class="o">.</span><span class="n">topleft</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">screen_area</span><span class="o">.</span><span class="n">bottomright</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloons</span><span class="p">(</span>
-            <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span>
-            <span class="n">number_of_balloons</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">),</span>
-            <span class="n">screen_area</span><span class="o">=</span><span class="n">screen_area</span>
-        <span class="p">))</span>
-        <span class="o">...</span>
+    def __init__(self, screen_area):
+        SpriteGroup.__init__(self)
+        positions = [
+            Point(
+                x=screen_area.get_random_x(),
+                y=random.randint(screen_area.topleft.y, screen_area.bottomright.y)
+            )
+            for x in range(15)
+        ]
+        self.add(Balloons(
+            positions=positions,
+            number_of_balloons=len(positions),
+            screen_area=screen_area
+        ))
+        ...
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 I really should have created `screen_area.get_random_x()` or even
 `screen_area.get_random_position()`. But I got carried away and wanted a
 result quickly. We add a note about that and might address it in a future

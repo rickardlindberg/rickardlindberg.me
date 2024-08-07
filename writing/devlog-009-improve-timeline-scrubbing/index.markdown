@@ -28,30 +28,31 @@ That's what we'll work on fixing today.
 
 Here is the scrub action:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ScrubAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+```python
+class ScrubAction(Action):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">player</span> <span class="o">=</span> <span class="n">player</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
+    def __init__(self, player, scrollbar):
+        self.player = player
+        self.scrollbar = scrollbar
+        self.mouse_up()
 
-    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+    def left_mouse_down(self, x, y):
+        self.x = x
 
-    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+    def mouse_up(self):
+        self.x = None
 
-    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">scrub</span><span class="p">(</span>
-                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">content_start</span>
-                    <span class="o">+</span>
-                    <span class="n">x</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">one_length_in_pixels</span>
-                <span class="p">))</span>
-            <span class="p">)</span>
-</pre></div>
-</div></div>
+    def mouse_move(self, x, y):
+        if self.x is not None:
+            self.player.scrub(
+                int(round(
+                    self.scrollbar.content_start
+                    +
+                    x/self.scrollbar.one_length_in_pixels
+                ))
+            )
+```
+
 We can see that the scrubbing is happening only when we move the mouse, not
 if we just left click.
 
@@ -64,21 +65,22 @@ we go along. Let's start with a test.
 
 This is the test that I come up with:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I scrub the player when clicked:</span>
+```python
+"""
+I scrub the player when clicked:
 
-<span class="sd">&gt;&gt;&gt; class MockPlayer:</span>
-<span class="sd">...     def scrub(self, position):</span>
-<span class="sd">...         print(f&quot;scrub {position}&quot;)</span>
-<span class="sd">&gt;&gt;&gt; class MockScrollbar:</span>
-<span class="sd">...     content_start = 0</span>
-<span class="sd">...     one_length_in_pixels = 1</span>
-<span class="sd">&gt;&gt;&gt; action = ScrubAction(player=MockPlayer(), scrollbar=MockScrollbar())</span>
-<span class="sd">&gt;&gt;&gt; action.simulate_click(x=10)</span>
-<span class="sd">scrub 10</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> class MockPlayer:
+...     def scrub(self, position):
+...         print(f"scrub {position}")
+>>> class MockScrollbar:
+...     content_start = 0
+...     one_length_in_pixels = 1
+>>> action = ScrubAction(player=MockPlayer(), scrollbar=MockScrollbar())
+>>> action.simulate_click(x=10)
+scrub 10
+"""
+```
+
 The `left_mouse_down` currently takes both the x and y coordinates. In this
 test, we only care about the x coordinate. That's why I introduced
 `Action.simulate_click`. The idea is that it should simulate the calls that
@@ -88,10 +90,11 @@ something like `Action.simulate_drag` which will fire `left_mouse_down`,
 
 I implement it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">simulate_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def simulate_click(self, x=0, y=0):
+    self.left_mouse_down(x=x, y=y)
+```
+
 To make the test pass, I call `self.player.scrub` in the `left_mouse_down`
 event as well. I extract it to a common method to remove the duplication.
 
@@ -112,31 +115,32 @@ Let's have a look at how it works today.
 
 Here is how `*_mouse_down` is handled:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
-<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="n">timeline_button</span><span class="p">)</span>
-<span class="n">timeline</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
-    <span class="n">timeline</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
-    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
-    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
-    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
-    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-    <span class="c1"># TODO: clarify what translate_coordinates do</span>
-    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
-            <span class="n">main_window</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
-        <span class="p">))</span>
-    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
-            <span class="n">main_window</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
-        <span class="p">),</span> <span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+timeline = Gtk.DrawingArea()
+timeline.connect("button-press-event", timeline_button)
+timeline.add_events(
+    timeline.get_events() |
+    Gdk.EventMask.SCROLL_MASK |
+    Gdk.EventMask.BUTTON_PRESS_MASK |
+    Gdk.EventMask.BUTTON_RELEASE_MASK |
+    Gdk.EventMask.POINTER_MOTION_MASK
+)
+def timeline_button(widget, event):
+    # TODO: clarify what translate_coordinates do
+    if event.button == 1:
+        self.timeline.left_mouse_down(*timeline.translate_coordinates(
+            main_window,
+            event.x,
+            event.y
+        ))
+    elif event.button == 3:
+        self.timeline.right_mouse_down(*timeline.translate_coordinates(
+            main_window,
+            event.x,
+            event.y
+        ), GtkGui(event))
+```
+
 This code exists in a method which has a bunch of other GTK setup code and is
 quite long.
 
@@ -145,67 +149,69 @@ drawing and event handling.
 
 I slowly start to extract pieces, and eventually end up with this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomDrawWidget</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">):</span>
+```python
+class CustomDrawWidget(Gtk.DrawingArea):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_window</span><span class="p">,</span> <span class="n">custom_draw_handler</span><span class="p">):</span>
-        <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
-            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
-            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
-            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
-            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_draw</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_press_event</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-release-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_release_event</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;motion-notify-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_motion_notify_event</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span> <span class="o">=</span> <span class="n">RectangleMap</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span> <span class="o">=</span> <span class="n">custom_draw_handler</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span> <span class="o">=</span> <span class="n">main_window</span>
+    def __init__(self, main_window, custom_draw_handler):
+        Gtk.DrawingArea.__init__(self)
+        self.add_events(
+            self.get_events() |
+            Gdk.EventMask.SCROLL_MASK |
+            Gdk.EventMask.BUTTON_PRESS_MASK |
+            Gdk.EventMask.BUTTON_RELEASE_MASK |
+            Gdk.EventMask.POINTER_MOTION_MASK
+        )
+        self.connect("draw", self.on_draw)
+        self.connect("button-press-event", self.on_button_press_event)
+        self.connect("button-release-event", self.on_button_release_event)
+        self.connect("motion-notify-event", self.on_motion_notify_event)
+        self.rectangle_map = RectangleMap()
+        self.custom_draw_handler = custom_draw_handler
+        self.down_action = None
+        self.main_window = main_window
 
-    <span class="k">def</span> <span class="nf">on_draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="p">)</span>
+    def on_draw(self, widget, context):
+        self.rectangle_map.clear()
+        self.custom_draw_handler(context, self.rectangle_map)
 
-    <span class="k">def</span> <span class="nf">on_button_press_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+    def on_button_press_event(self, widget, event):
+        x, y = self.get_coordinates_relative_self(event)
+        if event.button == 1:
+            self.down_action = self.rectangle_map.get(x, y, Action())
+            self.down_action.left_mouse_down(x, y)
+        elif event.button == 3:
+            self.down_action = self.rectangle_map.get(x, y, Action())
+            self.down_action.right_mouse_down(GtkGui(event))
 
-    <span class="k">def</span> <span class="nf">on_motion_notify_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    def on_motion_notify_event(self, widget, event):
+        x, y = self.get_coordinates_relative_self(event)
+        if self.down_action:
+            self.down_action.mouse_move(x, y)
+        else:
+            self.rectangle_map.get(x, y, Action()).mouse_move(x, y)
 
-    <span class="k">def</span> <span class="nf">on_button_release_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
+    def on_button_release_event(self, widget, event):
+        if self.down_action:
+            self.down_action.mouse_up()
+            self.down_action = None
 
-    <span class="k">def</span> <span class="nf">get_coordinates_relative_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
-        <span class="p">)</span>
-</pre></div>
-</div></div>
+    def get_coordinates_relative_self(self, event):
+        return self.translate_coordinates(
+            self.main_window,
+            event.x,
+            event.y
+        )
+```
+
 The timeline is then created like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">CustomDrawWidget</span><span class="p">(</span>
-    <span class="n">main_window</span><span class="o">=</span><span class="n">main_window</span><span class="p">,</span>
-    <span class="n">custom_draw_handler</span><span class="o">=</span><span class="n">timeline_draw</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+timeline = CustomDrawWidget(
+    main_window=main_window,
+    custom_draw_handler=timeline_draw,
+)
+```
+
 This part of the code base does not have many tests. I therefore moved slowly
 and tested my changes manually after each small step.
 

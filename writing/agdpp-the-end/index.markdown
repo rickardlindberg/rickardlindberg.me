@@ -39,26 +39,27 @@ image):
 
 The most interesting piece of code is this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+```python
+class Balloon:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_hit_particles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">number_of_particles</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">BalloonParticle</span><span class="p">(</span>
-                <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span>
-                    <span class="n">dx</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">),</span>
-                    <span class="n">dy</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
-                <span class="p">),</span>
-                <span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">*</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">),</span>
-                <span class="n">velocity</span><span class="o">=</span><span class="n">Angle</span><span class="o">.</span><span class="n">fraction_of_whole</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span><span class="o">.</span><span class="n">to_unit_point</span><span class="p">()</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">x</span>
-            <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_particles</span><span class="p">)</span>
-        <span class="p">]</span>
-</pre></div>
-</div></div>
+    def get_hit_particles(self):
+        number_of_particles = random.randint(4, 8)
+        return [
+            BalloonParticle(
+                position=self.position.move(
+                    dx=random.randint(0, self.radius),
+                    dy=random.randint(0, self.radius)
+                ),
+                radius=self.radius*(random.randint(30, 70)/100),
+                velocity=Angle.fraction_of_whole(random.random()).to_unit_point().times(self.speed*2)
+            )
+            for x
+            in range(number_of_particles)
+        ]
+```
+
 It generates a list of particles when a balloon is hit. The particles have a
 randomized position, radius, and velocity.  The radius keeps decreasing as time
 passes, and when it reaches a low enough value, the particle is removed.
@@ -77,14 +78,15 @@ The code for integrating the sound can be seen on
 
 This change include adding the `load_sound` method to `GameLoop`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">load_sound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Sound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">Sound</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    def load_sound(self, path):
+        return Sound(self.pygame.mixer.Sound(path))
+```
+
 Does it really make sense that you load a sound from the game loop? I'm not
 sure. The game loop is the only abstraction that we have for accessing pygame.
 That's why it ended up there. But the design here feels a little off to me.
@@ -128,39 +130,42 @@ animation with a press of a button.
 
 We can do it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py rundev test-scene-score
-</pre></div>
-</div></div>
+```
+$ ./make.py rundev test-scene-score
+```
+
 Instead of starting the game, it starts a test scene:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;test-scene-score&quot;</span><span class="p">]:</span>
-        <span class="n">scene</span> <span class="o">=</span> <span class="n">TestSceneScore</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">scene</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">BalloonShooter</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+if __name__ == "__main__":
+    if sys.argv[1:] == ["test-scene-score"]:
+        scene = TestSceneScore()
+    else:
+        scene = None
+    BalloonShooter.create(scene).run()
+```
+
 This test scene is only used for test purposes and looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TestSceneScore</span><span class="p">:</span>
+```python
+class TestSceneScore:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">Score</span><span class="p">()</span>
+    def __init__(self):
+        self.score = Score()
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown</span><span class="p">(</span><span class="n">KEY_SPACE</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+    def event(self, event):
+        if event.is_user_closed_window():
+            raise ExitGameLoop()
+        elif event.is_keydown(KEY_SPACE):
+            self.score.add_points(100)
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    def update(self, dt):
+        self.score.update(dt)
 
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw(self, loop):
+        self.score.draw(loop)
+```
+
 It uses the score object (which is used in the real game) and adds 100 points
 when we press the space key.
 

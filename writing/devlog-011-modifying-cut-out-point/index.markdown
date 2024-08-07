@@ -19,9 +19,10 @@ in point with drag on the left hand side.
 However, changing the out point of a cut by dragging the right hand side does
 not yet work. It prints the following in the console:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>TODO: implement move_right!
-</pre></div>
-</div></div>
+```
+TODO: implement move_right!
+```
+
 It is a bit trickier to get working than changing the in point as we will see
 in a second.
 
@@ -29,37 +30,41 @@ in a second.
 
 Here is roughly what happens when you drag the right hand side of a cut:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">transaction</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span>
-<span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move_right</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
-<span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+transaction = project.new_transaction()
+transaction.modify(cut_id, lambda cut: cut.move_right(delta))
+transaction.commit()
+```
+
 Here is `Transaction.modify`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span><span class="o">.</span><span class="n">modify_cut</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def modify(self, cut_id, fn):
+    self.project.set_project_data(self.project.project_data.modify_cut(cut_id, fn))
+```
+
 Here is `ProjectData.modify_cut`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def modify_cut(self, cut_id, fn):
+    return self._replace(cuts=self.cuts.modify(cut_id, fn))
+```
+
 Here is `Cuts.modify`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="n">old_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span>
-    <span class="n">new_cut</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">old_cut</span><span class="p">)</span>
-    <span class="n">new_cuts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">)</span>
-    <span class="n">new_cuts</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cut</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
-        <span class="n">cut_map</span><span class="o">=</span><span class="n">new_cuts</span><span class="p">,</span>
-        <span class="n">region_to_cuts</span><span class="o">=...</span><span class="p">,</span>
-    <span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def modify(self, cut_id, fn):
+    ...
+    old_cut = self.cut_map[cut_id]
+    new_cut = fn(old_cut)
+    new_cuts = dict(self.cut_map)
+    new_cuts[cut_id] = new_cut
+    return self._replace(
+        cut_map=new_cuts,
+        region_to_cuts=...,
+    )
+```
+
 And it is here that the lambda gets called to modify the cut.
 
 The problem is that when we modify the out point, we can't place it outside the
@@ -71,14 +76,15 @@ It just has a source id where it can be looked up, but only in the
 
 Let's have a look at the data structures and what they contain:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProjectData</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ProjectData&quot;</span><span class="p">,</span> <span class="s2">&quot;sources,cuts&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">Sources</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Sources&quot;</span><span class="p">,</span> <span class="s2">&quot;id_to_source&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;FileSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,path,length&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">TextSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;TextSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,text&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">Cuts</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cuts&quot;</span><span class="p">,</span> <span class="s2">&quot;cut_map,region_to_cuts,region_group_size&quot;</span><span class="p">)):</span>
-<span class="k">class</span> <span class="nc">Cut</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cut&quot;</span><span class="p">,</span> <span class="s2">&quot;source,in_out,position,id,mix_strategy,volume,speed&quot;</span><span class="p">)):</span>
-</pre></div>
-</div></div>
+```python
+class ProjectData(namedtuple("ProjectData", "sources,cuts")):
+class Sources(namedtuple("Sources", "id_to_source")):
+class FileSource(namedtuple("FileSource", "id,path,length")):
+class TextSource(namedtuple("TextSource", "id,text")):
+class Cuts(namedtuple("Cuts", "cut_map,region_to_cuts,region_group_size")):
+class Cut(namedtuple("Cut", "source,in_out,position,id,mix_strategy,volume,speed")):
+```
+
 Put in a more hierarchical format:
 
 * ProjectData
@@ -110,18 +116,20 @@ has both the source information and the cut information.
 
 Let's have a look at `ProjectData.modify_cut` again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def modify_cut(self, cut_id, fn):
+    return self._replace(cuts=self.cuts.modify(cut_id, fn))
+```
+
 How about if we did something like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">limit_out_point</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def modify_cut(self, cut_id, fn):
+    def wrapper(cut):
+        return self.sources.get(cut.source).limit_out_point(fn(cut))
+    return self._replace(cuts=self.cuts.modify(cut_id, wrapper))
+```
+
 That is, we let the original lambda  modify the out point beyond the length of
 the source. Then in the wrapper above we get the source of the clip and have it
 adjust the out point to not exceed the length.
@@ -154,18 +162,19 @@ Let's see if we can test this.
 
 Here is the test that I come up with:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A cut&#39;s out point is adjusted if going outside the limit:</span>
+```python
+"""
+A cut's out point is adjusted if going outside the limit:
 
-<span class="sd">&gt;&gt;&gt; data = ProjectData.empty()</span>
-<span class="sd">&gt;&gt;&gt; data = data.add_source(FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5))</span>
-<span class="sd">&gt;&gt;&gt; data = data.add_cut(Cut.test_instance(name=&quot;source_a&quot;, start=0, end=3, id=&quot;cut_a&quot;))</span>
-<span class="sd">&gt;&gt;&gt; data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))</span>
-<span class="sd">&gt;&gt;&gt; data.get_cut(&quot;cut_a&quot;).in_out</span>
-<span class="sd">Region(start=0, end=5)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> data = ProjectData.empty()
+>>> data = data.add_source(FileSource(id="source_a", path="a.mp4", length=5))
+>>> data = data.add_cut(Cut.test_instance(name="source_a", start=0, end=3, id="cut_a"))
+>>> data = data.modify_cut("cut_a", lambda cut: cut.move_right(10))
+>>> data.get_cut("cut_a").in_out
+Region(start=0, end=5)
+"""
+```
+
 We create project data with one source and one cut. The source is of length 5
 and the cut is of length 3. We can extend it two more frames before we have
 reached the end of the source.
@@ -176,46 +185,51 @@ Then we assert that the end point is limited to 5.
 
 This fails with this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>Failed example:
-    data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))
+```
+Failed example:
+    data = data.modify_cut("cut_a", lambda cut: cut.move_right(10))
 Differences (ndiff with -expected +actual):
     + TODO: implement move_right!
-</pre></div>
-</div></div>
+```
+
 I implement `Cut.move_right` like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">move_right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
-        <span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">move_end</span><span class="p">(</span><span class="n">amount</span><span class="p">),</span>
-    <span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def move_right(self, amount):
+    return self._replace(
+        in_out=self.in_out.move_end(amount),
+    )
+```
+
 Then we get this failure:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>Failed example:
-    data.get_cut(&quot;cut_a&quot;).in_out
+```
+Failed example:
+    data.get_cut("cut_a").in_out
 Differences (ndiff with -expected +actual):
     - Region(start=0, end=5)
     ?                     ^
     + Region(start=0, end=13)
     ?                     ^^
-</pre></div>
-</div></div>
+```
+
 I expected this. We don't do any limiting yet.
 
 Let's modify `ProjectData.modify_cut` to what we had in mind. I write this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def modify_cut(self, cut_id, fn):
+    def wrapper(cut):
+        return self.get_source(cut.source.source_id).limit_in_out(fn(cut))
+    return self._replace(cuts=self.cuts.modify(cut_id, wrapper))
+```
+
 We now get this error:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>AttributeError: &#39;TextSource&#39; object has no attribute &#39;limit_in_out&#39;
-</pre></div>
-</div></div>
+```
+AttributeError: 'TextSource' object has no attribute 'limit_in_out'
+```
+
 This is also to be expected. Now we need to implement `limit_in_out` on every
 type of source. At the moment those are `TextSource` and `FileSource`. Let's
 see if we have coverage for both. We get a failure for `TextSource` now, so
@@ -224,38 +238,44 @@ let's start there.
 A text source does not have a length. It is infinite. So `limit_in_out` just
 becomes this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">cut</span>
-</pre></div>
-</div></div>
+```python
+def limit_in_out(self, cut):
+    return cut
+```
+
 Now we get the same error for the file source.
 
 I implement `FileSource.limit_in_out` like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def limit_in_out(self, cut):
+    return cut.limit_out(self.length)
+```
+
 The test now complains about this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>AttributeError: &#39;Cut&#39; object has no attribute &#39;limit_out&#39;
-</pre></div>
-</div></div>
+```
+AttributeError: 'Cut' object has no attribute 'limit_out'
+```
+
 I implement it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_out</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">limit_end</span><span class="p">(</span><span class="n">max_out</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def limit_out(self, max_out):
+    return self._replace(in_out=self.in_out.limit_end(max_out))
+```
+
 And `Region.limit_end` like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">limit_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_end</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">max_end</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+    def limit_end(self, max_end):
+        return self._replace(end=min(self.end, max_end))
+```
+
 And wow, that actually works.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>$ ./make.py commit -m &#39;ProjectData.modify_cut ensures that in_out is withing source limit.&#39;
+```
+$ ./make.py commit -m 'ProjectData.modify_cut ensures that in_out is withing source limit.'
 ...................................................................
 ----------------------------------------------------------------------
 Ran 67 tests in 3.925s
@@ -263,17 +283,18 @@ Ran 67 tests in 3.925s
 OK
 [main a9eb857] ProjectData.modify_cut ensures that in_out is withing source limit.
  4 files changed, 29 insertions(+), 3 deletions(-)
-</pre></div>
-</div></div>
+```
+
 ## Improving design
 
 Right above `modify_cut` I see `add_cut` which also has a TODO:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
-    <span class="c1"># TODO: assert that source id exists (even for json loading)</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+def add_cut(self, cut):
+    # TODO: assert that source id exists (even for json loading)
+    return self._replace(cuts=self.cuts.add(cut))
+```
+
 Now that we have touched this area of the code, let's have a closer look if we
 can make something cleaner with our new insights.
 
@@ -284,16 +305,17 @@ However, it is not used by the JSON loading mechanism.
 
 I move the JSON loading part of the comment to here:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
-    <span class="c1"># TODO: validate the cuts point to valid sources and that they have</span>
-    <span class="c1"># valid in/out points.</span>
-    <span class="k">return</span> <span class="n">ProjectData</span><span class="p">(</span>
-        <span class="n">sources</span><span class="o">=</span><span class="n">Sources</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]),</span>
-        <span class="n">cuts</span><span class="o">=</span><span class="n">Cuts</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;cuts&quot;</span><span class="p">])</span>
-    <span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+@staticmethod
+def from_json(json):
+    # TODO: validate the cuts point to valid sources and that they have
+    # valid in/out points.
+    return ProjectData(
+        sources=Sources.from_json(json["sources"]),
+        cuts=Cuts.from_json(json["cuts"])
+    )
+```
+
 I'm not sure that we want to adjust cuts that are invalid. We could remove cuts
 that don't have a corresponding source, and we could adjust in and out points
 of cuts with valid sources. But that would change the project. So a load +
@@ -311,33 +333,36 @@ the in and out points, there is no obvious change.
 
 Let's modify it guided by this test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">In/Out is modified according to source:</span>
+```python
+"""
+In/Out is modified according to source:
 
-<span class="sd">&gt;&gt;&gt; ProjectData.empty(</span>
-<span class="sd">... ).add_source(</span>
-<span class="sd">...     FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
-<span class="sd">... ).add_cut(</span>
-<span class="sd">...     Cut.test_instance(name=&quot;source_a&quot;, start=0, end=10, id=&quot;cut_a&quot;)</span>
-<span class="sd">... ).get_cut(&quot;cut_a&quot;).in_out</span>
-<span class="sd">Region(start=0, end=5)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> ProjectData.empty(
+... ).add_source(
+...     FileSource(id="source_a", path="a.mp4", length=5)
+... ).add_cut(
+...     Cut.test_instance(name="source_a", start=0, end=10, id="cut_a")
+... ).get_cut("cut_a").in_out
+Region(start=0, end=5)
+"""
+```
+
 It fails with this message:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span>Differences (ndiff with -expected +actual):
+```
+Differences (ndiff with -expected +actual):
     - Region(start=0, end=5)
     ?                     ^
     + Region(start=0, end=10)
     ?                     ^^
-</pre></div>
-</div></div>
+```
+
 We fix it in a similar way to before:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">cut</span><span class="p">)))</span>
-</pre></div>
-</div></div>
+```python
+return self._replace(cuts=self.cuts.add(self.get_source(cut.source.source_id).limit_in_out(cut)))
+```
+
 That passes all the tests.
 
 ## Speed issue
@@ -345,19 +370,20 @@ That passes all the tests.
 I also noticed an issue with the limiting for cuts that had a changed speed. I
 modify `FileSource.limit_in_out` to take speed into account:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; source = FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
+```python
+def limit_in_out(self, cut):
+    """
+    >>> source = FileSource(id="source_a", path="a.mp4", length=5)
 
-<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=10)).in_out</span>
-<span class="sd">    Region(start=0, end=5)</span>
+    >>> source.limit_in_out(Cut.test_instance(start=0, end=10)).in_out
+    Region(start=0, end=5)
 
-<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=20, speed=0.5)).in_out</span>
-<span class="sd">    Region(start=0, end=10)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">/</span><span class="n">cut</span><span class="o">.</span><span class="n">speed</span><span class="p">))</span>
-</pre></div>
-</div></div>
+    >>> source.limit_in_out(Cut.test_instance(start=0, end=20, speed=0.5)).in_out
+    Region(start=0, end=10)
+    """
+    return cut.limit_out(int(self.length/cut.speed))
+```
+
 ## Summary
 
 We added a feature to the application. It is now possible to move the out point

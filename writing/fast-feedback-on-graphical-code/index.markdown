@@ -33,27 +33,28 @@ Then I came up with a much better workflow.
 I added a (doc)test to my test suite that does something like this (some
 details removed):
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)</span>
-<span class="sd">&gt;&gt;&gt; context = cairo.Context(surface)</span>
-<span class="sd">&gt;&gt;&gt; project = Project.new()</span>
-<span class="sd">&gt;&gt;&gt; with project.new_transaction() as transaction:</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;hello&quot;, length=30)</span>
-<span class="sd">...     x = transaction.add_text_clip(&quot;world&quot;, length=35)</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span>
-<span class="sd">...     transaction.modify(x, lambda cut: cut.move(-10))</span>
-<span class="sd">&gt;&gt;&gt; timeline = Timeline(project)</span>
-<span class="sd">&gt;&gt;&gt; timeline.draw_cairo(</span>
-<span class="sd">...     context=context,</span>
-<span class="sd">...     playhead_position=40,</span>
-<span class="sd">...     width=width,</span>
-<span class="sd">...     height=height</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; surface.write_to_png(&quot;timeline.png&quot;)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+>>> context = cairo.Context(surface)
+>>> project = Project.new()
+>>> with project.new_transaction() as transaction:
+...     _ = transaction.add_text_clip("hello", length=30)
+...     x = transaction.add_text_clip("world", length=35)
+...     _ = transaction.add_text_clip("end", length=20)
+...     _ = transaction.add_text_clip("end", length=20)
+...     transaction.modify(x, lambda cut: cut.move(-10))
+>>> timeline = Timeline(project)
+>>> timeline.draw_cairo(
+...     context=context,
+...     playhead_position=40,
+...     width=width,
+...     height=height
+... )
+>>> surface.write_to_png("timeline.png")
+"""
+```
+
 The `Timeline` class is what does the drawing of the timeline. Fortunately, it
 is separated from the GTK component onto which it is drawn. This allows us to
 create our own Cairo surface, let the timeline draw itself on that, and in the

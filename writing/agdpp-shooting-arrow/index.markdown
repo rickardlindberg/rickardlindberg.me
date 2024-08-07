@@ -72,52 +72,54 @@ The next step is to figure out how to write an automated test for that.
 
 Just to recap, the test for the balloon shooter looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">...</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> loop = GameLoop.create_null(
+...     events=[
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+>>> events = loop.track_events()
+>>> BalloonShooter(loop).run()
+>>> events
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+...
+"""
+```
+
 That is, we run the balloon shooter game, configure a set of events that should
 be simulated, and then assert that certain things happens (game loop inits,
 circles are drawn on screen, etc).
 
 The test we want to write the for the shoot behavior starts like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The arrow moves when it is shot by pressing the space key:</span>
+```python
+"""
+The arrow moves when it is shot by pressing the space key:
 
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> loop = GameLoop.create_null(
+...     events=[
+...         [],
+...         [GameLoop.create_event_keydown_space()],
+...         [],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+>>> events = loop.track_events()
+>>> BalloonShooter(loop).run()
+"""
+```
+
 We introduce a new event, keydown space, and simulate that it happens after one
 frame, and then we simulate a couple of more frames. The reason that we include
 a couple of frames is that we want to observe that the arrows moves between
@@ -130,27 +132,29 @@ that.
 
 We add the new event like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_event_keydown_space</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; GameLoop.create_event_keydown_space().is_keydown_space()</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span><span class="p">))</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Event</span><span class="p">:</span>
+    @staticmethod
+    def create_event_keydown_space():
+        """
+        >>> GameLoop.create_event_keydown_space().is_keydown_space()
+        True
+        """
+        return Event(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
+```
 
-    <span class="o">...</span>
+```python
+class Event:
 
-    <span class="k">def</span> <span class="nf">is_keydown_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span>
-</pre></div>
-</div></div>
+    ...
+
+    def is_keydown_space(self):
+        return self.pygame_event.type == pygame.KEYDOWN and self.pygame_event.key == pygame.K_SPACE
+```
+
 We figure out the Pygame event parameters to use by reading the documentation.
 
 We verify that we got it correct by printing something when we get the keydown
@@ -164,21 +168,22 @@ It seems to work.
 The initial test now runs, but if we print all the events that we get, there is
 a lot of noise:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">...</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+...
+"""
+```
+
 What we want to observe in that list of events is that the arrow has been drawn
 in different positions (indicating movement).
 
@@ -187,40 +192,42 @@ of the arrow.
 
 We want to write like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events.filter("DRAW_CIRCLE", radius=10)
+"""
+```
+
 Filtering on event fields is not yet possible, but we own the library, and the
 fix goes smoothly.
 
 Once that is done, we get this list of events:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+"""
+```
+
 This means that when we ran our game in test mode, four frames where drawn and
 here are all the circles with radius 10. We use 10 here because we know that
 the head of the arrow is the only circle that is drawn with radius 10. But it
@@ -234,12 +241,13 @@ In the output above, we can look at the x and y coordinates and see if they
 change. But there are also other fields that we don't care about in this test.
 Let's filter out the position like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">[(500, 500), (500, 500), (500, 500), (500, 500)]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
+[(500, 500), (500, 500), (500, 500), (500, 500)]
+"""
+```
+
 Again, the `collect` method does not exist, but we can extend our library
 with it.
 
@@ -247,24 +255,26 @@ Now we have a list of positions where the head of the arrow is drawn. It
 doesn't seem to change, which we can see more clearly by making the collection
 into a set and seeing that it has only one element:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 500)}</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
+{(500, 500)}
+"""
+```
+
 ## Real test failure
 
 We want the arrow to move, so let's write an assert like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> len(arrow_head_positions) > 1
+True
+>>> len(set(arrow_head_positions)) > 1
+True
+"""
+```
+
 That is, we should get more than one position, and the set of all those
 positions should also be larger than one, indicating movement.
 
@@ -278,44 +288,47 @@ in [another episode](/writing/agdpp-thinking-about-test-setup/index.html).
 First, we modify the event handler to check for the space key and shoot the
 arrow if so:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+            elif event.is_keydown_space():
+                self.arrow.shoot()
+        ...
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 The shooting mechanism, we implement like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">500</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">False</span>
+    def __init__(self):
+        self.y = 500
+        self.shooting = False
 
-    <span class="k">def</span> <span class="nf">shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">True</span>
+    def shoot(self):
+        self.shooting = True
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
-</pre></div>
-</div></div>
+    def tick(self, dt):
+        if self.shooting:
+            self.y -= dt
+```
+
 We also adjust the drawing code so that all three circles that are drawn for
 the arrow are drawn relative to the now variable y position.
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def draw(self, loop):
+    loop.draw_circle(x=500, y=self.y, color="blue", radius=10)
+    loop.draw_circle(x=500, y=self.y+20, color="blue", radius=15)
+    loop.draw_circle(x=500, y=self.y+40, color="blue", radius=20)
+```
+
 The arrow now moves when we press the space key. Success! Unfortunately we only
 have one shot. Then we need to restart the game to get a new arrow. We will fix
 that in another story.
@@ -327,39 +340,41 @@ press the space key, the arrow should stay still.
 
 We can change the tick method of the arrow to this, and all tests still pass:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt):
+    self.y -= dt
+```
+
 But that makes the arrow move immediately, even if not shot, which was not
 intended.
 
 We write a few more specific tests for the behavior of the arrow:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I stay still if I&#39;ve not been fired:</span>
+```python
+"""
+I stay still if I've not been fired:
 
-<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; initial_y == arrow.y</span>
-<span class="sd">True</span>
+>>> arrow = Arrow()
+>>> initial_y = arrow.y
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> initial_y == arrow.y
+True
 
-<span class="sd">I move upwards when fired:</span>
+I move upwards when fired:
 
-<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">&gt;&gt;&gt; arrow.shoot()</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.y &lt; initial_y</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> arrow = Arrow()
+>>> initial_y = arrow.y
+>>> arrow.shoot()
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.tick(1)
+>>> arrow.y < initial_y
+True
+"""
+```
+
 That forces us to add the if statement again.
 
 I'm not sure I'm entirely happy that we access the y variable like that. I

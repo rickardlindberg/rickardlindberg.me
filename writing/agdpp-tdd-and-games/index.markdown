@@ -35,15 +35,16 @@ example, we can't assert that the arrow is turned by a specific amount, but we
 can assert that it is turned more to the left than before. Here is an example
 of that:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span>
-<span class="sd">&gt;&gt;&gt; game.update(1)</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> initial_angle = game.get_arrow_angle()
+>>> game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))
+>>> game.update(1)
+>>> game.get_arrow_angle() < initial_angle
+True
+"""
+```
+
 We assert the basic functionality in the test, and then we can play the game
 and adjust parameters for turning until it feels good, and this test will
 continue to work without modification.

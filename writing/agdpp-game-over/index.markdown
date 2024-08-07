@@ -91,31 +91,32 @@ they come back after a while, but now instead move downwards.
 All tests for our game are currently written at the top-level. Here is the test
 that checks for behavior when we press the space key:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
-<span class="sd">frames, then quit:</span>
+```python
+"""
+We run the game for a few frames, press the space key, let it run for a few
+frames, then quit:
 
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
+>>> events = BalloonShooter.run_in_test_mode(
+...     events=[
+...         [],
+...         [],
+...         [GameLoop.create_event_keydown_space()],
+...         [],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
 
-<span class="sd">The arrow moves:</span>
+The arrow moves:
 
-<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> arrow_head_positions = events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
+>>> len(arrow_head_positions) > 1
+True
+>>> len(set(arrow_head_positions)) > 1
+True
+"""
+```
+
 We filter out `DRAW_CIRCLE` events with radius 10 with the assumption that the
 only circle drawn with radius 10 is the arrow head.
 
@@ -135,85 +136,88 @@ behavior is easier to test.
 
 Our game currently looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+    def __init__(self, loop):
+        ...
+        self.balloon = Balloon()
+        self.arrow = Arrow()
+        self.sprites = [self.balloon, self.arrow]
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
-            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+            elif event.is_keydown_space():
+                self.arrow.shoot()
+        for sprite in self.sprites:
+            sprite.tick(dt)
+        self.loop.clear_screen()
+        for sprite in self.sprites:
+            sprite.draw(self.loop)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 I have an idea for how to push much of this logic down one level so that it can
 more easily be tested. Let's give it a try.
 
 We keep all our sprites in a list. Managing a list of sprites seems like a good
 job for a new class. We create a `SpriteGroup` class that works like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; class TestSprite:</span>
-<span class="sd">...     def update(self, dt):</span>
-<span class="sd">...         print(f&quot;TEST SPRITE update {dt}&quot;)</span>
-<span class="sd">...     def draw(self, loop):</span>
-<span class="sd">...         print(f&quot;TEST SPRITE draw {loop}&quot;)</span>
+```python
+"""
+>>> class TestSprite:
+...     def update(self, dt):
+...         print(f"TEST SPRITE update {dt}")
+...     def draw(self, loop):
+...         print(f"TEST SPRITE draw {loop}")
 
-<span class="sd">&gt;&gt;&gt; group = SpriteGroup([TestSprite()])</span>
-<span class="sd">&gt;&gt;&gt; x = TestSprite()</span>
-<span class="sd">&gt;&gt;&gt; y = group.add(x)</span>
-<span class="sd">&gt;&gt;&gt; x is y</span>
-<span class="sd">True</span>
+>>> group = SpriteGroup([TestSprite()])
+>>> x = TestSprite()
+>>> y = group.add(x)
+>>> x is y
+True
 
-<span class="sd">&gt;&gt;&gt; group.update(4)</span>
-<span class="sd">TEST SPRITE update 4</span>
-<span class="sd">TEST SPRITE update 4</span>
+>>> group.update(4)
+TEST SPRITE update 4
+TEST SPRITE update 4
 
-<span class="sd">&gt;&gt;&gt; group.draw(None)</span>
-<span class="sd">TEST SPRITE draw None</span>
-<span class="sd">TEST SPRITE draw None</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> group.draw(None)
+TEST SPRITE draw None
+TEST SPRITE draw None
+"""
+```
+
 A sprite is any object that can respond to `update` and `draw` calls. When we
 update and draw the sprite group, it calls the corresponding methods on all its
 sprites.
 
 We can use this new class in our game like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span> <span class="o">=</span> <span class="n">SpriteGroup</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">])</span>
+    def __init__(self, loop):
+        ...
+        self.balloon = Balloon()
+        self.arrow = Arrow()
+        self.all_sprites = SpriteGroup([self.balloon, self.arrow])
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+            elif event.is_keydown_space():
+                self.arrow.shoot()
+        self.all_sprites.update(dt)
+        self.loop.clear_screen()
+        self.all_sprites.draw(self.loop)
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 Not much of a difference. Mainly we moved the looping over the sprites from our
 game to the sprite group class. I think this is a bit cleaner, but it makes
 testing no easier.
@@ -223,39 +227,42 @@ But we are not done yet. Now, let's extract a lower level object that we call
 
 The init of the game then changes to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+def __init__(self, loop):
+    ...
+    self.game_scene = GameScene()
+```
+
 And the tick method changes to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def tick(self, dt, events):
+    for event in events:
+        self.game_scene.event(event)
+    self.game_scene.update(dt)
+    self.loop.clear_screen()
+    self.game_scene.draw(self.loop)
+```
+
 That is, we defer event handling, updating, and drawing to the game scene.
 
 The game scene looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+    def __init__(self):
+        SpriteGroup.__init__(self)
+        self.balloon = self.add(Balloon())
+        self.arrow = self.add(Arrow())
 
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def event(self, event):
+        if event.is_user_closed_window():
+            raise ExitGameLoop()
+        elif event.is_keydown_space():
+            self.arrow.shoot()
+```
+
 It inherits from `SpriteGroup` so it gets the `update` and `draw` "for free".
 And the event handling code is extracted from game. (Since the `event` method
 does not have access to the game loop, we can't call `loop.quit()` to exit, so
@@ -298,34 +305,35 @@ behavior.
 Let's try initial state: the balloon should animate and the arrow should stay
 still. Here are tests for that:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initial state</span>
-<span class="sd">    =============</span>
+    """
+    Initial state
+    =============
 
-<span class="sd">    The balloon animates:</span>
+    The balloon animates:
 
-<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
-<span class="sd">    &gt;&gt;&gt; first_position = game.get_balloon_position()</span>
-<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
-<span class="sd">    &gt;&gt;&gt; second_position = game.get_balloon_position()</span>
-<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
-<span class="sd">    False</span>
+    >>> game = GameScene()
+    >>> first_position = game.get_balloon_position()
+    >>> game.update(10)
+    >>> second_position = game.get_balloon_position()
+    >>> first_position == second_position
+    False
 
-<span class="sd">    The arrow stays still:</span>
+    The arrow stays still:
 
-<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
-<span class="sd">    &gt;&gt;&gt; first_position = game.get_arrow_position()</span>
-<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
-<span class="sd">    &gt;&gt;&gt; second_position = game.get_arrow_position()</span>
-<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> game = GameScene()
+    >>> first_position = game.get_arrow_position()
+    >>> game.update(10)
+    >>> second_position = game.get_arrow_position()
+    >>> first_position == second_position
+    True
+    """
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 We create a game scene, query some of its state, update it, query some it its
 state again and make some assertions.
 
@@ -335,17 +343,18 @@ circles were drawn in specific locations. In this test, no drawing is involved.
 In order for the tests above to work, we have to write getters to expose some
 internal state:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_balloon_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+    def get_balloon_position(self):
+        return self.balloon.get_position()
 
-    <span class="k">def</span> <span class="nf">get_arrow_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def get_arrow_position(self):
+        return self.arrow.get_position()
+```
+
 These are only used in tests.
 
 For a long time, I was reluctant do this. Mainly because I've been taught that
@@ -378,29 +387,31 @@ state, testing should be a little smoother.
 Let's start with the initial state. We introduce the concept of flying arrows
 (arrows that have been shot) and check that there aren't any in the beginning:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
-<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
-<span class="sd">[]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> game = GameScene()
+>>> game.get_flying_arrows()
+[]
+"""
+```
+
 We make it work like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">())</span>
+    def __init__(self):
+        ...
+        self.flying_arrows = self.add(SpriteGroup())
 
-    <span class="k">def</span> <span class="nf">get_flying_arrows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">()</span>
+    def get_flying_arrows(self):
+        return self.flying_arrows.get_sprites()
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 We also add the `get_sprites` getter in the `SpriteGroup` class. Again, this
 getter is only used in tests. This bothers me again. Not that it is only used
 in tests, but that this feels like bad object oriented design. Perhaps it would
@@ -413,27 +424,28 @@ future.
 
 Let's move on to shooting so that we get some flying arrows. Here is the test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
-<span class="sd">&gt;&gt;&gt; initial_position = game.get_arrow_position()</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
-<span class="sd">&gt;&gt;&gt; game.update(10)</span>
+```python
+"""
+>>> game = GameScene()
+>>> initial_position = game.get_arrow_position()
+>>> game.event(GameLoop.create_event_keydown_space())
+>>> game.update(10)
 
-<span class="sd">It makes the arrow fire:</span>
+It makes the arrow fire:
 
-<span class="sd">&gt;&gt;&gt; flying = game.get_flying_arrows()</span>
-<span class="sd">&gt;&gt;&gt; len(flying)</span>
-<span class="sd">1</span>
-<span class="sd">&gt;&gt;&gt; flying[0].get_position() == initial_position</span>
-<span class="sd">False</span>
+>>> flying = game.get_flying_arrows()
+>>> len(flying)
+1
+>>> flying[0].get_position() == initial_position
+False
 
-<span class="sd">The initial arrow stays the same:</span>
+The initial arrow stays the same:
 
-<span class="sd">&gt;&gt;&gt; game.get_arrow_position() == initial_position</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> game.get_arrow_position() == initial_position
+True
+"""
+```
+
 We simulate a shot by sending a space keydown event followed by an update. We
 assert that we now have a flying arrow and that its position is not the
 original position of the arrow (it has moved). Furthermore we assert that the
@@ -442,14 +454,16 @@ arrow that we can shoot.
 
 The implementation: change the event handler for keydown space from this
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+self.arrow.shoot()
+```
+
 to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-</pre></div>
-</div></div>
+```python
+self.flying_arrows.add(Arrow(shooting=True))
+```
+
 So the arrow that we shoot actually stays the same and we create a new arrow
 instance which will be the one shot.
 
@@ -467,32 +481,34 @@ screen.
 
 We write this test:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
-<span class="sd">&gt;&gt;&gt; game.update(10000)</span>
-<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
-<span class="sd">[]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> game = GameScene(space)
+>>> game.event(GameLoop.create_event_keydown_space())
+>>> game.update(10000)
+>>> game.get_flying_arrows()
+[]
+"""
+```
+
 If we decrease the number in `update` the flying arrows collection will not be
 empty because the arrow that we shoot has not had time to fly off screen yet.
 
 We make this test pass by overriding the `update` method of the sprite group
 and doing the collision detection to remove flying arrows outside the screen:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        for x in self.flying_arrows.get_sprites():
+            if x.hits_space(self.space):
+                self.flying_arrows.sprites.remove(x)
+```
+
 Now the `get_sprites` method that we wrote before, for testing purposes, comes
 in handy. Iterating over sprites in a collection seems like a reasonable
 behavior. I still don't think we should expose the internal collection. That is
@@ -504,30 +520,32 @@ commit and see if we can improve this.
 
 We come up wit this instead:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
-</pre></div>
-</div></div>
+```python
+def update(self, dt):
+    SpriteGroup.update(self, dt)
+    for arrow in self.flying_arrows.get_sprites():
+        if arrow.hits_space(self.space):
+            self.flying_arrows.remove(arrow)
+```
+
 `x` is not a very meaningful name, so we call it `arrow` instead. Then we call
 a new `remove` method on the sprite group. No more reaching into internal
 fields and modifying them.
 
 The sprite group looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SpriteGroup</span><span class="p">:</span>
+```python
+class SpriteGroup:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">)</span>
+    def get_sprites(self):
+        return list(self.sprites)
 
-    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def remove(self, sprite):
+        self.sprites.remove(sprite)
+```
+
 We ensure that `get_sprites` returns a new list so that the internal list is
 never exposed. This has two benefits:
 

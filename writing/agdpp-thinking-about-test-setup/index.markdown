@@ -21,33 +21,35 @@ Let's have a look.
 
 The event handling in the game now looks like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+            elif event.is_keydown_space():
+                self.arrow.shoot()
+        ...
+```
+
 If we skip the check for the space key and always shoot the arrow, like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+```python
+class BalloonShooter:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
-</pre></div>
-</div></div>
+    def tick(self, dt, events):
+        for event in events:
+            if event.is_user_closed_window():
+                self.loop.quit()
+        self.arrow.shoot()
+        ...
+```
+
 Then the arrow goes off immediately when the game starts, which is obviously
 not correct, but all tests still pass.
 
@@ -89,34 +91,35 @@ space.
 I think we tried to remedy that in the previous episode by adding these two
 "lower-level tests" to the arrow:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+```python
+class Arrow:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I stay still if I&#39;ve not been fired:</span>
+    """
+    I stay still if I've not been fired:
 
-<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; initial_y == arrow.y</span>
-<span class="sd">    True</span>
+    >>> arrow = Arrow()
+    >>> initial_y = arrow.y
+    >>> arrow.tick(1)
+    >>> arrow.tick(1)
+    >>> arrow.tick(1)
+    >>> initial_y == arrow.y
+    True
 
-<span class="sd">    I move upwards when fired:</span>
+    I move upwards when fired:
 
-<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">    &gt;&gt;&gt; arrow.shoot()</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">    &gt;&gt;&gt; arrow.y &lt; initial_y</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> arrow = Arrow()
+    >>> initial_y = arrow.y
+    >>> arrow.shoot()
+    >>> arrow.tick(1)
+    >>> arrow.tick(1)
+    >>> arrow.tick(1)
+    >>> arrow.y < initial_y
+    True
+    """
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 The problem is that the event checking logic is not in the `Arrow` class, but
 in the `BalloonShooter` class. So what we want to test can't be tested at this
 level.
@@ -148,103 +151,108 @@ Let's see if we can fix that.
 
 Before we had this test for the initial state:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
-<span class="sd">arrow and quit when the user closes the window.</span>
+```python
+"""
+I draw the initial scene of the game which consists of a balloon and an
+arrow and quit when the user closes the window.
 
-<span class="sd">&gt;&gt;&gt; BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: &#39;red&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 520</span>
-<span class="sd">    radius: 15</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 540</span>
-<span class="sd">    radius: 20</span>
-<span class="sd">    color: &#39;blue&#39;</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> BalloonShooter.run_in_test_mode(
+...     events=[
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+    y: 50
+    radius: 40
+    color: 'red'
+DRAW_CIRCLE =>
+    x: 500
+    y: 500
+    radius: 10
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 520
+    radius: 15
+    color: 'blue'
+DRAW_CIRCLE =>
+    x: 500
+    y: 540
+    radius: 20
+    color: 'blue'
+GAMELOOP_QUIT =>
+"""
+```
+
 This only captures the initial frame. Let's see if we can rewrite this.
 
 We start with this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I am a balloon shooter game!</span>
+```python
+"""
+I am a balloon shooter game!
 
-<span class="sd">Initial state</span>
-<span class="sd">=============</span>
+Initial state
+=============
 
-<span class="sd">We run the game for a few frames, then quit:</span>
+We run the game for a few frames, then quit:
 
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> events = BalloonShooter.run_in_test_mode(
+...     events=[
+...         [],
+...         [],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
+"""
+```
+
 This is just the setup. We simulate that we start the game, run it for a couple
 of frames, then quit.
 
 What are some behaviors that we expect to see here?
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The game loop is initialized and cleaned up:</span>
+```python
+"""
+The game loop is initialized and cleaned up:
 
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The balloon is drawn animated:</span>
+>>> events.filter("GAMELOOP_INIT", "GAMELOOP_QUIT")
+GAMELOOP_INIT =>
+    resolution: (1280, 720)
+    fps: 60
+GAMELOOP_QUIT =>
+"""
+```
 
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=40).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">[(50, 50), (51, 50), (52, 50)]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The arrow is drawn in a fixed position:</span>
+```python
+"""
+The balloon is drawn animated:
 
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 500)}</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=15).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 520)}</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=20).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 540)}</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> events.filter("DRAW_CIRCLE", radius=40).collect("x", "y")
+[(50, 50), (51, 50), (52, 50)]
+"""
+```
+
+```python
+"""
+The arrow is drawn in a fixed position:
+
+>>> set(events.filter("DRAW_CIRCLE", radius=10).collect("x", "y"))
+{(500, 500)}
+>>> set(events.filter("DRAW_CIRCLE", radius=15).collect("x", "y"))
+{(500, 520)}
+>>> set(events.filter("DRAW_CIRCLE", radius=20).collect("x", "y"))
+{(500, 540)}
+"""
+```
+
 These new cases cover all the cases in the old test, so we can remove the old.
 Furthermore it also checks that the arrow doesn't move so that we no longer can
 do the mistake of always shooting the arrow. Success!
@@ -257,34 +265,35 @@ those events to check different behavior.
 
 Let's structure the rests of the test that way too:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">User presses space key</span>
-<span class="sd">======================</span>
+```python
+"""
+User presses space key
+======================
 
-<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
-<span class="sd">frames, then quit:</span>
+We run the game for a few frames, press the space key, let it run for a few
+frames, then quit:
 
-<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
+>>> events = BalloonShooter.run_in_test_mode(
+...     events=[
+...         [],
+...         [],
+...         [GameLoop.create_event_keydown_space()],
+...         [],
+...         [],
+...         [GameLoop.create_event_user_closed_window()],
+...     ]
+... )
 
-<span class="sd">The arrow moves:</span>
+The arrow moves:
 
-<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> arrow_head_positions = events.filter("DRAW_CIRCLE", radius=10).collect("x", "y")
+>>> len(arrow_head_positions) > 1
+True
+>>> len(set(arrow_head_positions)) > 1
+True
+"""
+```
+
 If there are more things that should happen when we press the space key, we can
 add asserts for it. But for now, I don't think there is any.
 

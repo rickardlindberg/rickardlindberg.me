@@ -37,22 +37,23 @@ The behavior of the game can be described as this:
 With an empty project, it seems quite difficult to write a test that actually
 checks for that. What to do? Let's fake it! Here it is:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+```python
+class Game:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an animated circle until the user closes the window.</span>
+    """
+    I draw an animated circle until the user closes the window.
 
-<span class="sd">    &gt;&gt;&gt; game = Game()</span>
-<span class="sd">    &gt;&gt;&gt; game.run()</span>
-<span class="sd">    DRAW_CIRCLE</span>
-<span class="sd">    EXIT</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> game = Game()
+    >>> game.run()
+    DRAW_CIRCLE
+    EXIT
+    """
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def run(self):
+        print("DRAW_CIRCLE")
+        print("EXIT")
+```
+
 Really? How is this useful?
 
 First of all we have got a description of one behavior of our system. We also
@@ -79,36 +80,37 @@ game loop class that is responsible for that.
 We can evolve the design in that direction even with what we have now. Here it
 is:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+```python
+class Game:
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an animated circle until the user closes the window.</span>
+    """
+    I draw an animated circle until the user closes the window.
 
-<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
-<span class="sd">    &gt;&gt;&gt; game.run()</span>
-<span class="sd">    DRAW_CIRCLE</span>
-<span class="sd">    EXIT</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    >>> game = Game(GameLoop())
+    >>> game.run()
+    DRAW_CIRCLE
+    EXIT
+    """
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
+    def __init__(self, loop):
+        self.loop = loop
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    def run(self):
+        self.loop.run(self)
 
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">()</span>
+    def tick(self):
+        self.loop.draw_circle()
 
-<span class="k">class</span> <span class="nc">GameLoop</span><span class="p">:</span>
+class GameLoop:
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
+    def run(self, game):
+        game.tick()
+        print("EXIT")
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw_circle(self):
+        print("DRAW_CIRCLE")
+```
+
 The game now gets a loop as a dependency. Can you see how this would be
 possible to test now? We could inject some kind of test double as the loop and
 verify that it is called correctly.
@@ -130,30 +132,32 @@ observe it.
 Let's replace the print statements, that we used to fake actions, with events.
 Here it is:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    def run(self, game):
+        game.tick()
+        self.notify("EXIT", {})
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-</pre></div>
-</div></div>
+    def draw_circle(self):
+        self.notify("DRAW_CIRCLE", {})
+```
+
 The test for the game then changes to this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
+```python
+"""
+I draw an animated circle until the user closes the window.
 
-<span class="sd">&gt;&gt;&gt; loop = GameLoop()</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">EXIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> loop = GameLoop()
+>>> events = loop.track_events()
+>>> Game(loop).run()
+>>> events
+DRAW_CIRCLE =>
+EXIT =>
+"""
+```
+
 (I won't show the code for `Observable`. If you are curious to know the
 details, you can look
 [here](https://github.com/rickardlindberg/agdpp/blob/initial-game-loop/events.py).)
@@ -175,24 +179,25 @@ providing a clean interface for our game to draw on the screen.
 We need to make the `run` method and the `draw_circle` method do something
 real. Here is a first version:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;PYGAME_INIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+    def run(self, game):
+        self.notify("PYGAME_INIT", {})
+        self.pygame.init()
+        self.screen = self.pygame.display.set_mode((1280, 720))
+        game.tick()
+        self.pygame.display.flip()
+        self.notify("EXIT", {})
+        self.pygame.quit()
 
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def draw_circle(self):
+        self.notify("DRAW_CIRCLE", {})
+        self.pygame.draw.circle(self.screen, "red", (50, 50), 40)
+```
+
 Notice that have an instance variable called `pygame`.
 
 When we test our game class, we don't actually want to execute any pygame code
@@ -200,29 +205,31 @@ that creates windows and draws circles on the screen. Therefore we use another
 pattern of an infrastructure wrapper which is that it can be nullable. That
 means that we can instantiate two version of our game loop:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
-<span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
-</pre></div>
-</div></div>
+```python
+GameLoop.create()
+GameLoop.create_null()
+```
+
 The creation methods look like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+```python
+class GameLoop(Observable):
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">GameLoop</span><span class="p">(</span><span class="n">pygame</span><span class="p">)</span>
+    @staticmethod
+    def create():
+        return GameLoop(pygame)
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">class</span> <span class="nc">NullPygame</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">pass</span> <span class="c1"># Do nothing</span>
-            <span class="o">...</span>
-        <span class="k">return</span> <span class="n">GameLoop</span><span class="p">(</span><span class="n">NullPygame</span><span class="p">())</span>
+    @staticmethod
+    def create_null():
+        class NullPygame:
+            def init(self):
+                pass # Do nothing
+            ...
+        return GameLoop(NullPygame())
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 The null version works exactly the same as the real version except it nulls out
 all the calls that actually do anything with pygame. This is useful in tests so
 that we don't open windows and actually draw graphics when we don't need to.
@@ -236,11 +243,12 @@ which will include all the real calls to pygame.
 We can also test the real game loop in isolation, passing it a test game, to
 make sure that we call pygame correctly:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; GameLoop.create().run(TestGame())</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> GameLoop.create().run(TestGame())
+"""
+```
+
 This will actually open a window and draw whatever the test game draws. We can
 program the test game to exit immediately so that the test suite will not hang
 waiting for user input. But we will still see a flashing window which is a bit
@@ -264,18 +272,19 @@ That is because the game loop still doesn't implement a loop.
 
 Let's have a look at our game test again:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
+```python
+"""
+I draw an animated circle until the user closes the window.
 
-<span class="sd">&gt;&gt;&gt; loop = GameLoop()</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">EXIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> loop = GameLoop()
+>>> events = loop.track_events()
+>>> Game(loop).run()
+>>> events
+DRAW_CIRCLE =>
+EXIT =>
+"""
+```
+
 It talks about *animating* a circle, and about *waiting* for the user to close
 the window. But there is nothing in the setup or assertions about this. We are
 missing something.
@@ -288,30 +297,31 @@ behavior of our game will actually be fully realized.
 Here is what the final test for the game looks like when I continued fleshing
 out all the fakes and missing pieces:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
+```python
+"""
+I draw an animated circle until the user closes the window.
 
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 51</span>
-<span class="sd">PYGAME_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+>>> loop = GameLoop.create_null(
+...     events=[
+...         [],
+...         [],
+...         [pygame.event.Event(pygame.QUIT)],
+...     ]
+... )
+>>> events = loop.track_events()
+>>> Game(loop).run()
+>>> events
+PYGAME_INIT =>
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 50
+CLEAR_SCREEN =>
+DRAW_CIRCLE =>
+    x: 51
+PYGAME_QUIT =>
+"""
+```
+
 ## Summary
 
 We started with something fake, then did a bit of design, then removed one fake

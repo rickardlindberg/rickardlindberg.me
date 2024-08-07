@@ -30,54 +30,57 @@ Let's review our code and look at how balloons are managed.
 Our game scene has a sprite group for balloons which by default contains only
 one balloon:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balloons</span><span class="o">=</span><span class="p">[(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)],</span> <span class="o">...</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">([</span>
-            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">balloons</span>
-        <span class="p">]))</span>
-</pre></div>
-</div></div>
+    def __init__(self, balloons=[(50, 50)], ...):
+        ...
+        self.balloons = self.add(SpriteGroup([
+            Balloon(Point(x=x, y=y)) for (x, y) in balloons
+        ]))
+```
+
 This sprite group is modified in the `update` method if an arrows hits a
 balloon:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class GameScene(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-            <span class="o">...</span>
-            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
-                    <span class="o">...</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        ...
+        for arrow in self.flying_arrows.get_sprites():
+            ...
+            for balloon in self.balloons.get_sprites():
+                if arrow.hits_baloon(balloon):
+                    self.balloons.remove(balloon)
+                    self.balloons.add(Balloon(position=Point(x=50, y=50)))
+                    ...
+```
+
 So the hit balloon is removed, and a new one is added.
 
 How do balloons move?
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+```python
+class Balloon:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+    def __init__(self, position, radius=40):
+        self.position = position
+        self.radius = radius
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1200</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">dt</span><span class="o">*</span><span class="mf">0.3</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        if self.position.x > 1200:
+            self.position = self.position.set(x=50)
+        else:
+            self.position = self.position.move(dx=dt*0.3)
+```
+
 They move from left to right and wrap around at x=1200.
 
 ## Strategy
@@ -89,49 +92,53 @@ This is also known as make the change easy, then make the easy change.
 
 We begin by creating the class and using it like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-        self.balloons = self.add(SpriteGroup([</span>
-<span class="gd">-            Balloon(Point(x=x, y=y)) for (x, y) in balloons</span>
-<span class="gd">-        ]))</span>
-<span class="gi">+        self.balloons = self.add(Balloons(balloons))</span>
-</pre></div>
-</div></div>
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```diff
+-        self.balloons = self.add(SpriteGroup([
+-            Balloon(Point(x=x, y=y)) for (x, y) in balloons
+-        ]))
++        self.balloons = self.add(Balloons(balloons))
+```
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span>
-            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">positions</span>
-        <span class="p">])</span>
-</pre></div>
-</div></div>
+```python
+class Balloons(SpriteGroup):
+
+    def __init__(self, positions):
+        SpriteGroup.__init__(self, [
+            Balloon(Point(x=x, y=y)) for (x, y) in positions
+        ])
+```
+
 We continue to move some behavior into this new class:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class Balloons(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_balloon_hit_by_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">balloon</span>
+    def get_balloon_hit_by_arrow(self, arrow):
+        for balloon in self.get_sprites():
+            if arrow.hits_baloon(balloon):
+                return balloon
 
-    <span class="k">def</span> <span class="nf">spawn_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
-</pre></div>
-</div></div>
+    def spawn_new(self):
+        self.add(Balloon(position=Point(x=50, y=50)))
+```
+
 With that in place, we can simplify the update code like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="gd">-            for balloon in self.balloons.get_sprites():</span>
-<span class="gd">-                if arrow.hits_baloon(balloon):</span>
-<span class="gd">-                    self.balloons.remove(balloon)</span>
-<span class="gd">-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))</span>
-<span class="gd">-                    self.score.add(1)</span>
-<span class="gi">+            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)</span>
-<span class="gi">+            if hit_balloon:</span>
-<span class="gi">+                self.balloons.remove(hit_balloon)</span>
-<span class="gi">+                self.balloons.spawn_new()</span>
-<span class="gi">+                self.score.add(1)</span>
-</pre></div>
-</div></div>
+```diff
+-            for balloon in self.balloons.get_sprites():
+-                if arrow.hits_baloon(balloon):
+-                    self.balloons.remove(balloon)
+-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))
+-                    self.score.add(1)
++            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)
++            if hit_balloon:
++                self.balloons.remove(hit_balloon)
++                self.balloons.spawn_new()
++                self.score.add(1)
+```
+
 There is probably some more functionality that we can move into the new
 balloons class, but let's stop here for now and focus on the new behavior.
 
@@ -148,41 +155,43 @@ Here is some new behavior that we would like to have:
 
 Let's start with the first one and write a test for the new movement pattern:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class Balloons(SpriteGroup):
 
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; balloons = Balloons([(50, 50)])</span>
-<span class="sd">    &gt;&gt;&gt; balloons.get_sprites()[0].get_position()</span>
-<span class="sd">    (50, 50)</span>
-<span class="sd">    &gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">    &gt;&gt;&gt; x, y = balloons.get_sprites()[0].get_position()</span>
-<span class="sd">    &gt;&gt;&gt; x</span>
-<span class="sd">    50</span>
-<span class="sd">    &gt;&gt;&gt; y &gt; 50</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    """
+    >>> balloons = Balloons([(50, 50)])
+    >>> balloons.get_sprites()[0].get_position()
+    (50, 50)
+    >>> balloons.update(5)
+    >>> x, y = balloons.get_sprites()[0].get_position()
+    >>> x
+    50
+    >>> y > 50
+    True
+    """
 
-    <span class="o">...</span>
-</pre></div>
-</div></div>
+    ...
+```
+
 First we make sure that the first balloon in the sprite group is at the initial
 position that we gave it. Then we assert that it has moved downward after an
 update.
 
 To make this test pass, we make this change:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span> class Balloon:
+```diff
+ class Balloon:
 
      ...
 
      def update(self, dt):
-<span class="gd">-       if self.position.x &gt; 1200:</span>
-<span class="gd">-           self.position = self.position.set(x=50)</span>
-<span class="gd">-       else:</span>
-<span class="gd">-           self.position = self.position.move(dx=dt*0.3)</span>
-<span class="gi">+       self.position = self.position.move(dy=dt*self.speed)</span>
-</pre></div>
-</div></div>
+-       if self.position.x > 1200:
+-           self.position = self.position.set(x=50)
+-       else:
+-           self.position = self.position.move(dx=dt*0.3)
++       self.position = self.position.move(dy=dt*self.speed)
+```
+
 We only needed to modify the `Balloon` class. Does that mean that we should
 put the test in this class instead? I don't know. For now, I think it's nice if
 we can keep all balloon related tests in the same place.
@@ -193,28 +202,30 @@ Let's fix that.
 
 Here is a test that checks that there are always 3 balloons in the air:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; balloons = Balloons([(50, 50)], space)</span>
-<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
-<span class="sd">1</span>
-<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
-<span class="sd">3</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> balloons = Balloons([(50, 50)], space)
+>>> len(balloons.get_sprites())
+1
+>>> balloons.update(5)
+>>> len(balloons.get_sprites())
+3
+"""
+```
+
 We make this pass by adding spawn logic in the update method:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+```python
+class Balloons(SpriteGroup):
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">spawn_new</span><span class="p">()</span>
-</pre></div>
-</div></div>
+    def update(self, dt):
+        SpriteGroup.update(self, dt)
+        while len(self.get_sprites()) < 3:
+            self.spawn_new()
+```
+
 As long as we shoot down balloons, new ones will be spawned. But if we miss
 three balloons, they will continue to move downwards outside the screen, and no
 new balloons will be spawned. Let's work on removing balloons outside the
@@ -222,16 +233,17 @@ screen.
 
 Here is a test describing this behavior:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; space = OutsideScreenSpace(500, 500)</span>
-<span class="sd">&gt;&gt;&gt; balloons = Balloons([(1000, 1000)], space)</span>
-<span class="sd">&gt;&gt;&gt; (balloon,) = balloons.get_sprites()</span>
-<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
-<span class="sd">&gt;&gt;&gt; balloon in balloons.get_sprites()</span>
-<span class="sd">False</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div></div>
+```python
+"""
+>>> space = OutsideScreenSpace(500, 500)
+>>> balloons = Balloons([(1000, 1000)], space)
+>>> (balloon,) = balloons.get_sprites()
+>>> balloons.update(5)
+>>> balloon in balloons.get_sprites()
+False
+"""
+```
+
 The idea is that we place a balloon outside the screen. Then we call update and
 make sure that it is no longer in the sprite group.
 
@@ -240,43 +252,46 @@ the screen. When we add it here to `Balloons` we have to update all
 instantiations of it to include it. Once that is done, we make the test pass
 like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span> class Balloons(SpriteGroup):
+```diff
+ class Balloons(SpriteGroup):
 
      ...
 
      def update(self, dt):
          SpriteGroup.update(self, dt)
-<span class="gi">+        for balloon in self.get_sprites():</span>
-<span class="gi">+            if self.space.hits(Point(*balloon.get_position()), 10):</span>
-<span class="gi">+                self.remove(balloon)</span>
-         while len(self.get_sprites()) &lt; 3:
++        for balloon in self.get_sprites():
++            if self.space.hits(Point(*balloon.get_position()), 10):
++                self.remove(balloon)
+         while len(self.get_sprites()) < 3:
              self.spawn_new()
-</pre></div>
-</div></div>
+```
+
 The game now plays without problems, however, it's a little boring that
 balloons are always spawned at the same position.
 
 We modify the spawning code like this:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span> class Balloons(SpriteGroup):
+```diff
+ class Balloons(SpriteGroup):
 
      ...
 
      def spawn_new(self):
-<span class="gd">-        self.add(Balloon(position=Point(x=50, y=50)))</span>
-<span class="gi">+        self.add(Balloon(position=Point(x=self.space.get_random_x(50), y=50)))</span>
-</pre></div>
-</div></div>
+-        self.add(Balloon(position=Point(x=50, y=50)))
++        self.add(Balloon(position=Point(x=self.space.get_random_x(50), y=50)))
+```
+
 And add the corresponding method in `OutsideScreenSpace`:
 
-<div class="rliterate-code"><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">OutsideScreenSpace</span><span class="p">:</span>
+```python
+class OutsideScreenSpace:
 
-    <span class="o">...</span>
+    ...
 
-    <span class="k">def</span> <span class="nf">get_random_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="n">margin</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div></div>
+    def get_random_x(self, margin):
+        return random.randint(margin, self.width-margin*2)
+```
+
 We don't write any tests for this. Why? I guess because I feel confident that
 this will work. And maybe because testing random is not straight forward.
 Perhaps we should add a test for `get_random_x` that checks that the x we get
