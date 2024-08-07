@@ -25,7 +25,8 @@ allowfullscreen></iframe></center>
 
 ## The problem with a crashing server
 
-To illustrate the problem with a crashing server, we use the example below:
+To illustrate the problem with a crashing server, we use the example below
+(`server-listen.py`):
 
 ```py
 import socket
@@ -49,7 +50,7 @@ This is a TCP server, listening on port 9000, reading numbers from clients, and
 returning the product of the two numbers. It assumes that numbers can be parsed
 as integers. If parsing fails, the server crashes.
 
-To test the behavior of the server, we use the following client:
+To test the behavior of the server, we use the following client (`client.py`):
 
 ```py
 import socket
@@ -136,7 +137,7 @@ has crashed, and there is no one listening on port 9000.
 
 In order for subsequent requests to succeed, we need to start the server again
 after it has crashed. One way to do that is to run the server program in an
-infinite loop using a script like the one below:
+infinite loop using a script like the one below (`loop.sh`):
 
 ```sh
 while true; do
@@ -229,7 +230,7 @@ process.  That way, if processing fails, and that process dies, the socket
 still stays open because it is managed by another process.
 
 Here is a program that listens on a socket and then spawns server processes in
-a loop to accept connections:
+a loop to accept connections (`server-listen-loop.py`):
 
 ```py
 import os
@@ -352,7 +353,7 @@ restarts.
 ### How long will a socket wait before timing out?
 
 I tried to modify the loop script to sleep for 60 seconds before restarting the
-server:
+server (`loop-sleep.sh`):
 
 ```sh
 while true; do
@@ -407,7 +408,8 @@ serve the next request.
 Another solution might be to have a second process in standby mode. So the loop
 script starts a second server process, but it stops it right before calling
 accept. But then we would need a way to signal to the process to resume
-operation. Perhaps by sending it a signal?
+operation. Perhaps by sending it a signal? Something like this
+(`server-accept-standby.py`):
 
 ```py
 import socket
@@ -469,7 +471,7 @@ child process will not be able to access the socket file descriptor.  That is
 why we have to move it to file descriptor 0 (stdin) which is inherited.
 
 Another option might be to make the file descriptor inheritable. Something like
-this:
+this (`server-listen-loop-inherit.py`):
 
 ```py
 import os
@@ -486,7 +488,7 @@ with socket.socket() as s:
 
 
 Then the file descriptor must also be passed to the server processes and used
-there instead of stdin:
+there instead of stdin (`server-accept-inherit.py`):
 
 ```py
 import socket
@@ -537,7 +539,7 @@ I did it because that is how [Alan did
 it](https://github.com/acg/dream-deploys/blob/master/tcplisten). But now that I
 think about it, I think we can just as well inline the loop script in
 `server-listen-loop.py`. That, of course, requires the loop script to be
-written in Python. Something like this:
+written in Python. Something like this (`server-listen-loop-python.py`):
 
 ```py
 import os
@@ -641,7 +643,7 @@ post](https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments).
 Well, yes.
 
 In fact, the accepting server doesn't know what kind of socket is passed to it.
-It could be either a Unix domain socket or a TCP socket:
+It could be either a Unix domain socket or a TCP socket (`server-accept.py`):
 
 ```py
 import socket
