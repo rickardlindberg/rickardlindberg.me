@@ -132,7 +132,7 @@ encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a>    time.sleep(<span class="fl">0.01</span>)</span></code></pre></div>
 <p>It sends 20 requests to the server with a 10ms delay between them. However, for request with number 5, instead of sending the number <code>5</code> it sends the string <code>five</code> to cause the server to crash.</p>
 <p>If we start the server, then the client, the output looks as follows for the server:</p>
-<pre><code>$ python server-listen.py 
+<pre class="text"><code>$ python server-listen.py 
 listening on port 9000
 accepting connection
 accepting connection
@@ -145,7 +145,7 @@ Traceback (most recent call last):
     number = int(data)
 ValueError: invalid literal for int() with base 10: b'five\n'</code></pre>
 <p>And as follows for the client:</p>
-<pre><code>$ python client.py 
+<pre class="text"><code>$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 0ms)
@@ -176,7 +176,7 @@ Connection failed for 19</code></pre>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="kw">done</span></span></code></pre></div>
 <p>This Bash script takes a command to run as argument and runs that command in a loop, ignoring any exit code.</p>
 <p>Invoking the server and client again, we get the following output for the server:</p>
-<pre><code>$ bash loop.sh python server-listen.py
+<pre class="text"><code>$ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
 accepting connection
@@ -199,7 +199,7 @@ accepting connection
 accepting connection
 accepting connection</code></pre>
 <p>And the following for the client:</p>
-<pre><code>$ python client.py 
+<pre class="text"><code>$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 0ms)
@@ -256,7 +256,7 @@ Connection failed for 13
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>            number <span class="op">=</span> <span class="bu">int</span>(data)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>            conn.sendall(<span class="ss">f&quot;</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">*</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">=</span><span class="sc">{</span>number<span class="op">*</span>number<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>.encode(<span class="st">&quot;ascii&quot;</span>))</span></code></pre></div>
 <p>Invoking the server and client again, we get the following output for the server:</p>
-<pre><code>$ python server-listen-loop.py
+<pre class="text"><code>$ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
 accepting connection
@@ -286,7 +286,7 @@ accepting connection
 accepting connection
 accepting connection</code></pre>
 <p>And the following for the client:</p>
-<pre><code>$ python client.py 
+<pre class="text"><code>$ python client.py 
 0*0=0 (request took 0ms)
 1*1=1 (request took 0ms)
 2*2=4 (request took 1ms)
@@ -319,7 +319,7 @@ No response for 5
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>    <span class="fu">sleep</span> 60</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="kw">done</span></span></code></pre></div>
 <p>The client output looked like this:</p>
-<pre><code>...
+<pre class="text"><code>...
 No response for 5
 6*6=36 (request took 60123ms)
 7*7=49 (request took 0ms)

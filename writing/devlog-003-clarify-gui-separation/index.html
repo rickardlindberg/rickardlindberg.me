@@ -61,7 +61,7 @@
 <p>In this episode I want to refactor the code to make that more clear.</p>
 <h2 id="current-state">Current state</h2>
 <p>The current layout of the Python files looks like this:</p>
-<pre><code>.
+<pre class="text"><code>.
 ├── rlvideolib
 │   ├── asciicanvas.py
 │   ├── debug.py
@@ -147,7 +147,7 @@ OK
  rewrite rlvideo.py (64%)
  copy rlvideo.py =&gt; rlvideolib/gui/generic.py (65%)</code></pre>
 <p>We should probably also run the application to see that I didn’t mess up anything major. I get this:</p>
-<pre><code>Traceback (most recent call last):
+<pre class="text"><code>Traceback (most recent call last):
   File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 213, in &lt;module&gt;
     App().run()
   File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 156, in run
@@ -175,7 +175,7 @@ NameError: name 'Timeline' is not defined</code></pre>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>    App().run()</span></code></pre></div>
 <p>Let’s commit:</p>
-<pre><code>$ ./make.py commit -m 'Extract timelinelib.gui.gtk.'
+<pre class="text"><code>$ ./make.py commit -m 'Extract timelinelib.gui.gtk.'
 ................................................
 ----------------------------------------------------------------------
 Ran 48 tests in 1.941s

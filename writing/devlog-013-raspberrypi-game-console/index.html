@@ -96,7 +96,7 @@
 <p>Once we have that working, we can work on our own startup application that let us select the game, and then we can start that one instead.</p>
 <p>I search the internet for how to configure a startup application for the Pi.</p>
 <p>I find an article that says that you can put a file in the autostart directory. I try this:</p>
-<pre><code>$ cat /etc/xdg/autostart/game_console_start.desktop
+<pre class="text"><code>$ cat /etc/xdg/autostart/game_console_start.desktop
 [Desktop Entry]
 Name=Game console start
 Exec=supertux2</code></pre>
@@ -159,7 +159,7 @@ Exec=supertux2</code></pre>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span></code></pre></div>
 <p>And we’re green. Let’s commit.</p>
-<pre><code>$ git commit -a -m 'Emryo to new startup application.'
+<pre class="text"><code>$ git commit -a -m 'Emryo to new startup application.'
 [main a55d17e] Emryo to new startup application.
  2 files changed, 39 insertions(+)
  create mode 100644 startup.py</code></pre>
@@ -265,7 +265,7 @@ Exec=supertux2</code></pre>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>            <span class="va">self</span>.loop.run(<span class="va">self</span>)</span></code></pre></div>
 <p>This, expectedly, output another loop which I add to the assertion. Perfect!</p>
-<pre><code>    GAMELOOP_INIT =&gt;
+<pre class="text"><code>    GAMELOOP_INIT =&gt;
         resolution: (1280, 720)
         fps: 60
     GAMELOOP_QUIT =&gt;</code></pre>
@@ -288,9 +288,9 @@ Exec=supertux2</code></pre>
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>    StartupApplication.create().run()</span></code></pre></div>
 <p>And when I run</p>
-<pre><code>$ python startup.py</code></pre>
+<pre class="text"><code>$ python startup.py</code></pre>
 <p>It indeed creates a new window every time I close it.</p>
-<pre><code>$ git commit -a -m 'Add startup entry point and have it loop.'
+<pre class="text"><code>$ git commit -a -m 'Add startup entry point and have it loop.'
 [main aadd1a2] Add startup entry point and have it loop.
  1 file changed, 60 insertions(+), 5 deletions(-)</code></pre>
 <h2 id="selecting-a-game">Selecting a game</h2>
@@ -429,7 +429,7 @@ Exec=supertux2</code></pre>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a></span>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>We are now getting a somewhat expected test failure:</p>
-<pre><code>Differences (ndiff with -expected +actual):
+<pre class="text"><code>Differences (ndiff with -expected +actual):
     + TODO: run ['supertux2']
     + TODO: run ['supertux2']
       GAMELOOP_INIT =&gt;
@@ -451,13 +451,13 @@ Exec=supertux2</code></pre>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, command):</span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;COMMAND&quot;</span>, {<span class="st">&quot;command&quot;</span>: command})</span></code></pre></div>
 <p>Instead of printing the command, it sends a notification so that we can assert that the event happens at the right time in the test. That is, we can assert that a command is run after the game loop is quit:</p>
-<pre><code>...
+<pre class="text"><code>...
 GAMELOOP_QUIT =&gt;
 COMMAND =&gt;
     command: ['supertux2']
 ...</code></pre>
 <p>This works. Let’s commit:</p>
-<pre><code>$ git commit -a -m 'Run command from StartupScene when game loop is quit.'
+<pre class="text"><code>$ git commit -a -m 'Run command from StartupScene when game loop is quit.'
 [main 4c47b18] Run command from StartupScene when game loop is quit.
  1 file changed, 31 insertions(+), 5 deletions(-)</code></pre>
 <p>For this to actually do something, we need to flesh out <code>Command</code>. Here is what I end up with:</p>
@@ -494,7 +494,7 @@ COMMAND =&gt;
 <span id="cb34-31"><a href="#cb34-31" aria-hidden="true"></a>        <span class="va">self</span>.subprocess.run(command)</span></code></pre></div>
 <p>When the startup application is run and then quit, SuperTux is actually started.</p>
 <p>This is actually some real progress.</p>
-<pre><code>$ git commit -a -m 'Command actually runs commands.'
+<pre class="text"><code>$ git commit -a -m 'Command actually runs commands.'
 [main 270440e] Command actually runs commands.
  1 file changed, 23 insertions(+), 2 deletions(-)</code></pre>
 <h2 id="selection-behavior">Selection behavior</h2>
@@ -561,7 +561,7 @@ COMMAND =&gt;
 <span id="cb39-9"><a href="#cb39-9" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>I also modify the drawing code to use this point for the cursor.</p>
 <p>Now the second test case fails:</p>
-<pre><code>Failed example:
+<pre class="text"><code>Failed example:
     scene.get_command()
 Differences (ndiff with -expected +actual):
     - ['python', '/home/.../agdpp/agdpp.py']
@@ -616,7 +616,7 @@ Differences (ndiff with -expected +actual):
 <span id="cb43-11"><a href="#cb43-11" aria-hidden="true"></a>    <span class="kw">def</span> distance_to(<span class="va">self</span>, point):</span>
 <span id="cb43-12"><a href="#cb43-12" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.position.distance_to(point)</span></code></pre></div>
 <p>This implementation still passes all tests and is also generalized. Nice!</p>
-<pre><code>$ git commit -a -m 'Run the command closest to the cursor.'
+<pre class="text"><code>$ git commit -a -m 'Run the command closest to the cursor.'
 [main 921c71f] Run the command closest to the cursor.
  1 file changed, 64 insertions(+), 7 deletions(-)</code></pre>
 <h2 id="cursor-movement">Cursor movement</h2>
@@ -739,7 +739,7 @@ Differences (ndiff with -expected +actual):
 </p>
 <h2 id="trying-on-the-pi">Trying on the Pi</h2>
 <p>I change the startup script, <code>/etc/xdg/autostart/game_console_start.desktop</code>, to this:</p>
-<pre><code>[Desktop Entry]
+<pre class="text"><code>[Desktop Entry]
 Name=Game console start
 Exec=/home/pi/game_console_pc.sh</code></pre>
 <p>Where <code>/home/pi/game_console_pc.sh</code> is this:</p>
@@ -766,7 +766,7 @@ done
 python3 startup.py</code></pre>
 <p>And it works beautifully.</p>
 <p>Why did I not test drive this startup script? Good question. I for sure spend some time debugging the loop, which, by the way, is needed to give the Pi time to connect to the wireless network before it can download the latest version of the startup application and balloon shooter.</p>
-<pre><code>pi@raspberrypi:~ $ cat game_console_pc.log
+<pre class="text"><code>pi@raspberrypi:~ $ cat game_console_pc.log
 fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
 Retrying in 1
 fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com

@@ -98,7 +98,7 @@
 <p>What we need to do is to get the profile for a consumer and only change the size of it. We want the profile FPS to be the FPS of the clip.</p>
 <h2 id="sidetracked">Sidetracked</h2>
 <p>As I start writing some code, I notice something odd in the output of the tests:</p>
-<pre><code>.............................[matroska,webm @ 0x5599e1354fc0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+<pre class="text"><code>.............................[matroska,webm @ 0x5599e1354fc0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
 [matroska,webm @ 0x5599e0f51540] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
@@ -107,7 +107,7 @@ Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (500
 Ran 49 tests in 2.001s</code></pre>
 <p>I <code>git stash</code> my current changes and see that the output is still there.</p>
 <p>I increase the verbosity of the test runner to figure out which test is causing the output and I get this:</p>
-<pre><code>Doctest: rlvideolib.domain.project.Project ... [matroska,webm @ 0x56544c299700] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+<pre class="text"><code>Doctest: rlvideolib.domain.project.Project ... [matroska,webm @ 0x56544c299700] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
 [matroska,webm @ 0x56544c4061c0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options</code></pre>
@@ -119,7 +119,7 @@ Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (500
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co">...         ...</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>Let’s commit:</p>
-<pre><code>$ ./make.py commit -m 'Capture stdout/stderr in Project test to not clutter the test output.'
+<pre class="text"><code>$ ./make.py commit -m 'Capture stdout/stderr in Project test to not clutter the test output.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 1.990s
@@ -147,7 +147,7 @@ OK
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a>    <span class="cf">return</span> (producer, profile)</span></code></pre></div>
 <p>I don’t have any clips in the resources folder that are other than 25 FPS, but this at leas shows that my code doesn’t crash.</p>
 <p>I try to use it when generating proxies. The tests pass after my modification, so I try to run the application with my 100 FPS test clip and get this:</p>
-<pre><code>$ rm /tmp/*.mkv; rlvideo GX010802.MP4
+<pre class="text"><code>$ rm /tmp/*.mkv; rlvideo GX010802.MP4
 ...
   File &quot;/home/rick/rlvideo/rlvideolib/domain/source.py&quot;, line 59, in load_proxy
     assert self.length == native_producer.get_playtime()</code></pre>
@@ -180,7 +180,7 @@ OK
 <p>I think it’s time for another <code>git stash</code> and clarify length.</p>
 <h2 id="clarify-length">Clarify length</h2>
 <p>I want to rename <code>FileSource.length</code> to <code>FileSource.number_of_frames_at_project_fps</code>. That is a really long name, but it is more clear about what it represents. I value that more now. After the refactoring, I might uncover other issues. Let’s see.</p>
-<pre><code>$ ./make.py commit -m 'Rename FileSource.length to FileSource.number_of_frames_at_project_fps.'
+<pre class="text"><code>$ ./make.py commit -m 'Rename FileSource.length to FileSource.number_of_frames_at_project_fps.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 1.994s
@@ -216,7 +216,7 @@ OK
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>    <span class="kw">def</span> get_number_of_frames(<span class="va">self</span>, profile):</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>        <span class="cf">return</span> mlt.Producer(profile, <span class="va">self</span>.path).get_playtime()</span></code></pre></div>
 <p>This makes it a little more clear that the number of frames in a file depends on the profile.</p>
-<pre><code>$ ./make.py commit -m 'Extract FileInfo.'
+<pre class="text"><code>$ ./make.py commit -m 'Extract FileInfo.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 1.982s
@@ -311,7 +311,7 @@ OK
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>        progress(producer.position()<span class="op">/</span>producer.get_playtime())</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a>        time.sleep(<span class="fl">0.5</span>)</span></code></pre></div>
 <p>I forgot to commit last refactoring. Let’s do that now:</p>
-<pre><code>$ ./make.py commit -m 'Extract get_file_info and run_consumer.'
+<pre class="text"><code>$ ./make.py commit -m 'Extract get_file_info and run_consumer.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 1.983s
@@ -358,7 +358,7 @@ OK
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a>    <span class="cf">assert</span> producer.get_playtime() <span class="op">==</span> <span class="va">self</span>.number_of_frames_at_project_fps</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a>    <span class="cf">return</span> producer</span></code></pre></div>
 <p>Commit:</p>
-<pre><code>$ ./make.py commit -m 'Inline some of FileInfo.'
+<pre class="text"><code>$ ./make.py commit -m 'Inline some of FileInfo.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 2.493s
@@ -382,11 +382,11 @@ OK
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true"></a>             consumer.set(&quot;vcodec&quot;, &quot;mjpeg&quot;)</span>
 <span id="cb29-14"><a href="#cb29-14" aria-hidden="true"></a>             consumer.set(&quot;acodec&quot;, &quot;pcm_s16le&quot;)</span></code></pre></div>
 <p>With this, proxy clips now retain their FPS:</p>
-<pre><code>$ ffprobe /tmp/de63dcd626503cbde6f3da76b0af3e8c.mkv 2&gt;&amp;1 | grep fps
+<pre class="text"><code>$ ffprobe /tmp/de63dcd626503cbde6f3da76b0af3e8c.mkv 2&gt;&amp;1 | grep fps
   Stream #0:0: Video: mjpeg (Baseline), yuvj420p(pc, bt470bg/bt709/bt709), 960x540 [SAR 1:1 DAR 16:9], 100 fps, 100 tbr, 1k tbn, 1k tbc (default)</code></pre>
 <p>It seems to work fine in the application as well.</p>
 <p>Let’s commit this:</p>
-<pre><code>$ ./make.py commit -m 'Produce proxy clips with native profile to preserve FPS.'
+<pre class="text"><code>$ ./make.py commit -m 'Produce proxy clips with native profile to preserve FPS.'
 .................................................
 ----------------------------------------------------------------------
 Ran 49 tests in 2.560s

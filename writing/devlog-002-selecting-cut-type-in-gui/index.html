@@ -101,7 +101,7 @@ OK
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="bu">print</span>(<span class="bu">dir</span>(event))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>I find this:</p>
-<pre><code>[..., 'button', ..., 'get_button', ...]</code></pre>
+<pre class="text"><code>[..., 'button', ..., 'get_button', ...]</code></pre>
 <p>Let’s try this:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">def</span> timeline_button(widget, event):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>    <span class="bu">print</span>(event.button)</span></code></pre></div>
@@ -166,7 +166,7 @@ OK
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a><span class="co">        ... ])</span></span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span></code></pre></div>
 <p>This fails with</p>
-<pre><code>NameError: name 'MenuItem' is not defined</code></pre>
+<pre class="text"><code>NameError: name 'MenuItem' is not defined</code></pre>
 <p>I define <code>MenuItem</code> and we are green:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> MenuItem(namedtuple(<span class="st">&quot;MenuItem&quot;</span>, <span class="st">&quot;label,action&quot;</span>)):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>    <span class="cf">pass</span></span></code></pre></div>
@@ -183,7 +183,7 @@ OK
 <p>I try this:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>menu <span class="op">=</span> gtk.Menu()</span></code></pre></div>
 <p>Test immediately fails:</p>
-<pre><code>NameError: name 'gtk' is not defined</code></pre>
+<pre class="text"><code>NameError: name 'gtk' is not defined</code></pre>
 <p>Ah, it should be <code>Gtk</code> I see in the imports at the top of the file. Thank you test.</p>
 <p>I search the web for examples how to show a context menu in GTK. After a bit of reading and trying, I end up with this:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">def</span> show_context_menu(<span class="va">self</span>, menu):</span>
@@ -244,7 +244,7 @@ OK
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a>        ])</span></code></pre></div>
 <p>I want to show the context menu only if we right click on a cut. We can use the rectangle map for that.</p>
 <p>All tests pass, but when I try this in the application, it fails with this:</p>
-<pre><code>NameError: name 'Cut' is not defined</code></pre>
+<pre class="text"><code>NameError: name 'Cut' is not defined</code></pre>
 <p>I should have started with a test. Let’s move a little slower.</p>
 <p>I add this line in a larger timeline test where we have some objects setup:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
@@ -284,7 +284,7 @@ OK
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a><span class="co">'over'</span></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>This fails because <code>right_mouse_down</code> still prints its label. I remove the print and it now fails because <code>Timeline.get_cut</code> is not defined. I add it and get the correct failure:</p>
-<pre><code>Failed example:
+<pre class="text"><code>Failed example:
     timeline.get_cut(cut_id).mix_strategy
 Differences (ndiff with -expected +actual):
     - 'over'

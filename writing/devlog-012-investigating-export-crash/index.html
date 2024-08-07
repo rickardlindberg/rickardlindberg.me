@@ -119,13 +119,13 @@
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>consumer.<span class="ex">connect</span>(producer)</span></code></pre></div>
 <p>Now we can export the XML like this:</p>
-<pre><code>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
+<pre class="text"><code>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
 Exporting test.xml
 ...
 Done</code></pre>
 <p>I verify that the XML file has references to the real clips. It does. Perfect!</p>
 <p>We can now do the equivalent export with this command:</p>
-<pre><code>mlt-melt test.xml -consumer avformat target=export.mp4</code></pre>
+<pre class="text"><code>mlt-melt test.xml -consumer avformat target=export.mp4</code></pre>
 <p>And now, it’s just to wait and see what happens.</p>
 <h2 id="a-few-minutes-later">A few minutes later</h2>
 <p>The memory consumption seems to be quite stable. Unless there is a memory leak, this is what I expect. If the memory consumption keeps increasing for every frame that is exported, that would mean that you can only export longer videos by getting more memory. That does not seem right.</p>

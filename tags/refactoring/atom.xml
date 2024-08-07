@@ -188,10 +188,10 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 
 <p>In this session I will select what to work on next in my <a href="/projects/rlvideo/index.html">video editor</a> by trying to use it to edit some footage and see where I get stuck.</p>
 <p>I’ve previously managed to create a project which has some footage imported and proxy clips generated. I can open that project like this:</p>
-<pre><code>$ rlvideo my-project.rlvideo</code></pre>
+<pre class="text"><code>$ rlvideo my-project.rlvideo</code></pre>
 <p>When I do that, two things happen that annoy me.</p>
 <p>First of all, there are lots of exceptions printed to the console:</p>
-<pre><code>Traceback (most recent call last):
+<pre class="text"><code>Traceback (most recent call last):
   File &quot;/home/rick/rlvideo/rlvideolib/gui/gtk.py&quot;, line 80, in timeline_draw
     self.timeline.draw_cairo(
   File &quot;/home/rick/rlvideo/rlvideolib/gui/generic.py&quot;, line 200, in draw_cairo
@@ -356,7 +356,7 @@ ValueError: Width must be &gt; 0.</code></pre>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>), ScrollbarDragAction(<span class="va">self</span>, <span class="va">self</span>.scrollbar))</span></code></pre></div>
 <p>Boom! Test failure:</p>
-<pre><code>Failed example:
+<pre class="text"><code>Failed example:
     timeline.rectangle_map # doctest: +ELLIPSIS
 Differences (ndiff with -expected +actual):
     ...
@@ -376,7 +376,7 @@ Differences (ndiff with -expected +actual):
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>        <span class="cf">return</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>And that actually works!</p>
-<pre><code>$ ./make.py commit -m &#39;Add a ScrollbarDragAction instead of position string.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Add a ScrollbarDragAction instead of position string.&#39;
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.405s
@@ -462,7 +462,7 @@ OK
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true"></a>    <span class="cf">if</span> <span class="va">self</span>.down_action:</span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true"></a>        <span class="va">self</span>.down_action.mouse_up()</span>
 <span id="cb15-18"><a href="#cb15-18" aria-hidden="true"></a>        <span class="va">self</span>.down_action <span class="op">=</span> <span class="va">None</span></span></code></pre></div>
-<pre><code>$ ./make.py commit -m &#39;Timeline assumes there are Actions in rectangle map.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Timeline assumes there are Actions in rectangle map.&#39;
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.381s
@@ -484,7 +484,7 @@ OK
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a><span class="co">ValueError: transaction already in progress</span></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>I make it pass, and I am now more confident that this error will show up when testing in the application.</p>
-<pre><code>$ ./make.py commit -m &#39;Ensure there can be only one transaction active at a time.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Ensure there can be only one transaction active at a time.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.402s
@@ -500,7 +500,7 @@ OK
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="va">+            self.transaction.commit()</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>         self.transaction = None</span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a>         self.x = None</span></code></pre></div>
-<pre><code>$ ./make.py commit -m &#39;Ensure CutAction transaction is commited at mouse_up.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Ensure CutAction transaction is commited at mouse_up.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.406s
@@ -524,14 +524,14 @@ OK
 <p>In order to satisfy Python’s import mechanism, I put <code>Action</code> and <code>MenuItem</code> in the <code>rlvideolib.domain.cut</code> module.</p>
 <p>They obviously don’t belong there.</p>
 <p>Here is what the gui package looks like now:</p>
-<pre><code>rlvideolib/gui/
+<pre class="text"><code>rlvideolib/gui/
 ├── generic.py
 ├── gtk.py
 ├── __init__.py
 └── testing.py</code></pre>
 <p>Previously <code>Action</code> and <code>MenuItem</code> were defined in <code>generic</code>. That makes sense. But now we have a dependency on them from <code>rlvideolib.domain.cut</code>. Should a domain object depend on GUI? Maybe that is ok.</p>
 <p>I think what I’ll do is create another module inside the gui package called <code>framework</code>. It will contain generic GUI elements that do not depend on GTK or our application.</p>
-<pre><code>$ ./make.py commit -m &#39;Move generic framework GUI code to new rlvideolib.gui.framework.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Move generic framework GUI code to new rlvideolib.gui.framework.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.393s
@@ -558,7 +558,7 @@ OK
 <span id="cb24-14"><a href="#cb24-14" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
 <span id="cb24-15"><a href="#cb24-15" aria-hidden="true"></a>), ScrollbarDragAction(<span class="va">self</span>, <span class="va">self</span>.scrollbar))</span></code></pre></div>
 <p>Ah, the TODO is actually done now.</p>
-<pre><code>$ ./make.py commit -m &#39;Remove completed TODO about callback mechanism for rectangle map.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Remove completed TODO about callback mechanism for rectangle map.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.392s
@@ -614,7 +614,7 @@ OK
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true"></a>            ),</span>
 <span id="cb29-12"><a href="#cb29-12" aria-hidden="true"></a>            item</span>
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true"></a>        )</span></code></pre></div>
-<pre><code>$ ./make.py commit -m &#39;Extract RectangleMap.add_from_context which does width/height checks.&#39;
+<pre class="text"><code>$ ./make.py commit -m &#39;Extract RectangleMap.add_from_context which does width/height checks.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.498s

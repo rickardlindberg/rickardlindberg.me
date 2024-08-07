@@ -58,7 +58,7 @@
 <p>Once we have that working, we can work on our own startup application that let us select the game, and then we can start that one instead.</p>
 <p>I search the internet for how to configure a startup application for the Pi.</p>
 <p>I find an article that says that you can put a file in the autostart directory. I try this:</p>
-<pre><code>$ cat /etc/xdg/autostart/game_console_start.desktop
+<pre class="text"><code>$ cat /etc/xdg/autostart/game_console_start.desktop
 [Desktop Entry]
 Name=Game console start
 Exec=supertux2</code></pre>
@@ -121,7 +121,7 @@ Exec=supertux2</code></pre>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span></code></pre></div>
 <p>And we’re green. Let’s commit.</p>
-<pre><code>$ git commit -a -m &#39;Emryo to new startup application.&#39;
+<pre class="text"><code>$ git commit -a -m &#39;Emryo to new startup application.&#39;
 [main a55d17e] Emryo to new startup application.
  2 files changed, 39 insertions(+)
  create mode 100644 startup.py</code></pre>
@@ -227,7 +227,7 @@ Exec=supertux2</code></pre>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">self</span>.loop_condition.active():</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>            <span class="va">self</span>.loop.run(<span class="va">self</span>)</span></code></pre></div>
 <p>This, expectedly, output another loop which I add to the assertion. Perfect!</p>
-<pre><code>    GAMELOOP_INIT =&gt;
+<pre class="text"><code>    GAMELOOP_INIT =&gt;
         resolution: (1280, 720)
         fps: 60
     GAMELOOP_QUIT =&gt;</code></pre>
@@ -250,9 +250,9 @@ Exec=supertux2</code></pre>
 <div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>    StartupApplication.create().run()</span></code></pre></div>
 <p>And when I run</p>
-<pre><code>$ python startup.py</code></pre>
+<pre class="text"><code>$ python startup.py</code></pre>
 <p>It indeed creates a new window every time I close it.</p>
-<pre><code>$ git commit -a -m &#39;Add startup entry point and have it loop.&#39;
+<pre class="text"><code>$ git commit -a -m &#39;Add startup entry point and have it loop.&#39;
 [main aadd1a2] Add startup entry point and have it loop.
  1 file changed, 60 insertions(+), 5 deletions(-)</code></pre>
 <h2 id="selecting-a-game">Selecting a game</h2>
@@ -391,7 +391,7 @@ Exec=supertux2</code></pre>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a></span>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>We are now getting a somewhat expected test failure:</p>
-<pre><code>Differences (ndiff with -expected +actual):
+<pre class="text"><code>Differences (ndiff with -expected +actual):
     + TODO: run [&#39;supertux2&#39;]
     + TODO: run [&#39;supertux2&#39;]
       GAMELOOP_INIT =&gt;
@@ -413,13 +413,13 @@ Exec=supertux2</code></pre>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, command):</span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;COMMAND&quot;</span>, {<span class="st">&quot;command&quot;</span>: command})</span></code></pre></div>
 <p>Instead of printing the command, it sends a notification so that we can assert that the event happens at the right time in the test. That is, we can assert that a command is run after the game loop is quit:</p>
-<pre><code>...
+<pre class="text"><code>...
 GAMELOOP_QUIT =&gt;
 COMMAND =&gt;
     command: [&#39;supertux2&#39;]
 ...</code></pre>
 <p>This works. Let’s commit:</p>
-<pre><code>$ git commit -a -m &#39;Run command from StartupScene when game loop is quit.&#39;
+<pre class="text"><code>$ git commit -a -m &#39;Run command from StartupScene when game loop is quit.&#39;
 [main 4c47b18] Run command from StartupScene when game loop is quit.
  1 file changed, 31 insertions(+), 5 deletions(-)</code></pre>
 <p>For this to actually do something, we need to flesh out <code>Command</code>. Here is what I end up with:</p>
@@ -456,7 +456,7 @@ COMMAND =&gt;
 <span id="cb34-31"><a href="#cb34-31" aria-hidden="true"></a>        <span class="va">self</span>.subprocess.run(command)</span></code></pre></div>
 <p>When the startup application is run and then quit, SuperTux is actually started.</p>
 <p>This is actually some real progress.</p>
-<pre><code>$ git commit -a -m &#39;Command actually runs commands.&#39;
+<pre class="text"><code>$ git commit -a -m &#39;Command actually runs commands.&#39;
 [main 270440e] Command actually runs commands.
  1 file changed, 23 insertions(+), 2 deletions(-)</code></pre>
 <h2 id="selection-behavior">Selection behavior</h2>
@@ -523,7 +523,7 @@ COMMAND =&gt;
 <span id="cb39-9"><a href="#cb39-9" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>I also modify the drawing code to use this point for the cursor.</p>
 <p>Now the second test case fails:</p>
-<pre><code>Failed example:
+<pre class="text"><code>Failed example:
     scene.get_command()
 Differences (ndiff with -expected +actual):
     - [&#39;python&#39;, &#39;/home/.../agdpp/agdpp.py&#39;]
@@ -578,7 +578,7 @@ Differences (ndiff with -expected +actual):
 <span id="cb43-11"><a href="#cb43-11" aria-hidden="true"></a>    <span class="kw">def</span> distance_to(<span class="va">self</span>, point):</span>
 <span id="cb43-12"><a href="#cb43-12" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.position.distance_to(point)</span></code></pre></div>
 <p>This implementation still passes all tests and is also generalized. Nice!</p>
-<pre><code>$ git commit -a -m &#39;Run the command closest to the cursor.&#39;
+<pre class="text"><code>$ git commit -a -m &#39;Run the command closest to the cursor.&#39;
 [main 921c71f] Run the command closest to the cursor.
  1 file changed, 64 insertions(+), 7 deletions(-)</code></pre>
 <h2 id="cursor-movement">Cursor movement</h2>
@@ -701,7 +701,7 @@ Differences (ndiff with -expected +actual):
 </p>
 <h2 id="trying-on-the-pi">Trying on the Pi</h2>
 <p>I change the startup script, <code>/etc/xdg/autostart/game_console_start.desktop</code>, to this:</p>
-<pre><code>[Desktop Entry]
+<pre class="text"><code>[Desktop Entry]
 Name=Game console start
 Exec=/home/pi/game_console_pc.sh</code></pre>
 <p>Where <code>/home/pi/game_console_pc.sh</code> is this:</p>
@@ -728,7 +728,7 @@ done
 python3 startup.py</code></pre>
 <p>And it works beautifully.</p>
 <p>Why did I not test drive this startup script? Good question. I for sure spend some time debugging the loop, which, by the way, is needed to give the Pi time to connect to the wireless network before it can download the latest version of the startup application and balloon shooter.</p>
-<pre><code>pi@raspberrypi:~ $ cat game_console_pc.log
+<pre class="text"><code>pi@raspberrypi:~ $ cat game_console_pc.log
 fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
 Retrying in 1
 fatal: unable to access &#39;https://github.com/rickardlindberg/agdpp.git/&#39;: Could not resolve host: github.com
@@ -829,7 +829,7 @@ Already up to date.</code></pre>
 <p>Testing the medal particle effect is tedious. You have to shoot down 100 balloons, then you can see the effect for a split second, and then you have to shoot down 100 more.</p>
 <p>When I have done that enough times, I come up with a better idea. And that is to allow the game to be started in “test mode” where we can trigger the animation with a press of a button.</p>
 <p>We can do it like this:</p>
-<pre><code>$ ./make.py rundev test-scene-score</code></pre>
+<pre class="text"><code>$ ./make.py rundev test-scene-score</code></pre>
 <p>Instead of starting the game, it starts a test scene:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="cf">if</span> sys.argv[<span class="dv">1</span>:] <span class="op">==</span> [<span class="st">&quot;test-scene-score&quot;</span>]:</span>
@@ -901,10 +901,10 @@ Already up to date.</code></pre>
 <p>This means that as soon as we start the game, we enter the gameplay mode and can start playing right away.</p>
 <p>I imagine that multiplayer mode works by first selecting which players should participate in shooting balloons, and after that, the gameplay mode is entered and each player gets their own bow to shoot with.</p>
 <p>We want to go from this structure:</p>
-<pre><code>BalloonShooter
+<pre class="text"><code>BalloonShooter
     GameScene</code></pre>
 <p>To something like this:</p>
-<pre><code>BalloonShooter
+<pre class="text"><code>BalloonShooter
     NewGameScene
         StartScene
         GameScene</code></pre>
@@ -1730,13 +1730,13 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the function of the code, so it should be fine.</p>
 <p>On the other hand, if we use print statements for debugging, maybe it’s a good thing that our test suite fails so that we are remembered to keep the debug session short and remove it once we are done.</p>
 <p>Anyway, if we run the game now and press keys on the keyboard we can see things like this in the output:</p>
-<pre><code>&lt;Event(771-TextInput {&#39;text&#39;: &#39; &#39;, &#39;window&#39;: None})&gt;
+<pre class="text"><code>&lt;Event(771-TextInput {&#39;text&#39;: &#39; &#39;, &#39;window&#39;: None})&gt;
 &lt;Event(769-KeyUp {&#39;unicode&#39;: &#39; &#39;, &#39;key&#39;: 32, &#39;mod&#39;: 0, &#39;scancode&#39;: 44, &#39;window&#39;: None})&gt;
 &lt;Event(768-KeyDown {&#39;unicode&#39;: &#39;&#39;, &#39;key&#39;: 1073742049, &#39;mod&#39;: 1, &#39;scancode&#39;: 225, &#39;window&#39;: None})&gt;
 &lt;Event(768-KeyDown {&#39;unicode&#39;: &#39;&#39;, &#39;key&#39;: 1073742050, &#39;mod&#39;: 257, &#39;scancode&#39;: 226, &#39;window&#39;: None})&gt;</code></pre>
 <p>But when we press keys on the Logitech gamepad, nothing happens.</p>
 <p>However, if we look at the beginning of the event log, we see this:</p>
-<pre><code>&lt;Event(1541-JoyDeviceAdded {&#39;device_index&#39;: 0, &#39;guid&#39;: &#39;030000006d0400001dc2000014400000&#39;})&gt;</code></pre>
+<pre class="text"><code>&lt;Event(1541-JoyDeviceAdded {&#39;device_index&#39;: 0, &#39;guid&#39;: &#39;030000006d0400001dc2000014400000&#39;})&gt;</code></pre>
 <p>Is this our Logitech gamepad?</p>
 <h2 id="initializing-joysticks">Initializing joysticks</h2>
 <p>We read about joysticks in the <a href="https://www.pygame.org/docs/ref/joystick.html">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
@@ -1765,7 +1765,7 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>This change passes all the tests. However, we are never simulating the <code>JOYDEVICEADDED</code> event, so the code is never executed.</p>
 <p>I think we will get faster feedback by just testing this thing for real. We can come back and describe the joystick handling code in the form of tests later on if we feel the need. And maybe test the <code>JOYDEVICEREMOVED</code> as well.</p>
 <p>Anyway, if we run the game now and press keys on the gamepad, we see events like this:</p>
-<pre><code>&lt;Event(1536-JoyAxisMotion {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;axis&#39;: 0, &#39;value&#39;: 0.003906369212927641})&gt;
+<pre class="text"><code>&lt;Event(1536-JoyAxisMotion {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;axis&#39;: 0, &#39;value&#39;: 0.003906369212927641})&gt;
 &lt;Event(1539-JoyButtonDown {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;button&#39;: 0})&gt;
 &lt;Event(1540-JoyButtonUp {&#39;joy&#39;: 0, &#39;instance_id&#39;: 0, &#39;button&#39;: 0})&gt;</code></pre>
 <p>I feel a disproportional sense of excitement and joy over this. We can now get input from the Logitech gamepad. We are real game developers now! Thanks pygame for making this relatively straight forward. Now it’s a matter of mapping events to actions in our game.</p>

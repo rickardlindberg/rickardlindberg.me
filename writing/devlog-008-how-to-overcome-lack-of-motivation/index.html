@@ -153,7 +153,7 @@
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>     def mouse_up(self):</span></code></pre></div>
 <p>Just enough to make the test pass. We now have a context menu item that will do nothing when we click on it.</p>
-<pre><code>$ ./make.py commit -m 'New ripple delete context menu item that does nothing.'
+<pre class="text"><code>$ ./make.py commit -m 'New ripple delete context menu item that does nothing.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.893s
@@ -163,7 +163,7 @@ OK
  2 files changed, 21 insertions(+)</code></pre>
 <h2 id="moving-slowly">Moving slowly</h2>
 <p>The <code>TestGui</code> that we had to modify for this test lives in the <code>rlvideolib.gui.testing</code> module. The <code>rlvideolib.gui</code> package looks like this:</p>
-<pre><code>rlvideolib/gui
+<pre class="text"><code>rlvideolib/gui
 ├── framework.py
 ├── generic.py
 ├── gtk.py
@@ -171,7 +171,7 @@ OK
 └── testing.py</code></pre>
 <p>We recently extracted the framework module. It contains framework related GUI code that does not depend on GTK and does not depend on our application. It makes sense for a framework to include facilities to help testing, right?</p>
 <p>Let’s get rid of the testing module and move its contents to the framework module.</p>
-<pre><code>$ ./make.py commit -m 'Move TestGui to rlvideolib.gui.framework and get rid of the testing module.'
+<pre class="text"><code>$ ./make.py commit -m 'Move TestGui to rlvideolib.gui.framework and get rid of the testing module.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.896s
@@ -198,7 +198,7 @@ OK
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>That feels like a lot of set up to me. And many of the parameters are <code>None</code>.</p>
 <p>I take a closer look at the x and y coordinates. As far as I can tell, no action is using those in the <code>right_mouse_down</code> method. Let’s get rid of them.</p>
-<pre><code>$ ./make.py commit -m 'Get rid of x and y coordinates in Action.right_mouse_down since they are never used.'
+<pre class="text"><code>$ ./make.py commit -m 'Get rid of x and y coordinates in Action.right_mouse_down since they are never used.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.403s
@@ -219,7 +219,7 @@ OK
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">ripple delete</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>This indicates that the showing of the menu does not depend on the project, cut, or scrollbar. I think that it reads quite nicely.</p>
-<pre><code>$ ./make.py commit -m 'Change cut action test to be assertion for menu items shown.'
+<pre class="text"><code>$ ./make.py commit -m 'Change cut action test to be assertion for menu items shown.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.411s
@@ -252,7 +252,7 @@ OK
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a><span class="st">-            MenuItem(label=&quot;ripple delete&quot;, action=lambda: None),</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a><span class="va">+            MenuItem(label=&quot;ripple delete&quot;, action=ripple_delete),</span></span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>         ])</span></code></pre></div>
-<pre><code>$ ./make.py commit -m 'Add non-empty action for ripple delete.'
+<pre class="text"><code>$ ./make.py commit -m 'Add non-empty action for ripple delete.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 2.909s
@@ -315,7 +315,7 @@ OK
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a>        data <span class="op">=</span> data.modify_cut(<span class="bu">list</span>(data.cuts.cut_map.keys())[<span class="dv">0</span>], <span class="kw">lambda</span> cut: cut.move(<span class="op">-</span><span class="dv">10</span>))</span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a>        <span class="va">self</span>.project.set_project_data(data)</span></code></pre></div>
 <p>And also make a quick and dirty version of <code>remove_cut</code>.</p>
-<pre><code>$ ./make.py commit -m 'Quick and dirty version of ripple delete that works in one case.'
+<pre class="text"><code>$ ./make.py commit -m 'Quick and dirty version of ripple delete that works in one case.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.902s
@@ -363,7 +363,7 @@ OK
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true"></a>        data <span class="op">=</span> data.remove(cut_id)</span>
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true"></a>        data <span class="op">=</span> data.modify(<span class="bu">list</span>(data.cut_map.keys())[<span class="dv">0</span>], <span class="kw">lambda</span> cut: cut.move(<span class="op">-</span><span class="dv">10</span>))</span>
 <span id="cb22-9"><a href="#cb22-9" aria-hidden="true"></a>        <span class="cf">return</span> data</span></code></pre></div>
-<pre><code>$ ./make.py commit -m 'Move ripple_delete down to Cuts.'
+<pre class="text"><code>$ ./make.py commit -m 'Move ripple_delete down to Cuts.'
 .....................................................
 ----------------------------------------------------------------------
 Ran 53 tests in 3.397s

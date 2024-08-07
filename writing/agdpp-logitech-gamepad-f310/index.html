@@ -79,13 +79,13 @@
 <p>This might be a downside of doctest, that it captures stdout and asserts on it. Normally a print statement should not affect the function of the code, so it should be fine.</p>
 <p>On the other hand, if we use print statements for debugging, maybe it’s a good thing that our test suite fails so that we are remembered to keep the debug session short and remove it once we are done.</p>
 <p>Anyway, if we run the game now and press keys on the keyboard we can see things like this in the output:</p>
-<pre><code>&lt;Event(771-TextInput {'text': ' ', 'window': None})&gt;
+<pre class="text"><code>&lt;Event(771-TextInput {'text': ' ', 'window': None})&gt;
 &lt;Event(769-KeyUp {'unicode': ' ', 'key': 32, 'mod': 0, 'scancode': 44, 'window': None})&gt;
 &lt;Event(768-KeyDown {'unicode': '', 'key': 1073742049, 'mod': 1, 'scancode': 225, 'window': None})&gt;
 &lt;Event(768-KeyDown {'unicode': '', 'key': 1073742050, 'mod': 257, 'scancode': 226, 'window': None})&gt;</code></pre>
 <p>But when we press keys on the Logitech gamepad, nothing happens.</p>
 <p>However, if we look at the beginning of the event log, we see this:</p>
-<pre><code>&lt;Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})&gt;</code></pre>
+<pre class="text"><code>&lt;Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})&gt;</code></pre>
 <p>Is this our Logitech gamepad?</p>
 <h2 id="initializing-joysticks">Initializing joysticks</h2>
 <p>We read about joysticks in the <a href="https://www.pygame.org/docs/ref/joystick.html">pygame documentation</a>. It seems like they must be initialized before events are generated for them.</p>
@@ -114,7 +114,7 @@
 <p>This change passes all the tests. However, we are never simulating the <code>JOYDEVICEADDED</code> event, so the code is never executed.</p>
 <p>I think we will get faster feedback by just testing this thing for real. We can come back and describe the joystick handling code in the form of tests later on if we feel the need. And maybe test the <code>JOYDEVICEREMOVED</code> as well.</p>
 <p>Anyway, if we run the game now and press keys on the gamepad, we see events like this:</p>
-<pre><code>&lt;Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})&gt;
+<pre class="text"><code>&lt;Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})&gt;
 &lt;Event(1539-JoyButtonDown {'joy': 0, 'instance_id': 0, 'button': 0})&gt;
 &lt;Event(1540-JoyButtonUp {'joy': 0, 'instance_id': 0, 'button': 0})&gt;</code></pre>
 <p>I feel a disproportional sense of excitement and joy over this. We can now get input from the Logitech gamepad. We are real game developers now! Thanks pygame for making this relatively straight forward. Now it’s a matter of mapping events to actions in our game.</p>
