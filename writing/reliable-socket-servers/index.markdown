@@ -88,9 +88,8 @@ It sends 20 requests to the server with a 10ms delay between them. However, for
 request with number 5, instead of sending the number `5` it sends the string
 `five` to cause the server to crash.
 
-If we start the server, then the client, the output looks as follows:
-
-`server output`:
+If we start the server, then the client, the output looks as follows for the
+server:
 
 ```
 $ python server-listen.py 
@@ -107,7 +106,7 @@ Traceback (most recent call last):
 ValueError: invalid literal for int() with base 10: b'five\n'
 ```
 
-`client output`:
+And as follows for the client:
 
 ```
 $ python client.py 
@@ -157,9 +156,8 @@ done
 This Bash script takes a command to run as argument and runs that command in a
 loop, ignoring any exit code.
 
-Invoking the server and client again, we get the following output:
-
-`server output`:
+Invoking the server and client again, we get the following output for the
+server:
 
 ```
 $ bash loop.sh python server-listen.py
@@ -186,7 +184,7 @@ accepting connection
 accepting connection
 ```
 
-`client output`:
+And the following for the client:
 
 ```
 $ python client.py 
@@ -289,9 +287,8 @@ with socket.socket(fileno=0) as s:
 ```
 
 
-Invoking the server and client again, we get the following output:
-
-`server output`:
+Invoking the server and client again, we get the following output for the
+server:
 
 ```
 $ python server-listen-loop.py
@@ -325,7 +322,7 @@ accepting connection
 accepting connection
 ```
 
-`client output`:
+And the following for the client:
 
 ```
 $ python client.py 
@@ -380,8 +377,6 @@ done
 
 
 The client output looked like this:
-
-`client output`:
 
 ```
 ...

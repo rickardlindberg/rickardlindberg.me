@@ -41,9 +41,10 @@ It sends 20 requests to the server with a 10ms delay between them. However, for
 request with number 5, instead of sending the number `5` it sends the string
 `five` to cause the server to crash.
 
-If we start the server, then the client, the output looks as follows:
+If we start the server, then the client, the output looks as follows for the
+server:
 
-$:output:server output
+$:output:
 $ python server-listen.py 
 listening on port 9000
 accepting connection
@@ -58,7 +59,9 @@ Traceback (most recent call last):
 ValueError: invalid literal for int() with base 10: b'five\n'
 $:END
 
-$:output:client output
+And as follows for the client:
+
+$:output:
 $ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -97,9 +100,10 @@ $:code:loop.sh
 This Bash script takes a command to run as argument and runs that command in a
 loop, ignoring any exit code.
 
-Invoking the server and client again, we get the following output:
+Invoking the server and client again, we get the following output for the
+server:
 
-$:output:server output
+$:output:
 $ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
@@ -124,7 +128,9 @@ accepting connection
 accepting connection
 $:END
 
-$:output:client output
+And the following for the client:
+
+$:output:
 $ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -196,9 +202,10 @@ Here is `server-accept.py`:
 
 $:code:server-accept.py
 
-Invoking the server and client again, we get the following output:
+Invoking the server and client again, we get the following output for the
+server:
 
-$:output:server output
+$:output:
 $ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
@@ -230,7 +237,9 @@ accepting connection
 accepting connection
 $:END
 
-$:output:client output
+And the following for the client:
+
+$:output:
 $ python client.py 
 0*0=0 (request took 0ms)
 1*1=1 (request took 0ms)
@@ -274,7 +283,7 @@ $:code:loop-sleep.sh
 
 The client output looked like this:
 
-$:output:client output
+$:output:
 ...
 No response for 5
 6*6=36 (request took 60123ms)
