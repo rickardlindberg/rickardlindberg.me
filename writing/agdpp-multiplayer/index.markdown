@@ -47,14 +47,14 @@ and each player gets their own bow to shoot with.
 
 We want to go from this structure:
 
-```
+```text
 BalloonShooter
     GameScene
 ```
 
 To something like this:
 
-```
+```text
 BalloonShooter
     NewGameScene
         StartScene

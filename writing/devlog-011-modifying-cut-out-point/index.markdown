@@ -19,7 +19,7 @@ in point with drag on the left hand side.
 However, changing the out point of a cut by dragging the right hand side does
 not yet work. It prints the following in the console:
 
-```
+```text
 TODO: implement move_right!
 ```
 
@@ -185,7 +185,7 @@ Then we assert that the end point is limited to 5.
 
 This fails with this:
 
-```
+```text
 Failed example:
     data = data.modify_cut("cut_a", lambda cut: cut.move_right(10))
 Differences (ndiff with -expected +actual):
@@ -203,7 +203,7 @@ def move_right(self, amount):
 
 Then we get this failure:
 
-```
+```text
 Failed example:
     data.get_cut("cut_a").in_out
 Differences (ndiff with -expected +actual):
@@ -226,7 +226,7 @@ def modify_cut(self, cut_id, fn):
 
 We now get this error:
 
-```
+```text
 AttributeError: 'TextSource' object has no attribute 'limit_in_out'
 ```
 
@@ -254,7 +254,7 @@ def limit_in_out(self, cut):
 
 The test now complains about this:
 
-```
+```text
 AttributeError: 'Cut' object has no attribute 'limit_out'
 ```
 
@@ -274,7 +274,7 @@ And `Region.limit_end` like this:
 
 And wow, that actually works.
 
-```
+```text
 $ ./make.py commit -m 'ProjectData.modify_cut ensures that in_out is withing source limit.'
 ...................................................................
 ----------------------------------------------------------------------
@@ -349,7 +349,7 @@ Region(start=0, end=5)
 
 It fails with this message:
 
-```
+```text
 Differences (ndiff with -expected +actual):
     - Region(start=0, end=5)
     ?                     ^

@@ -29,7 +29,7 @@ see how we can resolve it. I've got my cup of coffee, and I'm ready to go.
 Because this is not the first time I see segfaults in this application, I have
 added a command to run the application in GDB. Here is how to use it:
 
-```
+```text
 $ ~/rlvideo/make.py gdb devlog-009.rlvideo
 ...
 Starting program: /usr/bin/python3 /home/rick/rlvideo/rlvideo.py devlog-009.rlvideo
@@ -87,7 +87,7 @@ if sys.argv[1:2] == ["--export-melt"]:
 
 We can run it like this:
 
-```
+```text
 $ ./make.py rundev --export-melt test.xml
 Exporting test.xml
 Done
@@ -95,13 +95,13 @@ Done
 
 Then we can feed it to `melt` like this:
 
-```
+```text
 $ mlt-melt test.xml
 ```
 
 When I do, I get this:
 
-```
+```text
 [producer_xml] parse fatal: Input is not proper UTF-8, indicate encoding !
 Bytes: 0xC0 0xF3 0x68 0x0E
 	row: 3	col: 25
@@ -114,7 +114,7 @@ profile description looks weird.
 
 I fix it manually, and then get this:
 
-```
+```text
 $ mlt-melt test.xml
 +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
 |1=-10| |2= -5| |3= -2| |4= -1| |5=  0| |6=  1| |7=  2| |8=  5| |9= 10|
@@ -212,7 +212,7 @@ Let's export the XML file for the project that segfaults.
 I examine the XML file and notice the same problem for `mlt.Tractor`. It is
 also missing in and out arguments. I add profiles to those as well.
 
-```
+```text
 $ ./make.py commit -m 'Pass profile to mlt.Tractor so that XML export works properly with in/out points.'
 ...........................................................
 ----------------------------------------------------------------------

@@ -12,7 +12,7 @@ and see where I get stuck.
 I've previously managed to create a project which has some footage imported and
 proxy clips generated. I can open that project like this:
 
-```
+```text
 $ rlvideo my-project.rlvideo
 ```
 
@@ -20,7 +20,7 @@ When I do that, two things happen that annoy me.
 
 First of all, there are lots of exceptions printed to the console:
 
-```
+```text
 Traceback (most recent call last):
   File "/home/rick/rlvideo/rlvideolib/gui/gtk.py", line 80, in timeline_draw
     self.timeline.draw_cairo(
@@ -279,7 +279,7 @@ self.rectangle_map.add(Rectangle(
 
 Boom! Test failure:
 
-```
+```text
 Failed example:
     timeline.rectangle_map # doctest: +ELLIPSIS
 Differences (ndiff with -expected +actual):
@@ -312,7 +312,7 @@ def mouse_move(self, x, y):
 
 And that actually works!
 
-```
+```text
 $ ./make.py commit -m 'Add a ScrollbarDragAction instead of position string.'
 ...................................................
 ----------------------------------------------------------------------
@@ -416,7 +416,7 @@ def mouse_up(self):
         self.down_action = None
 ```
 
-```
+```text
 $ ./make.py commit -m 'Timeline assumes there are Actions in rectangle map.'
 ...................................................
 ----------------------------------------------------------------------
@@ -451,7 +451,7 @@ ValueError: transaction already in progress
 I make it pass, and I am now more confident that this error will show up when
 testing in the application.
 
-```
+```text
 $ ./make.py commit -m 'Ensure there can be only one transaction active at a time.'
 ....................................................
 ----------------------------------------------------------------------
@@ -477,7 +477,7 @@ The fix:
          self.x = None
 ```
 
-```
+```text
 $ ./make.py commit -m 'Ensure CutAction transaction is commited at mouse_up.'
 ....................................................
 ----------------------------------------------------------------------
@@ -521,7 +521,7 @@ They obviously don't belong there.
 
 Here is what the gui package looks like now:
 
-```
+```text
 rlvideolib/gui/
 ├── generic.py
 ├── gtk.py
@@ -537,7 +537,7 @@ I think what I'll do is create another module inside the gui package called
 `framework`. It will contain generic GUI elements that do not depend on GTK or
 our application.
 
-```
+```text
 $ ./make.py commit -m 'Move generic framework GUI code to new rlvideolib.gui.framework.'
 ....................................................
 ----------------------------------------------------------------------
@@ -573,7 +573,7 @@ self.rectangle_map.add(Rectangle(
 
 Ah, the TODO is actually done now.
 
-```
+```text
 $ ./make.py commit -m 'Remove completed TODO about callback mechanism for rectangle map.'
 ....................................................
 ----------------------------------------------------------------------
@@ -656,7 +656,7 @@ def add_from_context(self, x, y, w, h, context, item):
         )
 ```
 
-```
+```text
 $ ./make.py commit -m 'Extract RectangleMap.add_from_context which does width/height checks.'
 ....................................................
 ----------------------------------------------------------------------

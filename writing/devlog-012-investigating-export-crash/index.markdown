@@ -107,7 +107,7 @@ consumer.connect(producer)
 
 Now we can export the XML like this:
 
-```
+```text
 $ rlvideo --export-melt test.xml devlog-009.rlvideo 
 Exporting test.xml
 ...
@@ -118,7 +118,7 @@ I verify that the XML file has references to the real clips. It does.  Perfect!
 
 We can now do the equivalent export with this command:
 
-```
+```text
 mlt-melt test.xml -consumer avformat target=export.mp4
 ```
 

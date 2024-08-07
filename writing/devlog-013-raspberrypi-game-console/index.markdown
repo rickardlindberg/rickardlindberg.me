@@ -111,7 +111,7 @@ I search the internet for how to configure a startup application for the Pi.
 I find an article that says that you can put a file in the autostart
 directory. I try this:
 
-```
+```text
 $ cat /etc/xdg/autostart/game_console_start.desktop
 [Desktop Entry]
 Name=Game console start
@@ -206,7 +206,7 @@ class StartupApplication:
 
 And we're green. Let's commit.
 
-```
+```text
 $ git commit -a -m 'Emryo to new startup application.'
 [main a55d17e] Emryo to new startup application.
  2 files changed, 39 insertions(+)
@@ -376,7 +376,7 @@ class StartupApplication:
 
 This, expectedly, output another loop which I add to the assertion. Perfect!
 
-```
+```text
     GAMELOOP_INIT =>
         resolution: (1280, 720)
         fps: 60
@@ -412,13 +412,13 @@ if __name__ == "__main__":
 
 And when I run
 
-```
+```text
 $ python startup.py
 ```
 
 It indeed creates a new window every time I close it.
 
-```
+```text
 $ git commit -a -m 'Add startup entry point and have it loop.'
 [main aadd1a2] Add startup entry point and have it loop.
  1 file changed, 60 insertions(+), 5 deletions(-)
@@ -622,7 +622,7 @@ class StartupScene:
 
 We are now getting a somewhat expected test failure:
 
-```
+```text
 Differences (ndiff with -expected +actual):
     + TODO: run ['supertux2']
     + TODO: run ['supertux2']
@@ -657,7 +657,7 @@ Instead of printing the command, it sends a notification so that we can assert
 that the event happens at the right time in the test. That is, we can assert
 that a command is run after the game loop is quit:
 
-```
+```text
 ...
 GAMELOOP_QUIT =>
 COMMAND =>
@@ -667,7 +667,7 @@ COMMAND =>
 
 This works. Let's commit:
 
-```
+```text
 $ git commit -a -m 'Run command from StartupScene when game loop is quit.'
 [main 4c47b18] Run command from StartupScene when game loop is quit.
  1 file changed, 31 insertions(+), 5 deletions(-)
@@ -715,7 +715,7 @@ started.
 
 This is actually some real progress.
 
-```
+```text
 $ git commit -a -m 'Command actually runs commands.'
 [main 270440e] Command actually runs commands.
  1 file changed, 23 insertions(+), 2 deletions(-)
@@ -810,7 +810,7 @@ I also modify the drawing code to use this point for the cursor.
 
 Now the second test case fails:
 
-```
+```text
 Failed example:
     scene.get_command()
 Differences (ndiff with -expected +actual):
@@ -885,7 +885,7 @@ class Game:
 
 This implementation still passes all tests and is also generalized. Nice!
 
-```
+```text
 $ git commit -a -m 'Run the command closest to the cursor.'
 [main 921c71f] Run the command closest to the cursor.
  1 file changed, 64 insertions(+), 7 deletions(-)
@@ -1065,7 +1065,7 @@ And it looks like this:
 I change the startup script, `/etc/xdg/autostart/game_console_start.desktop`,
 to this:
 
-```
+```text
 [Desktop Entry]
 Name=Game console start
 Exec=/home/pi/game_console_pc.sh
@@ -1104,7 +1104,7 @@ some time debugging the loop, which, by the way, is needed to give the Pi time
 to connect to the wireless network before it can download the latest version of
 the startup application and balloon shooter.
 
-```
+```text
 pi@raspberrypi:~ $ cat game_console_pc.log
 fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
 Retrying in 1

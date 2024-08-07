@@ -34,7 +34,7 @@ def process_line(line):
 
 def shell(cwd, cmd, lexer="text"):
     return "".join([
-        "```\n",
+        "```text\n",
         f"$ {cmd}\n",
         subprocess.check_output(cmd, stderr=subprocess.STDOUT, cwd=cwd, shell=True, text=True),
         "```\n",
@@ -52,7 +52,7 @@ def shell(cwd, cmd, lexer="text"):
 
 def code(path, start=None, end=None):
     pygments_cmd = ["pygmentize"]
-    language = ""
+    language = "text"
     if path.endswith(".rlmeta"):
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:
@@ -78,7 +78,7 @@ def code(path, start=None, end=None):
 
 def pygmentize(text, lexer, strip_beginning=False, strip_end=False):
     pygments_cmd = ["pygmentize"]
-    language = ""
+    language = "text"
     if lexer == "rlmeta":
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:

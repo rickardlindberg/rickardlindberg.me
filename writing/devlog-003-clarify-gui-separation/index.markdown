@@ -17,7 +17,7 @@ In this episode I want to refactor the code to make that more clear.
 
 The current layout of the Python files looks like this:
 
-```
+```text
 .
 ├── rlvideolib
 │   ├── asciicanvas.py
@@ -150,7 +150,7 @@ OK
 We should probably also run the application to see that I didn't mess up
 anything major. I get this:
 
-```
+```text
 Traceback (most recent call last):
   File "/home/rick/rlvideo/rlvideo.py", line 213, in <module>
     App().run()
@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
 Let's commit:
 
-```
+```text
 $ ./make.py commit -m 'Extract timelinelib.gui.gtk.'
 ................................................
 ----------------------------------------------------------------------

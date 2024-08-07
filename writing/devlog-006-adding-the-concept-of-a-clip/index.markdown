@@ -45,7 +45,7 @@ proxy generation:
 
 Let's commit that and see how we can refactor in this area.
 
-```
+```text
 $ ./make.py commit -m 'Use FFmpeg for proxy generation.'
 ...................................................
 ----------------------------------------------------------------------
@@ -96,7 +96,7 @@ checksum = Clip(self.path).md5()
 
 Perfect! Time to commit:
 
-```
+```text
 $ ./make.py commit -m 'Extract Clip and move the md5 function to it.'
 ...................................................
 ----------------------------------------------------------------------
@@ -119,7 +119,7 @@ rlvideolib.mlthelpers
 First of all, its `run_consumer` function is no longer used when we generate
 proxies with FFmpeg. Let's remove it.
 
-```
+```text
 $ ./make.py commit -m 'Remove rlvideolib.mlthelpers.run_consumer since it is no longer used.'
 ...................................................
 ----------------------------------------------------------------------
@@ -147,7 +147,7 @@ is used.
 
 I find an unused import of it and remove it.
 
-```
+```text
 $ ./make.py commit -m 'Remove unused import of FileInfo.'
 ...................................................
 ----------------------------------------------------------------------
@@ -184,7 +184,7 @@ It would make more sense to create a `Clip` then instead of a `FileInfo`. Let's
 add `get_number_of_frames` to `Clip` and then we can get rid of `FileInfo` and
 `rlvideolib.mlthelpers` completely.
 
-```
+```text
 $ ./make.py commit -m 'Move get_number_of_frames to Clip.'
 ...................................................
 ----------------------------------------------------------------------
@@ -241,7 +241,7 @@ this length depends on the FPS I think.
 
 Let's commit:
 
-```
+```text
 $ ./make.py commit -m 'Rename Clip..get_number_of_frames to Clip..calculate_length_at_fps.'
 ...................................................
 ----------------------------------------------------------------------
@@ -252,7 +252,7 @@ OK
  2 files changed, 3 insertions(+), 3 deletions(-)
 ```
 
-```
+```text
 $ ./make.py commit -m 'Rename FileSource.number_of_frames_at_project_fps to FileSource.length.'
 ...................................................
 ----------------------------------------------------------------------
@@ -288,7 +288,7 @@ I don't think we need this comment anymore:
 I think the code above makes it clear enough that the length depends on the FPS
 of the project.
 
-```
+```text
 $ ./make.py commit -m 'Remove note about length/FPS since this is clear enough in the code now.'
 ...................................................
 ----------------------------------------------------------------------
@@ -353,7 +353,7 @@ def load_proxy(self, profile, proxy_spec, progress):
 
 This reads quite nicely I think. Let's commit:
 
-```
+```text
 $ ./make.py commit -m 'Extract Clip.generate_proxy.'
 ...................................................
 ----------------------------------------------------------------------
@@ -371,7 +371,7 @@ much better place would be `rlvideolib.domain.clip`.
 
 Let's move it over.
 
-```
+```text
 $ ./make.py commit -m 'Move ProxySpec to rlvideolib.domain.clip.'
 ...................................................
 ----------------------------------------------------------------------
@@ -432,7 +432,7 @@ def generate_proxy(self, proxy_spec, progress):
 
 Commit:
 
-```
+```text
 $ ./make.py commit -m 'ProxySpec know how to generate FFmpeg arguments for conversion.'
 ...................................................
 ----------------------------------------------------------------------

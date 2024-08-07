@@ -130,7 +130,7 @@ animation with a press of a button.
 
 We can do it like this:
 
-```
+```text
 $ ./make.py rundev test-scene-score
 ```
 

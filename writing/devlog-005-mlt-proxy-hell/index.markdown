@@ -13,7 +13,7 @@ and resolves in the end.
 
 To load all clips that I have, I try this command:
 
-```
+```text
 $ rlvideo a6400/* hero8/*
 ```
 
@@ -22,7 +22,7 @@ we need to figure out its length so that we can correctly place it on the
 timeline. This is a one time cost when adding new clips. And I have shot many
 clips this summer:
 
-```
+```text
 $ ls a6400/* hero8/* | wc -l
 270
 ```

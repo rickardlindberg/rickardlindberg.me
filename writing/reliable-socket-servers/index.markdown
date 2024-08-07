@@ -88,7 +88,7 @@ request with number 5, instead of sending the number `5` it sends the string
 If we start the server, then the client, the output looks as follows for the
 server:
 
-```
+```text
 $ python server-listen.py 
 listening on port 9000
 accepting connection
@@ -105,7 +105,7 @@ ValueError: invalid literal for int() with base 10: b'five\n'
 
 And as follows for the client:
 
-```
+```text
 $ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -154,7 +154,7 @@ loop, ignoring any exit code.
 Invoking the server and client again, we get the following output for the
 server:
 
-```
+```text
 $ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
@@ -181,7 +181,7 @@ accepting connection
 
 And the following for the client:
 
-```
+```text
 $ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -281,7 +281,7 @@ with socket.socket(fileno=0) as s:
 Invoking the server and client again, we get the following output for the
 server:
 
-```
+```text
 $ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
@@ -315,7 +315,7 @@ accepting connection
 
 And the following for the client:
 
-```
+```text
 $ python client.py 
 0*0=0 (request took 0ms)
 1*1=1 (request took 0ms)
@@ -367,7 +367,7 @@ done
 
 The client output looked like this:
 
-```
+```text
 ...
 No response for 5
 6*6=36 (request took 60123ms)

@@ -94,7 +94,7 @@ size of it. We want the profile FPS to be the FPS of the clip.
 As I start writing some code, I notice something odd in the output of the
 tests:
 
-```
+```text
 .............................[matroska,webm @ 0x5599e1354fc0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
 [matroska,webm @ 0x5599e0f51540] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
@@ -109,7 +109,7 @@ I `git stash` my current changes and see that the output is still there.
 I increase the verbosity of the test runner to figure out which test is causing
 the output and I get this:
 
-```
+```text
 Doctest: rlvideolib.domain.project.Project ... [matroska,webm @ 0x56544c299700] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
 Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
 [matroska,webm @ 0x56544c4061c0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
@@ -133,7 +133,7 @@ clean.
 
 Let's commit:
 
-```
+```text
 $ ./make.py commit -m 'Capture stdout/stderr in Project test to not clutter the test output.'
 .................................................
 ----------------------------------------------------------------------
@@ -178,7 +178,7 @@ this at leas shows that my code doesn't crash.
 I try to use it when generating proxies. The tests pass after my modification,
 so I try to run the application with my 100 FPS test clip and get this:
 
-```
+```text
 $ rm /tmp/*.mkv; rlvideo GX010802.MP4
 ...
   File "/home/rick/rlvideo/rlvideolib/domain/source.py", line 59, in load_proxy
@@ -232,7 +232,7 @@ I want to rename `FileSource.length` to
 it is more clear about what it represents. I value that more now.  After the
 refactoring, I might uncover other issues.  Let's see.
 
-```
+```text
 $ ./make.py commit -m 'Rename FileSource.length to FileSource.number_of_frames_at_project_fps.'
 .................................................
 ----------------------------------------------------------------------
@@ -286,7 +286,7 @@ class FileInfo:
 This makes it a little more clear that the number of frames in a file depends
 on the profile.
 
-```
+```text
 $ ./make.py commit -m 'Extract FileInfo.'
 .................................................
 ----------------------------------------------------------------------
@@ -444,7 +444,7 @@ def run_consumer(consumer, producer, progress):
 
 I forgot to commit last refactoring. Let's do that now:
 
-```
+```text
 $ ./make.py commit -m 'Extract get_file_info and run_consumer.'
 .................................................
 ----------------------------------------------------------------------
@@ -517,7 +517,7 @@ def validate_producer(self, producer):
 
 Commit:
 
-```
+```text
 $ ./make.py commit -m 'Inline some of FileInfo.'
 .................................................
 ----------------------------------------------------------------------
@@ -549,7 +549,7 @@ Then finally I can make this relatively small change:
 
 With this, proxy clips now retain their FPS:
 
-```
+```text
 $ ffprobe /tmp/de63dcd626503cbde6f3da76b0af3e8c.mkv 2>&1 | grep fps
   Stream #0:0: Video: mjpeg (Baseline), yuvj420p(pc, bt470bg/bt709/bt709), 960x540 [SAR 1:1 DAR 16:9], 100 fps, 100 tbr, 1k tbn, 1k tbc (default)
 ```
@@ -558,7 +558,7 @@ It seems to work fine in the application as well.
 
 Let's commit this:
 
-```
+```text
 $ ./make.py commit -m 'Produce proxy clips with native profile to preserve FPS.'
 .................................................
 ----------------------------------------------------------------------

@@ -17,7 +17,7 @@ def pre(header):
 
 def code(path, start=None, end=None):
     pygments_cmd = ["pygmentize"]
-    language = ""
+    language = "text"
     if path.endswith(".rlmeta"):
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:
@@ -51,11 +51,7 @@ def output(title, text, syntax="text"):
         title_text = f"`{title.strip()}`:\n\n"
     else:
         title_text = ""
-    if syntax == "text":
-        language = ""
-    else:
-        language = syntax
-    return f"{title_text}```{language}\n{joined}```\n"
+    return f"{title_text}```{syntax}\n{joined}```\n"
 
 if __name__ == "__main__":
     import sys

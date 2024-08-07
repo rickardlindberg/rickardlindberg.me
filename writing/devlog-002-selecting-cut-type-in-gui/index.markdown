@@ -104,7 +104,7 @@ def timeline_button(widget, event):
 
 I find this:
 
-```
+```text
 [..., 'button', ..., 'get_button', ...]
 ```
 
@@ -229,7 +229,7 @@ class GtkGui:
 
 This fails with
 
-```
+```text
 NameError: name 'MenuItem' is not defined
 ```
 
@@ -265,7 +265,7 @@ menu = gtk.Menu()
 
 Test immediately fails:
 
-```
+```text
 NameError: name 'gtk' is not defined
 ```
 
@@ -362,7 +362,7 @@ the rectangle map for that.
 
 All tests pass, but when I try this in the application, it fails with this:
 
-```
+```text
 NameError: name 'Cut' is not defined
 ```
 
@@ -438,7 +438,7 @@ This fails because `right_mouse_down` still prints its label. I remove the
 print and it now fails because `Timeline.get_cut` is not defined. I add it and
 get the correct failure:
 
-```
+```text
 Failed example:
     timeline.get_cut(cut_id).mix_strategy
 Differences (ndiff with -expected +actual):

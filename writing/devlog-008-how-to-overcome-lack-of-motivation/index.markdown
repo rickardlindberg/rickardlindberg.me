@@ -179,7 +179,7 @@ Let's make it pass:
 Just enough to make the test pass. We now have a context menu item that will do
 nothing when we click on it.
 
-```
+```text
 $ ./make.py commit -m 'New ripple delete context menu item that does nothing.'
 .....................................................
 ----------------------------------------------------------------------
@@ -195,7 +195,7 @@ OK
 The `TestGui` that we had to modify for this test lives in the
 `rlvideolib.gui.testing` module. The `rlvideolib.gui` package looks like this:
 
-```
+```text
 rlvideolib/gui
 ├── framework.py
 ├── generic.py
@@ -211,7 +211,7 @@ makes sense for a framework to include facilities to help testing, right?
 Let's get rid of the testing module and move its contents to the framework
 module.
 
-```
+```text
 $ ./make.py commit -m 'Move TestGui to rlvideolib.gui.framework and get rid of the testing module.'
 .....................................................
 ----------------------------------------------------------------------
@@ -254,7 +254,7 @@ That feels like a lot of set up to me. And many of the parameters are `None`.
 I take a closer look at the x and y coordinates. As far as I can tell, no
 action is using those in the `right_mouse_down` method. Let's get rid of them.
 
-```
+```text
 $ ./make.py commit -m 'Get rid of x and y coordinates in Action.right_mouse_down since they are never used.'
 .....................................................
 ----------------------------------------------------------------------
@@ -284,7 +284,7 @@ ripple delete
 This indicates that the showing of the menu does not depend on the project,
 cut, or scrollbar. I think that it reads quite nicely.
 
-```
+```text
 $ ./make.py commit -m 'Change cut action test to be assertion for menu items shown.'
 .....................................................
 ----------------------------------------------------------------------
@@ -332,7 +332,7 @@ I make it pass like this:
          ])
 ```
 
-```
+```text
 $ ./make.py commit -m 'Add non-empty action for ripple delete.'
 .....................................................
 ----------------------------------------------------------------------
@@ -431,7 +431,7 @@ class Transaction:
 
 And also make a quick and dirty version of `remove_cut`.
 
-```
+```text
 $ ./make.py commit -m 'Quick and dirty version of ripple delete that works in one case.'
 .....................................................
 ----------------------------------------------------------------------
@@ -506,7 +506,7 @@ class Cuts(namedtuple("Cuts", "cut_map,region_to_cuts,region_group_size")):
         return data
 ```
 
-```
+```text
 $ ./make.py commit -m 'Move ripple_delete down to Cuts.'
 .....................................................
 ----------------------------------------------------------------------

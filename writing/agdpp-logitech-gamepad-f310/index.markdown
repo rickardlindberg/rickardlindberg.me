@@ -52,7 +52,7 @@ session short and remove it once we are done.
 Anyway, if we run the game now and press keys on the keyboard we can see things
 like this in the output:
 
-```
+```text
 <Event(771-TextInput {'text': ' ', 'window': None})>
 <Event(769-KeyUp {'unicode': ' ', 'key': 32, 'mod': 0, 'scancode': 44, 'window': None})>
 <Event(768-KeyDown {'unicode': '', 'key': 1073742049, 'mod': 1, 'scancode': 225, 'window': None})>
@@ -63,7 +63,7 @@ But when we press keys on the Logitech gamepad, nothing happens.
 
 However, if we look at the beginning of the event log, we see this:
 
-```
+```text
 <Event(1541-JoyDeviceAdded {'device_index': 0, 'guid': '030000006d0400001dc2000014400000'})>
 ```
 
@@ -114,7 +114,7 @@ if we feel the need. And maybe test the `JOYDEVICEREMOVED` as well.
 Anyway, if we run the game now and press keys on the gamepad, we see events
 like this:
 
-```
+```text
 <Event(1536-JoyAxisMotion {'joy': 0, 'instance_id': 0, 'axis': 0, 'value': 0.003906369212927641})>
 <Event(1539-JoyButtonDown {'joy': 0, 'instance_id': 0, 'button': 0})>
 <Event(1540-JoyButtonUp {'joy': 0, 'instance_id': 0, 'button': 0})>
