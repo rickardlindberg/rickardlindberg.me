@@ -88,8 +88,7 @@ encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 </iframe>
 </center>
 <h2 id="the-problem-with-a-crashing-server">The problem with a crashing server</h2>
-<p>To illustrate the problem with a crashing server, we use the example below:</p>
-<p><code>server-listen.py</code>:</p>
+<p>To illustrate the problem with a crashing server, we use the example below (<code>server-listen.py</code>):</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="cf">with</span> socket.socket() <span class="im">as</span> s:</span>
@@ -105,8 +104,7 @@ encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>            number <span class="op">=</span> <span class="bu">int</span>(data)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>            conn.sendall(<span class="ss">f&quot;</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">*</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">=</span><span class="sc">{</span>number<span class="op">*</span>number<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>.encode(<span class="st">&quot;ascii&quot;</span>))</span></code></pre></div>
 <p>This is a TCP server, listening on port 9000, reading numbers from clients, and returning the product of the two numbers. It assumes that numbers can be parsed as integers. If parsing fails, the server crashes.</p>
-<p>To test the behavior of the server, we use the following client:</p>
-<p><code>client.py</code>:</p>
+<p>To test the behavior of the server, we use the following client (<code>client.py</code>):</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="im">import</span> time</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a></span>
@@ -133,8 +131,7 @@ encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Connection failed for </span><span class="sc">{i}</span><span class="ss">&quot;</span>)</span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a>    time.sleep(<span class="fl">0.01</span>)</span></code></pre></div>
 <p>It sends 20 requests to the server with a 10ms delay between them. However, for request with number 5, instead of sending the number <code>5</code> it sends the string <code>five</code> to cause the server to crash.</p>
-<p>If we start the server, then the client, the output looks as follows:</p>
-<p><code>server output</code>:</p>
+<p>If we start the server, then the client, the output looks as follows for the server:</p>
 <pre><code>$ python server-listen.py 
 listening on port 9000
 accepting connection
@@ -147,7 +144,7 @@ Traceback (most recent call last):
   File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
     number = int(data)
 ValueError: invalid literal for int() with base 10: b'five\n'</code></pre>
-<p><code>client output</code>:</p>
+<p>And as follows for the client:</p>
 <pre><code>$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -171,16 +168,14 @@ Connection failed for 18
 Connection failed for 19</code></pre>
 <p>In the client output, we see that request with number 5 never receives a response from the server and that subsequent requests fail because the server has crashed, and there is no one listening on port 9000.</p>
 <h2 id="solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</h2>
-<p>In order for subsequent requests to succeed, we need to start the server again after it has crashed. One way to do that is to run the server program in an infinite loop using a script like the one below:</p>
-<p><code>loop.sh</code>:</p>
+<p>In order for subsequent requests to succeed, we need to start the server again after it has crashed. One way to do that is to run the server program in an infinite loop using a script like the one below (<code>loop.sh</code>):</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">while</span> <span class="fu">true</span><span class="kw">;</span> <span class="kw">do</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    <span class="bu">echo</span> <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span> <span class="kw">||</span> <span class="fu">true</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    <span class="bu">echo</span> <span class="st">&quot;restarting&quot;</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="kw">done</span></span></code></pre></div>
 <p>This Bash script takes a command to run as argument and runs that command in a loop, ignoring any exit code.</p>
-<p>Invoking the server and client again, we get the following output:</p>
-<p><code>server output</code>:</p>
+<p>Invoking the server and client again, we get the following output for the server:</p>
 <pre><code>$ bash loop.sh python server-listen.py
 python server-listen.py
 listening on port 9000
@@ -203,7 +198,7 @@ accepting connection
 accepting connection
 accepting connection
 accepting connection</code></pre>
-<p><code>client output</code>:</p>
+<p>And the following for the client:</p>
 <pre><code>$ python client.py 
 0*0=0 (request took 1ms)
 1*1=1 (request took 0ms)
@@ -233,8 +228,7 @@ Connection failed for 13
 <p>How can we make sure to handle all requests?</p>
 <h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
 <p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
-<p>Here is a program that listens on a socket and then spawns server processes in a loop to accept connections:</p>
-<p><code>server-listen-loop.py</code>:</p>
+<p>Here is a program that listens on a socket and then spawns server processes in a loop to accept connections (<code>server-listen-loop.py</code>):</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="im">import</span> os</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
@@ -251,7 +245,6 @@ Connection failed for 13
 <p>The third part replaces the current process with <code>bash loop.sh python server-accept.py</code>. At this point the process is listening on the socket and starts the <code>server-accept.py</code> program in a loop. As long as the <code>loop.sh</code> script doesn’t exit, there will be someone listening on port 9000.</p>
 <p>The <code>server-accept.py</code> program is similar to <code>server-listen.py</code>, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):</p>
 <p>Here is <code>server-accept.py</code>:</p>
-<p><code>server-accept.py</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="cf">with</span> socket.socket(fileno<span class="op">=</span><span class="dv">0</span>) <span class="im">as</span> s:</span>
@@ -262,8 +255,7 @@ Connection failed for 13
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>            data <span class="op">=</span> conn.recv(<span class="dv">100</span>)</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>            number <span class="op">=</span> <span class="bu">int</span>(data)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>            conn.sendall(<span class="ss">f&quot;</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">*</span><span class="sc">{</span>number<span class="sc">}</span><span class="ss">=</span><span class="sc">{</span>number<span class="op">*</span>number<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>.encode(<span class="st">&quot;ascii&quot;</span>))</span></code></pre></div>
-<p>Invoking the server and client again, we get the following output:</p>
-<p><code>server output</code>:</p>
+<p>Invoking the server and client again, we get the following output for the server:</p>
 <pre><code>$ python server-listen-loop.py
 listening on port 9000
 python server-accept.py
@@ -293,7 +285,7 @@ accepting connection
 accepting connection
 accepting connection
 accepting connection</code></pre>
-<p><code>client output</code>:</p>
+<p>And the following for the client:</p>
 <pre><code>$ python client.py 
 0*0=0 (request took 0ms)
 1*1=1 (request took 0ms)
@@ -319,8 +311,7 @@ No response for 5
 <p>And this is one way to write reliable socket servers that survive crashes and restarts.</p>
 <h2 id="questions-answers">Questions &amp; Answers</h2>
 <h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
-<p>I tried to modify the loop script to sleep for 60 seconds before restarting the server:</p>
-<p><code>loop-sleep.sh</code>:</p>
+<p>I tried to modify the loop script to sleep for 60 seconds before restarting the server (<code>loop-sleep.sh</code>):</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">while</span> <span class="fu">true</span><span class="kw">;</span> <span class="kw">do</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>    <span class="bu">echo</span> <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span> <span class="kw">||</span> <span class="fu">true</span></span>
@@ -328,7 +319,6 @@ No response for 5
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>    <span class="fu">sleep</span> 60</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="kw">done</span></span></code></pre></div>
 <p>The client output looked like this:</p>
-<p><code>client output</code>:</p>
 <pre><code>...
 No response for 5
 6*6=36 (request took 60123ms)
@@ -343,8 +333,7 @@ No response for 5
 <p>When the loop script restarts the server, it takes ~100ms for it to come up and process requests. How can we decrease that time?</p>
 <p>One way would be to modify the loop script to spawn multiple server processes. That way, if one crashes, the other can serve the next request.</p>
 <p>This would also make the server code concurrent. That is, no “global” state can reside in the server process, because we don’t know which server process will serve the next request.</p>
-<p>Another solution might be to have a second process in standby mode. So the loop script starts a second server process, but it stops it right before calling accept. But then we would need a way to signal to the process to resume operation. Perhaps by sending it a signal?</p>
-<p><code>server-accept-standby.py</code>:</p>
+<p>Another solution might be to have a second process in standby mode. So the loop script starts a second server process, but it stops it right before calling accept. But then we would need a way to signal to the process to resume operation. Perhaps by sending it a signal? Something like this (<code>server-accept-standby.py</code>):</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="cf">with</span> socket.socket(fileno<span class="op">=</span><span class="dv">0</span>) <span class="im">as</span> s:</span>
@@ -364,7 +353,6 @@ No response for 5
 <p>More info in <a href="https://relaxdiego.com/2017/02/load-balancing-sockets.html">this blog post</a>.</p>
 <h3 id="why-do-we-need-to-move-the-socket-file-descriptor">Why do we need to move the socket file descriptor?</h3>
 <p>In the middle of <code>server-listen-loop.py</code> we move the file descriptor of the socket, <code>s.fileno()</code>, to file descriptor 0 (stdin):</p>
-<p><code>server-listen-loop.py</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="im">import</span> os</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a></span>
@@ -378,8 +366,7 @@ No response for 5
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a>    os.execvp(<span class="st">&quot;bash&quot;</span>, [<span class="st">&quot;bash&quot;</span>, <span class="st">&quot;loop.sh&quot;</span>, <span class="st">&quot;python&quot;</span>, <span class="st">&quot;server-accept.py&quot;</span>])</span></code></pre></div>
 <p>We do that to make the file descriptor available to child processes so that they can create a socket using it and then call <code>accept</code>.</p>
 <p>In Python, the file descriptor of the socket is <a href="https://docs.python.org/3/library/os.html#fd-inheritance">not inheritable by default</a>. That is, a child process will not be able to access the socket file descriptor. That is why we have to move it to file descriptor 0 (stdin) which is inherited.</p>
-<p>Another option might be to make the file descriptor inheritable. Something like this:</p>
-<p><code>server-listen-loop-inherit.py</code>:</p>
+<p>Another option might be to make the file descriptor inheritable. Something like this (<code>server-listen-loop-inherit.py</code>):</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="im">import</span> os</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a></span>
@@ -390,8 +377,7 @@ No response for 5
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>    <span class="bu">print</span>(<span class="st">&quot;listening on port 9000&quot;</span>)</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>    os.set_inheritable(s.fileno(), <span class="va">True</span>)</span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a>    os.execvp(<span class="st">&quot;bash&quot;</span>, [<span class="st">&quot;bash&quot;</span>, <span class="st">&quot;loop.sh&quot;</span>, <span class="st">&quot;python&quot;</span>, <span class="st">&quot;server-accept-inherit.py&quot;</span>, <span class="bu">str</span>(s.fileno())])</span></code></pre></div>
-<p>Then the file descriptor must also be passed to the server processes and used there instead of stdin:</p>
-<p><code>server-accept-inherit.py</code>:</p>
+<p>Then the file descriptor must also be passed to the server processes and used there instead of stdin (<code>server-accept-inherit.py</code>):</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a><span class="im">import</span> sys</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
@@ -408,7 +394,6 @@ No response for 5
 <p>Not having to pass the file descriptor to the child processes might be preferable in some situations. I don’t know.</p>
 <h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
 <p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket:</p>
-<p><code>server-listen-loop.py</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="im">import</span> os</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a></span>
@@ -421,8 +406,7 @@ No response for 5
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true"></a>    os.close(s.fileno())</span>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true"></a>    os.execvp(<span class="st">&quot;bash&quot;</span>, [<span class="st">&quot;bash&quot;</span>, <span class="st">&quot;loop.sh&quot;</span>, <span class="st">&quot;python&quot;</span>, <span class="st">&quot;server-accept.py&quot;</span>])</span></code></pre></div>
 <p>Why do we do that?</p>
-<p>I did it because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>. But now that I think about it, I think we can just as well inline the loop script in <code>server-listen-loop.py</code>. That, of course, requires the loop script to be written in Python. Something like this:</p>
-<p><code>server-listen-loop-python.py</code>:</p>
+<p>I did it because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>. But now that I think about it, I think we can just as well inline the loop script in <code>server-listen-loop.py</code>. That, of course, requires the loop script to be written in Python. Something like this (<code>server-listen-loop-python.py</code>):</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="im">import</span> os</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="im">import</span> subprocess</span>
@@ -441,7 +425,6 @@ No response for 5
 <p>If the loop script is a simple loop like this, perhaps it makes sense to inline it. But if the loop script is more complex, perhaps even a third party product to manage server processes, it makes sense to do the <code>execvp</code>.</p>
 <h3 id="why-socket-option-reuse">Why socket option REUSE?</h3>
 <p>In <code>server-listen.py</code>, we set the socket option <code>SO_REUSEADDR</code>:</p>
-<p><code>server-listen.py</code>:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="cf">with</span> socket.socket() <span class="im">as</span> s:</span>
@@ -482,8 +465,7 @@ command=python server-accept.py</code></pre>
 <p>Well, yes, that is how I learned about it in <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Alan’s blog post</a>.</p>
 <h3 id="can-we-use-a-unix-domain-socket-instead-of-a-tcp-socket">Can we use a Unix domain socket instead of a TCP socket?</h3>
 <p>Well, yes.</p>
-<p>In fact, the accepting server doesn’t know what kind of socket is passed to it. It could be either a Unix domain socket or a TCP socket:</p>
-<p><code>server-accept.py</code>:</p>
+<p>In fact, the accepting server doesn’t know what kind of socket is passed to it. It could be either a Unix domain socket or a TCP socket (<code>server-accept.py</code>):</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="im">import</span> socket</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a><span class="cf">with</span> socket.socket(fileno<span class="op">=</span><span class="dv">0</span>) <span class="im">as</span> s:</span>
