@@ -105,10 +105,9 @@ development is that you should have scripts for doing common tasks
 like running your tests.
 
 Let's [see](https://github.com/RonJeffries/python-asteroids-1/pull/1) if Ron
-likes that as well. I add one script to test
+likes that as well. I add one script to test (`build.sh`)
 
-
-$:output:bash:build.sh
+$:output:bash:
 #!/usr/bin/env bash
 
 set -e
@@ -116,9 +115,9 @@ set -e
 pytest
 $:END
 
-and one to run the application
+and one to run the application (`rundev.sh`)
 
-$:output:bash:rundev.sh
+$:output:bash:
 #!/usr/bin/env bash
 
 exec python main.py

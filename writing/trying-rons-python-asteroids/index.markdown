@@ -105,24 +105,23 @@ development is that you should have scripts for doing common tasks
 like running your tests.
 
 Let's [see](https://github.com/RonJeffries/python-asteroids-1/pull/1) if Ron
-likes that as well. I add one script to test
+likes that as well. I add one script to test (`build.sh`)
 
+```bash
+#!/usr/bin/env bash
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">build.sh
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
-
-<span class="nb">set</span> -e
+set -e
 
 pytest
-</pre></div>
-</div></div>
-and one to run the application
+```
 
-<div class="rliterate-code"><div class="rliterate-code-header"><ol class="rliterate-code-path"><li><span class="cp">rundev.sh
-</span></li></ol></div><div class="rliterate-code-body"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+and one to run the application (`rundev.sh`)
 
-<span class="nb">exec</span> python main.py
-</pre></div>
-</div></div>
+```bash
+#!/usr/bin/env bash
+
+exec python main.py
+```
+
 Should the way to run tests or the application change, only those files need to
 be changed, and the usage of the developer stays the same.

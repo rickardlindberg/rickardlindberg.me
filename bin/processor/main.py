@@ -48,14 +48,14 @@ def output(title, text, syntax="text"):
     assert joined.endswith("\n")
     title_code = []
     if title.strip():
-        title_text = f"`{title}`:\n\n"
+        title_text = f"`{title.strip()}`:\n\n"
     else:
         title_text = ""
     if syntax == "text":
         language = ""
     else:
         language = syntax
-    return f"```{title_text}{language}\n{joined}```\n"
+    return f"{title_text}```{language}\n{joined}```\n"
 
 if __name__ == "__main__":
     import sys
