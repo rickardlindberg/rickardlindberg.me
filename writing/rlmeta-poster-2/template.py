@@ -34,6 +34,12 @@ def process_line(line):
 
 def shell(cwd, cmd, lexer="text"):
     return "".join([
+        "```\n",
+        f"$ {cmd}\n",
+        subprocess.check_output(cmd, stderr=subprocess.STDOUT, cwd=cwd, shell=True, text=True),
+        "```\n",
+    ])
+    return "".join([
         pygmentize("$ ", "text", strip_end=True),
         pygmentize(cmd, "bash", strip_beginning=True, strip_end=True),
         '\n',
@@ -46,10 +52,12 @@ def shell(cwd, cmd, lexer="text"):
 
 def code(path, start=None, end=None):
     pygments_cmd = ["pygmentize"]
+    language = ""
     if path.endswith(".rlmeta"):
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:
-        pygments_cmd.extend(["-l", os.path.splitext(path)[1][1:]])
+        language = os.path.splitext(path)[1][1:]
+        pygments_cmd.extend(["-l", language])
     pygments_cmd.extend(["-f", "html"])
     with open(path) as f:
         lines = f.read().splitlines(True)
@@ -64,21 +72,23 @@ def code(path, start=None, end=None):
     joined = "".join(lines)
     if start is not None or end is not None:
         joined = textwrap.dedent(joined)
-    return subprocess.check_output(pygments_cmd, text=True, input=joined).splitlines(True)
+    if not joined.endswith("\n"):
+        joined += "\n"
+    return f"```{language}\n{joined}```\n"
 
 def pygmentize(text, lexer, strip_beginning=False, strip_end=False):
     pygments_cmd = ["pygmentize"]
+    language = ""
     if lexer == "rlmeta":
         pygments_cmd.extend(["-l", "rlmeta_lexer.py:RLMetaLexer", "-x"])
     else:
         pygments_cmd.extend(["-l", lexer])
+        language = lexer
     pygments_cmd.extend(["-f", "html"])
     html = subprocess.check_output(pygments_cmd, text=True, input=text)
-    if strip_beginning:
-        html = html.removeprefix('<div class="highlight"><pre>')
-    if strip_end:
-        html = html.removesuffix('\n</pre></div>\n')
-    return html
+    if not text.endswith("\n"):
+        text += "\n"
+    return f"```{language}\n{text}```\n"
 
 for path in sys.argv[1:]:
     with open(path) as f:

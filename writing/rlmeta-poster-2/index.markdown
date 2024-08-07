@@ -43,8 +43,9 @@ version of RLMeta from here: [rlmeta-poster-2.zip](rlmeta-poster-2.zip).
 The zip file consists of the source code for the RLMeta compiler, a make
 script, and the compiler itself (`rlmeta.py`):
 
-<div class="highlight"><pre><span></span>$ <span></span>tree --dirsfirst
-<span></span>.
+```
+$ tree --dirsfirst
+.
 ├── src
 │   ├── assembler.rlmeta
 │   ├── codegenerator.rlmeta
@@ -55,18 +56,19 @@ script, and the compiler itself (`rlmeta.py`):
 └── rlmeta.py
 
 1 directory, 7 files
-</pre></div>
+```
 
 The size of the source code is quite small:
 
-<div class="highlight"><pre><span></span>$ <span></span>wc -l src/*
-<span></span>   39 src/assembler.rlmeta
+```
+$ wc -l src/*
+   39 src/assembler.rlmeta
    57 src/codegenerator.rlmeta
    26 src/main.py
    60 src/parser.rlmeta
   240 src/support.py
   422 total
-</pre></div>
+```
 
 The compiler can be created from this source code only. We will see how later
 in this walk through.
@@ -86,58 +88,62 @@ Let's write a grammar that counts the number of objects in an input stream and
 produces a report:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta
-<span></span>ObjectCounter {
-    count <span class="nb">=</span> <span class="nc">.*</span><span class="nb">:</span>xs <span class="nb">-&gt;</span> { <span class="s">&quot;number of objects = &quot;</span> len(xs) }
+```
+$ cat object_counter.rlmeta
+ObjectCounter {
+    count = .*:xs -> { "number of objects = " len(xs) }
 }
-</pre></div>
+```
 
 The main function of the RLMeta compiler is to transform grammars into Python
 code. If invoked without arguments, the compiler reads a grammar from stdin
 and writes Python code to stdout:
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py
-<span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
-    <span class="p">}</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">PUSH_SCOPE</span><span class="p">,</span>
-        <span class="n">LIST_START</span><span class="p">,</span>
-        <span class="n">BACKTRACK</span><span class="p">,</span>
-        <span class="mi">10</span><span class="p">,</span>
-        <span class="n">MATCH</span><span class="p">,</span>
-        <span class="s1">&#39;any&#39;</span><span class="p">,</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">LIST_APPEND</span><span class="p">,</span>
-        <span class="n">COMMIT</span><span class="p">,</span>
-        <span class="mi">2</span><span class="p">,</span>
-        <span class="n">LIST_END</span><span class="p">,</span>
-        <span class="n">BIND</span><span class="p">,</span>
-        <span class="s1">&#39;xs&#39;</span><span class="p">,</span>
-        <span class="n">ACTION</span><span class="p">,</span>
-        <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">join</span><span class="p">([</span><span class="s1">&#39;number of objects = &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;len&#39;</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;xs&#39;</span><span class="p">))]),</span>
-        <span class="n">POP_SCOPE</span><span class="p">,</span>
-        <span class="n">RETURN</span>
-    <span class="p">]</span>
-</pre></div>
+```
+$ cat object_counter.rlmeta | python rlmeta.py
+class ObjectCounter(Grammar):
+    rules = {
+        'count': 0
+    }
+    code = [
+        PUSH_SCOPE,
+        LIST_START,
+        BACKTRACK,
+        10,
+        MATCH,
+        'any',
+        lambda x: True,
+        LIST_APPEND,
+        COMMIT,
+        2,
+        LIST_END,
+        BIND,
+        'xs',
+        ACTION,
+        lambda self: join(['number of objects = ', self.lookup('len')(self.lookup('xs'))]),
+        POP_SCOPE,
+        RETURN
+    ]
+```
 
 This is equivalent to using the `--compile` command with a value  of `-` which
 stands for stdin:
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter.rlmeta <span class="p">|</span> python rlmeta.py --compile - <span class="p">|</span> head -n3
-<span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
-</pre></div>
+```
+$ cat object_counter.rlmeta | python rlmeta.py --compile - | head -n3
+class ObjectCounter(Grammar):
+    rules = {
+        'count': 0
+```
 
 And, the file can also be specified directly like this:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile object_counter.rlmeta <span class="p">|</span> head -n3
-<span></span><span class="k">class</span> <span class="nc">ObjectCounter</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span>
-</pre></div>
+```
+$ python rlmeta.py --compile object_counter.rlmeta | head -n3
+class ObjectCounter(Grammar):
+    rules = {
+        'count': 0
+```
 
 Don't worry about understanding the generated code. We will explore it more
 later. Just note that the generated class inherits from a class called
@@ -145,38 +151,39 @@ later. Just note that the generated class inherits from a class called
 These things are defined in a support library which can be generated by the
 RLMeta compiler with the `--support` command:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support <span class="p">|</span> grep <span class="s1">&#39;^\(class\|def\)&#39;</span>
-<span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
-<span class="k">def</span> <span class="nf">PUSH_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">POP_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">BACKTRACK</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">COMMIT</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">CALL</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">pc</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">RETURN</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">MATCH</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">MATCH_CALL_RULE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">LIST_START</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">LIST_APPEND</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">LIST_END</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">BIND</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">ACTION</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">PUSH_STREAM</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">POP_STREAM</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">FAIL</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">fail_message</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">SemanticAction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">MatchError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Grammar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Runtime</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-<span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">splice</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="n">lists</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;    &quot;</span><span class="p">):</span>
-<span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-</pre></div>
+```
+$ python rlmeta.py --support | grep '^\(class\|def\)'
+class VM:
+def PUSH_SCOPE(vm):
+def POP_SCOPE(vm):
+def BACKTRACK(vm):
+def COMMIT(vm):
+def CALL(vm):
+def CALL_(vm, pc):
+def RETURN(vm):
+def MATCH(vm):
+def MATCH_(vm, fn, message):
+def MATCH_CALL_RULE(vm):
+def LIST_START(vm):
+def LIST_APPEND(vm):
+def LIST_END(vm):
+def BIND(vm):
+def ACTION(vm):
+def PUSH_STREAM(vm):
+def POP_STREAM(vm):
+def FAIL(vm):
+def FAIL_(vm, fail_message):
+class SemanticAction(object):
+class MatchError(Exception):
+class Grammar(object):
+class Runtime(dict):
+class Counter(object):
+def splice(depth, item):
+def concat(lists):
+def join(items, delimiter=""):
+def indent(text, prefix="    "):
+def compile_chain(grammars, source):
+```
 
 To create a complete program, we also have to write a main function that
 instantiates the `ObjectCounter` grammar and invokes its `count` rule.
@@ -185,20 +192,21 @@ Here is an example that passes stdin as the input stream to the `count` rule
 and prints the result to stdout:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat object_counter_main.py
-<span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
-</pre></div>
+```
+$ cat object_counter_main.py
+if __name__ == "__main__":
+    import sys
+    sys.stdout.write(ObjectCounter().run("count", sys.stdin.read()))
+```
 
 The `--copy` command of the RLMeta compiler can be used to copy this main file,
 as is, to the output.
 
 Combining these pieces into a single compile command, we get this:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py &gt; object_counter.py
-<span></span>
-</pre></div>
+```
+$ python rlmeta.py --support --compile object_counter.rlmeta --copy object_counter_main.py > object_counter.py
+```
 
 It will perform all commands in the given order and write all generated code
 concatenated into a single file.
@@ -209,13 +217,13 @@ defined by the time `ObjectCounter` is evaluated.
 The object counter source code has now been compiled into a standalone Python
 program that can be run like this:
 
-<div class="highlight"><pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;hello&#39;</span> <span class="p">|</span> python object_counter.py
-<span></span>number of objects = 6
-</pre></div>
+```
+$ echo 'hello' | python object_counter.py
+number of objects = 6```
 
-<div class="highlight"><pre><span></span>$ <span></span><span class="nb">echo</span> <span class="s1">&#39;this is longer&#39;</span> <span class="p">|</span> python object_counter.py
-<span></span>number of objects = 15
-</pre></div>
+```
+$ echo 'this is longer' | python object_counter.py
+number of objects = 15```
 
 So programs in RLMeta are written mainly in grammar files with some support
 functions written in Python. The RLMeta compiler can process all these files to
@@ -227,9 +235,9 @@ produce a single Python file which is the compiled program.
 Now that we have an understanding of RLMeta, let's look at the command that
 compiles the RLMeta compiler itself from the source code:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py &gt; rlmeta-raw.py
-<span></span>
-</pre></div>
+```
+$ python rlmeta.py --embed SUPPORT src/support.py --support --compile src/parser.rlmeta --compile src/codegenerator.rlmeta --compile src/assembler.rlmeta --copy src/main.py > rlmeta-raw.py
+```
 
 The first command, `--embed SUPPORT src/support.py`, tells the compiler to
 generate a Python variable named `SUPPORT` containing the contents of the file
@@ -249,21 +257,23 @@ verbatim. Similar to what we did to the main file in the object counter.
 The make script can be called with the `--compile` command to perform this
 exact function:
 
-<div class="highlight"><pre><span></span>$ <span></span>./make.py --compile &gt; rlmeta-compile.py
-<span></span>Compiling rlmeta using rlmeta.py
+```
+$ ./make.py --compile > rlmeta-compile.py
+Compiling rlmeta using rlmeta.py
   O-----------------O
   | RLMeta compiled |
 ~~|     itself!     |
   O-----------------O
-</pre></div>
+```
 
 And all these files are exactly the same:
 
-<div class="highlight"><pre><span></span>$ <span></span>md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
-<span></span>92396155e85e24fb45cb3e58e160e89e  rlmeta.py
+```
+$ md5sum rlmeta.py rlmeta-compile.py rlmeta-raw.py
+92396155e85e24fb45cb3e58e160e89e  rlmeta.py
 92396155e85e24fb45cb3e58e160e89e  rlmeta-compile.py
 92396155e85e24fb45cb3e58e160e89e  rlmeta-raw.py
-</pre></div>
+```
 
 Thus, the RLMeta compiler reproduced itself exactly from the source code.
 
@@ -273,33 +283,34 @@ Thus, the RLMeta compiler reproduced itself exactly from the source code.
 Let's now look at how all commands of the RLMeta compiler are implemented. Here
 is the main function:
 
-<div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">]</span>
-    <span class="k">while</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--support&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">SUPPORT</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--copy&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--embed&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-                <span class="nb">repr</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
-            <span class="p">))</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--compile&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">compile_chain</span><span class="p">(</span>
-                <span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
-                <span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-            <span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
-</pre></div>
+```py
+if __name__ == "__main__":
+    import sys
+    def read(path):
+        if path == "-":
+            return sys.stdin.read()
+        with open(path) as f:
+            return f.read()
+    args = sys.argv[1:] or ["--compile", "-"]
+    while args:
+        command = args.pop(0)
+        if command == "--support":
+            sys.stdout.write(SUPPORT)
+        elif command == "--copy":
+            sys.stdout.write(read(args.pop(0)))
+        elif command == "--embed":
+            sys.stdout.write("{} = {}\n".format(
+                args.pop(0),
+                repr(read(args.pop(0)))
+            ))
+        elif command == "--compile":
+            sys.stdout.write(compile_chain(
+                [(Parser, "file"), (CodeGenerator, "asts"), (Assembler, "asts")],
+                read(args.pop(0))
+            ))
+        else:
+            sys.exit("ERROR: Unknown command '{}'".format(command))
+```
 
 It contains command line parsing and handles processing of all commands.
 
@@ -309,28 +320,29 @@ case the input will first be parsed, then passed to the code generator, and
 finally passed to the assembler) and prints a pretty error message to stderr
 upon failure:
 
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="kn">import</span> <span class="nn">pprint</span>
-    <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
-                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                <span class="n">indent</span><span class="p">(</span><span class="n">stream_string</span><span class="p">)</span>
-            <span class="p">))</span>
-    <span class="k">return</span> <span class="n">source</span>
-</pre></div>
+```py
+def compile_chain(grammars, source):
+    import os
+    import sys
+    import pprint
+    for grammar, rule in grammars:
+        try:
+            source = grammar().run(rule, source)
+        except MatchError as e:
+            marker = "<ERROR POSITION>"
+            if os.isatty(sys.stderr.fileno()):
+                marker = f"\033[0;31m{marker}\033[0m"
+            if isinstance(e.stream, str):
+                stream_string = e.stream[:e.pos] + marker + e.stream[e.pos:]
+            else:
+                stream_string = pprint.pformat(e.stream)
+            sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
+                e.message,
+                e.pos,
+                indent(stream_string)
+            ))
+    return source
+```
 
 This function might be useful for other RLMeta programs as well. That is why
 it's included in the support library and not only in the main file.
@@ -341,46 +353,51 @@ Let's now follow a compilation of an example grammar to learn more about how
 a grammar file is turned into Python code. Here it is:
 
 
-<div class="highlight"><pre><span></span>$ <span></span>cat example.rlmeta
-<span></span>Example {
-    main <span class="nb">=</span> <span class="nc">.</span>
+```
+$ cat example.rlmeta
+Example {
+    main = .
 }
-</pre></div>
+```
 
 And this is what it compiles to:
 
-<div class="highlight"><pre><span></span>$ <span></span>python rlmeta.py --compile example.rlmeta
-<span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Grammar</span><span class="p">):</span>
-    <span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;main&#39;</span><span class="p">:</span> <span class="mi">0</span>
-    <span class="p">}</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">PUSH_SCOPE</span><span class="p">,</span>
-        <span class="n">MATCH</span><span class="p">,</span>
-        <span class="s1">&#39;any&#39;</span><span class="p">,</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">POP_SCOPE</span><span class="p">,</span>
-        <span class="n">RETURN</span>
-    <span class="p">]</span>
-</pre></div>
+```
+$ python rlmeta.py --compile example.rlmeta
+class Example(Grammar):
+    rules = {
+        'main': 0
+    }
+    code = [
+        PUSH_SCOPE,
+        MATCH,
+        'any',
+        lambda x: True,
+        POP_SCOPE,
+        RETURN
+    ]
+```
 
 The transformations that the grammar goes through are defined in the main
 function:
 
-<div class="highlight"><pre><span></span><span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
-</pre></div>
+```py
+[(Parser, "file"), (CodeGenerator, "asts"), (Assembler, "asts")],
+```
 
 So first the grammar file is passed to the `file` rule of the parser:
 
-<div class="highlight"><pre><span></span>file <span class="nb">=</span>
-  <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
-</pre></div>
+```
+file =
+  | (space grammar)*:xs space !.            -> xs
+```
 
 It in turn calls the `grammar` rule to parse all grammars in the file:
 
-<div class="highlight"><pre><span></span>grammar <span class="nb">=</span>
-  <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
-</pre></div>
+```
+grammar =
+  | name:x space '{' rule*:ys space '}'     -> ["Grammar" x ~ys]
+```
 
 This rule matches the name, the open curly brace, a set of rules, and the
 closing curly brace. It will then return an AST that looks like this:
@@ -395,19 +412,22 @@ closing curly brace. It will then return an AST that looks like this:
 
 All grammar AST nodes are handed off to the `asts` rule in the code generator:
 
-<div class="highlight"><pre><span></span>asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
-</pre></div>
+```
+asts          = ast*:xs !.  -> xs
+```
 
 It it turn calls the `ast` rule to process each AST node:
 
-<div class="highlight"><pre><span></span>ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
-</pre></div>
+```
+ast           = [%:x]       -> x
+```
 
 The `ast` rule treats the first argument in the AST as a rule name, and calls
 that rule. In this case `Grammar`:
 
-<div class="highlight"><pre><span></span>Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
-</pre></div>
+```
+Grammar       = .:x ast*:ys -> ["Grammar" x ~~ys]
+```
 
 The code generator creates a new AST node representing a grammar. But this AST
 node is slightly different and meant to be processed by the assembler. The
@@ -424,28 +444,31 @@ result is this:
 This AST node and all the others that the code generator produces are passed to
 the `asts` rule in the assembler:
 
-<div class="highlight"><pre><span></span>asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
-</pre></div>
+```
+asts     = ast*:xs !.      -> { xs }
+```
 
 It in turn calls the `ast` rule:
 
-<div class="highlight"><pre><span></span>ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
-</pre></div>
+```
+ast      = [%:x]           -> x
+```
 
 Which does the same trick again, now invoking the `Grammar` rule (in the
 assembler) which looks like this:
 
-<div class="highlight"><pre><span></span>Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
-                           <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
-                           <span class="nb">-&gt;</span> dict()<span class="nb">:</span>labels
-                           <span class="nb">-&gt;</span> list()<span class="nb">:</span>patches
-                           <span class="nb">-&gt;</span> ys
-                           <span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
-                           <span class="nb">-&gt;</span> { <span class="s">&quot;class &quot;</span> x <span class="s">&quot;(Grammar):</span><span class="se">\n</span><span class="s">&quot;</span> &gt;
-                                  <span class="s">&quot;rules = {</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(rules <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">}</span><span class="se">\n</span><span class="s">&quot;</span>
-                                  <span class="s">&quot;code = [</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(code  <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span>
-                                &lt; }
-</pre></div>
+```
+Grammar  = .:x ast*:ys     -> list():rules
+                           -> list():code
+                           -> dict():labels
+                           -> list():patches
+                           -> ys
+                           -> run("asts" patches)
+                           -> { "class " x "(Grammar):\n" >
+                                  "rules = {\n" > join(rules ",\n") < "\n}\n"
+                                  "code = [\n" > join(code  ",\n") < "\n]\n"
+                                < }
+```
 
 This rule can be read as follows:
 
@@ -479,9 +502,10 @@ transformed.
 
 First, the rule is parsed by the `rule` rule in the parser:
 
-<div class="highlight"><pre><span></span>rule <span class="nb">=</span>
-  <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;=&#39;</span> choice<span class="nb">:</span>y               <span class="nb">-&gt;</span> [<span class="s">&quot;Rule&quot;</span> x y]
-</pre></div>
+```
+rule =
+  | name:x space '=' choice:y               -> ["Rule" x y]
+```
 
 First the name is matched, then the equals sign, and then an expression
 representing the body of the rule.
@@ -498,10 +522,11 @@ It our case, this rule produces this AST node:
 
 That node is going to be processed by the `Rule` rule in the code generator:
 
-<div class="highlight"><pre><span></span>Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
-                                <span class="nc">~</span>y
-                                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;RETURN&quot;</span>]]
-</pre></div>
+```
+Rule          = .:x ast:y   -> [["Rule" x]
+                                ~y
+                                ["OpCode" "RETURN"]]
+```
 
 Generating an AST node that looks like this:
 
@@ -519,9 +544,10 @@ assembly code than a representation of the syntax in the grammar.
 The first child in this AST node is going to be handled the `Rule` rule in the
 assembler:
 
-<div class="highlight"><pre><span></span>Rule     <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(rules { repr(x) <span class="s">&quot;: &quot;</span> len(code) })
-                           <span class="nb">-&gt;</span> set(labels x len(code))
-</pre></div>
+```
+Rule     = .:x             -> add(rules { repr(x) ": " len(code) })
+                           -> set(labels x len(code))
+```
 
 It does two things:
 
@@ -543,8 +569,9 @@ labels = {
 The second child in the AST node is going to be handled by the `OpCode` rule in
 the assembler:
 
-<div class="highlight"><pre><span></span>OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
-</pre></div>
+```
+OpCode   = .:x             -> add(code x)
+```
 
 It adds the given op code to the `code` list, giving it this value:
 
@@ -576,22 +603,23 @@ understand how a compilation is done.
 When the make script is called without arguments, it performs a meta
 compilation and runs a few tests:
 
-<div class="highlight"><pre><span></span>$ <span></span>./make.py
-<span></span>Compiling rlmeta using rlmeta.py
+```
+$ ./make.py
+Compiling rlmeta using rlmeta.py
 Writing rlmeta1.py
 Test: Has its own support library
 Test: Disallow semantic action in the middle
 ERROR: expected }
 POSITION: 22
 STREAM:
-    Grammar { x = . -&gt; [] &lt;ERROR POSITION&gt;. }
+    Grammar { x = . -> [] <ERROR POSITION>. }
 Test: Call unknown rule foo
-Moving rlmeta1.py -&gt; rlmeta.py
+Moving rlmeta1.py -> rlmeta.py
   O-----------------O
   | RLMeta compiled |
 ~~|     itself!     |
   O-----------------O
-</pre></div>
+```
 
 The meaning of a meta compilation is to create a new version of RLMeta that can
 still reproduce itself from the source code.
@@ -653,24 +681,26 @@ at semantic action evaluation time.
 
 Here is what the `Not` rule looks like in the poster version:
 
-<div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nc">#</span><span class="nb">:</span>a <span class="nc">#</span><span class="nb">:</span>b <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+```
+Not = ast:x #:a #:b -> { "I('BACKTRACK', " b ")\n"
                          x
-                         <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                         <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                         <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                         <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
-</pre></div>
+                         "I('COMMIT', " a ")\n"
+                         "LABEL(" a ")\n"
+                         "I('FAIL', 'no match expected')\n"
+                         "LABEL(" b ")\n"                   }
+```
 
 Here is what the `Not` rule looks like after the change:
 
-<div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-            <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+```
+Not = ast:x -> label():a -> label():b
+            -> { "I('BACKTRACK', " b ")\n"
                  x
-                 <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
-</pre></div>
+                 "I('COMMIT', " a ")\n"
+                 "LABEL(" a ")\n"
+                 "I('FAIL', 'no match expected')\n"
+                 "LABEL(" b ")\n"                   }
+```
 
 This change puts label generation where it belongs, in semantic actions, and
 thus makes the implementation **more clear**. The VM is no longer concerned
@@ -693,18 +723,19 @@ The implementation of this change also **increases the flexibility** of RLMeta.
 For example, it is now possible to write a semantic action that generates code
 in different sections like this:
 
-<div class="highlight"><pre><span></span>ExampleBuffers {
-    program  <span class="nb">=</span> ast<span class="nb">:</span>x  <span class="nb">-&gt;</span> []<span class="nb">:</span>header
-                      <span class="nb">-&gt;</span> { <span class="s">&quot;# HEADER</span><span class="se">\n</span><span class="s">&quot;</span>
+```
+ExampleBuffers {
+    program  = ast:x  -> []:header
+                      -> { "# HEADER\n"
                            header
-                           <span class="s">&quot;# BODY</span><span class="se">\n</span><span class="s">&quot;</span>
+                           "# BODY\n"
                            x            }
-    ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]  <span class="nb">-&gt;</span> x
-    Program  <span class="nb">=</span> ast<span class="nc">*</span>
-    Function <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>name <span class="nb">-&gt;</span> add(header { <span class="s">&quot;def &quot;</span> name <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> })
-                      <span class="nb">-&gt;</span> { name <span class="s">&quot;()</span><span class="se">\n</span><span class="s">&quot;</span> }
+    ast      = [%:x]  -> x
+    Program  = ast*
+    Function = .:name -> add(header { "def " name "\n" })
+                      -> { name "()\n" }
 }
-</pre></div>
+```
 
 The expression `[]:header` creates a list and assigns it to the variable
 `header`. When `x` is evaluated in the next step, the semantic action for the
@@ -716,26 +747,28 @@ first, or the `header` variable will not be defined.
 
 Here is an example AST representing a program:
 
-<div class="highlight"><pre><span></span><span class="n">AST</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">[</span><span class="s1">&#39;Program&#39;</span><span class="p">,</span>
-        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">],</span>
-        <span class="p">[</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>
-    <span class="p">]</span>
-<span class="p">]</span>
-</pre></div>
+```py
+AST = [
+    ['Program',
+        ['Function', 'foo'],
+        ['Function', 'bar']
+    ]
+]
+```
 
 
 
 When the `program` rule is run on the example input, the following is output:
 
-<div class="highlight"><pre><span></span>$ <span></span>python example_buffers.py
-<span></span># HEADER
+```
+$ python example_buffers.py
+# HEADER
 def foo
 def bar
 # BODY
 foo()
 bar()
-</pre></div>
+```
 
 In summary, this change is as follows:
 
@@ -796,14 +829,15 @@ need to concatenate different pieces together.
 The third thing that annoyed me with in the poster version was the readability
 of the code generator. For example, the `Not` rule looked like this:
 
-<div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-            <span class="nb">-&gt;</span> { <span class="s">&quot;I(&#39;BACKTRACK&#39;, &quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
+```
+Not = ast:x -> label():a -> label():b
+            -> { "I('BACKTRACK', " b ")\n"
                  x
-                 <span class="s">&quot;I(&#39;COMMIT&#39;, &quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;LABEL(&quot;</span> a <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;I(&#39;FAIL&#39;, &#39;no match expected&#39;)</span><span class="se">\n</span><span class="s">&quot;</span>
-                 <span class="s">&quot;LABEL(&quot;</span> b <span class="s">&quot;)</span><span class="se">\n</span><span class="s">&quot;</span>                   }
-</pre></div>
+                 "I('COMMIT', " a ")\n"
+                 "LABEL(" a ")\n"
+                 "I('FAIL', 'no match expected')\n"
+                 "LABEL(" b ")\n"                   }
+```
 
 It generates a string which contains Python code that calls functions to create
 "assembly" code. So part of the compilation is actually happening at runtime
@@ -811,17 +845,18 @@ here. It is mixed and messy.
 
 The new `Not` rule looks like this:
 
-<div class="highlight"><pre><span></span>Not <span class="nb">=</span> ast<span class="nb">:</span>x <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-            <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
-                [<span class="s">&quot;Target&quot;</span> b]
-                <span class="nc">~</span>x
-                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
-                [<span class="s">&quot;Target&quot;</span> a]
-                [<span class="s">&quot;Label&quot;</span> a]
-                [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;FAIL&quot;</span>]
-                [<span class="s">&quot;Value&quot;</span> <span class="s">&quot;no match&quot;</span>]
-                [<span class="s">&quot;Label&quot;</span> b]]
-</pre></div>
+```
+Not = ast:x -> label():a -> label():b
+            -> [["OpCode" "BACKTRACK"]
+                ["Target" b]
+                ~x
+                ["OpCode" "COMMIT"]
+                ["Target" a]
+                ["Label" a]
+                ["OpCode" "FAIL"]
+                ["Value" "no match"]
+                ["Label" b]]
+```
 
 Instead of outputting Python code directly, it now generates abstract assembly
 code. Then a new third pass, the assembler, turns those instructions into
@@ -841,19 +876,20 @@ In the poster version, the virtual machine was written as a single function
 with one loop like this:
 
 
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">vm</span><span class="p">(</span><span class="n">instructions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">name</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span> <span class="o">=</span> <span class="n">instructions</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;PUSH_SCOPE&quot;</span><span class="p">:</span>
-            <span class="n">scope_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
-            <span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">pc</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">continue</span>
-        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;BACKTRACK&quot;</span><span class="p">:</span>
-            <span class="o">...</span>
-        <span class="o">...</span>
-</pre></div>
+```py
+def vm(instructions, labels, start_rule, stream):
+    ...
+    while True:
+        name, arg1, arg2 = instructions[pc]
+        if name == "PUSH_SCOPE":
+            scope_stack.append(scope)
+            scope = {}
+            pc += 1
+            continue
+        elif name == "BACKTRACK":
+            ...
+        ...
+```
 
 It was written like that to be as fast as possible. It avoided function calls.
 It avoided class variables lookup by avoiding classes. All variables used were
@@ -864,22 +900,23 @@ I decided that I would not consider performance at all, and instead try to
 write the VM as clear as I could. I ended up with a `VM` class to hold some
 state and instruction functions that operate on an instance of a VM:
 
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
+```py
+class VM:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
-        <span class="o">...</span>
+    def __init__(self, code, rules):
+        ...
 
-    <span class="o">...</span>
+    ...
 
-<span class="k">def</span> <span class="nf">PUSH_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
+def PUSH_SCOPE(vm):
+    vm.scope_rest = (vm.scope, vm.scope_rest)
+    vm.scope = {}
 
-<span class="k">def</span> <span class="nf">BACKTRACK</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="o">...</span>
+def BACKTRACK(vm):
+    ...
 
-<span class="o">...</span>
-</pre></div>
+...
+```
 
 As I noted earlier, I'm not sure I am happy with this result. I'm not convinced
 that it reads better. The biggest upside is that since function calls are
@@ -890,31 +927,33 @@ virtual machines that compiled to Python code. You could define instructions
 and the arguments they took and define macros for code re-use. It was basically
 a small macro language on top of Python. It looked something like this:
 
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">vm</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">rules</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-    <span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">pc</span> <span class="o">=</span> <span class="n">rules</span><span class="p">[</span><span class="n">start_rule</span><span class="p">]</span>
-    <span class="n">call_backtrack_stack</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">stream</span><span class="p">,</span> <span class="n">stream_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">pos</span><span class="p">,</span> <span class="n">pos_rest</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
-    <span class="n">scope</span><span class="p">,</span> <span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">fail_message</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">latest_fail_message</span><span class="p">,</span> <span class="n">latest_fail_pos</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
-    <span class="n">memo</span> <span class="o">=</span> <span class="p">{}</span>
+```py
+def vm(code, rules, start_rule, stream):
+    action = SemanticAction(None)
+    pc = rules[start_rule]
+    call_backtrack_stack = []
+    stream, stream_rest = (stream, None)
+    pos, pos_rest = (0, tuple())
+    scope, scope_rest = (None, None)
+    fail_message = None
+    latest_fail_message, latest_fail_pos = (None, tuple())
+    memo = {}
 
-<span class="n">definstruction</span> <span class="n">PUSH_SCOPE</span><span class="p">():</span>
-    <span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">scope_rest</span><span class="p">)</span>
-    <span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
-</pre></div>
+definstruction PUSH_SCOPE():
+    scope_rest = (scope, scope_rest)
+    scope = {}
+```
 
 And here is how macros were used:
 
-<div class="highlight"><pre><span></span><span class="n">definstruction</span> <span class="n">FAIL</span><span class="p">(</span><span class="n">arg_message</span><span class="p">):</span>
-    <span class="n">fail_message</span> <span class="o">=</span> <span class="p">(</span><span class="n">arg_message</span><span class="p">,)</span>
-    <span class="c1">#FAIL</span>
+```py
+definstruction FAIL(arg_message):
+    fail_message = (arg_message,)
+    #FAIL
 
-<span class="n">defmacro</span> <span class="n">FAIL</span><span class="p">:</span>
-    <span class="o">...</span>
-</pre></div>
+defmacro FAIL:
+    ...
+```
 
 When this was compiled, something similar to the `vm` function above was
 generated. A single function that was intended to run as fast as possible. But
@@ -944,22 +983,25 @@ the patching of assembly instructions.
 When a `Target` instruction is encountered, the `patches` list is populated
 with a command:
 
-<div class="highlight"><pre><span></span>Target   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(patches [<span class="s">&quot;Patch&quot;</span> len(code) x])
-                           <span class="nb">-&gt;</span> add(code <span class="s">&quot;placeholder&quot;</span>)
-</pre></div>
+```
+Target   = .:x             -> add(patches ["Patch" len(code) x])
+                           -> add(code "placeholder")
+```
 
 These commands are then evaluated by running the `asts` rule on the `patches`
 list. This starts another parse on the given stream.
 
-<div class="highlight"><pre><span></span><span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
-</pre></div>
+```
+-> run("asts" patches)
+```
 
 The new parse has access to all the runtime variables that the semantic action
 that invokes it has. So that is why a `Patch` instruction can modify the `code`
 array and insert the correct index there instead of the placeholder:
 
-<div class="highlight"><pre><span></span>Patch    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x <span class="nc">.</span><span class="nb">:</span>y         <span class="nb">-&gt;</span> set(code x get(labels y))
-</pre></div>
+```
+Patch    = .:x .:y         -> set(code x get(labels y))
+```
 
 ### Misc
 
@@ -1006,570 +1048,576 @@ RLMeta.
 
 ### src/parser.rlmeta
 
-<div class="highlight"><pre><span></span>Parser {
-  file <span class="nb">=</span>
-    <span class="nb">|</span> (space grammar)<span class="nc">*</span><span class="nb">:</span>xs space <span class="nc">!.</span>            <span class="nb">-&gt;</span> xs
-  grammar <span class="nb">=</span>
-    <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;{&#39;</span> rule<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;}&#39;</span>     <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~</span>ys]
-  rule <span class="nb">=</span>
-    <span class="nb">|</span> name<span class="nb">:</span>x space <span class="sc">&#39;=&#39;</span> choice<span class="nb">:</span>y               <span class="nb">-&gt;</span> [<span class="s">&quot;Rule&quot;</span> x y]
-  choice <span class="nb">=</span>
-    <span class="nb">|</span> (space <span class="sc">&#39;|&#39;</span>)<span class="nc">?</span>
-      sequence<span class="nb">:</span>x (space <span class="sc">&#39;|&#39;</span> sequence)<span class="nc">*</span><span class="nb">:</span>xs     <span class="nb">-&gt;</span> [<span class="s">&quot;Or&quot;</span> x <span class="nc">~</span>xs]
-  sequence <span class="nb">=</span>
-    <span class="nb">|</span> expr<span class="nc">*</span><span class="nb">:</span>xs maybeAction<span class="nb">:</span>ys                 <span class="nb">-&gt;</span> [<span class="s">&quot;Scope&quot;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs <span class="nc">~</span>ys]]
-  expr <span class="nb">=</span>
-    <span class="nb">|</span> expr1<span class="nb">:</span>x space <span class="sc">&#39;:&#39;</span> name<span class="nb">:</span>y                <span class="nb">-&gt;</span> [<span class="s">&quot;Bind&quot;</span> y x]
-    <span class="nb">|</span> expr1
-  expr1 <span class="nb">=</span>
-    <span class="nb">|</span> expr2<span class="nb">:</span>x space <span class="sc">&#39;*&#39;</span>                       <span class="nb">-&gt;</span> [<span class="s">&quot;Star&quot;</span> x]
-    <span class="nb">|</span> expr2<span class="nb">:</span>x space <span class="sc">&#39;?&#39;</span>                       <span class="nb">-&gt;</span> [<span class="s">&quot;Or&quot;</span> x [<span class="s">&quot;And&quot;</span>]]
-    <span class="nb">|</span> space <span class="sc">&#39;!&#39;</span> expr2<span class="nb">:</span>x                       <span class="nb">-&gt;</span> [<span class="s">&quot;Not&quot;</span> x]
-    <span class="nb">|</span> space <span class="sc">&#39;%&#39;</span>                               <span class="nb">-&gt;</span> [<span class="s">&quot;MatchCallRule&quot;</span>]
-    <span class="nb">|</span> expr2
-  expr2 <span class="nb">=</span>
-    <span class="nb">|</span> name<span class="nb">:</span>x <span class="nc">!</span>(space <span class="sc">&#39;=&#39;</span>)                     <span class="nb">-&gt;</span> [<span class="s">&quot;MatchRule&quot;</span> x]
-    <span class="nb">|</span> space char<span class="nb">:</span>x <span class="sc">&#39;-&#39;</span> char<span class="nb">:</span>y                 <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Range&quot;</span> x y]]
-    <span class="nb">|</span> space <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> (<span class="nc">!</span><span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> matchChar)<span class="nc">*</span><span class="nb">:</span>xs <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span>   <span class="nb">-&gt;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs]
-    <span class="nb">|</span> space <span class="sc">&#39;.&#39;</span>                               <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Any&quot;</span>]]
-    <span class="nb">|</span> space <span class="sc">&#39;(&#39;</span> choice<span class="nb">:</span>x space <span class="sc">&#39;)&#39;</span>            <span class="nb">-&gt;</span> x
-    <span class="nb">|</span> space <span class="sc">&#39;[&#39;</span> expr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;]&#39;</span>            <span class="nb">-&gt;</span> [<span class="s">&quot;MatchList&quot;</span> [<span class="s">&quot;And&quot;</span> <span class="nc">~</span>xs]]
-  matchChar <span class="nb">=</span>
-    <span class="nb">|</span> innerChar<span class="nb">:</span>x                             <span class="nb">-&gt;</span> [<span class="s">&quot;MatchObject&quot;</span> [<span class="s">&quot;Eq&quot;</span> x]]
-  maybeAction <span class="nb">=</span>
-    <span class="nb">|</span> actionExpr<span class="nb">:</span>x                            <span class="nb">-&gt;</span> [[<span class="s">&quot;Action&quot;</span> x]]
-    <span class="nb">|</span>                                         <span class="nb">-&gt;</span> []
-  actionExpr <span class="nb">=</span>
-    <span class="nb">|</span> space <span class="sc">&#39;-&gt;&#39;</span> hostExpr<span class="nb">:</span>x
-      (space <span class="sc">&#39;:&#39;</span> name <span class="nb">|</span> <span class="nb">-&gt;</span> <span class="s">&quot;&quot;</span>)<span class="nb">:</span>y actionExpr<span class="nb">:</span>z <span class="nb">-&gt;</span> [<span class="s">&quot;Set&quot;</span> y x z]
-    <span class="nb">|</span> space <span class="sc">&#39;-&gt;&#39;</span> hostExpr<span class="nb">:</span>x                   <span class="nb">-&gt;</span> x
-  hostExpr <span class="nb">=</span>
-    <span class="nb">|</span> space string<span class="nb">:</span>x                          <span class="nb">-&gt;</span> [<span class="s">&quot;String&quot;</span> x]
-    <span class="nb">|</span> space <span class="sc">&#39;[&#39;</span> hostListItem<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;]&#39;</span>    <span class="nb">-&gt;</span> [<span class="s">&quot;List&quot;</span> <span class="nc">~</span>xs]
-    <span class="nb">|</span> space <span class="sc">&#39;{&#39;</span> formatExpr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;}&#39;</span>      <span class="nb">-&gt;</span> [<span class="s">&quot;Format&quot;</span> <span class="nc">~</span>xs]
-    <span class="nb">|</span> var<span class="nb">:</span>x space <span class="sc">&#39;(&#39;</span> hostExpr<span class="nc">*</span><span class="nb">:</span>ys space <span class="sc">&#39;)&#39;</span>  <span class="nb">-&gt;</span> [<span class="s">&quot;Call&quot;</span> x <span class="nc">~</span>ys]
-    <span class="nb">|</span> var<span class="nb">:</span>x
-  hostListItem <span class="nb">=</span>
-    <span class="nb">|</span> space <span class="sc">&#39;~&#39;</span><span class="nc">*</span><span class="nb">:</span>ys hostExpr<span class="nb">:</span>x                <span class="nb">-&gt;</span> [<span class="s">&quot;ListItem&quot;</span> len(ys) x]
-  formatExpr <span class="nb">=</span>
-    <span class="nb">|</span> space <span class="sc">&#39;&gt;&#39;</span> formatExpr<span class="nc">*</span><span class="nb">:</span>xs space <span class="sc">&#39;&lt;&#39;</span>      <span class="nb">-&gt;</span> [<span class="s">&quot;Indent&quot;</span> [<span class="s">&quot;Format&quot;</span> <span class="nc">~</span>xs]]
-    <span class="nb">|</span> hostExpr
-  var <span class="nb">=</span>
-    <span class="nb">|</span> name<span class="nb">:</span>x <span class="nc">!</span>(space <span class="sc">&#39;=&#39;</span>)                     <span class="nb">-&gt;</span> [<span class="s">&quot;Lookup&quot;</span> x]
-  string    <span class="nb">=</span> <span class="sc">&#39;&quot;&#39;</span>  (<span class="nc">!</span><span class="sc">&#39;&quot;&#39;</span>  innerChar)<span class="nc">*</span><span class="nb">:</span>xs <span class="sc">&#39;&quot;&#39;</span>  <span class="nb">-&gt;</span> { xs }
-  char      <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span>  <span class="nc">!</span><span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> innerChar  <span class="nb">:</span>x  <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> x
-  innerChar <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\\</span><span class="sc">&#39;</span> escape <span class="nb">|</span> <span class="nc">.</span>
-  escape    <span class="nb">=</span> <span class="sc">&#39;</span><span class="se">\\</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="nb">|</span> <span class="sc">&#39;</span><span class="se">\&#39;</span><span class="sc">&#39;</span> <span class="nb">-&gt;</span> <span class="s">&quot;&#39;&quot;</span>
-            <span class="nb">|</span> <span class="sc">&#39;&quot;&#39;</span>  <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">&quot;</span> <span class="nb">|</span> <span class="sc">&#39;n&#39;</span>  <span class="nb">-&gt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-  name      <span class="nb">=</span> space nameStart<span class="nb">:</span>x nameChar<span class="nc">*</span><span class="nb">:</span>xs  <span class="nb">-&gt;</span> { x xs }
-  nameStart <span class="nb">=</span> <span class="sc">&#39;a&#39;</span><span class="nc">-</span><span class="sc">&#39;z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;A&#39;</span><span class="nc">-</span><span class="sc">&#39;Z&#39;</span>
-  nameChar  <span class="nb">=</span> <span class="sc">&#39;a&#39;</span><span class="nc">-</span><span class="sc">&#39;z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;A&#39;</span><span class="nc">-</span><span class="sc">&#39;Z&#39;</span> <span class="nb">|</span> <span class="sc">&#39;0&#39;</span><span class="nc">-</span><span class="sc">&#39;9&#39;</span>
-  space     <span class="nb">=</span> (<span class="sc">&#39; &#39;</span> <span class="nb">|</span> <span class="sc">&#39;</span><span class="se">\n</span><span class="sc">&#39;</span>)<span class="nc">*</span>
+```
+Parser {
+  file =
+    | (space grammar)*:xs space !.            -> xs
+  grammar =
+    | name:x space '{' rule*:ys space '}'     -> ["Grammar" x ~ys]
+  rule =
+    | name:x space '=' choice:y               -> ["Rule" x y]
+  choice =
+    | (space '|')?
+      sequence:x (space '|' sequence)*:xs     -> ["Or" x ~xs]
+  sequence =
+    | expr*:xs maybeAction:ys                 -> ["Scope" ["And" ~xs ~ys]]
+  expr =
+    | expr1:x space ':' name:y                -> ["Bind" y x]
+    | expr1
+  expr1 =
+    | expr2:x space '*'                       -> ["Star" x]
+    | expr2:x space '?'                       -> ["Or" x ["And"]]
+    | space '!' expr2:x                       -> ["Not" x]
+    | space '%'                               -> ["MatchCallRule"]
+    | expr2
+  expr2 =
+    | name:x !(space '=')                     -> ["MatchRule" x]
+    | space char:x '-' char:y                 -> ["MatchObject" ["Range" x y]]
+    | space '\'' (!'\'' matchChar)*:xs '\''   -> ["And" ~xs]
+    | space '.'                               -> ["MatchObject" ["Any"]]
+    | space '(' choice:x space ')'            -> x
+    | space '[' expr*:xs space ']'            -> ["MatchList" ["And" ~xs]]
+  matchChar =
+    | innerChar:x                             -> ["MatchObject" ["Eq" x]]
+  maybeAction =
+    | actionExpr:x                            -> [["Action" x]]
+    |                                         -> []
+  actionExpr =
+    | space '->' hostExpr:x
+      (space ':' name | -> ""):y actionExpr:z -> ["Set" y x z]
+    | space '->' hostExpr:x                   -> x
+  hostExpr =
+    | space string:x                          -> ["String" x]
+    | space '[' hostListItem*:xs space ']'    -> ["List" ~xs]
+    | space '{' formatExpr*:xs space '}'      -> ["Format" ~xs]
+    | var:x space '(' hostExpr*:ys space ')'  -> ["Call" x ~ys]
+    | var:x
+  hostListItem =
+    | space '~'*:ys hostExpr:x                -> ["ListItem" len(ys) x]
+  formatExpr =
+    | space '>' formatExpr*:xs space '<'      -> ["Indent" ["Format" ~xs]]
+    | hostExpr
+  var =
+    | name:x !(space '=')                     -> ["Lookup" x]
+  string    = '"'  (!'"'  innerChar)*:xs '"'  -> { xs }
+  char      = '\''  !'\'' innerChar  :x  '\'' -> x
+  innerChar = '\\' escape | .
+  escape    = '\\' -> "\\" | '\'' -> "'"
+            | '"'  -> "\"" | 'n'  -> "\n"
+  name      = space nameStart:x nameChar*:xs  -> { x xs }
+  nameStart = 'a'-'z' | 'A'-'Z'
+  nameChar  = 'a'-'z' | 'A'-'Z' | '0'-'9'
+  space     = (' ' | '\n')*
 }
-</pre></div>
+```
 
 ### src/codegenerator.rlmeta
 
-<div class="highlight"><pre><span></span>CodeGenerator {
-  Grammar       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys <span class="nb">-&gt;</span> [<span class="s">&quot;Grammar&quot;</span> x <span class="nc">~~</span>ys]
-  Rule          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [[<span class="s">&quot;Rule&quot;</span> x]
-                                  <span class="nc">~</span>y
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;RETURN&quot;</span>]]
-  Or            <span class="nb">=</span>
-    <span class="nb">|</span> ast<span class="nb">:</span>x Or<span class="nb">:</span>y              <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-                              <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> a]
-                                  <span class="nc">~</span>x
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> b]
-                                  [<span class="s">&quot;Label&quot;</span> a]
-                                  <span class="nc">~</span>y
-                                  [<span class="s">&quot;Label&quot;</span> b]]
-    <span class="nb">|</span> ast
-  Scope         <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;PUSH_SCOPE&quot;</span>]
-                                  <span class="nc">~</span>x
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;POP_SCOPE&quot;</span>]]
-  And           <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs     <span class="nb">-&gt;</span> [<span class="nc">~~</span>xs]
-  Bind          <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y   <span class="nb">-&gt;</span> [<span class="nc">~</span>y
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BIND&quot;</span>]
-                                  [<span class="s">&quot;Value&quot;</span> x]]
-  Star          <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-                              <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;LIST_START&quot;</span>]
-                                  [<span class="s">&quot;Label&quot;</span> a]
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> b]
-                                  <span class="nc">~</span>x
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;LIST_APPEND&quot;</span>]
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> a]
-                                  [<span class="s">&quot;Label&quot;</span> b]
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;LIST_END&quot;</span>]]
-  Not           <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> label()<span class="nb">:</span>a <span class="nb">-&gt;</span> label()<span class="nb">:</span>b
-                              <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;BACKTRACK&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> b]
-                                  <span class="nc">~</span>x
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;COMMIT&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> a]
-                                  [<span class="s">&quot;Label&quot;</span> a]
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;FAIL&quot;</span>]
-                                  [<span class="s">&quot;Value&quot;</span> <span class="s">&quot;no match&quot;</span>]
-                                  [<span class="s">&quot;Label&quot;</span> b]]
-  MatchCallRule <span class="nb">=</span>             <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;MATCH_CALL_RULE&quot;</span>]]
-  MatchRule     <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x         <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;CALL&quot;</span>]
-                                  [<span class="s">&quot;Target&quot;</span> x]]
-  MatchObject   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x         <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;MATCH&quot;</span>]
+```
+CodeGenerator {
+  Grammar       = .:x ast*:ys -> ["Grammar" x ~~ys]
+  Rule          = .:x ast:y   -> [["Rule" x]
+                                  ~y
+                                  ["OpCode" "RETURN"]]
+  Or            =
+    | ast:x Or:y              -> label():a -> label():b
+                              -> [["OpCode" "BACKTRACK"]
+                                  ["Target" a]
+                                  ~x
+                                  ["OpCode" "COMMIT"]
+                                  ["Target" b]
+                                  ["Label" a]
+                                  ~y
+                                  ["Label" b]]
+    | ast
+  Scope         = ast:x       -> [["OpCode" "PUSH_SCOPE"]
+                                  ~x
+                                  ["OpCode" "POP_SCOPE"]]
+  And           = ast*:xs     -> [~~xs]
+  Bind          = .:x ast:y   -> [~y
+                                  ["OpCode" "BIND"]
+                                  ["Value" x]]
+  Star          = ast:x       -> label():a -> label():b
+                              -> [["OpCode" "LIST_START"]
+                                  ["Label" a]
+                                  ["OpCode" "BACKTRACK"]
+                                  ["Target" b]
+                                  ~x
+                                  ["OpCode" "LIST_APPEND"]
+                                  ["OpCode" "COMMIT"]
+                                  ["Target" a]
+                                  ["Label" b]
+                                  ["OpCode" "LIST_END"]]
+  Not           = ast:x       -> label():a -> label():b
+                              -> [["OpCode" "BACKTRACK"]
+                                  ["Target" b]
+                                  ~x
+                                  ["OpCode" "COMMIT"]
+                                  ["Target" a]
+                                  ["Label" a]
+                                  ["OpCode" "FAIL"]
+                                  ["Value" "no match"]
+                                  ["Label" b]]
+  MatchCallRule =             -> [["OpCode" "MATCH_CALL_RULE"]]
+  MatchRule     = .:x         -> [["OpCode" "CALL"]
+                                  ["Target" x]]
+  MatchObject   = .:x         -> [["OpCode" "MATCH"]
                                   x]
-  MatchList     <span class="nb">=</span> ast<span class="nb">:</span>x       <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;PUSH_STREAM&quot;</span>]
-                                  <span class="nc">~</span>x
-                                  [<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;POP_STREAM&quot;</span>]]
-  Action        <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x         <span class="nb">-&gt;</span> [[<span class="s">&quot;OpCode&quot;</span> <span class="s">&quot;ACTION&quot;</span>]
-                                  [<span class="s">&quot;Action&quot;</span> x]]
-  asts          <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>  <span class="nb">-&gt;</span> xs
-  ast           <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]       <span class="nb">-&gt;</span> x
+  MatchList     = ast:x       -> [["OpCode" "PUSH_STREAM"]
+                                  ~x
+                                  ["OpCode" "POP_STREAM"]]
+  Action        = .:x         -> [["OpCode" "ACTION"]
+                                  ["Action" x]]
+  asts          = ast*:xs !.  -> xs
+  ast           = [%:x]       -> x
 }
-</pre></div>
+```
 
 ### src/assembler.rlmeta
 
-<div class="highlight"><pre><span></span>Assembler {
-  Grammar  <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nc">*</span><span class="nb">:</span>ys     <span class="nb">-&gt;</span> list()<span class="nb">:</span>rules
-                             <span class="nb">-&gt;</span> list()<span class="nb">:</span>code
-                             <span class="nb">-&gt;</span> dict()<span class="nb">:</span>labels
-                             <span class="nb">-&gt;</span> list()<span class="nb">:</span>patches
-                             <span class="nb">-&gt;</span> ys
-                             <span class="nb">-&gt;</span> run(<span class="s">&quot;asts&quot;</span> patches)
-                             <span class="nb">-&gt;</span> { <span class="s">&quot;class &quot;</span> x <span class="s">&quot;(Grammar):</span><span class="se">\n</span><span class="s">&quot;</span> &gt;
-                                    <span class="s">&quot;rules = {</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(rules <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">}</span><span class="se">\n</span><span class="s">&quot;</span>
-                                    <span class="s">&quot;code = [</span><span class="se">\n</span><span class="s">&quot;</span> &gt; join(code  <span class="s">&quot;,</span><span class="se">\n</span><span class="s">&quot;</span>) &lt; <span class="s">&quot;</span><span class="se">\n</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span>
-                                  &lt; }
-  Rule     <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(rules { repr(x) <span class="s">&quot;: &quot;</span> len(code) })
-                             <span class="nb">-&gt;</span> set(labels x len(code))
-  Label    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> set(labels x len(code))
-  Target   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(patches [<span class="s">&quot;Patch&quot;</span> len(code) x])
-                             <span class="nb">-&gt;</span> add(code <span class="s">&quot;placeholder&quot;</span>)
-  Patch    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x <span class="nc">.</span><span class="nb">:</span>y         <span class="nb">-&gt;</span> set(code x get(labels y))
-  OpCode   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code x)
-  Value    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code repr(x))
-  Eq       <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> add(code repr(x))
-                             <span class="nb">-&gt;</span> add(code { <span class="s">&quot;lambda x: x == &quot;</span> repr(x) })
-  Range    <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x <span class="nc">.</span><span class="nb">:</span>y         <span class="nb">-&gt;</span> add(code repr({<span class="s">&quot;range &quot;</span> repr(x) <span class="s">&quot;-&quot;</span> repr(y)}))
-                             <span class="nb">-&gt;</span> add(code { <span class="s">&quot;lambda x: &quot;</span> repr(x) <span class="s">&quot; &lt;= x &lt;= &quot;</span> repr(y) })
-  Any      <span class="nb">=</span>                 <span class="nb">-&gt;</span> add(code repr(<span class="s">&quot;any&quot;</span>))
-                             <span class="nb">-&gt;</span> add(code <span class="s">&quot;lambda x: True&quot;</span>)
-  Action   <span class="nb">=</span> ast<span class="nb">:</span>x           <span class="nb">-&gt;</span> add(code {<span class="s">&quot;lambda self: &quot;</span> x})
-  Set      <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y ast<span class="nb">:</span>z <span class="nb">-&gt;</span> { <span class="s">&quot;self.bind(&quot;</span> repr(x) <span class="s">&quot;, &quot;</span> y <span class="s">&quot;, lambda: &quot;</span> z <span class="s">&quot;)&quot;</span> }
-  String   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> repr(x)
-  List     <span class="nb">=</span> astList<span class="nb">:</span>x       <span class="nb">-&gt;</span> { <span class="s">&quot;concat([&quot;</span> x <span class="s">&quot;])&quot;</span> }
-  ListItem <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x ast<span class="nb">:</span>y       <span class="nb">-&gt;</span> { <span class="s">&quot;splice(&quot;</span> repr(x) <span class="s">&quot;, &quot;</span> y <span class="s">&quot;)&quot;</span> }
-  Format   <span class="nb">=</span> astList<span class="nb">:</span>x       <span class="nb">-&gt;</span> { <span class="s">&quot;join([&quot;</span> x <span class="s">&quot;])&quot;</span> }
-  Indent   <span class="nb">=</span> ast<span class="nb">:</span>x           <span class="nb">-&gt;</span> { <span class="s">&quot;indent(&quot;</span> x <span class="s">&quot;, &quot;</span>
-                                  <span class="s">&quot;self.lookup(&#39;indentprefix&#39;))&quot;</span> }
-  Call     <span class="nb">=</span> ast<span class="nb">:</span>x astList<span class="nb">:</span>y <span class="nb">-&gt;</span> { x <span class="s">&quot;(&quot;</span> y <span class="s">&quot;)&quot;</span> }
-  Lookup   <span class="nb">=</span> <span class="nc">.</span><span class="nb">:</span>x             <span class="nb">-&gt;</span> { <span class="s">&quot;self.lookup(&quot;</span> repr(x) <span class="s">&quot;)&quot;</span> }
-  asts     <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs <span class="nc">!.</span>      <span class="nb">-&gt;</span> { xs }
-  astList  <span class="nb">=</span> ast<span class="nc">*</span><span class="nb">:</span>xs         <span class="nb">-&gt;</span> join(xs <span class="s">&quot;, &quot;</span>)
-  ast      <span class="nb">=</span> [<span class="nc">%</span><span class="nb">:</span>x]           <span class="nb">-&gt;</span> x
+```
+Assembler {
+  Grammar  = .:x ast*:ys     -> list():rules
+                             -> list():code
+                             -> dict():labels
+                             -> list():patches
+                             -> ys
+                             -> run("asts" patches)
+                             -> { "class " x "(Grammar):\n" >
+                                    "rules = {\n" > join(rules ",\n") < "\n}\n"
+                                    "code = [\n" > join(code  ",\n") < "\n]\n"
+                                  < }
+  Rule     = .:x             -> add(rules { repr(x) ": " len(code) })
+                             -> set(labels x len(code))
+  Label    = .:x             -> set(labels x len(code))
+  Target   = .:x             -> add(patches ["Patch" len(code) x])
+                             -> add(code "placeholder")
+  Patch    = .:x .:y         -> set(code x get(labels y))
+  OpCode   = .:x             -> add(code x)
+  Value    = .:x             -> add(code repr(x))
+  Eq       = .:x             -> add(code repr(x))
+                             -> add(code { "lambda x: x == " repr(x) })
+  Range    = .:x .:y         -> add(code repr({"range " repr(x) "-" repr(y)}))
+                             -> add(code { "lambda x: " repr(x) " <= x <= " repr(y) })
+  Any      =                 -> add(code repr("any"))
+                             -> add(code "lambda x: True")
+  Action   = ast:x           -> add(code {"lambda self: " x})
+  Set      = .:x ast:y ast:z -> { "self.bind(" repr(x) ", " y ", lambda: " z ")" }
+  String   = .:x             -> repr(x)
+  List     = astList:x       -> { "concat([" x "])" }
+  ListItem = .:x ast:y       -> { "splice(" repr(x) ", " y ")" }
+  Format   = astList:x       -> { "join([" x "])" }
+  Indent   = ast:x           -> { "indent(" x ", "
+                                  "self.lookup('indentprefix'))" }
+  Call     = ast:x astList:y -> { x "(" y ")" }
+  Lookup   = .:x             -> { "self.lookup(" repr(x) ")" }
+  asts     = ast*:xs !.      -> { xs }
+  astList  = ast*:xs         -> join(xs ", ")
+  ast      = [%:x]           -> x
 }
-</pre></div>
+```
 
 ### src/support.py
 
-<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VM</span><span class="p">:</span>
+```py
+class VM:
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rules</span> <span class="o">=</span> <span class="n">rules</span>
+    def __init__(self, code, rules):
+        self.code = code
+        self.rules = rules
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">start_rule</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">call_backtrack_stack</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_rest</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latest_fail_message</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_fail_pos</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">memo</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">()(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">result</span>
+    def run(self, start_rule, stream):
+        self.action = SemanticAction(None)
+        self.pc = self.rules[start_rule]
+        self.call_backtrack_stack = []
+        self.stream, self.stream_rest = (stream, None)
+        self.pos, self.pos_rest = (0, tuple())
+        self.scope, self.scope_rest = (None, None)
+        self.latest_fail_message, self.latest_fail_pos = (None, tuple())
+        self.memo = {}
+        while True:
+            result = self.pop_arg()(self)
+            if result:
+                return result
 
-    <span class="k">def</span> <span class="nf">pop_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pc</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pc</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">code</span>
+    def pop_arg(self):
+        code = self.code[self.pc]
+        self.pc += 1
+        return code
 
-<span class="k">def</span> <span class="nf">PUSH_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">{}</span>
+def PUSH_SCOPE(vm):
+    vm.scope_rest = (vm.scope, vm.scope_rest)
+    vm.scope = {}
 
-<span class="k">def</span> <span class="nf">POP_SCOPE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span>
+def POP_SCOPE(vm):
+    vm.scope, vm.scope_rest = vm.scope_rest
 
-<span class="k">def</span> <span class="nf">BACKTRACK</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">(),</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span>
-    <span class="p">))</span>
+def BACKTRACK(vm):
+    vm.call_backtrack_stack.append((
+        vm.pop_arg(), vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest
+    ))
 
-<span class="k">def</span> <span class="nf">COMMIT</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">pc</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">()</span>
+def COMMIT(vm):
+    vm.call_backtrack_stack.pop()
+    vm.pc = vm.pop_arg()
 
-<span class="k">def</span> <span class="nf">CALL</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">())</span>
+def CALL(vm):
+    CALL_(vm, vm.pop_arg())
 
-<span class="k">def</span> <span class="nf">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">pc</span><span class="p">):</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="o">+</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,))</span>
-    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">vm</span><span class="o">.</span><span class="n">pc</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pc</span> <span class="o">=</span> <span class="n">pc</span>
+def CALL_(vm, pc):
+    key = (pc, vm.pos_rest+(vm.pos,))
+    if key in vm.memo:
+        if vm.memo[key][0] is None:
+            FAIL_(vm, vm.memo[key][1])
+        else:
+            vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest = vm.memo[key]
+    else:
+        vm.call_backtrack_stack.append((vm.pc, key))
+        vm.pc = pc
 
-<span class="k">def</span> <span class="nf">RETURN</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vm</span><span class="o">.</span><span class="n">action</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">pc</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="p">)</span>
+def RETURN(vm):
+    if not vm.call_backtrack_stack:
+        return vm.action
+    vm.pc, key = vm.call_backtrack_stack.pop()
+    vm.memo[key] = (vm.action, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest)
 
-<span class="k">def</span> <span class="nf">MATCH</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">object_description</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">()</span>
-    <span class="n">fn</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">()</span>
-    <span class="n">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">object_description</span><span class="p">))</span>
+def MATCH(vm):
+    object_description = vm.pop_arg()
+    fn = vm.pop_arg()
+    MATCH_(vm, fn, ("expected {}", object_description))
 
-<span class="k">def</span> <span class="nf">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">fn</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">]):</span>
-        <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="kc">True</span>
+def MATCH_(vm, fn, message):
+    if vm.pos >= len(vm.stream) or not fn(vm.stream[vm.pos]):
+        FAIL_(vm, message)
+    else:
+        vm.action = SemanticAction(vm.stream[vm.pos])
+        vm.pos += 1
+        return True
 
-<span class="k">def</span> <span class="nf">MATCH_CALL_RULE</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">MATCH_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected rule name&quot;</span><span class="p">,)):</span>
-        <span class="n">CALL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+def MATCH_CALL_RULE(vm):
+    if MATCH_(vm, lambda x: x in vm.rules, ("expected rule name",)):
+        CALL_(vm, vm.rules[vm.action.value])
 
-<span class="k">def</span> <span class="nf">LIST_START</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="p">[]</span>
+def LIST_START(vm):
+    vm.scope_rest = (vm.scope, vm.scope_rest)
+    vm.scope = []
 
-<span class="k">def</span> <span class="nf">LIST_APPEND</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+def LIST_APPEND(vm):
+    vm.scope.append(vm.action)
 
-<span class="k">def</span> <span class="nf">LIST_END</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span>
+def LIST_END(vm):
+    vm.action = SemanticAction(vm.scope, lambda self: [x.eval(self.runtime) for x in self.value])
+    vm.scope, vm.scope_rest = vm.scope_rest
 
-<span class="k">def</span> <span class="nf">BIND</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">()]</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">action</span>
+def BIND(vm):
+    vm.scope[vm.pop_arg()] = vm.action
 
-<span class="k">def</span> <span class="nf">ACTION</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">vm</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">SemanticAction</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">())</span>
+def ACTION(vm):
+    vm.action = SemanticAction(vm.scope, vm.pop_arg())
 
-<span class="k">def</span> <span class="nf">PUSH_STREAM</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected list&quot;</span><span class="p">,))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span> <span class="o">=</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span><span class="p">)</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span> <span class="o">+</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,)</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+def PUSH_STREAM(vm):
+    if vm.pos >= len(vm.stream) or not isinstance(vm.stream[vm.pos], list):
+        FAIL_(vm, ("expected list",))
+    else:
+        vm.stream_rest = (vm.stream, vm.stream_rest)
+        vm.pos_rest = vm.pos_rest + (vm.pos,)
+        vm.stream = vm.stream[vm.pos]
+        vm.pos = 0
 
-<span class="k">def</span> <span class="nf">POP_STREAM</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">):</span>
-        <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;expected end of list&quot;</span><span class="p">,))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
+def POP_STREAM(vm):
+    if vm.pos < len(vm.stream):
+        FAIL_(vm, ("expected end of list",))
+    else:
+        vm.stream, vm.stream_rest = vm.stream_rest
+        vm.pos, vm.pos_rest = vm.pos_rest[-1], vm.pos_rest[:-1]
+        vm.pos += 1
 
-<span class="k">def</span> <span class="nf">FAIL</span><span class="p">(</span><span class="n">vm</span><span class="p">):</span>
-    <span class="n">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">pop_arg</span><span class="p">(),))</span>
+def FAIL(vm):
+    FAIL_(vm, (vm.pop_arg(),))
 
-<span class="k">def</span> <span class="nf">FAIL_</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">fail_message</span><span class="p">):</span>
-    <span class="n">fail_pos</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="o">+</span><span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,)</span>
-    <span class="k">if</span> <span class="n">fail_pos</span> <span class="o">&gt;=</span> <span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_pos</span><span class="p">:</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_message</span> <span class="o">=</span> <span class="n">fail_message</span>
-        <span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_pos</span> <span class="o">=</span> <span class="n">fail_pos</span>
-    <span class="n">call_backtrack_entry</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
-    <span class="k">while</span> <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="p">:</span>
-        <span class="n">call_backtrack_entry</span> <span class="o">=</span> <span class="n">vm</span><span class="o">.</span><span class="n">call_backtrack_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">call_backtrack_entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
-            <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">vm</span><span class="o">.</span><span class="n">memo</span><span class="p">[</span><span class="n">call_backtrack_entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fail_message</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">call_backtrack_entry</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">7</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">MatchError</span><span class="p">(</span>
-            <span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_message</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span>
-            <span class="n">vm</span><span class="o">.</span><span class="n">latest_fail_pos</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-            <span class="n">vm</span><span class="o">.</span><span class="n">stream</span>
-        <span class="p">)</span>
-    <span class="p">(</span><span class="n">vm</span><span class="o">.</span><span class="n">pc</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">stream_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">pos_rest</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span> <span class="n">vm</span><span class="o">.</span><span class="n">scope_rest</span><span class="p">)</span> <span class="o">=</span> <span class="n">call_backtrack_entry</span>
+def FAIL_(vm, fail_message):
+    fail_pos = vm.pos_rest+(vm.pos,)
+    if fail_pos >= vm.latest_fail_pos:
+        vm.latest_fail_message = fail_message
+        vm.latest_fail_pos = fail_pos
+    call_backtrack_entry = tuple()
+    while vm.call_backtrack_stack:
+        call_backtrack_entry = vm.call_backtrack_stack.pop()
+        if len(call_backtrack_entry) == 7:
+            break
+        else:
+            vm.memo[call_backtrack_entry[1]] = (None, fail_message)
+    if len(call_backtrack_entry) != 7:
+        raise MatchError(
+            vm.latest_fail_message[0].format(*vm.latest_fail_message[1:]),
+            vm.latest_fail_pos[-1],
+            vm.stream
+        )
+    (vm.pc, vm.stream, vm.stream_rest, vm.pos, vm.pos_rest, vm.scope, vm.scope_rest) = call_backtrack_entry
 
-<span class="k">class</span> <span class="nc">SemanticAction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+class SemanticAction(object):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fn</span> <span class="o">=</span> <span class="n">fn</span>
+    def __init__(self, value, fn=lambda self: self.value):
+        self.value = value
+        self.fn = fn
 
-    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="n">runtime</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    def eval(self, runtime):
+        self.runtime = runtime
+        return self.fn(self)
 
-    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">continuation</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">continuation</span><span class="p">()</span>
+    def bind(self, name, value, continuation):
+        self.runtime = self.runtime.set(name, value)
+        return continuation()
 
-    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    def lookup(self, name):
+        if name in self.value:
+            return self.value[name].eval(self.runtime)
+        else:
+            return self.runtime[name]
 
-<span class="k">class</span> <span class="nc">MatchError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+class MatchError(Exception):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-        <span class="ne">Exception</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
+    def __init__(self, message, pos, stream):
+        Exception.__init__(self)
+        self.message = message
+        self.pos = pos
+        self.stream = stream
 
-<span class="k">class</span> <span class="nc">Grammar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+class Grammar(object):
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="k">return</span> <span class="n">Runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
-            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">Counter</span><span class="p">(),</span>
-            <span class="s2">&quot;indentprefix&quot;</span><span class="p">:</span> <span class="s2">&quot;    &quot;</span><span class="p">,</span>
-            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-            <span class="s2">&quot;dict&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-            <span class="s2">&quot;add&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
-            <span class="s2">&quot;get&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">y</span><span class="p">],</span>
-            <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span>
-            <span class="s2">&quot;len&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">,</span>
-            <span class="s2">&quot;repr&quot;</span><span class="p">:</span> <span class="nb">repr</span><span class="p">,</span>
-            <span class="s2">&quot;join&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">,</span>
-        <span class="p">}))</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+    def run(self, rule, stream, runtime={}):
+        return Runtime(self, dict(runtime, **{
+            "label": Counter(),
+            "indentprefix": "    ",
+            "list": list,
+            "dict": dict,
+            "add": lambda x, y: x.append(y),
+            "get": lambda x, y: x[y],
+            "set": lambda x, y, z: x.__setitem__(y, z),
+            "len": len,
+            "repr": repr,
+            "join": join,
+        })).run(rule, stream)
 
-<span class="k">class</span> <span class="nc">Runtime</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+class Runtime(dict):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="nb">dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">grammar</span> <span class="o">=</span> <span class="n">grammar</span>
+    def __init__(self, grammar, values):
+        dict.__init__(self, dict(values, run=self.run))
+        self.grammar = grammar
 
-    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Runtime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grammar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}))</span>
+    def set(self, key, value):
+        return Runtime(self.grammar, dict(self, **{key: value}))
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">VM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grammar</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grammar</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    def run(self, rule, stream):
+        return VM(self.grammar.code, self.grammar.rules).run(rule, stream).eval(self)
 
-<span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+class Counter(object):
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+    def __init__(self):
+        self.value = 0
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">result</span>
+    def __call__(self):
+        result = self.value
+        self.value += 1
+        return result
 
-<span class="k">def</span> <span class="nf">splice</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">concat</span><span class="p">([</span><span class="n">splice</span><span class="p">(</span><span class="n">depth</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">subitem</span><span class="p">)</span> <span class="k">for</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="n">item</span><span class="p">])</span>
+def splice(depth, item):
+    if depth == 0:
+        return [item]
+    else:
+        return concat([splice(depth-1, subitem) for subitem in item])
 
-<span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="n">lists</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">lists</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">]</span>
+def concat(lists):
+    return [x for xs in lists for x in xs]
 
-<span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">join</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span>
-    <span class="p">)</span>
+def join(items, delimiter=""):
+    return delimiter.join(
+        join(item, delimiter) if isinstance(item, list) else str(item)
+        for item in items
+    )
 
-<span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;    &quot;</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span><span class="o">+</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+def indent(text, prefix="    "):
+    return "".join(prefix+line for line in text.splitlines(True))
 
-<span class="k">def</span> <span class="nf">compile_chain</span><span class="p">(</span><span class="n">grammars</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">os</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="kn">import</span> <span class="nn">pprint</span>
-    <span class="k">for</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">grammars</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="n">grammar</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">MatchError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;&lt;ERROR POSITION&gt;&quot;</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
-                <span class="n">marker</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;31m</span><span class="si">{</span><span class="n">marker</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[:</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">marker</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">:]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">stream_string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stream</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">POSITION: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">STREAM:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">,</span>
-                <span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
-                <span class="n">indent</span><span class="p">(</span><span class="n">stream_string</span><span class="p">)</span>
-            <span class="p">))</span>
-    <span class="k">return</span> <span class="n">source</span>
-</pre></div>
+def compile_chain(grammars, source):
+    import os
+    import sys
+    import pprint
+    for grammar, rule in grammars:
+        try:
+            source = grammar().run(rule, source)
+        except MatchError as e:
+            marker = "<ERROR POSITION>"
+            if os.isatty(sys.stderr.fileno()):
+                marker = f"\033[0;31m{marker}\033[0m"
+            if isinstance(e.stream, str):
+                stream_string = e.stream[:e.pos] + marker + e.stream[e.pos:]
+            else:
+                stream_string = pprint.pformat(e.stream)
+            sys.exit("ERROR: {}\nPOSITION: {}\nSTREAM:\n{}".format(
+                e.message,
+                e.pos,
+                indent(stream_string)
+            ))
+    return source
+```
 
 ### src/main.py
 
-<div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">]</span>
-    <span class="k">while</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">command</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--support&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">SUPPORT</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--copy&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--embed&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-                <span class="nb">repr</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
-            <span class="p">))</span>
-        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;--compile&quot;</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">compile_chain</span><span class="p">(</span>
-                <span class="p">[(</span><span class="n">Parser</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">CodeGenerator</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">Assembler</span><span class="p">,</span> <span class="s2">&quot;asts&quot;</span><span class="p">)],</span>
-                <span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-            <span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown command &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
-</pre></div>
+```py
+if __name__ == "__main__":
+    import sys
+    def read(path):
+        if path == "-":
+            return sys.stdin.read()
+        with open(path) as f:
+            return f.read()
+    args = sys.argv[1:] or ["--compile", "-"]
+    while args:
+        command = args.pop(0)
+        if command == "--support":
+            sys.stdout.write(SUPPORT)
+        elif command == "--copy":
+            sys.stdout.write(read(args.pop(0)))
+        elif command == "--embed":
+            sys.stdout.write("{} = {}\n".format(
+                args.pop(0),
+                repr(read(args.pop(0)))
+            ))
+        elif command == "--compile":
+            sys.stdout.write(compile_chain(
+                [(Parser, "file"), (CodeGenerator, "asts"), (Assembler, "asts")],
+                read(args.pop(0))
+            ))
+        else:
+            sys.exit("ERROR: Unknown command '{}'".format(command))
+```
 
 ### make.py
 
-<div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+```py
+#!/usr/bin/env python
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+import os
+import subprocess
+import sys
 
-<span class="k">def</span> <span class="nf">make_next_version</span><span class="p">():</span>
-    <span class="n">final_compiler</span> <span class="o">=</span> <span class="n">meta_compile_rlmeta</span><span class="p">()</span>
-    <span class="n">test</span><span class="p">(</span><span class="n">final_compiler</span><span class="p">)</span>
-    <span class="n">mv</span><span class="p">(</span><span class="n">final_compiler</span><span class="p">,</span> <span class="s2">&quot;rlmeta.py&quot;</span><span class="p">)</span>
+def make_next_version():
+    final_compiler = meta_compile_rlmeta()
+    test(final_compiler)
+    mv(final_compiler, "rlmeta.py")
 
-<span class="k">def</span> <span class="nf">meta_compile_rlmeta</span><span class="p">():</span>
-    <span class="n">compiler</span> <span class="o">=</span> <span class="s2">&quot;rlmeta.py&quot;</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-        <span class="n">next_compiler</span> <span class="o">=</span> <span class="s2">&quot;rlmeta</span><span class="si">{}</span><span class="s2">.py&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">next_content</span> <span class="o">=</span> <span class="n">compile_rlmeta</span><span class="p">(</span><span class="n">compiler</span><span class="p">)</span>
-        <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Writing </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">next_compiler</span><span class="p">))</span>
-        <span class="n">write</span><span class="p">(</span><span class="n">next_compiler</span><span class="p">,</span> <span class="n">next_content</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">next_content</span> <span class="o">==</span> <span class="n">content</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">next_compiler</span>
-        <span class="n">compiler</span> <span class="o">=</span> <span class="n">next_compiler</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="n">next_content</span>
-    <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Unable to produce metacompiler.&quot;</span><span class="p">)</span>
+def meta_compile_rlmeta():
+    compiler = "rlmeta.py"
+    content = read(compiler)
+    for i in range(4):
+        next_compiler = "rlmeta{}.py".format(i+1)
+        next_content = compile_rlmeta(compiler)
+        log("Writing {}".format(next_compiler))
+        write(next_compiler, next_content)
+        if next_content == content:
+            return next_compiler
+        compiler = next_compiler
+        content = next_content
+    fail("Unable to produce metacompiler.")
 
-<span class="k">def</span> <span class="nf">compile_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">):</span>
-    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Compiling rlmeta using </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span>
-        <span class="s2">&quot;--embed&quot;</span><span class="p">,</span> <span class="s2">&quot;SUPPORT&quot;</span><span class="p">,</span> <span class="s2">&quot;src/support.py&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--support&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/parser.rlmeta&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/codegenerator.rlmeta&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;src/assembler.rlmeta&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--copy&quot;</span><span class="p">,</span> <span class="s2">&quot;src/main.py&quot;</span><span class="p">,</span>
-    <span class="p">])</span>
+def compile_rlmeta(rlmeta):
+    log("Compiling rlmeta using {}".format(rlmeta))
+    return run_rlmeta(rlmeta, [
+        "--embed", "SUPPORT", "src/support.py",
+        "--support",
+        "--compile", "src/parser.rlmeta",
+        "--compile", "src/codegenerator.rlmeta",
+        "--compile", "src/assembler.rlmeta",
+        "--copy", "src/main.py",
+    ])
 
-<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">):</span>
-    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Has its own support library&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;--support&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">read</span><span class="p">(</span><span class="s2">&quot;src/support.py&quot;</span><span class="p">)</span>
-    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Disallow semantic action in the middle&quot;</span><span class="p">)</span>
-    <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[],</span> <span class="sa">b</span><span class="s2">&quot;Grammar { x = . -&gt; [] . }&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Test: Call unknown rule foo&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">test_grammar</span><span class="p">(</span>
-        <span class="n">rlmeta</span><span class="p">,</span>
-        <span class="sa">b</span><span class="s2">&quot;Grammar { x = % | . }&quot;</span><span class="p">,</span>
-        <span class="sa">b</span><span class="s2">&quot;print(compile_chain([(Grammar, &#39;x&#39;)], [&#39;foo&#39;]))&quot;</span>
-    <span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;foo</span><span class="se">\n</span><span class="s2">&quot;</span>
+def test(rlmeta):
+    log("Test: Has its own support library")
+    assert run_rlmeta(rlmeta, ["--support"]) == read("src/support.py")
+    log("Test: Disallow semantic action in the middle")
+    run_rlmeta(rlmeta, [], b"Grammar { x = . -> [] . }", expect_failure=True)
+    log("Test: Call unknown rule foo")
+    assert test_grammar(
+        rlmeta,
+        b"Grammar { x = % | . }",
+        b"print(compile_chain([(Grammar, 'x')], ['foo']))"
+    ) == b"foo\n"
 
-<span class="k">def</span> <span class="nf">test_grammar</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="n">grammar</span><span class="p">,</span> <span class="n">main_code</span><span class="p">):</span>
-    <span class="n">compiled</span> <span class="o">=</span> <span class="n">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;--support&quot;</span><span class="p">,</span> <span class="s2">&quot;--compile&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n">grammar</span><span class="p">)</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="n">compiled</span> <span class="o">+</span> <span class="n">main_code</span>
-    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">],</span>
-        <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
-    <span class="p">)</span>
-    <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">stdout</span>
+def test_grammar(rlmeta, grammar, main_code):
+    compiled = run_rlmeta(rlmeta, ["--support", "--compile", "-"], grammar)
+    total = compiled + main_code
+    process = subprocess.Popen(
+        ["python"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE
+    )
+    stdout, _ = process.communicate(total)
+    return stdout
 
-<span class="k">def</span> <span class="nf">run_rlmeta</span><span class="p">(</span><span class="n">rlmeta</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">expect_failure</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">rlmeta</span><span class="p">]</span><span class="o">+</span><span class="n">args</span><span class="p">,</span>
-        <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
-    <span class="p">)</span>
-    <span class="n">stdout</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">expect_failure</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Expected failure&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;Expected success&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">stdout</span>
+def run_rlmeta(rlmeta, args, stdin=b"", expect_failure=False):
+    process = subprocess.Popen(
+        ["python", rlmeta]+args,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE
+    )
+    stdout, _ = process.communicate(stdin)
+    if expect_failure:
+        if process.returncode == 0:
+            fail("Expected failure")
+    else:
+        if process.returncode != 0:
+            fail("Expected success")
+    return stdout
 
-<span class="k">def</span> <span class="nf">mv</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
-    <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Moving </span><span class="si">{}</span><span class="s2"> -&gt; </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">))</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+def mv(src, dest):
+    log("Moving {} -> {}".format(src, dest))
+    os.remove(dest)
+    os.rename(src, dest)
 
-<span class="k">def</span> <span class="nf">cleanup</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s2">&quot;rlmeta1.py&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rlmeta2.py&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rlmeta3.py&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rlmeta4.py&quot;</span><span class="p">,</span>
-    <span class="p">]:</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Deleting </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+def cleanup():
+    for path in [
+        "rlmeta1.py",
+        "rlmeta2.py",
+        "rlmeta3.py",
+        "rlmeta4.py",
+    ]:
+        if os.path.exists(path):
+            log("Deleting {}".format(path))
+            os.remove(path)
 
-<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+def read(path):
+    with open(path, "rb") as f:
+        return f.read()
 
-<span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+def write(path, content):
+    with open(path, "wb") as f:
+        return f.write(content)
 
-<span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;33&quot;</span><span class="p">))</span>
+def log(message):
+    sys.stderr.write(color(f"{message}\n", "33"))
 
-<span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;32&quot;</span><span class="p">))</span>
+def success(message):
+    sys.stderr.write(color(f"{message}\n", "32"))
 
-<span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">color</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;31&quot;</span><span class="p">))</span>
+def fail(message):
+    sys.exit(color(f"ERROR: {message}", "31"))
 
-<span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">fileno</span><span class="p">()):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">m</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">message</span>
+def color(message, color):
+    if os.isatty(sys.stderr.fileno()):
+        return f"\033[0;{color}m{message}\033[0m"
+    else:
+        return message
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">cleanup</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--compile&quot;</span><span class="p">]:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">compile_rlmeta</span><span class="p">(</span><span class="s2">&quot;rlmeta.py&quot;</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">make_next_version</span><span class="p">()</span>
-    <span class="n">cleanup</span><span class="p">()</span>
-    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  O-----------------O&quot;</span><span class="p">)</span>
-    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  | RLMeta compiled |&quot;</span><span class="p">)</span>
-    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;~~|     itself!     |&quot;</span><span class="p">)</span>
-    <span class="n">success</span><span class="p">(</span><span class="s2">&quot;  O-----------------O&quot;</span><span class="p">)</span>
-</pre></div>
+if __name__ == "__main__":
+    cleanup()
+    if sys.argv[1:] == ["--compile"]:
+        sys.stdout.buffer.write(compile_rlmeta("rlmeta.py"))
+    else:
+        make_next_version()
+    cleanup()
+    success("  O-----------------O")
+    success("  | RLMeta compiled |")
+    success("~~|     itself!     |")
+    success("  O-----------------O")
+```
