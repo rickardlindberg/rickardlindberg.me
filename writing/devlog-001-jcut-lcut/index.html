@@ -89,90 +89,55 @@
 <p>To make progress on this, we can probably assume a default cut (maybe under) and make sure it works. Then we can extend the library of cuts.</p>
 <h2 id="writing-a-test">Writing a test</h2>
 <p>The relevant code for this is mostly here:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">extract_mix_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; cuts = Cuts.from_list([</span>
-<span class="sd">    ...     Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1),</span>
-<span class="sd">    ...     Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5),</span>
-<span class="sd">    ... ])</span>
-<span class="sd">    &gt;&gt;&gt; cuts.to_ascii_canvas()</span>
-<span class="sd">    | &lt;-A0---&gt;    |</span>
-<span class="sd">    |     &lt;-B0---&gt;|</span>
-<span class="sd">    &gt;&gt;&gt; cuts.extract_mix_section(Region(start=0, end=15)).to_ascii_canvas()</span>
-<span class="sd">    %&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">    %%%%%&lt;-B0---&gt;%%</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: sort based on cut (j-cut, l-cut, overlay, background).</span>
-    <span class="n">playlists</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_cut</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="n">playlists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cuts</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">extract_playlist_section</span><span class="p">(</span><span class="n">region</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">MixSection</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">playlists</span><span class="o">=</span><span class="n">playlists</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> extract_mix_section(<span class="va">self</span>, region):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; cuts = Cuts.from_list([</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">    ...     Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1),</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">    ...     Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5),</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">    ... ])</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; cuts.to_ascii_canvas()</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co">    | &lt;-A0---&gt;    |</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">    |     &lt;-B0---&gt;|</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; cuts.extract_mix_section(Region(start=0, end=15)).to_ascii_canvas()</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">    %&lt;-A0---&gt;%%%%%%</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">    %%%%%&lt;-B0---&gt;%%</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: sort based on cut (j-cut, l-cut, overlay, background).</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>    playlists <span class="op">=</span> []</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>    <span class="cf">for</span> cut <span class="kw">in</span> <span class="va">self</span>.create_cut(region).cut_map.values():</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>        playlists.append(Cuts.empty().add(cut).extract_playlist_section(region))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>    <span class="cf">return</span> MixSection(length<span class="op">=</span>region.length, playlists<span class="op">=</span>playlists)</span></code></pre></div>
 <p>Let’s write a test that shows the current behavior first:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; region = Region(start=0, end=15)</span>
-<span class="sd">&gt;&gt;&gt; a_cut = Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1)</span>
-<span class="sd">&gt;&gt;&gt; b_cut = Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5)</span>
-
-<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
-<span class="sd">...     a_cut,</span>
-<span class="sd">...     b_cut,</span>
-<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
-<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
-
-<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
-<span class="sd">...     b_cut,</span>
-<span class="sd">...     a_cut,</span>
-<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
-<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
-<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; region = Region(start=0, end=15)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; a_cut = Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; b_cut = Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Cuts.from_list([</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co">...     a_cut,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="co">...     b_cut,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a><span class="co">... ]).extract_mix_section(region).to_ascii_canvas()</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="co">%&lt;-A0---&gt;%%%%%%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="co">%%%%%&lt;-B0---&gt;%%</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Cuts.from_list([</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a><span class="co">...     b_cut,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a><span class="co">...     a_cut,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a><span class="co">... ]).extract_mix_section(region).to_ascii_canvas()</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a><span class="co">%%%%%&lt;-B0---&gt;%%</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a><span class="co">%&lt;-A0---&gt;%%%%%%</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>So depending on the order in which cuts are added, they mix differently. This is exactly the behavior that we want to change. We want them to mix the same no matter what order they are added in.</p>
 <p>Let’s commit this as a baseline:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">'Pinpoint current behavior of mixing cuts.'</span>
-</pre>
-</div>
-</div>
-</div>
+<pre class="shell"><code>$ ./make.py commit -m 'Pinpoint current behavior of mixing cuts.'</code></pre>
 <p>The <code>./make.py commit</code> script is a wrapper around <code>git commit</code> that also runs the tests and makes sure there are no untracked files. A real handy tool to make sure we don’t commit “bad” code.</p>
 <h2 id="cut-the-same">Cut the same</h2>
 <p>I modify the test above to assert that the same mix is created even when the cuts are in the reverse order.</p>
 <p>I make it pass by sorting the clips by start time, making “later” clips appear below which would be the equivalent of having the cut on the second b clip set to “under”:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">sort_cuts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cuts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">get_source_cut</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> sort_cuts(<span class="va">self</span>, cuts):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="cf">return</span> <span class="bu">sorted</span>(cuts, key<span class="op">=</span><span class="kw">lambda</span> cut: cut.get_source_cut().start)</span></code></pre></div>
 <p>That works as intended in the application as well. Let’s commit:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m <span class="s1">'Always mix cuts below previous cut.'</span>
-</pre>
-</div>
-</div>
-</div>
+<pre class="shell"><code>$ ./make.py commit -m 'Always mix cuts below previous cut.'</code></pre>
 <h2 id="clips-with-the-same-start">Clips with the same start</h2>
 <p>If two cuts have the same start, the sorting will have no effect and we still have the same problem.</p>
 <p>First of all, I don’t think this scenario will be that common in a real situation.</p>

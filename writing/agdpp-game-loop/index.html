@@ -67,40 +67,33 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 </center>
 <h2 id="hello-world">Hello World</h2>
 <p>We start with this example straight from the <a href="https://www.pygame.org/docs/">Pygame docs</a>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="c1"># Example file showing a basic pygame &quot;game loop&quot;</span>
-<span class="kn">import</span> <span class="nn">pygame</span>
-
-<span class="c1"># pygame setup</span>
-<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
-<span class="n">clock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
-<span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
-
-<span class="k">while</span> <span class="n">running</span><span class="p">:</span>
-    <span class="c1"># poll for events</span>
-    <span class="c1"># pygame.QUIT event means the user clicked X to close your window</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
-            <span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="c1"># fill the screen with a color to wipe away anything from last frame</span>
-    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;purple&quot;</span><span class="p">)</span>
-
-    <span class="c1"># RENDER YOUR GAME HERE</span>
-
-    <span class="c1"># flip() the display to put your work on screen</span>
-    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
-
-    <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># limits FPS to 60</span>
-
-<span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co"># Example file showing a basic pygame &quot;game loop&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="im">import</span> pygame</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co"># pygame setup</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>pygame.init()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>screen <span class="op">=</span> pygame.display.set_mode((<span class="dv">1280</span>, <span class="dv">720</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>clock <span class="op">=</span> pygame.time.Clock()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>running <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="cf">while</span> running:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>    <span class="co"># poll for events</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>    <span class="co"># pygame.QUIT event means the user clicked X to close your window</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> pygame.event.get():</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>        <span class="cf">if</span> event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>            running <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>    <span class="co"># fill the screen with a color to wipe away anything from last frame</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>    screen.fill(<span class="st">&quot;purple&quot;</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a>    <span class="co"># RENDER YOUR GAME HERE</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a>    <span class="co"># flip() the display to put your work on screen</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a>    pygame.display.flip()</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a>    clock.tick(<span class="dv">60</span>)  <span class="co"># limits FPS to 60</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true"></a>pygame.quit()</span></code></pre></div>
 <p>When we run it, it shows an empty screen:</p>
 <center>
 <img src="tutorial.png" title="fig:" alt="Tutorial output." />
@@ -108,97 +101,69 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <h2 id="draw-something">Draw something</h2>
 <p>An empty screen is not that interesting, so let’s see if we can get an animation going.</p>
 <p>We add a call to draw a circle and some logic to animate it:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">...</span>
-
-<span class="n">pos_x</span> <span class="o">=</span> <span class="mi">50</span>
-<span class="n">dt</span> <span class="o">=</span> <span class="mi">0</span>
-
-<span class="k">while</span> <span class="n">running</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">if</span> <span class="n">pos_x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-        <span class="n">pos_x</span> <span class="o">=</span> <span class="mi">50</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">pos_x</span> <span class="o">+=</span> <span class="n">dt</span><span class="o">*</span><span class="mf">0.3</span>
-
-    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-
-    <span class="o">...</span>
-
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># limits FPS to 60</span>
-
-<span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>...</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>pos_x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>dt <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="cf">while</span> running:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>    ...</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>    <span class="cf">if</span> pos_x <span class="op">&gt;</span> <span class="dv">500</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>        pos_x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>        pos_x <span class="op">+=</span> dt<span class="op">*</span><span class="fl">0.3</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>    pygame.draw.circle(screen, <span class="st">&quot;red&quot;</span>, (pos_x, <span class="dv">50</span>), <span class="dv">40</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>    ...</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>    dt <span class="op">=</span> clock.tick(<span class="dv">60</span>)  <span class="co"># limits FPS to 60</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>...</span></code></pre></div>
 <p>This seems to work. We get an animated circle:</p>
 <center>
 <img src="animation.png" title="fig:" alt="Animated circle." />
 </center>
 <h2 id="refactor-to-clarify">Refactor to clarify</h2>
 <p>Next we separate the logic of the game loop from the logic of our game. We refactor in small steps, testing manually that everything works, and end up with this for our game:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pos_x</span> <span class="o">=</span> <span class="mi">50</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">screen</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos_x</span> <span class="o">=</span> <span class="mi">50</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pos_x</span> <span class="o">+=</span> <span class="n">dt</span><span class="o">*</span><span class="mf">0.3</span>
-        <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;purple&quot;</span><span class="p">)</span>
-        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        <span class="va">self</span>.loop <span class="op">=</span> loop</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>        <span class="va">self</span>.pos_x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>        <span class="va">self</span>.loop.run(<span class="va">self</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, screen):</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> pygame.event.get():</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>            <span class="cf">if</span> event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT:</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>                <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.pos_x <span class="op">&gt;</span> <span class="dv">500</span>:</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>            <span class="va">self</span>.pos_x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a>            <span class="va">self</span>.pos_x <span class="op">+=</span> dt<span class="op">*</span><span class="fl">0.3</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a>        screen.fill(<span class="st">&quot;purple&quot;</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a>        pygame.draw.circle(screen, <span class="st">&quot;red&quot;</span>, (<span class="va">self</span>.pos_x, <span class="dv">50</span>), <span class="dv">40</span>)</span></code></pre></div>
 <p>And this for our game loop:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-        <span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
-        <span class="n">clock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
-        <span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">while</span> <span class="n">running</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">screen</span><span class="p">):</span>
-                <span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
-            <span class="n">dt</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
-        <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        pygame.init()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>        screen <span class="op">=</span> pygame.display.set_mode((<span class="dv">1280</span>, <span class="dv">720</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>        clock <span class="op">=</span> pygame.time.Clock()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        running <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>        dt <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>        <span class="cf">while</span> running:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>            <span class="cf">if</span> game.tick(dt, screen):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>                running <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>            pygame.display.flip()</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>            dt <span class="op">=</span> clock.tick(<span class="dv">60</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>        pygame.quit()</span></code></pre></div>
 <p>And it is all used like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">Game</span><span class="p">(</span><span class="n">GameLoop</span><span class="p">())</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>Game(GameLoop()).run()</span></code></pre></div>
 <p>Remember, we are only doing a spike here. We are trying to learn Pygame and how we could split the different responsibilities into different classes and how to possibly test it.</p>
 <p>With this refactoring, the game is now responsible for handling events and drawing the animated circle and the game loop is responsible for setting up Pygame and calling the game in a loop.</p>
 <p>I think we have learned enough about this setup and I think I know how we could test it. Let’s see.</p>
@@ -208,371 +173,238 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>I find it easiest to start from the outside when writing tests. What should the system do? What should our game do?</p>
 <p>Well, our game draws a circle on the screen until the user closes the window. Let’s start there.</p>
 <p>Here is how we get some basic structure in place:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">    &gt;&gt;&gt; game = Game(GameLoop())</span>
-<span class="sd">    &gt;&gt;&gt; game.run()</span>
-<span class="sd">    DRAW_CIRCLE</span>
-<span class="sd">    EXIT</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">GameLoop</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co">    I draw an animated circle until the user closes the window.</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game = Game(GameLoop())</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game.run()</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a><span class="co">    DRAW_CIRCLE</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a><span class="co">    EXIT</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>        <span class="va">self</span>.loop <span class="op">=</span> loop</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>        <span class="va">self</span>.loop.run(<span class="va">self</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>):</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;DRAW_CIRCLE&quot;</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a><span class="kw">class</span> GameLoop:</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>        game.tick()</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;EXIT&quot;</span>)</span></code></pre></div>
 <p>Instead of actually drawing and exiting, we just print the action. We fake it. The point of this is to get some basic structure in place with tests. From the spike we know in which direction to go. Let’s continue.</p>
 <h2 id="remove-fakes">Remove fakes</h2>
 <p>Eventually we want to turn <code>GameLoop</code> into an infrastructure wrapper. This will give us the ability to conveniently use it in tests. This pattern is explained in depth in <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a>.</p>
 <p>One part of that pattern is that we should be able to observe what <code>GameLoop</code> is doing.</p>
 <p>Here is how we rewrite the test for our game to assert on events fired from <code>GameLoop</code> instead of print statements:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop()</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">EXIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="co">I draw an animated circle until the user closes the window.</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop()</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Game(loop).run()</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">EXIT =&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>The <code>GameLoop</code> now looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>        game.tick()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;EXIT&quot;</span>, {})</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>    <span class="kw">def</span> draw_circle(<span class="va">self</span>):</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;DRAW_CIRCLE&quot;</span>, {})</span></code></pre></div>
 <p>Instead of printing actions, it notifies about its actions via an observable pattern.</p>
 <p>We also moved the circle drawing code to the game loop and have the game call that method instead. The game loop will be responsible for drawing things on the current frame.</p>
 <p>But we are still not doing anything real, we are just firing events and asserting on them. Time to fix that.</p>
 <h2 id="flesh-out-pygame-calls">Flesh out pygame calls</h2>
 <p>Continuing the pattern of an infrastructure wrapper, we add an argument to <code>GameLoop</code> which is the Pygame module. We provide an embedded stub for the null version that does nothing:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">GameLoop</span><span class="p">(</span><span class="n">pygame</span><span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
-        <span class="k">class</span> <span class="nc">NullPygame</span><span class="p">:</span>
-            <span class="o">...</span>
-        <span class="k">return</span> <span class="n">GameLoop</span><span class="p">(</span><span class="n">NullPygame</span><span class="p">())</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pygame</span><span class="p">):</span>
-        <span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span> <span class="o">=</span> <span class="n">pygame</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    <span class="kw">def</span> create():</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>        <span class="cf">return</span> GameLoop(pygame)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    <span class="kw">def</span> create_null():</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>        <span class="kw">class</span> NullPygame:</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>            ...</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>        <span class="cf">return</span> GameLoop(NullPygame())</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, pygame):</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>        Observable.<span class="fu">__init__</span>(<span class="va">self</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a>        <span class="va">self</span>.pygame <span class="op">=</span> pygame</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>We write a test for the game loop that checks that the proper events are fired:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I init and clean up pygame:</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null()</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; loop.run(NullGame())</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">EXIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">I init and clean up pygame:</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null()</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop.run(NullGame())</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">PYGAME_INIT =&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">EXIT =&gt;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>And we also create a test that uses the real Pygame module:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; GameLoop.create().run(NullGame())</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; GameLoop.create().run(NullGame())</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>This test will actually cause a window to pop up on the screen, so it is a bit distracting, but it makes sure we are calling Pygame correctly.</p>
 <p>The game loop now looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;PYGAME_INIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">))</span>
-        <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;EXIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    ...</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;PYGAME_INIT&quot;</span>, {})</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>        <span class="va">self</span>.pygame.init()</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>        <span class="va">self</span>.screen <span class="op">=</span> <span class="va">self</span>.pygame.display.set_mode((<span class="dv">1280</span>, <span class="dv">720</span>))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>        game.tick()</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>        <span class="va">self</span>.pygame.display.flip()</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;EXIT&quot;</span>, {})</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a>        <span class="va">self</span>.pygame.quit()</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a>    <span class="kw">def</span> draw_circle(<span class="va">self</span>):</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;DRAW_CIRCLE&quot;</span>, {})</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a>        <span class="va">self</span>.pygame.draw.circle(<span class="va">self</span>.screen, <span class="st">&quot;red&quot;</span>, (<span class="dv">50</span>, <span class="dv">50</span>), <span class="dv">40</span>)</span></code></pre></div>
 <p>We are getting closer. If we run the game now and look carefully, we can see that a circle is drawn on the screen for a split second before it closes. That is because there is no loop yet. We just render one frame and then exit. Time to fix that.</p>
 <h2 id="loop-and-events">Loop and events</h2>
 <p>Let’s start with our game. The test for it should simulate an event that the user closes the window, and first then exit the application:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">PYGAME_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="co">I draw an animated circle until the user closes the window.</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a><span class="co">...         [pygame.event.Event(pygame.QUIT)],</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Game(loop).run()</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a><span class="co">PYGAME_INIT =&gt;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true"></a><span class="co">PYGAME_QUIT =&gt;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>The <code>tick</code> method is modified to look like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, events):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> events:</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>        <span class="cf">if</span> event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT:</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>    <span class="va">self</span>.loop.draw_circle()</span></code></pre></div>
 <p>So we made the decision that the game loop should exit if the tick method returns true.</p>
 <p>We add the ability for the null version of the game loop to simulate events:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
-    <span class="k">class</span> <span class="nc">NullPygame</span><span class="p">:</span>
-        <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">event</span> <span class="o">=</span> <span class="n">NullEvent</span><span class="p">()</span>
-            <span class="o">...</span>
-    <span class="k">class</span> <span class="nc">NullEvent</span><span class="p">:</span>
-        <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">events</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">GameLoop</span><span class="p">(</span><span class="n">NullPygame</span><span class="p">())</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="at">@staticmethod</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="kw">def</span> create_null(events<span class="op">=</span>[]):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    <span class="kw">class</span> NullPygame:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>        <span class="kw">def</span> init(<span class="va">self</span>):</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>            <span class="va">self</span>.event <span class="op">=</span> NullEvent()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>            ...</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>    <span class="kw">class</span> NullEvent:</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a>        <span class="kw">def</span> get(<span class="va">self</span>):</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a>            <span class="cf">if</span> events:</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a>                <span class="cf">return</span> events.pop(<span class="dv">0</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a>            <span class="cf">return</span> []</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a>    <span class="cf">return</span> GameLoop(NullPygame())</span></code></pre></div>
 <p>And we modify the run method to actually do a loop and pass events to the <code>tick</code> method:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">while</span> <span class="n">running</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">()):</span>
-            <span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>    ...</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    running <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>    <span class="cf">while</span> running:</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>        <span class="cf">if</span> game.tick(<span class="va">self</span>.pygame.event.get()):</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>            running <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>If we do not configure tests for our game to simulate the quit event, the test will hang in an infinite loop.</p>
 <p>If we run the game now, the circle stays on the screen until we close the window. But it doesn’t move. Let’s work on that.</p>
 <h2 id="test-animation">Test animation</h2>
 <p>We modify the test for our game by simulating one more event so that one more frame is rendered. That gives us two calls to draw circle:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 51</span>
-<span class="sd">PYGAME_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a><span class="co">I draw an animated circle until the user closes the window.</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a><span class="co">...         [pygame.event.Event(pygame.QUIT)],</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Game(loop).run()</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a><span class="co">PYGAME_INIT =&gt;</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a><span class="co">    x: 51</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true"></a><span class="co">PYGAME_QUIT =&gt;</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>We had to add the <code>x</code> argument to the <code>DRAW_CIRCLE</code> event so that we could observe that it changed:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="kw">def</span> draw_circle(<span class="va">self</span>, x):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>    <span class="va">self</span>.notify(<span class="st">&quot;DRAW_CIRCLE&quot;</span>, {<span class="st">&quot;x&quot;</span>: x})</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>    <span class="va">self</span>.pygame.draw.circle(<span class="va">self</span>.screen, <span class="st">&quot;red&quot;</span>, (x, <span class="dv">50</span>), <span class="dv">40</span>)</span></code></pre></div>
 <p>We also had to make a new call to clear the screen. If we don’t clear the screen we end up with circles drawn on top of each other. Clearing the screen works like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">clear_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;CLEAR_SCREEN&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;purple&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="kw">def</span> clear_screen(<span class="va">self</span>):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>    <span class="va">self</span>.notify(<span class="st">&quot;CLEAR_SCREEN&quot;</span>, {})</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>    <span class="va">self</span>.screen.fill(<span class="st">&quot;purple&quot;</span>)</span></code></pre></div>
 <p>And the implementation for the animation looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a>        ...</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true"></a>        ...</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.x <span class="op">&gt;</span> <span class="dv">500</span>:</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true"></a>            <span class="va">self</span>.x <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true"></a>            <span class="va">self</span>.x <span class="op">+=</span> dt</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true"></a>        <span class="va">self</span>.loop.clear_screen()</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true"></a>        <span class="va">self</span>.loop.draw_circle(<span class="va">self</span>.x)</span></code></pre></div>
 <p>To make the animation frame rate independent, we also had to include the delta time. This is implemented in the game loop similar to how we did it in the spike:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="n">running</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">()):</span>
-            <span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="o">...</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>    ...</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>    dt <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>    <span class="cf">while</span> running:</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>        <span class="cf">if</span> game.tick(dt, <span class="va">self</span>.pygame.event.get()):</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a>            running <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a>        ...</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a>        dt <span class="op">=</span> clock.tick(<span class="dv">60</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>At this point our test-driven implementation does the same thing that our spike does. We are now in a good place to move forward.</p>
 <h2 id="refactor-exit">Refactor exit</h2>
 <p>Before closing this episode, let’s take advantage of our test suite and explore an alternative way to exit the application. Instead of having a boolean return from <code>tick</code> indicating if we should exit or not, which I think is a bit unclear, let’s try an exception. Here it is:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">ExitGameLoop</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="kw">class</span> ExitGameLoop(<span class="pp">Exception</span>):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    <span class="cf">pass</span></span></code></pre></div>
 <p>The tick method then turns into this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> events:</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a>        <span class="cf">if</span> event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT:</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>And the game loop into this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game</span><span class="p">):</span>
-    <span class="o">...</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
-            <span class="o">...</span>
-    <span class="k">except</span> <span class="n">ExitGameLoop</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;PYGAME_QUIT&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="kw">def</span> run(<span class="va">self</span>, game):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a>    ...</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>    <span class="cf">try</span>:</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a>            game.tick(dt, <span class="va">self</span>.pygame.event.get())</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a>            ...</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true"></a>    <span class="cf">except</span> ExitGameLoop:</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true"></a>    <span class="va">self</span>.notify(<span class="st">&quot;PYGAME_QUIT&quot;</span>, {})</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true"></a>    <span class="va">self</span>.pygame.quit()</span></code></pre></div>
 <p>I like this better. And all the tests still pass, unchanged.</p>
 <h2 id="summary">Summary</h2>
 <p>We have now recreated the functionality that we had in the spike, added the ability to test it, and improved the design with the safety net of our tests. Great success!</p>

@@ -60,51 +60,37 @@
 <p>I have managed to edit some footage using my own <a href="../../projects/rlvideo/">video editor</a>. When I tried to export it, it took forever and eventually crashed. In this DevLog, we will investigate why that might be.</p>
 <h2 id="how-export-works">How export works</h2>
 <p>When we press the export button, the following code is run:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export.mp4&quot;</span>
-        <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
-            <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
-            <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
-            <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
-            <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-            <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
-            <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-            <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">background_worker</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">work</span><span class="p">,</span>
-        <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> Project:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    ...</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="kw">def</span> export(<span class="va">self</span>):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        path <span class="op">=</span> <span class="st">&quot;export.mp4&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>        producer <span class="op">=</span> <span class="va">self</span>.split_into_sections().to_mlt_producer(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>            profile<span class="op">=</span><span class="va">self</span>.profile,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>            cache<span class="op">=</span>ExportSourceLoader(profile<span class="op">=</span><span class="va">self</span>.profile, project<span class="op">=</span><span class="va">self</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>        )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>        <span class="kw">def</span> work(progress):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>            consumer <span class="op">=</span> mlt.Consumer(<span class="va">self</span>.profile, <span class="st">&quot;avformat&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>            consumer.<span class="bu">set</span>(<span class="st">&quot;target&quot;</span>, path)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>            consumer.<span class="ex">connect</span>(producer)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>            consumer.start()</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>            <span class="cf">while</span> consumer.is_stopped() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>                progress(producer.position()<span class="op">/</span>producer.get_playtime())</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>                time.sleep(<span class="fl">0.5</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a>        <span class="va">self</span>.background_worker.add(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a>            <span class="ss">f&quot;Exporting </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">&quot;</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a>            <span class="kw">lambda</span> result: <span class="va">None</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a>            work,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a>        )</span></code></pre></div>
 <p>It creates an MLT producer with the real clips, and not the proxy clips. The <code>work</code> function is called in a thread, and this code does the actual export:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>consumer <span class="op">=</span> mlt.Consumer(<span class="va">self</span>.profile, <span class="st">&quot;avformat&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>consumer.<span class="bu">set</span>(<span class="st">&quot;target&quot;</span>, path)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>consumer.<span class="ex">connect</span>(producer)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>consumer.start()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="cf">while</span> consumer.is_stopped() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    progress(producer.position()<span class="op">/</span>producer.get_playtime())</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    time.sleep(<span class="fl">0.5</span>)</span></code></pre></div>
 <p>As I remember, this is the code that takes forever and eventually crash. I also think its memory consumption steadily increase.</p>
 <h2 id="way-forward">Way forward</h2>
 <p>There is not much Python code in here. Just the loop that queries the consumer. So my guess is that something in MLT consumes memory and eventually crashes. We had a similar problem, I think, before when we created proxies using MLT in this way. On the other hand, it seems unlikely that MLT would crash when exporting a “small” project.</p>
@@ -112,62 +98,34 @@
 <p>If there is something wrong with MLT, which I doubt, the export will fail here as well. If not, well, then I don’t know what is wrong, but we can at least rule out MLT (core).</p>
 <h2 id="the-test">The test</h2>
 <p>We have this code that enables us to export MLT XML:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
-    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
-    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
-    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
-    <span class="k">return</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="cf">if</span> sys.argv[<span class="dv">1</span>:<span class="dv">2</span>] <span class="op">==</span> [<span class="st">&quot;--export-melt&quot;</span>]:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    path <span class="op">=</span> sys.argv[<span class="dv">2</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Exporting </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    project <span class="op">=</span> Project.load(args<span class="op">=</span>sys.argv[<span class="dv">3</span>:])</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    consumer <span class="op">=</span> mlt.Consumer(project.profile, <span class="st">&quot;xml&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    consumer.<span class="bu">set</span>(<span class="st">&quot;resource&quot;</span>, path)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    consumer.<span class="ex">connect</span>(project.get_preview_mlt_producer())</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    consumer.start()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>    <span class="cf">while</span> consumer.is_stopped() <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>        time.sleep(<span class="fl">0.5</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>    <span class="bu">print</span>(<span class="st">&quot;Done&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>    <span class="cf">return</span></span></code></pre></div>
 <p>However, it creates the preview MLT producer which uses the proxy clips.</p>
 <p>Since this is just a test, not intended to be committed, I modify this code to instead create an MLT producer with the real clips.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">ExportSourceLoader</span>
-<span class="n">producer</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
-    <span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
-    <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="im">from</span> rlvideolib.domain.project <span class="im">import</span> ExportSourceLoader</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>producer <span class="op">=</span> project.split_into_sections().to_mlt_producer(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    profile<span class="op">=</span>project.profile,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    cache<span class="op">=</span>ExportSourceLoader(profile<span class="op">=</span>project.profile, project<span class="op">=</span>project)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>consumer.<span class="ex">connect</span>(producer)</span></code></pre></div>
 <p>Now we can export the XML like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
+<pre><code>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
 Exporting test.xml
 ...
-Done
-</pre>
-</div>
-</div>
-</div>
+Done</code></pre>
 <p>I verify that the XML file has references to the real clips. It does. Perfect!</p>
 <p>We can now do the equivalent export with this command:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>mlt-melt test.xml -consumer avformat target=export.mp4
-</pre>
-</div>
-</div>
-</div>
+<pre><code>mlt-melt test.xml -consumer avformat target=export.mp4</code></pre>
 <p>And now, it’s just to wait and see what happens.</p>
 <h2 id="a-few-minutes-later">A few minutes later</h2>
 <p>The memory consumption seems to be quite stable. Unless there is a memory leak, this is what I expect. If the memory consumption keeps increasing for every frame that is exported, that would mean that you can only export longer videos by getting more memory. That does not seem right.</p>

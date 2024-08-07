@@ -62,35 +62,28 @@
 <p>Right now our game is split up into two main classes: the game and the game loop. The game contains the logic of our game, while the game loop is responsible for setting up pygame and calling our game on every frame.</p>
 <p>Almost all references to pygame are contained in the game loop class. Our game knows almost nothing about pygame. Almost. And that bothers me.</p>
 <p>Let’s have a look at the test for our game:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I draw an animated circle until the user closes the window.</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; Game(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 51</span>
-<span class="sd">PYGAME_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">I draw an animated circle until the user closes the window.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co">...         [pygame.event.Event(pygame.QUIT)],</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; Game(loop).run()</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">PYGAME_INIT =&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">    x: 51</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">PYGAME_QUIT =&gt;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>We can see references to pygame in two places. First when we create the quit event. We create an instance of a pygame event and pass that to the null version of the game loop. Later in the events that we assert on, there are event names mentioning pygame (<code>PYGAME_INIT</code> and <code>PYGAME_QUIT</code>).</p>
 <p>Why does this bother me?</p>
 <p>One purpose of introducing the game loop class was to separate pygame code from our game. One reason to do that is that our game becomes easier to test. And if it’s easier to test, it suggests that the design is also better. (People claim at least. So let’s go with that here.)</p>
@@ -98,279 +91,146 @@
 <p>If <code>GameLoop</code> were instead called <code>PygameGameLoop</code>, I would be more fine with this. But I think the design would be more clear if the game didn’t know anything at all about pygame.</p>
 <p>Our game loop uses the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern. One purpose of that pattern is to isolate and contain infrastructure code so that the user of it can be provided an interface that is optimal for its consumption. In our case we want to design our game loop to fit exactly what our game needs. And the loop should encapsulate all the details of how to make that happen (using pygame).</p>
 <p>Our game now needs to know that the pygame quit event is fired when the user closes the window. But wouldn’t it be more clear if that could be expressed in the code something like this instead?</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="va">self</span>.loop.quit()</span></code></pre></div>
 <p>Above, the game does not need to know about pygame and can directly express the idea that if the user closes the window, the game loop should be quit.</p>
 <p>Enough talking, let’s see if we can fix this.</p>
 <h2 id="wrapping-events">Wrapping events</h2>
 <p>The tick method of our game now looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> events:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        <span class="cf">if</span> event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>            <span class="va">self</span>.loop.quit()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>The interface is that events is a list of pygame event instances.</p>
 <p>Let’s change that to instead be instances of a new event class that we control. Here is a first version:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Event</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pygame_event</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span> <span class="o">=</span> <span class="n">pygame_event</span>
-
-    <span class="k">def</span> <span class="nf">is_user_closed_window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> Event:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, pygame_event):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="va">self</span>.pygame_event <span class="op">=</span> pygame_event</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="kw">def</span> is_user_closed_window(<span class="va">self</span>):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.pygame_event.<span class="bu">type</span> <span class="op">==</span> pygame.QUIT</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>        <span class="cf">return</span> <span class="bu">repr</span>(<span class="va">self</span>.pygame_event)</span></code></pre></div>
 <p>Now we can change how the game loop calls the game from this</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>game.tick(dt, <span class="va">self</span>.pygame.event.get())</span></code></pre></div>
 <p>to this</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">game</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="p">[</span><span class="n">Event</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">()])</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>game.tick(dt, [Event(x) <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.pygame.event.get()])</span></code></pre></div>
 <p>This breaks our tests saying that</p>
 <pre><code>AttributeError: 'Event' object has no attribute 'type'</code></pre>
 <p>We modify our game to use our new method instead:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> events:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>            <span class="va">self</span>.loop.quit()</span></code></pre></div>
 <p>All tests are passing again.</p>
 <p>We can rely on our tests for this refactoring.</p>
 <p><a href="https://github.com/rickardlindberg/agdpp/commit/ac00de877b8f4ee58716c0030c8b2ecab19a318e"><code>git commit -a -m ‘Wrap events to tick for a nicer interface.’</code></a></p>
 <h2 id="test-still-mentions-pygame">Test still mentions pygame</h2>
 <p>Our test for the game still creates pygame events:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [pygame.event.Event(pygame.QUIT)],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="co">...         [pygame.event.Event(pygame.QUIT)],</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>Here we would like to instead express the idea that we want to simulate a user closes the window event without mentioning any more details.</p>
 <p>Here is one attempt:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>And in game loop, we add this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create_event_user_closed_window</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="at">@staticmethod</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="kw">def</span> create_event_user_closed_window():</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    <span class="cf">return</span> pygame.event.Event(pygame.QUIT)</span></code></pre></div>
 <p>Now the game loop knows the details of how to create pygame events. I think this is better. But there is one thing that still bothers me.</p>
 <p>The tick method expects a list of events with the interface that we make up, but <code>create_event_user_closed_window</code> creates a pygame event. So right now, there is no way for us to test the tick method in isolation, because there is no way to create events. If we expose the <code>Event</code> class we could do something like this in a test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game.tick(dt=1, events=[Event(GameLoop.create_user_close_window())])</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.tick(dt=1, events=[Event(GameLoop.create_user_close_window())])</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>I’m not sure I like that. I think I would feel better if <code>create_event_user_closed_window</code> returned an event with our interface. Let’s try that.</p>
 <p>We modify it:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create_event_user_closed_window</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="at">@staticmethod</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="kw">def</span> create_event_user_closed_window():</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="cf">return</span> Event(pygame.event.Event(pygame.QUIT))</span></code></pre></div>
 <p>Test fail:</p>
 <pre><code>AttributeError: 'Event' object has no attribute 'type'</code></pre>
 <p>I think we are now wrapping events in events. Let’s unpack the pygame event when creating the null version, going from this</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">NullEvent</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">events</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[]</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">class</span> NullEvent:</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    <span class="kw">def</span> get(<span class="va">self</span>):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>        <span class="cf">if</span> events:</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a>            <span class="cf">return</span> events.pop(<span class="dv">0</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>        <span class="cf">return</span> []</span></code></pre></div>
 <p>to this</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">NullEvent</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">pygame_event</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="p">[]</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">class</span> NullEvent:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>    <span class="kw">def</span> get(<span class="va">self</span>):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>        <span class="cf">if</span> events:</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>            <span class="cf">return</span> [x.pygame_event <span class="cf">for</span> x <span class="kw">in</span> events.pop(<span class="dv">0</span>)]</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>        <span class="cf">return</span> []</span></code></pre></div>
 <p>Now another test fails:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;some event&quot;</span><span class="p">]])</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">game</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> GameLoop.create_null(events<span class="op">=</span>[[<span class="st">&quot;some event&quot;</span>]]).run(game)</span></code></pre></div>
 <p>We just changed the interface of <code>create_null</code> to expect <code>Event</code> instances. Here we are passing a string. It should really be a pygame event. But we ignore that for now and just change to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[[</span><span class="n">Event</span><span class="p">(</span><span class="s2">&quot;some event&quot;</span><span class="p">)]])</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">game</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> GameLoop.create_null(events<span class="op">=</span>[[Event(<span class="st">&quot;some event&quot;</span>)]]).run(game)</span></code></pre></div>
 <p>All tests are passing. Success!</p>
 <p>We add a test to illustrate the usage of the factory method:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create_event_user_closed_window</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &gt;&gt;&gt; GameLoop.create_event_user_closed_window().is_user_closed_window()</span>
-<span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="at">@staticmethod</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="kw">def</span> create_event_user_closed_window():</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; GameLoop.create_event_user_closed_window().is_user_closed_window()</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a><span class="co">    True</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a>    <span class="cf">return</span> Event(pygame.event.Event(pygame.QUIT))</span></code></pre></div>
 <p>At this point our game no longer depends on pygame. It only depends on the game loop which provides the infrastructure needed for writing a game (graphics, user input, music, etc). We can remove the import of pygame so the top of the file now looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="ch">#!/usr/bin/env python3</span>
-
-<span class="kn">from</span> <span class="nn">gameloop</span> <span class="kn">import</span> <span class="n">GameLoop</span>
-
-<span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="co">#!/usr/bin/env python3</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="im">from</span> gameloop <span class="im">import</span> GameLoop</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a><span class="kw">class</span> Game:</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p><a href="https://github.com/rickardlindberg/agdpp/commit/3686e4d1f5740301f2177810cfa26fa093153c17"><code>git commit -a -m ‘Wrap events so that our game now longer knows about pygame.’</code></a></p>
 <h2 id="get-rid-of-last-pygame-reference">Get rid of last pygame reference</h2>
 <p>There is still one place left where our game test refers to pygame:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">...</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">PYGAME_INIT =&gt;</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 51</span>
-<span class="sd">PYGAME_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="co">...</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a><span class="co">PYGAME_INIT =&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true"></a><span class="co">    x: 51</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true"></a><span class="co">PYGAME_QUIT =&gt;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>Some events that the game loop emits have pygame in their name.</p>
 <p>Imagine that we could plug any game loop implementation into our game and from the game’s perspective, they all worked the same. Then it doesn’t make sense for it to emit events that talk about the underlying technology to realize the game loop.</p>
 <p>Let’s rename <code>PYGAME_INIT</code> to <code>GAMELOOP_INIT</code> and <code>PYGAME_QUIT</code> to <code>GAMELOOP_QUIT</code>. And while we are improving events, let’s also add the resolution and fps to the init event so that we can observe them.</p>
 <p>Here is how the test reads then:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">...</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 51</span>
-<span class="sd">GAMELOOP_QUIT =&gt;</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a><span class="co">...</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true"></a><span class="co">    x: 51</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p><a href="https://github.com/rickardlindberg/agdpp/commit/b6ef6430ee93bf9b933f5f06d69d9666ca2d1cd2"><code>git commit -a -m ‘Game loop emits events with clearer names.’</code></a></p>
 <h2 id="unnecessary-work">Unnecessary work?</h2>
 <p>At this point, our game knows nothing about pygame. It only relies on the interface of the game loop. That is something that we control and can design specifically for what our game needs. And should we want to switch out pygame for another graphics library, we only need to modify the game loop, not our game.</p>

@@ -29,193 +29,151 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>I don’t want to argue which is better, but instead show you what an object oriented design can look like, because I feel like those examples are rare.</p>
 <p>The example I’m refactoring is a function that returns the next version number given a set of existing versions numbers stored as git tags.</p>
 <p>In the first example, we ask for the next release version in the 1.0 series given that no tags exist. We get the default version 1.0.0.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[])</span>
-<span class="s1">&#39;1.0.0&#39;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> nextversion(series<span class="op">=</span><span class="st">&quot;1.0&quot;</span>, pre_release<span class="op">=</span><span class="va">False</span>, tags<span class="op">=</span>[])</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">&#39;1.0.0&#39;</span></span></code></pre></div>
 <p>In the second example, version 1.0.0 already exists, and we therefore get version 1.0.1.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.1&#39;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> nextversion(series<span class="op">=</span><span class="st">&quot;1.0&quot;</span>, pre_release<span class="op">=</span><span class="va">False</span>, tags<span class="op">=</span>[<span class="st">&#39;1.0.0&#39;</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="co">&#39;1.0.1&#39;</span></span></code></pre></div>
 <p>In the third example we ask for the next pre-release version. The next release version would be 1.0.2, and so the first pre-release version of that release is 1.0.2-1.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.1&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.2-1&#39;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> nextversion(series<span class="op">=</span><span class="st">&quot;1.0&quot;</span>, pre_release<span class="op">=</span><span class="va">True</span>, tags<span class="op">=</span>[<span class="st">&#39;1.0.0&#39;</span>, <span class="st">&#39;1.0.1&#39;</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="co">&#39;1.0.2-1&#39;</span></span></code></pre></div>
 <p>In the fourth example, pre-release 3 already exists, so the next pre-release is 1.0.2-4.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="o">&gt;&gt;&gt;</span> <span class="n">nextversion</span><span class="p">(</span><span class="n">series</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span> <span class="n">pre_release</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.1&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0.2-3&#39;</span><span class="p">])</span>
-<span class="s1">&#39;1.0.2-4&#39;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> nextversion(series<span class="op">=</span><span class="st">&quot;1.0&quot;</span>, pre_release<span class="op">=</span><span class="va">True</span>, tags<span class="op">=</span>[<span class="st">&#39;1.0.0&#39;</span>, <span class="st">&#39;1.0.1&#39;</span>, <span class="st">&#39;1.0.2-3&#39;</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">&#39;1.0.2-4&#39;</span></span></code></pre></div>
 <p>The initial function looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">nextversion</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-    <span class="n">version_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-        <span class="sa">r</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-        <span class="sa">r</span><span class="s2">&quot;(?P&lt;version&gt;\d+)&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span>
-    <span class="p">])</span>
-    <span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pre_release_numbers</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version_pattern</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release&quot;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pre_release_numbers</span><span class="p">:</span>
-                    <span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release_number&quot;</span><span class="p">]))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-    <span class="n">next_version</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="o">+</span>
-        <span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">version</span> <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">]</span>
-        <span class="o">+</span>
-        <span class="nb">list</span><span class="p">(</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="p">)</span>
-    <span class="n">next_pre_release_number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="k">if</span> <span class="n">pre_release</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">next_version</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">next_pre_release_number</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">next_version</span><span class="si">}</span><span class="s2">&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> nextversion(series, pre_release, tags):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    version_pattern <span class="op">=</span> <span class="st">&quot;&quot;</span>.join([</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>        <span class="vs">r&quot;^&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>        re.escape(series),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>        re.escape(<span class="st">&quot;.&quot;</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>        <span class="vs">r&quot;(?P&lt;version&gt;\d+)&quot;</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>        <span class="vs">r&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>        <span class="vs">r&quot;$&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>    ])</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>    versions <span class="op">=</span> []</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>    pre_release_numbers <span class="op">=</span> {}</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    <span class="cf">for</span> tag <span class="kw">in</span> tags:</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>        match <span class="op">=</span> re.match(version_pattern, tag)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>        <span class="cf">if</span> match:</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>            version <span class="op">=</span> <span class="bu">int</span>(match[<span class="st">&quot;version&quot;</span>])</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>            <span class="cf">if</span> match[<span class="st">&quot;pre_release&quot;</span>]:</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a>                <span class="cf">if</span> version <span class="kw">not</span> <span class="kw">in</span> pre_release_numbers:</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a>                    pre_release_numbers[version] <span class="op">=</span> []</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a>                pre_release_numbers[version].append(<span class="bu">int</span>(match[<span class="st">&quot;pre_release_number&quot;</span>]))</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a>            <span class="cf">else</span>:</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a>                versions.append(version)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a>    next_version <span class="op">=</span> <span class="bu">max</span>(</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a>        [<span class="dv">0</span>]</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a>        <span class="op">+</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a>        [<span class="dv">1</span><span class="op">+</span>version <span class="cf">for</span> version <span class="kw">in</span> versions]</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a>        <span class="op">+</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true"></a>        <span class="bu">list</span>(pre_release_numbers.keys())</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true"></a>    )</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true"></a>    next_pre_release_number <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">max</span>(pre_release_numbers.get(next_version, [<span class="dv">0</span>]))</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true"></a>    <span class="cf">if</span> pre_release:</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>series<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>next_version<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>next_pre_release_number<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>series<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>next_version<span class="sc">}</span><span class="ss">&quot;</span></span></code></pre></div>
 <p>I refactor it to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">nextversion</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">Tags</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">get_next_version</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Tags</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span>
-
-    <span class="k">def</span> <span class="nf">get_next_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">):</span>
-        <span class="n">series</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-        <span class="n">versions</span> <span class="o">=</span> <span class="n">Versions</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-            <span class="n">series</span><span class="o">.</span><span class="n">parse_version</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">versions</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">versions</span><span class="o">.</span><span class="n">get_next_version</span><span class="p">(</span><span class="n">pre_release</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Release</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
-
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="n">versions</span><span class="o">.</span><span class="n">add_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">format_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">PreRelease</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span> <span class="o">=</span> <span class="n">pre_release_number</span>
-
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="n">versions</span><span class="o">.</span><span class="n">add_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">format_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_number</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">NoMatchVersion</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versions</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">Versions</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="nf">add_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">add_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="p">[</span><span class="n">version</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pre_release_number</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_next_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre_release</span><span class="p">):</span>
-        <span class="n">next_version</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-            <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="o">+</span>
-            <span class="p">[</span><span class="mi">1</span><span class="o">+</span><span class="n">version</span> <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">versions</span><span class="p">]</span>
-            <span class="o">+</span>
-            <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="p">)</span>
-        <span class="n">next_pre_release_number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_release_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="n">pre_release</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">PreRelease</span><span class="p">(</span><span class="n">next_version</span><span class="p">,</span> <span class="n">next_pre_release_number</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Release</span><span class="p">(</span><span class="n">next_version</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Series</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">series</span> <span class="o">=</span> <span class="n">series</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">version_pattern</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
-            <span class="sa">r</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
-            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">series</span><span class="p">),</span>
-            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-            <span class="sa">r</span><span class="s2">&quot;(?P&lt;version&gt;\d+)&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span>
-        <span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">parse_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version_pattern</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release&quot;</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="n">PreRelease</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">&quot;pre_release_number&quot;</span><span class="p">]))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Release</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">NoMatchVersion</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">format_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">def</span> <span class="nf">format_pre_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">pre_release_number</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">series</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">pre_release_number</span><span class="si">}</span><span class="s2">&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">def</span> nextversion(series, pre_release, tags):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>    <span class="cf">return</span> Tags(tags).get_next_version(series, pre_release)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="kw">class</span> Tags:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, tags):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>        <span class="va">self</span>.tags <span class="op">=</span> tags</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>    <span class="kw">def</span> get_next_version(<span class="va">self</span>, series, pre_release):</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>        series <span class="op">=</span> Series(series)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>        versions <span class="op">=</span> Versions()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>        <span class="cf">for</span> tag <span class="kw">in</span> <span class="va">self</span>.tags:</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>            series.parse_version(tag).add_to(versions)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>        <span class="cf">return</span> versions.get_next_version(pre_release).<span class="bu">format</span>(series)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a><span class="kw">class</span> Release:</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, version):</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>        <span class="va">self</span>.version <span class="op">=</span> version</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a>    <span class="kw">def</span> add_to(<span class="va">self</span>, versions):</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>        versions.add_release(<span class="va">self</span>.version)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>    <span class="kw">def</span> <span class="bu">format</span>(<span class="va">self</span>, series):</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a>        <span class="cf">return</span> series.format_release(<span class="va">self</span>.version)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true"></a><span class="kw">class</span> PreRelease:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, version, pre_release_number):</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true"></a>        <span class="va">self</span>.version <span class="op">=</span> version</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true"></a>        <span class="va">self</span>.pre_release_number <span class="op">=</span> pre_release_number</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true"></a></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true"></a>    <span class="kw">def</span> add_to(<span class="va">self</span>, versions):</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true"></a>        versions.add_pre_release(<span class="va">self</span>.version, <span class="va">self</span>.pre_release_number)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true"></a>    <span class="kw">def</span> <span class="bu">format</span>(<span class="va">self</span>, series):</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true"></a>        <span class="cf">return</span> series.format_pre_release(<span class="va">self</span>.version, <span class="va">self</span>.pre_release_number)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true"></a><span class="kw">class</span> NoMatchVersion:</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true"></a>    <span class="kw">def</span> add_to(<span class="va">self</span>, versions):</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true"></a><span class="kw">class</span> Versions:</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true"></a>        <span class="va">self</span>.versions <span class="op">=</span> []</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true"></a>        <span class="va">self</span>.pre_release_numbers <span class="op">=</span> {}</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true"></a>    <span class="kw">def</span> add_release(<span class="va">self</span>, version):</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true"></a>        <span class="va">self</span>.versions.append(version)</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true"></a></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true"></a>    <span class="kw">def</span> add_pre_release(<span class="va">self</span>, version, pre_release_number):</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true"></a>        <span class="cf">if</span> version <span class="kw">not</span> <span class="kw">in</span> <span class="va">self</span>.pre_release_numbers:</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true"></a>            <span class="va">self</span>.pre_release_numbers[version] <span class="op">=</span> []</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true"></a>        <span class="va">self</span>.pre_release_numbers[version].append(pre_release_number)</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true"></a></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true"></a>    <span class="kw">def</span> get_next_version(<span class="va">self</span>, pre_release):</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true"></a>        next_version <span class="op">=</span> <span class="bu">max</span>(</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true"></a>            [<span class="dv">0</span>]</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true"></a>            <span class="op">+</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true"></a>            [<span class="dv">1</span><span class="op">+</span>version <span class="cf">for</span> version <span class="kw">in</span> <span class="va">self</span>.versions]</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true"></a>            <span class="op">+</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true"></a>            <span class="bu">list</span>(<span class="va">self</span>.pre_release_numbers.keys())</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true"></a>        )</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true"></a>        next_pre_release_number <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">max</span>(<span class="va">self</span>.pre_release_numbers.get(next_version, [<span class="dv">0</span>]))</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true"></a>        <span class="cf">if</span> pre_release:</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true"></a>            <span class="cf">return</span> PreRelease(next_version, next_pre_release_number)</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true"></a>            <span class="cf">return</span> Release(next_version)</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true"></a></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true"></a><span class="kw">class</span> Series:</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, series):</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true"></a>        <span class="va">self</span>.series <span class="op">=</span> series</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true"></a>        <span class="va">self</span>.version_pattern <span class="op">=</span> <span class="st">&quot;&quot;</span>.join([</span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true"></a>            <span class="vs">r&quot;^&quot;</span>,</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true"></a>            re.escape(series),</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true"></a>            re.escape(<span class="st">&quot;.&quot;</span>),</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true"></a>            <span class="vs">r&quot;(?P&lt;version&gt;\d+)&quot;</span>,</span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true"></a>            <span class="vs">r&quot;(?P&lt;pre_release&gt;-(?P&lt;pre_release_number&gt;(\d+)))?&quot;</span>,</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true"></a>            <span class="vs">r&quot;$&quot;</span>,</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true"></a>        ])</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true"></a></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true"></a>    <span class="kw">def</span> parse_version(<span class="va">self</span>, tag):</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true"></a>        match <span class="op">=</span> re.match(<span class="va">self</span>.version_pattern, tag)</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true"></a>        <span class="cf">if</span> match:</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true"></a>            version <span class="op">=</span> <span class="bu">int</span>(match[<span class="st">&quot;version&quot;</span>])</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true"></a>            <span class="cf">if</span> match[<span class="st">&quot;pre_release&quot;</span>]:</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true"></a>                <span class="cf">return</span> PreRelease(version, <span class="bu">int</span>(match[<span class="st">&quot;pre_release_number&quot;</span>]))</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true"></a>                <span class="cf">return</span> Release(version)</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true"></a>        <span class="cf">return</span> NoMatchVersion()</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true"></a></span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true"></a>    <span class="kw">def</span> format_release(<span class="va">self</span>, version):</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>series<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>version<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true"></a></span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true"></a>    <span class="kw">def</span> format_pre_release(<span class="va">self</span>, version, pre_release_number):</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true"></a>        <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>series<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>version<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>pre_release_number<span class="sc">}</span><span class="ss">&quot;</span></span></code></pre></div>
 ]]></summary>
 </entry>
 <entry>
@@ -230,20 +188,10 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 
 <p>In this session I will select what to work on next in my <a href="/projects/rlvideo/index.html">video editor</a> by trying to use it to edit some footage and see where I get stuck.</p>
 <p>I’ve previously managed to create a project which has some footage imported and proxy clips generated. I can open that project like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ rlvideo my-project.rlvideo
-</pre>
-</div>
-</div>
-</div>
+<pre><code>$ rlvideo my-project.rlvideo</code></pre>
 <p>When I do that, two things happen that annoy me.</p>
 <p>First of all, there are lots of exceptions printed to the console:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>Traceback (most recent call last):
+<pre><code>Traceback (most recent call last):
   File &quot;/home/rick/rlvideo/rlvideolib/gui/gtk.py&quot;, line 80, in timeline_draw
     self.timeline.draw_cairo(
   File &quot;/home/rick/rlvideo/rlvideolib/gui/generic.py&quot;, line 200, in draw_cairo
@@ -252,11 +200,7 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
     self.rectangle_map.add(Rectangle(
   File &quot;/home/rick/rlvideo/rlvideolib/graphics/rectangle.py&quot;, line 19, in __init__
     raise ValueError(&quot;Width must be &gt; 0.&quot;)
-ValueError: Width must be &gt; 0.
-</pre>
-</div>
-</div>
-</div>
+ValueError: Width must be &gt; 0.</code></pre>
 <p>And second of all, it seems like it’s loading proxy clips again even though they are already generated:</p>
 <p>
 <center>
@@ -282,189 +226,137 @@ ValueError: Width must be &gt; 0.
 <p>Let’s pick the scrollbar issue.</p>
 <h2 id="review">Review</h2>
 <p>The error happens in <code>draw_scrollbar</code> which looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw_scrollbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">playhead_position</span><span class="p">):</span>
-    <span class="n">x_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">region_shown</span><span class="o">.</span><span class="n">start</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">whole_region</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">area</span><span class="o">.</span><span class="n">width</span>
-    <span class="n">x_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">region_shown</span><span class="o">.</span><span class="n">end</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">whole_region</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">area</span><span class="o">.</span><span class="n">width</span>
-    <span class="n">playhead_x</span> <span class="o">=</span> <span class="n">playhead_position</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">whole_region</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">area</span><span class="o">.</span><span class="n">width</span>
-
-    <span class="c1"># TODO: add callback mechanism in rectangle map</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">area</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="n">x_start</span><span class="p">,</span>
-        <span class="n">area</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-        <span class="n">x_end</span><span class="o">-</span><span class="n">x_start</span><span class="p">,</span>
-        <span class="n">area</span><span class="o">.</span><span class="n">height</span>
-    <span class="p">)</span>
-    <span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-        <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-        <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-        <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-    <span class="p">),</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span>
-
-    <span class="n">context</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
-
-    <span class="n">scroll_box</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">scroll_box</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">scroll_box</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">scroll_box</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">scroll_box</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">set_source_rgba</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
-
-    <span class="c1"># Playhead</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">set_source_rgb</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="n">playhead_x</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">line_to</span><span class="p">(</span><span class="n">playhead_x</span><span class="p">,</span> <span class="n">area</span><span class="o">.</span><span class="n">bottom</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">stroke</span><span class="p">()</span>
-
-    <span class="n">context</span><span class="o">.</span><span class="n">set_source_rgb</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-    <span class="n">scroll_box</span><span class="o">.</span><span class="n">draw_pixel_perfect_border</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> draw_scrollbar(<span class="va">self</span>, context, area, playhead_position):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    x_start <span class="op">=</span> <span class="va">self</span>.scrollbar.region_shown.start <span class="op">/</span> <span class="va">self</span>.scrollbar.whole_region.length <span class="op">*</span> area.width</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    x_end <span class="op">=</span> <span class="va">self</span>.scrollbar.region_shown.end <span class="op">/</span> <span class="va">self</span>.scrollbar.whole_region.length <span class="op">*</span> area.width</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    playhead_x <span class="op">=</span> playhead_position <span class="op">/</span> <span class="va">self</span>.scrollbar.whole_region.length <span class="op">*</span> area.width</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="co"># </span><span class="al">TODO</span><span class="co">: add callback mechanism in rectangle map</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    x, y, w, h <span class="op">=</span> (</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>        area.x<span class="op">+</span>x_start,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>        area.y,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>        x_end<span class="op">-</span>x_start,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>        area.height</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>    )</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>    rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>    rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>    <span class="va">self</span>.rectangle_map.add(Rectangle(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a>        x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a>        y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a>        width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a>        height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true"></a>    ), <span class="st">&quot;position&quot;</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true"></a>    context.rectangle(area.x, area.y, area.width, area.height)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true"></a>    context.set_source_rgba(<span class="fl">0.4</span>, <span class="fl">0.9</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true"></a>    context.fill()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true"></a>    scroll_box <span class="op">=</span> Rectangle(x, y, w, h)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true"></a>    context.rectangle(scroll_box.x, scroll_box.y, scroll_box.width, scroll_box.height)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true"></a>    context.set_source_rgba(<span class="fl">0.4</span>, <span class="fl">0.9</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true"></a>    context.fill()</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true"></a>    <span class="co"># Playhead</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true"></a>    context.set_source_rgb(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true"></a>    context.move_to(playhead_x, area.top)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true"></a>    context.line_to(playhead_x, area.bottom)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true"></a>    context.stroke()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true"></a>    context.set_source_rgb(<span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true"></a>    scroll_box.draw_pixel_perfect_border(context, <span class="dv">2</span>)</span></code></pre></div>
 <p>When I look at this, it’s difficult for me to see what is going on. It is just too long and does too much. It doesn’t clearly represent what I had in mind when I wrote it.</p>
 <p>If we are going to do evolutionary design, we have to pay more attention to design. All the time.</p>
 <p>It’s fine that I didn’t pay too much attention last time I modified this method, but now that we are here again, let’s give it some extra love so that it is easier to work with next time.</p>
 <h2 id="further-review">Further review</h2>
 <p>The error happens when creating the rectangle in the following piece of code:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="c1"># TODO: add callback mechanism in rectangle map</span>
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="n">x_start</span><span class="p">,</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-    <span class="n">x_end</span><span class="o">-</span><span class="n">x_start</span><span class="p">,</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">height</span>
-<span class="p">)</span>
-<span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-    <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-    <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-<span class="p">),</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add callback mechanism in rectangle map</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>x, y, w, h <span class="op">=</span> (</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    area.x<span class="op">+</span>x_start,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    area.y,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    x_end<span class="op">-</span>x_start,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    area.height</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="va">self</span>.rectangle_map.add(Rectangle(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>    x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>    y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>    width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>), <span class="st">&quot;position&quot;</span>)</span></code></pre></div>
 <p>Look, there is even a TODO comment there. Now that we are touching this piece of code again, perhaps it’s time to deal with it.</p>
 <h2 id="the-rectangle-map">The rectangle map</h2>
 <p>The rectangle map is used to store areas of the screen that the user can interact with. You can put objects at a given rectangle and retrieve them by position. Here is an example:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; r = RectangleMap()</span>
-<span class="sd">&gt;&gt;&gt; r.add(Rectangle(x=0, y=0, width=10, height=10), &quot;item&quot;)</span>
-<span class="sd">&gt;&gt;&gt; r.get(5, 5)</span>
-<span class="sd">&#39;item&#39;</span>
-<span class="sd">&gt;&gt;&gt; r.get(100, 100) is None</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; r = RectangleMap()</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; r.add(Rectangle(x=0, y=0, width=10, height=10), &quot;item&quot;)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; r.get(5, 5)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">&#39;item&#39;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; r.get(100, 100) is None</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="co">True</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>In the timeline area, each cut puts itself in a rectangle, allowing a context menu to be shown when it is right clicked like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-    <span class="n">cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">Cut</span><span class="p">):</span>
-        <span class="c1"># show context menu</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">def</span> right_mouse_down(<span class="va">self</span>, x, y, gui):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>    cut <span class="op">=</span> <span class="va">self</span>.rectangle_map.get(x, y)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(cut, Cut):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>        <span class="co"># show context menu</span></span></code></pre></div>
 <p>The TODO comment that I wrote suggests that we should instead store objects that can handle <code>right_mouse_down</code> events for example so that we don’t need to check instances at the outermost event handler.</p>
 <p>Let’s see if we can do it.</p>
 <h2 id="action-test">Action test</h2>
 <p>I sketch this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Action</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">ScrollbarDragAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span> <span class="o">=</span> <span class="n">timeline</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
-
-    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">set_scrollbar</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">move_scrollbar</span><span class="p">(</span>
-                    <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">class</span> Action:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="kw">def</span> left_mouse_down(<span class="va">self</span>, x, y):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>    <span class="kw">def</span> right_mouse_down(<span class="va">self</span>, x, y, gui):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>    <span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>    <span class="kw">def</span> mouse_up(<span class="va">self</span>):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>        <span class="cf">pass</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a><span class="kw">class</span> ScrollbarDragAction(Action):</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, timeline, scrollbar):</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a>        <span class="va">self</span>.timeline <span class="op">=</span> timeline</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a>        <span class="va">self</span>.scrollbar <span class="op">=</span> scrollbar</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a>        <span class="va">self</span>.mouse_up()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a>    <span class="kw">def</span> left_mouse_down(<span class="va">self</span>, x, y):</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> x</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true"></a>    <span class="kw">def</span> mouse_up(<span class="va">self</span>):</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true"></a>    <span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.x <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true"></a>            <span class="va">self</span>.timeline.set_scrollbar(</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true"></a>                <span class="va">self</span>.scrollbar.move_scrollbar(</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true"></a>                    x <span class="op">-</span> <span class="va">self</span>.x</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true"></a>                )</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true"></a>            )</span></code></pre></div>
 <p>Let’s see if we can use it.</p>
 <p>I modify <code>right_mouse_down</code> and all the other event handlers to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-    <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Action</span><span class="p">):</span>
-        <span class="n">item</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_item</span> <span class="o">=</span> <span class="n">item</span>
-        <span class="k">return</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">def</span> right_mouse_down(<span class="va">self</span>, x, y, gui):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    item <span class="op">=</span> <span class="va">self</span>.rectangle_map.get(x, y)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(item, Action):</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>        item.right_mouse_down(x, y, gui)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>        <span class="va">self</span>.down_item <span class="op">=</span> item</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>        <span class="cf">return</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>This is special handling for the case where the entry in the rectangle map is an <code>Action</code>. Eventually, we want there to be only actions in there, and then the instance check can be removed.</p>
 <p>Next I change what we put into the rectangle map for the scrollbar to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-    <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-    <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-<span class="p">),</span> <span class="n">ScrollbarDragAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="va">self</span>.rectangle_map.add(Rectangle(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>    x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>), ScrollbarDragAction(<span class="va">self</span>, <span class="va">self</span>.scrollbar))</span></code></pre></div>
 <p>Boom! Test failure:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>Failed example:
+<pre><code>Failed example:
     timeline.rectangle_map # doctest: +ELLIPSIS
 Differences (ndiff with -expected +actual):
     ...
@@ -472,147 +364,105 @@ Differences (ndiff with -expected +actual):
         scrub
       Rectangle(x=0, y=77, width=300, height=23):
     -   position
-    +   &lt;rlvideolib.gui.generic.ScrollbarDragAction object at 0x7fd1f8891d00&gt;
-</pre>
-</div>
-</div>
-</div>
+    +   &lt;rlvideolib.gui.generic.ScrollbarDragAction object at 0x7fd1f8891d00&gt;</code></pre>
 <p>There is now another object in the rectangle map. Let’s modify the test to assert that instead.</p>
 <p>The question now is, will it work in the application?</p>
 <p>This behavior I think lacks tests, so let’s try.</p>
 <p>Nothing happens.</p>
 <p>I review the code and find that I had forgotten the <code>mouse_move</code> event:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_item</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_item</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">return</span>
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>    <span class="cf">if</span> <span class="va">self</span>.down_item:</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>        <span class="va">self</span>.down_item.mouse_move(x, y)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>        <span class="cf">return</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>And that actually works!</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Add a ScrollbarDragAction instead of position string.&#39;
+<pre><code>$ ./make.py commit -m &#39;Add a ScrollbarDragAction instead of position string.&#39;
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.405s
 
 OK
 [main 87c9b07] Add a ScrollbarDragAction instead of position string.
- 1 file changed, 59 insertions(+), 2 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 59 insertions(+), 2 deletions(-)</code></pre>
 <p>I make the same change for the remaining actions.</p>
 <p>Here is the one for scrubbing the timeline:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">ScrubAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">player</span> <span class="o">=</span> <span class="n">player</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
-
-    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">scrub</span><span class="p">(</span>
-                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">content_start</span>
-                    <span class="o">+</span>
-                    <span class="n">x</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">one_length_in_pixels</span>
-                <span class="p">))</span>
-            <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> ScrubAction(Action):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, player, scrollbar):</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>        <span class="va">self</span>.player <span class="op">=</span> player</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>        <span class="va">self</span>.scrollbar <span class="op">=</span> scrollbar</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>        <span class="va">self</span>.mouse_up()</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>    <span class="kw">def</span> left_mouse_down(<span class="va">self</span>, x, y):</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> x</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a>    <span class="kw">def</span> mouse_up(<span class="va">self</span>):</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true"></a>    <span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.x <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true"></a>            <span class="va">self</span>.player.scrub(</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true"></a>                <span class="bu">int</span>(<span class="bu">round</span>(</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true"></a>                    <span class="va">self</span>.scrollbar.content_start</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true"></a>                    <span class="op">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true"></a>                    x<span class="op">/</span><span class="va">self</span>.scrollbar.one_length_in_pixels</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true"></a>                ))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true"></a>            )</span></code></pre></div>
 <p>And here is the one for moving a cut and opening the context menu for a cut:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">CutAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project</span> <span class="o">=</span> <span class="n">project</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cut</span> <span class="o">=</span> <span class="n">cut</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
-
-    <span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">mix_strategy_updater</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
-                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
-                    <span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span>
-                        <span class="n">cut</span><span class="o">.</span><span class="n">with_mix_strategy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">update</span>
-        <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
-            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
-            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
-        <span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span>
-                <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">one_length_in_pixels</span><span class="p">)))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> CutAction(Action):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, project, cut, scrollbar):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>        <span class="va">self</span>.project <span class="op">=</span> project</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>        <span class="va">self</span>.cut <span class="op">=</span> cut</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>        <span class="va">self</span>.scrollbar <span class="op">=</span> scrollbar</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>        <span class="va">self</span>.mouse_up()</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>    <span class="kw">def</span> left_mouse_down(<span class="va">self</span>, x, y):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>        <span class="va">self</span>.transaction <span class="op">=</span> <span class="va">self</span>.project.new_transaction()</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> x</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>    <span class="kw">def</span> right_mouse_down(<span class="va">self</span>, x, y, gui):</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a>        <span class="kw">def</span> mix_strategy_updater(value):</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true"></a>            <span class="kw">def</span> update():</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true"></a>                <span class="cf">with</span> <span class="va">self</span>.project.new_transaction() <span class="im">as</span> transaction:</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true"></a>                    transaction.modify(<span class="va">self</span>.cut.<span class="bu">id</span>, <span class="kw">lambda</span> cut:</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true"></a>                        cut.with_mix_strategy(value))</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true"></a>            <span class="cf">return</span> update</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true"></a>        gui.show_context_menu([</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true"></a>            MenuItem(label<span class="op">=</span><span class="st">&quot;over&quot;</span>, action<span class="op">=</span>mix_strategy_updater(<span class="st">&quot;over&quot;</span>)),</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true"></a>            MenuItem(label<span class="op">=</span><span class="st">&quot;under&quot;</span>, action<span class="op">=</span>mix_strategy_updater(<span class="st">&quot;under&quot;</span>)),</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true"></a>        ])</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true"></a>    <span class="kw">def</span> mouse_up(<span class="va">self</span>):</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true"></a>        <span class="va">self</span>.transaction <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true"></a>        <span class="va">self</span>.x <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true"></a>    <span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.transaction <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true"></a>            <span class="va">self</span>.transaction.rollback()</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true"></a>            <span class="va">self</span>.transaction.modify(<span class="va">self</span>.cut.<span class="bu">id</span>, <span class="kw">lambda</span> cut:</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true"></a>                cut.move(<span class="bu">int</span>((x<span class="op">-</span><span class="va">self</span>.x)<span class="op">/</span><span class="va">self</span>.scrollbar.one_length_in_pixels)))</span></code></pre></div>
 <h2 id="clean-up">Clean up</h2>
 <p>At this point, we only put actions into the rectangle map, and we can simplify the event handlers to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Timeline assumes there are Actions in rectangle map.&#39;
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">def</span> left_mouse_down(<span class="va">self</span>, x, y):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    <span class="va">self</span>.down_action <span class="op">=</span> <span class="va">self</span>.rectangle_map.get(x, y, Action())</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    <span class="va">self</span>.down_action.left_mouse_down(x, y)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="kw">def</span> right_mouse_down(<span class="va">self</span>, x, y, gui):</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>    <span class="va">self</span>.down_action <span class="op">=</span> <span class="va">self</span>.rectangle_map.get(x, y, Action())</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>    <span class="va">self</span>.down_action.right_mouse_down(x, y, gui)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a><span class="kw">def</span> mouse_move(<span class="va">self</span>, x, y):</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a>    <span class="cf">if</span> <span class="va">self</span>.down_action:</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a>        <span class="va">self</span>.down_action.mouse_move(x, y)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true"></a>        <span class="va">self</span>.rectangle_map.get(x, y, Action()).mouse_move(x, y)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true"></a><span class="kw">def</span> mouse_up(<span class="va">self</span>):</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true"></a>    <span class="cf">if</span> <span class="va">self</span>.down_action:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true"></a>        <span class="va">self</span>.down_action.mouse_up()</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true"></a>        <span class="va">self</span>.down_action <span class="op">=</span> <span class="va">None</span></span></code></pre></div>
+<pre><code>$ ./make.py commit -m &#39;Timeline assumes there are Actions in rectangle map.&#39;
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.381s
@@ -620,90 +470,51 @@ Ran 51 tests in 3.381s
 OK
 [main 3c8e9b9] Timeline assumes there are Actions in rectangle map.
  Date: Mon Jul 31 14:32:06 2023 +0200
- 2 files changed, 14 insertions(+), 64 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 2 files changed, 14 insertions(+), 64 deletions(-)</code></pre>
 <h2 id="transaction-problem">Transaction problem</h2>
 <p>Everything seems to work fine. However, I notice that the committing of the transaction has disappeared.</p>
 <p>This is not tested anywhere, missed my manual tests, and is pretty severe.</p>
 <p>Let’s see if we can make the code a little more reliable. I write this test:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; project = Project.new()</span>
-<span class="sd">&gt;&gt;&gt; transaction = project.new_transaction()</span>
-<span class="sd">&gt;&gt;&gt; transaction = project.new_transaction()</span>
-<span class="sd">Traceback (most recent call last):</span>
-<span class="sd">  ...</span>
-<span class="sd">ValueError: transaction already in progress</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; project = Project.new()</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; transaction = project.new_transaction()</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; transaction = project.new_transaction()</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="co">Traceback (most recent call last):</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a><span class="co">  ...</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a><span class="co">ValueError: transaction already in progress</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>I make it pass, and I am now more confident that this error will show up when testing in the application.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Ensure there can be only one transaction active at a time.&#39;
+<pre><code>$ ./make.py commit -m &#39;Ensure there can be only one transaction active at a time.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.402s
 
 OK
 [main 2b36bdb] Ensure there can be only one transaction active at a time.
- 2 files changed, 34 insertions(+), 7 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 2 files changed, 34 insertions(+), 7 deletions(-)</code></pre>
 <p>And sure enough, it does. The second time I try to drag a cut, I get the “transaction already in progress” error.</p>
 <p>Nice!</p>
 <p>The fix:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>     def mouse_up(self):
-<span class="gi">+        if self.transaction:</span>
-<span class="gi">+            self.transaction.commit()</span>
-         self.transaction = None
-         self.x = None
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Ensure CutAction transaction is commited at mouse_up.&#39;
+<div class="sourceCode" id="cb19"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>     def mouse_up(self):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="va">+        if self.transaction:</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="va">+            self.transaction.commit()</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>         self.transaction = None</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a>         self.x = None</span></code></pre></div>
+<pre><code>$ ./make.py commit -m &#39;Ensure CutAction transaction is commited at mouse_up.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.406s
 
 OK
 [main 5fd460d] Ensure CutAction transaction is commited at mouse_up.
- 1 file changed, 4 insertions(+), 1 deletion(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 4 insertions(+), 1 deletion(-)</code></pre>
 <p>Normally you use a transaction like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">with</span> <span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">add_text_clip</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">add_text_clip</span><span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">add_text_clip</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">transaction</span><span class="o">.</span><span class="n">add_text_clip</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-    <span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="cf">with</span> project.new_transaction() <span class="im">as</span> transaction:</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>    _ <span class="op">=</span> transaction.add_text_clip(<span class="st">&quot;hello&quot;</span>, length<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>    x <span class="op">=</span> transaction.add_text_clip(<span class="st">&quot;world&quot;</span>, length<span class="op">=</span><span class="dv">35</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>    _ <span class="op">=</span> transaction.add_text_clip(<span class="st">&quot;end&quot;</span>, length<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>    _ <span class="op">=</span> transaction.add_text_clip(<span class="st">&quot;end&quot;</span>, length<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a>    transaction.modify(x, <span class="kw">lambda</span> cut: cut.move(<span class="op">-</span><span class="dv">10</span>))</span></code></pre></div>
 <p>In that case a commit/rollback is guaranteed.</p>
 <p>However, when dealing with mouse events, we can not use the context manager and instead have to deal with mouse events.</p>
 <p>The new check that prevents multiple transactions ensures that everything stops working if we forget to close a transaction.</p>
@@ -713,24 +524,14 @@ OK
 <p>In order to satisfy Python’s import mechanism, I put <code>Action</code> and <code>MenuItem</code> in the <code>rlvideolib.domain.cut</code> module.</p>
 <p>They obviously don’t belong there.</p>
 <p>Here is what the gui package looks like now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>rlvideolib/gui/
+<pre><code>rlvideolib/gui/
 ├── generic.py
 ├── gtk.py
 ├── __init__.py
-└── testing.py
-</pre>
-</div>
-</div>
-</div>
+└── testing.py</code></pre>
 <p>Previously <code>Action</code> and <code>MenuItem</code> were defined in <code>generic</code>. That makes sense. But now we have a dependency on them from <code>rlvideolib.domain.cut</code>. Should a domain object depend on GUI? Maybe that is ok.</p>
 <p>I think what I’ll do is create another module inside the gui package called <code>framework</code>. It will contain generic GUI elements that do not depend on GTK or our application.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Move generic framework GUI code to new rlvideolib.gui.framework.&#39;
+<pre><code>$ ./make.py commit -m &#39;Move generic framework GUI code to new rlvideolib.gui.framework.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.393s
@@ -738,142 +539,89 @@ Ran 52 tests in 3.393s
 OK
 [main b1a8f5d] Move generic framework GUI code to new rlvideolib.gui.framework.
  5 files changed, 23 insertions(+), 19 deletions(-)
- create mode 100644 rlvideolib/gui/framework.py
-</pre>
-</div>
-</div>
-</div>
+ create mode 100644 rlvideolib/gui/framework.py</code></pre>
 <h2 id="progress">Progress?</h2>
 <p>Back to this code where we started:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="c1"># TODO: add callback mechanism in rectangle map</span>
-<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="n">x_start</span><span class="p">,</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-    <span class="n">x_end</span><span class="o">-</span><span class="n">x_start</span><span class="p">,</span>
-    <span class="n">area</span><span class="o">.</span><span class="n">height</span>
-<span class="p">)</span>
-<span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-    <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-    <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-<span class="p">),</span> <span class="n">ScrollbarDragAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add callback mechanism in rectangle map</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a>x, y, w, h <span class="op">=</span> (</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>    area.x<span class="op">+</span>x_start,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a>    area.y,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a>    x_end<span class="op">-</span>x_start,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a>    area.height</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true"></a>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true"></a>rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true"></a>rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true"></a><span class="va">self</span>.rectangle_map.add(Rectangle(</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true"></a>    x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true"></a>    y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true"></a>    width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true"></a>), ScrollbarDragAction(<span class="va">self</span>, <span class="va">self</span>.scrollbar))</span></code></pre></div>
 <p>Ah, the TODO is actually done now.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Remove completed TODO about callback mechanism for rectangle map.&#39;
+<pre><code>$ ./make.py commit -m &#39;Remove completed TODO about callback mechanism for rectangle map.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.392s
 
 OK
 [main b757e3a] Remove completed TODO about callback mechanism for rectangle map.
- 1 file changed, 1 deletion(-)
-</pre>
-</div>
-</div>
-</div>
+ 1 file changed, 1 deletion(-)</code></pre>
 <p>We still haven’t made any progress on the exception problem though. But we have fixed design issues in related areas.</p>
 <p>Let’s focus again on the exception.</p>
 <h2 id="a-common-pattern">A common pattern</h2>
 <p>I think the following pattern exists in all places where we add actions to the rectangle map:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-    <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-    <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-    <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-<span class="p">),</span> <span class="o">...</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a>rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a>rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a><span class="va">self</span>.rectangle_map.add(Rectangle(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a>    x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a>    y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a>    width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true"></a>    height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true"></a>), ...)</span></code></pre></div>
 <p>What about if we add a method to <code>RectangleMap</code> like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">add_from_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-    <span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-        <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-        <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-        <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-    <span class="p">),</span> <span class="n">item</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="kw">def</span> add_from_context(<span class="va">self</span>, x, y, w, h, context, item):</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a>    rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a>    rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a>    <span class="va">self</span>.add(Rectangle(</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a>        x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a>        y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a>        width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true"></a>        height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true"></a>    ), item)</span></code></pre></div>
 <p>We can use that method to add both the scroll action and the scrub action.</p>
 <p>However, the cut action looks slightly different:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">rectangle</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">rectangle</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-<span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">rectangle</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">rectangle</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
-<span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="n">rectangle_map</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">(</span>
-        <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-        <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-        <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-        <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-    <span class="p">),</span> <span class="n">CutAction</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source_cut</span><span class="p">(),</span> <span class="n">scrollbar</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a>rect_x, rect_y <span class="op">=</span> context.user_to_device(rectangle.x, rectangle.y)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a>rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(rectangle.width, rectangle.height)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a><span class="cf">if</span> <span class="bu">int</span>(rect_w) <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="bu">int</span>(rect_h) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a>    rectangle_map.add(Rectangle(</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true"></a>        x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true"></a>        y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true"></a>        width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true"></a>        height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true"></a>    ), CutAction(project, <span class="va">self</span>.get_source_cut(), scrollbar))</span></code></pre></div>
 <p>It actually has the check that we also need for the scrollbar. That is, we only add the rectangle to the map if it has a width and height.</p>
 <p>Let’s add those checks to <code>add_from_context</code>:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">add_from_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-    <span class="n">rect_x</span><span class="p">,</span> <span class="n">rect_y</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="n">rect_w</span><span class="p">,</span> <span class="n">rect_h</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">user_to_device_distance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="n">Rectangle</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_x</span><span class="p">),</span>
-                <span class="n">y</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_y</span><span class="p">),</span>
-                <span class="n">width</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_w</span><span class="p">),</span>
-                <span class="n">height</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">rect_h</span><span class="p">)</span>
-            <span class="p">),</span>
-            <span class="n">item</span>
-        <span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span>$ ./make.py commit -m &#39;Extract RectangleMap.add_from_context which does width/height checks.&#39;
+<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a><span class="kw">def</span> add_from_context(<span class="va">self</span>, x, y, w, h, context, item):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true"></a>    rect_x, rect_y <span class="op">=</span> context.user_to_device(x, y)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true"></a>    rect_w, rect_h <span class="op">=</span> context.user_to_device_distance(w, h)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true"></a>    <span class="cf">if</span> <span class="bu">int</span>(rect_w) <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> <span class="bu">int</span>(rect_h) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a>        <span class="va">self</span>.add(</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true"></a>            Rectangle(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true"></a>                x<span class="op">=</span><span class="bu">int</span>(rect_x),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true"></a>                y<span class="op">=</span><span class="bu">int</span>(rect_y),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true"></a>                width<span class="op">=</span><span class="bu">int</span>(rect_w),</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true"></a>                height<span class="op">=</span><span class="bu">int</span>(rect_h)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true"></a>            ),</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true"></a>            item</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true"></a>        )</span></code></pre></div>
+<pre><code>$ ./make.py commit -m &#39;Extract RectangleMap.add_from_context which does width/height checks.&#39;
 ....................................................
 ----------------------------------------------------------------------
 Ran 52 tests in 3.498s
 
 OK
 [main cd38e3e] Extract RectangleMap.add_from_context which does width/height checks.
- 3 files changed, 17 insertions(+), 25 deletions(-)
-</pre>
-</div>
-</div>
-</div>
+ 3 files changed, 17 insertions(+), 25 deletions(-)</code></pre>
 <p>And this actually resolves the exception problem when I open my project.</p>
 <h1 id="summary">Summary</h1>
 <p>I don’t have much experience doing evolutionary design. My feeling right now is that I need to spend much more time designing than what I am currently doing. I feel like I need to do at least 60% designing and only 40% adding new features. If you are reading this and have any experience with evolutionary design, feel free to share it with me. I should probably also re-read the chapters in James’ book to refresh my memory.</p>

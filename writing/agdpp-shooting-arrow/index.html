@@ -94,302 +94,197 @@ encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 <p>The next step is to figure out how to write an automated test for that.</p>
 <h2 id="the-test-we-want-to-write">The test we want to write</h2>
 <p>Just to recap, the test for the balloon shooter looks like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: 'red'</span>
-<span class="sd">...</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; BalloonShooter(loop).run()</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="co">    y: 50</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">    radius: 40</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">    color: 'red'</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">...</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>That is, we run the balloon shooter game, configure a set of events that should be simulated, and then assert that certain things happens (game loop inits, circles are drawn on screen, etc).</p>
 <p>The test we want to write the for the shoot behavior starts like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The arrow moves when it is shot by pressing the space key:</span>
-
-<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
-<span class="sd">...     events=[</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [],</span>
-<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
-<span class="sd">...     ]</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
-<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="co">The arrow moves when it is shot by pressing the space key:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; loop = GameLoop.create_null(</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">...     events=[</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_keydown_space()],</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a><span class="co">...         [],</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="co">...     ]</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = loop.track_events()</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; BalloonShooter(loop).run()</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>We introduce a new event, keydown space, and simulate that it happens after one frame, and then we simulate a couple of more frames. The reason that we include a couple of frames is that we want to observe that the arrows moves between different frames.</p>
 <p>This partial test fails because this new event does not yet exist, so let’s fix that.</p>
 <h2 id="adding-a-new-event">Adding a new event</h2>
 <p>We add the new event like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create_event_keydown_space</span><span class="p">():</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; GameLoop.create_event_keydown_space().is_keydown_space()</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Event</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">is_keydown_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame_event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    ...</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="kw">def</span> create_event_keydown_space():</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; GameLoop.create_event_keydown_space().is_keydown_space()</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>        <span class="cf">return</span> Event(pygame.event.Event(pygame.KEYDOWN, key<span class="op">=</span>pygame.K_SPACE))</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> Event:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    ...</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    <span class="kw">def</span> is_keydown_space(<span class="va">self</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.pygame_event.<span class="bu">type</span> <span class="op">==</span> pygame.KEYDOWN <span class="kw">and</span> <span class="va">self</span>.pygame_event.key <span class="op">==</span> pygame.K_SPACE</span></code></pre></div>
 <p>We figure out the Pygame event parameters to use by reading the documentation.</p>
 <p>We verify that we got it correct by printing something when we get the keydown space event when running the game. We press different keys to see if it correctly only captures the space key.</p>
 <p>It seems to work.</p>
 <h2 id="filtering-events">Filtering events</h2>
 <p>The initial test now runs, but if we print all the events that we get, there is a lot of noise:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events</span>
-<span class="sd">GAMELOOP_INIT =&gt;</span>
-<span class="sd">    resolution: (1280, 720)</span>
-<span class="sd">    fps: 60</span>
-<span class="sd">CLEAR_SCREEN =&gt;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 50</span>
-<span class="sd">    y: 50</span>
-<span class="sd">    radius: 40</span>
-<span class="sd">    color: 'red'</span>
-<span class="sd">...</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a><span class="co">    x: 50</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co">    y: 50</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a><span class="co">    radius: 40</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="co">    color: 'red'</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a><span class="co">...</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>What we want to observe in that list of events is that the arrow has been drawn in different positions (indicating movement).</p>
 <p>So first we want to filter out the <code>DRAW_CIRCLE</code> events that are for the head of the arrow.</p>
 <p>We want to write like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>Filtering on event fields is not yet possible, but we own the library, and the fix goes smoothly.</p>
 <p>Once that is done, we get this list of events:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">DRAW_CIRCLE =&gt;</span>
-<span class="sd">    x: 500</span>
-<span class="sd">    y: 500</span>
-<span class="sd">    radius: 10</span>
-<span class="sd">    color: 'blue'</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a><span class="co">    x: 500</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a><span class="co">    y: 500</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>This means that when we ran our game in test mode, four frames where drawn and here are all the circles with radius 10. We use 10 here because we know that the head of the arrow is the only circle that is drawn with radius 10. But it is not bullet proof. It would be better if we could pass an id to the draw method call that is included in the event as well so that we could more accurately identify objects. But this will do for now.</p>
 <h2 id="extracting-positions">Extracting positions</h2>
 <p>In the output above, we can look at the x and y coordinates and see if they change. But there are also other fields that we don’t care about in this test. Let’s filter out the position like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
-<span class="sd">[(500, 500), (500, 500), (500, 500), (500, 500)]</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a><span class="co">[(500, 500), (500, 500), (500, 500), (500, 500)]</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>Again, the <code>collect</code> method does not exist, but we can extend our library with it.</p>
 <p>Now we have a list of positions where the head of the arrow is drawn. It doesn’t seem to change, which we can see more clearly by making the collection into a set and seeing that it has only one element:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
-<span class="sd">{(500, 500)}</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="co">{(500, 500)}</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <h2 id="real-test-failure">Real test failure</h2>
 <p>We want the arrow to move, so let’s write an assert like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">True</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">True</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>That is, we should get more than one position, and the set of all those positions should also be larger than one, indicating movement.</p>
 <p>The first assertion passes, but the other one fails. That is expected. Finally we have the assertion failure that we wanted. Took a bit of time, huh? That might tell us something about the design of our system. We’ll talk about it in <a href="../../writing/agdpp-thinking-about-test-setup/">another episode</a>.</p>
 <h2 id="implementation">Implementation</h2>
 <p>First, we modify the event handler to check for the space key and shoot the arrow if so:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
-        <span class="o">...</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> events:</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>            <span class="cf">if</span> event.is_user_closed_window():</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>                <span class="va">self</span>.loop.quit()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>            <span class="cf">elif</span> event.is_keydown_space():</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a>                <span class="va">self</span>.arrow.shoot()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>        ...</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>The shooting mechanism, we implement like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">500</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="nf">shoot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>        <span class="va">self</span>.y <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>        <span class="va">self</span>.shooting <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>    <span class="kw">def</span> shoot(<span class="va">self</span>):</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>        <span class="va">self</span>.shooting <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.shooting:</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a>            <span class="va">self</span>.y <span class="op">-=</span> dt</span></code></pre></div>
 <p>We also adjust the drawing code so that all three circles that are drawn for the arrow are drawn relative to the now variable y position.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-    <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">+</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>    loop.draw_circle(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="va">self</span>.y, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    loop.draw_circle(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="va">self</span>.y<span class="op">+</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>    loop.draw_circle(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="va">self</span>.y<span class="op">+</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div>
 <p>The arrow now moves when we press the space key. Success! Unfortunately we only have one shot. Then we need to restart the game to get a new arrow. We will fix that in another story.</p>
 <h2 id="getting-tangled-up-in-tests">Getting tangled up in tests</h2>
 <p>The shooting works, but I think we forgot to test the initial case. If we don’t press the space key, the arrow should stay still.</p>
 <p>We can change the tick method of the arrow to this, and all tests still pass:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">dt</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    <span class="va">self</span>.y <span class="op">-=</span> dt</span></code></pre></div>
 <p>But that makes the arrow move immediately, even if not shot, which was not intended.</p>
 <p>We write a few more specific tests for the behavior of the arrow:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">I stay still if I've not been fired:</span>
-
-<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; initial_y == arrow.y</span>
-<span class="sd">True</span>
-
-<span class="sd">I move upwards when fired:</span>
-
-<span class="sd">&gt;&gt;&gt; arrow = Arrow()</span>
-<span class="sd">&gt;&gt;&gt; initial_y = arrow.y</span>
-<span class="sd">&gt;&gt;&gt; arrow.shoot()</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.tick(1)</span>
-<span class="sd">&gt;&gt;&gt; arrow.y &lt; initial_y</span>
-<span class="sd">True</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="co">I stay still if I've not been fired:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow = Arrow()</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; initial_y = arrow.y</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; initial_y == arrow.y</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a><span class="co">True</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a><span class="co">I move upwards when fired:</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow = Arrow()</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; initial_y = arrow.y</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.shoot()</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.tick(1)</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow.y &lt; initial_y</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true"></a><span class="co">True</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>That forces us to add the if statement again.</p>
 <p>I’m not sure I’m entirely happy that we access the y variable like that. I prefer to see all fields of a class in Python as private (unless it’s a pure data object). But we got the test working at least.</p>
 <p>I’m not happy with the current tests. On the other hand, I’m not sure how to improve them either.</p>

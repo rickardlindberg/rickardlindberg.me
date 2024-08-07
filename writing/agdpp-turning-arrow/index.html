@@ -64,280 +64,182 @@
 <p>When I play the game now, I want to turn the arrow. I think that will make the game a little more fun. Then you have to control both angle and timing instead of just timing to hit a balloon. (If we implement that balloons fall downwards instead, turning will also be necessary to hit balloons that are not straight above the arrow.)</p>
 <h2 id="how-does-arrow-movement-work">How does arrow movement work?</h2>
 <p>Arrows move first when we press the space key to shoot. Then we create a new arrow and set its shooting attribute to true:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    ...</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        ...</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_keydown_space():</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>            <span class="va">self</span>.flying_arrows.add(Arrow(shooting<span class="op">=</span><span class="va">True</span>))</span></code></pre></div>
 <p>An arrow that has the shooting attribute set to true moves like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    ...</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.shooting:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>            <span class="va">self</span>.position <span class="op">=</span> <span class="va">self</span>.position.move(dy<span class="op">=-</span>dt)</span></code></pre></div>
 <p>That is, it moves straight up in increments of <code>dt</code>. There is no concept of direction yet.</p>
 <p>What we would like to have is some kind of direction attribute on the arrow that we can change. When we shoot, the arrow that we create should get that direction attribute so that it flies in the same direction that we aimed.</p>
 <p>Let’s see if we can refactor towards that.</p>
 <h2 id="clone-shooting">Clone shooting</h2>
 <p>We start by creating a method <code>clone_shooting</code> on the arrow that should return a copy of itself (including all attributes) and have the shooting attribute set to true:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    ...</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    <span class="kw">def</span> clone_shooting(<span class="va">self</span>):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        <span class="cf">return</span> Arrow(shooting<span class="op">=</span><span class="va">True</span>, position<span class="op">=</span><span class="va">self</span>.position)</span></code></pre></div>
 <p>We modify how a flying arrow is added like this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="gd">- self.flying_arrows.add(Arrow(shooting=True))</span>
-<span class="gi">+ self.flying_arrows.add(self.arrow.clone_shooting())</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="st">- self.flying_arrows.add(Arrow(shooting=True))</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="va">+ self.flying_arrows.add(self.arrow.clone_shooting())</span></span></code></pre></div>
 <p>One change here is that we also clone the arrow’s position attribute. The position of the arrow is always the same. Only when we shoot it, it changes. But should we choose to move the arrow to a different start position, the code now takes that into account and places shooting arrows at the right start positions.</p>
 <p>I think this is still a pure refactoring. There is no change in visible behavior, but the code is more robust because we can now change the start position of the arrow, and it will shoot from the right position without we having to modify any other piece of code. The design is better.</p>
 <h2 id="work-towards-arrow-velocity">Work towards arrow velocity</h2>
 <p>Next we take a small step towards having an arrow velocity. We change the update method to this:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="n">velocity</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="n">dt</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    ...</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.shooting:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>            velocity <span class="op">=</span> Point(x<span class="op">=</span><span class="dv">0</span>, y<span class="op">=-</span>dt)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>            <span class="va">self</span>.position <span class="op">=</span> <span class="va">self</span>.position.add(velocity)</span></code></pre></div>
 <p>Our relatively new <code>Point</code> class attracts more and more behavior. Here we added the <code>add</code> method:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; Point(0, 5).add(Point(1, 1))</span>
-<span class="sd">        Point(1, 6)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">class</span> Point:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    ...</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    <span class="kw">def</span> add(<span class="va">self</span>, point):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; Point(0, 5).add(Point(1, 1))</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a><span class="co">        Point(1, 6)</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.move(dx<span class="op">=</span>point.x, dy<span class="op">=</span>point.y)</span></code></pre></div>
 <h2 id="derive-velocity-from-angle">Derive velocity from angle</h2>
 <p>Now we could modify the velocity of the arrow and the update method would move it in the right direction.</p>
 <p>However, I think it is better if we have a concept of an arrow angle that we can adjust left and right. That would fit our use case better.</p>
 <p>We add and angle attribute to the arrow and derive the velocity vector from it:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shooting</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)):</span>
-        <span class="o">...</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">90</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shooting</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
-
-    <span class="o">...</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, shooting<span class="op">=</span><span class="va">False</span>, position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">500</span>, y<span class="op">=</span><span class="dv">500</span>)):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>        ...</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>        <span class="va">self</span>.angle <span class="op">=</span> <span class="op">-</span><span class="dv">90</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>        <span class="cf">if</span> <span class="va">self</span>.shooting:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>            <span class="va">self</span>.position <span class="op">=</span> <span class="va">self</span>.position.add(Point.from_angle(<span class="va">self</span>.angle).times(dt))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>    ...</span></code></pre></div>
 <p>The <code>Point</code> class again attracts functionality. This time for converting angles to unit vectors (vectors of length one) and for magnifying vectors:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_angle</span><span class="p">(</span><span class="n">degrees</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(-90)</span>
-<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
-<span class="sd">        0</span>
-<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
-<span class="sd">        -1</span>
-
-<span class="sd">        &gt;&gt;&gt; p = Point.from_angle(0)</span>
-<span class="sd">        &gt;&gt;&gt; int(p.x)</span>
-<span class="sd">        1</span>
-<span class="sd">        &gt;&gt;&gt; int(p.y)</span>
-<span class="sd">        0</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span>
-            <span class="n">x</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)),</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">))</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magnification</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &gt;&gt;&gt; Point(1, 5).times(2)</span>
-<span class="sd">        Point(2, 10)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">magnification</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">magnification</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">class</span> Point:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    ...</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>    <span class="kw">def</span> from_angle(degrees):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; p = Point.from_angle(-90)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; int(p.x)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="co">        0</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; int(p.y)</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a><span class="co">        -1</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; p = Point.from_angle(0)</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; int(p.x)</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a><span class="co">        1</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; int(p.y)</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a><span class="co">        0</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a>        <span class="cf">return</span> Point(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a>            x<span class="op">=</span>math.cos(math.radians(degrees)),</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true"></a>            y<span class="op">=</span>math.sin(math.radians(degrees))</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true"></a>        )</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true"></a>    <span class="kw">def</span> times(<span class="va">self</span>, magnification):</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; Point(1, 5).times(2)</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true"></a><span class="co">        Point(2, 10)</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true"></a>        <span class="cf">return</span> Point(x<span class="op">=</span><span class="va">self</span>.x<span class="op">*</span>magnification, y<span class="op">=</span><span class="va">self</span>.y<span class="op">*</span>magnification)</span></code></pre></div>
 <h2 id="base-drawing-on-angle">Base drawing on angle</h2>
 <p>The arrow now moves correctly based on the angle, but it doesn’t draw its three circles correctly. It looks like this now:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    ...</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.move(dy<span class="op">=</span><span class="dv">20</span>), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.move(dy<span class="op">=</span><span class="dv">40</span>), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div>
 <p>That is, it draws the second two circles by moving them downwards, assuming that the arrow is pointing up.</p>
 <p>Let’s instead draw them offset by the opposite direction of what the arrow points:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>    ...</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>        v <span class="op">=</span> Point.from_angle(<span class="va">self</span>.angle <span class="op">+</span> <span class="dv">180</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.add(v.times(<span class="dv">20</span>)), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.add(v.times(<span class="dv">40</span>)), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div>
 <p>We get the reverse angle by turning it 180 degrees.</p>
 <p>Perhaps angle is another case of primitive obsession. If we had an angle class, we could have a <code>reverse</code> method that did this and we would no longer be required to know about degrees (the angle could be implemented with radians instead for example). We make a note about that.</p>
 <p>Anyway, we can change the angle attribute of the arrow and it will fly in the right direction and draw correctly. Now there is only one thing left: control the angle with arrow keys.</p>
 <h2 id="changing-angle-with-leftright">Changing angle with left/right</h2>
 <p>Here is the test we write for changing arrow angle:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-90</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_left())</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-95</span>
-<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_right())</span>
-<span class="sd">&gt;&gt;&gt; game.get_arrow_angle()</span>
-<span class="sd">-90</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game = GameScene(space)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_arrow_angle()</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="co">-90</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_left())</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_arrow_angle()</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a><span class="co">-95</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_right())</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_arrow_angle()</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a><span class="co">-90</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>For this to work we need to create new event wrappers for keydown left/right and add a getter to expose the arrow angle. We have done similar things before. Same procedure this time.</p>
 <p>We make it pass by handling the events and changing the angle:</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="o">...</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_left</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_left</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_right</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">angle_right</span><span class="p">()</span>
-</pre>
-</div>
-</div>
-</div>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">angle_left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">-=</span> <span class="mi">5</span>
-
-    <span class="k">def</span> <span class="nf">angle_right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+=</span> <span class="mi">5</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    ...</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>        ...</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_keydown_left():</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a>            <span class="va">self</span>.arrow.angle_left()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_keydown_right():</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>            <span class="va">self</span>.arrow.angle_right()</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a>    ...</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    <span class="kw">def</span> angle_left(<span class="va">self</span>):</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>        <span class="va">self</span>.angle <span class="op">-=</span> <span class="dv">5</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>    <span class="kw">def</span> angle_right(<span class="va">self</span>):</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>        <span class="va">self</span>.angle <span class="op">+=</span> <span class="dv">5</span></span></code></pre></div>
 <p>This almost works, but when we turn and arrow and shoot it, it still goes straight up. We need to fix the <code>clone_shooting</code> method to also clone the angle.</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
-
-    <span class="o">...</span>
-
-    <span class="k">def</span> <span class="nf">clone_shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        It preserves position and angle and set it to shooting:</span>
-
-<span class="sd">        &gt;&gt;&gt; arrow = Arrow(position=Point(x=5, y=5), angle=-45)</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow = arrow.clone_shooting()</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.get_position()</span>
-<span class="sd">        (5, 5)</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.angle</span>
-<span class="sd">        -45</span>
-<span class="sd">        &gt;&gt;&gt; new_arrow.shooting</span>
-<span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>    ...</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>    <span class="kw">def</span> clone_shooting(<span class="va">self</span>):</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>        <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a><span class="co">        It preserves position and angle and set it to shooting:</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; arrow = Arrow(position=Point(x=5, y=5), angle=-45)</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; new_arrow = arrow.clone_shooting()</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; new_arrow.get_position()</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a><span class="co">        (5, 5)</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; new_arrow.angle</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a><span class="co">        -45</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true"></a><span class="co">        &gt;&gt;&gt; new_arrow.shooting</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true"></a><span class="co">        True</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true"></a><span class="co">        &quot;&quot;&quot;</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true"></a>        <span class="cf">return</span> Arrow(shooting<span class="op">=</span><span class="va">True</span>, position<span class="op">=</span><span class="va">self</span>.position, angle<span class="op">=</span><span class="va">self</span>.angle)</span></code></pre></div>
 <h2 id="result">Result</h2>
 <p>Now we can turn the arrow with left/right keys and shoot it in different directions. It looks like this:</p>
 <center>

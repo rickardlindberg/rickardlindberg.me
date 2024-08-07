@@ -69,32 +69,25 @@
 <p>In the beginning, I used to run the application after every change. This was quite fast because the application is still small and I can start it up with a sample timeline quite quickly. However, it still takes a few seconds and a couple of keystrokes.</p>
 <p>Then I came up with a much better workflow.</p>
 <p>I added a (doc)test to my test suite that does something like this (some details removed):</p>
-<div class="rliterate-code">
-<div class="rliterate-code-body">
-<div class="highlight">
-<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">&gt;&gt;&gt; surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)</span>
-<span class="sd">&gt;&gt;&gt; context = cairo.Context(surface)</span>
-<span class="sd">&gt;&gt;&gt; project = Project.new()</span>
-<span class="sd">&gt;&gt;&gt; with project.new_transaction() as transaction:</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;hello&quot;, length=30)</span>
-<span class="sd">...     x = transaction.add_text_clip(&quot;world&quot;, length=35)</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span>
-<span class="sd">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span>
-<span class="sd">...     transaction.modify(x, lambda cut: cut.move(-10))</span>
-<span class="sd">&gt;&gt;&gt; timeline = Timeline(project)</span>
-<span class="sd">&gt;&gt;&gt; timeline.draw_cairo(</span>
-<span class="sd">...     context=context,</span>
-<span class="sd">...     playhead_position=40,</span>
-<span class="sd">...     width=width,</span>
-<span class="sd">...     height=height</span>
-<span class="sd">... )</span>
-<span class="sd">&gt;&gt;&gt; surface.write_to_png(&quot;timeline.png&quot;)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre>
-</div>
-</div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; context = cairo.Context(surface)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; project = Project.new()</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; with project.new_transaction() as transaction:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">...     _ = transaction.add_text_clip(&quot;hello&quot;, length=30)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">...     x = transaction.add_text_clip(&quot;world&quot;, length=35)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">...     _ = transaction.add_text_clip(&quot;end&quot;, length=20)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="co">...     transaction.modify(x, lambda cut: cut.move(-10))</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; timeline = Timeline(project)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; timeline.draw_cairo(</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">...     context=context,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">...     playhead_position=40,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co">...     width=width,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">...     height=height</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="co">... )</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; surface.write_to_png(&quot;timeline.png&quot;)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
 <p>The <code>Timeline</code> class is what does the drawing of the timeline. Fortunately, it is separated from the GTK component onto which it is drawn. This allows us to create our own Cairo surface, let the timeline draw itself on that, and in the end, write that surface to a file.</p>
 <p>Every time we run the test suite (which I like to do automatically on every save) we get a new <code>timeline.png</code> file where the example clips that we populated in the test are drawn. If we open this file in the GNOME image viewer (<code>eog timeline.png</code>) it will automatically reload the image when it changes.</p>
 <p>In this workflow, this is my typical setup:</p>
