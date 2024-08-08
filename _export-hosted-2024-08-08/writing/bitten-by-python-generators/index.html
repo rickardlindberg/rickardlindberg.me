@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Bitten by Python generators | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Bitten by Python generators</h1>
+
+<p><em>Published on 11 March 2017.</em></p>
+
+<p>Today I found a bug in a piece of Python code that I had written. The buggy code was the result of not taking into consideration how generators in Python work. It looked like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> main():</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">try</span>:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        logging.info(<span class="st">&quot;Processing items&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        items <span class="op">=</span> get_the_items()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="cf">except</span>:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> items:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>            process_item(item)</span></code></pre></div>
+<p>Can you spot the error? What could possible go wrong with this code?</p>
+<p>When I was debugging it, it was printing the info message, but did not log an exception. Execution continued in the else-clause, but suddenly an exception was raised when looping over the items (outside of <code>process_item</code>). How can that happen? The except-clause should catch all exceptions. And just iterating over a collection should not raise an exception.</p>
+<p>The answer is that <code>get_the_items</code> returned a generator. It looked like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good():</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>            <span class="cf">yield</span> item</span></code></pre></div>
+<p>The exception actually came from <code>read_items_from_disk</code>, but since this code creates a generator, it is not executed until the collection is accessed (which happened in the else-clause). So the exception was actually raised when starting looping over items.</p>
+<h2 id="what-about-skipping-the-else-clause">What about skipping the else-clause?</h2>
+<p>To ensure that an exception from the generator is caught, the <code>main</code> function could be written like this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> main():</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">try</span>:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        logging.info(<span class="st">&quot;Processing items&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> get_the_items():</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>            process_item(item)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="cf">except</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        logging.exception(<span class="st">&quot;Could not get items&quot;</span>)</span></code></pre></div>
+<p>I don’t like this version because it also catches exceptions from <code>process_item</code>. I like the try-except-else syntax because it allows narrower exception regions in a nice looking way.</p>
+<h2 id="why-did-i-use-a-generator">Why did I use a generator?</h2>
+<p>I made <code>get_the_items</code> return a generator mainly because I thought it read better. The alternative I came up with looked like this:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    items <span class="op">=</span> []</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk():</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good():</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>            items.append(item)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="cf">return</span> items</span></code></pre></div>
+<p>I didn’t like the temporary <code>items</code> variable. And it is two lines longer than the generator version.</p>
+<h2 id="what-about-list-comprehensions">What about list comprehensions?</h2>
+<p>Another way to write <code>get_the_items</code>, avoiding the temporary variable, is to use list comprehensions. It would look like this:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> get_the_items():</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    <span class="cf">return</span> [</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>        item</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>        <span class="cf">for</span> item <span class="kw">in</span> read_items_from_disk()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>        <span class="cf">if</span> item.is_good()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    ]</span></code></pre></div>
+<p>I find this code reads as good as the generator version (even though it is two lines longer). This is what I ended up using. But <code>get_the_items</code> was a bit more complicated than in the example, so I had to divide it into two list comprehensions.</p>
+<h2 id="what-about-memory-consumption">What about memory consumption?</h2>
+<p>One argument for using generators is that they consume less memory. The whole collection of items do not have to fit in memory at once, only the one currently being processed.</p>
+<p>In my case I had already read all items into memory in a previous step. The <code>get_the_items</code> function was mainly used to transform and filter the items. So I would not have used much less memory by using generators. Also, my collections were small, so having them in memory was not a problem.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Generators have some nice properties that can be useful. However, after being bitten by them I now think they should only be used if those properties are absolutely needed. I will favor list comprehensions over generators if I can afford to keep the whole collection in memory.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

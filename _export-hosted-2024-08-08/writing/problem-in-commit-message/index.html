@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Problem statements in commit messages | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Problem statements in commit messages</h1>
+
+<p><em>Published on 23 October 2015.</em></p>
+
+<p>I’ve been influenced by <a href="http://hintjens.com/">Pieter Hintjens</a> recently. He talks, among other things, about a software development process where each patch must solve a single identified problem. He talks about a trick to start your commit messages with “Problem:”. The reason behind it is that you should only be solving problems, not implement features (that someone might or might not need later).</p>
+<p>One day I made a connection between that idea and <a href="https://twitter.com/scichelli/status/556154967002578944">this tweet</a>:</p>
+<blockquote>
+<p>“Commit messages should say why you made a change, not what you changed.” ~<span class="citation" data-cites="brndnpugh">@brndnpugh</span></p>
+</blockquote>
+<p>If you implement Pieter’s trick and start each commit message with “Problem:” you are more likely to do what the tweet suggest. The commit message becomes the problem statement. The why. The reason you are writing this patch. The diff itself becomes the solution. The what.</p>
+<p>Most of the time you can probably figure out the solution by looking at the diff. Here is an example of that:</p>
+<pre><code># HG changeset patch
+# User Rickard Lindberg &lt;ricli85@gmail.com&gt;
+# Date 1445582758 -7200
+#      Fri Oct 23 08:45:58 2015 +0200
+# Node ID 8c9046e688c23fc0eab2e830df962988edf11518
+# Parent  ca24accb9910a5080b3fcf3925110cb1ce9637b3
+Problem: Controls are not properly aligned in duplicate event dialog.
+
+diff -r ca24accb9910 -r 8c9046e688c2 source/timelinelib/wxgui/dialogs/duplicateevent/view.py
+--- a/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:39:16 2015 +0200
++++ b/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:45:58 2015 +0200
+@@ -31,20 +31,44 @@
+     &lt;BoxSizerVertical&gt;
+ 
+         &lt;BoxSizerHorizontal border=&quot;ALL&quot; &gt;
+-            &lt;StaticText label=&quot;$(nbr_of_duplicates_text)&quot; /&gt;
++            &lt;StaticText
++                label=&quot;$(nbr_of_duplicates_text)&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+             &lt;Spacer /&gt;
+-            &lt;SpinCtrl width=&quot;50&quot; name=&quot;sc_nbr_of_duplicates&quot; /&gt;
++            &lt;SpinCtrl
++                width=&quot;50&quot;
++                name=&quot;sc_nbr_of_duplicates&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+         &lt;/BoxSizerHorizontal&gt;
+ 
+-        &lt;RadioBox label=&quot;$(period_text)&quot; name=&quot;rb_periods&quot; choices=&quot;$(period_choices)&quot; border=&quot;LEFT|RIGHT|BOTTOM&quot; /&gt;
++        &lt;RadioBox
++            label=&quot;$(period_text)&quot;
++            name=&quot;rb_periods&quot;
++            choices=&quot;$(period_choices)&quot;
++            border=&quot;LEFT|RIGHT|BOTTOM&quot;
++        /&gt;
+ 
+         &lt;BoxSizerHorizontal border=&quot;LEFT|RIGHT|BOTTOM&quot; &gt;
+-            &lt;StaticText label=&quot;$(frequency_text)&quot; /&gt;
++            &lt;StaticText
++                label=&quot;$(frequency_text)&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+             &lt;Spacer /&gt;
+-            &lt;SpinCtrl width=&quot;50&quot; name=&quot;sc_frequency&quot; /&gt;
++            &lt;SpinCtrl
++                width=&quot;50&quot;
++                name=&quot;sc_frequency&quot;
++                align=&quot;ALIGN_CENTER_VERTICAL&quot;
++            /&gt;
+         &lt;/BoxSizerHorizontal&gt;
+ 
+-        &lt;RadioBox label=&quot;$(direction_text)&quot; name=&quot;rb_direction&quot; choices=&quot;$(direction_choices)&quot; border=&quot;LEFT|RIGHT|BOTTOM&quot; /&gt;
++        &lt;RadioBox
++            label=&quot;$(direction_text)&quot;
++            name=&quot;rb_direction&quot;
++            choices=&quot;$(direction_choices)&quot;
++            border=&quot;LEFT|RIGHT|BOTTOM&quot;
++        /&gt;
+ 
+         &lt;DialogButtonsOkCancelSizer
+             border=&quot;LEFT|RIGHT|BOTTOM&quot;</code></pre>
+<p>(The changes to <code>RadioBox</code> are not related to solving the problem of alignment. They are just style changes to improve readability. They should have been in a separate commit.)</p>
+<p>If you think it will be hard, you can perhaps spell out the solution in the commit message. But after the problem statement. Here is one example of that:</p>
+<pre><code># HG changeset patch
+# User Rickard Lindberg &lt;ricli85@gmail.com&gt;
+# Date 1445583177 -7200
+#      Fri Oct 23 08:52:57 2015 +0200
+# Node ID c2b3d89a28a64112d2a8ca0545a8c8a32230b4bb
+# Parent  8c9046e688c23fc0eab2e830df962988edf11518
+Problem: Whole spin control is not visible.
+
+This is a problem on Linux using wxPython 3.
+
+Solution: Use default size.
+
+diff -r 8c9046e688c2 -r c2b3d89a28a6 source/timelinelib/wxgui/dialogs/duplicateevent/view.py
+--- a/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:45:58 2015 +0200
++++ b/source/timelinelib/wxgui/dialogs/duplicateevent/view.py   Fri Oct 23 08:52:57 2015 +0200
+@@ -37,7 +37,6 @@
+             /&gt;
+             &lt;Spacer /&gt;
+             &lt;SpinCtrl
+-                width=&quot;50&quot;
+                 name=&quot;sc_nbr_of_duplicates&quot;
+                 align=&quot;ALIGN_CENTER_VERTICAL&quot;
+             /&gt;
+@@ -57,7 +56,6 @@
+             /&gt;
+             &lt;Spacer /&gt;
+             &lt;SpinCtrl
+-                width=&quot;50&quot;
+                 name=&quot;sc_frequency&quot;
+                 align=&quot;ALIGN_CENTER_VERTICAL&quot;
+             /&gt;</code></pre>
+<p>Another post about commit messages:</p>
+<ul>
+<li><a href="https://arialdomartini.wordpress.com/2012/09/03/pre-emptive-commit-comments/">https://arialdomartini.wordpress.com/2012/09/03/pre-emptive-commit-comments/</a></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

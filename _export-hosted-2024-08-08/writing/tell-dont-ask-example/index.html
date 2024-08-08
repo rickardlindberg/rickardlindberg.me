@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Tell, don't ask example | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Tell, don't ask example</h1>
+
+<p><em>Published on 20 September 2016.</em></p>
+
+<p><em>12 November 2016: Added sentence to introduction giving an overview of the article.</em></p>
+<p>I recently read <em>The Pragmatic Programmer</em>, and in one of the exercises you should write a parser for a DSL that controls a drawing package. Here is the example from the book:</p>
+<pre><code>P 2  # select pen 2
+D    # pen down
+W 2  # draw west 2cm
+N 1  # then north 1
+E 2  # then east 2
+S 1  # then back south
+U    # pen up</code></pre>
+<p>In this article I explore two solutions to this problem where the direction of control differs. Here is the first (in Python):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> Parser(<span class="bu">object</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>            result <span class="op">=</span> []</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>            <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>                result.append(<span class="va">self</span>.parse_line(line))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>            <span class="cf">return</span> result</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>        patterns <span class="op">=</span> [</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;select_pen&quot;</span>, <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_down&quot;</span>,   <span class="va">None</span>)),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;west&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;north&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;east&quot;</span>,       <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: (<span class="st">&quot;south&quot;</span>,      <span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: (<span class="st">&quot;pen_up&quot;</span>,     <span class="va">None</span>)),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>        ]</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>            match <span class="op">=</span> re.search(pattern, line)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a>            <span class="cf">if</span> match:</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a>                <span class="cf">return</span> fn(match)</span></code></pre></div>
+<p>The result of running the parser on the example is the following:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>[</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    (<span class="st">'select_pen'</span>, <span class="dv">2</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    (<span class="st">'pen_down'</span>, <span class="va">None</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    (<span class="st">'west'</span>, <span class="dv">2</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    (<span class="st">'north'</span>, <span class="dv">1</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    (<span class="st">'east'</span>, <span class="dv">2</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    (<span class="st">'south'</span>, <span class="dv">1</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    (<span class="st">'pen_up'</span>, <span class="va">None</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>]</span></code></pre></div>
+<p>In this solution, each line is converted to a command object (a tuple) and all commands are returned in a list. This list of commands is a kind of parse tree, and it is easier to work with than the plain text. It is up to the consumer of the parse tree what to do next.</p>
+<p>Here is an example showing how the parse tree can be pretty printed (formatted to text again after being parsed):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> pretty_print(commands):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="cf">for</span> (command, argument) <span class="kw">in</span> commands:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>        <span class="cf">if</span> command <span class="op">==</span> <span class="st">&quot;select_pen&quot;</span>:</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_down&quot;</span>:</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;west&quot;</span>:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;north&quot;</span>:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;east&quot;</span>:</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;south&quot;</span>:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(argument))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>        <span class="cf">elif</span> command <span class="op">==</span> <span class="st">&quot;pen_up&quot;</span>:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>            <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</span></code></pre></div>
+<p>If run on the example, the following output is obtained:</p>
+<pre><code>P 2
+D
+W 2
+N 1
+E 2
+S 1
+U</code></pre>
+<p>The original program is obtained except for all the comments that have been stripped. Notice that the <code>pretty_print</code> function has to know about the structure of the parse tree: it has to know that it is a list of commands and that each command is a tuple with two entries (some of which might be <code>None</code>). The lack of a final else-statement is also unsatisfactory.</p>
+<p>In object oriented terms, the parser is <strong>asked</strong> for a list of commands. How would a solution look like if the <em>Tell, don’t ask</em> principle is applied? Here is one alternative:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">class</span> Parser(<span class="bu">object</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, interpreter):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>        <span class="va">self</span>._interpreter <span class="op">=</span> interpreter</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>    <span class="kw">def</span> parse(<span class="va">self</span>, file_path):</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>        <span class="cf">with</span> <span class="bu">open</span>(file_path) <span class="im">as</span> f:</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>            <span class="cf">for</span> line <span class="kw">in</span> f:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>                <span class="va">self</span>.parse_line(line)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>    <span class="kw">def</span> parse_line(<span class="va">self</span>, line):</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>        patterns <span class="op">=</span> [</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>            (<span class="vs">r&quot;^P (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.select_pen(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>            (<span class="vs">r&quot;^D&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_down()),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>            (<span class="vs">r&quot;^W (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.west(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>            (<span class="vs">r&quot;^N (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.north(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>            (<span class="vs">r&quot;^E (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.east(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>            (<span class="vs">r&quot;^S (\d)&quot;</span>, <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.south(<span class="bu">int</span>(match.group(<span class="dv">1</span>)))),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>            (<span class="vs">r&quot;^U&quot;</span>,      <span class="kw">lambda</span> match: <span class="va">self</span>._interpreter.pen_up()),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a>        ]</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a>        <span class="cf">for</span> (pattern, fn) <span class="kw">in</span> patterns:</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>            match <span class="op">=</span> re.search(pattern, line)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a>            <span class="cf">if</span> match:</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>                fn(match)</span></code></pre></div>
+<p>This parser returns nothing. Instead it depends on an interpreter that it forwards calls to: It <strong>tells</strong> the interpreter to handle various commands. An interpreter can be any object supporting the command-methods. Here is what the pretty printer from the first example would look like:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">class</span> PrettyPrinter(<span class="bu">object</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="kw">def</span> select_pen(<span class="va">self</span>, number):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;P </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(number))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>    <span class="kw">def</span> pen_down(<span class="va">self</span>):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;D&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>    <span class="kw">def</span> west(<span class="va">self</span>, amount):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;W </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>    <span class="kw">def</span> north(<span class="va">self</span>, amount):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;N </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>    <span class="kw">def</span> east(<span class="va">self</span>, amount):</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;E </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a>    <span class="kw">def</span> south(<span class="va">self</span>, amount):</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;S </span><span class="sc">{}</span><span class="st">&quot;</span>.<span class="bu">format</span>(amount))</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a>    <span class="kw">def</span> pen_up(<span class="va">self</span>):</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a>        <span class="bu">print</span>(<span class="st">&quot;U&quot;</span>)</span></code></pre></div>
+<p>The pretty printer no longer has to do the looping. It doesn’t have to bother with arguments being <code>None</code> either. Instead it just has one method to handle each type of command.</p>
+<p>Try to compare the solutions and think about in what situations one is better than the other. What has to change if a new command is added? What has to change to do some actual drawing instead of pretty printing? What if both drawing and pretty printing must be supported?</p>
+<p>See also:</p>
+<ul>
+<li><a href="http://martinfowler.com/bliki/TellDontAsk.html">http://martinfowler.com/bliki/TellDontAsk.html</a></li>
+<li><a href="https://pragprog.com/articles/tell-dont-ask">https://pragprog.com/articles/tell-dont-ask</a></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

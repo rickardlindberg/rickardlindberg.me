@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 009: Improve timeline scrubbing | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 009: Improve timeline scrubbing</h1>
+
+<p><em>Published on  3 August 2023.</em></p>
+
+<p>As a try to edit some footage with my <a href="../../projects/rlvideo/">video editor</a>, I get annoyed by a timeline scrubbing issue.</p>
+<p>Scrubbing the timeline means clicking and dragging the playhead and then the frame at that position will play. This works fine today if you click and drag, but if you only click, nothing happens:</p>
+<p>
+<center>
+<img src="scrub-problem.png" title="fig:" alt="Scrub problem." />
+</center>
+</p>
+<p>Sometimes I just want to place the playhead at a certain position. And then I just want to click.</p>
+<p>That’s what we’ll work on fixing today.</p>
+<h2 id="reviewing-the-scrub-action">Reviewing the scrub action</h2>
+<p>Here is the scrub action:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ScrubAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">scrollbar</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">player</span> <span class="o">=</span> <span class="n">player</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span> <span class="o">=</span> <span class="n">scrollbar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">left_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">mouse_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">scrub</span><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">content_start</span>
+                    <span class="o">+</span>
+                    <span class="n">x</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">one_length_in_pixels</span>
+                <span class="p">))</span>
+            <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can see that the scrubbing is happening only when we move the mouse, not if we just left click.</p>
+<p>The solution seems obvious: make sure to scrub on the click as well.</p>
+<p>Let’s see how we can move slowly and carefully and pay attention to design as we go along. Let’s start with a test.</p>
+<h2 id="testing-new-functionality">Testing new functionality</h2>
+<p>This is the test that I come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I scrub the player when clicked:</span>
+
+<span class="sd">&gt;&gt;&gt; class MockPlayer:</span>
+<span class="sd">...     def scrub(self, position):</span>
+<span class="sd">...         print(f&quot;scrub {position}&quot;)</span>
+<span class="sd">&gt;&gt;&gt; class MockScrollbar:</span>
+<span class="sd">...     content_start = 0</span>
+<span class="sd">...     one_length_in_pixels = 1</span>
+<span class="sd">&gt;&gt;&gt; action = ScrubAction(player=MockPlayer(), scrollbar=MockScrollbar())</span>
+<span class="sd">&gt;&gt;&gt; action.simulate_click(x=10)</span>
+<span class="sd">scrub 10</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>left_mouse_down</code> currently takes both the x and y coordinates. In this test, we only care about the x coordinate. That’s why I introduced <code>Action.simulate_click</code>. The idea is that it should simulate the calls that GTK does when a left click happens. My idea is to extend this further with something like <code>Action.simulate_drag</code> which will fire <code>left_mouse_down</code>, <code>mouse_move</code>, and <code>mouse_up</code> in the same way that GTK would do it.</p>
+<p>I implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">simulate_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To make the test pass, I call <code>self.player.scrub</code> in the <code>left_mouse_down</code> event as well. I extract it to a common method to remove the duplication.</p>
+<p>This passes the tests, and when I try it in the application, it works as intended.</p>
+<p>Are we done?</p>
+<h2 id="a-concern">A concern</h2>
+<p>Let’s take a moment to think about some design issues.</p>
+<p>One thing that worry me is that <code>Action.simulate_click</code> does not actually simulate clicks in the right way. That is, when we hook this up with GTK, the same kinds of events will not be generated.</p>
+<p>Let’s have a look at how it works today.</p>
+<p>Here is how <code>*_mouse_down</code> is handled:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">()</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="n">timeline_button</span><span class="p">)</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
+    <span class="n">timeline</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
+    <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="c1"># TODO: clarify what translate_coordinates do</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">))</span>
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">),</span> <span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This code exists in a method which has a bunch of other GTK setup code and is quite long.</p>
+<p>Let’s see if we can extract a GTK widget that has all the mechanisms for custom drawing and event handling.</p>
+<p>I slowly start to extract pieces, and eventually end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">CustomDrawWidget</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_window</span><span class="p">,</span> <span class="n">custom_draw_handler</span><span class="p">):</span>
+        <span class="n">Gtk</span><span class="o">.</span><span class="n">DrawingArea</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">SCROLL_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_PRESS_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">BUTTON_RELEASE_MASK</span> <span class="o">|</span>
+            <span class="n">Gdk</span><span class="o">.</span><span class="n">EventMask</span><span class="o">.</span><span class="n">POINTER_MOTION_MASK</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_draw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_press_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-release-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_button_release_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;motion-notify-event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_motion_notify_event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span> <span class="o">=</span> <span class="n">RectangleMap</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span> <span class="o">=</span> <span class="n">custom_draw_handler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span> <span class="o">=</span> <span class="n">main_window</span>
+
+    <span class="k">def</span> <span class="nf">on_draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_draw_handler</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_button_press_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">on_motion_notify_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinates_relative_self</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">Action</span><span class="p">())</span><span class="o">.</span><span class="n">mouse_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_button_release_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span><span class="o">.</span><span class="n">mouse_up</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">down_action</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">get_coordinates_relative_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The timeline is then created like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">timeline</span> <span class="o">=</span> <span class="n">CustomDrawWidget</span><span class="p">(</span>
+    <span class="n">main_window</span><span class="o">=</span><span class="n">main_window</span><span class="p">,</span>
+    <span class="n">custom_draw_handler</span><span class="o">=</span><span class="n">timeline_draw</span><span class="p">,</span>
+<span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This part of the code base does not have many tests. I therefore moved slowly and tested my changes manually after each small step.</p>
+<p>Let’s discuss some aspects of this and what we have done:</p>
+<ul>
+<li><p>The <code>CustomDrawWidget</code> now owns the rectangle map. (The timeline gets a reference to it, but there it only one instance, and it is created by <code>CustomDrawWidget</code>.)</p></li>
+<li><p>The <code>CustomDrawWidget</code> can handle clearing of the rectangle map on redraw, something that the timeline previously did.</p></li>
+<li><p>The <code>CustomDrawWidget</code> can handle mouse events and take the appropriate action by using the rectangle map.</p></li>
+<li><p>The timeline widget no longer knows about mouse events. It just has a rectangle map that it can fill with actions to be performed.</p></li>
+</ul>
+<p>When I look at this, I feel like there are so many more things to improve. However, I will practice stopping here and think that I made a bit of improvement.</p>
+<p>We can now see a bit more clearly the connection between GTK events, the rectangle map, and what methods are called on the action. And, if we need a second component that does custom drawing and handles events with a rectangle map, we can re-use <code>CustomDrawWidget</code> and do not need to duplicate as much.</p>
+<h2 id="summary">Summary</h2>
+<p>We improved the application a tiny bit by allowing click on the timeline to position the playhead. We also cleaned up the code base in the area we touched. It now reflects a little better the ideas that we have about the code. I’m happy with this progress.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

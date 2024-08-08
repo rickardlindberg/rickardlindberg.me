@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      High-level or micro-tests? A discussion with Ron. | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>High-level or micro-tests? A discussion with Ron.</h1>
+
+<p><em>Published on 18 June 2023.</em></p>
+
+<p>Ron and I have been discussing on Mastodon high-level vs micro-tests. Ron has summarized the discussion <a href="https://ronjeffries.com/articles/-y023/python/-m130/139/">here</a> and also expanded his thoughts on it. In this blog post, I want to expand my thoughts as well.</p>
+<h1 id="how-it-started">How it started</h1>
+<p>In <a href="https://ronjeffries.com/articles/-y023/python/-m130/136/">Python 136</a>, Ron discusses a possible drawback with the decentralized design:</p>
+<blockquote>
+<p>Now, many of my objects interact with missiles, the ship and saucer and asteroids at least, perhaps others. And so when I implemented the SaucerMissile, saucer missiles stopped interacting via <code>interact_with_missile</code> and started calling <code>interact_with_saucermissile</code>.</p>
+<p>And that method is explicitly ignored unless the object implements it, i.e. unless the programmer, i.e. yours truly, remembers to implement the new method where it’s needed.</p>
+<p>And I didn’t remember them all. I spent most of my article yesterday discovering another case that I had forgotten, and I was relying too much on my tests. They did help me at first but after a while, things were broken but no tests existed to show the problem.</p>
+</blockquote>
+<p>I interpret that (hopefully correctly) to mean something like this:</p>
+<ol type="1">
+<li><p>There are tests that call <code>asteroid.interact_with_missile</code> to verify behavior for asteroids colliding with missiles.</p></li>
+<li><p>When the new missile subclass was added <code>interact_with_missile</code> was actually never called for real, but <code>interact_with_saucermissile</code> was called instead.</p></li>
+<li><p>The tests that called <code>asteroids.interact_with_missile</code> continued to pass, but they tested something that never happened in reality.</p></li>
+<li><p>All tests passed. The game was broken.</p></li>
+</ol>
+<p>To this, I <a href="https://hachyderm.io/@rickardlindberg/110549123416204580">replied</a>:</p>
+<blockquote>
+<p>What about writing domain/“game rule” tests at a higher level? That is, you put a bunch of flyers in the collection, call update (or whatever it was called), have the collection do all the interact_with_, and assert something on the collection.</p>
+<p>Then you could more easily trust your tests and you are free to implement it however you want (implementation inheritance, events, etc).</p>
+<p>I think such tests might even read quite well as descriptions of the game rules.</p>
+</blockquote>
+<p>Ron <a href="https://mastodon.social/@RonJeffries/110549805294230736">replied</a>:</p>
+<blockquote>
+<p>a good idea … with a centralized test there’s at least a place to look. Unfortunately such tests have to involve a lot of time stuff due to all the timers.</p>
+</blockquote>
+<p>And so the discussion about high-level tests vs micro-tests began.</p>
+<h1 id="rons-arguments-for-micro-tests">Ron’s arguments for micro-tests</h1>
+<p>Ron seems in favour of writing more micro-tests and fewer high-level tests. He argues that</p>
+<blockquote>
+<p>Certainly it must be true that if every object does the right thing at the right time, the program must work. This is the root reason why micro-testing works.</p>
+</blockquote>
+<p>I agree with this, and at the same time, I sometimes find it difficult to convince myself that every object does the right thing at the right time. Let me try to explain why.</p>
+<h1 id="mocking">Mocking</h1>
+<p>Mocking and micro-testing have something in common. (At least if you squint.) And that is that they are solitary-ish tests that focus on a very specific, isolated part of the code.</p>
+<p>I will illustrate what I think is problematic with that with a calculator example that show the total on a display:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Calculator</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span> <span class="o">=</span> <span class="n">display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Display</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="c1"># gui stuff to show something on the screen</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To test this, we might write one solitary test per class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_calculator</span><span class="p">():</span>
+    <span class="n">mock_display</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">(</span><span class="n">Display</span><span class="p">)</span>
+    <span class="n">calculator</span> <span class="o">=</span> <span class="n">Calculator</span><span class="p">(</span><span class="n">mock_display</span><span class="p">)</span>
+    <span class="n">calculator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">calculator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">mock_display</span><span class="o">.</span><span class="n">show</span><span class="o">.</span><span class="n">calls</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Total = 3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Total = 5&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_display</span><span class="p">():</span>
+    <span class="n">display</span> <span class="o">=</span> <span class="n">Display</span><span class="p">()</span>
+    <span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+    <span class="c1"># assert that gui shows with text 'hello'</span>
+</pre>
+</div>
+</div>
+</div>
+<p>These two tests prove that the whole works. But I find them a bit fragile. Especially in a dynamically typed language like Python.</p>
+<p>What if we changed the signature of <code>show</code> to something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>test_display</code> would break, but what about <code>test_calculator</code>? At least in Python, I don’t think the type checking is able to catch that the signature has changed. So <code>test_calculator</code> will continue to pass. But the application will not work.</p>
+<p>The same thing is true for micro-testing. Your micro-tests can continue to pass, but the methods they are calling are actually not called for real.</p>
+<p>This aspect of mocking and micro-testing makes me less confident that my code actually works.</p>
+<h1 id="move-example">Move example</h1>
+<p>Ron continues to discuss asteroid movement:</p>
+<blockquote>
+<p>… but I would argue that we don’t need a larger scale test to verify how they move.</p>
+</blockquote>
+<p>I don’t think so either. Movement is completely contained within an asteroid. It does not depend on interactions with other flyers. We could test it by instantiating an asteroid, calling its update method, and assert that it moved.</p>
+<h1 id="missile-vs-asteroid-example">Missile vs asteroid example</h1>
+<p>Ron continues to discuss another example where asteroids collide with missiles. He wish he had a test for scoring in that situation and writes this test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
+    <span class="n">fi</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">vel</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">asteroid</span> <span class="o">=</span> <span class="n">Asteroid</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+    <span class="n">missile</span> <span class="o">=</span> <span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">)</span>
+    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
+    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+    <span class="n">asteroid</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
+    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+    <span class="n">asteroid</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">asteroid</span><span class="o">.</span><span class="n">interact_with_missile</span><span class="p">(</span><span class="n">missile</span><span class="p">,</span> <span class="n">fleets</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">fi</span><span class="o">.</span><span class="n">scores</span>
+    <span class="k">assert</span> <span class="n">scores</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And notes that</p>
+<blockquote>
+<p>Now, since Rickard specifically mentions using interact_with in the tests he’s talking about, perhaps this is an example of just what he means. If that’s the case, we probably don’t have any real disagreement at all. That would be nice.</p>
+</blockquote>
+<p>I’m not sure I explained myself clearly enough on Mastodon. I will do another attempt here.</p>
+<p>I would not call <code>interact_with_*</code> in tests. I would write the test above like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
+        <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Asteroid</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span>
+        <span class="p">))</span>
+        <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">))</span>
+        <span class="n">fleets</span><span class="o">.</span><span class="n">perform_interactions</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">score</span><span class="p">,)</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span><span class="o">.</span><span class="n">scores</span>
+        <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To be able to test scoring, we have to include both an asteroid and a missile in the test. To also make sure that they interact correctly, I would write the test by putting them in <code>Fleets</code> and have fleets <code>perform_interactions</code>.</p>
+<blockquote>
+<p>At this moment, I would ask Rickard whether he agrees that we can be sure that ship missile vs asteroid collisions score correctly. And if he said we cannot be sure, I’d try to devise another low-level test to help him be sure.</p>
+</blockquote>
+<p>With my version of the test above, I would be certain that scoring works. With Ron’s version, I would worry about the test calling the wrong <code>interact_with_*</code>. I would not worry that much, just a little. But I don’t think my version of the test has any drawbacks compared to Ron’s version. And it has the upside of verifying that interactions work properly.</p>
+<p>I believe that the weakness of this implementation of a decentralized design is that it is difficult to know if you implemented the correct <code>interact_with_*</code> methods.</p>
+<p>In Ron’s test, <code>interact_with_missile</code> is called explicitly. So it will not catch errors if the method should have been <code>interact_with_saucermissile</code> for example.</p>
+<p>My version of the test is at a higher level. It puts an asteroid and a missile in the fleets and have them interact and assert that scoring happens correctly. Had we implemented the wrong <code>interact_with_*</code>, this test would have failed.</p>
+<p>If I were to take a more micro-test approach to this, I would write multiple tests. First this one:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_high</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">fleets</span> <span class="o">=</span> <span class="n">Fleets</span><span class="p">()</span>
+    <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Asteroid</span><span class="p">(</span>
+        <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">position</span><span class="o">=</span><span class="n">position</span>
+    <span class="p">))</span>
+    <span class="n">fleets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
+        <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+        <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">))</span>
+    <span class="n">fleets</span><span class="o">.</span><span class="n">perform_interactions</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">score</span><span class="p">,)</span> <span class="o">=</span> <span class="n">FI</span><span class="p">(</span><span class="n">fleets</span><span class="p">)</span><span class="o">.</span><span class="n">scores</span>
+    <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test ensures that the interactions work with regards to scoring. But it is only testing one score.</p>
+<p>With that test in place, I feel pretty certain that <code>score_for_hitting</code> is called. I can read the code and see that the only way the score would be correct in the first test is if <code>score_for_hitting</code> is called.</p>
+<p>To test that we get correct scores back, I therefore don’t think we need to test that via interactions, we can test it with a more lower-level, micro-test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_low</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">Asteroid</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">score_for_hitting</span><span class="p">(</span>
+            <span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">(</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+                <span class="n">velocity</span><span class="o">=</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span> <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test has lots of irrelevant details though. The positions and velocity don’t matter, so it’s annoying to have to specify them. It makes the test harder to read. I would think about how I could refactor the code so that the test could read something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_missile_vs_asteroid_scoring_rickard_micro_low</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">asteroid_size</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">Asteroid</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">asteroid_size</span><span class="p">)</span><span class="o">.</span><span class="n">score_for_hitting</span><span class="p">(</span><span class="n">Missile</span><span class="o">.</span><span class="n">from_ship</span><span class="p">())</span> \
+            <span class="o">==</span> <span class="n">u</span><span class="o">.</span><span class="n">MISSILE_SCORE_LIST</span><span class="p">[</span><span class="n">asteroid_size</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is overlapping, sociable testing. An approach I’ve started appreciating more and more over the last year or so.</p>
+<p>The score for size 2 is tested in both tests. This might feel wrong to some people. It certainly did to me in the beginning. But what it gives me (and perhaps you as well) is greater confidence that stuff actually works. And that trade-off is something that I’ve started to appreciate.</p>
+<h1 id="did-this-bring-clarity">Did this bring clarity?</h1>
+<p>Ron writes:</p>
+<blockquote>
+<p>I should say right off the bat that you’ve seen everything that Rickard and I have shared on the subject, so there’s no reason to be certain that we’re even talking about the same kind of tests. I’m thinking that he means a big story test with all the objects in it and a long series of time ticks and checks on the game state throughout. He might be thinking of tests like the one I just wrote, or even simpler ones, with just a few objects and a few interactions, but more than one test. We may not disagree at all on that.</p>
+</blockquote>
+<p>I was thinking of a test like <code>test_missile_vs_asteroid_scoring_rickard</code>. You only put the objects that are needed for a particular interaction into fleets and have them interact.</p>
+<p>I hope I managed to explain my thinking a bit more in this blog post. If it sounds like I say “you should do this because it is better” I apologize. My intention was to explain my current thinking and what I would do if I did it now. And as Ron pointed out, if we actually did this together, the end result would probably be something different.</p>
+<h1 id="so-high-level-or-micro">So high-level or micro?</h1>
+<blockquote>
+<p>And if we got the code expressing each micro rule very clearly … would we still wonder about the bigger picture?</p>
+</blockquote>
+<p>I think the game rules will be quite clear with micro-tests only.</p>
+<p>My concern with this implementation is mainly that it is difficult to write those correctly. (You have to implement and call the correct <code>interact_with_*</code>.) I think that my suggestion to write a higher-lever tests for interactions partly solves that problem.</p>
+<p>If we can come up with a better scheme for this mechanism in Python, I might be less inclined to write high-level test.</p>
+<p>But currently, I think I still like higher-level tests. At least some. I like overlapping, sociable tests. That means tests at many different levels. And if testing at a higher level is not inconvenient (it quickly becomes), I <em>think</em> I prefer that. First of all because it gives me greater confidence that the code works, and second because it allows refactoring without changing tests.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

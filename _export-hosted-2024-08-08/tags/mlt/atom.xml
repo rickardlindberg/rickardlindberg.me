@@ -1,0 +1,1193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Rickard's personal homepage: latest posts tagged mlt</title>
+    <link href="http://rickardlindberg.me/tags/mlt/atom.xml" rel="self" />
+    <link href="http://rickardlindberg.me" />
+    <id>http://rickardlindberg.me/tags/mlt/atom.xml</id>
+    <author>
+        <name>Rickard Lindberg</name>
+        <email>rickard@rickardlindberg.me</email>
+    </author>
+    <updated>2023-08-23T00:00:00Z</updated>
+    <entry>
+    <title>DevLog 012: Investigating export crash</title>
+    <link href="http://rickardlindberg.me/writing/devlog-012-investigating-export-crash/" />
+    <id>http://rickardlindberg.me/writing/devlog-012-investigating-export-crash/</id>
+    <published>2023-08-23T00:00:00Z</published>
+    <updated>2023-08-23T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 012: Investigating export crash</h1>
+
+<p><em>Published on 23 August 2023.</em></p>
+
+<p>I have managed to edit some footage using my own <a href="/projects/rlvideo/index.html">video editor</a>. When I tried to export it, it took forever and eventually crashed. In this DevLog, we will investigate why that might be.</p>
+<h2 id="how-export-works">How export works</h2>
+<p>When we press the export button, the following code is run:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export.mp4&quot;</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+            <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">background_worker</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">work</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It creates an MLT producer with the real clips, and not the proxy clips. The <code>work</code> function is called in a thread, and this code does the actual export:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>As I remember, this is the code that takes forever and eventually crash. I also think its memory consumption steadily increase.</p>
+<h2 id="way-forward">Way forward</h2>
+<p>There is not much Python code in here. Just the loop that queries the consumer. So my guess is that something in MLT consumes memory and eventually crashes. We had a similar problem, I think, before when we created proxies using MLT in this way. On the other hand, it seems unlikely that MLT would crash when exporting a “small” project.</p>
+<p>What I want to try today is to export my project as an MLT XML file and try to render it using melt. It should do roughly the same thing as my Python code, but will avoid using the Python binding for MLT.</p>
+<p>If there is something wrong with MLT, which I doubt, the export will fail here as well. If not, well, then I don’t know what is wrong, but we can at least rule out MLT (core).</p>
+<h2 id="the-test">The test</h2>
+<p>We have this code that enables us to export MLT XML:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>However, it creates the preview MLT producer which uses the proxy clips.</p>
+<p>Since this is just a test, not intended to be committed, I modify this code to instead create an MLT producer with the real clips.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">ExportSourceLoader</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+    <span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we can export the XML like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
+Exporting test.xml
+...
+Done
+</pre>
+</div>
+</div>
+</div>
+<p>I verify that the XML file has references to the real clips. It does. Perfect!</p>
+<p>We can now do the equivalent export with this command:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>mlt-melt test.xml -consumer avformat target=export.mp4
+</pre>
+</div>
+</div>
+</div>
+<p>And now, it’s just to wait and see what happens.</p>
+<h2 id="a-few-minutes-later">A few minutes later</h2>
+<p>The memory consumption seems to be quite stable. Unless there is a memory leak, this is what I expect. If the memory consumption keeps increasing for every frame that is exported, that would mean that you can only export longer videos by getting more memory. That does not seem right.</p>
+<p>I should probably also verify that the export in the application keeps increasing memory consumption. If it does, then there might be a memory leak in the Python binding for MLT. Or I might use the binding incorrectly.</p>
+<p>Using threads (which is used in the export) has also been problematic. I’ve experienced that the Python threads interfere with the MLT threads. I’m don’t understand the problem fully, it’s just a feeling. So that might be something to look into. Try the export with threading disabled.</p>
+<h2 id="a-few-hours-later">A few hours later</h2>
+<p>I might have mistaken. The memory consumption seems to keep increasing. However, the export finish without crashing and the final result looks fine.</p>
+<h2 id="summary">Summary</h2>
+<p>It seems that MLT consumes more and more memory the longer the exported video. To confirm this, I should probably do some more precise measures. Maybe using something like <a href="https://github.com/astrofrog/psrecord">psrecord</a>? However, memory consumption might not be problematic in itself. Perhaps it allocates more memory to speed things up, but will not allocated more than what is available. Perhaps the crash that I experienced before was not related to memory.</p>
+<p>We have learned something today, and this knowledge will make us better prepared for the future.</p>
+<p>Here are a few things I think of as possible next steps in this area:</p>
+<ul>
+<li>Measure memory consumption properly</li>
+<li>Compare memory consumption from MLT and rlvideo</li>
+<li>Try disabling threading in rlvideo</li>
+<li>“Optimize” the generated producer. It has many unnecessary tracks which I think will slow rendering down. (Should measure this to confirm.)</li>
+</ul>
+<p>We’ll see if we work on any of these the next time or something else.</p>
+]]></summary>
+</entry>
+<entry>
+    <title>DevLog 010: Debugging MLT/GTK segfault</title>
+    <link href="http://rickardlindberg.me/writing/devlog-010-debugging-mlt-gtk-segfault/" />
+    <id>http://rickardlindberg.me/writing/devlog-010-debugging-mlt-gtk-segfault/</id>
+    <published>2023-08-03T00:00:00Z</published>
+    <updated>2023-08-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 010: Debugging MLT/GTK segfault</h1>
+
+<p><em>Published on  3 August 2023.</em></p>
+
+<p>I try to edit some footage with my <a href="/projects/rlvideo/index.html">video editor</a>. Actually, it is footage from <a href="/writing/devlog-009-improve-timeline-scrubbing/index.html">DevLog 009</a> that I hope to put together. Everything is going quite well. After I add a split-cut-at-playhead operation to the editor, in addition to the previously added ripple delete, I am actually able to do some useful edits.</p>
+<p>However, after a while I notice that a cut does not seem to render the correct frame. I decide to restart the application, and then it happens. Segfault!</p>
+<p>This time, the segfault reproduces consistently. I’m excited to debug this and see how we can resolve it. I’ve got my cup of coffee, and I’m ready to go.</p>
+<p>
+<center>
+<img src="coffee.png" title="fig:" alt="Coffee." />
+</center>
+</p>
+<h2 id="gdb-output">GDB output</h2>
+<p>Because this is not the first time I see segfaults in this application, I have added a command to run the application in GDB. Here is how to use it:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ~/rlvideo/make.py gdb devlog-009.rlvideo
+...
+Starting program: /usr/bin/python3 /home/rick/rlvideo/rlvideo.py devlog-009.rlvideo
+...
+Thread 1 &quot;python3&quot; received signal SIGSEGV, Segmentation fault.
+..
+(gdb) bt
+#0  0x00007ffff7a64474 in pthread_mutex_lock () at /lib64/libpthread.so.0
+#1  0x00007fffe96866af in XrmQGetResource () at /lib64/libX11.so.6
+#2  0x00007fffe9667fca in XGetDefault () at /lib64/libX11.so.6
+#3  0x00007fffe9a5ae8a in _cairo_xlib_surface_get_font_options () at /lib64/libcairo.so.2
+...
+</pre>
+</div>
+</div>
+</div>
+<h2 id="analysis-and-ideas">Analysis and ideas</h2>
+<p>The segfault seems to happen inside some Cairo drawing code. That is most likely happening because GTK is trying to show a widget that tries to draw itself. I think GTK calls were further down in the backrace.</p>
+<p>I find it very unlikely that this can happen from the Python GTK bindings. My suspicion is that this has something to do with MLT. Why? Because the segfault only happens for some projects.</p>
+<p>I know that many MLT calls return status codes that I never check. Perhaps I should.</p>
+<p>There is also a way to serialize an MLT producer to an XML file which can then be played with <code>melt</code>. That way we can see if MLT has the same problems as we are having given the same MLT producer.</p>
+<p>This might be useful for other types of debugging as well.</p>
+<p>Let’s see if we can implement that XML export and see if <code>melt</code> segfaults as well or if that works.</p>
+<h2 id="debugging-mlt-producers">Debugging MLT producers</h2>
+<p>I add this to the main function:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_profile</span><span class="p">(),</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can run it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py rundev --export-melt test.xml
+Exporting test.xml
+Done
+</pre>
+</div>
+</div>
+</div>
+<p>Then we can feed it to <code>melt</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ mlt-melt test.xml
+</pre>
+</div>
+</div>
+</div>
+<p>When I do, I get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>[producer_xml] parse fatal: Input is not proper UTF-8, indicate encoding !
+Bytes: 0xC0 0xF3 0x68 0x0E
+	row: 3	col: 25
+[producer_xml] parse fatal: invalid character in attribute value
+...
+</pre>
+</div>
+</div>
+</div>
+<p>There seems to be an encoding issue. I look at the file and see that the profile description looks weird.</p>
+<p>I fix it manually, and then get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ mlt-melt test.xml
++-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
+|1=-10| |2= -5| |3= -2| |4= -1| |5=  0| |6=  1| |7=  2| |8=  5| |9= 10|
++-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
++---------------------------------------------------------------------+
+|               H = back 1 minute,  L = forward 1 minute              |
+|                 h = previous frame,  l = next frame                 |
+|           g = start of clip, j = next clip, k = previous clip       |
+|                0 = restart, q = quit, space = play                  |
++---------------------------------------------------------------------+
+Segmentation fault (core dumped)
+</pre>
+</div>
+</div>
+</div>
+<p>Hmm. Now I’m not using the project that I had problems with. Now I’m just using the default test project which works fine otherwise.</p>
+<p>When I look closer at the profile in the XML file, other things seem off as well. The width and height don’t seem to be correct either. I try to use the project profile instead of the preview profile in the XML export code. This works better. However, the player only shows a couple of frames where there should be more. What is going on?</p>
+<p>Then I notice this at the end of the XML file:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>  <span class="nt">&lt;playlist</span> <span class="na">id=</span><span class="s">&quot;playlist0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;playlist1&quot;</span> <span class="na">in=</span><span class="s">&quot;&quot;</span> <span class="na">out=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;producer4&quot;</span> <span class="na">in=</span><span class="s">&quot;0&quot;</span> <span class="na">out=</span><span class="s">&quot;0&quot;</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/playlist&gt;</span>
+<span class="nt">&lt;/mlt&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The first item in the playlist, which is another playlist, seems to lack in and out arguments. If I change to the following, the file plays ok:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    <span class="nt">&lt;entry</span> <span class="na">producer=</span><span class="s">&quot;playlist1&quot;</span> <span class="na">in=</span><span class="s">&quot;0&quot;</span> <span class="na">out=</span><span class="s">&quot;43&quot;</span><span class="nt">/&gt;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I print in and out points for all playlists that we create, and they seem to have valid numbers. Time to dig into the MLT XML export code.</p>
+<p>I find this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kt">char</span> <span class="o">*</span><span class="nf">mlt_properties_get_time</span><span class="p">(</span><span class="n">mlt_properties</span> <span class="n">self</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">mlt_time_format</span> <span class="n">format</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">mlt_profile</span> <span class="n">profile</span> <span class="o">=</span> <span class="n">mlt_properties_get_data</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s">&quot;_profile&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">double</span> <span class="n">fps</span> <span class="o">=</span> <span class="n">mlt_profile_fps</span><span class="p">(</span><span class="n">profile</span><span class="p">);</span>
+        <span class="n">mlt_property</span> <span class="n">value</span> <span class="o">=</span> <span class="n">mlt_properties_find</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+        <span class="n">property_list</span> <span class="o">*</span><span class="n">list</span> <span class="o">=</span> <span class="n">self</span><span class="o">-&gt;</span><span class="n">local</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">?</span> <span class="nb">NULL</span> <span class="o">:</span> <span class="n">mlt_property_get_time</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">list</span><span class="o">-&gt;</span><span class="n">locale</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>mlt_properties_get_time</code> functions seems to be used in the XML export. And it seems to work only if there is a profile.</p>
+<p>My playlists don’t have profiles.</p>
+<p>I add it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gh">diff --git a/rlvideolib/domain/section.py b/rlvideolib/domain/section.py</span>
+<span class="gh">index 4c50d6d..78a0683 100644</span>
+<span class="gd">--- a/rlvideolib/domain/section.py</span>
+<span class="gi">+++ b/rlvideolib/domain/section.py</span>
+<span class="gu">@@ -33,7 +33,7 @@ class Sections:</span>
+         return canvas
+
+     def to_mlt_producer(self, profile, cache):
+<span class="gd">-        playlist = mlt.Playlist()</span>
+<span class="gi">+        playlist = mlt.Playlist(profile)</span>
+         for section in self.sections:
+             playlist.append(section.to_mlt_producer(profile, cache))
+         assert playlist.get_playtime() == self.length
+<span class="gu">@@ -71,7 +71,7 @@ class PlaylistSection:</span>
+         return canvas
+
+     def to_mlt_producer(self, profile, cache):
+<span class="gd">-        playlist = mlt.Playlist()</span>
+<span class="gi">+        playlist = mlt.Playlist(profile)</span>
+         for part in self.parts:
+             part.add_to_mlt_playlist(profile, cache, playlist)
+         assert playlist.get_playtime() == self.length
+</pre>
+</div>
+</div>
+</div>
+<p>Now the export works fine!</p>
+<p>Let’s export the XML file for the project that segfaults.</p>
+<p>I examine the XML file and notice the same problem for <code>mlt.Tractor</code>. It is also missing in and out arguments. I add profiles to those as well.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Pass profile to mlt.Tractor so that XML export works properly with in/out points.&#39;
+...........................................................
+----------------------------------------------------------------------
+Ran 59 tests in 3.024s
+
+OK
+[main a5db808] Pass profile to mlt.Tractor so that XML export works properly with in/out points.
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+</pre>
+</div>
+</div>
+</div>
+<p>The export works fine and it plays fine in the <code>melt</code> player.</p>
+<p>I think that the fixes we made for the XML export only affects the XML export. But it is nice that we now have the ability to play our projects with <code>melt</code>. I suspect it might come in handy in the future as well.</p>
+<p>So there doesn’t seem to be anything wrong with the producer that we create. Melt can play it just fine. That is good news, I guess, but what to do next?</p>
+<h2 id="weird-cuts">Weird cuts</h2>
+<p>I mentioned in the beginning that the reason that I restarted the application was that I thought a cut rendered the wrong frame.</p>
+<p>I see this problem when playing the XML file with melt as well.</p>
+<p>This is most likely something wrong in our code. However, it doesn’t seem to contribute to the segfault.</p>
+<p>I add a TODO in the code in a place where I think the problem is. Let’s deal with that later. We are on the hunt for segfault reasons now.</p>
+<h2 id="more-ideas">More ideas</h2>
+<p>We have concluded that the producer that we create is probably fine.</p>
+<p>My suspicion is that there is something in the combination of MLT and GTK that causes the segfault. MLT and GTK are running in the same process, so it might be possible that they interfere with each other somehow. The backtrace got segfaulted inside the pthread library. So perhaps this is also timing related.</p>
+<p>Let’s try a few things out.</p>
+<h2 id="removing-the-player">Removing the player</h2>
+<p>The thing that connects MLT and GTK is the player. We start an MLT SDL consumer and have it display it’s output in a GTK window.</p>
+<p>I try to remove the player like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1">#mlt_player = MltPlayer(self.project, preview.get_window().get_xid())</span>
+<span class="k">class</span> <span class="nc">MockPlayer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+<span class="n">mlt_player</span> <span class="o">=</span> <span class="n">MockPlayer</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And now the application starts!</p>
+<p>But of course it doesn’t work properly.</p>
+<p>However, it tells me that there is something about this combination that causes the segfault.</p>
+<h2 id="timing">Timing</h2>
+<p>I then try this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gh">diff --git a/rlvideolib/gui/gtk.py b/rlvideolib/gui/gtk.py</span>
+<span class="gh">index cb13bef..3feaf87 100644</span>
+<span class="gd">--- a/rlvideolib/gui/gtk.py</span>
+<span class="gi">+++ b/rlvideolib/gui/gtk.py</span>
+<span class="gu">@@ -160,6 +160,9 @@ class MltPlayer:</span>
+         # TODO: figure out why SDL consumer seems to produce brighter images (black -&gt; grey)
+         self.project = project
+         os.putenv(&quot;SDL_WINDOWID&quot;, str(window_id))
+<span class="gi">+        GLib.idle_add(self.init_player)</span>
+<span class="gi">+</span>
+<span class="gi">+    def init_player(self):</span>
+         self.consumer = mlt.Consumer(self.project.get_preview_profile(), &quot;sdl&quot;)
+         self.consumer.start()
+         self.producer = None
+</pre>
+</div>
+</div>
+</div>
+<p>That is, I create the MLT consumer a little later, once GTK has had time to start up a bit more.</p>
+<p>And wow, this actually works!</p>
+<p>I though about this idea because I had come across this comment in the <a href="https://github.com/jliljebl/flowblade">Flowblade</a> source code:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1"># SDL 2 consumer needs to created after Gtk.main() has run enough for window to be visible</span>
+<span class="c1">#if editorstate.get_sdl_version() == editorstate.SDL_2: # needs more state consideration still</span>
+<span class="c1">#    print &quot;SDL2 timeout launch&quot;</span>
+<span class="c1">#    global sdl2_timeout_id</span>
+<span class="c1">#    sdl2_timeout_id = GLib.timeout_add(1500, create_sdl_2_consumer)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The comment was for SDL2, and we are using SDL1, but I thought it was worth a try anyway.</p>
+<p>Here is one reason that I think it is valuable documenting my work. I was able to get an idea from Flowblade. From a comment written in the source code. That was valuable to me. Maybe others will find similar value in what I write about. Maybe.</p>
+<h2 id="solution-too-soon">Solution too soon?</h2>
+<p>I try the <code>idle_add</code> solution a couple of times, and it seems like I was too fast to declare victory. It seems like it still segfaults sometimes.</p>
+<p>Then I try to take the SDL consumer out of the picture by replacing it with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">DummyConsumer</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">disconnect_all_producers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dummy disconnect&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">producer</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dummy connect&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And it still segfaults sometimes.</p>
+<h2 id="delay-all-mlt-operations">Delay all MLT operations</h2>
+<p>I’m thinking that we need to delay all MLT operations until GTK is properly initialized.</p>
+<p>I try to get this to work, but I don’t manage. The code is too tangled together.</p>
+<p>Many hours pass, and I don’t seem to be making any progress.</p>
+<h2 id="overlap">Overlap</h2>
+<p>I’m thinking that this segfault might have to do with the bug I talked about in the beginning about the wrong frame being rendered.</p>
+<p>I find the problem in the code, write a test that exposes the bug, and then fix it.</p>
+<p>That was good, but it did not resolve the segfault.</p>
+<p>I keep scratching my head, thinking of things to try. Hours pass. Then I have a breakthrough.</p>
+<h2 id="breakthrough">Breakthrough</h2>
+<p>But some lucky guess, I find out that the segfault only happens when we have overlapping clips in our project. I decide to comment out transitions (the code that merges multiple, overlapping frames together), and suddenly, the reproducible segfault goes away. The problem seems to be with the <code>qtblend</code> transition. There is another one called <code>frei0r.cairoblend</code> which works as well for our purposes. I switch to that one and write this comment in the code about it.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1"># &#39;qtblend&#39; that was first used first seems to give problems</span>
+<span class="c1"># when used in a GTK context. The application segfaults when</span>
+<span class="c1"># started.</span>
+<span class="c1">#</span>
+<span class="c1"># Steps to reproduce:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. ./make.py rundev foo.rlvideo resources/*mp4</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Move a cut so that there is a overlap somewhere</span>
+<span class="c1">#</span>
+<span class="c1"># 3. ./make.py rundev foo.rlvideo</span>
+<span class="c1">#</span>
+<span class="c1"># Boom! Stacktrace:</span>
+<span class="c1">#</span>
+<span class="c1">#     (gdb) bt</span>
+<span class="c1">#     #0  0x00007ffff7a64474 in pthread_mutex_lock () at /lib64/libpthread.so.0</span>
+<span class="c1">#     #1  0x00007fffe96866af in XrmQGetResource () at /lib64/libX11.so.6</span>
+<span class="c1">#     #2  0x00007fffe9667fca in XGetDefault () at /lib64/libX11.so.6</span>
+<span class="c1">#     #3  0x00007fffe9a5ae8a in _cairo_xlib_surface_get_font_options () at /lib64/libcairo.so.2</span>
+<span class="c1">#     ...</span>
+<span class="c1">#</span>
+<span class="c1"># frei0r.cairoblend seems to work better.</span>
+<span class="c1">#</span>
+<span class="c1"># TODO: How to fix this problem? Is qtblend just incompatible?</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>I am extremely satisfied that we found the reason for the segfault and were able to fix it.</p>
+<p>In the process we also found a couple of other bugs that we fixed and added the XML export for easier debugging.</p>
+<p>After fixing the segfault I continue to edit. Unfortunately, I get other segfaults now. This time not reproducible, but more random. I conclude that I must learn better the internals of MLT to figure out what I’m doing wrong in the Python code. And after the things I learned from this session, I’m more prepared.</p>
+]]></summary>
+</entry>
+<entry>
+    <title>DevLog 005: MLT proxy hell</title>
+    <link href="http://rickardlindberg.me/writing/devlog-005-mlt-proxy-hell/" />
+    <id>http://rickardlindberg.me/writing/devlog-005-mlt-proxy-hell/</id>
+    <published>2023-07-31T00:00:00Z</published>
+    <updated>2023-07-31T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 005: MLT proxy hell</h1>
+
+<p><em>Published on 31 July 2023.</em></p>
+
+<p>I want to use the <a href="/projects/rlvideo/index.html">video editor</a> to edit footage that I have shot this summer. It starts out well, gives me a lot of problems, and resolves in the end.</p>
+<h2 id="a-promising-start">A promising start</h2>
+<p>To load all clips that I have, I try this command:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rlvideo a6400/* hero8/*
+</pre>
+</div>
+</div>
+</div>
+<p>It takes a while to load all the clips. This is expected. When we load a clip we need to figure out its length so that we can correctly place it on the timeline. This is a one time cost when adding new clips. And I have shot many clips this summer:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ls a6400/* hero8/* | wc -l
+270
+</pre>
+</div>
+</div>
+</div>
+<p>I patiently wait.</p>
+<p>After a while the GUI pops up and proxy clips start to render in the background. Meanwhile the GUI is quite snappy and we can start to make edits right away.</p>
+<p>Aside from the lack of progress bar when loading clips, the application works as intended.</p>
+<p>I figure it will take a while to render all proxy clips, so I leave it open and go do something else for a while.</p>
+<p>
+<center>
+<img src="loading.png" title="fig:" alt="Loading clips." />
+</center>
+</p>
+<h2 id="crashes">Crashes</h2>
+<p>Then I hear that the fan stops making noises. Already done I think? Hmm. Where did my application go? The window is closed, and so is the terminal from which I opened it. How is that even possible? Reading the <code>dmesg</code> output, the application seems to have segfaulted.</p>
+<p>I spend many hours trying to figure out what is going on. What is particularly annoying is that you have to wait a long time to reproduce it. The segfault does not happen right away.</p>
+<p>Eventually I narrow down the problem to proxy generation. At least I think so. If I comment out generation of proxy clips, I can load many clips without a crash.</p>
+<p>In an earlier version of the program, we generated proxy clips using FFmpeg. Then we switched over to using MLT. I got the idea that you can do it with MLT from <a href="http://jliljebl.github.io/flowblade/">Flowblade</a>. It also made it easier to show progress in the GUI.</p>
+<p>When we made the switch, I noticed that something happened to the colors of the proxy clips. They seemed to look a little bleaker than the original. I don’t recall having this problem when we generated proxies using FFmpeg.</p>
+<p>Odd looking colors and segfaults. I think it’s time to go back to generating proxy clips using FFmpeg.</p>
+<h2 id="proxies-with-ffmpeg">Proxies with FFmpeg</h2>
+<p>Here is what I’m trying right now.</p>
+<p>Instead of this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">proxy_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_tmp_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">from_producer</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">adjust_profile</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">proxy_tmp_path</span><span class="p">)</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">adjust_consumer</span><span class="p">(</span><span class="n">consumer</span><span class="p">)</span>
+        <span class="n">run_consumer</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">producer</span><span class="p">,</span> <span class="n">progress</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_tmp_path</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We do this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">proxy_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_tmp_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">()</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="s2">&quot;yadif,scale=960:540&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-q:v&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-vcodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mjpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span>
+            <span class="n">proxy_tmp_path</span>
+        <span class="p">])</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can can let the <code>proxy_spec</code> set the FFmpeg options. The above is just an experiment to see if this works better.</p>
+<p>So far, it looks promising. It has been working for a couple of hours and the proxy clips look better than before.</p>
+<p>I’m gonna make some dinner and we’ll see the status later on.</p>
+<h2 id="after-dinner">After dinner</h2>
+<p>All proxy clips rendered successfully. The editor is still alive and I can scrub all the clips. Nice!</p>
+<h2 id="summary">Summary</h2>
+<p>Generating proxies using MLT always felt a little awkward. All we want to do is to scale the clip, encode it using a seek-friendly format, and leave everything else as is. With MLT we had to fiddle around with different profiles to make sure FPS was preserved and recreate producers with different profiles. It never felt like the proper solution.</p>
+<p>Doing the conversion using FFmpeg is much more straight forward. There are two objections that I can have to that solution:</p>
+<ol type="1">
+<li>It calls an external process</li>
+<li>We lost the call to <code>progress</code></li>
+</ol>
+<p>I browsed the web for solutions to the progress problem. And there seems to be many solutions for that. We can probably figure out one that works for us. And to be honest, right now, progress in the GUI is not the most important thing. Right now, FFmpeg outputs some statistics to the terminal, so we could have a look there for some kind of progress.</p>
+<p>When it comes to calling external processes, I’m not sure what I think. I know I don’t have a problem with it. Why do I object then? Honestly, I don’t know. Something tells me that it is a little ugly.</p>
+<p>When I started this project, I thought it would only be possible to do with the help of MLT. If the Python MLT bindings keep giving me segfaults and other hard times, will the project fail? Maybe. So what is my strategy? I think I will try to isolate the MLT code as much as possible and use other tools where possible (FFmpeg for proxy generation for example). If I manage to isolate the core of a video editor that is not depending on MLT, then perhaps I can also make it work with another video library if there is one. It will be an interesting exercise.</p>
+]]></summary>
+</entry>
+<entry>
+    <title>DevLog 004: Proxies with correct FPS</title>
+    <link href="http://rickardlindberg.me/writing/devlog-004-proxies-with-correct-fps/" />
+    <id>http://rickardlindberg.me/writing/devlog-004-proxies-with-correct-fps/</id>
+    <published>2023-07-30T00:00:00Z</published>
+    <updated>2023-07-30T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>DevLog 004: Proxies with correct FPS</h1>
+
+<p><em>Published on 30 July 2023.</em></p>
+
+<p>In this episode we will continue work on the <a href="/projects/rlvideo/index.html">video editor</a>. I have some footage that I would like to edit. Wouldn’t it be cool if I can do that in my own video editor? I will use that as a guide for the development. What is stopping me from using my video editor today? Fix that and move on to the next thing.</p>
+<p>In this episode we will fix an issue with proxy clips sometimes having the incorrect FPS.</p>
+<h2 id="why-devlogs">Why DevLogs?</h2>
+<p>I do them for various reasons. Here are the ones that I can think of now.</p>
+<ul>
+<li><p>I think there is value in documenting the work that I do.</p></li>
+<li><p>People reading these DevLogs might pick up something that I do and incorporate into their workflow.</p></li>
+<li><p>Clear thinking is clear writing and vice versa. Writing helps me think more clearly about topics. Sometimes, by writing about a problem, I think I can reach a solution faster even though writing takes time.</p></li>
+<li><p>I want to practice writing.</p></li>
+</ul>
+<h2 id="the-problem-with-proxies-and-fps">The problem with proxies and FPS</h2>
+<p>For most of my videos, I use a frame rate of 25. That is 25 frames per second (FPS). I have coded that as a default in the video editor.</p>
+<p>However, sometimes I shoot footage in a higher frame rate and slow it down in post.</p>
+<p>Here is an example:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ffprobe GX010802.MP4 <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">|</span> grep fps
+  Stream <span class="c1">#0:0(eng): Video: hevc (Main) (hvc1 / 0x31637668), yuvj420p(pc, bt709), 2704x1520 [SAR 1:1 DAR 169:95], 97187 kb/s, 100 fps, 100 tbr, 90k tbn, 100 tbc (default)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>You can see there in the middle that is says <code>100 fps</code>.</p>
+<p>When I drop this clip on a 25 FPS timeline, only every 4th frame will be used from that clip and the rest are discarded. However, if I slow down the clip to 25% speed, the runtime will be 4 times longer and all the frames will be used.</p>
+<p>The problem is that the video editor uses proxy clips for preview. A proxy clip is typically a lower resolution version of the original clip to allow real time editing on a slower computer.</p>
+<p>And proxy clips are currently generated with the same frame rate as the project (which is 25).</p>
+<p>Here is what <code>ffprobe</code> says about our proxy clip:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ffprobe /tmp/de63dcd626503cbde6f3da76b0af3e8c.mkv <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">|</span> grep fps
+  Stream <span class="c1">#0:0: Video: mjpeg (Baseline), yuvj420p(pc, bt470bg/bt709/bt709), 960x540 [SAR 1:1 DAR 16:9], 25 fps, 25 tbr, 1k tbn, 1k tbc (default)</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="proxy-generation-today">Proxy generation today</h2>
+<p>With some details removed, here is how proxies are generated today:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">CLIP_PATH</span><span class="p">)</span>
+
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">proxy_profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">PROXY_PATH</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;vcodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mjpeg&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;pcm_s16le&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;qscale&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">)</span>
+
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>profile</code> and the <code>proxy_profile</code> differ only in that the <code>proxy_profile</code> has a lower resolution (width x height). They are otherwise identical.</p>
+<p>What we need to do is to get the profile for a consumer and only change the size of it. We want the profile FPS to be the FPS of the clip.</p>
+<h2 id="sidetracked">Sidetracked</h2>
+<p>As I start writing some code, I notice something odd in the output of the tests:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>.............................[matroska,webm @ 0x5599e1354fc0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+Consider increasing the value for the &#39;analyzeduration&#39; (0) and &#39;probesize&#39; (5000000) options
+[matroska,webm @ 0x5599e0f51540] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+Consider increasing the value for the &#39;analyzeduration&#39; (0) and &#39;probesize&#39; (5000000) options
+....................
+----------------------------------------------------------------------
+Ran 49 tests in 2.001s
+</pre>
+</div>
+</div>
+</div>
+<p>I <code>git stash</code> my current changes and see that the output is still there.</p>
+<p>I increase the verbosity of the test runner to figure out which test is causing the output and I get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Doctest: rlvideolib.domain.project.Project ... [matroska,webm @ 0x56544c299700] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+Consider increasing the value for the &#39;analyzeduration&#39; (0) and &#39;probesize&#39; (5000000) options
+[matroska,webm @ 0x56544c4061c0] Could not find codec parameters for stream 0 (Video: mjpeg, none(pc, bt470bg/bt470bg/smpte170m), 720x576): unspecified pixel format
+Consider increasing the value for the &#39;analyzeduration&#39; (0) and &#39;probesize&#39; (5000000) options
+</pre>
+</div>
+</div>
+</div>
+<p>The problem is that there is a sort of integration test that, when run, generates proxy clips, and the output is not captured in the test and instead redirected to the terminal.</p>
+<p>I add the <code>capture_stdout_stderr</code> helper in the test, and the output now looks clean.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; with capture_stdout_stderr():</span>
+<span class="sd">...     with project.new_transaction() as transaction:</span>
+<span class="sd">...         ...</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Capture stdout/stderr in Project test to not clutter the test output.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 1.990s
+
+OK
+[main 9846016] Capture stdout/stderr in Project test to not clutter the test output.
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>Sometimes when I encounter a small problem when working on something, I prefer to <code>git stash</code> my changes, fix the small problem, and then get back to what I was working on with <code>git stash pop</code>.</p>
+<p>If the problem turns out to be not so small, I might write a note about it instead.</p>
+<h2 id="back-to-the-problem">Back to the problem</h2>
+<p>I create this function to get a native producer and profile:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">mlt_producer_with_native_profile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; _ = mlt.Factory().init()</span>
+<span class="sd">    &gt;&gt;&gt; producer, profile = mlt_producer_with_native_profile(&quot;resources/one.mp4&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; profile.fps()</span>
+<span class="sd">    25.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">profile</span><span class="o">.</span><span class="n">from_producer</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+    <span class="c1"># Re-open the producer with the new profile to ensure it gets all the</span>
+    <span class="c1"># properties from it and does not retain properties from the old profile.</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">producer</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I don’t have any clips in the resources folder that are other than 25 FPS, but this at leas shows that my code doesn’t crash.</p>
+<p>I try to use it when generating proxies. The tests pass after my modification, so I try to run the application with my 100 FPS test clip and get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rm /tmp/*.mkv; rlvideo GX010802.MP4
+...
+  File &quot;/home/rick/rlvideo/rlvideolib/domain/source.py&quot;, line 59, in load_proxy
+    assert self.length == native_producer.get_playtime()
+</pre>
+</div>
+</div>
+</div>
+<p>This reveals a problem to me. In the Python structures for a <code>Source</code> we store its length. My intention was to store the number of frames in the file so that we can check that we make valid cuts:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;FileSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,path,length&quot;</span><span class="p">)):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">create_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cut.&quot;</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>But I think the <code>producer.get_playtime()</code> is not giving frames, but rather frames at the current frame rate. A quick test confirms that this is the case:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; profile = mlt.Profile()</span>
+<span class="sd">&gt;&gt;&gt; profile.fps()</span>
+<span class="sd">25.0</span>
+<span class="sd">&gt;&gt;&gt; producer = mlt.Producer(profile, &quot;resources/one.mp4&quot;)</span>
+<span class="sd">&gt;&gt;&gt; producer.get_playtime()</span>
+<span class="sd">15</span>
+
+<span class="sd">&gt;&gt;&gt; profile.set_frame_rate(50, 1)</span>
+<span class="sd">&gt;&gt;&gt; profile.fps()</span>
+<span class="sd">50.0</span>
+<span class="sd">&gt;&gt;&gt; producer = mlt.Producer(profile, &quot;resources/one.mp4&quot;)</span>
+<span class="sd">&gt;&gt;&gt; producer.get_playtime()</span>
+<span class="sd">31</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>What to do?</p>
+<p>I think it’s time for another <code>git stash</code> and clarify length.</p>
+<h2 id="clarify-length">Clarify length</h2>
+<p>I want to rename <code>FileSource.length</code> to <code>FileSource.number_of_frames_at_project_fps</code>. That is a really long name, but it is more clear about what it represents. I value that more now. After the refactoring, I might uncover other issues. Let’s see.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Rename FileSource.length to FileSource.number_of_frames_at_project_fps.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 1.994s
+
+OK
+[main 8baae0a] Rename FileSource.length to FileSource.number_of_frames_at_project_fps.
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>The parameter is used in only one place outside <code>FileSource</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">add_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">FileSource</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">number_of_frames_at_project_fps</span><span class="o">=</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I find it a little unclear the connection between a producer, its playtime, and the number of frames. Let’s see if we can make a helper to clarify this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">add_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">FileSource</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+        <span class="n">number_of_frames_at_project_fps</span><span class="o">=</span><span class="n">FileInfo</span><span class="p">(</span>
+            <span class="n">path</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is <code>FileInfo</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FileInfo</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This makes it a little more clear that the number of frames in a file depends on the profile.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Extract FileInfo.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 1.982s
+
+OK
+[main fd89715] Extract FileInfo.
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="change-project-fps-after">Change project FPS after?</h2>
+<p>This brings up the question if we can change the project frame rate after we have added some clips.</p>
+<p>My guess is not.</p>
+<p>I remember reading that you should never do this in Kdenlive. Then weird things will happen.</p>
+<p>I suppose we could try to re-calculate all positions and lengths when we change the frame rate. Or have the unit of measurement be time instead. But I think that will be hard since that is not what MLT works with, and also, it make sense to work in terms of frames.</p>
+<p>I add a note in the source code about this and move on. This is probably fine.</p>
+<h2 id="back">Back</h2>
+<p>I <code>git stash pop</code> my earlier changes. Because of the rename, I have to resolve conflicts, but it goes well.</p>
+<p>I then spot this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">native_producer</span><span class="p">,</span> <span class="n">native_profile</span> <span class="o">=</span> <span class="n">mlt_producer_with_native_profile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+<span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span> <span class="o">==</span> <span class="n">native_producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>With our new knowledge, this is obviously wrong. And the new name helps us see that. The native profile has the FPS of the clip whereas the project profile has the FPS of the project. Those might not be the same, so therefore the assertion is not always going to work.</p>
+<p>I see some more usages for <code>FileInfo</code>, so I yet again stash my changes and update <code>FileInfo</code> to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FileInfo</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_mlt_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">&#39;Allow clearer code by extending FileInfo.&#39;</span>
+.................................................
+----------------------------------------------------------------------
+Ran <span class="m">49</span> tests <span class="k">in</span> <span class="m">1</span>.996s
+
+OK
+<span class="o">[</span>main acb6702<span class="o">]</span> Allow clearer code by extending FileInfo.
+ <span class="m">4</span> files changed, <span class="m">18</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">11</span> deletions<span class="o">(</span>-<span class="o">)</span>
+ create mode <span class="m">100644</span> rlvideolib/mlthelpers.py
+</pre>
+</div>
+</div>
+</div>
+<h2 id="break">Break</h2>
+<p>I’m having a hard time reasoning about proxy generation code. I decide it’s time for a break.</p>
+<h2 id="another-strategy">Another strategy</h2>
+<p>So far we have made no actual progress on improving proxy generation, but we have cleaned up the code in related areas and gained some new knowledge.</p>
+<p>Since I was not able to fix the proxy generation in a small step, I decide to change approach and take much smaller steps.</p>
+<p>Let’s see if we can refactor the <code>load_proxy</code> method and perhaps we might see more clearly how to modify it.</p>
+<p>For reference, this is what it looks now:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_profile</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span> <span class="o">==</span> <span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+    <span class="n">chechsum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">proxy_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/</span><span class="si">{</span><span class="n">chechsum</span><span class="si">}</span><span class="s2">.mkv&quot;</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/</span><span class="si">{</span><span class="n">chechsum</span><span class="si">}</span><span class="s2">.tmp.mkv&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+        <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">proxy_profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">proxy_tmp_path</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;vcodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mjpeg&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;pcm_s16le&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;qscale&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span> <span class="o">==</span> <span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">producer</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s try to extract <code>get_file_info</code> (which can then also be used in another place):</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">get_file_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+    <span class="n">file_info</span> <span class="o">=</span> <span class="n">FileInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span> <span class="o">==</span> <span class="n">file_info</span><span class="o">.</span><span class="n">get_number_of_frames</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_info</span>
+</pre>
+</div>
+</div>
+</div>
+<p>In <code>load_proxy</code> we can use it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        producer = mlt.Producer(profile, self.path)</span>
+<span class="gd">-        assert self.number_of_frames_at_project_fps == producer.get_playtime()</span>
+<span class="gi">+        file_info = self.get_file_info(profile)</span>
+         chechsum = md5(self.path)
+         proxy_path = f&quot;/tmp/{chechsum}.mkv&quot;
+         proxy_tmp_path = f&quot;/tmp/{chechsum}.tmp.mkv&quot;
+         if not os.path.exists(proxy_path):
+<span class="gi">+            producer = file_info.get_mlt_producer(profile)</span>
+             consumer = mlt.Consumer(proxy_profile, &quot;avformat&quot;)
+             consumer.set(&quot;target&quot;, proxy_tmp_path)
+             consumer.set(&quot;vcodec&quot;, &quot;mjpeg&quot;)
+</pre>
+</div>
+</div>
+</div>
+<p>This ensures that the file has the same length as we have recorded.</p>
+<p>Let’s extract <code>run_consumer</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run_consumer</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">producer</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I forgot to commit last refactoring. Let’s do that now:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Extract get_file_info and run_consumer.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 1.983s
+
+OK
+[main 49df31e] Extract get_file_info and run_consumer.
+ 2 files changed, 20 insertions(+), 11 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>There is a test for proxy generation, but it does not run fully if the proxy file already exists. I add a testing flag that we can set to True in tests. I’m not sure I like this, but it will help us when refactoring this method:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_profile</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">testing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/</span><span class="si">{</span><span class="n">chechsum</span><span class="si">}</span><span class="s2">.tmp.mkv&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">testing</span><span class="p">:</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="n">file_info</span><span class="o">.</span><span class="n">get_mlt_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="break-1">Break</h2>
+<p>I keep trying to clean up the proxy loading code but I just can’t seem to find the right abstractions. Furthermore, I get segfaults and all kinds of strange behavior from MLT. This demotivates me. I force myself to take a break.</p>
+<h2 id="revert">Revert</h2>
+<p>Since MLT is giving me all kinds of weird behavior, I think that perhaps the <code>get_file_info</code> abstraction was wrong. Maybe it creates more trouble at the moment. Let’s see if we can inline some of it instead.</p>
+<p>We get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -65,12 +65,11 @@ class FileSource(namedtuple(&quot;FileSource&quot;, &quot;id,path,number_of_frames_at_project_f</span>
+         &quot;&quot;&quot;
+         # TODO: generate proxy with same profile as source clip (same colorspace, etc,
+         # but with smaller size)
+<span class="gd">-        file_info = self.get_file_info(profile)</span>
+<span class="gi">+        producer = self.validate_producer(mlt.Producer(profile, self.path))</span>
+         chechsum = md5(self.path)
+         proxy_path = f&quot;/tmp/{chechsum}.mkv&quot;
+         proxy_tmp_path = f&quot;/tmp/{chechsum}.tmp.mkv&quot;
+         if not os.path.exists(proxy_path) or testing:
+<span class="gd">-            producer = file_info.get_mlt_producer(profile)</span>
+             consumer = mlt.Consumer(proxy_profile, &quot;avformat&quot;)
+             consumer.set(&quot;target&quot;, proxy_tmp_path)
+             consumer.set(&quot;vcodec&quot;, &quot;mjpeg&quot;)
+<span class="gu">@@ -78,14 +77,11 @@ class FileSource(namedtuple(&quot;FileSource&quot;, &quot;id,path,number_of_frames_at_project_f</span>
+             consumer.set(&quot;qscale&quot;, &quot;3&quot;)
+             run_consumer(consumer, producer, progress)
+             os.rename(proxy_tmp_path, proxy_path)
+<span class="gd">-        producer = mlt.Producer(profile, proxy_path)</span>
+<span class="gd">-        assert self.number_of_frames_at_project_fps == producer.get_playtime()</span>
+<span class="gd">-        return producer</span>
+<span class="gi">+        return self.validate_producer(mlt.Producer(profile, proxy_path))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Where <code>validate_producer</code> is this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">validate_producer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">producer</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span>
+    <span class="k">return</span> <span class="n">producer</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Inline some of FileInfo.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 2.493s
+
+OK
+[main c47ea68] Inline some of FileInfo.
+ 2 files changed, 7 insertions(+), 14 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>Then finally I can make this relatively small change:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -70,7 +70,12 @@ class FileSource(namedtuple(&quot;FileSource&quot;, &quot;id,path,number_of_frames_at_project_f</span>
+         proxy_path = f&quot;/tmp/{chechsum}.mkv&quot;
+         proxy_tmp_path = f&quot;/tmp/{chechsum}.tmp.mkv&quot;
+         if not os.path.exists(proxy_path) or testing:
+<span class="gd">-            consumer = mlt.Consumer(proxy_profile, &quot;avformat&quot;)</span>
+<span class="gi">+            p = mlt.Profile()</span>
+<span class="gi">+            p.from_producer(producer)</span>
+<span class="gi">+            p.set_width(proxy_profile.width())</span>
+<span class="gi">+            p.set_height(proxy_profile.height())</span>
+<span class="gi">+            producer = mlt.Producer(p, self.path)</span>
+<span class="gi">+            consumer = mlt.Consumer(p, &quot;avformat&quot;)</span>
+             consumer.set(&quot;target&quot;, proxy_tmp_path)
+             consumer.set(&quot;vcodec&quot;, &quot;mjpeg&quot;)
+             consumer.set(&quot;acodec&quot;, &quot;pcm_s16le&quot;)
+</pre>
+</div>
+</div>
+</div>
+<p>With this, proxy clips now retain their FPS:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ffprobe /tmp/de63dcd626503cbde6f3da76b0af3e8c.mkv 2&gt;&amp;1 | grep fps
+  Stream #0:0: Video: mjpeg (Baseline), yuvj420p(pc, bt470bg/bt709/bt709), 960x540 [SAR 1:1 DAR 16:9], 100 fps, 100 tbr, 1k tbn, 1k tbc (default)
+</pre>
+</div>
+</div>
+</div>
+<p>It seems to work fine in the application as well.</p>
+<p>Let’s commit this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Produce proxy clips with native profile to preserve FPS.&#39;
+.................................................
+----------------------------------------------------------------------
+Ran 49 tests in 2.560s
+
+OK
+[main b69cfb7] Produce proxy clips with native profile to preserve FPS.
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>This session turned out to be rather painful. Every time I do something that involves MLT, things get painful. That tells med to isolate as much of the MLT code as possible. It also tells me that I need to learn MLT better to understand issues.</p>
+<p>But segfaults worry me a bit. When working in Python, we should really not be getting segfaults. Is there something wrong in the Python binding for MLT?</p>
+<p>I’m sure we have to revisit proxy generation at some point. But I’m done for now.</p>
+]]></summary>
+</entry>
+
+</feed>

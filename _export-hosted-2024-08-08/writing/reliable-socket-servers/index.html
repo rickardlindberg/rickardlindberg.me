@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      How to write reliable socket servers that survive crashes and restarts? | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>How to write reliable socket servers that survive crashes and restarts?</h1>
+
+<p><em>Published on  2 September 2022.</em></p>
+
+<ul>
+<li><a href="#video-version">Video version</a></li>
+<li><a href="#the-problem-with-a-crashing-server">The problem with a crashing server</a></li>
+<li><a href="#solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</a></li>
+<li><a href="#the-problem-with-a-restarting-server">The problem with a restarting server</a></li>
+<li><a href="#solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</a></li>
+<li><a href="#questions-answers">Questions &amp; Answers</a>
+<ul>
+<li><a href="#how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</a></li>
+<li><a href="#can-we-decrease-the-startup-time">Can we decrease the startup time?</a></li>
+<li><a href="#can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</a></li>
+<li><a href="#why-do-we-need-to-move-the-socket-file-descriptor">Why do we need to move the socket file descriptor?</a></li>
+<li><a href="#why-is-execvp-needed">Why is execvp needed?</a></li>
+<li><a href="#why-socket-option-reuse">Why socket option REUSE?</a></li>
+<li><a href="#is-this-how-supervisor-works">Is this how Supervisor works?</a></li>
+<li><a href="#why-not-make-the-server-more-reliable">Why not make the server more reliable?</a></li>
+<li><a href="#can-this-approach-be-used-for-zero-downtime-deployments">Can this approach be used for zero-downtime deployments</a></li>
+<li><a href="#can-we-use-a-unix-domain-socket-instead-of-a-tcp-socket">Can we use a Unix domain socket instead of a TCP socket?</a></li>
+</ul></li>
+</ul>
+<p>A few months ago, I was researching how to do zero-downtime deployments and found the wonderful blog post <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Dream Deploys: Atomic, Zero-Downtime Deployments</a>.</p>
+<p>In it, Alan describes how separating listening on a socket and accepting connections on it into different processes can keep a socket “live” at all times even during a restart.</p>
+<p>In this blog post I want to document that trick and my understanding of it.</p>
+<h2 id="video-version">Video version</h2>
+<p>If you prefer a video version covering this topic:</p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tu3Sbm78SpY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</center>
+<h2 id="the-problem-with-a-crashing-server">The problem with a crashing server</h2>
+<p>To illustrate the problem with a crashing server, we use the example below:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is a TCP server, listening on port 9000, reading numbers from clients, and returning the product of the two numbers. It assumes that numbers can be parsed as integers. If parsing fails, the server crashes.</p>
+<p>To test the behavior of the server, we use the following client:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+client.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">make_request</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;five</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">make_request</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time_end</span> <span class="o">-</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"> (request took </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">ms)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No response for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection failed for </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It sends 20 requests to the server with a 10ms delay between them. However, for request with number 5, instead of sending the number <code>5</code> it sends the string <code>five</code> to cause the server to crash.</p>
+<p>If we start the server, then the client, the output looks as follows:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">server output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python server-listen.py 
+listening on port 9000
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+Traceback (most recent call last):
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
+    number = int(data)
+ValueError: invalid literal for int() with base 10: b'five\n'
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">client output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python client.py 
+0*0=0 (request took 1ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 0ms)
+3*3=9 (request took 0ms)
+4*4=16 (request took 0ms)
+No response for 5
+Connection failed for 6
+Connection failed for 7
+Connection failed for 8
+Connection failed for 9
+Connection failed for 10
+Connection failed for 11
+Connection failed for 12
+Connection failed for 13
+Connection failed for 14
+Connection failed for 15
+Connection failed for 16
+Connection failed for 17
+Connection failed for 18
+Connection failed for 19
+</pre>
+</div>
+</div>
+</div>
+<p>In the client output, we see that request with number 5 never receives a response from the server and that subsequent requests fail because the server has crashed, and there is no one listening on port 9000.</p>
+<h2 id="solution-restart-the-server-in-a-loop">Solution: restart the server in a loop</h2>
+<p>In order for subsequent requests to succeed, we need to start the server again after it has crashed. One way to do that is to run the server program in an infinite loop using a script like the one below:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+loop.sh
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
+    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
+<span class="k">done</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This Bash script takes a command to run as argument and runs that command in a loop, ignoring any exit code.</p>
+<p>Invoking the server and client again, we get the following output:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">server output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ bash loop.sh python server-listen.py
+python server-listen.py
+listening on port 9000
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+Traceback (most recent call last):
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-listen.py&quot;, line 13, in &lt;module&gt;
+    number = int(data)
+ValueError: invalid literal for int() with base 10: b'five\n'
+restarting
+python server-listen.py
+listening on port 9000
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">client output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python client.py 
+0*0=0 (request took 1ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 0ms)
+3*3=9 (request took 1ms)
+4*4=16 (request took 0ms)
+No response for 5
+Connection failed for 6
+Connection failed for 7
+Connection failed for 8
+Connection failed for 9
+Connection failed for 10
+Connection failed for 11
+Connection failed for 12
+Connection failed for 13
+14*14=196 (request took 0ms)
+15*15=225 (request took 0ms)
+16*16=256 (request took 0ms)
+17*17=289 (request took 0ms)
+18*18=324 (request took 0ms)
+19*19=361 (request took 1ms)
+</pre>
+</div>
+</div>
+</div>
+<p>In the server output, we see that the server starts again after the crash and starts listening on port 9000.</p>
+<p>In the client output, we see that request with number 5 fails the same way, but after a few more requests, it starts getting responses again at request with number 14.</p>
+<h2 id="the-problem-with-a-restarting-server">The problem with a restarting server</h2>
+<p>Running the server in a loop is an improvement. Instead of dropping all subsequent requests, we only drop a few.</p>
+<p>But during the time between the server crash and a new server being up, there is no one listening on port 9000 and we still drop connections.</p>
+<p>How can we make sure to handle all requests?</p>
+<h2 id="solution-separate-listening-on-a-socket-and-accepting-connections">Solution: separate listening on a socket and accepting connections</h2>
+<p>The trick, as also demonstrated in Alan’s blog post, is to listen on the socket in one process and accept connections and processing requests in another process. That way, if processing fails, and that process dies, the socket still stays open because it is managed by another process.</p>
+<p>Here is a program that listens on a socket and then spawns server processes in a loop to accept connections:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The first part of this program creates a socket and starts listening. This is what we had in the previous example.</p>
+<p>The second part moves the file descriptor of the socket to file descriptor 0 (stdin) to make it available to child processes.</p>
+<p>The third part replaces the current process with <code>bash loop.sh python server-accept.py</code>. At this point the process is listening on the socket and starts the <code>server-accept.py</code> program in a loop. As long as the <code>loop.sh</code> script doesn’t exit, there will be someone listening on port 9000.</p>
+<p>The <code>server-accept.py</code> program is similar to <code>server-listen.py</code>, but instead of listening on port 9000, it just accepts connections on the socket which is passed to it as file descriptor 0 (stdin):</p>
+<p>Here is <code>server-accept.py</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-accept.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Invoking the server and client again, we get the following output:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">server output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python server-listen-loop.py
+listening on port 9000
+python server-accept.py
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+Traceback (most recent call last):
+  File &quot;/home/rick/rickardlindberg.me/writing/reliable-socket-servers/server-accept.py&quot;, line 9, in &lt;module&gt;
+    number = int(data)
+ValueError: invalid literal for int() with base 10: b'five\n'
+restarting
+python server-accept.py
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+accepting connection
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">client output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python client.py 
+0*0=0 (request took 0ms)
+1*1=1 (request took 0ms)
+2*2=4 (request took 1ms)
+3*3=9 (request took 0ms)
+4*4=16 (request took 0ms)
+No response for 5
+6*6=36 (request took 106ms)
+7*7=49 (request took 0ms)
+8*8=64 (request took 1ms)
+9*9=81 (request took 0ms)
+10*10=100 (request took 0ms)
+11*11=121 (request took 1ms)
+12*12=144 (request took 0ms)
+13*13=169 (request took 0ms)
+14*14=196 (request took 0ms)
+15*15=225 (request took 0ms)
+16*16=256 (request took 1ms)
+17*17=289 (request took 0ms)
+18*18=324 (request took 0ms)
+19*19=361 (request took 1ms)
+</pre>
+</div>
+</div>
+</div>
+<p>Now all requests (except the one that causes a crash) get a response. We see that request with number six takes longer to complete. That is because <code>server-accept.py</code> needs time to start up (by the loop script) and call <code>accept</code> on the socket. But the request doesn’t fail. The client will not get a connection error.</p>
+<p>And this is one way to write reliable socket servers that survive crashes and restarts.</p>
+<h2 id="questions-answers">Questions &amp; Answers</h2>
+<h3 id="how-long-will-a-socket-wait-before-timing-out">How long will a socket wait before timing out?</h3>
+<p>I tried to modify the loop script to sleep for 60 seconds before restarting the server:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+loop-sleep.sh
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">while</span> true<span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nb">true</span>
+    <span class="nb">echo</span> <span class="s2">&quot;restarting&quot;</span>
+    sleep <span class="m">60</span>
+<span class="k">done</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The client output looked like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">client output </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>...
+No response for 5
+6*6=36 (request took 60123ms)
+7*7=49 (request took 0ms)
+...
+</pre>
+</div>
+</div>
+</div>
+<p>So it seems that the client got no errors even though the request took 60 seconds to be responded to.</p>
+<p>I suppose you can put a timeout in the client code. But this question was about how long the operating system on the server will keep the connection “alive” even though no one calls <code>accept</code>.</p>
+<p>I suppose the operating system has some kind of buffer. Say that there are multiple clients making requests at the same time and the server never calls <code>accept</code> during that time. Eventually some buffer must be exceeded and connections get dropped.</p>
+<p>(It seems that the client hangs on the <code>s.recv</code> call. That means that the request was sent to the server and must have filled up some buffer.)</p>
+<p>If anyone can point me to documentation where I can read about this behavior, please drop me a line.</p>
+<h3 id="can-we-decrease-the-startup-time">Can we decrease the startup time?</h3>
+<p>When the loop script restarts the server, it takes ~100ms for it to come up and process requests. How can we decrease that time?</p>
+<p>One way would be to modify the loop script to spawn multiple server processes. That way, if one crashes, the other can serve the next request.</p>
+<p>This would also make the server code concurrent. That is, no “global” state can reside in the server process, because we don’t know which server process will serve the next request.</p>
+<p>Another solution might be to have a second process in standby mode. So the loop script starts a second server process, but it stops it right before calling accept. But then we would need a way to signal to the process to resume operation. Perhaps by sending it a signal?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-accept-standby.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="c1"># wait for signal before proceeding</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Both of these make the loop script more complicated. And if it gets more complicated, it is more likely to crash. And if it crashes, the socket gets closed, and subsequent requests will get connection errors.</p>
+<h3 id="can-we-use-this-technique-to-create-a-load-balancer">Can we use this technique to create a load balancer?</h3>
+<p>Well, yes.</p>
+<p>If the loop script spawns multiple server processes, the operating system will load balance between them.</p>
+<p>No fancy load balancing software needed.</p>
+<p>More info in <a href="https://relaxdiego.com/2017/02/load-balancing-sockets.html">this blog post</a>.</p>
+<h3 id="why-do-we-need-to-move-the-socket-file-descriptor">Why do we need to move the socket file descriptor?</h3>
+<p>In the middle of <code>server-listen-loop.py</code> we move the file descriptor of the socket, <code>s.fileno()</code>, to file descriptor 0 (stdin):</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We do that to make the file descriptor available to child processes so that they can create a socket using it and then call <code>accept</code>.</p>
+<p>In Python, the file descriptor of the socket is <a href="https://docs.python.org/3/library/os.html#fd-inheritance">not inheritable by default</a>. That is, a child process will not be able to access the socket file descriptor. That is why we have to move it to file descriptor 0 (stdin) which is inherited.</p>
+<p>Another option might be to make the file descriptor inheritable. Something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop-inherit.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">set_inheritable</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept-inherit.py&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Then the file descriptor must also be passed to the server processes and used there instead of stdin:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-accept-inherit.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This seems to work as well.</p>
+<p>I think I choose the first approach because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>.</p>
+<p>Not having to pass the file descriptor to the child processes might be preferable in some situations. I don’t know.</p>
+<h3 id="why-is-execvp-needed">Why is execvp needed?</h3>
+<p>At the end of <code>server-listen-loop.py</code> we call <code>execvp</code> to start executing the loop script in the same process that started listening on the socket:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">execvp</span><span class="p">(</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;loop.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Why do we do that?</p>
+<p>I did it because that is how <a href="https://github.com/acg/dream-deploys/blob/master/tcplisten">Alan did it</a>. But now that I think about it, I think we can just as well inline the loop script in <code>server-listen-loop.py</code>. That, of course, requires the loop script to be written in Python. Something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen-loop-python.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;server-accept.py&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;restarting&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It seems to work as well.</p>
+<p>If the loop script is a simple loop like this, perhaps it makes sense to inline it. But if the loop script is more complex, perhaps even a third party product to manage server processes, it makes sense to do the <code>execvp</code>.</p>
+<h3 id="why-socket-option-reuse">Why socket option REUSE?</h3>
+<p>In <code>server-listen.py</code>, we set the socket option <code>SO_REUSEADDR</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-listen.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;listening on port 9000&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Why?</p>
+<p>I think <a href="https://stackoverflow.com/a/3229926">this Stackoverflow answer</a> explains it well:</p>
+<blockquote>
+<p>This socket option tells the kernel that even if this port is busy (in the TIME_WAIT state), go ahead and reuse it anyway. If it is busy, but with another state, you will still get an address already in use error. It is useful if your server has been shut down, and then restarted right away while sockets are still active on its port.</p>
+</blockquote>
+<p>Without it, it can not be run in a loop, and will get this error:</p>
+<pre><code>OSError: [Errno 98] Address already in use</code></pre>
+<h3 id="is-this-how-supervisor-works">Is this how Supervisor works?</h3>
+<p><a href="http://supervisord.org/">Supervisor</a> can create a process that listens on a socket and then pass that socket to child processes. For example like this:</p>
+<pre><code>[fcgi-program:test]
+socket=tcp://localhost:9000
+command=python server-accept.py</code></pre>
+<p>The <code>server-accept.py</code> program will get a socket passed to it as file descriptor 0 (stdin).</p>
+<p>However, if <code>server-accept.py</code> crashes, it seems like Supervisor closes the socket and creates it again upon restart:</p>
+<pre><code>2022-05-10 21:46:28,734 INFO exited: test (exit status 1; not expected)
+2022-05-10 21:46:28,734 INFO Closing socket tcp://localhost:9000
+2022-05-10 21:46:29,736 INFO Creating socket tcp://localhost:9000
+2022-05-10 21:46:29,737 INFO spawned: 'test' with pid 561624
+2022-05-10 21:46:30,740 INFO success: test entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)</code></pre>
+<p>So in this setup, we would still drop connections.</p>
+<h3 id="why-not-make-the-server-more-reliable">Why not make the server more reliable?</h3>
+<p>We could make the server more reliable so that it doesn’t crash. But sometimes a server needs to be restarted anyway. For example when configuration changes or a new version of the server should be deployed. The approach described in this blog post makes it possible to do those kinds of things without ever dropping connections as well.</p>
+<h3 id="can-this-approach-be-used-for-zero-downtime-deployments">Can this approach be used for zero-downtime deployments</h3>
+<p>Well, yes, that is how I learned about it in <a href="https://alangrow.com/blog/dream-deploys-atomic-zero-downtime-deployments">Alan’s blog post</a>.</p>
+<h3 id="can-we-use-a-unix-domain-socket-instead-of-a-tcp-socket">Can we use a Unix domain socket instead of a TCP socket?</h3>
+<p>Well, yes.</p>
+<p>In fact, the accepting server doesn’t know what kind of socket is passed to it. It could be either a Unix domain socket or a TCP socket:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+server-accept.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">fileno</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;accepting connection&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">number</span><span class="o">*</span><span class="n">number</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>(<a href="https://eli.thegreenplace.net/2019/unix-domain-sockets-in-go/">Unix domain sockets are probably faster than TCP sockets when running on the same machine.</a>)</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

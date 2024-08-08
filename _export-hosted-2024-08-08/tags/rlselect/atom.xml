@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Rickard's personal homepage: latest posts tagged rlselect</title>
+    <link href="http://rickardlindberg.me/tags/rlselect/atom.xml" rel="self" />
+    <link href="http://rickardlindberg.me" />
+    <id>http://rickardlindberg.me/tags/rlselect/atom.xml</id>
+    <author>
+        <name>Rickard Lindberg</name>
+        <email>rickard@rickardlindberg.me</email>
+    </author>
+    <updated>2021-07-04T00:00:00Z</updated>
+    <entry>
+    <title>Dogfooding Literate Programming Support in Smart Notes (June 2021 Update)</title>
+    <link href="http://rickardlindberg.me/writing/newsletter/june-2021/" />
+    <id>http://rickardlindberg.me/writing/newsletter/june-2021/</id>
+    <published>2021-07-04T00:00:00Z</published>
+    <updated>2021-07-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Dogfooding Literate Programming Support in Smart Notes (June 2021 Update)</h1>
+
+<p><em>Published on  4 July 2021.</em></p>
+
+<p>This is what I’ve been up to in June 2021.</p>
+<p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yhMm1q3Na1Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+</center>
+</p>
+<h2 id="laptop-upgrade">Laptop Upgrade</h2>
+<p>I switched my main laptop and also upgraded it to use the latest version of Fedora.</p>
+<p>That led me to revisited and tweak my <a href="https://github.com/rickardlindberg/dotfiles/">dotfiles</a> for the new setup.</p>
+<p>One tool that I rely on heavily is <a href="/projects/rlselect/index.html">rlselect</a>, and it only works with Python 2. The new version of Fedora doesn’t ship Python 2 with all the libraries that rlselect needs. And Python 2 is deprecated anyway. That gave me the urge to port rlselect to Python 3. But I also wanted to write the port using a literate programming tool. I had previously thought about trying to use <a href="https://github.com/rickardlindberg/smartnotes">Smart Notes</a> as a literate programming tool, but it lacked support now.</p>
+<h2 id="literate-programming-support-in-smart-notes">Literate Programming Support in Smart Notes</h2>
+<p>Because of my laptop upgrade, I had a new top priority for Smart Notes: implement some kind of literate programming support.</p>
+<p>I started by adding a script to convert <a href="/projects/rliterate/index.html">RLiterate</a> (my previous attempt at a literate programming tool) documents to Smart Notes documents. That way I could convert my projects that use RLiterate to Smart Notes so that I could continue editing them from within Smart Notes.</p>
+<p>I converted the Smart Notes RLiterate document to a Smart Notes document. Smart Notes was now written in itself. But there was no way to edit the code notes created by the convert script from within Smart Notes. The only way to edit the code was by editing the generated files. But if I did that, the code in the Smart Notes document and the generated files would be out of sync. So I decided to write a script that would examine changes in the external files and merge them back into the Smart Notes document. I got the idea that this was possible by reading about a similar approach used in <a href="https://leoeditor.com/appendices.html#the-mulder-ream-update-algorithm">Leo</a>.</p>
+<p>I got the merge script working well enough. I was able to edit <code>smartnotes.py</code> and merge the changes back into <code>smartnotes.notes</code>. So that when <code>smartnotes.py</code> was generated from <code>smartnotes.notes</code> it would include the changes.</p>
+<p>I used this workflow to add support to Smart Notes to create and edit code notes. At this point I was no longer in need of the merge script. I could do all the editing from within Smart Notes. However, as I talked about in the <a href="/writing/newsletter/may-2021/index.html">previous update</a>, such a merge script would be crucial for working with others not using Smart Notes. And I believe it will also come in handy to make editing external files from within Smart Notes more convenient. For example, it would allow a whole class to be edited even though that class is split into multiple code notes. When the whole class is saved, the merge script will merge changes back into the corresponding code notes.</p>
+<h2 id="port-of-rlselect-to-python-3">Port of rlselect to Python 3</h2>
+<p>At this point I could use Smart Notes as a literate programming tool to create a new version of rlselect that worked with Python 3.</p>
+<p>I started by importing all the existing code into a new Smart Notes document. I did that by creating a minimal set of code notes. At this point, the code notes were large and didn’t really benefit from the literate approach.</p>
+<p>Then I started making changes to make rlselect work with Python 3 and got it working quite easily.</p>
+<p>The next step was to split the code notes into smaller chunks to be able to annotate and document smaller portions of the code. For that, Smart Notes needed some additional features. At least to make the process convenient.</p>
+<h2 id="literate-programming-improvements">Literate Programming Improvements</h2>
+<p>I added support in Smart Notes for splitting code notes and tried it on the Smart Notes document itself. I didn’t have time to use this feature to improve the rlselect document, but I plan to.</p>
+<p>I also added virtual links so that code notes that are related are automatically linked.</p>
+<p>This process of <a href="https://en.wikipedia.org/wiki/Eating_your_own_dog_food">dogfooding</a> is really useful and fun. It answers the question very clearly what to work on next.</p>
+<h2 id="demo">Demo</h2>
+<p>To see a demo of the literate programming features in Smart Notes, have a look at <a href="https://youtu.be/yhMm1q3Na1Q?t=314">5:14</a>.</p>
+<h2 id="reflections-on-literate-programming">Reflections on Literate Programming</h2>
+<p>I thought about how the literate programming in Smart Notes feels different from the literate programming in RLiterate. In Smart Notes you don’t create a single linear document. You connect pieces of information that are related to each other. It will therefore also be difficult to extract a single linear document from Smart Notes. So this kind of literate programming will not result in “a book” that is the whole application with source code explained. It will rather be annotated source code. Linear documents might help with understanding sometimes. So I’m not quite sure how it fits into the Smart Notes literate programming approach. One possibility is to generate documentation files using regular code notes. For example, a <code>README.md</code> could be generated by assembling code notes from Smart Notes. But that <code>README.md</code> would not contain the whole program with documentation. Just a small part. Perhaps that is ok. By using Smart Notes as my main literate programming tool, I will experiment and see what it feels like.</p>
+<p>I am really happy with the progress I made on the literate programming support in Smart Notes. The script to convert RLiterate documents to Smart Notes documents and the script to merge changes from external files back into Smart Notes documents were killer features that allowed me to progress very fast.</p>
+<h2 id="videography">Videography</h2>
+<p>Aside from programming, I also continued to learn about my new hobby of videography:</p>
+<ul>
+<li><p>I learned more about how to properly use my camera when it comes to white balance and exposure. I also ordered white balance cards to help me with that.</p></li>
+<li><p>I tried to figure out how to use different frame rates and shutter speeds to eliminate flicker from light sources. I found a good tool from RED to list good combinations: <a href="https://www.red.com/flicker-free-video">flicker free video</a>. I don’t fully understand the logic behind it, but at least I can now get rid of some flicker in practice.</p></li>
+<li><p>I tested what happens to sound clips when cut in Kdenlive vs. in Ardour. Ardour adds short fade ins and fade outs, but Kdenlive doesn’t. So probably cuts in Kdenlive can create unwanted sounds if they don’t match up.</p></li>
+<li><p>I thought that my Rode Vide Mic NTG sounded noisy. I tried a firmware update, but it didn’t help. I tried various methods of recording, and all the results were similar. Perhaps I just need to be closer to the microphone so that the main audio is much louder than the background noise. The other option would be to reduce background noise in post.</p></li>
+</ul>
+<h2 id="reflections-on-last-year">Reflections on Last Year</h2>
+<p>This time <a href="/writing/newsletter/june-2020/index.html">last year</a> I was working on projectional editing support for RLiterate. I am no longer convinced that projectional editing is a good idea. It might just be that I am very comfortable with my current tools (Vim + command line tools) that I feel frustrated when I can’t use them. Or it might be that I haven’t used any good enough projectional editing system. My focus has at least shifted to build tools that are more practical and comfortable for <em>me</em> to use.</p>
+<p>This time last year I also read about compilers. It is a topic that I am still interested in, and I hope to work more and write more about compiler related stuff in the future.</p>
+]]></summary>
+</entry>
+<entry>
+    <title>Evolution of recalling Bash history</title>
+    <link href="http://rickardlindberg.me/writing/evolution-recalling-bash-history/" />
+    <id>http://rickardlindberg.me/writing/evolution-recalling-bash-history/</id>
+    <published>2017-05-19T00:00:00Z</published>
+    <updated>2017-05-19T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>Evolution of recalling Bash history</h1>
+
+<p><em>Published on 19 May 2017.</em></p>
+
+<p>This article is about how I’ve become more efficient at using Bash, the interactive UNIX shell.</p>
+<p>When I work in Bash, I often want to execute a command again. In the beginning I re-typed the command and pressed enter. This worked fine for short commands, but became tedious for longer commands.</p>
+<p>In some shells this is the only way to enter a new command. But Bash remembers the recently executed commands and provides ways to recall them.</p>
+<h2 id="cycle-with-arrow-keys">Cycle with arrow keys</h2>
+<p>The first way I learned to recall history was with the arrow keys. If I pressed <kbd>Up</kbd> the previous command was inserted at the prompt. I could continue for as long as I wanted. If I pressed <kbd>Down</kbd> the next command was inserted at the prompt:</p>
+<pre><code>$ ls&lt;Enter&gt;
+bin         ...
+
+$ date&lt;Enter&gt;
+Wed May 10 08:14:46 CEST 2017
+
+$ &lt;Up&gt;
+
+$ date&lt;Up&gt;
+
+$ ls&lt;Down&gt;
+
+$ date&lt;Enter&gt;
+Wed May 10 08:14:59 CEST 2017</code></pre>
+<p>This worked fine for commands that I had executed recently, but tedious for commands that I had executed long ago because I had to press <kbd>Up</kbd> many times. I ended up pressing and holding <kbd>Up</kbd> so that history scrolled by and when I saw my command, I released the key and pressed <kbd>Down</kbd> until it appeared again.</p>
+<h2 id="cycle-with-ctrl-pctrl-n">Cycle with Ctrl-P/Ctrl-N</h2>
+<p>Later I learned that <kbd>Ctrl-P</kbd> (previous) had the same function as <kbd>Up</kbd> and that <kbd>Ctrl-N</kbd> (next) had the same function as <kbd>Down</kbd>.</p>
+<p>These shortcuts were more comfortable for me because I like to keep my fingers as close to the home row as possible.</p>
+<h2 id="searching-with-ctrl-r">Searching with Ctrl-R</h2>
+<p>Then I learned about Bash’s interactive history search command. If I pressed <kbd>Ctrl-R</kbd> the prompt changed to this:</p>
+<pre><code>(reverse-i-search)`&#39;:</code></pre>
+<p>This special prompt allowed me to type parts of a command that I had executed previously. Say I wanted to execute the last find command again. I typed “find” and the prompt changed to this:</p>
+<pre><code>(reverse-i-search)`find&#39;: find -name &#39;*.py&#39; -a -type f</code></pre>
+<p>The text I typed, “find”, was present before the colon. After the colon the last command that I had executed that contained the string “find” was displayed. In this case I did a search for Python files. If this was not the match I was looking for, I could hit <kbd>Ctrl-R</kbd> again and the part to the right of the colon would change to the next command in the history that contained the string “find”. Once I found the command I was looking for I had two options: I could hit <kbd>Tab</kbd> to insert the command at the prompt:</p>
+<pre><code>$ find -name &#39;*.py&#39; -a -type f</code></pre>
+<p>This way I could edit the command before I executed it. Or I could hit <kbd>Enter</kbd> to execute the command directly.</p>
+<p>Now I was able to recall commands that I had executed long ago. I almost replaced all my usages of <kbd>Ctrl-P</kbd>/<kbd>Ctrl-N</kbd> with <kbd>Ctrl-R</kbd>. Except for the cases where I knew that the command I wanted to recall was only a few entries back.</p>
+<h2 id="frustrations-with-ctrl-r">Frustrations with Ctrl-R</h2>
+<p>The interactive search worked great for me when I knew what I was looking for. It did not work so great when I was more uncertain or when I mistyped the name of a command.</p>
+<p>The interactive search works by having a pointer to en entry in the history. When I typed a command it would move that pointer to the next item in the history that matched. But if I mistyped, the search might still match something further back in history. But when I erased a few characters to correct my mistake, the search would continue from there. Say this was my history:</p>
+<ol type="1">
+<li><code>tac ~/.bash_history</code></li>
+<li><code>echo frustration</code></li>
+<li><code>echo with</code></li>
+<li><code>echo bash</code></li>
+</ol>
+<p>I hit <kbd>Ctrl-R</kbd> to to begin searching for “bash”:</p>
+<pre><code>(reverse-i-search)`&#39;:</code></pre>
+<p>But I mistyped. Instead of “b” I typed “f”:</p>
+<pre><code>(reverse-i-search)`f&#39;: echo frustration</code></pre>
+<p>The search matched item 2. I erased the incorrectly typed character:</p>
+<pre><code>(reverse-i-search)`&#39;: echo frustration</code></pre>
+<p>The match remained. I typed bash correctly:</p>
+<pre><code>(reverse-i-search)`bash&#39;: tac ~/.bash_history</code></pre>
+<p>It now matched item 1 instead of item 4. The search continued from the previous match. I would have wanted the search to always show the most recent match from history. The easiest way I found to reset the search after a failure to find what I was looking for was to just execute a dummy command. Usually I selected <code>ls</code> because it was short to type and had no side effects.</p>
+<h2 id="interactively-filtering-with-external-program">Interactively filtering with external program</h2>
+<p>Then I was introduced to <a href="https://github.com/dvorka/hstr">hstr</a> by a colleague. It worked like a replacement for <kbd>Ctrl-R</kbd>. When I invoked it, it dropped into a text UI where my last history entries were shown. I could also type part of a command to narrow down the list. If I changed the search string, the narrowed down list changed accordingly. When I found a match I could similarly press <kbd>Tab</kbd> to insert the command at the prompt or press <kbd>Enter</kbd> to execute it immediately. It looked like this:</p>
+<p><a href="https://github.com/dvorka/hstr"><img src="/writing/evolution-recalling-bash-history/hh-animated-01.gif" alt="Demo of hstr (from their website)" /></a></p>
+<p>This solved my frustrations with Bash’s interactive search. For me, this was a far easier way to find items from my history. The fact that it showed the last commands also helped me. I could visually inspect them, and they would guide my search.</p>
+<p>hstr was so good that I wanted to use a similar selection mechanism for other things, but hstr was only for Bash history. I ended up writing my own selection program: <a href="/projects/rlselect/index.html">rlselect</a>. Partly because I wanted such a program, but also because it seemed like a fun program to write. The core selection program is called <code>rlselect</code> and then there are multiple programs that use it to allow selecting specific things. <code>rlselect-history</code> is a replacement for <kbd>Ctrl-R</kbd>/hstr:</p>
+<p><a href="/projects/rlselect/index.html"><img src="/writing/evolution-recalling-bash-history/rlselect_history_demo.gif" alt="Demo of rlselect" /></a></p>
+<p>There are some differences between hstr and <code>rlselect-history</code>. I took only the parts I personally wanted from hstr and put them into <code>rlselect-history</code>.</p>
+<p>If you want to improve your Bash usage, I suggest taking a look at <a href="https://github.com/dvorka/hstr">hstr</a> or <a href="/projects/rlselect/index.html">rlselect</a>.</p>
+]]></summary>
+</entry>
+
+</feed>

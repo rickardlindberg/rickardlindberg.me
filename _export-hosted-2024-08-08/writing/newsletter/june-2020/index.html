@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Newsletter June 2020 | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Newsletter June 2020</h1>
+
+<p><em>Published on  6 July 2020.</em></p>
+
+<p>This is what I’ve been up to in June 2020:</p>
+<ul>
+<li><p>I read parts of <a href="https://compilers.iecc.com/crenshaw/">Let’s Build a Compiler, by Jack Crenshaw</a>. It was interesting and it would be fun to try to implement the described language using <a href="../../../projects/rlmeta/">RLMeta</a>.</p></li>
+<li><p>I read a few articles from Julia Evans that I found interesting:</p>
+<ul>
+<li><p><a href="https://jvns.ca/blog/2017/02/17/mystery-swap/">Swapping, memory limits, and cgroups</a></p></li>
+<li><p><a href="https://jvns.ca/blog/2016/12/03/how-much-memory-is-my-process-using-/">How much memory is my process using?</a></p></li>
+<li><p><a href="https://jvns.ca/blog/2016/10/10/what-even-is-a-container/">What even is a container: namespaces and cgroups</a></p></li>
+</ul></li>
+<li><p>I decided to have a look at <a href="../../../projects/rliterate/">RLiterate</a> again.</p>
+<ul>
+<li><p>I continued work on direct manipulation of text. Text in RLiterate is represented as a list of text segements with different styles. That structure has to be projected to the screen and edits have to go into the correct segement. Segments might be projected with some additional markup text that is not present in the text itself. So the problem is a little bit more involved than plain text editing. I’m struggling to solve this problem in an elegant way.</p></li>
+<li><p>I have read about two so called projectional editors to get inspiration for how to solve these problems: <a href="https://github.com/projectured/projectured/wiki/Overview">ProjecturEd</a> and <a href="https://projectit-org.github.io/ProjectIt/projectit-component/0.0.4/index.html">ProjectIt</a>.</p></li>
+<li><p>One particular problem I’m working on is how to represent selections. Today, a selection is both in the GUI domain and the document domain. If the selection is only in the document domain, then two selection markers can appear in GUI since the same page can be projected more than once onto the workspace. When I click a title for example, I want exactly that title to be selected, not the same underlying title on another projected page. What is a good representation of selections that take this into account?</p></li>
+<li><p>I streamlined how props are generated. I wrote about the problem and my prefered pattern <a href="../../../projects/rliterate/book2/index.html#742ebf5ff2d8457ab8c01b3721052425">here</a>.</p></li>
+<li><p>I improved the performance of the text widget. When calculating where all characters will appear on the screen, you have to take <a href="https://en.wikipedia.org/wiki/Kerning">kerning</a> into account. Previously that was done by calculating the bounding rectangle for consequtively longer substrings. For example: bounding rectangle for “H”, then bounding rectangle for “He”, and so on until “Hello”. Now only bounding rectangles for pairs of characters are calculated. So “He”, and “el”, “ll”, and “lo”. My guess (which seems to hold for now) is that kerning only affects two consecutive characters, in which case this optimization works. Since the number of pairs are limited by the alphabet, these calculations can also be cached.</p></li>
+</ul></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

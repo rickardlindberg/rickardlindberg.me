@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Writing a real application in Haskell | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Writing a real application in Haskell</h1>
+
+<p><em>Published on  5 February 2012.</em></p>
+
+<p><em>24 September 2017: Fixed broken link to Mercurial.</em></p>
+<p>In this post I explain why I choose to write the <a href="../../../writing/reflections-on-programming/2012-01-11-application-development-series-intro/">file organization application</a> in Haskell.</p>
+<h2 id="getting-away-from-oop">Getting away from OOP</h2>
+<p>I’ve spent most of my time programming in object oriented languages, but I’ve also been interested in functional programming ever since I was introduced to Lisp at university.</p>
+<p>It was in the Lisp course that I first learned about recursion (or at least came to understand it), and it also taught me a lot about programming in general.</p>
+<p>The solutions that we wrote had a different structure from what I was used to. I remember them as powerful and elegant. Somehow that elegance never made it outside the university and the Lisp course. That makes me a little sad.</p>
+<p>One big reason I find object oriented programs hard to understand is mutable state. Since that is less of a problem in functional programs, I keep thinking that functional programming must be better. Or at least yield less complicated programs.</p>
+<p>The paper <a href="http://www.cs.kent.ac.uk/people/staff/dat/miranda/whyfp90.pdf">Why Functional Programming Matters</a> also makes some compelling cases for functional programming.</p>
+<p>So how come it’s not used mainstream?</p>
+<p>Is it because it doesn’t work in practice or is it because it’s so fundamentally different that people are not willing to wrap their heads around it?</p>
+<p>I decided it was time for me to find out by trying to write a real application in a functional language.</p>
+<h2 id="why-haskell">Why Haskell?</h2>
+<p>I wanted to write a real application in a functional language. But why Haskell?</p>
+<p>I came across Haskell by accident. Because I was learning <a href="https://www.mercurial-scm.org/">Mercurial</a>, I was reading <a href="http://hgbook.red-bean.com/">Mercurial: The Definitive Guide</a>, written by Bryan O’Sullivan. I found out that he had also co-authored the book <a href="http://book.realworldhaskell.org/">Real World Haskell</a>. Since I liked his first book, I started reading the one about Haskell.</p>
+<p>I found Haskell interesting for two reasons: you can obviously build real things in it (and I had a book to show me how), and it’s a purely functional language.</p>
+<p>Building real things was important because I didn’t just want to play around in a <a href="http://en.wikipedia.org/wiki/REPL">REPL</a>. Purely functional was important so that had to force myself to adopt the functional paradigm.</p>
+<p>Another feature that makes Haskell different is lazy evaluation. It’s a feature that allows programs to be structured in a way that would otherwise be impractical. It’s also stated as one of the two advantages of functional programming in the paper mentioned above.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>By writing the application in Haskell, I’m exploring a different way of structuring my programs. I’m expecting to learn a lot, and I will share what I learn on this blog.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

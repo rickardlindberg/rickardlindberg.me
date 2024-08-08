@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 002: Change mix strategy for cuts in GUI | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 002: Change mix strategy for cuts in GUI</h1>
+
+<p><em>Published on 29 July 2023.</em></p>
+
+<p>In the <a href="../../writing/devlog-001-jcut-lcut/">previous devlog</a> we worked on adding the concept of a cut type to a clip in the <a href="../../projects/rlvideo/">video editor</a>. That is, how should two overlapping clips be mixed together? Which one should be on top? Should it be a <a href="https://en.wikipedia.org/wiki/J_cut">J-cut</a>?</p>
+<p>I’ve since added support for two types of cuts: over and under. So we can (programmatically) set this property on clips and they will render in the correct order.</p>
+<p>The default cut is under so that later clips will be mixed under the previous clips:</p>
+<p>
+<center>
+<img src="under.png" title="fig:" alt="Default under cut." />
+</center>
+</p>
+<p>There is not yet a way to change this default from the GUI, so that’s what we will work on in this episode.</p>
+<h2 id="aside-clips-and-cuts">Aside: clips and cuts</h2>
+<p>When writing about this and when looking at the source code, I’m a bit confused by the terminology. I write about clips och cuts, but in the source code there is no concept of a clip, only a cut and a source.</p>
+<p>A source represents a file on disk or some generator of frames. A cut represents a region of a source.</p>
+<p>A cut has a property called <code>cut</code> which is how to mix this cut with the previous cut on the timeline. That confuses things further.</p>
+<p>Let’s rename it to <code>mix_strategy</code> to lessen the confusion.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Rename Cut.cut to Cut.mix_strategy.'</span>
+...............................................
+----------------------------------------------------------------------
+Ran <span class="m">47</span> tests <span class="k">in</span> <span class="m">1</span>.918s
+
+OK
+<span class="o">[</span>main 425909a<span class="o">]</span> Rename Cut.cut to Cut.mix_strategy.
+ <span class="m">1</span> file changed, <span class="m">11</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">11</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That’s better.</p>
+<h2 id="two-possible-ways">Two possible ways</h2>
+<p>I can think of two possible ways to set the mix strategy for a cut in the GUI. Either we can right click on a cut and have a context menu pop up where we can select the mix strategy. Or we can select a clip and have a “set mix strategy” operation applied to the selected clip.</p>
+<p>Currently, there is no concept of a selected clip. You can’t select anything. But there is a concept of clicking and dragging a clip. Therefore I think a context menu is easier to get started with.</p>
+<h2 id="reviewing-mouse-click-code">Reviewing mouse click code</h2>
+<p>Let’s look at how click and drag is handled today.</p>
+<p>I see this GTK event is connected:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">timeline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;button-press-event&quot;</span><span class="p">,</span> <span class="n">timeline_button</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And <code>timeline_button</code> is defined like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+        <span class="n">main_window</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+    <span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This code does not seem to distinguish between left and right mouse button click. Interesting.</p>
+<p>Does that mean that we can move a cut on the timeline by clicking and dragging with the right mouse button? I try it in the application. And it indeed works. That was really not my intention. Let’s see if we can fix that.</p>
+<p>I add a debug print to see what properties of the event might indicate the button:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I find this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>[..., 'button', ..., 'get_button', ...]
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s try this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>When I press the left button, it prints 1, and when I press the right button, it prints 3. There must be some constants for these. I search the GTK documentation and find <a href="https://docs.gtk.org/gdk3/struct.EventButton.html">this</a>:</p>
+<blockquote>
+<p>The button which was pressed or released, numbered from 1 to 5. Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button.</p>
+</blockquote>
+<p>Maybe there are no constants?</p>
+<p>Let’s codify our new knowledge like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">timeline_button</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">left_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">))</span>
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+            <span class="n">main_window</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+        <span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We rename the previous <code>mouse_down</code> to <code>left_mouse_down</code> and add a new empty method for <code>right_mouse_down</code>.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Timeline receives both left and right mouse down events.'</span>
+...............................................
+----------------------------------------------------------------------
+Ran <span class="m">47</span> tests <span class="k">in</span> <span class="m">1</span>.923s
+
+OK
+<span class="o">[</span>main 0fc6fb1<span class="o">]</span> Timeline receives both left and right mouse down events.
+ <span class="m">1</span> file changed, <span class="m">17</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">7</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="review">Review</h2>
+<p>It’s a little unnclear to me what the translation of coordinates are doing. I think the coordinates received in the event are relative to the whole GTK window and the timeline expects coordinates relative to itself.</p>
+<p>I don’t really want to focus on this now, but I add a TODO in the code that I should clarify this.</p>
+<p>In this project I’ve tried to keep my “backlog” in the source code in the form of TODO comments. Some I will probably never get back to, and others will serve as a reminder. But so far I kind of like this approach.</p>
+<h2 id="separation-of-timeline-and-gtk">Separation of timeline and GTK</h2>
+<p>The timeline component is unaware of GTK. So when it receives the right mouse down event, it can find the cut that we clicked on, but it doesn’t have the ability to show a context menu, because it needs to use GTK for that.</p>
+<p>This separation is intentional. I’ve tried to isolate GTK code to the outermost layer to keep the inner layers free from those details and make them easier to test.</p>
+<p>But this presents a problem now.</p>
+<p>The only solution that comes to mind if we want to maintain this separation is to create some kind of abstraction. Something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GtkGuiAbstraction</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">generic_menu_description</span><span class="p">):</span>
+        <span class="c1"># Create GTK context menu from generic_menu_description</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And then pass that to the timeline so that it can do something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
+        <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="o">...</span><span class="p">),</span>
+        <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="o">...</span><span class="p">),</span>
+    <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I’m not sure what I think about this. On the one hand it feels like a complex extra layer. On the other hand I really want to isolate GTK code. My experience tells me that GUI code can easily leak in to every part of the application and it just makes everything more messy.</p>
+<p>I will try to create the simplest possible solution of this design and see what it feels like.</p>
+<h2 id="gtk-gui-abstraction">GTK GUI abstraction</h2>
+<p>Let’s start with a test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GtkGui</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; GtkGui().show_context_menu([</span>
+<span class="sd">        ...     MenuItem(label=&quot;over&quot;, action=lambda: print(&quot;over&quot;)),</span>
+<span class="sd">        ...     MenuItem(label=&quot;under&quot;, action=lambda: print(&quot;under&quot;)),</span>
+<span class="sd">        ... ])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This fails with</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>NameError: name 'MenuItem' is not defined
+</pre>
+</div>
+</div>
+</div>
+<p>I define <code>MenuItem</code> and we are green:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
+    <span class="k">pass</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'The start of GtkGui and its show_context_menu method.'</span>
+................................................
+----------------------------------------------------------------------
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.923s
+
+OK
+<span class="o">[</span>main e64b93e<span class="o">]</span> The start of GtkGui and its show_context_menu method.
+ <span class="m">1</span> file changed, <span class="m">13</span> insertions<span class="o">(</span>+<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test so far does not assert anything. It just checks that the code does not crash. But that is enough to experiment with the GTK API. Let’s try to create the menu and the test will tell is if we use the GKT API wrong.</p>
+<p>I try this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">menu</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Menu</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Test immediately fails:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>NameError: name 'gtk' is not defined
+</pre>
+</div>
+</div>
+</div>
+<p>Ah, it should be <code>Gtk</code> I see in the imports at the top of the file. Thank you test.</p>
+<p>I search the web for examples how to show a context menu in GTK. After a bit of reading and trying, I end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; event = namedtuple(&quot;FakeEvent&quot;, &quot;button,time&quot;)(3, 0)</span>
+<span class="sd">    &gt;&gt;&gt; GtkGui(event).show_context_menu([</span>
+<span class="sd">    ...     MenuItem(label=&quot;over&quot;, action=lambda: print(&quot;over&quot;)),</span>
+<span class="sd">    ...     MenuItem(label=&quot;under&quot;, action=lambda: print(&quot;under&quot;)),</span>
+<span class="sd">    ... ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">create_gtk_handler</span><span class="p">(</span><span class="n">menu_item</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+            <span class="n">menu_item</span><span class="o">.</span><span class="n">action</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">handler</span>
+    <span class="n">gtk_menu</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Menu</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">menu_item</span> <span class="ow">in</span> <span class="n">menu</span><span class="p">:</span>
+        <span class="n">gtk_menu_item</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">menu_item</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="n">gtk_menu_item</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;activate&quot;</span><span class="p">,</span> <span class="n">create_gtk_handler</span><span class="p">(</span><span class="n">menu_item</span><span class="p">))</span>
+        <span class="n">gtk_menu_item</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">gtk_menu</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gtk_menu_item</span><span class="p">)</span>
+    <span class="n">gtk_menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>Gtk.Menu</code> seems to need an event to show itself according to examples. So I pass that along to <code>GtkGui</code> and use a fake one in the test. The event handler looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
+    <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
+        <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
+        <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
+    <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I decide to pass the <code>gui</code> along in the method call. That way, it can more easily be constructed with the right click event in the outer layer:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">timeline</span><span class="o">.</span><span class="n">right_mouse_down</span><span class="p">(</span><span class="o">*</span><span class="n">timeline</span><span class="o">.</span><span class="n">translate_coordinates</span><span class="p">(</span>
+        <span class="n">main_window</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">y</span>
+    <span class="p">),</span> <span class="n">GtkGui</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This works fine and when I click the menu items, the corresponding text is shown in the console:</p>
+<p>
+<center>
+<img src="popup.png" title="fig:" alt="Context menu popup." />
+</center>
+</p>
+<p>Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Show a context menu when right clicking in timeline.'</span>
+................................................
+----------------------------------------------------------------------
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.954s
+
+OK
+<span class="o">[</span>main <span class="m">4201621</span><span class="o">]</span> Show a context menu when right clicking <span class="k">in</span> timeline.
+ <span class="m">1</span> file changed, <span class="m">22</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">4</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="modify-cut">Modify cut</h2>
+<p>I continue to modify <code>right_mouse_down</code> to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
+    <span class="n">cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">Cut</span><span class="p">):</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
+        <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I want to show the context menu only if we right click on a cut. We can use the rectangle map for that.</p>
+<p>All tests pass, but when I try this in the application, it fails with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>NameError: name 'Cut' is not defined
+</pre>
+</div>
+</div>
+</div>
+<p>I should have started with a test. Let’s move a little slower.</p>
+<p>I add this line in a larger timeline test where we have some objects setup:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; timeline.right_mouse_down(5, 25, FakeGui(click_context_menu=&quot;over&quot;))</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here comes one benefit of the GUI abstraction: easier testing. In the test we can pass a <code>FakeGui</code> that will simulate that we click a context menu item. We implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FakeGui</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">click_context_menu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">click_context_menu</span> <span class="o">=</span> <span class="n">click_context_menu</span>
+
+    <span class="k">def</span> <span class="nf">show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">menu_item</span> <span class="ow">in</span> <span class="n">menu</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">menu</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">click_context_menu</span><span class="p">:</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">action</span><span class="p">()</span>
+                <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we get the same error about <code>Cut</code> not being defined. But this time, we get it when running the test suite. Success!</p>
+<p>I import <code>Cut</code> and get an error that ‘list’ object has no attribute ‘label’. Ah. I made a mistake in the fake GUI. <code>label</code> and <code>action</code> should be accessed on the item, not the menu.</p>
+<p>The current context menu just prints its label, so to make the test pass, let’s assert on that:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; timeline.right_mouse_down(5, 25, FakeGui(click_context_menu=&quot;over&quot;))</span>
+<span class="sd">over</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And we are back to green. Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Test right clicking a cut.'</span>
+................................................
+----------------------------------------------------------------------
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.957s
+
+OK
+<span class="o">[</span>main 7bf3e14<span class="o">]</span> Test right clicking a cut.
+ <span class="m">1</span> file changed, <span class="m">33</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">7</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>But we don’t want to print the menu item label. We want to change the <code>mix_strategy</code> of the clicked cut. Let’s assert on that instead:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; timeline.right_mouse_down(5, 25, FakeGui(click_context_menu=&quot;over&quot;))</span>
+<span class="sd">&gt;&gt;&gt; timeline.get_cut(cut_id).mix_strategy</span>
+<span class="sd">'over'</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This fails because <code>right_mouse_down</code> still prints its label. I remove the print and it now fails because <code>Timeline.get_cut</code> is not defined. I add it and get the correct failure:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    timeline.get_cut(cut_id).mix_strategy
+Differences (ndiff with -expected +actual):
+    - 'over'
+    + 'under'
+</pre>
+</div>
+</div>
+</div>
+<p>The original mix strategy is <code>over</code> and this test should have changed it to <code>under</code>, but it didn’t. Let’s fix that. As I try to get this test to pass, I get many test failures. The failures guide me what to do next. This method is not defined. Define it. This name does not exist. Fix spell error. I eventually end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
+    <span class="n">cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangle_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">Cut</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">mix_strategy_updater</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
+                    <span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span>
+                        <span class="n">cut</span><span class="o">.</span><span class="n">with_mix_strategy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">update</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
+        <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This makes the test pass and also works beautifully in the application. Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Can change mix strategy of clip with context menu.'</span>
+................................................
+----------------------------------------------------------------------
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.956s
+
+OK
+<span class="o">[</span>main 776171a<span class="o">]</span> Can change mix strategy of clip with context menu.
+ <span class="m">3</span> files changed, <span class="m">26</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">4</span> deletions<span class="o">(</span>-<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>We now have a way to change the mix strategy of a cut in the GUI. The application is a little more useful now.</p>
+<p>Working with third party frameworks, like GTK, I find often slows you down. You need to learn the details of it and it is often difficult to write tests. Therefore I’m quite happy with the abstraction that we created. I want to keep as many classes as possible away from messy GTK code.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

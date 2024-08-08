@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      A case for the infrastructure wrapper | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>A case for the infrastructure wrapper</h1>
+
+<p><em>Published on 14 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>I noticed something strange when playing the game.</p>
+<p>When shooting arrows out the left side of the screen, a blue horizontal line is drawn. It looks something like this:</p>
+<center>
+<img src="negative-x-draw-bug.png" title="fig:" alt="Bug with drawing circles on negative x positions." />
+</center>
+<p>But it only shows for a split second and then disappears. What’s going on?</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>We troubleshoot by playing the game and shooting wildly in different directions.</p>
+<p>It seems like the blue horizontal line only appears when we shoot arrows to the left–not when we shoot up or to the right.</p>
+<p>So why does it only show for a split second? Most likely because arrows outside the screen are removed. But they are only removed if they are far enough outside the screen. The idea is that arrows are only removed if they are completely outside the screen. However, I don’t think it’s working quite like that at the moment. But arrows can be partially outside the screen before being removed.</p>
+<p>We modify the code to draw a static arrow just outside the screen to the left, and indeed the blue horizontal line stays on the screen forever. (That’s how I managed to get the screenshot. It was not timing.)</p>
+<p>The problem can now be consistently reproduced. Good!</p>
+<h2 id="bug-in-pygame">Bug in Pygame?</h2>
+<p>At first I thought we might use Pygame wrong in some way. But now I’m starting to think that there might actually be an issue with Pygame.</p>
+<p>Let’s ask DuckDuckGo.</p>
+<p>It came back with this: <a href="https://github.com/pygame/pygame/issues/3778">Circles drawn using pygame.draw.circle with negative x positions are drawn as a horizontal line across the whole screen.</a></p>
+<p>Ha! A bug in Pygame. It all makes sense now. And we are not at fault.</p>
+<p>However, we still have an ugly, annoying graphics artifact in our game that we want to get rid of. How?</p>
+<h2 id="infrastructure-to-the-rescue">Infrastructure to the rescue</h2>
+<p>Any place in the code where we draw a circle we have to modify it to handle negative x values.</p>
+<p>Let’s see how.</p>
+<p>We have used the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern in our game. That means that every time our code interacts with the outside world, it does so via an infrastructure wrapper.</p>
+<p>Anytime we draw something on the screen, we do it via the game loop infrastructure wrapper. Here is how the arrow draws itself:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>draw_circle</code> above is part of the infrastructure wrapper. In code that we control. It in turn makes calls to Pygame like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+            <span class="n">color</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+            <span class="n">radius</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So we are actually only calling Pygame’s <code>draw_circle</code> in one place in our code.</p>
+<p>We patch it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># https://github.com/pygame/pygame/issues/3778</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+                <span class="n">color</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+                <span class="n">radius</span>
+            <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This means that circles drawn partially outside the screen to the left will not be drawn at all. Not ideal. But I very much prefer that to an annoying blue horizontal line.</p>
+<p>And when I play the game, I don’t notice circles of the arrow disappearing a little to early. They move so fast anyway.</p>
+<p>We could do something more fancy like checking for specific versions of Pygame where we know this bug exists. But this will do for now.</p>
+<h2 id="summary">Summary</h2>
+<p>We were able to fix an annoying graphics artifact by adding a single if-statement to our infrastructure wrapper.</p>
+<p>Wrapping third party libraries might seem like unnecessary overhead sometimes, but the benefit shown in this episode makes me think that we should do it more often.</p>
+<p>See you in the next episode!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Trying Ron's Python Asteroids | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Trying Ron's Python Asteroids</h1>
+
+<p><em>Published on 18 April 2023.</em></p>
+
+<p><a href="https://www.ronjeffries.com/">Ron</a> is working on an Asteroids game in Python and also <a href="https://www.ronjeffries.com/categories/python/">writing</a> about it. I’m interested in his workflow, so I follow along.</p>
+<p>He recently published the code on <a href="https://github.com/RonJeffries/python-asteroids-1">Github</a>.</p>
+<p>I thought I would have a look.</p>
+<h2 id="first-look">First look</h2>
+<p>I clone the repo and see a bunch of Python files and an <code>.idea</code> folder.</p>
+<p>I’ve never been a fan of IDEs. Perhaps I should learn one properly. In any case I find it useful to be able to run commands from the command line as well.</p>
+<p>First, I want to see if I can get this game running:</p>
+<pre><code>$ python game.py
+AttributeError: 'pygame.math.Vector2' object has no attribute 'copy'</code></pre>
+<p>I suspect I’m using a different version of pygame that lacks the copy method on vectors.</p>
+<p>I try to run the test to see if I get the same failure there. How to run the tests? I think Ron mentioned that he uses <a href="https://pytest.org/">pytets</a>. I try:</p>
+<pre><code>$ pytest
+===================================================================== test session starts =====================================================================
+platform linux -- Python 3.9.10, pytest-6.2.2, py-1.11.0, pluggy-0.13.1
+rootdir: /home/rick/downloads/python-asteroids-1
+collected 3 items / 3 errors
+...</code></pre>
+<p>I see the same error about the copy method of vector and some more in the same style.</p>
+<p>I read about the copy method in the pygame manual and conclude that it was added in a later version.</p>
+<h2 id="upgrade-pygame">Upgrade pygame</h2>
+<p>I think I’ve installed pygame via Fedora’s package manager. That doesn’t have a more recent version of pygame.</p>
+<p>I try to install it using pip instead:</p>
+<pre><code>$ pip install --user pygame
+Requirement already satisfied: pygame in /usr/lib64/python3.9/site-packages (2.0.3)</code></pre>
+<p>I add <code>--user</code> because I don’t want to install anything globally using pip. I suppose I should create a virtual environment, but I haven’t worked much with them. This will do.</p>
+<p>It indeed tells me that I already have pygame installed. How do I upgrade? Ah, the <code>--upgrade</code> flag:</p>
+<pre><code>$ pip install --user --upgrade pygame
+Requirement already satisfied: pygame in /usr/lib64/python3.9/site-packages (2.0.3)
+Collecting pygame
+  Downloading pygame-2.3.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.8 MB)
+     |████████████████████████████████| 13.8 MB 692 kB/s 
+Installing collected packages: pygame
+Successfully installed pygame-2.3.0</code></pre>
+<p>Sometimes I hesitate to install Python packages via pip. Especially when they are not pure Python packages (like pygame which depends on SDL and C libraries). Mostly because it hasn’t worked so well for me in the past. Maybe things are better now. And maybe it depends on the library. Let’s see how this works now.</p>
+<h2 id="testing-the-game-again">Testing the game again</h2>
+<p>I try running the game again:</p>
+<pre><code>$ python game.py 
+pygame 2.3.0 (SDL 2.24.2, Python 3.9.10)
+Hello from the pygame community. https://www.pygame.org/contribute.html</code></pre>
+<p>Success! Or, I don’t get any errors at least. But it exits right away. Am I running the wrong file?</p>
+<p>Ah, there is a <code>main.py</code>. Let’s try that.</p>
+<p>It works!</p>
+<center>
+<img src="game.png" title="fig:" alt="Ron’s Asteroids game." />
+</center>
+<h2 id="zero-friction">Zero friction</h2>
+<p>I’m quite familiar with both Python and pygame, so it was not that difficult for me to get started. But I think we can improve.</p>
+<p>One idea that I got from James Shore’s writing about a <a href="https://www.jamesshore.com/v2/books/aoad2/zero_friction">zero friction</a> development is that you should have scripts for doing common tasks like running your tests.</p>
+<p>Let’s <a href="https://github.com/RonJeffries/python-asteroids-1/pull/1">see</a> if Ron likes that as well. I add one script to test</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">build.sh </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nb">set</span> -e
+
+pytest
+</pre>
+</div>
+</div>
+</div>
+<p>and one to run the application</p>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+<span class="cp">rundev.sh </span>
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nb">exec</span> python main.py
+</pre>
+</div>
+</div>
+</div>
+<p>Should the way to run tests or the application change, only those files need to be changed, and the usage of the developer stays the same.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Hit balloon and score points | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Hit balloon and score points</h1>
+
+<p><em>Published on  9 May 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>We have two stories left before we think we have a first, minimal version of a balloon shooter game:</p>
+<ul>
+<li>Arrow can hit balloon</li>
+<li>Point is given for hit</li>
+</ul>
+<p>In this episode we will work on both of them. We will start with collision detection between arrow and balloon.</p>
+<h2 id="clarify-behavior-with-test">Clarify behavior with test</h2>
+<p>To clarify what we mean by arrow can hit balloon, we want to write a test first that shows the lacking behavior. Then implement the thing. We use the test both as a design tool to figure out what we are actually going to implement and as a testing tool to verify that behavior.</p>
+<p>Our game scene object currently inits like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="o">=</span> <span class="n">space</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We would like to write a test where we shoot an arrow, make it collide with the balloon, and then assert that the balloon disappears.</p>
+<p>With the current design, this is really difficult to do. It can only be done something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(...)</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
+<span class="sd">&gt;&gt;&gt; game.update(??)</span>
+<span class="sd">&gt;&gt;&gt; game.get_balloon() is None</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>But this is really flaky and hard to understand. In order for this to work, we have to time the shooting and the updating so that the arrow actually hits the balloon. Even if we get it to work, it will start failing if we for example change the speed of the arrow. And this test should really not care about arrow speed.</p>
+<p>Let’s see if we can do better.</p>
+<p>We change the init method to this instead:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">balloons</span><span class="o">=</span><span class="p">[(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)],</span> <span class="n">arrows</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">([</span>
+            <span class="n">Balloon</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">balloons</span>
+        <span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">([</span>
+            <span class="n">Arrow</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">arrows</span>
+        <span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">space</span> <span class="o">=</span> <span class="n">space</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, we make it possible to create a game scene object where we specify where all the balloons should be and where all the flying arrows should be. We also change the balloon from a single object to a sprite group. This is not strictly necessary, but it will make removing hit balloons easier. The default values for the balloons and arrows mimics the current default. We have one balloon that starts at (50, 50) and zero flying arrows.</p>
+<p>Here is the test that checks initial state:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space, balloons=[(100, 100)], arrows=[(500, 500)])</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_balloons())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_flying_arrows())</span>
+<span class="sd">1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>In order for it to work, we expose another getter for the balloon sprites:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">get_balloons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test continues to check that we still have one balloon and one flying arrow after an update:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game.update(0)</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_balloons())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_flying_arrows())</span>
+<span class="sd">1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We update with 0 to ensure that nothing moves. We need to call update to make the collision detection code run, but to ensure exact positions, we pass 0 as the delta time. All movements should take the delta time into account, so 0 should result in no movement.</p>
+<p>We continue and write the test for hitting a balloon like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space, balloons=[(500, 500)], arrows=[(500, 500)])</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_balloons())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; game.update(0)</span>
+<span class="sd">&gt;&gt;&gt; game.get_balloons()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We place the arrow at the center of the balloon, invoke the collision detection code with update, and assert that there are no longer any balloons.</p>
+<h2 id="implement-arrow-hit">Implement arrow hit</h2>
+<p>In the game update, we already loop over the arrows to remove the ones that are outside the screen. We add a loop that checks if any arrow hits any of the balloons. If so, we remove that balloon:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="o">...</span>
+            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We add <code>hits_baloon</code> to arrow:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">hits_baloon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balloon</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">balloon</span><span class="o">.</span><span class="n">inside</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And implement <code>inside</code> in balloon like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is a bit of a trick in OOP that I learned some time ago that I’m not sure what I think about. Let me explain.</p>
+<p>We could have written the test like this instead:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">balloon</span><span class="o">.</span><span class="n">inside</span><span class="p">(</span><span class="n">arrow</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">arrow</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>But then the game scene object would have to reach into the arrow object to access the x and y coordinates.</p>
+<p>With <code>hits_baloon</code> we introduce one more step in the chain where the arrow itself pass its coordinates along to <code>inside</code>. No need to expose them to the outside.</p>
+<p>I like this because objects can expose less details about themselves. I dislike this because I think the code sometimes becomes a little harder to read. I guess the solution is good naming. And I think <code>arrow.hits_baloon(balloon)</code> reads pretty well.</p>
+<h2 id="demo-trick">Demo trick</h2>
+<p>The game works and if we manage to hit a balloon, it disappears. Again, bummer. We can shoot infinitely many arrows, but if there are no more balloons to hit, the game is not that interesting.</p>
+<p>We had a situation like this <a href="../../writing/agdpp-shooting-arrow/">before</a> where you shot the arrow and you could only get a new one by restarting the game.</p>
+<p>One trick I used when I demoed this for the customer was to run the game in a loop like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ <span class="k">while</span> true<span class="p">;</span> <span class="k">do</span> ./zero.py rundev<span class="p">;</span> <span class="k">done</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So when you have no more arrows to shoot or no more balloons to hit, you close the game window and a new one will immediately pop up.</p>
+<p>That way, it is a little smoother to gather feedback on the current game functionality.</p>
+<p>We fixed so that you get more arrows to shoot before. Let’s also fix so that a new balloon is spawned after one is hit so we don’t need to restart the game in a loop anymore.</p>
+<h2 id="primitive-obsession-refactoring">Primitive obsession refactoring</h2>
+<p>Before we start adding new functionality, let’s have a look at the code and see if there is anything that we can improve to make it more clear and make the future a little smoother.</p>
+<p>One thing that I notice is that we are passing around (x, y) coordinates in a lot of places, and objects keep track of the x and y coordinates. Here is the balloon class for example:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This smell is called primitive obsession. It is when you pass around primitive objects (integers, strings encoding information, etc) instead of an abstraction. That leads to duplicated logic. Say for example that we want to move an object, we might do something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="mi">2</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And we probably need to move multiple objects, so this kind of code will be duplicated in many places.</p>
+<p>The solution is to create and abstraction for the concept. In this case, I choose to call it point:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We refactor in small, tiny steps to make use of this point.</p>
+<p>Eventually, the inside check in the balloon looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We are no longer dealing with separate x and y coordinates. We are dealing with positions.</p>
+<p>A big chunk of the hit test has also moved into the new point class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>If we are concerned about the performance of the square root, we could write <code>inside</code> like this (equivalent to what we had before):</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance_squared_to</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I think this reads a little worse, and we don’t have performance issues yet.</p>
+<p>What usually happens when you extract a concept like this point is that it starts attracting new functionality. Suddenly, there is a logical place to implement something instead of spreading it across the code base.</p>
+<p>Another benefit of this abstraction is that we can now more easily test the behavior of <code>distance_to</code> in isolation. No need to involve a balloon.</p>
+<h2 id="spawn-new-balloons">Spawn new balloons</h2>
+<p>So it’s no fun to play the game after you hit the balloon, because then there are no more balloons to hit. We want to spawn new balloons.</p>
+<p>We need to modify our test. It looks like this now:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space, balloons=[(500, 500)], arrows=[(500, 500)])</span>
+<span class="sd">&gt;&gt;&gt; len(game.get_balloons())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; game.update(0)</span>
+<span class="sd">&gt;&gt;&gt; game.get_balloons()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We don’t want the balloon list to be empty. We still want it to contain a balloon. But not the balloon that we just shot down, but another one.</p>
+<p>I think we can do it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space, balloons=[(500, 500)], arrows=[(500, 500)])</span>
+<span class="sd">&gt;&gt;&gt; balloons = game.get_balloons()</span>
+<span class="sd">&gt;&gt;&gt; len(balloons)</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; game.update(0)</span>
+<span class="sd">&gt;&gt;&gt; new_balloons = game.get_balloons()</span>
+<span class="sd">&gt;&gt;&gt; len(new_balloons)</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; new_balloons == balloons</span>
+<span class="sd">False</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We can make the test pass by adding another balloon after the one that has been shot down has been removed:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="o">...</span>
+            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This now works, but it is a little hard to actually notice that we hit a balloon. It should be more clear if we include a score.</p>
+<h2 id="add-score">Add score</h2>
+<p>We have a place in the code where we have hit a balloon. When that happens we would also like to increase a score. What is the simplest implementation of that?</p>
+<p>What if we just maintain a list of sprites where each sprites represents a point? Let’s see.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">balloons</span><span class="o">=</span><span class="p">[(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)],</span> <span class="n">arrows</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="o">...</span>
+            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                    <span class="o">...</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">PointMarker</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">())</span><span class="o">*</span><span class="mi">10</span><span class="p">)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We use the length of the point sprites to calculate the position of the next point marker.</p>
+<p>We also add a getter for the points so that we can test this behavior:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is the <code>PointMarker</code> that draws a circle at the given position:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">PointMarker</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is what it looks like after a few balloons have been hit:</p>
+<center>
+<img src="points.png" title="fig:" alt="Point markers." />
+</center>
+<p>When I showed this to my son, he thought it was a little fun when point markers appeared on the screen. He also wanted to make the point markers go all across the screen, and also wanted me to count how many points we had about half way through. I don’t like counting small yellow circles, so we probably need a better solution for displaying points. We make a note about that.</p>
+<p>If you want to try this version or look at the complete source code from this episode, it is on <a href="https://github.com/rickardlindberg/agdpp/tree/hit-balloon-and-score-points">GitHub</a>.</p>
+<h2 id="summary">Summary</h2>
+<p>The state based testing approach continues to work well. Tests are easy to write, and I don’t think the getters that we add to expose internal state are too problematic.</p>
+<p>We now have a first version of a balloon shooter game. Now we have to show it to our customers, have them play it, gather feedback, and keep improving. One story at a time.</p>
+<p>See you in the next episode!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

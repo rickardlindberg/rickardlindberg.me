@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Does TDD work when building a game? | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Does TDD work when building a game?</h1>
+
+<p><em>Published on 12 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>When I <a href="../../writing/agdpp-introduction/">started</a> this series, one of the areas that I wanted to explore was how well TDD works when building a game.</p>
+<p>The short answer is that I find that it works equally well as on any other project I’ve done.</p>
+<p>The longer answer is that TDD might not be enough. There are some things which are hard to test in a game. That’s what I want to talk about in this blog post and also how we can overcome the limits of TDD in those situations.</p>
+<h2 id="example-joystick-movement">Example: joystick movement</h2>
+<p>What is hard to test with TDD? Here is an example.</p>
+<p>A <a href="../../writing/agdpp-logitech-gamepad-f310/">few episodes ago</a>, we worked on controlling the game with a gamepad. The gamepad has a little joystick (correct name?) and when we push it to the left, we want the arrow to turn left, and likewise for right. That logic works well to implement with TDD, however, that is not enough. It is also important that it “feels good” to turn the arrow. That it responds fast enough, that it turns with an appropriate speed, and so on. That part, I think, is impossible to work out with TDD since we don’t know the correct answer. The only way to get the correct answer is to experiment. Try turning with different parameters and see which ones feel better.</p>
+<p>We can still use TDD for the first part if we relax the assertions. For example, we can’t assert that the arrow is turned by a specific amount, but we can assert that it is turned more to the left than before. Here is an example of that:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span>
+<span class="sd">&gt;&gt;&gt; game.update(1)</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work without modification.</p>
+<h2 id="testing-in-game">Testing in-game?</h2>
+<p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to make sure it works? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you score 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>
+<p>You certainly need to play the game to be able to get some details right. But we should not need to play “unnecessary parts” over and over again until we reach the point in the game that we are interested in testing.</p>
+<p>So far, the balloon shooter is not that complex. If we want to test turn speed for example, we can start the game and start turning. No additional steps needed. However, when the game becomes more complex (start screen, player selection, etc) and requires more interaction to get to where we want to go, I think we should approach it differently.</p>
+<h2 id="test-applications">Test applications</h2>
+<p>The idea that I have, that I have not yet tested, is to create small test applications or sub-games that can only be run in development.</p>
+<p>For the case with the effect after 100 points, perhaps we can create a custom game that starts immediately with 99 points. We can shoot down one more balloon and observe the effect. That is a faster feedback loop.</p>
+<p>This approach might require our design to change a bit. It must be easy to start the game with a particular scene and configuration for example.</p>
+<h2 id="applications-outside-games">Applications outside games</h2>
+<p>I have used this approach in <a href="../../projects/timeline/">Timeline</a>. Timeline is a GUI application, so a different domain than games. But the GUI elements have the same problem: you can’t assert in tests that they “look good”.</p>
+<p>Instead of running the application and opening the correct dialog, we implemented a <code>--halt-gui</code> flag in our test runner. When that flag is present, the tests will open GUI dialogs with mock data and you can visually inspect that they look good:</p>
+<p>
+<center>
+<img src="timeline-halt-gui.png" title="fig:" alt="Timeline halt GUI." />
+</center>
+</p>
+<p>Your workflow for modifying a dialog can than be</p>
+<ol type="1">
+<li>run test suite with specific test and <code>--halt-gui</code> flag</li>
+<li>inspect the dialog</li>
+<li>tweak layout</li>
+<li>repeat</li>
+</ol>
+<p>This makes the feedback loop a little faster. There is no need to constantly run the application and click your way to the correct dialog.</p>
+<h2 id="what-about-real-application-testing">What about real application testing?</h2>
+<p>Should we never run our application for real? Should we only get feedback from tests and test applications?</p>
+<p>No, I believe it is also important to use the application to get a sense of what needs improving.</p>
+<p>In <a href="https://ronjeffries.com/articles/-y023/python/-o110/110/">Python 110 - Now Fleets?</a>, Ron writes</p>
+<blockquote>
+<p>And it seems to me that with a video-oriented game, we always wind up needing to watch it run, both for confidence and because, every now and then, we discover a problem.</p>
+</blockquote>
+<p>My goal is to not have to run the game for confidence. I want faster feedback for confidence.</p>
+<p>However, I do agree that you will discover problems when running the game. But I think that is true for any kind of application, not just games.</p>
+<h2 id="summary">Summary</h2>
+<p>Those are my reflections on using TDD for a game so far. Do you believe that creating test applications for faster feedback is a good idea? Please <a href="../../contact/">let me know</a>.</p>
+<p>See you in the next episode!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

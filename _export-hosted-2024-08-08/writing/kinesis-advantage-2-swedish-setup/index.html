@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Kinesis Advantage 2 Swedish Setup | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Kinesis Advantage 2 Swedish Setup</h1>
+
+<p><em>Published on 15 February 2021.</em></p>
+
+<p>In this article I explain how I have configured my Kinesis Advantage 2 keyboard (US version) to also type Swedish characters.</p>
+<h2 id="tldr">TL;DR</h2>
+<p>I have the following mappings and macros for Linux:</p>
+<pre><code>[lalt]&gt;[kpshift]
+[kp-lalt]&gt;[kpshift]
+
+{kp-\}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{e}{5}{+lshift}{+lctrl}
+{kp-lshift}{kp-\}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{5}{+lshift}{+lctrl}
+{lshift}{kp-\}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{5}{+lshift}{+lctrl}
+
+{kp-'}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{e}{4}{+lshift}{+lctrl}
+{kp-lshift}{kp-'}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{4}{+lshift}{+lctrl}
+{lshift}{kp-'}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{c}{4}{+lshift}{+lctrl}
+
+{kpplus}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{f}{6}{+lshift}{+lctrl}
+{kp-lshift}{kpplus}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{d}{6}{+lshift}{+lctrl}
+{lshift}{kpplus}&gt;{speed9}{-lctrl}{-lshift}{u}{0}{0}{d}{6}{+lshift}{+lctrl}</code></pre>
+<p>I have the following mappings and macros for Windows:</p>
+<pre><code>[lalt]&gt;[kpshift]
+[kp-lalt]&gt;[kpshift]
+
+{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}
+{kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+{lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+
+{kp-'}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp8}{+lalt}
+{kp-lshift}{kp-'}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+{lshift}{kp-'}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp6}{+lalt}
+
+{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp4}{kp6}{+lalt}
+{kp-lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}
+{lshift}{kpplus}&gt;{speed9}{-lalt}{kp0}{kp2}{kp1}{kp4}{+lalt}</code></pre>
+<p>Read on to learn how these mappings and macros work and the reasoning behind them.</p>
+<h2 id="background">Background</h2>
+<p>Even though I am a Swede, I am a long time user of the US keyboard layout. The reason that I switched was that many keys common when programming are more convenient to type on a US keyboard.</p>
+<p>Because I am a Swede, I also have the need to type Swedish characters which are not available on a US keyboard. I have solved that by <a href="../../writing/xmodmap-on-fedora/">remapping keys</a> in software like this:</p>
+<pre><code>      Alt_GR+[  =&gt;  'å'
+      Alt_GR+'  =&gt;  'ä'
+      Alt_GR+;  =&gt;  'ö'
+Shift+Alt_GR+[  =&gt;  'Å'
+Shift+Alt_GR+'  =&gt;  'Ä'
+Shift+Alt_GR+;  =&gt;  'Ö'</code></pre>
+<p>I use the modifier <code>Alt_GR</code> plus the key where the character is located on a Swedish keyboard. For example, on a Swedish keyboard, the key for <code>å</code> is located in the same position as the key for <code>[</code> on a US keyboard (to the right of <code>p</code>).</p>
+<center>
+<p>
+<a href="https://en.wikipedia.org/wiki/File:KB_United_States.svg"><img src="us.png"></a>
+</p>
+<p>
+<i>US layout with Swedish keys highlighted.</i>
+<p>
+</center>
+<center>
+<p>
+<a href="https://en.wikipedia.org/wiki/File:KB_Sweden.svg"><img src="se.png"></a>
+</p>
+<p>
+<i>Swedish layout with Swedish keys and modifier highlighted.</i>
+<p>
+</center>
+<p>My solution only works on Linux, which was fine up until I had to use Windows on a regular basis.</p>
+<p>Since I’m not that familiar with Windows, figuring out how to remap keys seemed difficult, so I started thinking of other solutions.</p>
+<h2 id="universal-unicode-input">Universal unicode input</h2>
+<p>Then I remembered that there is a universal way to enter any unicode character in Linux. Perhaps there is something similar for Windows as well? It turns out there is. The Wikipedia page <a href="https://en.wikipedia.org/wiki/Unicode_input">Unicode input</a> describes it well.</p>
+<p>On Linux, the universal way to enter a unicode character is to press and hold <code>Ctrl+Shift</code>, then press <code>u</code>, then type the unicode character hex code, then release <code>Ctrl+Shift</code>.</p>
+<p>To type ‘å’ on Linux, you use the key combination <code>Ctrl+Shift+u+00e5</code>.</p>
+<p>On Windows, the universal way to enter a unicode character is to press and hold <code>Alt</code>, then type the unicode character decimal number on the <em>keypad</em>, then release <code>Alt</code>.</p>
+<p>To type ‘å’ on Windows, you use the key combination <code>Alt+0229</code>.</p>
+<p><code>00e5</code> is the hexadecimal number for the unicode character ‘å’ which is used by Linux. <code>0229</code> is the same decimal number used by Windows. The numbers for different unicode characters can be found on <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">this Wikipedia page</a>.</p>
+<p>Now I had figured out a way to enter all the Swedish characters on a US keyboard in both operating systems.</p>
+<p>But typing the key combinations and remembering the unicode numbers was not very convenient.</p>
+<h2 id="macros">Macros</h2>
+<p>Luckily for me, I am also a long time user of the Kinesis Advantage 2 keyboard. One of its features is that it is programmable. You can make one key press on the physical keyboard produce multiple key presses as seen by the computer. This is known as macros.</p>
+<p>Here is an example of a macro for producing an ‘å’ on Windows:</p>
+<pre><code>{key to trigger the macro}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}</code></pre>
+<p>This instruct the keyboard to press and hold <code>LeftAlt</code>, then press keypad 0, keypad 2, keypad 2, keypad 9, and then release <code>LeftAlt</code>. And this at speed 9 which is the fastest speed. This macro can be triggered by any key of choice.</p>
+<p>In total need 12 macros. First 3 macros for the lowercase ‘å’, ‘ä’, and ‘ö’. Then 3 more for the uppercase versions. And all those 6 are different on Linux and Windows, yielding in total 12 versions.</p>
+<p>Now to the next question: How should I trigger these macros? How do I want to enter the characters?</p>
+<p>I would like to enter them as I am used to. A modifier key + the key where the character is located on a Swedish keyboard.</p>
+<h2 id="keypad-layer">Keypad layer</h2>
+<p>The Kinesis Advantage 2 also has another feature known as the keypad layer. The keypad layer is a second layer with keys. It is toggled permanently with the <code>keyp</code> button. It can also be made active during the press and hold of a single button.</p>
+<p>I designated the <code>LeftAlt</code> key to the button that, while pressed, would activate the keypad layer. It looks like this:</p>
+<pre><code>[lalt]&gt;[kpshift]
+[kp-lalt]&gt;[kpshift]</code></pre>
+<p>(As the <a href="https://kinesis-ergo.com/support/advantage2/#manuals">manual</a> says, the button needs to be remapped in both layers to be able to have a shift-like behavior.)</p>
+<p>When I have <code>LeftAlt</code> pressed, the keypad layer is active, and all the keys on the keyboard perform different functions. By default, the keypad layer has some mappings for digits. I don’t use them, so I can override them to mean something else.</p>
+<p>The buttons corresponding to the Swedish characters have the following names in the standard layer and the keypad layer:</p>
+<pre><code>       standard  keypad
+å  =&gt;     \       kp-\
+ä  =&gt;     '       kp-'
+ö  =&gt;     ;       kpplus</code></pre>
+<center>
+<p>
+<a href="https://en.wikipedia.org/wiki/File:KB_Sweden.svg"><img src="se.png"></a>
+</p>
+<p>
+<i>Swedish layout with Swedish keys and modifier highlighted.</i>
+<p>
+</center>
+<center>
+<p>
+<a href="https://kinesis-ergo.com/wp-content/uploads/Adv2-Users-Manual-fw1.0.521.us-9-16-20.pdf"><img src="kinesis-us.png"></a>
+</p>
+<p>
+<i>Kinesis US layout with Swedish keys and modifier highlighted.</i>
+<p>
+</center>
+<p>This is what a macro for producing an ‘å’ on Windows with the key combination <code>LeftAtl+\</code> looks like:</p>
+<pre><code>{kp-\}&gt;{speed9}{-lalt}{kp0}{kp2}{kp2}{kp9}{+lalt}</code></pre>
+<p>First, <code>LeftAlt</code> toggles the keypad layer on. Then, <code>kp-\</code>, the key for ‘å’ in the keypad layer, triggers the macro.</p>
+<p>This is what macros for producing an ‘Å’ on Windows with the key combination <code>Shift+LeftAtl+\</code> looks like:</p>
+<pre><code>{kp-lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}
+{lshift}{kp-\}&gt;{speed9}{-lalt}{kp0}{kp1}{kp9}{kp7}{+lalt}</code></pre>
+<p>I created two macros for the shifted uppercase letters. That is because I wanted to be sure to trigger it no matter if I activated the keypad layer before or after pressing <code>LeftShift</code>. I’m not sure if it matters, but I suspect it might.</p>
+<p>New way to enter Swedish characters:</p>
+<pre><code>          LeftAlt+\  =&gt;  'å'
+          LeftAlt+'  =&gt;  'ä'
+          LeftAlt+;  =&gt;  'ö'
+LeftShift+LeftAlt+\  =&gt;  'Å'
+LeftShift+LeftAlt+'  =&gt;  'Ä'
+LeftShift+LeftAlt+;  =&gt;  'Ö'</code></pre>
+<p>These are the same mappings as I had previously, but with a different modifier key.</p>
+<p>How to know which macro to trigger, the Linux version or the Windows version?</p>
+<h2 id="hotkey-layouts">Hotkey layouts</h2>
+<p>Another feature of the Kinesis Advantage 2 keyboard is hotkey layouts. These are custom layouts that can be activated with a hotkey (<code>progm+&lt;key&gt;</code>).</p>
+<p>I created two separate hotkey layouts: one for Linux and one for Windows. They have some remappings in common, but have specific macros for producing Swedish characters.</p>
+<p>To switch between the layouts, I press <code>progm+L</code> for Linux and <code>progm+W</code> for Windows. Every time I switch operating system, I switch hotkey layout.</p>
+<h2 id="general-problems-with-universal-input-method">General problems with universal input method</h2>
+<p>On Linux, not all text entry fields support the universal input method. This is a bit annoying. Then I have to enter the text in another text field and copy paste the value. For the applications I use, it works most of the time, so I have tolerated it.</p>
+<p>One place where it works but produces weird text is in Google Hangouts chat. When entering a unicode character, the text turns into underlined for some reason. I’m not sure if there is a problem with my version of Firefox or what is going on there.</p>
+<p>On Windows, the universal input method have worked for me everywhere I’ve tried, but it is important to have the NumLock switched on. Otherwise the macros will not work. Sometimes NumLock gets turned off without me doing it, so sometimes the macros don’t work. I thought it was a problem in a certain text field, but it always turned out to be NumLock.</p>
+<h2 id="problems-with-the-keypad-layer">Problems with the keypad layer</h2>
+<p>When typing a Swedish character followed by a space, a ‘0’ is sometimes inserted instead. That is because the space key is mapped to the ‘0’ key in the keypad layer. I suspect that it happens if space is pressed quickly after triggering the macro so that the release of the <code>LeftAlt</code> key has not happened when the space is pressed.</p>
+<p>This happens sometimes, and one solution would be to remap the keypad ‘0’ to produce a space instead.</p>
+<p>The problem should arise with other characters as well, but the ‘0’ is the only one I have encountered.</p>
+<h2 id="appendix-kinesis-commands">Appendix: Kinesis Commands</h2>
+<p>This is how to create a new hotkey layout:</p>
+<pre><code>progm + Shift + Esc          (Enter Power User Mode)
+progm + F2
+&lt;press hot key&gt;
+progm + Shift + Esc          (Exit Power User Mode)</code></pre>
+<p>Once that is done, the files can be edited with v-Drive:</p>
+<pre><code>progm + Shift + Esc          (Enter Power User Mode)
+progm + F1                   (Mount v-Drive)
+&lt;edit active/l_qwerty.txt&gt;
+&lt;edit active/w_qwerty.txt&gt;
+&lt;eject&gt;
+progm + F1                   (Unmount v-Drive)
+progm + Shift + Esc          (Exit Power User Mode)</code></pre>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Small steps | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Small steps</h1>
+
+<p><em>Published on 26 June 2013.</em></p>
+
+<p>Today’s thought is about taking small steps.</p>
+<p>Yesterday I watched a presentation by J. B. Rainsberger where he gave an introduction to TDD. At one point when he was about to write code to pass a test, he explained that he likes to fake the implementation even though the real implementation seems trivial. The reason behind it was that the number of times he had thought he knew the solution and was wrong was enough to make faking it and then passing it a faster process.</p>
+<p>I noticed a similar feeling when I was programming on a project of mine yesterday. I was refactoring a piece of code that I had tests for. I made small changes and ran the tests frequently. But at one point they failed, and I couldn’t understand why. It was perhaps 30 seconds since I last ran the tests and they passed, so the error must have been introduced in the past 30 seconds.</p>
+<p>Because I was unable to undo to the last working test run, I had to think what I had done that could have caused the error. After a few minutes a thinking, I noticed that I had accidentally deleted a line of code that I shouldn’t have. The point is that in just 30 seconds, I managed to screw something up that took me more than 30 seconds to resolve. So small steps indeed are important.</p>
+<p>The reason I couldn’t undo was because I had switched to a new file in Vim, and somehow the undo history got lost. I should perhaps learn more about undo history in Vim to prevent this from happening in the future.</p>
+<p>Another thing I came to think of was to commit changes automatically after a successful test run, but just temporarily. Perhaps using <code>git stash</code> or something. What I want to be able to do is to roll back to the last point where all tests passed.</p>
+<p>–</p>
+<ul>
+<li><a href="https://plus.google.com/u/0/112175093836850283531/posts/D1cANTio3zm">Comments on Google+</a></li>
+<li><a href="http://www.jbrains.ca/permalink/the-worlds-best-intro-to-tdd-demo-video">TDD Presentation</a></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

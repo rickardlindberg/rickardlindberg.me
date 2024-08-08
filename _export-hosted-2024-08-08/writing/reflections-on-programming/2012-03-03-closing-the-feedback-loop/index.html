@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Closing the feedback loop | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Closing the feedback loop</h1>
+
+<p><em>Published on  3 March 2012.</em></p>
+
+<p><em>This post was originally published 4 July 2010. The blog it was published on is no longer active, and I therefore decided to move the post over here.</em></p>
+<p><em>I never used the tool I describe in this post. I guess it was because I could run my tests as fast from within Vim. However, after watching Bret Victor’s amazing talk <a href="http://vimeo.com/36579366">Inventing on Principle</a>, I was inspired to build a tool like this again. It should be able to visualize more aspects of your code other than the tests passing or failing. The goal should be to give you quicker feedback on your changes. I shall write more about my attempts at building this tool in the future.</em></p>
+<p>I have recently spent some time reading the book <em>Working Effectively with Legacy Code</em> by Michael Feathers. I find it interesting because it describes techniques for making bad code better.</p>
+<p>Feathers defines legacy code as code that does not have tests and further argues that code without tests is bad code. If you believe in this statement and have the intention of converting a piece of legacy code to code that is tested you face a problem: legacy code is often hard to test because it often has many dependencies that are hard to construct in tests. The main part of the book describes techniques for solving this problem: getting tests in place for legacy code.</p>
+<p>In one of the introductory chapters the author talks about the effect that feedback has on changing code. Feedback here means the time it takes before you see the effect of a change in the code. If you have to manually perform some action in a GUI to see the effect of a change it will probably take you a minute ore two. If you have to do that many times you will perhaps become frustrated and bored. If you instead can run a set of automated tests to ensure that your change is good, the thing that you are working on can be implemented faster. The shorter the feedback loop, the better.</p>
+<p>If you work in this modify-test fashion, you are likely leaving your editor and pressing a button to run your tests after you have finished an edit. In the book, Feathers suggests that this cycle can be shortened by running the tests continuously. In particular, the tests could be run as soon as you type a key in your IDE. That sounded interesting to me so I decided to implement a simple application for use in the <a href="http://thetimelineproj.sourceforge.net/">Timeline</a> project that do something similar.</p>
+<p>The application is a small GUI application that looks like in the pictures below. When you start it, it will run all tests (using the console based test script) and display the output. If all tests passed the top part will become green, otherwise it will become red. The special thing with this application is that it monitors the file system for changes and whenever it detects a change, it runs the tests again. So as soon as you hit save in your editor, the tests will run again automatically. That way you never have to leave your editor to find out how the change you made in the code affected the system. (Of course this relies on writing tests as well as code.)</p>
+<p><img src="../../../writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/running.png" title="GUI Test Runner: Running" alt="GUI Test Runner: Running" /><br />
+The application is running the tests on start-up. It will also re-run them every time it detects a change in a file.</p>
+<p><img src="../../../writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/success.png" title="GUI Test Runner: Success" alt="GUI Test Runner: Success" /><br />
+The application ran the tests and they all passed.</p>
+<p><img src="../../../writing/reflections-on-programming/2012-03-03-closing-the-feedback-loop/failure.png" title="GUI Test Runner: Failure" alt="GUI Test Runner: Failure" /><br />
+The application ran the tests and some of them failed. You can quickly edit your code to try to fix the errors, and when you save, you find out if you fixed them or not.</p>
+<p>I will start using this tool when working on <a href="http://thetimelineproj.sourceforge.net">Timeline</a> and see how it affects my productivity and code quality.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

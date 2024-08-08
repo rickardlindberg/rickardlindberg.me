@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      April 2022 Update | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>April 2022 Update</h1>
+
+<p><em>Published on  1 May 2022.</em></p>
+
+<p>This is what I’ve been up to in April 2022:</p>
+<ul>
+<li><p>I continued working on <a href="https://github.com/rickardlindberg/rlci/">RLCI</a>. In particular I started working on the server component and wrote it using <a href="https://docs.python.org/3/library/asyncio.html">asyncio</a>. So far, that feels like a good choice.</p></li>
+<li><p>I read <a href="https://www.martinfowler.com/books/refactoringDatabases.html">Refactoring databases</a> and started reading <a href="https://www.martinfowler.com/books/nosql.html">NoSQL Distilled</a>. The reason I picked up the first one was that I sought to understand how you can do zero-downtime deployments and still evolve your database. That is, how can both an old version of an application and a new version of an application work with the same database? The answer was that you must evolve your database schema such that it is compatible with both versions. So if you move a column for example, you can create a trigger that make sure that both the old and the new column are in sync. And when a transition period is over, you can drop the old column, and the move column refactoring is complete. I picked up the second book to find if the answer was any different for NoSQL databases which generally are a bit more flexible when it comes to database schema. My guess is that a similar approach is needed. So far the book has given me some new ideas about what databases are for and how different databases serve different purposes. This will all be useful in going forward with a storage mechanism for RCLI.</p></li>
+<li><p>I published another five programming videos on my Youtube channel:</p>
+<ul>
+<li><a href="https://youtu.be/lqV5c_fN29Q">How to find time to work on your hobby projects?</a></li>
+<li><a href="https://youtu.be/aXkGdvKZu1A">How I got unstuck with RLCI.</a></li>
+<li><a href="https://youtu.be/GO-sfUaqbvg">Learning Python asyncio when working on CI server.</a></li>
+<li><a href="https://youtu.be/ihS0HagBfKY">What makes programming videos interesting?</a></li>
+<li><a href="https://youtu.be/uV2eeAcrxzU">Refactoring a class to test in isolation: REAL WORLD EXAMPLE</a></li>
+</ul></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

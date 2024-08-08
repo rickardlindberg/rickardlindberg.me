@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 012: Investigating export crash | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 012: Investigating export crash</h1>
+
+<p><em>Published on 23 August 2023.</em></p>
+
+<p>I have managed to edit some footage using my own <a href="../../projects/rlvideo/">video editor</a>. When I tried to export it, it took forever and eventually crashed. In this DevLog, we will investigate why that might be.</p>
+<h2 id="how-export-works">How export works</h2>
+<p>When we press the export button, the following code is run:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export.mp4&quot;</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+            <span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+            <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+            <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">background_worker</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">work</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It creates an MLT producer with the real clips, and not the proxy clips. The <code>work</code> function is called in a thread, and this code does the actual export:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">progress</span><span class="p">(</span><span class="n">producer</span><span class="o">.</span><span class="n">position</span><span class="p">()</span><span class="o">/</span><span class="n">producer</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">())</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>As I remember, this is the code that takes forever and eventually crash. I also think its memory consumption steadily increase.</p>
+<h2 id="way-forward">Way forward</h2>
+<p>There is not much Python code in here. Just the loop that queries the consumer. So my guess is that something in MLT consumes memory and eventually crashes. We had a similar problem, I think, before when we created proxies using MLT in this way. On the other hand, it seems unlikely that MLT would crash when exporting a “small” project.</p>
+<p>What I want to try today is to export my project as an MLT XML file and try to render it using melt. It should do roughly the same thing as my Python code, but will avoid using the Python binding for MLT.</p>
+<p>If there is something wrong with MLT, which I doubt, the export will fail here as well. If not, well, then I don’t know what is wrong, but we can at least rule out MLT (core).</p>
+<h2 id="the-test">The test</h2>
+<p>We have this code that enables us to export MLT XML:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--export-melt&quot;</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exporting </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="s2">&quot;xml&quot;</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;resource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">get_preview_mlt_producer</span><span class="p">())</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">consumer</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+</pre>
+</div>
+</div>
+</div>
+<p>However, it creates the preview MLT producer which uses the proxy clips.</p>
+<p>Since this is just a test, not intended to be committed, I modify this code to instead create an MLT producer with the real clips.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">ExportSourceLoader</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">split_into_sections</span><span class="p">()</span><span class="o">.</span><span class="n">to_mlt_producer</span><span class="p">(</span>
+    <span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="n">ExportSourceLoader</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we can export the XML like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rlvideo --export-melt test.xml devlog-009.rlvideo 
+Exporting test.xml
+...
+Done
+</pre>
+</div>
+</div>
+</div>
+<p>I verify that the XML file has references to the real clips. It does. Perfect!</p>
+<p>We can now do the equivalent export with this command:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>mlt-melt test.xml -consumer avformat target=export.mp4
+</pre>
+</div>
+</div>
+</div>
+<p>And now, it’s just to wait and see what happens.</p>
+<h2 id="a-few-minutes-later">A few minutes later</h2>
+<p>The memory consumption seems to be quite stable. Unless there is a memory leak, this is what I expect. If the memory consumption keeps increasing for every frame that is exported, that would mean that you can only export longer videos by getting more memory. That does not seem right.</p>
+<p>I should probably also verify that the export in the application keeps increasing memory consumption. If it does, then there might be a memory leak in the Python binding for MLT. Or I might use the binding incorrectly.</p>
+<p>Using threads (which is used in the export) has also been problematic. I’ve experienced that the Python threads interfere with the MLT threads. I’m don’t understand the problem fully, it’s just a feeling. So that might be something to look into. Try the export with threading disabled.</p>
+<h2 id="a-few-hours-later">A few hours later</h2>
+<p>I might have mistaken. The memory consumption seems to keep increasing. However, the export finish without crashing and the final result looks fine.</p>
+<h2 id="summary">Summary</h2>
+<p>It seems that MLT consumes more and more memory the longer the exported video. To confirm this, I should probably do some more precise measures. Maybe using something like <a href="https://github.com/astrofrog/psrecord">psrecord</a>? However, memory consumption might not be problematic in itself. Perhaps it allocates more memory to speed things up, but will not allocated more than what is available. Perhaps the crash that I experienced before was not related to memory.</p>
+<p>We have learned something today, and this knowledge will make us better prepared for the future.</p>
+<p>Here are a few things I think of as possible next steps in this area:</p>
+<ul>
+<li>Measure memory consumption properly</li>
+<li>Compare memory consumption from MLT and rlvideo</li>
+<li>Try disabling threading in rlvideo</li>
+<li>“Optimize” the generated producer. It has many unnecessary tracks which I think will slow rendering down. (Should measure this to confirm.)</li>
+</ul>
+<p>We’ll see if we work on any of these the next time or something else.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

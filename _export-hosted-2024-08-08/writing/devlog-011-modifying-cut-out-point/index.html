@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 011: Modifying cut out point | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 011: Modifying cut out point</h1>
+
+<p><em>Published on  6 August 2023.</em></p>
+
+<p>I’ve added a few more timeline edit operations to the <a href="../../projects/rlvideo/">video editor</a>. For example, it is now possible to change the speed of a cut with ctrl+drag on the right hand side and modify the in point with drag on the left hand side.</p>
+<p>
+<center>
+<img src="move-right.png" title="fig:" alt="Move right." />
+</center>
+</p>
+<p>However, changing the out point of a cut by dragging the right hand side does not yet work. It prints the following in the console:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>TODO: implement move_right!
+</pre>
+</div>
+</div>
+</div>
+<p>It is a bit trickier to get working than changing the in point as we will see in a second.</p>
+<h2 id="the-call-chain">The call chain</h2>
+<p>Here is roughly what happens when you drag the right hand side of a cut:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">transaction</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span>
+<span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move_right</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+<span class="n">transaction</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>Transaction.modify</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span><span class="o">.</span><span class="n">modify_cut</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>ProjectData.modify_cut</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Here is <code>Cuts.modify</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">old_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span>
+    <span class="n">new_cut</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">old_cut</span><span class="p">)</span>
+    <span class="n">new_cuts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_map</span><span class="p">)</span>
+    <span class="n">new_cuts</span><span class="p">[</span><span class="n">cut_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cut</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+        <span class="n">cut_map</span><span class="o">=</span><span class="n">new_cuts</span><span class="p">,</span>
+        <span class="n">region_to_cuts</span><span class="o">=...</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And it is here that the lambda gets called to modify the cut.</p>
+<p>The problem is that when we modify the out point, we can’t place it outside the length of the source. And the cut itself does not know how long the source is. It just has a source id where it can be looked up, but only in the <code>ProjectData</code> structure, which is two levels above.</p>
+<h2 id="data-structure-consistency">Data structure consistency</h2>
+<p>Let’s have a look at the data structures and what they contain:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ProjectData</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ProjectData&quot;</span><span class="p">,</span> <span class="s2">&quot;sources,cuts&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Sources</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Sources&quot;</span><span class="p">,</span> <span class="s2">&quot;id_to_source&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;FileSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,path,length&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">TextSource</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;TextSource&quot;</span><span class="p">,</span> <span class="s2">&quot;id,text&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Cuts</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cuts&quot;</span><span class="p">,</span> <span class="s2">&quot;cut_map,region_to_cuts,region_group_size&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">Cut</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cut&quot;</span><span class="p">,</span> <span class="s2">&quot;source,in_out,position,id,mix_strategy,volume,speed&quot;</span><span class="p">)):</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Put in a more hierarchical format:</p>
+<ul>
+<li>ProjectData
+<ul>
+<li>sources (Sources)</li>
+<li>cuts (Cuts)</li>
+</ul></li>
+<li>Sources
+<ul>
+<li>id_to_source (id -&gt; source)</li>
+</ul></li>
+<li>Source
+<ul>
+<li>FileSource</li>
+<li>TextSource</li>
+</ul></li>
+<li>Cuts
+<ul>
+<li>cut_map (id -&gt; Cut)</li>
+<li>region_to_cuts</li>
+<li>region_group_size</li>
+</ul></li>
+<li>Cut
+<ul>
+<li>source (id)</li>
+<li>in_out</li>
+<li>position</li>
+<li>id</li>
+<li>mix_strategy</li>
+<li>volume</li>
+<li>speed</li>
+</ul></li>
+</ul>
+<p>To make sure that a cut’s out point does not exceed the length of the source, we have to make the check in ProjectData since that is the only structure that has both the source information and the cut information.</p>
+<h2 id="modify-cut">Modify cut</h2>
+<p>Let’s have a look at <code>ProjectData.modify_cut</code> again:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>How about if we did something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">limit_out_point</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, we let the original lambda modify the out point beyond the length of the source. Then in the wrapper above we get the source of the clip and have it adjust the out point to not exceed the length.</p>
+<p>I think this will actually work.</p>
+<h2 id="reflections">Reflections</h2>
+<p>When first thinking about this problem I had a much more complicated solution in mind. I was annoyed that the cut itself did not know about the maximum length. I was thinking that <code>Cut.modify</code> somehow has to be passed a length so that it could do the limiting itself.</p>
+<p>Then I started writing about it, and I thought that each data structure should be responsible for validating itself. Since a cut has no information about length, it is ok to specify any length. But when a cut is put into a <code>ProjectData</code> and is associated with a source, the validation must happen.</p>
+<p>This makes a lot of sense to me, and I feel like a made a breakthrough.</p>
+<p>You could argue that the design of the data structure is wrong. Perhaps a cut should have more information about its source so that it can do more validation.</p>
+<p>But when it looks as it does, I think this will be fine.</p>
+<p>Let’s see if we can test this.</p>
+<h2 id="testing-limiting-out-point">Testing limiting out point</h2>
+<p>Here is the test that I come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A cut's out point is adjusted if going outside the limit:</span>
+
+<span class="sd">&gt;&gt;&gt; data = ProjectData.empty()</span>
+<span class="sd">&gt;&gt;&gt; data = data.add_source(FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5))</span>
+<span class="sd">&gt;&gt;&gt; data = data.add_cut(Cut.test_instance(name=&quot;source_a&quot;, start=0, end=3, id=&quot;cut_a&quot;))</span>
+<span class="sd">&gt;&gt;&gt; data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))</span>
+<span class="sd">&gt;&gt;&gt; data.get_cut(&quot;cut_a&quot;).in_out</span>
+<span class="sd">Region(start=0, end=5)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We create project data with one source and one cut. The source is of length 5 and the cut is of length 3. We can extend it two more frames before we have reached the end of the source.</p>
+<p>Then we modify the cut by trying to extend it by 10 frames.</p>
+<p>Then we assert that the end point is limited to 5.</p>
+<p>This fails with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    data = data.modify_cut(&quot;cut_a&quot;, lambda cut: cut.move_right(10))
+Differences (ndiff with -expected +actual):
+    + TODO: implement move_right!
+</pre>
+</div>
+</div>
+</div>
+<p>I implement <code>Cut.move_right</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">move_right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+        <span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">move_end</span><span class="p">(</span><span class="n">amount</span><span class="p">),</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Then we get this failure:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    data.get_cut(&quot;cut_a&quot;).in_out
+Differences (ndiff with -expected +actual):
+    - Region(start=0, end=5)
+    ?                     ^
+    + Region(start=0, end=13)
+    ?                     ^^
+</pre>
+</div>
+</div>
+</div>
+<p>I expected this. We don’t do any limiting yet.</p>
+<p>Let’s modify <code>ProjectData.modify_cut</code> to what we had in mind. I write this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">modify_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">cut</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="n">cut_id</span><span class="p">,</span> <span class="n">wrapper</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We now get this error:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>AttributeError: 'TextSource' object has no attribute 'limit_in_out'
+</pre>
+</div>
+</div>
+</div>
+<p>This is also to be expected. Now we need to implement <code>limit_in_out</code> on every type of source. At the moment those are <code>TextSource</code> and <code>FileSource</code>. Let’s see if we have coverage for both. We get a failure for <code>TextSource</code> now, so let’s start there.</p>
+<p>A text source does not have a length. It is infinite. So <code>limit_in_out</code> just becomes this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cut</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now we get the same error for the file source.</p>
+<p>I implement <code>FileSource.limit_in_out</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The test now complains about this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>AttributeError: 'Cut' object has no attribute 'limit_out'
+</pre>
+</div>
+</div>
+</div>
+<p>I implement it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_out</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">in_out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">in_out</span><span class="o">.</span><span class="n">limit_end</span><span class="p">(</span><span class="n">max_out</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And <code>Region.limit_end</code> like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    <span class="k">def</span> <span class="nf">limit_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_end</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">max_end</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And wow, that actually works.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'ProjectData.modify_cut ensures that in_out is withing source limit.'
+...................................................................
+----------------------------------------------------------------------
+Ran 67 tests in 3.925s
+
+OK
+[main a9eb857] ProjectData.modify_cut ensures that in_out is withing source limit.
+ 4 files changed, 29 insertions(+), 3 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="improving-design">Improving design</h2>
+<p>Right above <code>modify_cut</code> I see <code>add_cut</code> which also has a TODO:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">add_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="c1"># TODO: assert that source id exists (even for json loading)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now that we have touched this area of the code, let’s have a closer look if we can make something cleaner with our new insights.</p>
+<p>The <code>add_cut</code> could probably also benefit from having the in and out points limited.</p>
+<p>However, it is not used by the JSON loading mechanism.</p>
+<p>I move the JSON loading part of the comment to here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">):</span>
+    <span class="c1"># TODO: validate the cuts point to valid sources and that they have</span>
+    <span class="c1"># valid in/out points.</span>
+    <span class="k">return</span> <span class="n">ProjectData</span><span class="p">(</span>
+        <span class="n">sources</span><span class="o">=</span><span class="n">Sources</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]),</span>
+        <span class="n">cuts</span><span class="o">=</span><span class="n">Cuts</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;cuts&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I’m not sure that we want to adjust cuts that are invalid. We could remove cuts that don’t have a corresponding source, and we could adjust in and out points of cuts with valid sources. But that would change the project. So a load + save will save something else without the user having done any changes. Unless manually modified, a JSON export should never have these problems. So validation should be ok. But I said <strong>should</strong>. If we make a mistake somewhere, we could export invalid JSON. So a load that fixes bad input it probably a good idea. However, in such cases the user should probably be informed about the changes made and a backup file with the old contents should probably be written. I think this work is for a later time. Not really prioritized now.</p>
+<p>Let’s go back to <code>ProjectData.add_cut</code>. It is only used when the user actively adds a cut somehow. At that point the cut does not exists yet, and if we modify the in and out points, there is no obvious change.</p>
+<p>Let’s modify it guided by this test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">In/Out is modified according to source:</span>
+
+<span class="sd">&gt;&gt;&gt; ProjectData.empty(</span>
+<span class="sd">... ).add_source(</span>
+<span class="sd">...     FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
+<span class="sd">... ).add_cut(</span>
+<span class="sd">...     Cut.test_instance(name=&quot;source_a&quot;, start=0, end=10, id=&quot;cut_a&quot;)</span>
+<span class="sd">... ).get_cut(&quot;cut_a&quot;).in_out</span>
+<span class="sd">Region(start=0, end=5)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It fails with this message:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Differences (ndiff with -expected +actual):
+    - Region(start=0, end=5)
+    ?                     ^
+    + Region(start=0, end=10)
+    ?                     ^^
+</pre>
+</div>
+</div>
+</div>
+<p>We fix it in a similar way to before:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">source_id</span><span class="p">)</span><span class="o">.</span><span class="n">limit_in_out</span><span class="p">(</span><span class="n">cut</span><span class="p">)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That passes all the tests.</p>
+<h2 id="speed-issue">Speed issue</h2>
+<p>I also noticed an issue with the limiting for cuts that had a changed speed. I modify <code>FileSource.limit_in_out</code> to take speed into account:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">limit_in_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; source = FileSource(id=&quot;source_a&quot;, path=&quot;a.mp4&quot;, length=5)</span>
+
+<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=10)).in_out</span>
+<span class="sd">    Region(start=0, end=5)</span>
+
+<span class="sd">    &gt;&gt;&gt; source.limit_in_out(Cut.test_instance(start=0, end=20, speed=0.5)).in_out</span>
+<span class="sd">    Region(start=0, end=10)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">cut</span><span class="o">.</span><span class="n">limit_out</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="o">/</span><span class="n">cut</span><span class="o">.</span><span class="n">speed</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>We added a feature to the application. It is now possible to move the out point of a cut and it is properly limited to not exceed the length of the underlying source.</p>
+<p>I was surprised at how elegant the solution came out. The realisation that made this possible was that validation should happen at the point where all data exists. Each data entity validates itself. If parent attributes are needed for the validation, do the validation higher up the hierarchy.</p>
+<p>This also makes me wonder if the limit of in point should also be done by the source. Right now the cut assumes that in point &gt;= 0 is ok. It doesn’t need to know anything about the source. But it makes assumptions about the source. I think this assumption is always correct, but I don’t think it hurts to not assume anything and let the source do the decision.</p>
+<p>I will probably try that refactoring out. My suspicion is that the code base will be a little cleaner then.</p>
+<p>But not in this session. This is it for now. See you next time!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

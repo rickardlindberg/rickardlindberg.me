@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      How to test a router? | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>How to test a router?</h1>
+
+<p><em>Published on 20 May 2023.</em></p>
+
+<p>I’ve been practicing <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> for a while now. It describes a way of doing overlapping, sociable testing, which include infrastructure, without having side effects occur in your tests.</p>
+<p>Recently I’ve been wondering how to test a “router” using this pattern. By router I mean an entry level function that looks at a url or command line arguments or whatever and dispatches to the relevant “controller”. Something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">MyWebApp</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/home&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">home_controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/about&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">about_controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I <a href="https://hachyderm.io/@rickardlindberg/110379826738876668">asked</a> James if he had any examples of this, and he <a href="https://github.com/jamesshore/testing-without-mocks-complex/tree/javascript/src/www">had</a>. Let’s explore.</p>
+<h2 id="james-example">James’ example</h2>
+<p>Overly simplified, to only highlight the parts that I’m interested in, James’ example looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">WwwRouter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home_page_controller</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home_page_controller</span> <span class="o">=</span> <span class="n">home_page_controller</span>
+
+    <span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">home_page_controller</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;FAIL&quot;</span>
+
+<span class="k">class</span> <span class="nc">HomePageController</span><span class="p">:</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HomePageController</span><span class="p">(</span><span class="n">SomeInfrastructure</span><span class="o">.</span><span class="n">create</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HomePageController</span><span class="p">(</span><span class="n">SomeInfrastructure</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">some_infrastructure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">some_infrastructure</span> <span class="o">=</span> <span class="n">some_infrastructure</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="s2">&quot;Home Page&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The question I had was, how to test the <code>WwwRouter</code>? James does it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_routes_home_page</span><span class="p">():</span>
+    <span class="n">router</span> <span class="o">=</span> <span class="n">WwwRouter</span><span class="p">(</span><span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span> <span class="o">==</span> <span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">test_routes_errors</span><span class="p">():</span>
+    <span class="n">router</span> <span class="o">=</span> <span class="n">WwwRouter</span><span class="p">(</span><span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/no-such-url&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Some characteristics of this test setup:</p>
+<ul>
+<li><p>The router takes all the controllers as dependencies.</p></li>
+<li><p>The null version of the controllers are used.</p></li>
+<li><p>The test uses <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#isolation">collaborator-based isolation</a>. (The test doesn’t care what <code>HomePageController</code> returns as long as it is the same as the router returns.)</p></li>
+</ul>
+<h2 id="what-if-return-value-is-missing">What if return value is missing?</h2>
+<p>How about a router or dispatcher where the controllers don’t return anything. How to we test that?</p>
+<p>Example:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">CliDispatcher</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span> <span class="o">=</span> <span class="n">add_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_command</span> <span class="o">=</span> <span class="n">remove_command</span>
+
+    <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">arguments</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">arguments</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;remove&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We start out the same:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>But <code>dispatch</code> does not return anything, so we can’t check any return value. What to do?</p>
+<p>We want to test that the function of <code>AddCommand</code> was performed, and nothing else. We could introduce queries on commands to see if they have been run. Then we can write the asserts like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">assert</span> <span class="n">add_command</span><span class="o">.</span><span class="n">get_last_arguments</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">remove_command</span><span class="o">.</span><span class="n">get_last_arguments</span><span class="p">()</span> <span class="o">==</span> <span class="kc">None</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So we want to assert that the add command was run with the given arguments and that all the other (only one in the example) commands were not run.</p>
+<p>I think this is in the spirit of testing without mocks. Here is what it says about state-based testing:</p>
+<blockquote>
+<p>Use state-based tests instead of interaction-based tests. A state-based test checks the output or state of the code under test, without any awareness of its implementation.</p>
+</blockquote>
+<p>An it goes on to say</p>
+<blockquote>
+<p>For mutable objects, provide a way for changes in state to be observed, either with a getter method or an event.</p>
+</blockquote>
+<h2 id="events-instead">Events instead</h2>
+<p>I am not a fan of the <code>get_last_*</code> pattern. Our code could call <code>command.run(...)</code> twice, and the test would not catch the error. I prefer an events approach instead.</p>
+<p>Assuming that commands are observable and that they emit events when run (we can test that separately), the test can be written like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This test ensures that exactly one command was run and that it was run only once. Exactly what we wanted to test, but now expressed with a single assert.</p>
+<h2 id="better-test-setup">Better test setup</h2>
+<p>This test setup becomes tedious to do for every command. We can extract it to a factory method:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">create_cli</span><span class="p">():</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">,</span> <span class="n">events</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">cli</span><span class="p">,</span> <span class="n">events</span> <span class="o">=</span> <span class="n">create_cli</span><span class="p">()</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_remove</span><span class="p">():</span>
+    <span class="n">cli</span><span class="p">,</span> <span class="n">events</span> <span class="o">=</span> <span class="n">create_cli</span><span class="p">()</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;RemoveCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Or even better:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">events</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">run_in_test_mode</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_remove</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">run_in_test_mode</span><span class="p">([</span><span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;RemoveCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>In hindsight, this seems quite obvious to me. I’m not sure what I had a hard time understanding. But the example from James helped. Thanks! And writing this blog post helped me clarify my thinking on the subject.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

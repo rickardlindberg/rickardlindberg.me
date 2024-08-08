@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Search and replace in Vim | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Search and replace in Vim</h1>
+
+<p><em>Published on 28 March 2015.</em></p>
+
+<p><em>24 September 2017: Fixed broken link to “Vim: Find and replace text across files.”</em></p>
+<p>In this article I explain how I do search and replace in Vim.</p>
+<p>As a programmer, I constantly rename variables, functions, and classes. The easier it is to rename something, the more likely I am to do it. I think renaming is probably one of the most important refactorings.</p>
+<p>The advantage of being able to do it with Vim is that it is language independent. If I don’t have an IDE or a refactoring tool to help me, I can always use Vim.</p>
+<p>At the heart of my workflow is the substitute command. I’ll show you how I use it to do renames in a single file and then show you how I have extended it to work across multiple files.</p>
+<h2 id="in-a-single-file">In a single file</h2>
+<p>When I want to rename something in a single file, I do the following:</p>
+<ul>
+<li>Place the cursor somewhere on the word I want to rename.</li>
+<li>Hit <code>,rw</code> (rename word).</li>
+<li>Customize the pre-entered substitute command if needed. Usually I just need to edit the replacement.</li>
+<li>Hit enter.</li>
+<li>Hit y/n to confirm each substitution.</li>
+</ul>
+<p>Now I will explain how I have built this workflow. Let me start with the mapping:</p>
+<pre><code>map ,rw :call SubstituteInFile(expand(&quot;&lt;cword&gt;&quot;))&lt;CR&gt;</code></pre>
+<p>The first thing that happens when I hit <code>,rw</code> is that <code>expand("&lt;cword&gt;")</code> is evaluated. It returns the word that is under the cursor. That word gets passed to <code>SubstituteInFile</code>:</p>
+<pre><code>function! SubstituteInFile(text)
+    execute GetSubstituteCommand(&quot;%&quot;, a:text)
+endfunction</code></pre>
+<p>It calls <code>GetSubstituteCommand</code> with the <code>%</code> range and the passed in text. The search command that is returned gets executed. Here is <code>GetSubstituteCommand</code>:</p>
+<pre><code>function! GetSubstituteCommand(range, term)
+  return a:range . &quot;s&quot; . input(&quot;:s&quot;, &quot;/\\&lt;&quot; . a:term . &quot;\\&gt;/&quot; . a:term . &quot;/gc\&lt;C-f&gt;F/F/l&quot;)
+endfunction</code></pre>
+<p>The call to <code>input</code> makes it possible for me to edit the substitute command before I proceed. The last bit in the input <code>\&lt;C-f&gt;F/F/l</code> drops me into the command-line window and moves the cursor to the first character of the replacement. That way I can quickly edit it. Say I make the following call: <code>GetSubstituteCommand("%", "getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code> in the replacement:</p>
+<pre><code>/\&lt;getCategory\&gt;/getCategory/gc</code></pre>
+<p>Say I type <code>cwfetchCategory&lt;CR&gt;</code> (change word, type <code>fetchCategory</code>, hit enter). The return value is the following:</p>
+<pre><code>%s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
+<p>Running execute on that command is the equivalent of typing the following:</p>
+<pre><code>:%s/\&lt;getCategory\&gt;/fetchCategory/gc</code></pre>
+<p>Let me explain how this substitute command works:</p>
+<ul>
+<li><code>%</code> makes the substitute work in the whole file.</li>
+<li>The brackets around <code>getCategory</code> (<code>\&lt;</code> and <code>\&gt;</code>) ensure that it only matches <code>getCategory</code> if it is not part of another word. For example, it matches <code>getCategory</code>, but not <code>getCategoryId</code> or <code>ungetCategory</code>. This is almost always what I want.</li>
+<li><code>g</code> makes it replace all occurrences on a line. Not just the first.</li>
+<li><code>c</code> makes me confirm each substitution. Textual search and replace is not 100% accurate, and therefore I like to manually confirm each substitution.</li>
+</ul>
+<p>So the Vim script I have written for renames in a single file is basically just to help me type the substitute command I use most often faster.</p>
+<h2 id="across-multiple-files">Across multiple files</h2>
+<p>The problem with renames is that they are not always local to a file. If I rename a function I also need to use the new name in all files where that function is called. My workflow involves both the grep command and the substitute command. It looks like this:</p>
+<ul>
+<li>Place the cursor somewhere on the word I want to rename.</li>
+<li>Hit <code>,mrw</code> (multiple rename word).</li>
+<li>Customize the pre-entered grep command if needed.</li>
+<li>Hit enter.</li>
+<li>Customize the pre-entered substitute command if needed. Usually I just need to edit the replacement.</li>
+<li>Hit enter.</li>
+<li>Hit y/n to confirm each substitution.</li>
+</ul>
+<p>Now I will explain how I have built this workflow. Let me start with the mapping:</p>
+<pre><code>map ,mrw :call SubstituteInCodebase(expand(&quot;&lt;cword&gt;&quot;))&lt;CR&gt;</code></pre>
+<p>When I hit <code>,mrw</code>, the word under the cursor is passed to <code>SubstituteInCodebase</code>:</p>
+<pre><code>function! SubstituteInCodebase(text)
+    let grepCommand = GetGrepCommand(a:text)
+    let substituteCommand = GetSubstituteCommand(&quot;&quot;, a:text)
+    execute grepCommand
+    call QuickfixDo(substituteCommand . &quot; | update&quot;)
+endfunction</code></pre>
+<p>The first thing that happens here is that I build the grep command. It looks like this:</p>
+<pre><code>function! GetGrepCommand(term)
+  return &quot;grep &quot; . input(&quot;:grep &quot;, &quot;-w '&quot; . a:term . &quot;'\&lt;C-f&gt;F'F'l&quot;)
+endfunction</code></pre>
+<p>Similar to <code>GetSubstituteCommand</code> it drops me into command-line window so that I can customize the grep command. Say I make the following call: <code>GetGrepCommand("getCategory")</code>. The command-line window shows the following with the cursor placed over <code>g</code>:</p>
+<pre><code>-w 'getCategory'</code></pre>
+<p>Say I just hit enter here. The return value is then the following:</p>
+<pre><code>grep -w 'getCategory'</code></pre>
+<p>Running execute on that command is the equivalent of typing the following:</p>
+<pre><code>:grep -w 'getCategory'</code></pre>
+<p>I use <a href="http://beyondgrep.com/">ack</a> as my grep program. In my <code>.vimrc</code> I have this:</p>
+<pre><code>set grepprg=ack</code></pre>
+<p>The <code>-w</code> flag is the equivalent of Vim’s <code>\&lt;</code> and <code>\&gt;</code>.</p>
+<p>Typical customizations that I do:</p>
+<ul>
+<li>Add <code>--python</code> or equivalent to only search in Python files.</li>
+<li>Add a directory to only do the search in certain directories.</li>
+</ul>
+<p>After the grep command is created, the search command is created in the same way as before. But notice the lack of the <code>%</code> range. That is because now I only want the substitute command to operate on a single line, and not the whole file. After both commands have been created, the grep command is executed.</p>
+<p>Now the quickfix list is populated with the search results and I can step through it and do the substitution on each matched line. That is what <code>QuickfixDo</code> is for: It will run an arbitrary command on each line in the quickfix list. In this case I pass the substitute command (without the <code>%</code> range) plus the update command. That ensures that I save the file if the substitution did any changes before I move on to the next match. <code>QuickfixDo</code> looks like this:</p>
+<pre><code>function! QuickfixDo(command)
+    let itemCount = len(getqflist())
+    let itemNr = 1
+    while itemNr &lt;= itemCount
+        exe &quot;cc &quot; . itemNr
+        exe a:command
+        let itemNr = itemNr + 1
+    endwhile
+endfunction</code></pre>
+<p>The workflow for renames across multiple files contains only an extra grep step compared to the single file workflow. The defaults ensure that the matches found by the grep command are also found by the substitute command.</p>
+<h2 id="further-reading">Further reading</h2>
+<p>The latest version of my search and replace configuration can be found at <a href="https://github.com/rickardlindberg/dotfiles/blob/master/.vim/vimrc_search_replace.vim">vimrc_search_replace.vim</a>.</p>
+<p>Other articles on the subject of search and replace in Vim that I found interesting:</p>
+<ul>
+<li><p><a href="http://vimcasts.org/episodes/project-wide-find-and-replace/">Vimcasts - Project-wide find and replace</a></p></li>
+<li><p><a href="https://web.archive.org/web/20150928211530/http://www.ibrahim-ahmed.com/2008/01/find-and-replace-in-multiple-files-in.html">Ibrahim Ahmed - Vim: Find and replace text across files</a></p></li>
+<li><p><a href="http://www.thegeekstuff.com/2009/04/vi-vim-editor-search-and-replace-examples/">The Geek Stuff - Vi and Vim Editor: 12 Powerful Find and Replace Examples</a></p></li>
+</ul>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Latency free overdubbing in Ardour | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1 id="latency-free-overdubbing-in-ardour">Latency free overdubbing in Ardour</h1>
+<p><em>Published on 30 September 2013.</em></p>
+<p>In this article I explain how to set up JACK and Ardour for latency free overdubbing.</p>
+<p>Please send feedback to <script type="text/javascript">
+<!--
+h='&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#114;&#x69;&#x63;&#108;&#x69;&#56;&#x35;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>ricli85 at gmail dot com</noscript>.</p>
+<h2 id="where-is-latency-introduced">Where is latency introduced?</h2>
+<p>Let’s say we have one track with a metronome click. Now we want to record a chord progression over this metronome click. :</p>
+<pre><code>playback  |&gt;   &gt;   &gt;   &gt;   |&gt;   &gt;   &gt;   &gt;   |
+----------|----------------|----------------|
+recording |                |                |
+                           t</code></pre>
+<p>At time t, we are at the beginning of bar 2. It starts with a metronome click. At time t, Ardour sends the first sample of the metronome click to the speakers. It passes various stages in the computer and a DA converter in our audio interface. It will take an amout of time before we actually hear the sound. We call that time output delay (OD). When we hear the sound we react to it and play a chord on our instrument. It will take an amount of time for our microphone to capture the sound, convert it to a digital signal, and send it to Ardour. We call that time input delay (ID).</p>
+<ul>
+<li>At time t - Ardour sends playback signal to speakers</li>
+<li>At time t+OD - We hear the metronome click</li>
+<li>At time t+OD+ID - Our reaction has been recorded and arrived in Ardour</li>
+</ul>
+<p>The time between Ardour sending the signal to the speakers and it receiving a recorded signal back is thus OD+ID.</p>
+<p>In order for the two tracks to line up perfectly, Ardour has to compensate for this latency. It can do that, but we need to know the input and output latency of our system.</p>
+<h2 id="measure-io-latency">Measure I/O latency</h2>
+<h3 id="setup">Setup</h3>
+<p>In order to measure the I/O latency, we need to create a loop. That way a test program can send a signal and measure the time it takes for the signal to travel through the system.</p>
+<p>I use a Zoom H4n as a USB audio interface. The first way to close the loop is with a direct patch cable:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/direct.jpg" alt="image" /></p>
+<p>We connect the patch cable from the headphone line out to a line in. The H4n has combo inputs that works for microphones, electric instrument, or line level sources.</p>
+<p>The second way to close the loop is with a speaker and a microphone:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/mic.jpg" alt="image" /></p>
+<p>We connect headphones to the headphone line out and put them close to the built in microphones on the H4n.</p>
+<h3 id="process">Process</h3>
+<p>Now that we have the loop set up in hardware, this is the process to measure the I/O latency:</p>
+<ol type="1">
+<li><p><strong>Start JACK with the given settings</strong></p>
+<p>From QjackCtl, click “Setup…”:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_setup.png" alt="image" /></p>
+<p>Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O are both set to 0 (default).</p>
+<p>Click “OK” to close the dialog, then click “Start”.</p></li>
+<li><p><strong>Start jack_iodelay</strong></p>
+<p>Run the following command in the terminal:</p>
+<pre><code>jack_iodelay</code></pre></li>
+<li><p><strong>Connect</strong></p>
+<p>From QjackCtl, click “Connect”:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_connect.png" alt="image" /></p>
+<p>This will create the loop in software as well so that jack_iodelay can capture the signal that it sends out.</p></li>
+<li><p><strong>Observe output</strong></p>
+<p>We should see something like this:</p>
+<pre><code>4921.269 frames    102.526 ms total roundtrip latency
+  extra loopback latency: 1849 frames
+  use 924 for the backend arguments -I and -O</code></pre>
+<p>Note that the suggested number (924) is only valid for the configuration that we entered in step 1.</p>
+<p>To compensate for the roundtrip latency, we should enter this number for both the input and the output latency in the settings dialog in step 1.</p></li>
+</ol>
+<h3 id="results">Results</h3>
+<p>The Zoom H4n supports 44.1kHz and 48kHz. I ended up with the following measurements:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Sample rate (kHz)</th>
+<th>Frames/Period</th>
+<th>Periods/Buffer</th>
+<th>Loop type</th>
+<th>Roundtrip latency (ms)</th>
+<th>Suggested I/O</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>44.1 44.1</p></td>
+<td><p>1024 1323 (44.1*30)</p></td>
+<td><p>2 2</p></td>
+<td><p>Direct Direct</p></td>
+<td></td>
+<td><p>~1100 (increasing) ~1000 (increasing)</p></td>
+</tr>
+<tr class="even">
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Direct</td>
+<td>101.5</td>
+<td>~897</td>
+</tr>
+<tr class="odd">
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~895</td>
+</tr>
+<tr class="even">
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Direct</td>
+<td>122.8</td>
+<td>~899</td>
+</tr>
+<tr class="odd">
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~889</td>
+</tr>
+<tr class="even">
+<td>48</td>
+<td>1056 (48*22)</td>
+<td>2</td>
+<td>Direct</td>
+<td>104.4</td>
+<td>~920</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conclusions">Conclusions</h3>
+<h4 id="usb-and-48khz">USB and 48kHz</h4>
+<p>When measuring using 44.1kHz, the suggested value for latency I/O kept increasing. I asked about this on IRC:</p>
+<pre><code>&lt;ricli85&gt; Some reports on the increasing number that jack_iodelay gives me:
+If I set 48kHz sample rate and frames/period=1056 (multiple of 48), I seem
+to get a more stable number.
+&lt;las&gt; ricli85: many USB devices work correctly *only* at 48kHz</code></pre>
+<p>Conclusion: Always use 48kHz sample rate for our USB audio interface.</p>
+<h4 id="persiosbuffer">Persios/buffer</h4>
+<p>This parameter doesn’t seem to have any effect on the roundtrip latency.</p>
+<h4 id="direct-vs-mic">Direct vs mic</h4>
+<p>The roundtrip latency seems to be smaller when using the mic than when using the direct patch cable.</p>
+<p>This is a bit surprising to me, because when using a mic, the sound has to travel that extra distance through the air. But the delay was not significantly smaller, and during the measurements, the delay number kept going up and down (although stabalizing around some value).</p>
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

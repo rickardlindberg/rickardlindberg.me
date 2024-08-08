@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Xmodmap on Fedora | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Xmodmap on Fedora</h1>
+
+<p><em>Published on 17 September 2014.</em></p>
+
+<p><em>This text was in my notes for quite a while before I published it on my website.</em></p>
+<p>I have the following in my <code>~/.Xmodmap</code>:</p>
+<pre><code>! setup mode switch on Alt_GR
+keysym Alt_R = Mode_switch
+
+! remap Alt_GR + [ ' ; to å ä ö
+keycode 34 = bracketleft braceleft aring Aring aring Aring
+keycode 48 = apostrophe quotedbl adiaeresis Adiaeresis adiaeresis Adiaeresis
+keycode 47 = semicolon colon odiaeresis Odiaeresis odiaeresis Odiaeresis</code></pre>
+<p>I use it to be able to type the Swedish characters on a US keyboard. For most of my work, I prefer the US keyboard layout, but I sometimes have to type Swedish characters. With this setting, I can press for example “Alt_GR + [” to get an “å”.</p>
+<h2 id="problem-with-alt-shift-order">Problem with Alt + Shift order</h2>
+<p>When pressing “Alt_GR + Shift_L + [” I get an “Å” (as expected).</p>
+<p>When pressing “Shift_L + Alt_GR + [” I get an “{” (but expected an “Å”).</p>
+<p>Checking the output from xev using <code>xev | grep KeyPress\\\|keysym</code> I got the following:</p>
+<p>Pressing “Alt_GR + Shift_L + [”:</p>
+<pre><code>KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x10, keycode 108 (keysym 0xff7e, Mode_switch), same_screen YES,
+KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x2010, keycode 50 (keysym 0xffe1, Shift_L), same_screen YES,
+KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x2011, keycode 34 (keysym 0xc5, Aring), same_screen YES,</code></pre>
+<p>Pressing “Shift_L + Alt_GR + [”:</p>
+<pre><code>KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x10, keycode 50 (keysym 0xffe1, Shift_L), same_screen YES,
+KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x11, keycode 108 (keysym 0x0, NoSymbol), same_screen YES,    &lt;-- NoSymbol
+KeyPress event, serial 30, synthetic NO, window 0x4600001,
+	state 0x11, keycode 34 (keysym 0x7b, braceleft), same_screen YES,</code></pre>
+<p>On my Debian system, the output from xev looks the same no matter in which order I press Shift_L and Alt_GR, but for some reason this does not work on my Fedora 14 system. Any ideas what might be wrong? Why do I get the NoSymbol on Fedora? (Fedora 20 has the same problem.)</p>
+<p>I have used the same keyboard on both systems, so I don’t believe this problem is hardware related.</p>
+<h2 id="suspend-after-resume">Suspend after resume</h2>
+<p>On my Fedora 14 system, I had the following in <code>/usr/lib/systemd/system-sleep/run-xmodmap.sh</code>:</p>
+<pre><code>#!/bin/sh
+if [ &quot;$1&quot; = &quot;post&quot; ] ; then
+	typeset -x DISPLAY=:0.0
+	sleep 1
+	su -c &quot;/usr/bin/xmodmap ~/.Xmodmap&quot; rick
+fi</code></pre>
+<p>Without it, I had to type <code>xmodmap ~/.Xmodmap</code> manually each time after resuming my laptop from sleep. In Fedora 20 this seems to be no longer required.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Related things are not kept together | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Related things are not kept together</h1>
+
+<p><em>Published on 24 February 2013.</em></p>
+
+<p>I think the organization of our code bases make them hard to understand because related things are not kept together. Let me explain what I mean by that.</p>
+<h2 id="a-typical-code-base">A typical code base</h2>
+<p>A typical code base is organized something like this:</p>
+<pre><code>- doc/
+- src/
+- test/
+- README</code></pre>
+<p>If we want to understand how a particular part of the code works, it is helpful to find the related documentation in the doc folder and the related tests in the test folder. The problem is that all information related to a particular thing is not kept together. We have to look for it in different places in the file system.</p>
+<p>This separation makes it harder to understand and modify code.</p>
+<p>Also, how can we know if corresponding documentation and tests exist? We have to scan all documentation and all tests to find out if something is related. And we have to do this every time. If all related things were kept together, we wouldn’t have to do this.</p>
+<p>A less obvious thing that is spread out over the code base is the declarations of things and the usage of them. When we read a declaration of a function for example, we don’t immediately know where it is used. Having that information right next to the declaration would help understand in which contexts it is used.</p>
+<h2 id="cause-file-system-is-limiting">Cause: file system is limiting</h2>
+<p>I believe the biggest reason why we spread related things in our code bases is that we use the file system for organization. The file system is not very flexible. We have files and folders in a strict hierarchy, and that’s about it. It makes it hard to keep related things together.</p>
+<p>Contrast this with a wiki where every page can link to any other page and we can create different table of contents by creating a new page and linking to the relevant pages. We can create different views of our data. A wiki is more suitable for organizing information than the file system.</p>
+<p>Let’s look at how the file system makes it hard to keep related things together.</p>
+<h3 id="tests-and-implementation">Tests and implementation</h3>
+<p>Why don’t we write tests next to the implementation?</p>
+<p>Sometimes we do: In Python, there is a module called <a href="http://docs.python.org/3.3/library/doctest.html">doctest</a> that allows us to embed test code in comments right next to functions. It looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> factorial(n):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; [factorial(n) for n in range(6)]</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="co">    [1, 1, 2, 6, 24, 120]</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    result <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>    factor <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>    <span class="cf">while</span> factor <span class="op">&lt;=</span> n:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>        result <span class="op">*=</span> factor</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        factor <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>    <span class="cf">return</span> result</span></code></pre></div>
+<p>But most of the time, we don’t write our tests like this. Why?</p>
+<p>Some tests are not suitable as doctests: They might involve multiple functions so it is not obvious under which function to place them for example.</p>
+<p>But I believe the biggest reason why we don’t mix test code and source code is that we don’t want to mix different things at the same level in the same source file. In the example above, it is pretty obvious that the test belongs to the factorial function because of the indentation, but consider this example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    ...</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    ...</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    ...</span></code></pre></div>
+<p>In this example, the invisible organization is this:</p>
+<pre><code>unit 1
+    implementation
+    test_implementation
+unit 2
+    another_implementation</code></pre>
+<p>We don’t immediately see which parts of the file are related. We can only guess this organization from the formatting of the text and the naming. But guessing is the best we can do.</p>
+<p>Unless we put a single unit of code in a file, the source file will have different things mixed together at the same level. We never know when the tests for one function ends and the implementation for the next begins.</p>
+<p>One solution to this problem is to put section comments in our files:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co"># Unit 1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="kw">def</span> implementation(...):</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    ...</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a><span class="kw">def</span> test_implementation(...):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    ...</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co"># Unit 2</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="kw">def</span> another_implementation(...):</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    ...</span></code></pre></div>
+<p>It might make it easier to know where a section begins and ends, but when scrolling through the file, it is still just a wall of text with no obvious structure. It is not an ideal way to show organization.</p>
+<h3 id="documentation-and-implementation">Documentation and implementation</h3>
+<p>Why don’t we write documentation next to the implementation?</p>
+<p>Sometimes we do: Tools like <a href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a> allow us to write comments next to functions and then have API documentation automatically generated.</p>
+<p>But it has the same problem as test code next to the implementation: it makes the file harder to read because there are many mixed things and there is no way to show the organization.</p>
+<p>Also, some documentation may pertain to many aspect of the code, so putting it on a single function or file would not be optimal for understanding.</p>
+<h3 id="declaration-and-usage">Declaration and usage</h3>
+<p>Why don’t we put usage next to declarations?</p>
+<p>When using files to organize our code, this is simply impossible. Imagine all calls to a function being right next to where they are defined. It might work for a few functions, but certainly not for all. The file system is just not flexible enough to support this kind of organization.</p>
+<p>Some IDEs allow us to show that information with the click of a button. But we still have to make a search. The code is not organized like that. The disadvantages of a search is that it might show us irrelevant results. A search can only give us the line where a declaration is used, but it might be the context around that line that helps us understand how it works. If we can put that piece of surrounding code (not just the call to the function) next to the declaration, we wouldn’t have to guess what surrounding code is important.</p>
+<h2 id="why-file-system">Why file system?</h2>
+<p>If the file system is such a bad tool for organizing, why do we use it? Probably because tools (compilers, document generators) expect the source code to be organized in a file system.</p>
+<p>And the file system works for that purpose. We can organize our information so that tools can understand it. But it is less good for organizing information so that humans can understand it.</p>
+<h2 id="how-it-should-be">How it should be</h2>
+<p>Let users organize their code, tests, and documentation in whichever way they find most usable. Then, and only then, figure out how to turn that organization into something which tools (compilers, documentation generators) can use.</p>
+<p>(The last step is only necessary if tools don’t directly support the organization we want.)</p>
+<h2 id="way-forward">Way forward</h2>
+<p>I believe tools will depend on file system organization for a long time. So if we want to benefit from a better organization today, we must take this into consideration.</p>
+<p>Next, I will show how <a href="http://leoeditor.com/">Leo</a> can solve the problems discussed in this post. Leo is a tool that allows us organize our data in a flexible way yet make sure it is written to the file system where it needs to be.</p>
+<h2 id="leo">Leo</h2>
+<p>At a first glance, Leo looks like an outliner.</p>
+<p>Here I’ve replicated parts of the file structure of <a href="https://github.com/kajgo/photobox">an Android project</a> inside Leo:</p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-file-structure.png" title="Replicated file structure in Leo." alt="Replicated file structure in Leo." /></p>
+<p>Every node that starts with shadow tells Leo that it is stored in an external file. When we modify it in Leo, it will be modified on disk as well. The outline mirrors the structure of the file system. So the file <code>IntroActivity.java</code> is located in the folder <code>photobox/src/com/photobox/app/</code>.</p>
+<p>So far, this doesn’t add much value. It looks exactly like the file system. Let’s see how Leo allows us to improve our organization.</p>
+<p>Inside each file, we can create nodes to explicitly show the structure of our source file (the poor alternative to this is section comments):</p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure.png" title="Show structure inside files." alt="Show structure inside files." /></p>
+<p>In this example, each method in the class is put in its own node. If we want, we can group related methods together under a name:</p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-class-structure-grouping.png" title="Create more structure inside files." alt="Create more structure inside files." /></p>
+<p>This is a bit better, but we still don’t have related things together. We can solve that by using clones in Leo. Clones allow us to show one node in multiple places in the outline.</p>
+<p>Let’s say we want to gather all information about photo collections in one place. First we create a node called “Photo collection”, then we clone the “class PhotoCollection” and “class PhotoCollectionTest” nodes and put them as children to “Photo collection” :</p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-clones.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
+<p>When we change a cloned node, all places where that clone appears in the outline are changed. So if we want to work with photo collections, we never have to touch the “Files” tree. We can spend all time in “Photo collection” because all things related to that area is visible there as well.</p>
+<p>Another example of clones shows how things related to the intro screen in the app have been kept together under a node:</p>
+<p><img src="../../../writing/reflections-on-programming/2013-02-24-related-things-are-not-kept-together/leo-photobox-another-view.png" title="Using clones to create different views." alt="Using clones to create different views." /></p>
+<h2 id="summary">Summary</h2>
+<p>I hope that I’ve convinced you that using only the file system to organize our code bases makes them hard to understand. It makes them hard to understand because related things are not kept together, and the structure is not clearly visible. I also hope that I’ve given you some ideas how we can improve the situation.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

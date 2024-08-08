@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Evolution of recalling Bash history | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Evolution of recalling Bash history</h1>
+
+<p><em>Published on 19 May 2017.</em></p>
+
+<p>This article is about how I’ve become more efficient at using Bash, the interactive UNIX shell.</p>
+<p>When I work in Bash, I often want to execute a command again. In the beginning I re-typed the command and pressed enter. This worked fine for short commands, but became tedious for longer commands.</p>
+<p>In some shells this is the only way to enter a new command. But Bash remembers the recently executed commands and provides ways to recall them.</p>
+<h2 id="cycle-with-arrow-keys">Cycle with arrow keys</h2>
+<p>The first way I learned to recall history was with the arrow keys. If I pressed <kbd>Up</kbd> the previous command was inserted at the prompt. I could continue for as long as I wanted. If I pressed <kbd>Down</kbd> the next command was inserted at the prompt:</p>
+<pre><code>$ ls&lt;Enter&gt;
+bin         ...
+
+$ date&lt;Enter&gt;
+Wed May 10 08:14:46 CEST 2017
+
+$ &lt;Up&gt;
+
+$ date&lt;Up&gt;
+
+$ ls&lt;Down&gt;
+
+$ date&lt;Enter&gt;
+Wed May 10 08:14:59 CEST 2017</code></pre>
+<p>This worked fine for commands that I had executed recently, but tedious for commands that I had executed long ago because I had to press <kbd>Up</kbd> many times. I ended up pressing and holding <kbd>Up</kbd> so that history scrolled by and when I saw my command, I released the key and pressed <kbd>Down</kbd> until it appeared again.</p>
+<h2 id="cycle-with-ctrl-pctrl-n">Cycle with Ctrl-P/Ctrl-N</h2>
+<p>Later I learned that <kbd>Ctrl-P</kbd> (previous) had the same function as <kbd>Up</kbd> and that <kbd>Ctrl-N</kbd> (next) had the same function as <kbd>Down</kbd>.</p>
+<p>These shortcuts were more comfortable for me because I like to keep my fingers as close to the home row as possible.</p>
+<h2 id="searching-with-ctrl-r">Searching with Ctrl-R</h2>
+<p>Then I learned about Bash’s interactive history search command. If I pressed <kbd>Ctrl-R</kbd> the prompt changed to this:</p>
+<pre><code>(reverse-i-search)`':</code></pre>
+<p>This special prompt allowed me to type parts of a command that I had executed previously. Say I wanted to execute the last find command again. I typed “find” and the prompt changed to this:</p>
+<pre><code>(reverse-i-search)`find': find -name '*.py' -a -type f</code></pre>
+<p>The text I typed, “find”, was present before the colon. After the colon the last command that I had executed that contained the string “find” was displayed. In this case I did a search for Python files. If this was not the match I was looking for, I could hit <kbd>Ctrl-R</kbd> again and the part to the right of the colon would change to the next command in the history that contained the string “find”. Once I found the command I was looking for I had two options: I could hit <kbd>Tab</kbd> to insert the command at the prompt:</p>
+<pre><code>$ find -name '*.py' -a -type f</code></pre>
+<p>This way I could edit the command before I executed it. Or I could hit <kbd>Enter</kbd> to execute the command directly.</p>
+<p>Now I was able to recall commands that I had executed long ago. I almost replaced all my usages of <kbd>Ctrl-P</kbd>/<kbd>Ctrl-N</kbd> with <kbd>Ctrl-R</kbd>. Except for the cases where I knew that the command I wanted to recall was only a few entries back.</p>
+<h2 id="frustrations-with-ctrl-r">Frustrations with Ctrl-R</h2>
+<p>The interactive search worked great for me when I knew what I was looking for. It did not work so great when I was more uncertain or when I mistyped the name of a command.</p>
+<p>The interactive search works by having a pointer to en entry in the history. When I typed a command it would move that pointer to the next item in the history that matched. But if I mistyped, the search might still match something further back in history. But when I erased a few characters to correct my mistake, the search would continue from there. Say this was my history:</p>
+<ol type="1">
+<li><code>tac ~/.bash_history</code></li>
+<li><code>echo frustration</code></li>
+<li><code>echo with</code></li>
+<li><code>echo bash</code></li>
+</ol>
+<p>I hit <kbd>Ctrl-R</kbd> to to begin searching for “bash”:</p>
+<pre><code>(reverse-i-search)`':</code></pre>
+<p>But I mistyped. Instead of “b” I typed “f”:</p>
+<pre><code>(reverse-i-search)`f': echo frustration</code></pre>
+<p>The search matched item 2. I erased the incorrectly typed character:</p>
+<pre><code>(reverse-i-search)`': echo frustration</code></pre>
+<p>The match remained. I typed bash correctly:</p>
+<pre><code>(reverse-i-search)`bash': tac ~/.bash_history</code></pre>
+<p>It now matched item 1 instead of item 4. The search continued from the previous match. I would have wanted the search to always show the most recent match from history. The easiest way I found to reset the search after a failure to find what I was looking for was to just execute a dummy command. Usually I selected <code>ls</code> because it was short to type and had no side effects.</p>
+<h2 id="interactively-filtering-with-external-program">Interactively filtering with external program</h2>
+<p>Then I was introduced to <a href="https://github.com/dvorka/hstr">hstr</a> by a colleague. It worked like a replacement for <kbd>Ctrl-R</kbd>. When I invoked it, it dropped into a text UI where my last history entries were shown. I could also type part of a command to narrow down the list. If I changed the search string, the narrowed down list changed accordingly. When I found a match I could similarly press <kbd>Tab</kbd> to insert the command at the prompt or press <kbd>Enter</kbd> to execute it immediately. It looked like this:</p>
+<p><a href="https://github.com/dvorka/hstr"><img src="../../writing/evolution-recalling-bash-history/hh-animated-01.gif" alt="Demo of hstr (from their website)" /></a></p>
+<p>This solved my frustrations with Bash’s interactive search. For me, this was a far easier way to find items from my history. The fact that it showed the last commands also helped me. I could visually inspect them, and they would guide my search.</p>
+<p>hstr was so good that I wanted to use a similar selection mechanism for other things, but hstr was only for Bash history. I ended up writing my own selection program: <a href="../../projects/rlselect/">rlselect</a>. Partly because I wanted such a program, but also because it seemed like a fun program to write. The core selection program is called <code>rlselect</code> and then there are multiple programs that use it to allow selecting specific things. <code>rlselect-history</code> is a replacement for <kbd>Ctrl-R</kbd>/hstr:</p>
+<p><a href="../../projects/rlselect/"><img src="../../writing/evolution-recalling-bash-history/rlselect_history_demo.gif" alt="Demo of rlselect" /></a></p>
+<p>There are some differences between hstr and <code>rlselect-history</code>. I took only the parts I personally wanted from hstr and put them into <code>rlselect-history</code>.</p>
+<p>If you want to improve your Bash usage, I suggest taking a look at <a href="https://github.com/dvorka/hstr">hstr</a> or <a href="../../projects/rlselect/">rlselect</a>.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

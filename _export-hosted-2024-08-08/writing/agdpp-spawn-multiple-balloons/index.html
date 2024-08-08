@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Spawn multiple balloons | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Spawn multiple balloons</h1>
+
+<p><em>Published on 17 June 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>We <a href="../../writing/agdpp-game-over/">previously</a> had a story about balloons moving downwards. We scratched that because other stories were more important for the first version of the balloon shooter. With those stories done, I think a more realistic balloon spawning and movement pattern is the most valuable thing we can work on.</p>
+<h2 id="video-version">Video version</h2>
+<p>The video version of this episode:</p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/unYD_bPyadc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
+</center>
+<h2 id="code-review">Code review</h2>
+<p>Let’s review our code and look at how balloons are managed.</p>
+<p>Our game scene has a sprite group for balloons which by default contains only one balloon:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">balloons</span><span class="o">=</span><span class="p">[(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)],</span> <span class="o">...</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">([</span>
+            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">balloons</span>
+        <span class="p">]))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This sprite group is modified in the <code>update</code> method if an arrows hits a balloon:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="o">...</span>
+            <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">balloon</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">balloons</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
+                    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So the hit balloon is removed, and a new one is added.</p>
+<p>How do balloons move?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1200</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">dt</span><span class="o">*</span><span class="mf">0.3</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>They move from left to right and wrap around at x=1200.</p>
+<h2 id="strategy">Strategy</h2>
+<p>To be able to write more isolated tests for balloon behavior, I want to start with a few refactorings. I want to extract a <code>Balloons</code> class which contains most logic related to balloons. Then I want to write tests for new behavior. This is also known as make the change easy, then make the easy change.</p>
+<p>We begin by creating the class and using it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        self.balloons = self.add(SpriteGroup([</span>
+<span class="gd">-            Balloon(Point(x=x, y=y)) for (x, y) in balloons</span>
+<span class="gd">-        ]))</span>
+<span class="gi">+        self.balloons = self.add(Balloons(balloons))</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[</span>
+            <span class="n">Balloon</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">positions</span>
+        <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We continue to move some behavior into this new class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_balloon_hit_by_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arrow</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">balloon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_baloon</span><span class="p">(</span><span class="n">balloon</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">balloon</span>
+
+    <span class="k">def</span> <span class="nf">spawn_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>With that in place, we can simplify the update code like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-            for balloon in self.balloons.get_sprites():</span>
+<span class="gd">-                if arrow.hits_baloon(balloon):</span>
+<span class="gd">-                    self.balloons.remove(balloon)</span>
+<span class="gd">-                    self.balloons.add(Balloon(position=Point(x=50, y=50)))</span>
+<span class="gd">-                    self.score.add(1)</span>
+<span class="gi">+            hit_balloon = self.balloons.get_balloon_hit_by_arrow(arrow)</span>
+<span class="gi">+            if hit_balloon:</span>
+<span class="gi">+                self.balloons.remove(hit_balloon)</span>
+<span class="gi">+                self.balloons.spawn_new()</span>
+<span class="gi">+                self.score.add(1)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>There is probably some more functionality that we can move into the new balloons class, but let’s stop here for now and focus on the new behavior.</p>
+<p>(If you want to see this refactoring happening in smaller steps and in real time, check out the video version.)</p>
+<h2 id="stories">Stories</h2>
+<p>Here is some new behavior that we would like to have:</p>
+<ul>
+<li>balloons move downwards</li>
+<li>balloons appear at different x positions</li>
+<li>multiple balloons are in the air at the same time</li>
+</ul>
+<p>Let’s start with the first one and write a test for the new movement pattern:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; balloons = Balloons([(50, 50)])</span>
+<span class="sd">    &gt;&gt;&gt; balloons.get_sprites()[0].get_position()</span>
+<span class="sd">    (50, 50)</span>
+<span class="sd">    &gt;&gt;&gt; balloons.update(5)</span>
+<span class="sd">    &gt;&gt;&gt; x, y = balloons.get_sprites()[0].get_position()</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    50</span>
+<span class="sd">    &gt;&gt;&gt; y &gt; 50</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>First we make sure that the first balloon in the sprite group is at the initial position that we gave it. Then we assert that it has moved downward after an update.</p>
+<p>To make this test pass, we make this change:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span> class Balloon:
+
+     ...
+
+     def update(self, dt):
+<span class="gd">-       if self.position.x &gt; 1200:</span>
+<span class="gd">-           self.position = self.position.set(x=50)</span>
+<span class="gd">-       else:</span>
+<span class="gd">-           self.position = self.position.move(dx=dt*0.3)</span>
+<span class="gi">+       self.position = self.position.move(dy=dt*self.speed)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We only needed to modify the <code>Balloon</code> class. Does that mean that we should put the test in this class instead? I don’t know. For now, I think it’s nice if we can keep all balloon related tests in the same place.</p>
+<p>If we run the game now, a single balloon will move downwards and then disappear at the bottom of the screen. That’s no fun. No more balloon to shoot down. Let’s fix that.</p>
+<p>Here is a test that checks that there are always 3 balloons in the air:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; balloons = Balloons([(50, 50)], space)</span>
+<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
+<span class="sd">&gt;&gt;&gt; len(balloons.get_sprites())</span>
+<span class="sd">3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We make this pass by adding spawn logic in the update method:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloons</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spawn_new</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>As long as we shoot down balloons, new ones will be spawned. But if we miss three balloons, they will continue to move downwards outside the screen, and no new balloons will be spawned. Let’s work on removing balloons outside the screen.</p>
+<p>Here is a test describing this behavior:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; space = OutsideScreenSpace(500, 500)</span>
+<span class="sd">&gt;&gt;&gt; balloons = Balloons([(1000, 1000)], space)</span>
+<span class="sd">&gt;&gt;&gt; (balloon,) = balloons.get_sprites()</span>
+<span class="sd">&gt;&gt;&gt; balloons.update(5)</span>
+<span class="sd">&gt;&gt;&gt; balloon in balloons.get_sprites()</span>
+<span class="sd">False</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The idea is that we place a balloon outside the screen. Then we call update and make sure that it is no longer in the sprite group.</p>
+<p>We have used the <code>OutsideScreenSpace</code> before to remove arrows that are outside the screen. When we add it here to <code>Balloons</code> we have to update all instantiations of it to include it. Once that is done, we make the test pass like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span> class Balloons(SpriteGroup):
+
+     ...
+
+     def update(self, dt):
+         SpriteGroup.update(self, dt)
+<span class="gi">+        for balloon in self.get_sprites():</span>
+<span class="gi">+            if self.space.hits(Point(*balloon.get_position()), 10):</span>
+<span class="gi">+                self.remove(balloon)</span>
+         while len(self.get_sprites()) &lt; 3:
+             self.spawn_new()
+</pre>
+</div>
+</div>
+</div>
+<p>The game now plays without problems, however, it’s a little boring that balloons are always spawned at the same position.</p>
+<p>We modify the spawning code like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span> class Balloons(SpriteGroup):
+
+     ...
+
+     def spawn_new(self):
+<span class="gd">-        self.add(Balloon(position=Point(x=50, y=50)))</span>
+<span class="gi">+        self.add(Balloon(position=Point(x=self.space.get_random_x(50), y=50)))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And add the corresponding method in <code>OutsideScreenSpace</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">OutsideScreenSpace</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_random_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="o">-</span><span class="n">margin</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We don’t write any tests for this. Why? I guess because I feel confident that this will work. And maybe because testing random is not straight forward. Perhaps we should add a test for <code>get_random_x</code> that checks that the x we get back is within the width minus margin. We make a note of that.</p>
+<p>Here is what the game looks like now:</p>
+<p>
+<center>
+<img src="multiple-balloons.png" title="fig:" alt="Multiple balloons." />
+</center>
+</p>
+<p>We have accomplished what we set out to do. I think the game is a little more fun to play now. Success!</p>
+<h2 id="summary">Summary</h2>
+<p>We began by doing some refactoring to make the new behavior easy to add. It was easy to add and it went smoothly. However, after adding new functionality and working with an area of the code, we have probably noticed things that can improve. We might even have ignored it to focus on adding the new behavior.</p>
+<p>What I like to do in those situations is to take a break and come back and review the code a little later.</p>
+<p>This time I came up with many small changes to improve the clarity of the code. Here are some examples from that session:</p>
+<ul>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/782cda7032896b15d89058b0fe3bc4ccbb54da8c">Replace (x, y) with position in Arrow and Balloon.</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/7d6c884d727bef96b1efcc524e4c8956cfd41c72">Move balloon space hit check to balloon where radius can be used for better hit test.</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/fe4b477a7ad4c89a56af58dceac84cfc100b2f8f">Replace OutsideScreenSpace with a more generic Rectangle.</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/c4f8ff4924f1ee4a83ece0d0360ed44e512af194">Make spawning unaware of where its region is (no hard coded y=50).</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/7faddca9ad82c1bde8d6ea0d00bbbc8cfb5d6fbf">No need to spawn balloon when shot down since it happens anyway.</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/19e51efe110e81e398a5f9a7401608f870afb4ff">Balloons positions are points instead of tuples.</a></li>
+<li><a href="https://github.com/rickardlindberg/agdpp/commit/18a9a5af49966f9b2c7e8841495687181e7fedfb">Clean up shooting arrow tests.</a></li>
+</ul>
+<p>Making these tiny improvements feels so good. They are all quite small changes, but they make a huge impact. Ok, maybe not huge, but the improvements compound. The point is that if you keep making tiny improvements, the code base gets easier and easier to work with.</p>
+<p>See you in the next episode!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

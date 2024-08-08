@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      A refactoring story | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../../">Home</a></li>
+            <li><a href="../../../writing/">Writing</a></li>
+            <li><a href="../../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../../projects/">Projects</a></li>
+            <li><a href="../../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>A refactoring story</h1>
+
+<p><em>Published on 11 July 2012.</em></p>
+
+<p>This story begins in a hotel lobby in Stockholm. That’s where <a href="http://coreyhaines.com/">Corey Haines</a> and I met a Monday afternoon to code some Haskell. I had invited Corey to a Haskell workshop I hosted the week before, but unfortunately he couldn’t make it. I didn’t want to miss the opportunity to get together with him, so that’s why I found myself with a beer and my laptop, walking through the code for <a href="http://github.com/rickardlindberg/codemonitor">codemonitor</a>, explaining it to Corey, this Monday afternoon in a hotel lobby in Stockholm.</p>
+<p>Codemonitor is a Haskell application I’ve written that listens for file changes on disk. When a file changes, it runs a set of jobs that you configure. It can for example be used to automatically run your test suite whenever you change a source file.</p>
+<p>I had an idea for a feature we could work on this afternoon, but we ended up doing a big refactoring instead. In this post I explain how starting out slightly different helped us move forward.</p>
+<h2 id="the-goal-of-the-refactoring">The goal of the refactoring</h2>
+<p>Internally, codemonitor maintains a list of jobs. The job data structure has the following fields:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>The first four fields are static and describe the job. Match expression is a regular expression that is applied to a filename to determine if this job should run when a file changes.</p>
+<p>The three last fields are dynamic and change values as a job run. A job has different status depending on if it is running or if it has finished running and failed for example.</p>
+<p>Whenever a file changes on disk, we go through the list of jobs and update the ones for which the regular expression match. Pseudo code for a file change looks like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> fileChanged(fileName):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">for</span> job <span class="kw">in</span> jobList:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        <span class="cf">if</span> job.matchExpr matches fileName:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>            thredId <span class="op">=</span> runExternalProcess(job.name, job.args)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>            job.status <span class="op">=</span> working</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>            job.output <span class="op">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>            job.thread <span class="op">=</span> threadId</span></code></pre></div>
+<p>Corey thought it would be better to split the job list into two parts: one that contained the static information about jobs, and one that contained the dynamic information about jobs. With this separation, when a file changes on disk we can first filter out the jobs for which the regular expression match, and then pass them to a function which run them. In pseudo code it looks like this:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">def</span> fileChanged(fileName):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    jobsToRun <span class="op">=</span> filterJobsMatching(fileName)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="cf">for</span> job <span class="kw">in</span> jobsToRun:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        thredId <span class="op">=</span> runExternalProcess(job.name, job.args)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        runningJob <span class="op">=</span> RunningJob(status<span class="op">=</span>working, output<span class="op">=</span><span class="st">&quot;&quot;</span>, thread<span class="op">=</span>threadId)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        updateRunningJobList(runningJob, job.<span class="bu">id</span>)</span></code></pre></div>
+<h2 id="the-refactoring-process">The refactoring process</h2>
+<p>We had codemonitor running on itself at all times while doing this refactoring. As soon as we made a change that broke the code (either so it did not compile or so that the tests didn’t pass) we got notified with a big red screen and an error message.</p>
+<h2 id="the-initial-attempt">The initial attempt</h2>
+<p>We started by creating a new data structure for the dynamic part of a job that we called running job info. It had the following fields:</p>
+<ul>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>We removed those fields from the job data structure so that it only contained the static part:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+</ul>
+<p>Then we found the places in the source code where the job data structure was used. We examined those cases and figured out if only the static, only the dynamic, or both parts were needed. We found a few functions where only the dynamic part of a job was used. We selected one of those and changed the type to take the running job info data structure instead of the old job data structure.</p>
+<p>That of course led to compilation errors because the function was still called with the wrong data. (We had just changed the type signature.) So we followed the error messages and fixed the places where the calls were made.</p>
+<p>Unfortunately, this approach wasn’t very successful. The compiler kept giving us new type checking errors. That first change had forced us to change in a lot of places in order to get it to compile. We kept thinking that we only needed to change these current errors, and everything would be fine. The problem was that we had been thinking that for the last hour or so.</p>
+<h2 id="starting-out-in-a-different-way">Starting out in a different way</h2>
+<p>Clearly, the steps we had tried to take weren’t small enough. So we decided to start over using a different approach.</p>
+<p>Instead of splitting the job data structure, we added another field to it containing the dynamic part. The addition of the additional field broke one place in the code where the job data structure was created, but other than that, we were green. We were relieved that we had a change that didn’t break the build and we could do our first commit of the day. Whew!</p>
+<p>At this point our data structure for jobs looked like this:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+<li><strong>Running job info</strong></li>
+</ul>
+<p>And the data structure for running job info looked like this:</p>
+<ul>
+<li>Status (either idle, working, or failed)</li>
+<li>Output</li>
+<li>Thread id</li>
+</ul>
+<p>Notice that we chose to duplicate the dynamic part in running job info. If we instead had moved fields into running job info, we would have more compilation errors, but we wanted to minimize the errors so we could work in small steps.</p>
+<p>The next thing we did was to always update the running job info when we updated the dynamic fields in the job data structure. With this change, we could read the dynamic fields from the running job info instead of the job data structure. We did that, and eventually we had removed all dependencies on the dynamic fields in the job data structure, so they could be removed, leaving only these fields:</p>
+<ul>
+<li>Id</li>
+<li>Name of executable</li>
+<li>Arguments to executable</li>
+<li>Match expression</li>
+<li>Running job info</li>
+</ul>
+<p>Around this point we had to stop. It was time for dinner, and we were feeling happy about the progress we had made.</p>
+<p>The next day, I continued the refactoring on my own. Everything went smoothly following this path: I was able to pull the running job info out of the job data structure into its own list, realized that the running job info didn’t need to contain all that information, shrunk it, and as a result I could simplify another subsystem.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Because we started the refactoring in a slightly different way the second time, we were able to take small steps towards the goal while all the time having working code.</p>
+<p>If you feel stuck with a refactoring, you might want to start it out in a different way to see what happens.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

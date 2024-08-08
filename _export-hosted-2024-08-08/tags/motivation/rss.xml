@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Rickard's personal homepage: latest posts tagged motivation</title>
+        <link>http://rickardlindberg.me</link>
+        <description><![CDATA[Rickard's personal homepage: latest posts tagged motivation]]></description>
+        <atom:link href="http://rickardlindberg.me/tags/motivation/rss.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Wed, 02 Aug 2023 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>DevLog 008: How to overcome lack of motivation?</title>
+    <link>http://rickardlindberg.me/writing/devlog-008-how-to-overcome-lack-of-motivation/</link>
+    <description><![CDATA[<h1>DevLog 008: How to overcome lack of motivation?</h1>
+
+<p><em>Published on  2 August 2023.</em></p>
+
+<p>As I sit down this morning to continue work on my <a href="/projects/rlvideo/index.html">video editor</a>, I don’t feel motivated at all. I browse some code that I worked on yesterday, see problems with it, but can’t really see how to improve it. Everything feels complicated, and I don’t feel like programming at all.</p>
+<p>What to do?</p>
+<p>Well, this is just a hobby project of mine. I could just do something else today. But let’s pretend that it’s not. After all, I still have a desire to make progress on this project.</p>
+<h2 id="options">Options</h2>
+<p>Generally speaking, I can make two types of changes to the code:</p>
+<ul>
+<li>Refactoring to improve the design.</li>
+<li>Adding a feature to improve the product.</li>
+</ul>
+<p>Yesterday, I spent most of the day refactoring and designing. I still feel that the design needs improvements in the area that I worked on, but I find that extra hard to motivate myself to work on today.</p>
+<p>And perhaps that is also the wrong thing to do? Yesterday I improved the design a little to the point where fixing an actual problem was easier. Shouldn’t that be enough?</p>
+<p>If we keep improving a little bit for every feature we work on, we never have to exclusively work on refactoring.</p>
+<p>When I write that, it makes sense to me. I should practice feeling content with having made some improvements. I should practice not striving for perfection.</p>
+<h2 id="how-to-improve-the-product">How to improve the product?</h2>
+<p>So how can we improve the product? What is something that we can add that makes it easier, more pleasant, or more efficient for me to edit footage?</p>
+<p>Yesterday I was annoyed by proxy clip loading time. I am still annoyed by that, but I have a feeling it will be a little difficult to fix. And I don’t feel up for it this morning.</p>
+<p>Is there something easier that we can work on?</p>
+<p>Yes, there is!</p>
+<p>One common thing that happens when I shoot is that some clips turn out to be complete garbage. I might have pressed the record button by mistake or I might have an out of focus shot. In those cases I just want to discard the clip.</p>
+<p>Say that clip <code>C0015.MP4</code> below is out of focus.</p>
+<p>
+<center>
+<img src="discard.png" title="fig:" alt="Out of focus clip that I want to discard." />
+</center>
+</p>
+<p>I want to open up the context menu for that cut and choose “ripple delete”. It should remove that cut from the timeline and move all cuts to the right of it left to fill up the space.</p>
+<p>If we add this feature, I can actually start editing some footage. Because that is how I usually edit videos. I drop all clips on the timeline and then I cut things apart and make it shorter. With this new feature, I still can’t make any cuts, but I can discard clips.</p>
+<h2 id="clips-and-cuts-again">Clips and cuts again</h2>
+<p>I keep mixing the words clip and cut. A clip means a file on disk. When a clip is added to the timeline, a cut is created that spans the whole region of the clip. So in the beginning, the clip and the cut is of equal length. However, the cut can change in and out points of the clip, making it shorter.</p>
+<h2 id="approach">Approach</h2>
+<p>I will try to go slowly when working on this feature and pay attention to the design as I go along.</p>
+<p>I will try to make small refactorings to improve the design along the way, but the focus will still be to implement this feature.</p>
+<p>Let’s get started.</p>
+<h2 id="starting-point">Starting point</h2>
+<p>Let’s start with the context menu for a cut.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">CutAction</span><span class="p">(</span><span class="n">Action</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">right_mouse_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">gui</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">mix_strategy_updater</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
+                    <span class="n">transaction</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span>
+                        <span class="n">cut</span><span class="o">.</span><span class="n">with_mix_strategy</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">update</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">show_context_menu</span><span class="p">([</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;over&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;over&quot;</span><span class="p">)),</span>
+            <span class="n">MenuItem</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;under&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">mix_strategy_updater</span><span class="p">(</span><span class="s2">&quot;under&quot;</span><span class="p">)),</span>
+        <span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Aha, we are back to the <code>CutAction</code> that we worked on in the previous DevLog. This is an opportunity to make design improvements to it while still focusing on the new ripple delete feature.</p>
+<p>Making design improvements is always easier when we have tests, and it is many times my preferred way of adding new functionality. So let’s start there. This is what I come up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I show a menu item for ripple delete:</span>
+
+<span class="sd">&gt;&gt;&gt; project = None</span>
+<span class="sd">&gt;&gt;&gt; cut = None</span>
+<span class="sd">&gt;&gt;&gt; scrollbar = None</span>
+<span class="sd">&gt;&gt;&gt; action = CutAction(project, cut, scrollbar)</span>
+<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
+<span class="sd">&gt;&gt;&gt; action.right_mouse_down(x=None, y=None, gui=gui)</span>
+<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
+<span class="sd">over</span>
+<span class="sd">under</span>
+<span class="sd">ripple delete</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>At this point, I just want to assert that we have a ripple delete menu item.</p>
+<p>I null out any parameters that are not used.</p>
+<p>To make this test run, I also have to extend <code>TestGui</code> with <code>print_context_menu_items</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gh">diff --git a/rlvideolib/gui/testing.py b/rlvideolib/gui/testing.py</span>
+<span class="gh">index aaba74d..0df0dda 100644</span>
+<span class="gd">--- a/rlvideolib/gui/testing.py</span>
+<span class="gi">+++ b/rlvideolib/gui/testing.py</span>
+<span class="gu">@@ -4,7 +4,12 @@ class TestGui:</span>
+         self.click_context_menu = click_context_menu
+
+     def show_context_menu(self, menu):
+<span class="gi">+        self.last_context_menu = menu</span>
+         for item in menu:
+             if item.label == self.click_context_menu:
+                 item.action()
+                 return
+<span class="gi">+</span>
+<span class="gi">+    def print_context_menu_items(self):</span>
+<span class="gi">+        for item in self.last_context_menu:</span>
+<span class="gi">+            print(item.label)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s make it pass:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -290,6 +305,7 @@ class CutAction(Action):</span>
+         gui.show_context_menu([
+             MenuItem(label=&quot;over&quot;, action=mix_strategy_updater(&quot;over&quot;)),
+             MenuItem(label=&quot;under&quot;, action=mix_strategy_updater(&quot;under&quot;)),
+<span class="gi">+            MenuItem(label=&quot;ripple delete&quot;, action=lambda: None),</span>
+         ])
+
+     def mouse_up(self):
+</pre>
+</div>
+</div>
+</div>
+<p>Just enough to make the test pass. We now have a context menu item that will do nothing when we click on it.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;New ripple delete context menu item that does nothing.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 2.893s
+
+OK
+[main 2659383] New ripple delete context menu item that does nothing.
+ 2 files changed, 21 insertions(+)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="moving-slowly">Moving slowly</h2>
+<p>The <code>TestGui</code> that we had to modify for this test lives in the <code>rlvideolib.gui.testing</code> module. The <code>rlvideolib.gui</code> package looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>rlvideolib/gui
+├── framework.py
+├── generic.py
+├── gtk.py
+├── __init__.py
+└── testing.py
+</pre>
+</div>
+</div>
+</div>
+<p>We recently extracted the framework module. It contains framework related GUI code that does not depend on GTK and does not depend on our application. It makes sense for a framework to include facilities to help testing, right?</p>
+<p>Let’s get rid of the testing module and move its contents to the framework module.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Move TestGui to rlvideolib.gui.framework and get rid of the testing module.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 2.896s
+
+OK
+[main 3ea95fc] Move TestGui to rlvideolib.gui.framework and get rid of the testing module.
+ 4 files changed, 21 insertions(+), 3 deletions(-)
+ rename rlvideolib/gui/{testing.py =&gt; framework.py} (58%)
+</pre>
+</div>
+</div>
+</div>
+<p>We have made small progress towards the ripple delete feature and made the code base a little cleaner by indicating that test helpers are part of the GUI framework. Nice!</p>
+<p>I feel much more motivated now than when I got started. But before I move on, I will take a break and have some breakfast.</p>
+<h2 id="back-to-the-test">Back to the test</h2>
+<p>Let’s go back to the test. This is what we have:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; project = None</span>
+<span class="sd">&gt;&gt;&gt; cut = None</span>
+<span class="sd">&gt;&gt;&gt; scrollbar = None</span>
+<span class="sd">&gt;&gt;&gt; action = CutAction(project, cut, scrollbar)</span>
+<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
+<span class="sd">&gt;&gt;&gt; action.right_mouse_down(x=None, y=None, gui=gui)</span>
+<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
+<span class="sd">over</span>
+<span class="sd">under</span>
+<span class="sd">ripple delete</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That feels like a lot of set up to me. And many of the parameters are <code>None</code>.</p>
+<p>I take a closer look at the x and y coordinates. As far as I can tell, no action is using those in the <code>right_mouse_down</code> method. Let’s get rid of them.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Get rid of x and y coordinates in Action.right_mouse_down since they are never used.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 3.403s
+
+OK
+[main 2c4c80e] Get rid of x and y coordinates in Action.right_mouse_down since they are never used.
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s further refactor the test to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I show cut menu items on right click:</span>
+
+<span class="sd">&gt;&gt;&gt; gui = TestGui()</span>
+<span class="sd">&gt;&gt;&gt; action = CutAction(project=None, cut=None, scrollbar=None)</span>
+<span class="sd">&gt;&gt;&gt; action.right_mouse_down(gui=gui)</span>
+<span class="sd">&gt;&gt;&gt; gui.print_context_menu_items()</span>
+<span class="sd">over</span>
+<span class="sd">under</span>
+<span class="sd">ripple delete</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This indicates that the showing of the menu does not depend on the project, cut, or scrollbar. I think that it reads quite nicely.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Change cut action test to be assertion for menu items shown.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 3.411s
+
+OK
+[main 1708e0c] Change cut action test to be assertion for menu items shown.
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>Now we need a new test for clicking the ripple delete menu item.</p>
+<h2 id="ripple-delete-test">Ripple delete test</h2>
+<p>I write this test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I ripple delete:</span>
+
+<span class="sd">&gt;&gt;&gt; gui = TestGui(click_context_menu=&quot;ripple delete&quot;)</span>
+<span class="sd">&gt;&gt;&gt; action = CutAction(project=None, cut=None, scrollbar=None)</span>
+<span class="sd">&gt;&gt;&gt; action.right_mouse_down(gui=gui)</span>
+<span class="sd">do ripple delete</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That is, I assert that “do ripple delete” is printed when we press that menu item. Baby steps.</p>
+<p>I make it pass like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -299,10 +306,12 @@ class CutAction(Action):</span>
+                     transaction.modify(self.cut.id, lambda cut:
+                         cut.with_mix_strategy(value))
+             return update
+<span class="gi">+        def ripple_delete():</span>
+<span class="gi">+            print(&quot;do ripple delete&quot;)</span>
+         gui.show_context_menu([
+             MenuItem(label=&quot;over&quot;, action=mix_strategy_updater(&quot;over&quot;)),
+             MenuItem(label=&quot;under&quot;, action=mix_strategy_updater(&quot;under&quot;)),
+<span class="gd">-            MenuItem(label=&quot;ripple delete&quot;, action=lambda: None),</span>
+<span class="gi">+            MenuItem(label=&quot;ripple delete&quot;, action=ripple_delete),</span>
+         ])
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Add non-empty action for ripple delete.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 2.909s
+
+OK
+[main 4c4e272] Add non-empty action for ripple delete.
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="the-next-step">The next step</h2>
+<p>Let’s take the next step and assert that it actually does a ripple delete.</p>
+<p>I modify the test to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I ripple delete:</span>
+
+<span class="sd">&gt;&gt;&gt; from rlvideolib.domain.project import Project</span>
+<span class="sd">&gt;&gt;&gt; project = Project.new()</span>
+<span class="sd">&gt;&gt;&gt; with project.new_transaction() as transaction:</span>
+<span class="sd">...     hello_id = transaction.add_text_clip(&quot;hello&quot;, length=10, id=&quot;A&quot;)</span>
+<span class="sd">...     _        = transaction.add_text_clip(&quot;there&quot;, length=10, id=&quot;B&quot;)</span>
+<span class="sd">&gt;&gt;&gt; project.split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-A0-----&gt;&lt;-B0-----&gt;|</span>
+
+<span class="sd">&gt;&gt;&gt; CutAction(</span>
+<span class="sd">...     project=project,</span>
+<span class="sd">...     cut=project.project_data.get_cut(hello_id),</span>
+<span class="sd">...     scrollbar=None</span>
+<span class="sd">... ).right_mouse_down(</span>
+<span class="sd">...     gui=TestGui(click_context_menu=&quot;ripple delete&quot;)</span>
+<span class="sd">... )</span>
+<span class="sd">&gt;&gt;&gt; project.split_into_sections().to_ascii_canvas()</span>
+<span class="sd">|&lt;-B0-----&gt;|</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This got quite messy. Let’s see if we can break it down. First we setup a new project with two clips next to each other. Then we simulate that the ripple delete menu item is clicked and assert that the first clip is removed and the second clip is moved to the beginning.</p>
+<p>The setup of the project is kind of messy. For example, we have to do the import in the doctest to prevent a circular import. And we reach in to grab the project data to get the cut.</p>
+<p>There are many things to improve here.</p>
+<p>But I think I want to move on and get it to pass. We’ll get back to the issues above. I promise.</p>
+<p>I make this change:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>         def ripple_delete():
+<span class="gd">-            print(&quot;do ripple delete&quot;)</span>
+<span class="gi">+            self.project.ripple_delete(self.cut.id)</span>
+         gui.show_context_menu([
+</pre>
+</div>
+</div>
+</div>
+<p>That tells me that ‘Project’ object has no attribute ‘ripple_delete’.</p>
+<p>I add it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Project</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
+            <span class="n">transaction</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That tells med that ‘Transaction’ object has no attribute ‘ripple_delete’.</p>
+<p>We’re getting closer.</p>
+<p>I can’t come up with the general solution for ripple delete, so I hard code a solution for the particular case where we only have two cuts in the project:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">remove_cut</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">modify_cut</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And also make a quick and dirty version of <code>remove_cut</code>.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Quick and dirty version of ripple delete that works in one case.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 3.902s
+
+OK
+[main 7ba45c9] Quick and dirty version of ripple delete that works in one case.
+ 2 files changed, 43 insertions(+), 5 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>Here is the example project:</p>
+<p>
+<center>
+<img src="ripple1.png" title="fig:" alt="Before ripple delete." />
+</center>
+</p>
+<p>If we try to ripple delete the first clip in the GUI, we get this:</p>
+<p>
+<center>
+<img src="ripple2.png" title="fig:" alt="After ripple delete." />
+</center>
+</p>
+<p>Not quite right, but it shows progress in the right direction.</p>
+<p>I think we can leave the cut action test alone for a while now. It is fine. Now we need to turn our attention to the ripple delete method in the transaction and make it work as intended.</p>
+<h2 id="generalizing-ripple-delete">Generalizing ripple delete</h2>
+<p>The project has a hierarchy of classes representing the different parts. The ripple delete only affects the cuts. I make that clear by just forwarding <code>ripple_delete</code> calls until we get to <code>Cuts</code>.</p>
+<p>Transaction forwards to project data:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">set_project_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">project_data</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And project data forwards to cuts:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">ProjectData</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;ProjectData&quot;</span><span class="p">,</span> <span class="s2">&quot;sources,cuts&quot;</span><span class="p">)):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">cuts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cuts</span><span class="o">.</span><span class="n">ripple_delete</span><span class="p">(</span><span class="n">cut_id</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And finally, the hard coded ripple delete is here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Cuts</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Cuts&quot;</span><span class="p">,</span> <span class="s2">&quot;cut_map,region_to_cuts,region_group_size&quot;</span><span class="p">)):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">ripple_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_id</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cut_id</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">data</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m &#39;Move ripple_delete down to Cuts.&#39;
+.....................................................
+----------------------------------------------------------------------
+Ran 53 tests in 3.397s
+
+OK
+[main c5deb77] Move ripple_delete down to Cuts.
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>If we can just get that one working properly, I think our feature is done.</p>
+<h2 id="endless-sidetracks">Endless sidetracks?</h2>
+<p>Implementing the ripple delete was much more difficult than I expected. I feel like I hit problem after problem that I need to solve before I can actually get to the ripple delete. I get tired and demotivated again.</p>
+<p>Let’s recap what’s left on our imaginary TODO list.</p>
+<p>First there is the issue of the messy cut action test, where it was particularly painful to setup a project.</p>
+<p>And then there is the ripple delete in cuts that is not fully implemented.</p>
+<p>I actually think that is it.</p>
+<p>Not as much as I felt it was. Writing it down helped me realize that.</p>
+<p>I think both of them might be a little difficult and take some time. Instead of documenting them in detail, I will just report on the status once done.</p>
+<h2 id="report">Report</h2>
+<p>I managed to generalize ripple delete and add some tests for it.</p>
+<p>I’m not sure it’s perfect, but we can improve it later with the help of test. I’m sure it is not harmful at least.</p>
+<p>However, it brings up another question. What if we do a ripple delete on the wrong clip? How to recover from that? The answer right now is that we can’t. Therefore, I think an undo function is high on the priority list. It should be relatively straight forward to implement thanks to the immutable data structures.</p>
+<p>When it comes to the project setup, I just didn’t have the energy to do anything about it. I know this project setup is done in a few test, so I’m sure we will come across it later. Hopefully I have a better idea for how to improve it then. And some more energy. I’m OK leaving it like this. I don’t think we have made things worse. So much for a promise to get back to it.</p>
+<h2 id="summary">Summary</h2>
+<p>This change took longer than expected in part because the design was not clean enough in a few places, and in part because the project was lacking methods for modifying cuts because there had been no need for it.</p>
+<p>We cleaned up the design in a few places add added a bit more functionality for project editing operations.</p>
+<p>Next time we work in this area, I think we can move faster.</p>
+<p>Is this evolutionary design?</p>
+<p>This also gets me thinking about stories and estimating stories and how that does not make sense in this context. If things get easier and easier to implement over time, that would also mean that time to complete a story takes less and less time. So you can’t really estimate multiple stories, because the estimate changes once the previous story is completed. At least if stories somewhat overlap it terms of changes in the code base.</p>
+]]></description>
+    <pubDate>Wed, 02 Aug 2023 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/devlog-008-how-to-overcome-lack-of-motivation/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+
+    </channel>
+</rss>

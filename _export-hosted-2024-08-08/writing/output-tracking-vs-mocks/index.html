@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Output Tracking vs Mocks | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Output Tracking vs Mocks</h1>
+
+<p><em>Published on 26 July 2024.</em></p>
+
+<p>In this blog post we’re going to explore how to write and test a Git client using the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> approach. Specifically we’re going to explore how to apply <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking">Output Tracking</a> to this example and also contrast it with mocks. All details about the example are not explained, but the full source code is included at the end. Check out James’ article for more details about the testing without mocks approach.</p>
+<h2 id="example-git-client">Example Git client</h2>
+<p>The example Git client is a CLI-application that provides a simplified interface to Git. This represents a <a href="https://gut-cli.dev/">real world scenario</a> yet can be made small enough for an example.</p>
+<p>The application implements two commands:</p>
+<pre><code>myscm save  -&gt; git commit
+
+myscm share -&gt; git push</code></pre>
+<h2 id="architecture">Architecture</h2>
+<p>The application consists of the following classes:</p>
+<pre><code>App --+--&gt; SaveCommand ---&gt; Process
+      |
+      +--&gt; ShareCommand --&gt; Process
+      |
+      +--&gt; Args
+      |
+      +--&gt; Terminal</code></pre>
+<ul>
+<li><p><code>Process</code>, <code>Args</code>, and <code>Terminal</code> are low-level <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrappers</a> that are made <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#nullables">nullable</a> using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#embedded-stub">embedded stubs</a>.</p>
+<ul>
+<li><code>Process</code> is for running external processes. (<code>git</code> in this example.)</li>
+<li><code>Args</code> is for reading command line arguments.</li>
+<li><code>Terminal</code> is for writing text to the terminal.</li>
+</ul></li>
+<li><p><code>SaveCommand</code> and <code>ShareCommand</code> are application code that perform a function in the domain of a Git client. They are made nullable using <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#fake-it">fake it once you make it</a>.</p></li>
+<li><p><code>App</code> is also application code that routes commands to the correct sub-command. It is also made nullable using “fake it once you make it”.</p></li>
+</ul>
+<h2 id="how-to-test-app">How to test <code>App</code>?</h2>
+<p>We want to write sociable, state-based test.</p>
+<p>What does that mean in the context of testing <code>App</code>?</p>
+<p>Sociable means that we should use its real dependencies. That is, we should inject a real <code>SaveCommand</code>, <code>ShareCommand</code>, <code>Args</code>, and <code>Terminal</code>. We should not inject test doubles like mocks or stubs.</p>
+<p>So the test setup will look something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand(...),</span>
+<span class="sd">...     share_command=ShareCommand(...),</span>
+<span class="sd">...     terminal=Terminal(...),</span>
+<span class="sd">...     args=Args(...),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>However, if we were to invoke methods on <code>app</code> now, it would interact with the outside world. It would read command line arguments, execute <code>git</code> commands, and write to the terminal.</p>
+<p>We don’t want to do that. It takes a long time and is brittle. We therefore inject null versions of dependencies like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App(</span>
+<span class="sd">...     save_command=SaveCommand.create_null(),</span>
+<span class="sd">...     share_command=ShareCommand.create_null(),</span>
+<span class="sd">...     terminal=Terminal.create_null(),</span>
+<span class="sd">...     args=Args.create_null(),</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Creating a null version is exactly like creating a real version except that at the very edge of the application boundary, the communication with the outside world is turned off. We put this in a factory-method:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>App</code> has only one method, and that is <code>run</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So the only test we can write is this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null()</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>There is no way to control what the command line arguments are, and there is no way to observe what the application is doing.</p>
+<p>Here are two scenarios that would be useful to test:</p>
+<ul>
+<li><p>When the application is called with <code>["save", "message"]</code>, then git commit is performed.</p></li>
+<li><p>When the application is called with <code>["share"]</code>, then git push is performed.</p></li>
+</ul>
+<p>In order to write those test, we need a way to control the outside world to simulate that a given set of command line arguments are present. We also need a way to observe what commands are run.</p>
+<p>We can solve the first part by passing simulated command line arguments to <code>create_null</code>. The test then becomes this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>App.create_null</code> is modified to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code>Args</code> supports <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses">configuring responses</a> when creating the null version. In that case it would return the configured command line arguments instead of the real ones. The communication with the outside world has been turned off, and we simulate the part of the outside world that reads command line arguments from the environment.</p>
+<p>Now we can write our two scenarios like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;save&quot;, &quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd"># How to assert that git commit was called?</span>
+
+<span class="sd">&gt;&gt;&gt; app = App.create_null(args=[&quot;share&quot;])</span>
+<span class="sd">&gt;&gt;&gt; app.run()</span>
+<span class="sd"># How to assert that git push was called?</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And now we come to the main topic of this blog post: output tracking.</p>
+<p><code>App</code> performs actions by delegating to <code>SaveCommand</code> and <code>ShareCommand</code>. Both of them take the rest of the command line arguments and perform an action without returning anything. To observe that with output tracking, we introduce state in the commands so that we can query them and see if they were run. A slightly more elegant solution, instead of introducing state, is to fire events. Here is how we implement it in <code>SaveCommand</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To track events, we can do this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; SaveCommand.create_null().track_events(events).run([&quot;message&quot;])</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We use the event tracking pattern for both commands and the terminal like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And now we can write our tests like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SHARE_COMMAND []</span>
+
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">TERMINAL_WRITE 'Unknown command.'</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The implementation looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="reflections">Reflections</h2>
+<p>The tests for <code>App</code> are similar to end-to-end-test in that the whole stack is executed. Except right at the application boundary. So if we supply incorrect arguments to the save command for example, this test will blow up:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
+<span class="sd">Traceback (most recent call last):</span>
+<span class="sd">  ...</span>
+<span class="sd">ValueError: Expected one argument as the message, but got [].</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is overlapping, sociable testing. We are actually testing that <code>App</code> calls <code>SaveCommand</code> correctly. However, the behavior of the save command is not tested here. We only test that application parses command line arguments correctly and calls the appropriate sub-command.</p>
+<h2 id="the-mock-version">The Mock version</h2>
+<p>Let’s contrast how the first test can be written using mocks and stubs instead. Here it is again:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events = Events()</span>
+<span class="sd">&gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is the mock/stub version:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">&gt;&gt;&gt; App(</span>
+<span class="sd">...     save_command=save_command_mock,</span>
+<span class="sd">...     share_command=None,</span>
+<span class="sd">...     terminal=None,</span>
+<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">... ).run()</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call(['message'])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The share command and terminal are not exercised in this test, so we inject <code>None</code>. For <code>args</code> we inject a stub that is configured to return <code>["save", "message"]</code> when its <code>get</code> method is called. For the <code>save_command</code>, we inject a mock. After we call the <code>run</code> method on the application, we assert that the <code>run</code> method was called on the mock with the <code>['message']</code> argument.</p>
+<p>Let’s contrast the two assertions:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call(['message'])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>They look very similar. Almost to the point that output tracking feels like mocking.</p>
+<p>But there is one crucial difference:</p>
+<p><strong>The mock version creates isolated tests whereas the output tracking version creates sociable tests.</strong></p>
+<p>We have already seen what happens in the output tracking version when we call the save command with incorrect arguments. What happens in the mock based version? It happily passes:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">&gt;&gt;&gt; App(</span>
+<span class="sd">...     save_command=save_command_mock,</span>
+<span class="sd">...     share_command=None,</span>
+<span class="sd">...     terminal=None,</span>
+<span class="sd">...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
+<span class="sd">... ).run()</span>
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call([])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>To make the mock based test suite “equivalently powerful” we need to augment it with “contract tests”. In this case we need a test saying something like when the save command is called with no arguments, it does not blow up. And we have to write such tests for every example in our test suite. When we assert that a dependency is called in a certain way or returns a certain thing under certain conditions, we also have to write a “contract test” that checks that the dependency can actually accept those arguments and return those things under said conditions. That seems like a whole lot more work to me. (I think the term “contract test” is mostly used in the context of external services, but I think the reasoning is the same for two classes where one is a dependency. That’s how J.B. Rainsberger uses the term in <a href="https://youtu.be/VDfX44fZoMc?si=aqwG_mTe_ZPmu-kk&amp;t=2315">J B Rainsberger Integrated Tests Are A Scam HD</a> and <a href="https://blog.thecodewhisperer.com/permalink/getting-started-with-contract-tests">Getting Started with Contract Tests</a>.)</p>
+<h2 id="recording-function-calls-vs-actions">Recording function calls vs actions</h2>
+<p>Another more subtle difference between output tracking and mocks is that output tracking tracks the action that was performed whereas mocks record function calls.</p>
+<p>Here are the two assertions again:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND ['message']</span>
+
+<span class="sd">&gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">[call(['message'])]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The save command emits an event that indicates that the save action was performed with the given arguments. We are free to rename individual functions and the test will still pass.</p>
+<p>In the mock version we explicitly check that the <code>run</code> method was called. If we want to rename it, we have to update the test as well.</p>
+<p>I struggle a bit with this difference. I think in most cases, the function call and the event should contain the same information.</p>
+<p>I <a href="https://hachyderm.io/@rickardlindberg/112174367523991295">asked</a> James about this:</p>
+<blockquote>
+<p>I have a question regarding output tracking.</p>
+<p>“Output Trackers should write objects that represent the action that was performed, not just the function that was called to perform it.”</p>
+<p>Shouldn’t those in most cases be very similar? I mean, the name of a function should match what it does, right? Sure, you can refactor them separately, but wouldn’t you often want to rename the object written if you rename the function?</p>
+</blockquote>
+<p>He replied</p>
+<blockquote>
+<p>It’s really a prescription against treating the tracker as a Spy that records the function name and arguments. You should be able to refactor the API without feeling like you have to change the tracker, as long as behavior remains the same.</p>
+</blockquote>
+<p>I can see cases where tracking events can be a little more flexible. Take this logging class for example:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Logger</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LOG </span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>In application code you call <code>info</code> and <code>error</code>. But in tests you don’t need to care about which exact method was called. Only that the relevant <code>LOG ...</code> event was emitted.</p>
+<p>Perhaps the <code>SAVE_COMMAND</code> event should not include raw arguments? Here is the implementation:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Perhaps it makes more sense to record the event with an explicit message like this?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND message=</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
+<p>An assertion would then look like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">SAVE_COMMAND message=message</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Is this event more relevant from the point of view of the caller? Maybe. In any case, the event approach is more flexible compared to the mock version.</p>
+<h2 id="more-on-output-tracking">More on output tracking</h2>
+<ul>
+<li><p><a href="../../writing/how-to-test-a-router/">How to test a router?</a></p></li>
+<li><p><a href="https://www.jamesshore.com/v2/projects/nullables/how-are-nullables-different-from-mocks">How Are Nullables Different From Mocks?</a></p></li>
+</ul>
+<h2 id="appendix-myscm.py">Appendix: myscm.py</h2>
+<div class="rliterate-code">
+<div class="rliterate-code-header">
+<ol class="rliterate-code-path">
+<li>
+myscm.py
+</li>
+</ol>
+</div>
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span>
+<span class="kn">import</span> <span class="nn">doctest</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">class</span> <span class="nc">Trackable</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">track_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">events</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Events</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(App.create(), App)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">save_command</span><span class="o">=</span><span class="n">SaveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">share_command</span><span class="o">=</span><span class="n">ShareCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">terminal</span><span class="o">=</span><span class="n">Terminal</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">Args</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_command</span><span class="p">,</span> <span class="n">share_command</span><span class="p">,</span> <span class="n">terminal</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span> <span class="o">=</span> <span class="n">save_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span>  <span class="o">=</span> <span class="n">share_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="n">terminal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;save&quot;, &quot;message&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SAVE_COMMAND ['message']</span>
+
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;, &quot;message&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call(['message'])]</span>
+
+<span class="sd">        &gt;&gt;&gt; App.create_null(Events(), args=[&quot;save&quot;]).run()</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        ValueError: Expected one argument as the message, but got [].</span>
+
+<span class="sd">        &gt;&gt;&gt; save_command_mock = Mock()</span>
+<span class="sd">        &gt;&gt;&gt; App(</span>
+<span class="sd">        ...     save_command=save_command_mock,</span>
+<span class="sd">        ...     share_command=None,</span>
+<span class="sd">        ...     terminal=None,</span>
+<span class="sd">        ...     args=Mock(**{&quot;get.return_value&quot;: [&quot;save&quot;]})</span>
+<span class="sd">        ... ).run()</span>
+<span class="sd">        &gt;&gt;&gt; save_command_mock.run.call_args_list</span>
+<span class="sd">        [call([])]</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;share&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SHARE_COMMAND []</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; App.create_null(events, args=[&quot;unknown&quot;, &quot;sub&quot;, &quot;command&quot;]).run()</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        TERMINAL_WRITE 'Unknown command.'</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;save&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;share&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">share_command</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">SaveCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null().track_events(events).run([&quot;message&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        SAVE_COMMAND ['message']</span>
+
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null(events=events).run(['message'])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN ['git', 'commit', '-a', '-m', 'message']</span>
+
+<span class="sd">        &gt;&gt;&gt; SaveCommand.create_null().run(['message', '--force'])</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        ValueError: Expected one argument as the message, but got ['message', '--force'].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SAVE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one argument as the message, but got </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;commit&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+<span class="k">class</span> <span class="nc">ShareCommand</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">track_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; ShareCommand.create_null(events=events).run([])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN ['git', 'push']</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHARE_COMMAND </span><span class="si">{</span><span class="n">args</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;push&quot;</span><span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">Terminal</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullStream</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
+            <span class="n">stdout</span> <span class="o">=</span> <span class="n">NullStream</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; Terminal.create().track_events(events).write(&quot;hello&quot;)</span>
+<span class="sd">        hello</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        TERMINAL_WRITE 'hello'</span>
+
+<span class="sd">        &gt;&gt;&gt; Terminal.create_null().write(&quot;hello&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TERMINAL_WRITE </span><span class="si">{</span><span class="n">text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Args</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">sys</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullSysModule</span><span class="p">:</span>
+            <span class="n">argv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;null program&quot;</span><span class="p">]</span><span class="o">+</span><span class="n">args</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sys</span><span class="o">=</span><span class="n">NullSysModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sys</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sys</span> <span class="o">=</span> <span class="n">sys</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; Args.create().get()</span>
+<span class="sd">        ['--test']</span>
+
+<span class="sd">        &gt;&gt;&gt; Args.create_null(args=[&quot;configured&quot;, &quot;args&quot;]).get()</span>
+<span class="sd">        ['configured', 'args']</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+<span class="k">class</span> <span class="nc">Process</span><span class="p">(</span><span class="n">Trackable</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NullSubprocessModule</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocessModule</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
+        <span class="n">Trackable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; events = Events()</span>
+<span class="sd">        &gt;&gt;&gt; Process.create().track_events(events).run([&quot;echo&quot;, &quot;hello&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; events</span>
+<span class="sd">        PROCESS_RUN ['echo', 'hello']</span>
+
+<span class="sd">        &gt;&gt;&gt; Process.create_null().run([&quot;echo&quot;, &quot;hello&quot;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PROCESS_RUN </span><span class="si">{</span><span class="n">command</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">Args</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;--test&quot;</span><span class="p">]:</span>
+        <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">App</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

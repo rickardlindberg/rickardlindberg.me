@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Rickard's personal homepage: latest posts tagged agile</title>
+    <link href="http://rickardlindberg.me/tags/agile/atom.xml" rel="self" />
+    <link href="http://rickardlindberg.me" />
+    <id>http://rickardlindberg.me/tags/agile/atom.xml</id>
+    <author>
+        <name>Rickard Lindberg</name>
+        <email>rickard@rickardlindberg.me</email>
+    </author>
+    <updated>2023-04-06T00:00:00Z</updated>
+    <entry>
+    <title>What should a Continuous Integration (CI) server do?</title>
+    <link href="http://rickardlindberg.me/writing/what-should-a-ci-server-do/" />
+    <id>http://rickardlindberg.me/writing/what-should-a-ci-server-do/</id>
+    <published>2023-04-06T00:00:00Z</published>
+    <updated>2023-04-06T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1>What should a Continuous Integration (CI) server do?</h1>
+
+<p><em>Published on  6 April 2023.</em></p>
+
+<ul>
+<li><a href="#what-is-ci">What is CI?</a></li>
+<li><a href="#what-does-integrate-mean">What does integrate mean?</a></li>
+<li><a href="#how-often-should-you-integrate">How often should you integrate?</a></li>
+<li><a href="#how-to-keep-the-main-branch-working">How to keep the main branch working?</a></li>
+<li><a href="#attitude-not-a-tool">Attitude, not a tool</a></li>
+<li><a href="#ci-server-functionality">CI server functionality</a>
+<ul>
+<li><a href="#basic-workflow">Basic workflow</a></li>
+<li><a href="#clean-environments">Clean environments</a></li>
+<li><a href="#multiple-environments">Multiple environments</a></li>
+<li><a href="#pipeline-language">Pipeline language</a></li>
+<li><a href="#objection">Objection!?</a></li>
+<li><a href="#communication">Communication</a></li>
+<li><a href="#multiple-test-suites">Multiple test suites</a></li>
+</ul></li>
+<li><a href="#common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</a>
+<ul>
+<li><a href="#run-pipeline-after-commit">Run pipeline after commit</a></li>
+<li><a href="#run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</a></li>
+</ul></li>
+<li><a href="#why-dont-tools-for-ci-work-like-this">Why don’t tools for CI work like this?</a></li>
+<li><a href="#what-about-pull-requests">What about pull requests?</a></li>
+</ul>
+<p><em>After drafting this article, I asked for feedback on <a href="https://discord.com/channels/897648912851173408/897648913799077930/1076788077353246760">James’ Discord</a>. <a href="https://coding-is-like-cooking.info/">Emily</a> <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078285384527650877">wrote</a> back and said that this sounded a lot like pre-tested integration that she had written about (<a href="https://www.eficode.com/blog/pre-tested-integration">here</a> and <a href="https://www.eficode.com/blog/pre-tested-integration2">here</a>) earlier. She describes almost the exact same workflow as I imagine with this CI server, and there is also a Jenkins plugin to support that workflow. I encourage you the check out her writing as well.</em></p>
+<p>I think I have figured out what a Continuous Integration (CI) server <em>should</em> do. It is very simple. Yet common tools used for CI, like Jenkins, make it hard or near impossible.</p>
+<h2 id="what-is-ci">What is CI?</h2>
+<p>CI probably means different things to different people.</p>
+<p>I’ve tried to find the root of the practice, and a lot of my thoughts here are based on James Shore’s descriptions in <a href="https://www.jamesshore.com/v2/books/aoad2/continuous_integration">AOAD2</a>.</p>
+<p>So with that in mind, CI to me is about two things:</p>
+<ol type="1">
+<li>Integrate often.</li>
+<li>Promise to keep the main branch working at all times.</li>
+</ol>
+<h2 id="what-does-integrate-mean">What does integrate mean?</h2>
+<p>Integrate means to merge your changes into the main branch. This branch is commonly also referred to as master or trunk.</p>
+<h2 id="how-often-should-you-integrate">How often should you integrate?</h2>
+<p>From what I’ve read, the consensus seems to be that you should integrate at least once a day. If you do it less frequently, you are not doing <em>continuous</em> integration.</p>
+<h2 id="how-to-keep-the-main-branch-working">How to keep the main branch working?</h2>
+<p>Every time you integrate, you have to make sure that the main branch is still working. This is the second aspect of CI.</p>
+<p>How can you do that?</p>
+<p>The only way to do that, and still integrate often, is with an automatic test suite.</p>
+<p>When you integrate your code, you want to run the test suite to make sure that everything still works.</p>
+<p><strong>The test suite should give you confidence that when it’s time to deploy to production, it will just work.</strong></p>
+<p>I’m using the term test suite here to include everything you need to gain that confidence, so it includes compiling, linting, static analysis, unit tests, deploy to test environment, smoke test… <em>everything</em>.</p>
+<h2 id="attitude-not-a-tool">Attitude, not a tool</h2>
+<p>James Shore writes that <a href="https://www.jamesshore.com/v2/blog/2005/continuous-integration-is-an-attitude">Continuous Integration is an Attitude, Not a Tool</a> and points out that <a href="https://www.jamesshore.com/v2/blog/2006/continuous-integration-on-a-dollar-a-day">you can do CI without a tool</a>.</p>
+<p>No tool can choose to integrate your changes often. You have to change your way of working so that you <em>can</em> integrate more often and also do so. This requires practice.</p>
+<p>No tool can enforce that your main branch is always working. You have to have a mindset of working like that. This requires practice.</p>
+<p>However, there are some things that a tool can help with. To make it easier to work in this way.</p>
+<h2 id="ci-server-functionality">CI server functionality</h2>
+<p><strong>A CI server should merge changes to the main branch in a “safe” way.</strong></p>
+<h3 id="basic-workflow">Basic workflow</h3>
+<p>Here is pseudo code for how a CI server should integrate changes from a branch in a Git repo:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run test suite&gt;&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span></code></pre></div>
+<p>The lock step ensures that only one integration can happen at a time. If you have two branches that want to integrate, one has to wait for the other to be integrated first.</p>
+<p>The branch is then integrated by performing a <code>git merge</code>.</p>
+<p>To make sure the new main branch works, a test suite is then run. This test suite should be defined in the repo.</p>
+<p>If the test suite passes, a <code>git push</code> is performed to “publish” the new main branch.</p>
+<p>This workflow ensures that every change that is merged into the main branch works. Where “works” is defined as passing the test suite.</p>
+<p>That is the basic function that I think a CI server should perform. Let’s look at some directions where this design can be evolved to make a more full fledged CI server.</p>
+<h3 id="clean-environments">Clean environments</h3>
+<p>One thing that a dedicated CI server helps prevent is the problem that code works on one developer’s machine, but not on another’s. Perhaps it is due to a dependency missing on one developer’s machine.</p>
+<p>With a CI server, the one true environment is the CI server’s environment.</p>
+<p>Preferably, this should also be set up in the exact same way before every test run so that two test runs have the exact same clean environment.</p>
+<p>Clean environments make test runs more predictable and helps make integrations safe.</p>
+<p>Setting up a clean environment looks different in different contexts. One option would be to use Docker containers. In the Python world, virtual environments could be set up for each test run.</p>
+<p>Any function that a CI server can perform to help set up a clean environment is useful.</p>
+<h3 id="multiple-environments">Multiple environments</h3>
+<p>Another advantage of a dedicated CI server is that you can make sure that your code works in an environment that you don’t have access to on your development machine.</p>
+<p>You might write Python code that should work on both Windows and Linux, but your laptop only runs Windows.</p>
+<p>A CI server should have functionality to run the test suite in different environments.</p>
+<h3 id="pipeline-language">Pipeline language</h3>
+<p>To take full advantage of the CI server, the “command to run the test suite” should be written in a “pipeline language” that the CI server understands.</p>
+<p>Consider this pseudo example:</p>
+<pre><code>step(&#39;compile&#39;) {
+    sh(&#39;make&#39;)
+}
+parallel {
+    step(&#39;test unix&#39;) {
+        environment(&#39;unix&#39;) {
+            sh(&#39;./test&#39;)
+        }
+    }
+    step(&#39;test windows&#39;) {
+        environment(&#39;windows&#39;) {
+            sh(&#39;test.exe&#39;)
+        }
+    }
+}</code></pre>
+<p>This script could not have been written as a Bash script for example, because then it could not have taken advantage of the CI server functionality to run commands in different environments.</p>
+<h3 id="objection">Objection!?</h3>
+<p>When I asked for feedback on this article, I got some objections about a CI server being responsible for environments and a pipeline language.</p>
+<p>One person wrote <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">this</a> and <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078738880653693060">this</a>:</p>
+<blockquote>
+<p>… having a pipeline script that works <em>only</em> with the ci software seems like a huge lockin and risk</p>
+</blockquote>
+<blockquote>
+<p>I feel that the moment I say I can’t do this locally and I need a pre-configured build server, I am violating the basic principles of development.</p>
+</blockquote>
+<p>I partly agree with those objections.</p>
+<p>It would be better if you could run your whole pipeline locally and have it set up all the clean environments for you. With virtualisation technology, this is becoming more and more possible.</p>
+<p>If you manage to get this setup, then the CI server only functions as a single integration point that everyone has to go through.</p>
+<p>I still think that a pipeline language would be useful for programming your pipeline. However, it could be used outside the CI server as well. That way you could also debug your pipeline locally without involving the CI server. If a pipeline step requires a specific environment that you can’t get locally, that step could be skipped when run locally.</p>
+<h3 id="communication">Communication</h3>
+<p>Another aspect of continuous integration is communication.</p>
+<p>For example, when you integrate, you want to tell your team members about the change so that they can pull your changes and test their code against it.</p>
+<p>A CI server can help communicate. It can for example do the following:</p>
+<ul>
+<li>Notify the team on a successful integration.</li>
+<li>Show today’s integrations in a dashboard to visualize what’s happening.</li>
+<li>Show success rate of integrations to give an idea of how the team is doing.</li>
+<li>Present clear errors when an integration fails.</li>
+<li>Present a clear view of a pipeline and what steps were run.</li>
+</ul>
+<h3 id="multiple-test-suites">Multiple test suites</h3>
+<p>The lock step in the basic workflow ensures that only one integration can happen at a time.</p>
+<p>In some situations you might have a longer running test suite that you don’t want to block further integrations.</p>
+<p>A CI server could support that something like this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> integrate(repo, branch):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">with</span> lock(repo):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        sh(<span class="st">&quot;git clone </span><span class="sc">{repo}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>        sh(<span class="st">&quot;git merge origin/</span><span class="sc">{branch}</span><span class="st">&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>        sh(<span class="st">&quot;&lt;command to run fast test suite&gt;&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        sh(<span class="st">&quot;git push&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    sh(<span class="st">&quot;&lt;command to run slow test suite&gt;&quot;</span>)</span></code></pre></div>
+<p>Of course, when you do this, you risk breaking the main branch since all tests are not run before the change is integrated.</p>
+<p>One scenario where this could be useful is if you have a slow running test suite today that you can’t make instantly faster. You can start using this pattern with the goal of making all your slow tests fast. As a rule of thumb, the fast test suite should not take more than 10 minutes. If it takes longer for an integration to complete, chances are that you start multitasking because you don’t want to wait for it.</p>
+<p>Some tests might also be impossible to run in less than 10 minutes. In that case, this pattern is also good. But make sure that all basic functionality is tested in the fast test suite.</p>
+<h2 id="common-ci-workflows-and-their-problems">Common “CI” workflows and their problems</h2>
+<p>When it comes to tools commonly used for CI, I primarily have experience with Jenkins. And the two most common patterns in Jenkins, which a believe are not unique to Jenkins, prevent you from doing continuous integration. Let’s have a look.</p>
+<h3 id="run-pipeline-after-commit">Run pipeline after commit</h3>
+<p>This pattern runs a pipeline only after you have merged your changes to the main branch.</p>
+<p>If the test suite fails, your main branch is broken, and everyone who pulls your changes will base their work on something broken.</p>
+<p>If you are serious about continuous integration, you fix this problem immediately. Either by reverting the change or merging a fix. It might not be too big a problem.</p>
+<p>If you are not serious about continuous integration, you might leave the main branch broken and hope that someone else fixes it.</p>
+<p>With a CI server I describe in this article, it is simply impossible to merge something broken. (Given that your test suite will catch the broken things.)</p>
+<h3 id="run-pipeline-on-branch-then-again-after-merge">Run pipeline on branch, then again after merge</h3>
+<p>This patterns runs a pipeline on every branch so that you know that your changes work before you merge them. And when you merge them, the pipeline is run again.</p>
+<p>This is a slight improvement over the previous pattern, but it still has a flaw. Consider this scenario:</p>
+<pre><code>0---0
+     \
+      \---A
+       \
+        \---B</code></pre>
+<p><code>A</code> and <code>B</code> are two branches that both have passing test suites, so they both go ahead and merge, resulting in this:</p>
+<pre><code>0---0-------A&#39;---B&#39;
+     \     /    /
+      \---A    /
+       \      /
+        \----B</code></pre>
+<p><code>A'</code> has already been tested on the branch, but <code>B'</code> has never been tested. That is, the combination of <code>A</code>’s and <code>B</code>’s changes has never been tested, until they are both merged.</p>
+<p>With a CI server I describe in this article, this problem is solved with the lock where multiple integrations have to wait for each other.</p>
+<p>If you use the multiple test suites pattern, you still have this problem. At least for functionality only covered by the slow test suite. But then it’s a choice you make. You decide if the trade off is worth it for you or not.</p>
+<h2 id="why-dont-tools-for-ci-work-like-this">Why don’t tools for CI work like this?</h2>
+<p>I think that tools for CI should help you do CI well. Why don’t they?</p>
+<p>I have two speculations.</p>
+<p>First, if your team is committed to doing continuous integration, a broken main branch might not be too big a deal since everyone is committed to fixing it fast.</p>
+<p>Second, back in the day of using SVN (which was my fist version control system), branching was expensive. The default way to share changes was to push directly to the main branch. Having a CI tool do the actual integration was probably technically more difficult. However, now with Git, that is no longer true.</p>
+<p>Do you know why tools for CI don’t work like I describe in this article? Please let me know.</p>
+<p>Emily <a href="https://discord.com/channels/897648912851173408/897648913799077930/1078571337989234780">responded</a> the following to that question:</p>
+<blockquote>
+<p>I think it’s hard to tell at this distance, but I suspect the people building the tools weren’t always the same people who really understood what CI is, and there was a communication gap. The tools that ended up becoming popular were perhaps the easiest to adopt and had the best marketing?</p>
+</blockquote>
+<p>That sounds reasonable to me.</p>
+<p>Another person <a href="https://discord.com/channels/897648912851173408/897648913799077930/1077685040311435314">responded</a> with this:</p>
+<blockquote>
+<p>i think most [build servers] can be configured that way [proper CI]. many users do not want to because they don’t understand the ci process. instead they regard the build server as some central platform on which development is done.</p>
+</blockquote>
+<p>So people find value in build servers even though they are not designed explicitly for CI. That also makes sense.</p>
+<p>So perhaps the reason why we don’t have better tools for CI is that people don’t understand the value of CI or don’t want to adopt it?</p>
+<h2 id="what-about-pull-requests">What about pull requests?</h2>
+<p>Pull requests are a common way of working, but they don’t play nicely together with CI.</p>
+<p>First of all, when working with pull requests, you integrate your code by pressing a button that will perform the merge. With a CI tool like the one I describe in this article, the CI tool performs the merge. With the former, no tool can prevent broken code on the main branch. (The best they can do is test the branch, then test again after merge.)</p>
+<p>Second of all, pull requests, at least blocking ones, add delay to the process of integrating code, making it difficult to integrate often.</p>
+<p>Pull requests are often used to review changes before they are merged. In a CI server that I describe in this article, there is nothing preventing you from having a manual review step before the CI server is allowed to merge. However, a manual review step adds delays and makes it difficult to integrate often.</p>
+]]></summary>
+</entry>
+
+</feed>

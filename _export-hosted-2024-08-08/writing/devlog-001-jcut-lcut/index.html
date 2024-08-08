@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 001: J-cuts and L-cuts in my video editor? | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 001: J-cuts and L-cuts in my video editor?</h1>
+
+<p><em>Published on 28 July 2023.</em></p>
+
+<h2 id="about-devlogs">About DevLogs</h2>
+<p>DevLogs is an experiment to try to document development that I do on various projects. I will try to write what is going on in my head as I do various development tasks.</p>
+<h2 id="todays-problem">Today’s problem</h2>
+<p>In my video editor, there is a problem with overlapping clips. How they overlap appears to be almost random.</p>
+<p>In this edit, the <code>two.mp4</code> clip is rendered below:</p>
+<p>
+<center>
+<img src="edit1.png" title="fig:" alt="Alternative text." />
+</center>
+</p>
+<p>If we edit the <code>one.mp4</code> clip, then the two switch order.</p>
+<p>
+<center>
+<img src="edit2.png" title="fig:" alt="Alternative text." />
+</center>
+</p>
+<p>So the order depends on the modification times of clips.</p>
+<p>That is not very good.</p>
+<h2 id="plan">Plan</h2>
+<p>My idea for how to solve this is that each clip can specify how it should be cut into the previous one.</p>
+<p>I imagine a library of cuts such as:</p>
+<ul>
+<li>over</li>
+<li>under</li>
+<li>j-cut</li>
+<li>l-cut</li>
+<li>overlay (with priority)</li>
+<li>background (with priority)</li>
+</ul>
+<p>To make progress on this, we can probably assume a default cut (maybe under) and make sure it works. Then we can extend the library of cuts.</p>
+<h2 id="writing-a-test">Writing a test</h2>
+<p>The relevant code for this is mostly here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">extract_mix_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; cuts = Cuts.from_list([</span>
+<span class="sd">    ...     Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1),</span>
+<span class="sd">    ...     Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5),</span>
+<span class="sd">    ... ])</span>
+<span class="sd">    &gt;&gt;&gt; cuts.to_ascii_canvas()</span>
+<span class="sd">    | &lt;-A0---&gt;    |</span>
+<span class="sd">    |     &lt;-B0---&gt;|</span>
+<span class="sd">    &gt;&gt;&gt; cuts.extract_mix_section(Region(start=0, end=15)).to_ascii_canvas()</span>
+<span class="sd">    %&lt;-A0---&gt;%%%%%%</span>
+<span class="sd">    %%%%%&lt;-B0---&gt;%%</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: sort based on cut (j-cut, l-cut, overlay, background).</span>
+    <span class="n">playlists</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_cut</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">cut_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">playlists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cuts</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">extract_playlist_section</span><span class="p">(</span><span class="n">region</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">MixSection</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">playlists</span><span class="o">=</span><span class="n">playlists</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s write a test that shows the current behavior first:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; region = Region(start=0, end=15)</span>
+<span class="sd">&gt;&gt;&gt; a_cut = Cut.test_instance(name=&quot;A&quot;, start=0, end=8, position=1)</span>
+<span class="sd">&gt;&gt;&gt; b_cut = Cut.test_instance(name=&quot;B&quot;, start=0, end=8, position=5)</span>
+
+<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
+<span class="sd">...     a_cut,</span>
+<span class="sd">...     b_cut,</span>
+<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
+<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
+<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
+
+<span class="sd">&gt;&gt;&gt; Cuts.from_list([</span>
+<span class="sd">...     b_cut,</span>
+<span class="sd">...     a_cut,</span>
+<span class="sd">... ]).extract_mix_section(region).to_ascii_canvas()</span>
+<span class="sd">%%%%%&lt;-B0---&gt;%%</span>
+<span class="sd">%&lt;-A0---&gt;%%%%%%</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So depending on the order in which cuts are added, they mix differently. This is exactly the behavior that we want to change. We want them to mix the same no matter what order they are added in.</p>
+<p>Let’s commit this as a baseline:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Pinpoint current behavior of mixing cuts.'</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>./make.py commit</code> script is a wrapper around <code>git commit</code> that also runs the tests and makes sure there are no untracked files. A real handy tool to make sure we don’t commit “bad” code.</p>
+<h2 id="cut-the-same">Cut the same</h2>
+<p>I modify the test above to assert that the same mix is created even when the cuts are in the reverse order.</p>
+<p>I make it pass by sorting the clips by start time, making “later” clips appear below which would be the equivalent of having the cut on the second b clip set to “under”:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">sort_cuts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cuts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">cut</span><span class="p">:</span> <span class="n">cut</span><span class="o">.</span><span class="n">get_source_cut</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That works as intended in the application as well. Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Always mix cuts below previous cut.'</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="clips-with-the-same-start">Clips with the same start</h2>
+<p>If two cuts have the same start, the sorting will have no effect and we still have the same problem.</p>
+<p>First of all, I don’t think this scenario will be that common in a real situation.</p>
+<p>I’m thinking we can handle it with a warning. If such situation appears, the user has to resolve the issue by hinting how the mix should be done.</p>
+<p>We can also take the end position into account. Then only cuts with the same start and end has the problem. In which case the user must explicitly tell which should be on top somehow.</p>
+<h2 id="summary">Summary</h2>
+<p>We made progress towards mixing cuts in a better way. Next step in this area I think is to allow the type of cut to be specified per clip and take that into account when sorting cuts. I think it should be quite easy to write tests for this and we should be able to move steady and carefully using TDD.</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

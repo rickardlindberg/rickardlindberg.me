@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      DevLog 013: Raspberry Pi game console | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>DevLog 013: Raspberry Pi game console</h1>
+
+<p><em>Published on 10 September 2023.</em></p>
+
+<p>It is time to revisit the <a href="../../projects/agdpp/">balloon shooter</a>. I’m interested in building a “game console PC” so that my son can more easily play the balloon shooter and other games. Until now we have played all games on my laptop.</p>
+<p>This will involve two main steps I think. The first is to get a Raspberry Pi and install all games on it. The second involves auto starting a custom application that can be used to select which game to play by using the gamepad. Ideally, you should not need to use a mouse or a keyboard. My plan for this custom application is to build it using the framework that we have in the balloon shooter.</p>
+<p>Let’s get started.</p>
+<h2 id="the-raspberry-pi">The Raspberry Pi</h2>
+<p>At first, I’m not sure what hardware to get for this game console PC. I look around a bit, and then eventually settle on a Raspberry Pi starter kit.</p>
+<p>
+<center>
+<img src="pibox.png" title="fig:" alt="Raspberry Pi starter kit." />
+</center>
+</p>
+<p>I am bit concerned that it will not be powerful enough to play games. But it is relatively cheap, and if it can’t play all games, perhaps my son (or me) can have some fun with it in another way.</p>
+<h2 id="assembly">Assembly</h2>
+<p>The starter kit comes with everything you need to get started. That’s also one reason that I went with it. I’m not that interested in selecting hardware. I’m more interested in quickly prototyping this game console PC. If it turns out the Pi is not powerful enough, but the game console PC concept is a hit, we can look for better hardware. However, if the game console PC is not a hit, we have not wasted that much time or money.</p>
+<p>And look. Apparently Raspberry Pis need heat sinks and fans nowadays. When I last played with a Pi, many, many years ago, I don’t remember that being the case. Let’s hope that means that they are more powerful now.</p>
+<p>
+<center>
+<img src="assembly.png" title="fig:" alt="Assembling the starter kit." />
+</center>
+</p>
+<p>I assemble the kit in about 15 minutes. Then I boot it up and install the operating system that comes preconfigured. I let it do its thing, and come back once it is installed.</p>
+<h2 id="setup">Setup</h2>
+<p>I want to install <a href="https://www.supertux.org/">SuperTux</a> and the balloon shooter on the Pi.</p>
+<p>It seems like the version of SuperTux is older than what I have on my laptop. And my laptop is old. Furthermore, Python 2 seems to be the default Python. I learn that when trying to install all requirements for the balloon shooter. I also have to install a newer version of Pygame and for that I need to install some SDL build dependencies. Perhaps getting a newer operating system would be nice.</p>
+<p>Eventually, I get everything working:</p>
+<p>
+<center>
+<img src="setup.png" title="fig:" alt="Setting up games." />
+</center>
+</p>
+<p>The versions might be a little old. The performance might be so so. But we have something setup that we can experiment with.</p>
+<h2 id="a-note-on-performance">A note on performance</h2>
+<p>Me and my son try to play SuperTux on the setup. It feels a little different. Part of it might be that it is slightly different version of the game. Part of it might be that the Pi has worse performance. We try to run the game at a lower resolution, and it seems to help a bit. We can probably try different things to get better performance, but this is absolutely fine for now. My son is still having fun playing.</p>
+<h2 id="autostart">Autostart</h2>
+<p>To start SuperTux on the Pi you first have to start the Pi and then you have to select SuperTux from the menu with the mouse. The balloon shooter is even more complicated to start. First you need to open a terminal and then run a command.</p>
+<p>I don’t think that is good enough for a game console PC. I want to be able to operate it using the gamepad only.</p>
+<p>The first tiny step in that direction is to configure SuperTux as the startup application. If we can do that, then SuperTux can be started and played without using the keyboard or mouse.</p>
+<p>Once we have that working, we can work on our own startup application that let us select the game, and then we can start that one instead.</p>
+<p>I search the internet for how to configure a startup application for the Pi.</p>
+<p>I find an article that says that you can put a file in the autostart directory. I try this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ cat /etc/xdg/autostart/game_console_start.desktop
+[Desktop Entry]
+Name=Game console start
+Exec=supertux2
+</pre>
+</div>
+</div>
+</div>
+<p>I restart the Pi, and SuperTux actually starts automatically and you can start playing it using the gamepad. Fantastic!</p>
+<h2 id="startup-application-idea">Startup application idea</h2>
+<p>Let’s move on to our custom startup application. Here is the idea that I have for it:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This code runs the startup application in a loop. Its <code>run</code> method should return the command to run. (The game to play or shutdown command.)</p>
+<p>I think we can test drive the <code>StartupApplication</code> and then we can hook it up in the loop above.</p>
+<p>Perhaps we should even test drive the loop.</p>
+<p>We’ll see.</p>
+<h2 id="test-driving-the-application">Test driving the application</h2>
+<p>I start with this in a new file:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I draw an application select screen:</span>
+
+<span class="sd">    &gt;&gt;&gt; events = StartupApplication.run_in_test_mode(</span>
+<span class="sd">    ...     events=[</span>
+<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">    ...     ]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I create the bare minimum that the test complains about and get this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">GameLoop</span><span class="o">.</span><span class="n">create_null</span><span class="p">(</span>
+            <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="o">+</span><span class="p">[</span>
+                <span class="p">[</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create_event_user_closed_window</span><span class="p">()],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">track_events</span><span class="p">()</span>
+        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">events</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now it doesn’t complain, but it seems to hang in an infinite loop.</p>
+<p>I modify <code>event</code> to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And we’re green. Let’s commit.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ git commit -a -m 'Emryo to new startup application.'
+[main a55d17e] Emryo to new startup application.
+ 2 files changed, 39 insertions(+)
+ create mode 100644 startup.py
+</pre>
+</div>
+</div>
+</div>
+<p>The test is not yet fleshed out. It doesn’t test what it says it tests. But it drove out the skeleton of the application.</p>
+<h2 id="reflecting-on-the-design">Reflecting on the design</h2>
+<p>It’s been a while since I worked on the balloon shooter. What do I think when I work in this design again?</p>
+<p>I got stuck in an infinite loop. That happens because we have a <code>while True:</code> in our game loop somewhere. I’ve always found testing infinite loops difficult. That’s one reason why I hesitated testing the loop for the startup application. But now I get another idea. What if we create the loop like this instead?</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Then we can create different versions of the loop condition maybe something like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">InfiniteLoopCondition</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">TestLoopCondition</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
+
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">flag</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Let’s see if we can try this out in the startup application. If it works out well, perhaps we can port it to the game loop as well?</p>
+<h2 id="a-mistake">A mistake</h2>
+<p>The test that we wrote does not assert anything on the events. Let’s fix that. I comment out the assignment of <code>events</code> and paste the expected test output:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw an application select screen:</span>
+
+<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="the-looping-concept">The looping concept</h2>
+<p>This startup application should run in an infinite loop. In each iteration it should init the game loop and show the game selection screen. Once the selection has been made, it should quit the game loop and run the command. Then it starts all over.</p>
+<p>Let’s try the looping thing.</p>
+<p>I start by TDDing the loop conditions:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">InifiteLoopCondition</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; InifiteLoopCondition().active()</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That fails. Fix by return true. The other:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FiteLoopCondition</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; condition = FiteLoopCondition(iterations=2)</span>
+<span class="sd">        &gt;&gt;&gt; condition.active()</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; condition.active()</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; condition.active()</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">flag</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I actually got the condition wrong here at first. I’m glad I wrote a test for it. The previous example, <code>TestLoopCondition</code>, above is actually wrong. Even for really simple code like this, having tests is nice.</p>
+<p>Let’s see if we can use a loop condition and have the test show us that two loops are actually made.</p>
+<p>I change</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="o">...</span>
+        <span class="n">StartupApplication</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>to</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">events</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="o">...</span>
+        <span class="n">StartupApplication</span><span class="p">(</span>
+            <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span>
+            <span class="n">loop_condition</span><span class="o">=</span><span class="n">FiteLoopCondition</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I also notice that i misspelled finite. I fix that and then add the parameter to the class. Test passes. Let’s add an actual loop:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This, expectedly, output another loop which I add to the assertion. Perfect!</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    GAMELOOP_INIT =&gt;
+        resolution: (1280, 720)
+        fps: 60
+    GAMELOOP_QUIT =&gt;
+</pre>
+</div>
+</div>
+</div>
+<p>We are not yet using the <code>InfiniteLoopCondition</code>. Let’s change that by adding a <code>create</code> method:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(StartupApplication.create(), StartupApplication)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">StartupApplication</span><span class="p">(</span>
+            <span class="n">loop</span><span class="o">=</span><span class="n">GameLoop</span><span class="o">.</span><span class="n">create</span><span class="p">(),</span>
+            <span class="n">loop_condition</span><span class="o">=</span><span class="n">InifiteLoopCondition</span><span class="p">()</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I also add this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">StartupApplication</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And when I run</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ python startup.py
+</pre>
+</div>
+</div>
+</div>
+<p>It indeed creates a new window every time I close it.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ git commit -a -m 'Add startup entry point and have it loop.'
+[main aadd1a2] Add startup entry point and have it loop.
+ 1 file changed, 60 insertions(+), 5 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="selecting-a-game">Selecting a game</h2>
+<p>What is the simplest possible solution for selecting a game?</p>
+<p>I imagine that the display shows an icon for each game that can be selected. Then you move a cursor over it and press a key to select it.</p>
+<p>I start by getting some games on the screen:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It looks like this:</p>
+<p>
+<center>
+<img src="games.png" title="fig:" alt="Games in startup screen." />
+</center>
+</p>
+<p>I think we also need a cursor:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It looks like this:</p>
+<p>
+<center>
+<img src="cursor.png" title="fig:" alt="Cursor in startup screen." />
+</center>
+</p>
+<p>Now I think two things are missing. The first is that at the press of a button, the game closest to the cursor should start. The second is that you also need to be able to move the cursor.</p>
+<p>I think working on movement is secondary. It is more important to be able to start <strong>one</strong> game instead of nothing. So let’s work on that first.</p>
+<h2 id="starting-a-game">Starting a game</h2>
+<p>I want to write a test for the new behavior, but I find that testing at the top level is tedious and error prone. I would therefore like to start by refactoring and extracting a <code>StartupScene</code> maybe that has an interface that is easier to test. I end up with this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I’m sure this refactoring works because I have tests to cover it.</p>
+<p>Commit!</p>
+<p>Now, let’s see if we can write a test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">When XBOX_A is pressed, I start the game that is closest to the cursor:</span>
+
+<span class="sd">&gt;&gt;&gt; scene = StartupScene()</span>
+<span class="sd">&gt;&gt;&gt; scene.event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">SuperTux</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I make it pass like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This is obviously faking it. It is not supposed to print the name of the game, it is supposed to run it, or, wait a minute. This class is not supposed to run it, the top-level class is.</p>
+<p>Let’s scratch this and start over.</p>
+<h2 id="starting-a-game-again">Starting a game (again)</h2>
+<p>Let’s have a look at the top-level test:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw an application select screen:</span>
+
+<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_TEXT =&gt;</span>
+<span class="sd">    x: 100</span>
+<span class="sd">    y: 100</span>
+<span class="sd">    text: 'SuperTux'</span>
+<span class="sd">DRAW_TEXT =&gt;</span>
+<span class="sd">    x: 100</span>
+<span class="sd">    y: 200</span>
+<span class="sd">    text: 'Balloon Shooter'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'pink'</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_TEXT =&gt;</span>
+<span class="sd">    x: 100</span>
+<span class="sd">    y: 100</span>
+<span class="sd">    text: 'SuperTux'</span>
+<span class="sd">DRAW_TEXT =&gt;</span>
+<span class="sd">    x: 100</span>
+<span class="sd">    y: 200</span>
+<span class="sd">    text: 'Balloon Shooter'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'pink'</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This shows our game loop runs twice, but there is no mention that a command is run. Let’s modify</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>to</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_condition</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TODO: run </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">get_command</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It complains that <code>get_command</code> does not exist. Let’s add it:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We are now getting a somewhat expected test failure:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Differences (ndiff with -expected +actual):
+    + TODO: run ['supertux2']
+    + TODO: run ['supertux2']
+      GAMELOOP_INIT =&gt;
+          resolution: (1280, 720)
+          fps: 60
+      CLEAR_SCREEN =&gt;
+</pre>
+</div>
+</div>
+</div>
+<p>I was thinking to fake this and postpone running the actual command. To do it properly we need an infrastructure wrapper for running commands. I’ll just do it.</p>
+<p>Here is a first faked version:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Instead of printing the command, it sends a notification so that we can assert that the event happens at the right time in the test. That is, we can assert that a command is run after the game loop is quit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>...
+GAMELOOP_QUIT =&gt;
+COMMAND =&gt;
+    command: ['supertux2']
+...
+</pre>
+</div>
+</div>
+</div>
+<p>This works. Let’s commit:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ git commit -a -m 'Run command from StartupScene when game loop is quit.'
+[main 4c47b18] Run command from StartupScene when game loop is quit.
+ 1 file changed, 31 insertions(+), 5 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<p>For this to actually do something, we need to flesh out <code>Command</code>. Here is what I end up with:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;echo&quot;, &quot;hello&quot;])</span>
+
+<span class="sd">    &gt;&gt;&gt; Command.create().run([&quot;command-that-does-not-exist&quot;])</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    FileNotFoundError: [Errno 2] No such file or directory: 'command-that-does-not-exist'</span>
+
+<span class="sd">    &gt;&gt;&gt; Command.create_null().run([&quot;command-that-does-not-exist&quot;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">subprocess</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
+        <span class="k">class</span> <span class="nc">NullSubprocess</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="n">NullSubprocess</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess</span><span class="p">):</span>
+        <span class="n">Observable</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span> <span class="o">=</span> <span class="n">subprocess</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;COMMAND&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>When the startup application is run and then quit, SuperTux is actually started.</p>
+<p>This is actually some real progress.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ git commit -a -m 'Command actually runs commands.'
+[main 270440e] Command actually runs commands.
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="selection-behavior">Selection behavior</h2>
+<p>Let’s review the <code>StartupScene</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We have higher-level tests in place that checks that whatever <code>get_command</code> returns is run when the game loop quits.</p>
+<p>I think it should now be fairly easy to write tests for selection behavior. Let’s first modify the event handler to also exit the game loop when <code>XBOX_A</code> is pressed:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_user_closed_window())</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        gameloop.ExitGameLoop</span>
+
+<span class="sd">        &gt;&gt;&gt; StartupScene().event(GameLoop.create_event_joystick_down(XBOX_A))</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        gameloop.ExitGameLoop</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_A</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Now let’s think about what <code>get_command</code> should return. It should return the command of the game that is closest to the cursor. Let’s write two tests for that:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; scene = StartupScene()</span>
+
+<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=100)</span>
+<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
+<span class="sd">        ['supertux2']</span>
+
+<span class="sd">        &gt;&gt;&gt; scene.move_cursor(x=100, y=200)</span>
+<span class="sd">        &gt;&gt;&gt; scene.get_command()</span>
+<span class="sd">        ['python', '/home/.../agdpp/agdpp.py']</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>It complains that <code>move_cursor</code> does not exist. I add it like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">move_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I also modify the drawing code to use this point for the cursor.</p>
+<p>Now the second test case fails:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Failed example:
+    scene.get_command()
+Differences (ndiff with -expected +actual):
+    - ['python', '/home/.../agdpp/agdpp.py']
+    + ['supertux2']
+</pre>
+</div>
+</div>
+</div>
+<p>I make a quick and dirty fix, because I want to go quickly to green so that I can refactor and generalize the solution:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And this is my favorite state of programming. This is actually where some design happens. I have the safety net of the tests and I can push code around until I think it looks good and the next thing is easy to add.</p>
+<p>Here is what I come up with this time:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Game</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">Game</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">200</span><span class="p">),</span>
+                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;/home/.../agdpp/agdpp.py&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
+            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is the <code>Game</code> class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>This implementation still passes all tests and is also generalized. Nice!</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ git commit -a -m 'Run the command closest to the cursor.'
+[main 921c71f] Run the command closest to the cursor.
+ 1 file changed, 64 insertions(+), 7 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<h2 id="cursor-movement">Cursor movement</h2>
+<p>Next I want to work on cursor movement so that we can actually select different games.</p>
+<p>I’m not quite sure how to write a low-level test for this in <code>GameScene</code>, so I write a top-level test instead:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; StartupApplication.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_joystick_motion(axis=1, value=1.0)],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ],</span>
+<span class="sd">...     iterations=1</span>
+<span class="sd">... ).filter(&quot;DRAW_CIRCLE&quot;)</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'pink'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 501</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'pink'</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We assert that the cursor is drawn in two different positions given a joystick motion event.</p>
+<p>The gist of the implementation is here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_motion</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">get_axis</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">delta</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">delta</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
+<p>The <code>update</code> method did not exist on <code>StartupScene</code> before. The pattern how it is called is here:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupApplication</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startup_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>So the scene will receive these calls in order:</p>
+<ul>
+<li><code>event</code></li>
+<li><code>update</code></li>
+<li><code>draw</code></li>
+</ul>
+<p>This represents one game loop cycle. If this pattern becomes more permanent, we can move the top-level test down to <code>StartupApplication</code> and have that test call <code>event</code> + <code>update</code> and assert that the cursor moved. But for now, I want the confidence that the high-level test gives, that everything is actually working together.</p>
+<p>I also test this in game to fist of all make sure that I got the axis right and also to tweak numbers so that speed feels good. The length check is needed because joystick movement events rarely return a value of 0. If we only move the joystick a tiny bit, we don’t want the cursor to move.</p>
+<p>Also, we should probably add constant names for the axis to not compare to numbers. Maybe <code>XBOX_AXIS_Y</code> for example.</p>
+<p>Anyway, when I try this out, it actually works. I can move the cursor around, and when I press <code>XBOX_A</code> the game closest to the cursor is started.</p>
+<h2 id="finishing-touches">Finishing touches</h2>
+<p>I want to visualize the game that is closest to the cursor. Let’s do it with another color.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">game</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">:</span>
+            <span class="n">game</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_closest_to_cursor</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">game_closest_to_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">games</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">game</span><span class="p">:</span> <span class="n">game</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">,</span> <span class="n">closest</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span> <span class="k">if</span> <span class="n">closest</span> <span class="ow">is</span> <span class="bp">self</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>I modify tests to assert the correct color. This works perfectly.</p>
+<p>Next I want to fix the games that are configured. I want them to display evenly on the screen, and I want to have a “QUIT” game that runs a shutdown command to shut down the Pi.</p>
+<p>Here it is:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">StartupScene</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">games</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Game</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;SuperTux&quot;</span><span class="p">,</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supertux2&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">Game</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Balloon Shooter&quot;</span><span class="p">,</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
+                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python3&quot;</span><span class="p">,</span> <span class="s2">&quot;agdpp.py&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">Game</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;QUIT&quot;</span><span class="p">,</span>
+                <span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">600</span><span class="p">),</span>
+                <span class="n">command</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;shutdown&quot;</span><span class="p">,</span> <span class="s2">&quot;now&quot;</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And it looks like this:</p>
+<p>
+<center>
+<img src="final.png" title="fig:" alt="Final startup screen." />
+</center>
+</p>
+<h2 id="trying-on-the-pi">Trying on the Pi</h2>
+<p>I change the startup script, <code>/etc/xdg/autostart/game_console_start.desktop</code>, to this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>[Desktop Entry]
+Name=Game console start
+Exec=/home/pi/game_console_pc.sh
+</pre>
+</div>
+</div>
+</div>
+<p>Where <code>/home/pi/game_console_pc.sh</code> is this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nb">exec</span> &gt; /home/pi/game_console_pc.log
+
+<span class="nb">exec</span> <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+
+<span class="nb">cd</span> /home/pi/agdpp
+
+<span class="k">for</span> retry <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">5</span> <span class="m">10</span> giveup<span class="p">;</span> <span class="k">do</span>
+	<span class="k">if</span> <span class="o">[</span> <span class="nv">$retry</span> <span class="o">=</span> giveup <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+		<span class="nb">echo</span> giving up
+		<span class="nb">break</span>
+	<span class="k">elif</span> git pull --ff-only<span class="p">;</span> <span class="k">then</span>
+		<span class="nb">break</span>
+	<span class="k">else</span>
+		<span class="nb">echo</span> Retrying <span class="k">in</span> <span class="nv">$retry</span>
+		sleep <span class="nv">$retry</span>
+	<span class="k">fi</span>
+<span class="k">done</span>
+
+python3 startup.py
+</pre>
+</div>
+</div>
+</div>
+<p>And it works beautifully.</p>
+<p>Why did I not test drive this startup script? Good question. I for sure spend some time debugging the loop, which, by the way, is needed to give the Pi time to connect to the wireless network before it can download the latest version of the startup application and balloon shooter.</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>pi@raspberrypi:~ $ cat game_console_pc.log
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
+Retrying in 1
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
+Retrying in 2
+fatal: unable to access 'https://github.com/rickardlindberg/agdpp.git/': Could not resolve host: github.com
+Retrying in 5
+Already up to date.
+</pre>
+</div>
+</div>
+</div>
+<p>I feel like this script is maybe not part of the game itself. So that is one reason why I just “hacked” it together on the Pi. But I’m not entirely happy that it exists only there, and not in some repo, and doesn’t have any tests.</p>
+<p>However, for now, it works fine, but there is another problem. It is not possible to quit the balloon shooter with the gamepad. So once you start it, you are stuck in it.</p>
+<h2 id="add-balloon-shooter-quit">Add balloon shooter quit</h2>
+<p>I modify <code>GameScene</code> by adding a check for <code>XBOX_START</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">is_joystick_down</span><span class="p">(</span><span class="n">XBOX_START</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And by printing events, I figure out the value of <code>XBOX_START</code>:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">XBOX_START</span> <span class="o">=</span> <span class="mi">7</span>
+</pre>
+</div>
+</div>
+</div>
+<h2 id="summary">Summary</h2>
+<p>Finally, I have the first version of the setup that I had in mind.</p>
+<p>I find it a little difficult to document all my thinking in this DevLog format. I feel like I make hundreds of decisions every minute when programming, and writing about all of them seems impossible. I think one solution would be to cover smaller changes in each DevLog. Your questions and commends are very welcome.</p>
+<p>Even if these DevLogs are not valuable to anyone else, they are valuable to me because I get to practice writing and explaining my thinking.</p>
+<p>See you next time!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

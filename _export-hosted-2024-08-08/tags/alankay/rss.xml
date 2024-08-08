@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title>Rickard's personal homepage: latest posts tagged alankay</title>
+        <link>http://rickardlindberg.me</link>
+        <description><![CDATA[Rickard's personal homepage: latest posts tagged alankay]]></description>
+        <atom:link href="http://rickardlindberg.me/tags/alankay/rss.xml" rel="self"
+                   type="application/rss+xml" />
+        <lastBuildDate>Wed, 25 Sep 2019 00:00:00 UT</lastBuildDate>
+        <item>
+    <title>Alan Kay notes</title>
+    <link>http://rickardlindberg.me/writing/alan-kay-notes/</link>
+    <description><![CDATA[<h1>Alan Kay notes</h1>
+
+<p><em>Published on 25 September 2019.</em></p>
+
+<p>Back in 2012 I watched a talk by Alan Kay called <a href="https://youtu.be/YyIQKBzIuBY">Programming and Scaling</a> in which he talks about how software today has gotten so complex that we can’t comprehend it. Ever since then I’ve been interested in his ideas. In this post I summarize notes and quotes that I’ve gathered while studying Kay and related topics. Fogus did a similar post to this called <a href="http://blog.fogus.me/2018/10/25/soup/">Soup</a>.</p>
+<h2 id="how-to-tackle-complexity">How to tackle complexity?</h2>
+<p>In the talk Kay hints at one way to tackle complexity which involves solving problems in higher level languages. After listening to his talk and also reading <a href="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book.html">SICP</a> in university, I had the following though about how to tackle complexity in software:</p>
+<p>Different coordinate systems are suited for different math problems. Choosing the right coordinate system makes the problem easier to solve. The same should be true for programming problems. Each problem probably has an ideal programming language in which it can be solved. The task for a programmer should be to find that language, implement it, and solve the problem in that language.</p>
+<p>The ideal language is found if no accidental complexity is present when the problem is solved in that language. That will also make the problem be expressed in few lines of code. So a crude metric of well written software is its size.</p>
+<h2 id="steps-project">STEPS project</h2>
+<p>Then I found out about the STEPS project (from <a href="http://vpri.org/">VPRI</a>) initiated by Kay in which they try to significantly reduce the number of lines of code required to implement “personal computing”. They do it partly by inventing new languages suited to the problems at hand.</p>
+<p>The best overview of the STEPS project I think is the NSF proposal and the progress reports:</p>
+<ul>
+<li><p><a href="http://www.vpri.org/pdf/rn2006002_nsfprop.pdf">Proposal to NSF – Granted on August 31st 2006</a> (<a href="rn2006002_nsfprop.pdf">mirror</a>)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2007008_steps.pdf">STEPS Toward The Reinvention of Programming</a> (<a href="tr2007008_steps.pdf">mirror</a>) (First Year Progress Report, December 2007.)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2008004_steps08.pdf">STEPS Toward The Reinvention of Programming, 2008 Progress Report Submitted to the National Science Foundation (NSF), October 2008</a> (<a href="tr2008004_steps08.pdf">mirror</a>)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2009016_steps09.pdf">STEPS Toward The Reinvention of Programming, 2009 Progress Report Submitted to the National Science Foundation (NSF) October 2009</a> (<a href="tr2009016_steps09.pdf">mirror</a>)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2010004_steps10.pdf">STEPS Toward Expressive Programming Systems, 2010 Progress Report Submitted to the National Science Foundation (NSF) October 2010</a> (<a href="tr2010004_steps10.pdf">mirror</a>)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2011004_steps11.pdf">Steps Toward Expressive Programming Systems</a> (<a href="tr2011004_steps11.pdf">mirror</a>) (Annual report to the NSF)</p></li>
+<li><p><a href="http://www.vpri.org/pdf/tr2012001_steps.pdf">STEPS Toward the Reinvention of Programming, 2012 Final Report Submitted to the National Science Foundation (NSF) October 2012</a> (<a href="tr2012001_steps.pdf">mirror</a>)</p></li>
+</ul>
+<p>All their writings can be found <a href="http://vpri.org/writings.php">here</a>. Some favorites of mine:</p>
+<ul>
+<li><a href="http://www.vpri.org/pdf/tr2008003_experimenting.pdf">Experimenting With Programming Languages</a> (<a href="tr2008003_experimenting.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/rn2010001_programm.pdf">Programming and Programming Languages</a> (<a href="rn2010001_programm.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/tr2006003a_objmod.pdf">Open Reusable Object Models</a> (<a href="tr2006003a_objmod.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/tr2009002_active_essays.pdf">Active Essays on the Web</a> (<a href="tr2009002_active_essays.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/m2009011_chns_mng.pdf">Chains of meaning in the STEPS system</a> (<a href="m2009011_chns_mng.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/m2013003_ksapps.pdf">Making Applications in KSWorld</a> (<a href="m2013003_ksapps.pdf">mirror</a>)</li>
+<li><a href="http://www.vpri.org/pdf/tr2013002_KSonward.pdf">KScript and KSworld: A Time-Aware and Mostly Declarative Language and Interactive GUI Framework</a> (<a href="tr2013002_KSonward.pdf">mirror</a>)</li>
+</ul>
+<p>The STEPS project has many components. One of them is OMeta (described in <em>Experimenting With Programming Languages</em>) which inspired me to implement <a href="/tags/rlmeta/index.html">RLMeta</a>.</p>
+<p>A blog post series mentioning the STEPS project and related ideas:</p>
+<ul>
+<li><a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-1-of-3.html">Towards Moore’s Law Software: Part 1 of 3</a></li>
+<li><a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-2-of-3.html">Towards Moore’s Law Software: Part 2 of 3</a></li>
+<li><a href="https://www.moserware.com/2008/04/towards-moores-law-software-part-3-of-3.html">Towards Moore’s Law Software: Part 3 of 3</a></li>
+</ul>
+<h2 id="object-oriented-programming">Object oriented programming</h2>
+<p>Kay invented the term object oriented. But I get the feeling that mainstream object oriented programming today is not what he meant it to be. I tried to figure out what he meant it to be. Here are some quotes that I found relevant:</p>
+<p>From Kay from <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/">The Early History Of Smalltalk - Bret Victor</a>:</p>
+<blockquote>
+<p>Somewhere in all of this, I realized that the bridge to an object-based system could be in terms of each object as a syntax directed interpreter of messages sent to it. In one fell swoop this would unify object-oriented semantics with the ideal of a completely extensible language. The mental image was one of separate computers sending requests to other computers that had to be accepted and understood by the receivers before anything could happen. In today’s terms every object would be a server offering services whose deployment and discretion depended entirely on the server’s notion of relationship with the servee.</p>
+</blockquote>
+<p>From Kay from <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/">The Early History Of Smalltalk - Bret Victor</a>:</p>
+<blockquote>
+<p>Again, the whole point of OOP is not to have to worry about what is inside an object. Objects made on different machines and with different languages should be able to talk to each other—and will have to in the future. Late-binding here involves trapping incompatibilities into recompatibility methods—a good discussion of some of the issues is found in [Popek 1984].</p>
+</blockquote>
+<p>From Kay from <a href="http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html">prototypes vs classes was: Re: Sun’s HotSpot</a>:</p>
+<blockquote>
+<p>Just a gentle reminder that I took some pains at the last OOPSLA to try to remind everyone that Smalltalk is not only NOT its syntax or the class library, it is not even about classes. I’m sorry that I long ago coined the term “objects” for this topic because it gets many people to focus on the lesser idea.</p>
+<p>The big idea is “messaging” – that is what the kernal of Smalltalk/Squeak is all about (and it’s something that was never quite completed in our Xerox PARC phase).</p>
+</blockquote>
+<p>From Kay from <a href="http://www.purl.org/stefan_ram/pub/doc_kay_oop_en">Dr. Alan Kay on the Meaning of “Object-Oriented Programming”</a>:</p>
+<blockquote>
+<p>I thought of objects being like biological cells and/or individual computers on a network, only able to communicate with messages (so messaging came at the very beginning – it took a while to see how to do messaging in a programming language efficiently enough to be useful).</p>
+</blockquote>
+<p>From Kay from <a href="http://www.purl.org/stefan_ram/pub/doc_kay_oop_en">Dr. Alan Kay on the Meaning of “Object-Oriented Programming”</a>:</p>
+<blockquote>
+<p>I wanted to get rid of data. The B5000 almost did this via its almost unbelievable HW architecture. I realized that the cell/whole-computer metaphor would get rid of data, and that “&lt;-” would be just another message token (it took me quite a while to think this out because I really thought of all these symbols as names for functions and procedures.</p>
+</blockquote>
+<p>From Kay from <a href="http://www.purl.org/stefan_ram/pub/doc_kay_oop_en">Dr. Alan Kay on the Meaning of “Object-Oriented Programming”</a>:</p>
+<blockquote>
+<p>The original Smalltalk at Xerox PARC came out of the above. The subsequent Smalltalk’s are complained about in the end of the History chapter: they backslid towards Simula and did not replace the extension mechanisms with safer ones that were anywhere near as useful.</p>
+</blockquote>
+<p>From Kay from <a href="http://www.purl.org/stefan_ram/pub/doc_kay_oop_en">Dr. Alan Kay on the Meaning of “Object-Oriented Programming”</a>:</p>
+<blockquote>
+<p>OOP to me means only messaging, local retention and protection and hiding of state-process, and extreme late-binding of all things. It can be done in Smalltalk and in LISP. There are possibly other systems in which this is possible, but I’m not aware of them.</p>
+</blockquote>
+<p>From a user in the <a href="https://news.ycombinator.com/item?id=19415983">Hacker News thread</a> discussing the above article:</p>
+<blockquote>
+<p>Containers are a validation of Kay’s idea that sharing encapsulated objects is easier than sharing data.</p>
+</blockquote>
+<p>From a user in the <a href="https://news.ycombinator.com/item?id=19415983">Hacker News thread</a> discussing the above article:</p>
+<blockquote>
+<p>Because a lot of people (including me) have a Simula based view of “object oriented”, we tend to think of objects as data structures with functions attached to them. Alan Kay had a different view, as far as I can tell. He viewed objects as being a collection of abilities. You could invoke these abilities by sending the object a “message”. How you send that message is irrelevant. The important thing is that the object is not a collection of data, but rather the object contains the program state necessary to provide the ability (and nothing more). One of the things he talks about (I can’t remember if he does in this specific email exchange, though) is the idea that once the data is inside the object, you can’t actually access it any more. It becomes a detail that the programmer doesn’t have to worry about.</p>
+</blockquote>
+<p>From a user in the <a href="https://news.ycombinator.com/item?id=19415983">Hacker News thread</a> discussing the above article:</p>
+<blockquote>
+<p>Smalltalk had to cut corners with messaging due to the limited processing of the time, nevertheless it has fully reified messages; one can express the sending of messages between objects.</p>
+<p>Smalltalk inspired Erlang, which is the fully-asynchronous messaging/independent threads of execution part of OO only.</p>
+<p>Self did OO without inheritance (composition by prototypes).</p>
+</blockquote>
+<h2 id="late-binding">Late binding</h2>
+<p>Late-binding is another idea that Kay talks about that I want to understand better.</p>
+<p>From Kay from <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/">The Early History Of Smalltalk - Bret Victor</a>:</p>
+<blockquote>
+<p>Staying with the metaphor of late-binding, what further late-binding schemes might we expect to see? One of the nicest late-binding schemes that is being experimented with is the metaobject protocol work at Xerox PARC [Kiczales 1991]. The notion is that the language designer’s choice for the internal representation of instances, variables, etc., may not cover what the implementer needs, so within a fixed semantics they allow the implementer to give the system strategies—for example, using a hashed lookup for slots in an instance instead of direct indexing. These are then efficiently compiled and extend the base implementation of the system.</p>
+</blockquote>
+<h2 id="direct-manipulation">Direct manipulation</h2>
+<p>From Kay from <a href="https://www.quora.com/What-exactly-is-WYSIWYG/answer/Alan-Kay-11">What exactly is WYSIWYG?</a>:</p>
+<blockquote>
+<p>In programming, you don’t want to go through a edit in an editor, submit to a compiler, which submits to a loader, which requires your system to intiialize, and so forth. You just want to be able to deal directly and safely with what you are trying to achieve.</p>
+</blockquote>
+<p>A related idea about no modes is presented by Larry Tesler in <a href="http://worrydream.com/refs/Tesler%20-%20A%20Personal%20History%20of%20Modeless%20Text%20Editing%20and%20Cut-Copy-Paste.pdf">A Personal History of Modeless Text Editing and Cut/Copy-Paste</a>.</p>
+<h2 id="random-topics">Random topics</h2>
+<p>Other topics that I got from Kay:</p>
+<ul>
+<li>What vs. How Programming: State the problem, then let the computer solve the problem: what programming instead of how programming.</li>
+<li>Living in the Future: University students need powerful machines so that they can code like they live in the future. So that they can code without caring about optimizations.</li>
+<li>Most people can only see the future through the past.</li>
+<li>Learning to See:
+<ul>
+<li>Drawing without “parsing” the object.</li>
+<li>Turn it upside down and just draw it like you see it.</li>
+<li>Measure instead of perceive.</li>
+</ul></li>
+<li>Engineering Vs. Science Vs. Tinkering.</li>
+<li>T-shirt Programming.</li>
+<li>Meta Language.</li>
+<li>Computing History.</li>
+<li>Inventing Future.</li>
+</ul>
+<h2 id="further-reading">Further reading</h2>
+<ul>
+<li><a href="https://news.ycombinator.com/item?id=11808551">Ask HN: Relationship between OO and functional programming?</a></li>
+<li><a href="https://news.ycombinator.com/item?id=11939851">Alan Kay has agreed to do an AMA today</a></li>
+<li><a href="http://www.chilton-computing.org.uk/inf/pdfs/kay.htm">The Reactive Engine</a></li>
+<li><a href="https://www.youtube.com/results?search_query=alan+kay">Alan Kay search on Youtube</a></li>
+<li><a href="https://github.com/d-cook/SomethingNew">SomethingNew</a></li>
+</ul>
+]]></description>
+    <pubDate>Wed, 25 Sep 2019 00:00:00 UT</pubDate>
+    <guid>http://rickardlindberg.me/writing/alan-kay-notes/</guid>
+    <dc:creator>Rickard Lindberg</dc:creator>
+</item>
+
+    </channel>
+</rss>

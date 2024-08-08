@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>
+      Demo and game idea | Rickard Lindberg
+    </title>
+
+    <!-- Bootstrap -->
+    <link href="../../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <meta name="keywords" content="programming, writing" />
+    <meta name="description" content="Rickard Lindberg">
+    <link rel="stylesheet" href="../../static/layout.css" type="text/css">
+    <link rel="stylesheet" href="../../static/syntax.css" type="text/css">
+    <link rel="alternate" href="../../atom.xml" type="application/atom+xml" title="Atom feed">
+    <link rel="alternate" href="../../rss.xml" type="application/rss+xml" title="RSS feed">
+    <link rel="me" href="https://hachyderm.io/@rickardlindberg">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../../">rickardlindberg.me</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li><a href="../../">Home</a></li>
+            <li><a href="../../writing/">Writing</a></li>
+            <li><a href="../../writing/newsletter/">Newsletter</a></li>
+            <li><a href="../../projects/">Projects</a></li>
+            <li><a href="../../contact/">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <h1>Demo and game idea</h1>
+
+<p><em>Published on 24 April 2023 in <a href="../../projects/agdpp/">Agile Game Development with Python and Pygame</a>.</em></p>
+
+<p>In this episode we demo the “game” for our customer. We get some feedback on it and start evolving the game to meet our customer’s vision.</p>
+<h2 id="video-version">Video version</h2>
+<p>The video version of this episode:</p>
+<center>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/z20IocFrKLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
+</center>
+<h2 id="demo">Demo</h2>
+<p>I mentioned to my son that I had started working on a game. He wanted to see it. I told him that there isn’t much to play yet, but that I can show him what it looks like.</p>
+<p>I started the “game” and he watched the circle going back and forth.</p>
+<p>For reference, this is what the “game” looks like now:</p>
+<center>
+<img src="animation.png" title="fig:" alt="Animated circle." />
+</center>
+<p>Then he tried to interact with the circle. He grabbed the mouse and clicked away and was disappointed that nothing happened. I told him that you can’t do anything yet, that it’s just an animation.</p>
+<p>He looked at me sad and said “Dad, this game is boring.”</p>
+<p>Initially I wasn’t planning on showing him the game because in this early stage there is not much to play, and I knew he was not going to like it. Did I ruin it?</p>
+<p>Then I asked him, “What would you like to do with the circle?”</p>
+<p>The sadness in his face disappeared and he started talking about balloons. He said that he wanted the circle to be a balloon and that he wanted to shoot down balloons with arrows.</p>
+<p>I think we have an idea for a game.</p>
+<h2 id="on-early-feedback">On early feedback</h2>
+<p>My initial idea for the game was some kind of tetris variant. I was thinking that you have two boards and that you could help each other out by clearing blocks on each other’s boards. Cooperation seems more fun that competition.</p>
+<p>Turns out, the customer wants a balloon shooter. If we hadn’t shown the demo, we might have never found that out.</p>
+<h2 id="simplest-possible-version">Simplest possible version</h2>
+<p>In the spirit of <a href="https://www.artima.com/articles/the-simplest-thing-that-could-possibly-work#part3">Ward</a> we ask ourselves what the simplest possible balloon shooter could look like. What is the absolute minimum version that I can give to my son and he can somewhat enjoy playing or at least recognize as a balloon shooter? (The goal is to create a game that <em>we</em> can enjoy playing together. That means some kind of multiplayer mode. But that is another for a later story.)</p>
+<p>Here is what I’m thinking:</p>
+<ul>
+<li>1 balloon falling down the screen</li>
+<li>1 arrow pointing in a fixed direction</li>
+<li>1 button to shoot that single arrow</li>
+<li>Then game over</li>
+</ul>
+<p>So the only challenge will be to fire the arrow at the right time for it to hit the balloon. You will either hit and get a point or miss and it’ll be game over.</p>
+<p>Oh, and circles for the graphics is probably fine. The balloon can be drawn with one big circle, and the arrow maybe with three smaller circles in a row. If I tell my son to imagine they are balloons and arrows, I think he’ll accept that.</p>
+<h2 id="first-story">First story</h2>
+<p>To make progress towards a balloon shooter, I want to work on a story that is about drawing a balloon and an arrow. Create the initial scene of the game sort of.</p>
+<p>Our game already animates a circle. Let’s put all behavior related to that circle into its own class called <code>Balloon</code>. Here is how our game <code>tick</code> method looks like now:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>After we extract the balloon class, it looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>And here is the balloon class:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Balloon</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Any behavior that the balloon should have, we can now test at this lower level. We can instantiate a balloon, call its tick method, and observe that the right thing happens. There is no need to involve the game or the game loop. (At least if we accept exposing somewhat internal state like the x variable.)</p>
+<p>With the balloon object in place, it is natural to create a new object called <code>Arrow</code> for our other piece in the balloon shooter game. We create a version that just draws a circle:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We make sure it is included in the game by modifying the tick method of the game to also tick and draw the arrow:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tick</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We notice a pattern here. It seems like the responsibility of the game is to call tick and draw on a set of objects. In games (or in Pygame) those objects are referred to as sprites. My understanding is that a sprite is any visual element that shows up in the game.</p>
+<p>We refactor our game to reflect this new understanding:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
+<p>Is our game class just becoming a thing layer of loops? Can we move some of that responsibility to the game loop? I’m not certain yet, so we will leave it like this for now.</p>
+<p>If we run the game now, this is what we see:</p>
+<center>
+<img src="scene1.png" title="fig:" alt="First scene of balloon shooter." />
+</center>
+<p>Not very pretty. What is that?</p>
+<p>Let’s see if we can improve the drawing of the arrow. But remember, not perfection, but improvement. If I look at the game now, I don’t get an idea what the game is about. We just want to make the arrow slightly more realistic to convey the meaning of the object. We are still restricted to drawing circles. The current <code>draw_circle</code> looks like this:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="mi">40</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>That’s stupid! Why is there no ability to specify anything but the x-coordinate? Well, until now, we haven’t needed that. Now that we do need it, let’s add it. No biggie:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_CIRCLE&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">radius</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We experiment with three circles for the arrow and tweak the numbers until we think it looks good. Here is the result:</p>
+<center>
+<img src="scene2.png" title="fig:" alt="Improved drawing of arrow." />
+</center>
+<p>I don’t know about you, but when I see this, I want to press a button to fire that arrow so it hits the balloon. I’m convinced this is a balloon shooter now. I hope our customer is as well.</p>
+<p>Right, balloon shooter. Before we didn’t know what game we should write, so our game class was just called <code>Game</code>. Let’s fix that:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span> from gameloop import GameLoop
+ 
+<span class="gd">-class Game:</span>
+<span class="gi">+class BalloonShooter:</span>
+</pre>
+</div>
+</div>
+</div>
+<p>There! Now the code more accurately represent the ideas that we have in our minds about this game.</p>
+<p>I forget to mention anything about testing. (For the complete workflow, check out the video.) But here is what the test for the balloon shooter looks like now:</p>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
+<span class="sd">arrow and quit when the user closes the window.</span>
+
+<span class="sd">&gt;&gt;&gt; loop = GameLoop.create_null(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">&gt;&gt;&gt; events = loop.track_events()</span>
+<span class="sd">&gt;&gt;&gt; BalloonShooter(loop).run()</span>
+<span class="sd">&gt;&gt;&gt; events</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">    y: 50</span>
+<span class="sd">    radius: 40</span>
+<span class="sd">    color: 'red'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 520</span>
+<span class="sd">    radius: 15</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 540</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<p>We both changed the description, becasue we have a balloon shooter now, not a generic game, and added checks for it drawing both the balloon and the arrow.</p>
+<p>It might be too specific to assert on exact coordinates here. We have to visually inspect the output and see if we think it looks good. That’s what I did here. And when I was happy, I copied the coordinates into the test.</p>
+<h2 id="summary">Summary</h2>
+<p>We have completed a first vertical slice of our balloon shooter. There is now a balloon and an arrow on the screen. This is new behavior that we could show to our customer and get feedback on. Perhaps he doesn’t like the position of the arrow. If so, we can adjust. Perhaps he can’t imagine that the circle is actually a balloon. If so, we can work on improving the graphics.</p>
+<p>What else do we think we need before we have the first version of the balloon shooter?</p>
+<ul>
+<li>Balloon moves downwards</li>
+<li>Arrow animates when shot</li>
+<li>Arrow can hit balloon</li>
+<li>Point is given for hit</li>
+<li>Game over when miss</li>
+<li>Real graphics instead of circles</li>
+</ul>
+<p>Which one is the most important one to work on next? We’ll tackle that one in the next episode!</p>
+<p>You can browse the <a href="https://github.com/rickardlindberg/agdpp/tree/initial-balloon-shooter-story">complete source code</a> from this episode.</p>
+<p>See you!</p>
+
+      <div class="jumbotron">
+<div class="row">
+<div class="col-md-12">
+
+<p>What is Rickard working on and thinking about <strong>right
+now</strong>?</p>
+
+<p>Every month I write a <em>newsletter</em> about just that. You will get
+updates about my <em>current projects</em> and <em>thoughts about
+programming</em>, and also get a chance to hit reply and <em>interact</em> with
+me. Subscribe to it below.</p>
+
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<iframe scrolling="no" style="width:100%!important;height:220px;border:1px #ccc solid !important" src="https://buttondown.email/rickardlindberg?as_embed=true"></iframe>
+</div>
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>
