@@ -3,6 +3,9 @@
 import os
 import re
 import shutil
+import subprocess
+
+POSTS_BY_DATE = {}
 
 def process_file(path):
     with open(path) as f:
@@ -45,44 +48,44 @@ def process_export_data_parsed(data):
         assert data["url"].startswith("/")
         export_dir = f"./export{os.path.dirname(data['url'])}"
         os.makedirs(export_dir)
-        with open(os.path.join(export_dir, "index.markdown"), "w") as f_out:
+        export_path = os.path.join(export_dir, "index.markdown")
+        if header["date"] not in POSTS_BY_DATE:
+            POSTS_BY_DATE[header["date"]] = []
+        POSTS_BY_DATE[header["date"]].append(export_path)
+        with open(export_path, "w") as f_out:
             f_out.write("---\n")
             for key, value in header.items():
                 f_out.write(f"{key}: {value}")
+            archive = f"http://archive.rickardlindberg.me{os.path.dirname(data['url'])}/"
             f_out.write("---\n")
-            f_out.write(filter_rliterate(fix_image_links(f.read(), header["url"].strip())))
+            f_out.write("\n")
+            f_out.write("This post has not yet been imported to my new blog.\n")
+            f_out.write("\n")
+            f_out.write(f"In the meantime, you can read it here: [{archive}]({archive}).\n")
         print(export_dir)
 
-def filter_rliterate(text):
-    if '"rliterate-code"' in text:
-        return "TODO: fix this import"
-    else:
-        return text
-
-def fix_image_links(text, prefix):
-    def replace(x):
-        pre = x.group(1)
-        filename = x.group(2)
-        post = x.group(3)
-        if filename.startswith("/"):
-            return pre + filename + post
-        else:
-            return pre + prefix + filename + post
-    text = re.sub(
-        r'(")([^"]*[.](?:png|jpg|gif))(")',
-        replace,
-        text
-    )
-    text = re.sub(
-        r'([(])([^()]*[.](?:png|jpg|gif))([)])',
-        replace,
-        text
-    )
-    return text
+def patch_time(index, path):
+    lines = []
+    with open(path) as f:
+        for line in f:
+            if line.startswith("date:"):
+                print(f"patch {index} {path}")
+                lines.append(f"{line.strip()} 0{index}:00\n")
+            else:
+                lines.append(line)
+    with open(path, "w") as f:
+        f.write("".join(lines))
 
 shutil.rmtree("./export", ignore_errors=True)
+shutil.rmtree("export.zip", ignore_errors=True)
 for (path, dirs, files) in os.walk("_site"):
     for file in files:
         if file.endswith(".html"):
             process_file(os.path.join(path, file))
+for date, files in POSTS_BY_DATE.items():
+    if len(files) > 1:
+        print(date)
+        for index, fi in enumerate(files):
+            patch_time(index, fi)
+subprocess.check_call("zip -r export.zip export/", shell=True)
 print("Done!")

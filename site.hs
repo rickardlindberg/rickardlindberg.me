@@ -275,8 +275,7 @@ rulesPostIndexPandocWithOwnTitle isBuildTargetWebserver = do
         route $ setExtension "html"
         compile $ myPandocCompiler
             >>= saveSnapshot "postContentOnly"
-            >>= loadAndApplyTemplate "templates/default.html" context
-            >>= processUrls isBuildTargetWebserver
+            >>= loadAndApplyTemplate "templates/export.data" context
     where
         context = contextBase isBuildTargetWebserver
 
