@@ -24,6 +24,13 @@ def process_export_data(f):
         "date": date,
     })
 
+def add_tag(headers, tag):
+    if "tags" not in headers:
+        tags = [tag]
+    else:
+        tags = headers["tags"].strip().split(",") + [tag]
+    headers["tags"] = ",".join(tags) + "\n"
+
 def process_export_data_parsed(data):
     with open(data["path"].strip()) as f:
         assert f.readline().strip()
@@ -52,6 +59,12 @@ def process_export_data_parsed(data):
         if header["date"] not in POSTS_BY_DATE:
             POSTS_BY_DATE[header["date"]] = []
         POSTS_BY_DATE[header["date"]].append(export_path)
+        if "thought-of-the-day/2013" in export_path:
+            add_tag(header, "totd1")
+        if "thought-of-the-day/2014" in export_path:
+            add_tag(header, "totd2")
+        if "writing/reflections-on-programming" in export_path:
+            add_tag(header, "rop")
         with open(export_path, "w") as f_out:
             f_out.write("---\n")
             for key, value in header.items():
