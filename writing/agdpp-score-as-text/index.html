@@ -73,83 +73,125 @@
 <h2 id="drawing-text">Drawing text</h2>
 <p>The reason that we implemented score display with point markers was that it was quicker. There was no way to draw text and it was therefore quicker to use point markers. But that has to change now. Let’s see if we can draw some text.</p>
 <p>We start by adding a test case to the top-level, initial state test that asserts that the text ‘0’ is drawn on the screen:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">    I am a balloon shooter game!</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">    Initial state</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">    =============</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">    We run the game for a few frames, then quit:</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">    ...     events=[</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">    ...         [],</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">    ...         [GameLoop.create_event_user_closed_window()],</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">    ...     ]</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">    ... )</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a><span class="co">    ...</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a><span class="co">    The score is drawn:</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; set(events.filter(&quot;DRAW_TEXT&quot;).collect(&quot;text&quot;))</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true"></a><span class="co">    {('0',)}</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I am a balloon shooter game!</span>
+
+<span class="sd">    Initial state</span>
+<span class="sd">    =============</span>
+
+<span class="sd">    We run the game for a few frames, then quit:</span>
+
+<span class="sd">    &gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">    ...     events=[</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [],</span>
+<span class="sd">    ...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">    ...     ]</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    The score is drawn:</span>
+
+<span class="sd">    &gt;&gt;&gt; set(events.filter(&quot;DRAW_TEXT&quot;).collect(&quot;text&quot;))</span>
+<span class="sd">    {('0',)}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This fails because there is no event <code>DRAW_TEXT</code> yet.</p>
 <p>We add a method to draw text and have it emit a <code>DRAW_TEXT</code> event like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    ...</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="kw">def</span> draw_text(<span class="va">self</span>, position, text):</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        <span class="va">self</span>.notify(<span class="st">&quot;DRAW_TEXT&quot;</span>, {</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>            <span class="st">&quot;x&quot;</span>: position.x,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>            <span class="st">&quot;y&quot;</span>: position.y,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>            <span class="st">&quot;text&quot;</span>: text,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        })</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>        f <span class="op">=</span> <span class="va">self</span>.pygame.font.Font(size<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>        surface <span class="op">=</span> f.render(text, <span class="va">True</span>, <span class="st">&quot;black&quot;</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>        <span class="va">self</span>.screen.blit(surface, (position.x, position.y))</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DRAW_TEXT&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We test the pygame code manually to ensure that we use the text drawing api correctly and that text appears on the screen.</p>
 <h2 id="keeping-track-of-score-to-draw">Keeping track of score to draw</h2>
 <p>Before we kept track of the score by adding point markers to a sprite group. We replace this sprite group with a new <code>Score</code> object:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="st">-        self.points = self.add(SpriteGroup())</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="va">+        self.score = self.add(Score())</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-        self.points = self.add(SpriteGroup())</span>
+<span class="gi">+        self.score = self.add(Score())</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Instead of adding point markers, we just add a number to increase the score:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="st">-                    self.points.add(PointMarker(position=Point(</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="st">-                        x=20+len(self.points.get_sprites())*12,</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="st">-                        y=700</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="st">-                    )))</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="va">+                    self.score.add(1)</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-                    self.points.add(PointMarker(position=Point(</span>
+<span class="gd">-                        x=20+len(self.points.get_sprites())*12,</span>
+<span class="gd">-                        y=700</span>
+<span class="gd">-                    )))</span>
+<span class="gi">+                    self.score.add(1)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>The <code>Score</code> class looks like this:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">class</span> Score:</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>        <span class="va">self</span>.score <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    <span class="kw">def</span> add(<span class="va">self</span>, points):</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>        <span class="va">self</span>.score <span class="op">+=</span> points</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a>        <span class="cf">pass</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>        loop.draw_text(position<span class="op">=</span>Point(x<span class="op">=</span><span class="dv">1100</span>, y<span class="op">=</span><span class="dv">20</span>), text<span class="op">=</span><span class="bu">str</span>(<span class="va">self</span>.score))</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Score</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="adapting-tests">Adapting tests</h2>
 <p>We already have tests that make sure that we count the score correctly. We have to modify them slightly to look at the score number instead of counting point markers in the sprite group. We change them like this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="st">-    &gt;&gt;&gt; game.get_points()</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="st">-    []</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="va">+    &gt;&gt;&gt; game.get_score()</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="va">+    0</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gd">-    &gt;&gt;&gt; game.get_points()</span>
+<span class="gd">-    []</span>
+<span class="gi">+    &gt;&gt;&gt; game.get_score()</span>
+<span class="gi">+    0</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Now all tests pass and the score is displayed with text instead of point markers. Success!</p>
 <h2 id="summary">Summary</h2>
 <p>This change went rather smoothly. Adding functionality to draw text was not that much work. Perhaps we could just as well have done that from the start. But point markers felt easier at the time.</p>

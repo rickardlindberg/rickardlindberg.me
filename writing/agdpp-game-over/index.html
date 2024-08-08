@@ -113,29 +113,36 @@
 <p>On the other hand, it makes sense, from a gameplay perspective, to talk about arrows going off the screen as being deactivated. Otherwise it might be that they come back after a while, but now instead move downwards.</p>
 <h2 id="how-to-write-the-tests">How to write the tests?</h2>
 <p>All tests for our game are currently written at the top-level. Here is the test that checks for behavior when we press the space key:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">We run the game for a few frames, press the space key, let it run for a few</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">frames, then quit:</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">...     events=[</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_keydown_space()],</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="co">...     ]</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co">... )</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="co">The arrow moves:</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
+<span class="sd">frames, then quit:</span>
+
+<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+
+<span class="sd">The arrow moves:</span>
+
+<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
+<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We filter out <code>DRAW_CIRCLE</code> events with radius 10 with the assumption that the only circle drawn with radius 10 is the arrow head.</p>
 <p>This test assumes only one arrow.</p>
 <p>If we were to draw another arrow, there would be no way of identifying the two different arrows in this test.</p>
@@ -144,98 +151,140 @@
 <p>Let’s see if we can make a new attempt at extracting a subsystem where this new behavior is easier to test.</p>
 <h2 id="sprite-group-and-game-scene-refactoring">Sprite group and game scene refactoring</h2>
 <p>Our game currently looks like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        ...</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>        <span class="va">self</span>.balloon <span class="op">=</span> Balloon()</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        <span class="va">self</span>.arrow <span class="op">=</span> Arrow()</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>        <span class="va">self</span>.sprites <span class="op">=</span> [<span class="va">self</span>.balloon, <span class="va">self</span>.arrow]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> events:</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>            <span class="cf">if</span> event.is_user_closed_window():</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>                <span class="va">self</span>.loop.quit()</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>            <span class="cf">elif</span> event.is_keydown_space():</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>                <span class="va">self</span>.arrow.shoot()</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>        <span class="cf">for</span> sprite <span class="kw">in</span> <span class="va">self</span>.sprites:</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>            sprite.tick(dt)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>        <span class="va">self</span>.loop.clear_screen()</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>        <span class="cf">for</span> sprite <span class="kw">in</span> <span class="va">self</span>.sprites:</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>            sprite.draw(<span class="va">self</span>.loop)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sprite</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">:</span>
+            <span class="n">sprite</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I have an idea for how to push much of this logic down one level so that it can more easily be tested. Let’s give it a try.</p>
 <p>We keep all our sprites in a list. Managing a list of sprites seems like a good job for a new class. We create a <code>SpriteGroup</code> class that works like this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; class TestSprite:</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="co">...     def update(self, dt):</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">...         print(f&quot;TEST SPRITE update {dt}&quot;)</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="co">...     def draw(self, loop):</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="co">...         print(f&quot;TEST SPRITE draw {loop}&quot;)</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; group = SpriteGroup([TestSprite()])</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; x = TestSprite()</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; y = group.add(x)</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; x is y</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; group.update(4)</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a><span class="al">TEST</span><span class="co"> SPRITE update 4</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a><span class="al">TEST</span><span class="co"> SPRITE update 4</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; group.draw(None)</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a><span class="al">TEST</span><span class="co"> SPRITE draw None</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true"></a><span class="al">TEST</span><span class="co"> SPRITE draw None</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; class TestSprite:</span>
+<span class="sd">...     def update(self, dt):</span>
+<span class="sd">...         print(f&quot;TEST SPRITE update {dt}&quot;)</span>
+<span class="sd">...     def draw(self, loop):</span>
+<span class="sd">...         print(f&quot;TEST SPRITE draw {loop}&quot;)</span>
+
+<span class="sd">&gt;&gt;&gt; group = SpriteGroup([TestSprite()])</span>
+<span class="sd">&gt;&gt;&gt; x = TestSprite()</span>
+<span class="sd">&gt;&gt;&gt; y = group.add(x)</span>
+<span class="sd">&gt;&gt;&gt; x is y</span>
+<span class="sd">True</span>
+
+<span class="sd">&gt;&gt;&gt; group.update(4)</span>
+<span class="sd">TEST SPRITE update 4</span>
+<span class="sd">TEST SPRITE update 4</span>
+
+<span class="sd">&gt;&gt;&gt; group.draw(None)</span>
+<span class="sd">TEST SPRITE draw None</span>
+<span class="sd">TEST SPRITE draw None</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>A sprite is any object that can respond to <code>update</code> and <code>draw</code> calls. When we update and draw the sprite group, it calls the corresponding methods on all its sprites.</p>
 <p>We can use this new class in our game like this:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        ...</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>        <span class="va">self</span>.balloon <span class="op">=</span> Balloon()</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>        <span class="va">self</span>.arrow <span class="op">=</span> Arrow()</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        <span class="va">self</span>.all_sprites <span class="op">=</span> SpriteGroup([<span class="va">self</span>.balloon, <span class="va">self</span>.arrow])</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> events:</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>            <span class="cf">if</span> event.is_user_closed_window():</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>                <span class="va">self</span>.loop.quit()</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>            <span class="cf">elif</span> event.is_keydown_space():</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>                <span class="va">self</span>.arrow.shoot()</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>        <span class="va">self</span>.all_sprites.update(dt)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>        <span class="va">self</span>.loop.clear_screen()</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>        <span class="va">self</span>.all_sprites.draw(<span class="va">self</span>.loop)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="n">Balloon</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="n">Arrow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span> <span class="o">=</span> <span class="n">SpriteGroup</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sprites</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Not much of a difference. Mainly we moved the looping over the sprites from our game to the sprite group class. I think this is a bit cleaner, but it makes testing no easier.</p>
 <p>But we are not done yet. Now, let’s extract a lower level object that we call <code>GameScene</code>.</p>
 <p>The init of the game then changes to this:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, loop):</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    ...</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="va">self</span>.game_scene <span class="op">=</span> GameScene()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span> <span class="o">=</span> <span class="n">GameScene</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>And the tick method changes to this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>    <span class="cf">for</span> event <span class="kw">in</span> events:</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>        <span class="va">self</span>.game_scene.event(event)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>    <span class="va">self</span>.game_scene.update(dt)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    <span class="va">self</span>.loop.clear_screen()</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>    <span class="va">self</span>.game_scene.draw(<span class="va">self</span>.loop)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">clear_screen</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">game_scene</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>That is, we defer event handling, updating, and drawing to the game scene.</p>
 <p>The game scene looks like this:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>        SpriteGroup.<span class="fu">__init__</span>(<span class="va">self</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>        <span class="va">self</span>.balloon <span class="op">=</span> <span class="va">self</span>.add(Balloon())</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>        <span class="va">self</span>.arrow <span class="op">=</span> <span class="va">self</span>.add(Arrow())</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>    <span class="kw">def</span> event(<span class="va">self</span>, event):</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>        <span class="cf">if</span> event.is_user_closed_window():</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>            <span class="cf">raise</span> ExitGameLoop()</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>        <span class="cf">elif</span> event.is_keydown_space():</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>            <span class="va">self</span>.arrow.shoot()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Balloon</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ExitGameLoop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>It inherits from <code>SpriteGroup</code> so it gets the <code>update</code> and <code>draw</code> “for free”. And the event handling code is extracted from game. (Since the <code>event</code> method does not have access to the game loop, we can’t call <code>loop.quit()</code> to exit, so we instead raise the exception that <code>loop.quit()</code> would have raised. Initially I thought it would be nice if the loop hide the quit mechanism, and so I did not want to expose the exception. That made this part difficult to write, so I reverted that decision. We constantly adapt the design to the current needs. Perhaps hiding was not the right decision? Or perhaps it was. This will do for now.)</p>
 <p>Now that we have a new lower-level object, has testing become any easier?</p>
 <h2 id="slow-progress">Slow progress</h2>
@@ -246,44 +295,58 @@
 <h2 id="state-based-testing">State based testing</h2>
 <p>Let’s see how we can test our lower-level game scene object. It is now responsible for some behavior that the balloon shooter class was previously responsible for, so we should be able to write some tests that check the same behavior.</p>
 <p>Let’s try initial state: the balloon should animate and the arrow should stay still. Here are tests for that:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="co">    Initial state</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="co">    =============</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a><span class="co">    The balloon animates:</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game = GameScene()</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; first_position = game.get_balloon_position()</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game.update(10)</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; second_position = game.get_balloon_position()</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; first_position == second_position</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a><span class="co">    False</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a><span class="co">    The arrow stays still:</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game = GameScene()</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; first_position = game.get_arrow_position()</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; game.update(10)</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; second_position = game.get_arrow_position()</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; first_position == second_position</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true"></a><span class="co">    True</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true"></a></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initial state</span>
+<span class="sd">    =============</span>
+
+<span class="sd">    The balloon animates:</span>
+
+<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">    &gt;&gt;&gt; first_position = game.get_balloon_position()</span>
+<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
+<span class="sd">    &gt;&gt;&gt; second_position = game.get_balloon_position()</span>
+<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
+<span class="sd">    False</span>
+
+<span class="sd">    The arrow stays still:</span>
+
+<span class="sd">    &gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">    &gt;&gt;&gt; first_position = game.get_arrow_position()</span>
+<span class="sd">    &gt;&gt;&gt; game.update(10)</span>
+<span class="sd">    &gt;&gt;&gt; second_position = game.get_arrow_position()</span>
+<span class="sd">    &gt;&gt;&gt; first_position == second_position</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We create a game scene, query some of its state, update it, query some it its state again and make some assertions.</p>
 <p>When we wrote these test at the balloon shooter level, we had to assert that circles were drawn in specific locations. In this test, no drawing is involved.</p>
 <p>In order for the tests above to work, we have to write getters to expose some internal state:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    ...</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    <span class="kw">def</span> get_balloon_position(<span class="va">self</span>):</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.balloon.get_position()</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    <span class="kw">def</span> get_arrow_position(<span class="va">self</span>):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.arrow.get_position()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_balloon_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">balloon</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_arrow_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>These are only used in tests.</p>
 <p>For a long time, I was reluctant do this. Mainly because I’ve been taught that objects should not expose internals to the outside world. That is bad object oriented design.</p>
 <p>But <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#visible-behavior">James writes</a></p>
@@ -296,51 +359,86 @@
 <p>Anyway, now that we are (mostly) fine with writing getters to expose internal state, testing should be a little smoother.</p>
 <h2 id="tests-for-new-arrow-behavior">Tests for new arrow behavior</h2>
 <p>Let’s start with the initial state. We introduce the concept of flying arrows (arrows that have been shot) and check that there aren’t any in the beginning:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game = GameScene()</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_flying_arrows()</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="co">[]</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We make it work like this:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    ...</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>        ...</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>        <span class="va">self</span>.flying_arrows <span class="op">=</span> <span class="va">self</span>.add(SpriteGroup())</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>    <span class="kw">def</span> get_flying_arrows(<span class="va">self</span>):</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.flying_arrows.get_sprites()</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">get_flying_arrows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">()</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We also add the <code>get_sprites</code> getter in the <code>SpriteGroup</code> class. Again, this getter is only used in tests. This bothers me again. Not that it is only used in tests, but that this feels like bad object oriented design. Perhaps it would be cleaner it the sprite group only provided a <code>get_count</code> method? Or something more specific instead of just exposing its internal collection.</p>
 <p>But we are fine with exposing internal state for testing purposes. So we don’t think too much about it now. But let’s keep it in the back of our minds for the future.</p>
 <p>Let’s move on to shooting so that we get some flying arrows. Here is the test:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game = GameScene()</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; initial_position = game.get_arrow_position()</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.update(10)</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="co">It makes the arrow fire:</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; flying = game.get_flying_arrows()</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(flying)</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a><span class="co">1</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; flying[0].get_position() == initial_position</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true"></a><span class="co">False</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true"></a><span class="co">The initial arrow stays the same:</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_arrow_position() == initial_position</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene()</span>
+<span class="sd">&gt;&gt;&gt; initial_position = game.get_arrow_position()</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
+<span class="sd">&gt;&gt;&gt; game.update(10)</span>
+
+<span class="sd">It makes the arrow fire:</span>
+
+<span class="sd">&gt;&gt;&gt; flying = game.get_flying_arrows()</span>
+<span class="sd">&gt;&gt;&gt; len(flying)</span>
+<span class="sd">1</span>
+<span class="sd">&gt;&gt;&gt; flying[0].get_position() == initial_position</span>
+<span class="sd">False</span>
+
+<span class="sd">The initial arrow stays the same:</span>
+
+<span class="sd">&gt;&gt;&gt; game.get_arrow_position() == initial_position</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We simulate a shot by sending a space keydown event followed by an update. We assert that we now have a flying arrow and that its position is not the original position of the arrow (it has moved). Furthermore we assert that the current arrow position is the same as the initial meaning that we still have an arrow that we can shoot.</p>
 <p>The implementation: change the event handler for keydown space from this</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="va">self</span>.arrow.shoot()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>to this:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="va">self</span>.flying_arrows.add(Arrow(shooting<span class="op">=</span><span class="va">True</span>))</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Arrow</span><span class="p">(</span><span class="n">shooting</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre>
+</div>
+</div>
+</div>
 <p>So the arrow that we shoot actually stays the same and we create a new arrow instance which will be the one shot.</p>
 <p>At this point we can actually shoot multiple arrows in the game:</p>
 <center>
@@ -349,43 +447,71 @@
 <h2 id="remove-arrows-outside-screen">Remove arrows outside screen</h2>
 <p>We are almost there. But if we keep running the game for long enough, we will get an out of memory error. So we need to remove arrows that go outside the screen.</p>
 <p>We write this test:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game = GameScene(space)</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.update(10000)</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_flying_arrows()</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a><span class="co">[]</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; game = GameScene(space)</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_keydown_space())</span>
+<span class="sd">&gt;&gt;&gt; game.update(10000)</span>
+<span class="sd">&gt;&gt;&gt; game.get_flying_arrows()</span>
+<span class="sd">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>If we decrease the number in <code>update</code> the flying arrows collection will not be empty because the arrow that we shoot has not had time to fly off screen yet.</p>
 <p>We make this test pass by overriding the <code>update</code> method of the sprite group and doing the collision detection to remove flying arrows outside the screen:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">class</span> GameScene(SpriteGroup):</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>    ...</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>    <span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a>        SpriteGroup.update(<span class="va">self</span>, dt)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a>        <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.flying_arrows.get_sprites():</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>            <span class="cf">if</span> x.hits_space(<span class="va">self</span>.space):</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>                <span class="va">self</span>.flying_arrows.sprites.remove(x)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameScene</span><span class="p">(</span><span class="n">SpriteGroup</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Now the <code>get_sprites</code> method that we wrote before, for testing purposes, comes in handy. Iterating over sprites in a collection seems like a reasonable behavior. I still don’t think we should expose the internal collection. That is bad. But we could expose some kind of iterator.</p>
 <p>Oh, and to remove the sprite, we actually reach into the fields of the flying arrows group and call it’s <code>remove</code> method. Yikes. But the tests pass. Let’s commit and see if we can improve this.</p>
 <p>We come up wit this instead:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">def</span> update(<span class="va">self</span>, dt):</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>    SpriteGroup.update(<span class="va">self</span>, dt)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>    <span class="cf">for</span> arrow <span class="kw">in</span> <span class="va">self</span>.flying_arrows.get_sprites():</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>        <span class="cf">if</span> arrow.hits_space(<span class="va">self</span>.space):</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>            <span class="va">self</span>.flying_arrows.remove(arrow)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="n">SpriteGroup</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">get_sprites</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">arrow</span><span class="o">.</span><span class="n">hits_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flying_arrows</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">arrow</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p><code>x</code> is not a very meaningful name, so we call it <code>arrow</code> instead. Then we call a new <code>remove</code> method on the sprite group. No more reaching into internal fields and modifying them.</p>
 <p>The sprite group looks like this:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="kw">class</span> SpriteGroup:</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>    ...</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>    <span class="kw">def</span> get_sprites(<span class="va">self</span>):</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a>        <span class="cf">return</span> <span class="bu">list</span>(<span class="va">self</span>.sprites)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true"></a></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a>    <span class="kw">def</span> remove(<span class="va">self</span>, sprite):</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a>        <span class="va">self</span>.sprites.remove(sprite)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">SpriteGroup</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">get_sprites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sprite</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sprites</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sprite</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We ensure that <code>get_sprites</code> returns a new list so that the internal list is never exposed. This has two benefits:</p>
 <ol type="1">
 <li><p>The sprite group is in control of its own collection. No one on the outside can modify it.</p></li>

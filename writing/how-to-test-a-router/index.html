@@ -59,53 +59,74 @@
 
 <p>I’ve been practicing <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks">Testing Without Mocks</a> for a while now. It describes a way of doing overlapping, sociable testing, which include infrastructure, without having side effects occur in your tests.</p>
 <p>Recently I’ve been wondering how to test a “router” using this pattern. By router I mean an entry level function that looks at a url or command line arguments or whatever and dispatches to the relevant “controller”. Something like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> MyWebApp:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="kw">def</span> main(<span class="va">self</span>, url):</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>        <span class="cf">if</span> url.startswith(<span class="st">&quot;/home&quot;</span>):</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>            <span class="va">self</span>.home_controller.run(...)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        <span class="cf">elif</span> url.startswith(<span class="st">&quot;/about&quot;</span>):</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>            <span class="va">self</span>.about_controller.run(...)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">MyWebApp</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/home&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">home_controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/about&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">about_controller</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I <a href="https://hachyderm.io/@rickardlindberg/110379826738876668">asked</a> James if he had any examples of this, and he <a href="https://github.com/jamesshore/testing-without-mocks-complex/tree/javascript/src/www">had</a>. Let’s explore.</p>
 <h2 id="james-example">James’ example</h2>
 <p>Overly simplified, to only highlight the parts that I’m interested in, James’ example looks like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> WwwRouter:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, home_page_controller):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>        <span class="va">self</span>.home_page_controller <span class="op">=</span> home_page_controller</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>    <span class="kw">def</span> route(<span class="va">self</span>, url):</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>        <span class="cf">if</span> url <span class="op">==</span> <span class="st">&quot;/&quot;</span>:</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>            <span class="cf">return</span> <span class="va">self</span>.home_page_controller.get()</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>            <span class="cf">return</span> <span class="st">&quot;FAIL&quot;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a><span class="kw">class</span> HomePageController:</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>    <span class="kw">def</span> create():</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>        <span class="cf">return</span> HomePageController(SomeInfrastructure.create())</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>    <span class="at">@staticmethod</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>    <span class="kw">def</span> create_null():</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>        <span class="cf">return</span> HomePageController(SomeInfrastructure.create_null())</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, some_infrastructure):</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a>        <span class="va">self</span>.some_infrastructure <span class="op">=</span> some_infrastructure</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true"></a>    <span class="kw">def</span> get(<span class="va">self</span>):</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true"></a>        ...</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true"></a>        <span class="cf">return</span> <span class="st">&quot;Home Page&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">WwwRouter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home_page_controller</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home_page_controller</span> <span class="o">=</span> <span class="n">home_page_controller</span>
+
+    <span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">home_page_controller</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;FAIL&quot;</span>
+
+<span class="k">class</span> <span class="nc">HomePageController</span><span class="p">:</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HomePageController</span><span class="p">(</span><span class="n">SomeInfrastructure</span><span class="o">.</span><span class="n">create</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_null</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HomePageController</span><span class="p">(</span><span class="n">SomeInfrastructure</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">some_infrastructure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">some_infrastructure</span> <span class="o">=</span> <span class="n">some_infrastructure</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="s2">&quot;Home Page&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>The question I had was, how to test the <code>WwwRouter</code>? James does it like this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> test_routes_home_page():</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    router <span class="op">=</span> WwwRouter(HomePageController.create_null())</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    response <span class="op">=</span> router.route(<span class="st">&quot;/&quot;</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    <span class="cf">assert</span> response <span class="op">==</span> HomePageController.create_null().get()</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="kw">def</span> test_routes_errors():</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    router <span class="op">=</span> WwwRouter(HomePageController.create_null())</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    response <span class="op">=</span> router.route(<span class="st">&quot;/no-such-url&quot;</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>    <span class="cf">assert</span> response <span class="op">==</span> <span class="st">&quot;FAIL&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_routes_home_page</span><span class="p">():</span>
+    <span class="n">router</span> <span class="o">=</span> <span class="n">WwwRouter</span><span class="p">(</span><span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span> <span class="o">==</span> <span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">test_routes_errors</span><span class="p">():</span>
+    <span class="n">router</span> <span class="o">=</span> <span class="n">WwwRouter</span><span class="p">(</span><span class="n">HomePageController</span><span class="o">.</span><span class="n">create_null</span><span class="p">())</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/no-such-url&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Some characteristics of this test setup:</p>
 <ul>
 <li><p>The router takes all the controllers as dependencies.</p></li>
@@ -115,29 +136,50 @@
 <h2 id="what-if-return-value-is-missing">What if return value is missing?</h2>
 <p>How about a router or dispatcher where the controllers don’t return anything. How to we test that?</p>
 <p>Example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> CliDispatcher:</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, add_command, remove_command):</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="va">self</span>.add_command <span class="op">=</span> add_command</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>        <span class="va">self</span>.remove_command <span class="op">=</span> remove_command</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>    <span class="kw">def</span> dispatch(<span class="va">self</span>, arguments):</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>        <span class="cf">if</span> arguments[:<span class="dv">1</span>] <span class="op">==</span> [<span class="st">&quot;add&quot;</span>]:</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>            <span class="va">self</span>.add_command.run(arguments[<span class="dv">1</span>:])</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>        <span class="cf">elif</span> arguments[:<span class="dv">1</span>] <span class="op">==</span> [<span class="st">&quot;remove&quot;</span>]:</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>            <span class="va">self</span>.remove_command.run(arguments[<span class="dv">1</span>:])</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>        <span class="cf">else</span>:</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>            sys.exit(<span class="st">&quot;Unknown command.&quot;</span>)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">CliDispatcher</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span> <span class="o">=</span> <span class="n">add_command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_command</span> <span class="o">=</span> <span class="n">remove_command</span>
+
+    <span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arguments</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">arguments</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">arguments</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;remove&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Unknown command.&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We start out the same:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_add():</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    add_command <span class="op">=</span> AddCommand.create_null()</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    remove_command <span class="op">=</span> RemoveCommand.create_null()</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>    cli <span class="op">=</span> CliDispatcher(add_command, remove_command)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a>    cli.dispatch([<span class="st">&quot;add&quot;</span>, <span class="st">&quot;item name&quot;</span>])</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+</pre>
+</div>
+</div>
+</div>
 <p>But <code>dispatch</code> does not return anything, so we can’t check any return value. What to do?</p>
 <p>We want to test that the function of <code>AddCommand</code> was performed, and nothing else. We could introduce queries on commands to see if they have been run. Then we can write the asserts like this:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="cf">assert</span> add_command.get_last_arguments() <span class="op">==</span> [<span class="st">&quot;item name&quot;</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="cf">assert</span> remove_command.get_last_arguments() <span class="op">==</span> <span class="va">None</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">assert</span> <span class="n">add_command</span><span class="o">.</span><span class="n">get_last_arguments</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">remove_command</span><span class="o">.</span><span class="n">get_last_arguments</span><span class="p">()</span> <span class="o">==</span> <span class="kc">None</span>
+</pre>
+</div>
+</div>
+</div>
 <p>So we want to assert that the add command was run with the given arguments and that all the other (only one in the example) commands were not run.</p>
 <p>I think this is in the spirit of testing without mocks. Here is what it says about state-based testing:</p>
 <blockquote>
@@ -150,62 +192,83 @@
 <h2 id="events-instead">Events instead</h2>
 <p>I am not a fan of the <code>get_last_*</code> pattern. Our code could call <code>command.run(...)</code> twice, and the test would not catch the error. I prefer an events approach instead.</p>
 <p>Assuming that commands are observable and that they emit events when run (we can test that separately), the test can be written like this:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_add():</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>    events <span class="op">=</span> []</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    add_command <span class="op">=</span> AddCommand.create_null()</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>    add_command.on_event(events.append)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>    remove_command <span class="op">=</span> RemoveCommand.create_null()</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>    remove_command.on_event(events.append)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>    cli <span class="op">=</span> CliDispatcher(add_command, remove_command)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>    cli.dispatch([<span class="st">&quot;add&quot;</span>, <span class="st">&quot;item name&quot;</span>])</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>    <span class="cf">assert</span> events <span class="op">==</span> [</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;AddCommand&quot;</span>, <span class="st">&quot;arguments&quot;</span>: [<span class="st">&quot;item name&quot;</span>]},</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a>    ]</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This test ensures that exactly one command was run and that it was run only once. Exactly what we wanted to test, but now expressed with a single assert.</p>
 <h2 id="better-test-setup">Better test setup</h2>
 <p>This test setup becomes tedious to do for every command. We can extract it to a factory method:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">def</span> create_cli():</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    events <span class="op">=</span> []</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>    add_command <span class="op">=</span> AddCommand.create_null()</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>    add_command.on_event(events.append)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>    remove_command <span class="op">=</span> RemoveCommand.create_null()</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>    remove_command.on_event(events.append)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>    cli <span class="op">=</span> CliDispatcher(add_command, remove_command)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>    <span class="cf">return</span> cli, events</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_add():</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a>    cli, events <span class="op">=</span> create_cli()</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>    cli.dispatch([<span class="st">&quot;add&quot;</span>, <span class="st">&quot;item name&quot;</span>])</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a>    <span class="cf">assert</span> events <span class="op">==</span> [</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;AddCommand&quot;</span>, <span class="st">&quot;arguments&quot;</span>: [<span class="st">&quot;item name&quot;</span>]},</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>    ]</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_remove():</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a>    cli, events <span class="op">=</span> create_cli()</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a>    cli.dispatch([<span class="st">&quot;remove&quot;</span>, <span class="st">&quot;item name&quot;</span>])</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a>    <span class="cf">assert</span> events <span class="op">==</span> [</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;RemoveCommand&quot;</span>, <span class="st">&quot;arguments&quot;</span>: [<span class="st">&quot;item name&quot;</span>]},</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true"></a>    ]</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">create_cli</span><span class="p">():</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cli</span><span class="p">,</span> <span class="n">events</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="n">cli</span><span class="p">,</span> <span class="n">events</span> <span class="o">=</span> <span class="n">create_cli</span><span class="p">()</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_remove</span><span class="p">():</span>
+    <span class="n">cli</span><span class="p">,</span> <span class="n">events</span> <span class="o">=</span> <span class="n">create_cli</span><span class="p">()</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">([</span><span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">events</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;RemoveCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Or even better:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">def</span> run_in_test_mode(arguments):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>    events <span class="op">=</span> []</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    add_command <span class="op">=</span> AddCommand.create_null()</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    add_command.on_event(events.append)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    remove_command <span class="op">=</span> RemoveCommand.create_null()</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    remove_command.on_event(events.append)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    cli <span class="op">=</span> CliDispatcher(add_command, remove_command)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    cli.dispatch(arguments)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>    <span class="cf">return</span> events</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_add():</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>    <span class="cf">assert</span> run_in_test_mode([<span class="st">&quot;add&quot;</span>, <span class="st">&quot;item name&quot;</span>]) <span class="op">==</span> [</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;AddCommand&quot;</span>, <span class="st">&quot;arguments&quot;</span>: [<span class="st">&quot;item name&quot;</span>]},</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>    ]</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a><span class="kw">def</span> test_dispatches_to_remove():</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a>    <span class="cf">assert</span> run_in_test_mode([<span class="st">&quot;remove&quot;</span>, <span class="st">&quot;item name&quot;</span>]) <span class="op">==</span> [</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;RemoveCommand&quot;</span>, <span class="st">&quot;arguments&quot;</span>: [<span class="st">&quot;item name&quot;</span>]},</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a>    ]</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">run_in_test_mode</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">add_command</span> <span class="o">=</span> <span class="n">AddCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">add_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">remove_command</span> <span class="o">=</span> <span class="n">RemoveCommand</span><span class="o">.</span><span class="n">create_null</span><span class="p">()</span>
+    <span class="n">remove_command</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="n">cli</span> <span class="o">=</span> <span class="n">CliDispatcher</span><span class="p">(</span><span class="n">add_command</span><span class="p">,</span> <span class="n">remove_command</span><span class="p">)</span>
+    <span class="n">cli</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">events</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_add</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">run_in_test_mode</span><span class="p">([</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;AddCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test_dispatches_to_remove</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">run_in_test_mode</span><span class="p">([</span><span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;item name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;RemoveCommand&quot;</span><span class="p">,</span> <span class="s2">&quot;arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;item name&quot;</span><span class="p">]},</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
 <h2 id="summary">Summary</h2>
 <p>In hindsight, this seems quite obvious to me. I’m not sure what I had a hard time understanding. But the example from James helped. Thanks! And writing this blog post helped me clarify my thinking on the subject.</p>
 

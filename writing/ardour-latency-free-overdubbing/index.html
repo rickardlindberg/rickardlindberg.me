@@ -53,19 +53,17 @@
     </nav>
 
     <div class="container">
-      <h1>Latency free overdubbing in Ardour</h1>
-
+      <h1 id="latency-free-overdubbing-in-ardour">Latency free overdubbing in Ardour</h1>
 <p><em>Published on 30 September 2013.</em></p>
-
 <p>In this article I explain how to set up JACK and Ardour for latency free overdubbing.</p>
 <p>Please send feedback to <script type="text/javascript">
 <!--
 h='&#x67;&#x6d;&#x61;&#x69;&#108;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#114;&#x69;&#x63;&#108;&#x69;&#56;&#x35;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail email">'+e+'<\/'+'a'+'>');
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
 // -->
 </script><noscript>ricli85 at gmail dot com</noscript>.</p>
 <h2 id="where-is-latency-introduced">Where is latency introduced?</h2>
-<p>Let's say we have one track with a metronome click. Now we want to record a chord progression over this metronome click. :</p>
+<p>Let’s say we have one track with a metronome click. Now we want to record a chord progression over this metronome click. :</p>
 <pre><code>playback  |&gt;   &gt;   &gt;   &gt;   |&gt;   &gt;   &gt;   &gt;   |
 ----------|----------------|----------------|
 recording |                |                |
@@ -82,25 +80,25 @@ recording |                |                |
 <h3 id="setup">Setup</h3>
 <p>In order to measure the I/O latency, we need to create a loop. That way a test program can send a signal and measure the time it takes for the signal to travel through the system.</p>
 <p>I use a Zoom H4n as a USB audio interface. The first way to close the loop is with a direct patch cable:</p>
-<p><img src="../../writing/ardour-latency-free-overdubbing/direct.jpg" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/direct.jpg" alt="image" /></p>
 <p>We connect the patch cable from the headphone line out to a line in. The H4n has combo inputs that works for microphones, electric instrument, or line level sources.</p>
 <p>The second way to close the loop is with a speaker and a microphone:</p>
-<p><img src="../../writing/ardour-latency-free-overdubbing/mic.jpg" /></p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/mic.jpg" alt="image" /></p>
 <p>We connect headphones to the headphone line out and put them close to the built in microphones on the H4n.</p>
 <h3 id="process">Process</h3>
 <p>Now that we have the loop set up in hardware, this is the process to measure the I/O latency:</p>
 <ol type="1">
 <li><p><strong>Start JACK with the given settings</strong></p>
-<p>From QjackCtl, click "Setup...":</p>
-<p><img src="../../writing/ardour-latency-free-overdubbing/jack_setup.png" /></p>
+<p>From QjackCtl, click “Setup…”:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_setup.png" alt="image" /></p>
 <p>Adjust frames/period, sample rate, and periods/buffer. Make sure latency I/O are both set to 0 (default).</p>
-<p>Click "OK" to close the dialog, then click "Start".</p></li>
+<p>Click “OK” to close the dialog, then click “Start”.</p></li>
 <li><p><strong>Start jack_iodelay</strong></p>
 <p>Run the following command in the terminal:</p>
 <pre><code>jack_iodelay</code></pre></li>
 <li><p><strong>Connect</strong></p>
-<p>From QjackCtl, click "Connect":</p>
-<p><img src="../../writing/ardour-latency-free-overdubbing/jack_connect.png" /></p>
+<p>From QjackCtl, click “Connect”:</p>
+<p><img src="../../writing/ardour-latency-free-overdubbing/jack_connect.png" alt="image" /></p>
 <p>This will create the loop in software as well so that jack_iodelay can capture the signal that it sends out.</p></li>
 <li><p><strong>Observe output</strong></p>
 <p>We should see something like this:</p>
@@ -115,62 +113,62 @@ recording |                |                |
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Sample rate (kHz)</th>
-<th style="text-align: left;">Frames/Period</th>
-<th style="text-align: left;">Periods/Buffer</th>
-<th style="text-align: left;">Loop type</th>
-<th style="text-align: left;">Roundtrip latency (ms)</th>
-<th style="text-align: left;">Suggested I/O</th>
+<th>Sample rate (kHz)</th>
+<th>Frames/Period</th>
+<th>Periods/Buffer</th>
+<th>Loop type</th>
+<th>Roundtrip latency (ms)</th>
+<th>Suggested I/O</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">44.1 44.1</td>
-<td style="text-align: left;">1024 1323 (44.1*30)</td>
-<td style="text-align: left;">2 2</td>
-<td style="text-align: left;">Direct Direct</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">~1100 (increasing) ~1000 (increasing)</td>
+<td><p>44.1 44.1</p></td>
+<td><p>1024 1323 (44.1*30)</p></td>
+<td><p>2 2</p></td>
+<td><p>Direct Direct</p></td>
+<td></td>
+<td><p>~1100 (increasing) ~1000 (increasing)</p></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">48</td>
-<td style="text-align: left;">1024</td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">Direct</td>
-<td style="text-align: left;">101.5</td>
-<td style="text-align: left;">~897</td>
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Direct</td>
+<td>101.5</td>
+<td>~897</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">48</td>
-<td style="text-align: left;">1024</td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">Mic</td>
-<td style="text-align: left;">122.4</td>
-<td style="text-align: left;">~895</td>
+<td>48</td>
+<td>1024</td>
+<td>2</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~895</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">48</td>
-<td style="text-align: left;">1024</td>
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">Direct</td>
-<td style="text-align: left;">122.8</td>
-<td style="text-align: left;">~899</td>
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Direct</td>
+<td>122.8</td>
+<td>~899</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">48</td>
-<td style="text-align: left;">1024</td>
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">Mic</td>
-<td style="text-align: left;">122.4</td>
-<td style="text-align: left;">~889</td>
+<td>48</td>
+<td>1024</td>
+<td>3</td>
+<td>Mic</td>
+<td>122.4</td>
+<td>~889</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">48</td>
-<td style="text-align: left;">1056 (48*22)</td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">Direct</td>
-<td style="text-align: left;">104.4</td>
-<td style="text-align: left;">~920</td>
+<td>48</td>
+<td>1056 (48*22)</td>
+<td>2</td>
+<td>Direct</td>
+<td>104.4</td>
+<td>~920</td>
 </tr>
 </tbody>
 </table>
@@ -183,11 +181,10 @@ to get a more stable number.
 &lt;las&gt; ricli85: many USB devices work correctly *only* at 48kHz</code></pre>
 <p>Conclusion: Always use 48kHz sample rate for our USB audio interface.</p>
 <h4 id="persiosbuffer">Persios/buffer</h4>
-<p>This parameter doesn't seem to have any effect on the roundtrip latency.</p>
+<p>This parameter doesn’t seem to have any effect on the roundtrip latency.</p>
 <h4 id="direct-vs-mic">Direct vs mic</h4>
 <p>The roundtrip latency seems to be smaller when using the mic than when using the direct patch cable.</p>
 <p>This is a bit surprising to me, because when using a mic, the sound has to travel that extra distance through the air. But the delay was not significantly smaller, and during the measurements, the delay number kept going up and down (although stabalizing around some value).</p>
-
       <div class="jumbotron">
 <div class="row">
 <div class="col-md-12">

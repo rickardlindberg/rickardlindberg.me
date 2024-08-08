@@ -62,28 +62,42 @@
 <p>In the previous episode I had a feeling that everything was not alright with the tests. I poked around a bit and noticed that I could change some vital production code that would break the game without my tests noticing.</p>
 <p>Let’s have a look.</p>
 <p>The event handling in the game now looks like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    ...</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> events:</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>            <span class="cf">if</span> event.is_user_closed_window():</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>                <span class="va">self</span>.loop.quit()</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>            <span class="cf">elif</span> event.is_keydown_space():</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>                <span class="va">self</span>.arrow.shoot()</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>        ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_keydown_space</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>If we skip the check for the space key and always shoot the arrow, like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> BalloonShooter:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    ...</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="kw">def</span> tick(<span class="va">self</span>, dt, events):</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        <span class="cf">for</span> event <span class="kw">in</span> events:</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>            <span class="cf">if</span> event.is_user_closed_window():</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>                <span class="va">self</span>.loop.quit()</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>        <span class="va">self</span>.arrow.shoot()</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>        ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">BalloonShooter</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_user_closed_window</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow</span><span class="o">.</span><span class="n">shoot</span><span class="p">()</span>
+        <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Then the arrow goes off immediately when the game starts, which is obviously not correct, but all tests still pass.</p>
 <h2 id="coverage-and-expectation">Coverage and expectation</h2>
 <p>The promise of TDD and automated testing is that you can have very high test coverage. What I aspire to is to create a test suite that within seconds tells me if I broke the production code with my change. It might not be realistic, but when I find a case where I could break my production code without my tests noticing, I want to look more closely.</p>
@@ -100,32 +114,39 @@
 <p>The second test is checking that the arrow moves when we press space.</p>
 <p>But there is no test checking that the arrow stays still if we don’t press space.</p>
 <p>I think we tried to remedy that in the previous episode by adding these two “lower-level tests” to the arrow:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    <span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co">    I stay still if I've not been fired:</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow = Arrow()</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; initial_y = arrow.y</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; initial_y == arrow.y</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a><span class="co">    True</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a><span class="co">    I move upwards when fired:</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow = Arrow()</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; initial_y = arrow.y</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.shoot()</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.tick(1)</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true"></a><span class="co">    &gt;&gt;&gt; arrow.y &lt; initial_y</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true"></a><span class="co">    True</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true"></a><span class="co">    &quot;&quot;&quot;</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    I stay still if I've not been fired:</span>
+
+<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
+<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; initial_y == arrow.y</span>
+<span class="sd">    True</span>
+
+<span class="sd">    I move upwards when fired:</span>
+
+<span class="sd">    &gt;&gt;&gt; arrow = Arrow()</span>
+<span class="sd">    &gt;&gt;&gt; initial_y = arrow.y</span>
+<span class="sd">    &gt;&gt;&gt; arrow.shoot()</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; arrow.tick(1)</span>
+<span class="sd">    &gt;&gt;&gt; arrow.y &lt; initial_y</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>The problem is that the event checking logic is not in the <code>Arrow</code> class, but in the <code>BalloonShooter</code> class. So what we want to test can’t be tested at this level.</p>
 <h2 id="where-to-test">Where to test?</h2>
 <p>Writing all tests as “top-level tests” which includes all objects is not a good idea. The test setup will get complicated. The asserts will get difficult to write. The test will be slower.</p>
@@ -136,118 +157,160 @@
 <p>Let’s see if we can fix that.</p>
 <h2 id="testing-initial-state">Testing initial state</h2>
 <p>Before we had this test for the initial state:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">I draw the initial scene of the game which consists of a balloon and an</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="co">arrow and quit when the user closes the window.</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; BalloonShooter.run_in_test_mode(</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="co">...     events=[</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="co">...     ]</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="co">... )</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a><span class="co">CLEAR_SCREEN =&gt;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a><span class="co">    x: 50</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a><span class="co">    y: 50</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a><span class="co">    radius: 40</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a><span class="co">    color: 'red'</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a><span class="co">    x: 500</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a><span class="co">    y: 500</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="co">    radius: 10</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a><span class="co">    x: 500</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true"></a><span class="co">    y: 520</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true"></a><span class="co">    radius: 15</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true"></a><span class="co">DRAW_CIRCLE =&gt;</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true"></a><span class="co">    x: 500</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true"></a><span class="co">    y: 540</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true"></a><span class="co">    radius: 20</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true"></a><span class="co">    color: 'blue'</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I draw the initial scene of the game which consists of a balloon and an</span>
+<span class="sd">arrow and quit when the user closes the window.</span>
+
+<span class="sd">&gt;&gt;&gt; BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">CLEAR_SCREEN =&gt;</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 50</span>
+<span class="sd">    y: 50</span>
+<span class="sd">    radius: 40</span>
+<span class="sd">    color: 'red'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 500</span>
+<span class="sd">    radius: 10</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 520</span>
+<span class="sd">    radius: 15</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">DRAW_CIRCLE =&gt;</span>
+<span class="sd">    x: 500</span>
+<span class="sd">    y: 540</span>
+<span class="sd">    radius: 20</span>
+<span class="sd">    color: 'blue'</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This only captures the initial frame. Let’s see if we can rewrite this.</p>
 <p>We start with this:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">I am a balloon shooter game!</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co">Initial state</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="co">=============</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="co">We run the game for a few frames, then quit:</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a><span class="co">...     events=[</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a><span class="co">...     ]</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a><span class="co">... )</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">I am a balloon shooter game!</span>
+
+<span class="sd">Initial state</span>
+<span class="sd">=============</span>
+
+<span class="sd">We run the game for a few frames, then quit:</span>
+
+<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This is just the setup. We simulate that we start the game, run it for a couple of frames, then quit.</p>
 <p>What are some behaviors that we expect to see here?</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="co">The game loop is initialized and cleaned up:</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="co">GAMELOOP_INIT =&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="co">    resolution: (1280, 720)</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="co">    fps: 60</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a><span class="co">GAMELOOP_QUIT =&gt;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="co">The balloon is drawn animated:</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=40).collect(&quot;x&quot;, &quot;y&quot;)</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="co">[(50, 50), (51, 50), (52, 50)]</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="co">The arrow is drawn in a fixed position:</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="co">{(500, 500)}</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=15).collect(&quot;x&quot;, &quot;y&quot;))</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a><span class="co">{(500, 520)}</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=20).collect(&quot;x&quot;, &quot;y&quot;))</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a><span class="co">{(500, 540)}</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The game loop is initialized and cleaned up:</span>
+
+<span class="sd">&gt;&gt;&gt; events.filter(&quot;GAMELOOP_INIT&quot;, &quot;GAMELOOP_QUIT&quot;)</span>
+<span class="sd">GAMELOOP_INIT =&gt;</span>
+<span class="sd">    resolution: (1280, 720)</span>
+<span class="sd">    fps: 60</span>
+<span class="sd">GAMELOOP_QUIT =&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The balloon is drawn animated:</span>
+
+<span class="sd">&gt;&gt;&gt; events.filter(&quot;DRAW_CIRCLE&quot;, radius=40).collect(&quot;x&quot;, &quot;y&quot;)</span>
+<span class="sd">[(50, 50), (51, 50), (52, 50)]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The arrow is drawn in a fixed position:</span>
+
+<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;))</span>
+<span class="sd">{(500, 500)}</span>
+<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=15).collect(&quot;x&quot;, &quot;y&quot;))</span>
+<span class="sd">{(500, 520)}</span>
+<span class="sd">&gt;&gt;&gt; set(events.filter(&quot;DRAW_CIRCLE&quot;, radius=20).collect(&quot;x&quot;, &quot;y&quot;))</span>
+<span class="sd">{(500, 540)}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>These new cases cover all the cases in the old test, so we can remove the old. Furthermore it also checks that the arrow doesn’t move so that we no longer can do the mistake of always shooting the arrow. Success!</p>
 <h2 id="reflecting-on-new-test-setup">Reflecting on new test setup</h2>
 <p>The test for the initial state is structured by simulating a run of the game, collecting events of what happened, and then making specific assertions about those events to check different behavior.</p>
 <p>Let’s structure the rests of the test that way too:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="co">User presses space key</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="co">======================</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a><span class="co">We run the game for a few frames, press the space key, let it run for a few</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="co">frames, then quit:</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="co">...     events=[</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_keydown_space()],</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a><span class="co">...         [],</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a><span class="co">...         [GameLoop.create_event_user_closed_window()],</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a><span class="co">...     ]</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a><span class="co">... )</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a><span class="co">The arrow moves:</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">User presses space key</span>
+<span class="sd">======================</span>
+
+<span class="sd">We run the game for a few frames, press the space key, let it run for a few</span>
+<span class="sd">frames, then quit:</span>
+
+<span class="sd">&gt;&gt;&gt; events = BalloonShooter.run_in_test_mode(</span>
+<span class="sd">...     events=[</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_keydown_space()],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [],</span>
+<span class="sd">...         [GameLoop.create_event_user_closed_window()],</span>
+<span class="sd">...     ]</span>
+<span class="sd">... )</span>
+
+<span class="sd">The arrow moves:</span>
+
+<span class="sd">&gt;&gt;&gt; arrow_head_positions = events.filter(&quot;DRAW_CIRCLE&quot;, radius=10).collect(&quot;x&quot;, &quot;y&quot;)</span>
+<span class="sd">&gt;&gt;&gt; len(arrow_head_positions) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; len(set(arrow_head_positions)) &gt; 1</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>If there are more things that should happen when we press the space key, we can add asserts for it. But for now, I don’t think there is any.</p>
 <h2 id="summary">Summary</h2>
 <p>All our tests for the game are now written at the top-level. They include all the objects. And they are written close to the acceptance criteria for stories. Don’t we need lower-level tests as well?</p>

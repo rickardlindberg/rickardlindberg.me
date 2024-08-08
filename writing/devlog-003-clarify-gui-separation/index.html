@@ -61,7 +61,10 @@
 <p>In this episode I want to refactor the code to make that more clear.</p>
 <h2 id="current-state">Current state</h2>
 <p>The current layout of the Python files looks like this:</p>
-<pre class="text"><code>.
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>.
 ├── rlvideolib
 │   ├── asciicanvas.py
 │   ├── debug.py
@@ -79,16 +82,27 @@
 │   ├── __init__.py
 │   ├── jobs.py
 │   └── testing.py
-└── rlvideo.py</code></pre>
+└── rlvideo.py
+</pre>
+</div>
+</div>
+</div>
 <p>There is the “main” file <code>rlvideo.py</code> and the <code>rlvideolib</code> package.</p>
 <p>The main file is sort of the default place where new things go that don’t fit anywhere else. It currently has a mix of classes with different areas of responsibility:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> FakeGui:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="kw">class</span> GtkGui:</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">class</span> MenuItem(namedtuple(<span class="st">&quot;MenuItem&quot;</span>, <span class="st">&quot;label,action&quot;</span>)):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="kw">class</span> App:</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="kw">class</span> MltPlayer:</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="kw">class</span> Timeline:</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="kw">class</span> Scrollbar(namedtuple(<span class="st">&quot;Scrollbar&quot;</span>, <span class="st">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span>)):</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FakeGui</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">GtkGui</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">MltPlayer</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Some of these classes deal with GTK. Others with GUI code that does not depend on GTK directly.</p>
 <p>I would like to create a new <code>rlvideolib.gui</code> package that has three modules:</p>
 <ul>
@@ -98,84 +112,157 @@
 </ul>
 <h2 id="testing">Testing</h2>
 <p>I extract a new testing module like this:</p>
-<pre class="shell"><code>$ mkdir rlvideolib/gui
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ mkdir rlvideolib/gui
 $ touch rlvideolib/gui/__init__.py
-$ touch rlvideolib/gui/testing.py</code></pre>
+$ touch rlvideolib/gui/testing.py
+</pre>
+</div>
+</div>
+</div>
 <p>Then I move the <code>FakeGui</code> class to that module and also rename it to <code>TestGui</code> as I think that is a more descriptive name. I also make sure to import it from <code>rlvideo.py</code>.</p>
 <p>Let’s commit:</p>
-<pre class="shell"><code>$ ./make.py commit -m 'Extract rlvideolib.gui.testing.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Extract rlvideolib.gui.testing.'</span>
 ................................................
 ----------------------------------------------------------------------
-Ran 48 tests in 1.931s
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.931s
 
 OK
-[main 91b63c2] Extract rlvideolib.gui.testing.
- 4 files changed, 14 insertions(+), 12 deletions(-)
- create mode 100644 rlvideolib/gui/__init__.py
- create mode 100644 rlvideolib/gui/testing.py</code></pre>
+<span class="o">[</span>main 91b63c2<span class="o">]</span> Extract rlvideolib.gui.testing.
+ <span class="m">4</span> files changed, <span class="m">14</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">12</span> deletions<span class="o">(</span>-<span class="o">)</span>
+ create mode <span class="m">100644</span> rlvideolib/gui/__init__.py
+ create mode <span class="m">100644</span> rlvideolib/gui/testing.py
+</pre>
+</div>
+</div>
+</div>
 <h2 id="generic">Generic</h2>
 <p>Let’s do the same thing for generic GUI code:</p>
-<pre class="shell"><code>$ touch rlvideolib/gui/generic.py</code></pre>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ touch rlvideolib/gui/generic.py
+</pre>
+</div>
+</div>
+</div>
 <p>I move over the following classes:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">class</span> Timeline:</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="kw">class</span> Scrollbar(namedtuple(<span class="st">&quot;Scrollbar&quot;</span>, <span class="st">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span>)):</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="kw">class</span> MenuItem(namedtuple(<span class="st">&quot;MenuItem&quot;</span>, <span class="st">&quot;label,action&quot;</span>)):</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
+<span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
+</pre>
+</div>
+</div>
+</div>
 <p>If we look at the imports for the generic GUI module, we see this:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="im">from</span> collections <span class="im">import</span> namedtuple</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="im">import</span> cairo</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="im">import</span> mlt</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="im">from</span> rlvideolib.debug <span class="im">import</span> timeit</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="im">from</span> rlvideolib.domain.project <span class="im">import</span> Project</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="im">from</span> rlvideolib.graphics.rectangle <span class="im">import</span> RectangleMap</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="im">from</span> rlvideolib.graphics.rectangle <span class="im">import</span> Rectangle</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="im">from</span> rlvideolib.events <span class="im">import</span> Event</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="im">from</span> rlvideolib.domain.region <span class="im">import</span> Region</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="im">from</span> rlvideolib.gui.testing <span class="im">import</span> TestGui</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a><span class="im">from</span> rlvideolib.domain.cut <span class="im">import</span> Cut</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">cairo</span>
+<span class="kn">import</span> <span class="nn">mlt</span>
+
+<span class="kn">from</span> <span class="nn">rlvideolib.debug</span> <span class="kn">import</span> <span class="n">timeit</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.domain.project</span> <span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.graphics.rectangle</span> <span class="kn">import</span> <span class="n">RectangleMap</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.graphics.rectangle</span> <span class="kn">import</span> <span class="n">Rectangle</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.events</span> <span class="kn">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.domain.region</span> <span class="kn">import</span> <span class="n">Region</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.gui.testing</span> <span class="kn">import</span> <span class="n">TestGui</span>
+<span class="kn">from</span> <span class="nn">rlvideolib.domain.cut</span> <span class="kn">import</span> <span class="n">Cut</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We can see that it depends on Cairo. That is ok. The drawing of generic GUI components is done with Cairo. I don’t see as big a reason to abstract that compared to GTK. Cairo can also most likely be used with other GUI frameworks. The important thing here is that there is no import of GTK.</p>
 <p>Let’s commit this:</p>
-<pre class="shell"><code>$ ./make.py commit -m 'Extract timelinelib.gui.generic.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m <span class="s1">'Extract timelinelib.gui.generic.'</span>
 ................................................
 ----------------------------------------------------------------------
-Ran 48 tests in 1.937s
+Ran <span class="m">48</span> tests <span class="k">in</span> <span class="m">1</span>.937s
 
 OK
-[main e392173] Extract timelinelib.gui.generic.
- 3 files changed, 220 insertions(+), 819 deletions(-)
- rewrite rlvideo.py (64%)
- copy rlvideo.py =&gt; rlvideolib/gui/generic.py (65%)</code></pre>
+<span class="o">[</span>main e392173<span class="o">]</span> Extract timelinelib.gui.generic.
+ <span class="m">3</span> files changed, <span class="m">220</span> insertions<span class="o">(</span>+<span class="o">)</span>, <span class="m">819</span> deletions<span class="o">(</span>-<span class="o">)</span>
+ rewrite rlvideo.py <span class="o">(</span><span class="m">64</span>%<span class="o">)</span>
+ copy rlvideo.py <span class="o">=</span>&gt; rlvideolib/gui/generic.py <span class="o">(</span><span class="m">65</span>%<span class="o">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We should probably also run the application to see that I didn’t mess up anything major. I get this:</p>
-<pre class="text"><code>Traceback (most recent call last):
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>Traceback (most recent call last):
   File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 213, in &lt;module&gt;
     App().run()
   File &quot;/home/rick/rlvideo/rlvideo.py&quot;, line 156, in run
     self.timeline = Timeline(project=self.project, player=mlt_player)
-NameError: name 'Timeline' is not defined</code></pre>
+NameError: name 'Timeline' is not defined
+</pre>
+</div>
+</div>
+</div>
 <p>Woopsie.</p>
 <p>I add the missing import to <code>rlvideo.py</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="im">from</span> rlvideolib.gui.generic <span class="im">import</span> Timeline</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.gui.generic</span> <span class="kn">import</span> <span class="n">Timeline</span>
+</pre>
+</div>
+</div>
+</div>
 <p>If we want to catch this error in the test suite, we must run the whole application which incudes starting the GTK main loop.</p>
 <p>I’m thinking that we can separate the construction of the GUI from the actual main loop, something like this:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> App:</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>        <span class="va">self</span>.init()</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>        Gtk.main()</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>    ...</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="n">Gtk</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+
+    <span class="o">...</span>
+</pre>
+</div>
+</div>
+</div>
 <p>And then we can run <code>App().init()</code> in a test to make sure that construction of the GUI works.</p>
 <p>I try this, but run into all kinds of issues.</p>
 <p>I decide to leave this as is for now.</p>
 <h2 id="gui">GUI</h2>
 <p>All classes that are left in <code>rlvideo.py</code> are now related to GTK. Let’s move them to its own module, leaving only this:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="im">from</span> rlvideolib.gui.gtk <span class="im">import</span> App</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>    App().run()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">rlvideolib.gui.gtk</span> <span class="kn">import</span> <span class="n">App</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">App</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Let’s commit:</p>
-<pre class="text"><code>$ ./make.py commit -m 'Extract timelinelib.gui.gtk.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Extract timelinelib.gui.gtk.'
 ................................................
 ----------------------------------------------------------------------
 Ran 48 tests in 1.941s
@@ -184,21 +271,32 @@ OK
 [main c4702cc] Extract timelinelib.gui.gtk.
  3 files changed, 5 insertions(+), 217 deletions(-)
  rewrite rlvideo.py (99%)
- copy rlvideo.py =&gt; rlvideolib/gui/gtk.py (99%)</code></pre>
+ copy rlvideo.py =&gt; rlvideolib/gui/gtk.py (99%)
+</pre>
+</div>
+</div>
+</div>
 <h2 id="summary">Summary</h2>
 <p>The new structure looks like this:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>rlvideolib<span class="op">/</span>gui<span class="op">/</span>testing.py</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="dv">1</span>:<span class="kw">class</span> TestGui:</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>rlvideolib<span class="op">/</span>gui<span class="op">/</span>generic.py</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a><span class="dv">17</span>:<span class="kw">class</span> Timeline:</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a><span class="dv">312</span>:<span class="kw">class</span> Scrollbar(namedtuple(<span class="st">&quot;Scrollbar&quot;</span>, <span class="st">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span>)):</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a><span class="dv">400</span>:<span class="kw">class</span> MenuItem(namedtuple(<span class="st">&quot;MenuItem&quot;</span>, <span class="st">&quot;label,action&quot;</span>)):</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>rlvideolib<span class="op">/</span>gui<span class="op">/</span>gtk.py</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a><span class="dv">16</span>:<span class="kw">class</span> GtkGui:</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a><span class="dv">41</span>:<span class="kw">class</span> App:</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a><span class="dv">163</span>:<span class="kw">class</span> MltPlayer:</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">testing</span><span class="o">.</span><span class="n">py</span>
+<span class="mi">1</span><span class="p">:</span><span class="k">class</span> <span class="nc">TestGui</span><span class="p">:</span>
+
+<span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">generic</span><span class="o">.</span><span class="n">py</span>
+<span class="mi">17</span><span class="p">:</span><span class="k">class</span> <span class="nc">Timeline</span><span class="p">:</span>
+<span class="mi">312</span><span class="p">:</span><span class="k">class</span> <span class="nc">Scrollbar</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Scrollbar&quot;</span><span class="p">,</span> <span class="s2">&quot;content_length,one_length_in_pixels,ui_size,content_desired_start&quot;</span><span class="p">)):</span>
+<span class="mi">400</span><span class="p">:</span><span class="k">class</span> <span class="nc">MenuItem</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MenuItem&quot;</span><span class="p">,</span> <span class="s2">&quot;label,action&quot;</span><span class="p">)):</span>
+
+<span class="n">rlvideolib</span><span class="o">/</span><span class="n">gui</span><span class="o">/</span><span class="n">gtk</span><span class="o">.</span><span class="n">py</span>
+<span class="mi">16</span><span class="p">:</span><span class="k">class</span> <span class="nc">GtkGui</span><span class="p">:</span>
+<span class="mi">41</span><span class="p">:</span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+<span class="mi">163</span><span class="p">:</span><span class="k">class</span> <span class="nc">MltPlayer</span><span class="p">:</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I think this structure tells the reader that there is a clear separation between GTK related GUI code and generic GUI code and that this separation is intentional.</p>
 <p>The <code>MltPlayer</code> that we see in the GTK module has only very little to do with GTK. Most of it just works with an MLT producer. GTK is needed for the embedding of the video display from the MLT consumer inside a GTK window.</p>
 <p>I think part of <code>MltPlayer</code> should probably be extracted to a new class and be put in the generic GUI module or somewhere else. This refactoring to separate the different GUI modules revealed that to me. I find that is often the case. You make one refactoring to clarify something and you discover something else that is unclear.</p>

@@ -80,44 +80,65 @@
 <p>Let’s see how.</p>
 <p>We have used the <a href="https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#infrastructure-wrappers">infrastructure wrapper</a> pattern in our game. That means that every time our code interacts with the outside world, it does so via an infrastructure wrapper.</p>
 <p>Anytime we draw something on the screen, we do it via the game loop infrastructure wrapper. Here is how the arrow draws itself:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">class</span> Arrow:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    ...</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="kw">def</span> draw(<span class="va">self</span>, loop):</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        v <span class="op">=</span> Point.from_angle(<span class="va">self</span>.angle <span class="op">+</span> <span class="dv">180</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position, color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.add(v.times(<span class="dv">20</span>)), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">15</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>        loop.draw_circle(<span class="va">self</span>.position.add(v.times(<span class="dv">40</span>)), color<span class="op">=</span><span class="st">&quot;blue&quot;</span>, radius<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Arrow</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">20</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">times</span><span class="p">(</span><span class="mi">40</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p><code>draw_circle</code> above is part of the infrastructure wrapper. In code that we control. It in turn makes calls to Pygame like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>    ...</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>    <span class="kw">def</span> draw_circle(<span class="va">self</span>, position, radius<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>):</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>        ...</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>        <span class="va">self</span>.pygame.draw.circle(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>            <span class="va">self</span>.screen,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>            color,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>            (<span class="bu">int</span>(position.x), <span class="bu">int</span>(position.y)),</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>            radius</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>        )</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+            <span class="n">color</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+            <span class="n">radius</span>
+        <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>So we are actually only calling Pygame’s <code>draw_circle</code> in one place in our code.</p>
 <p>We patch it like this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">class</span> GameLoop(Observable):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    ...</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    <span class="kw">def</span> draw_circle(<span class="va">self</span>, position, radius<span class="op">=</span><span class="dv">40</span>, color<span class="op">=</span><span class="st">&quot;red&quot;</span>):</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>        ...</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        <span class="cf">if</span> position.x <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>            <span class="co"># https://github.com/pygame/pygame/issues/3778</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>            <span class="va">self</span>.pygame.draw.circle(</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>                <span class="va">self</span>.screen,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>                color,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>                (<span class="bu">int</span>(position.x), <span class="bu">int</span>(position.y)),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>                radius</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>            )</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">GameLoop</span><span class="p">(</span><span class="n">Observable</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">draw_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">):</span>
+        <span class="o">...</span>
+        <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># https://github.com/pygame/pygame/issues/3778</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">screen</span><span class="p">,</span>
+                <span class="n">color</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+                <span class="n">radius</span>
+            <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This means that circles drawn partially outside the screen to the left will not be drawn at all. Not ideal. But I very much prefer that to an annoying blue horizontal line.</p>
 <p>And when I play the game, I don’t notice circles of the arrow disappearing a little to early. They move so fast anyway.</p>
 <p>We could do something more fancy like checking for specific versions of Pygame where we know this bug exists. But this will do for now.</p>

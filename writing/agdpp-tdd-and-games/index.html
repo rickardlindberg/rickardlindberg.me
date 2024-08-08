@@ -64,13 +64,20 @@
 <p>What is hard to test with TDD? Here is an example.</p>
 <p>A <a href="../../writing/agdpp-logitech-gamepad-f310/">few episodes ago</a>, we worked on controlling the game with a gamepad. The gamepad has a little joystick (correct name?) and when we push it to the left, we want the arrow to turn left, and likewise for right. That logic works well to implement with TDD, however, that is not enough. It is also important that it “feels good” to turn the arrow. That it responds fast enough, that it turns with an appropriate speed, and so on. That part, I think, is impossible to work out with TDD since we don’t know the correct answer. The only way to get the correct answer is to experiment. Try turning with different parameters and see which ones feel better.</p>
 <p>We can still use TDD for the first part if we relax the assertions. For example, we can’t assert that the arrow is turned by a specific amount, but we can assert that it is turned more to the left than before. Here is an example of that:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.update(1)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co">True</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co">&quot;&quot;&quot;</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; initial_angle = game.get_arrow_angle()</span>
+<span class="sd">&gt;&gt;&gt; game.event(GameLoop.create_event_joystick_motion(axis=0, value=-0.5))</span>
+<span class="sd">&gt;&gt;&gt; game.update(1)</span>
+<span class="sd">&gt;&gt;&gt; game.get_arrow_angle() &lt; initial_angle</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We assert the basic functionality in the test, and then we can play the game and adjust parameters for turning until it feels good, and this test will continue to work without modification.</p>
 <h2 id="testing-in-game">Testing in-game?</h2>
 <p>What are you saying Rickard? That we can’t verify the behavior of the game with tests and that we need to play the game to make sure it works? And do this repeatedly? That sounds like a very long feedback loop. What about if we have to tweak numbers for an effect that only happens after you score 100 points? Should we play the game, score 100 points, look at the effect, tweak a parameter, and do it all over again?</p>

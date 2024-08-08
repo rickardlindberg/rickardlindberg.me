@@ -60,58 +60,96 @@
 <p>When working on the <a href="../../projects/rlvideo/">video editor</a> and writing about it, I keep talking about clips. But there is nothing called a clip in the source code. Today I will explore the idea of adding that as a concept and see what kind of functionality it will attract.</p>
 <h2 id="finishing-ffmpeg-proxy-generation">Finishing FFmpeg proxy generation</h2>
 <p>Here is the cleaned up diff from yesterday’s work on moving back to FFmpeg for proxy generation:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">@@ -70,15 +70,16 @@ class FileSource(namedtuple(&quot;FileSource&quot;, &quot;id,path,number_of_frames_at_project_f</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>         proxy_tmp_path = proxy_spec.get_tmp_path(checksum)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>         if not os.path.exists(proxy_path):</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>             proxy_spec.ensure_dir()</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="st">-            p = mlt.Profile()</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="st">-            p.from_producer(producer)</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="st">-            proxy_spec.adjust_profile(p)</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="st">-            producer = mlt.Producer(p, self.path)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="st">-            consumer = mlt.Consumer(p, &quot;avformat&quot;)</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="st">-            consumer.set(&quot;target&quot;, proxy_tmp_path)</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="st">-            proxy_spec.adjust_consumer(consumer)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="st">-            run_consumer(consumer, producer, progress)</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="st">-            self.create_producer(profile, proxy_tmp_path)</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="va">+            subprocess.check_call([</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="va">+                &quot;ffmpeg&quot;,</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a><span class="va">+                &quot;-y&quot;,</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a><span class="va">+                &quot;-i&quot;, self.path,</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="va">+                &quot;-vf&quot;, &quot;yadif,scale=960:540&quot;,</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="va">+                &quot;-q:v&quot;, &quot;3&quot;,</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a><span class="va">+                &quot;-vcodec&quot;, &quot;mjpeg&quot;,</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a><span class="va">+                &quot;-acodec&quot;, &quot;pcm_s16le&quot;,</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a><span class="va">+                proxy_tmp_path</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a><span class="va">+            ])</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a>             os.rename(proxy_tmp_path, proxy_path)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a>         return self.create_producer(profile, proxy_path)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="gu">@@ -70,15 +70,16 @@ class FileSource(namedtuple(&quot;FileSource&quot;, &quot;id,path,number_of_frames_at_project_f</span>
+         proxy_tmp_path = proxy_spec.get_tmp_path(checksum)
+         if not os.path.exists(proxy_path):
+             proxy_spec.ensure_dir()
+<span class="gd">-            p = mlt.Profile()</span>
+<span class="gd">-            p.from_producer(producer)</span>
+<span class="gd">-            proxy_spec.adjust_profile(p)</span>
+<span class="gd">-            producer = mlt.Producer(p, self.path)</span>
+<span class="gd">-            consumer = mlt.Consumer(p, &quot;avformat&quot;)</span>
+<span class="gd">-            consumer.set(&quot;target&quot;, proxy_tmp_path)</span>
+<span class="gd">-            proxy_spec.adjust_consumer(consumer)</span>
+<span class="gd">-            run_consumer(consumer, producer, progress)</span>
+<span class="gd">-            self.create_producer(profile, proxy_tmp_path)</span>
+<span class="gi">+            subprocess.check_call([</span>
+<span class="gi">+                &quot;ffmpeg&quot;,</span>
+<span class="gi">+                &quot;-y&quot;,</span>
+<span class="gi">+                &quot;-i&quot;, self.path,</span>
+<span class="gi">+                &quot;-vf&quot;, &quot;yadif,scale=960:540&quot;,</span>
+<span class="gi">+                &quot;-q:v&quot;, &quot;3&quot;,</span>
+<span class="gi">+                &quot;-vcodec&quot;, &quot;mjpeg&quot;,</span>
+<span class="gi">+                &quot;-acodec&quot;, &quot;pcm_s16le&quot;,</span>
+<span class="gi">+                proxy_tmp_path</span>
+<span class="gi">+            ])</span>
+             os.rename(proxy_tmp_path, proxy_path)
+         return self.create_producer(profile, proxy_path)
+</pre>
+</div>
+</div>
+</div>
 <p>Let’s commit that and see how we can refactor in this area.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Use FFmpeg for proxy generation.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Use FFmpeg for proxy generation.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.959s
 
 OK
 [main 078c9f2] Use FFmpeg for proxy generation.
- 1 file changed, 10 insertions(+), 9 deletions(-)</code></pre>
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <h2 id="the-start-of-clip">The start of Clip</h2>
 <p>The proxy generation code has this line:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>checksum <span class="op">=</span> md5(<span class="va">self</span>.path)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Where <code>md5</code> is a top level function.</p>
 <p>Let’s extract a <code>Clip</code> class and put the <code>md5</code> method there. My idea is that a clip represents a file on disk that we can load into a <code>FileSource</code> and display on our timeline.</p>
 <p>Here it is:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">class</span> Clip:</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, path):</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>        <span class="va">self</span>.path <span class="op">=</span> path</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="kw">def</span> md5(<span class="va">self</span>):</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        <span class="cf">return</span> subprocess.check_output([<span class="st">&quot;md5sum&quot;</span>, <span class="va">self</span>.path])[:<span class="dv">32</span>].decode(<span class="st">&quot;ascii&quot;</span>)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Clip</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s2">&quot;md5sum&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">])[:</span><span class="mi">32</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We can see again that we use an external program, <code>md5sum</code>, to calculate the md5. I think I did that because the Python module for calculating md5 did not have a convenient function for calculating the sum on large files. As I noted previously, I’m fine with this. We should probably add a test though to make sure it works with the external program.</p>
 <p>Anyway, the proxy code can now be written like this:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>checksum <span class="op">=</span> Clip(<span class="va">self</span>.path).md5()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">checksum</span> <span class="o">=</span> <span class="n">Clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Perfect! Time to commit:</p>
-<pre class="text"><code>$ ./make.py commit -m 'Extract Clip and move the md5 function to it.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Extract Clip and move the md5 function to it.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.966s
@@ -119,54 +157,96 @@ Ran 51 tests in 2.966s
 OK
 [main 6488c05] Extract Clip and move the md5 function to it.
  3 files changed, 12 insertions(+), 4 deletions(-)
- create mode 100644 rlvideolib/domain/clip.py</code></pre>
+ create mode 100644 rlvideolib/domain/clip.py
+</pre>
+</div>
+</div>
+</div>
 <h2 id="revising-mlthelpers">Revising mlthelpers</h2>
 <p>When working on proxies before, we extracted this module:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>rlvideolib.mlthelpers</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">rlvideolib</span><span class="o">.</span><span class="n">mlthelpers</span>
+</pre>
+</div>
+</div>
+</div>
 <p>First of all, its <code>run_consumer</code> function is no longer used when we generate proxies with FFmpeg. Let’s remove it.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Remove rlvideolib.mlthelpers.run_consumer since it is no longer used.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Remove rlvideolib.mlthelpers.run_consumer since it is no longer used.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.974s
 
 OK
 [main aff41ef] Remove rlvideolib.mlthelpers.run_consumer since it is no longer used.
- 2 files changed, 9 deletions(-)</code></pre>
+ 2 files changed, 9 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <p>The only thing left now is this class:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">class</span> FileInfo:</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, path):</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>        <span class="va">self</span>.path <span class="op">=</span> path</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    <span class="kw">def</span> get_number_of_frames(<span class="va">self</span>, profile):</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>        <span class="cf">return</span> mlt.Producer(profile, <span class="va">self</span>.path).get_playtime()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">FileInfo</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This looks a lot like it can be merged into our new <code>Clip</code>. Let’s see where it is used.</p>
 <p>I find an unused import of it and remove it.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Remove unused import of FileInfo.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Remove unused import of FileInfo.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.967s
 
 OK
 [main dda14cf] Remove unused import of FileInfo.
- 1 file changed, 1 deletion(-)</code></pre>
+ 1 file changed, 1 deletion(-)
+</pre>
+</div>
+</div>
+</div>
 <p>I wonder if there is a tool that can automatically remove unused imports. Then we can include it in our test runner perhaps? Along with an auto formatter?</p>
 <p>Anyway, the only other use is here:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">class</span> Transaction:</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>    ...</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>    <span class="kw">def</span> add_clip(<span class="va">self</span>, path, <span class="bu">id</span><span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a>        source <span class="op">=</span> FileSource(</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a>            <span class="bu">id</span><span class="op">=</span><span class="bu">id</span>,</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a>            path<span class="op">=</span>path,</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>            number_of_frames_at_project_fps<span class="op">=</span>FileInfo(</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a>                path</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>            ).get_number_of_frames(<span class="va">self</span>.project.profile)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a>        )</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a>        <span class="cf">return</span> <span class="va">self</span>.add_source(source, source.number_of_frames_at_project_fps)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Transaction</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">add_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">FileSource</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">number_of_frames_at_project_fps</span><span class="o">=</span><span class="n">FileInfo</span><span class="p">(</span>
+                <span class="n">path</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">number_of_frames_at_project_fps</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Here we are actually talking about adding a clip. I had forgotten about that. It would make more sense to create a <code>Clip</code> then instead of a <code>FileInfo</code>. Let’s add <code>get_number_of_frames</code> to <code>Clip</code> and then we can get rid of <code>FileInfo</code> and <code>rlvideolib.mlthelpers</code> completely.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Move get_number_of_frames to Clip.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Move get_number_of_frames to Clip.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.955s
@@ -174,161 +254,277 @@ Ran 51 tests in 2.955s
 OK
 [main c13f4cb] Move get_number_of_frames to Clip.
  4 files changed, 7 insertions(+), 14 deletions(-)
- delete mode 100644 rlvideolib/mlthelpers.py</code></pre>
+ delete mode 100644 rlvideolib/mlthelpers.py
+</pre>
+</div>
+</div>
+</div>
 <h2 id="thinking-about-number-of-frames">Thinking about number of frames</h2>
 <p>We saw in an <a href="../../writing/devlog-004-proxies-with-correct-fps/">earlier devlog</a> that the number of frames that we store is actually the number of frames at the current project FPS. I dig into the MLT source code and see that the out point seems to be calculated based on the FPS:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a>mlt_position frames = (mlt_position) lrint(format-&gt;duration * mlt_profile_fps(profile)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>                                           / AV_TIME_BASE);</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a><span class="cf">if</span> (mlt_properties_get_position(properties, <span class="st">&quot;out&quot;</span>) &lt;= <span class="dv">0</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>    mlt_properties_set_position(properties, <span class="st">&quot;out&quot;</span>, frames - <span class="dv">1</span>);</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a><span class="cf">if</span> (mlt_properties_get_position(properties, <span class="st">&quot;length&quot;</span>) &lt;= <span class="dv">0</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>    mlt_properties_set_position(properties, <span class="st">&quot;length&quot;</span>, frames);</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="n">mlt_position</span> <span class="n">frames</span> <span class="o">=</span> <span class="p">(</span><span class="n">mlt_position</span><span class="p">)</span> <span class="n">lrint</span><span class="p">(</span><span class="n">format</span><span class="o">-&gt;</span><span class="n">duration</span> <span class="o">*</span> <span class="n">mlt_profile_fps</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+                                           <span class="o">/</span> <span class="n">AV_TIME_BASE</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">mlt_properties_get_position</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="s">&quot;out&quot;</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mlt_properties_set_position</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="s">&quot;out&quot;</span><span class="p">,</span> <span class="n">frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">mlt_properties_get_position</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="s">&quot;length&quot;</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mlt_properties_set_position</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="s">&quot;length&quot;</span><span class="p">,</span> <span class="n">frames</span><span class="p">);</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I wonder if we can do the same calculation so that we don’t have to depend on MLT for <code>get_number_of_frames</code>?</p>
 <p>I’m not ready for that. Let’s rewrite</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">def</span> get_number_of_frames(<span class="va">self</span>, profile):</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>    <span class="cf">return</span> mlt.Producer(profile, <span class="va">self</span>.path).get_playtime()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">get_number_of_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>to this</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">def</span> calculate_length_at_fps(<span class="va">self</span>, mlt_profile):</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    <span class="cf">return</span> mlt.Producer(mlt_profile, <span class="va">self</span>.path).get_playtime()</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">calculate_length_at_fps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlt_profile</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">mlt_profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">get_playtime</span><span class="p">()</span>
+</pre>
+</div>
+</div>
+</div>
 <p>to clarify a bit more what it is actually doing.</p>
 <p>With this change, I think that the previous rename we did of <code>FileSource.length</code> to <code>FileSource.number_of_frames_at_project_fps</code> can be reverted. I think it makes sense to talk about a length in terms of frames. If we change the project FPS, all lengths have to be recalculated, and I think this makes sense. With the new <code>calculate_length_at_fps</code> it is still clear that this length depends on the FPS I think.</p>
 <p>Let’s commit:</p>
-<pre class="text"><code>$ ./make.py commit -m 'Rename Clip..get_number_of_frames to Clip..calculate_length_at_fps.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Rename Clip..get_number_of_frames to Clip..calculate_length_at_fps.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.457s
 
 OK
 [main 94de3c1] Rename Clip..get_number_of_frames to Clip..calculate_length_at_fps.
- 2 files changed, 3 insertions(+), 3 deletions(-)</code></pre>
-<pre class="text"><code>$ ./make.py commit -m 'Rename FileSource.number_of_frames_at_project_fps to FileSource.length.'
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+</pre>
+</div>
+</div>
+</div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Rename FileSource.number_of_frames_at_project_fps to FileSource.length.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.952s
 
 OK
 [main 5bca102] Rename FileSource.number_of_frames_at_project_fps to FileSource.length.
- 2 files changed, 12 insertions(+), 12 deletions(-)</code></pre>
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <p>Now when <code>Transaction.add_clip</code> reads like this</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="kw">def</span> add_clip(<span class="va">self</span>, path, <span class="bu">id</span><span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>    source <span class="op">=</span> FileSource(</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>        <span class="bu">id</span><span class="op">=</span><span class="bu">id</span>,</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a>        path<span class="op">=</span>path,</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>        length<span class="op">=</span>Clip(</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a>            path</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true"></a>        ).calculate_length_at_fps(mlt_profile<span class="op">=</span><span class="va">self</span>.project.profile)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a>    )</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="va">self</span>.add_source(source, source.length)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">add_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">FileSource</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">Clip</span><span class="p">(</span>
+            <span class="n">path</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">calculate_length_at_fps</span><span class="p">(</span><span class="n">mlt_profile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I don’t think we need this comment anymore:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: The length depends on the FPS of the project. Once the first</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="co"># FileSource is added to the project, the FPS of the project can not be</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a><span class="co"># changed.</span></span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="c1"># NOTE: The length depends on the FPS of the project. Once the first</span>
+<span class="c1"># FileSource is added to the project, the FPS of the project can not be</span>
+<span class="c1"># changed.</span>
+</pre>
+</div>
+</div>
+</div>
 <p>I think the code above makes it clear enough that the length depends on the FPS of the project.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Remove note about length/FPS since this is clear enough in the code now.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Remove note about length/FPS since this is clear enough in the code now.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.955s
 
 OK
 [main ab10ec9] Remove note about length/FPS since this is clear enough in the code now.
- 1 file changed, 4 deletions(-)</code></pre>
+ 1 file changed, 4 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <p>Sometimes I feel bad for changing the code back and forth. But I don’t think I should feel bad. I think it’s a good thing to always make the code express our intentions as well as possible. If that means that names change back and forth, that’s ok.</p>
 <h2 id="clip-proxies">Clip proxies</h2>
 <p>What more functionality can the clip class attract? How about proxy generation?</p>
 <p>A proxy clip is an alternative version of a clip. An alternative file on disk that represents the same thing but in a format that is easier to work with.</p>
 <p>It makes sense.</p>
 <p>Let’s extract it:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">class</span> Clip:</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>    ...</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>    <span class="kw">def</span> generate_proxy(<span class="va">self</span>, proxy_spec, progress):</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a>        <span class="co"># </span><span class="al">TODO</span><span class="co">: call progress</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a>        checksum <span class="op">=</span> <span class="va">self</span>.md5()</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a>        proxy_path <span class="op">=</span> proxy_spec.get_path(checksum)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true"></a>        proxy_tmp_path <span class="op">=</span> proxy_spec.get_tmp_path(checksum)</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true"></a>        <span class="cf">if</span> <span class="kw">not</span> os.path.exists(proxy_path):</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true"></a>            proxy_spec.ensure_dir()</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true"></a>            subprocess.check_call([</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true"></a>                <span class="st">&quot;ffmpeg&quot;</span>,</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true"></a>                <span class="st">&quot;-y&quot;</span>,</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true"></a>                <span class="st">&quot;-i&quot;</span>, <span class="va">self</span>.path,</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true"></a>                <span class="st">&quot;-vf&quot;</span>, <span class="st">&quot;yadif,scale=960:540&quot;</span>,</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true"></a>                <span class="st">&quot;-q:v&quot;</span>, <span class="st">&quot;3&quot;</span>,</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true"></a>                <span class="st">&quot;-vcodec&quot;</span>, <span class="st">&quot;mjpeg&quot;</span>,</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true"></a>                <span class="st">&quot;-acodec&quot;</span>, <span class="st">&quot;pcm_s16le&quot;</span>,</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true"></a>                proxy_tmp_path</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true"></a>            ])</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true"></a>            os.rename(proxy_tmp_path, proxy_path)</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true"></a>        <span class="cf">return</span> proxy_path</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">class</span> <span class="nc">Clip</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">generate_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+        <span class="c1"># TODO: call progress</span>
+        <span class="n">checksum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+        <span class="n">proxy_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+        <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_tmp_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+            <span class="n">proxy_spec</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">()</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+                <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="s2">&quot;yadif,scale=960:540&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-q:v&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-vcodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mjpeg&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span>
+                <span class="n">proxy_tmp_path</span>
+            <span class="p">])</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">proxy_path</span>
+</pre>
+</div>
+</div>
+</div>
 <p>And <code>FileSource.load_proxy</code> can be reduced to this:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="kw">def</span> load_proxy(<span class="va">self</span>, profile, proxy_spec, progress):</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>    <span class="cf">return</span> <span class="va">self</span>.create_producer(</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a>        profile,</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a>        Clip(<span class="va">self</span>.path).generate_proxy(proxy_spec, progress)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a>    )</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span>
+        <span class="n">profile</span><span class="p">,</span>
+        <span class="n">Clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">generate_proxy</span><span class="p">(</span><span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>This reads quite nicely I think. Let’s commit:</p>
-<pre class="text"><code>$ ./make.py commit -m 'Extract Clip.generate_proxy.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Extract Clip.generate_proxy.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.929s
 
 OK
 [main cc85022] Extract Clip.generate_proxy.
- 2 files changed, 25 insertions(+), 18 deletions(-)</code></pre>
+ 2 files changed, 25 insertions(+), 18 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <h2 id="proxy-spec-location">Proxy spec location</h2>
 <p>The <code>ProxySpec</code> class currently lives in <code>rlvideolib.domain.project</code>. I think a much better place would be <code>rlvideolib.domain.clip</code>.</p>
 <p>Let’s move it over.</p>
-<pre class="text"><code>$ ./make.py commit -m 'Move ProxySpec to rlvideolib.domain.clip.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'Move ProxySpec to rlvideolib.domain.clip.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 2.903s
 
 OK
 [main 36932f0] Move ProxySpec to rlvideolib.domain.clip.
- 2 files changed, 50 insertions(+), 49 deletions(-)</code></pre>
+ 2 files changed, 50 insertions(+), 49 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <h2 id="proxy-spec-cleanup">Proxy spec cleanup</h2>
 <p>The proxy spec has a method for setting properties on a consumer:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="kw">def</span> adjust_consumer(<span class="va">self</span>, consumer):</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a>    consumer.<span class="bu">set</span>(<span class="st">&quot;vcodec&quot;</span>, <span class="va">self</span>.vcodec)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>    consumer.<span class="bu">set</span>(<span class="st">&quot;acodec&quot;</span>, <span class="va">self</span>.acodec)</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a>    consumer.<span class="bu">set</span>(<span class="st">&quot;qscale&quot;</span>, <span class="va">self</span>.qscale)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">adjust_consumer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">consumer</span><span class="p">):</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;vcodec&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcodec</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;acodec&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">acodec</span><span class="p">)</span>
+    <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;qscale&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qscale</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Now when we use FFmpeg for proxy generation, this is no longer used.</p>
 <p>But we did hardcode some values for FFmpeg, let’s change <code>adjust_consumer</code> to <code>get_ffmpeg_arguments</code>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="kw">def</span> get_ffmpeg_arguments(<span class="va">self</span>):</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a>    <span class="cf">return</span> [</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a>        <span class="st">&quot;-vf&quot;</span>, <span class="ss">f&quot;yadif,scale=-1:</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>height<span class="sc">}</span><span class="ss">&quot;</span>,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a>        <span class="st">&quot;-q:v&quot;</span>, <span class="va">self</span>.qscale,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a>        <span class="st">&quot;-vcodec&quot;</span>, <span class="va">self</span>.vcodec,</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a>        <span class="st">&quot;-acodec&quot;</span>, <span class="va">self</span>.acodec,</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true"></a>    ]</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">get_ffmpeg_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;yadif,scale=-1:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-q:v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qscale</span><span class="p">,</span>
+        <span class="s2">&quot;-vcodec&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcodec</span><span class="p">,</span>
+        <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">acodec</span><span class="p">,</span>
+    <span class="p">]</span>
+</pre>
+</div>
+</div>
+</div>
 <p>And use it like this:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="kw">def</span> generate_proxy(<span class="va">self</span>, proxy_spec, progress):</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a>    ...</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a>    subprocess.check_call(</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a>        [</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a>            <span class="st">&quot;ffmpeg&quot;</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true"></a>            <span class="st">&quot;-y&quot;</span>,</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true"></a>            <span class="st">&quot;-i&quot;</span>, <span class="va">self</span>.path,</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true"></a>        ]</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true"></a>        <span class="op">+</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true"></a>        proxy_spec.get_ffmpeg_arguments()</span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true"></a>        <span class="op">+</span></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true"></a>        [</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true"></a>            proxy_tmp_path</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true"></a>        ]</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true"></a>    )</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">generate_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+
+    <span class="o">...</span>
+
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="o">+</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_ffmpeg_arguments</span><span class="p">()</span>
+        <span class="o">+</span>
+        <span class="p">[</span>
+            <span class="n">proxy_tmp_path</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>Commit:</p>
-<pre class="text"><code>$ ./make.py commit -m 'ProxySpec know how to generate FFmpeg arguments for conversion.'
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ./make.py commit -m 'ProxySpec know how to generate FFmpeg arguments for conversion.'
 ...................................................
 ----------------------------------------------------------------------
 Ran 51 tests in 3.412s
 
 OK
 [main 6579178] ProxySpec know how to generate FFmpeg arguments for conversion.
- 1 file changed, 20 insertions(+), 14 deletions(-)</code></pre>
+ 1 file changed, 20 insertions(+), 14 deletions(-)
+</pre>
+</div>
+</div>
+</div>
 <h2 id="summary">Summary</h2>
 <p>I am quite happy with the refactoring that we did in this session. We finally have a concept of a clip in the source code and it turned out that it attracted a bit of functionality that previously was spread across the code.</p>
 <p>The code base is now a little cleaner.</p>

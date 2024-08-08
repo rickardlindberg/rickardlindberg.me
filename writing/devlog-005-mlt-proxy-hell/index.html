@@ -60,10 +60,24 @@
 <p>I want to use the <a href="../../projects/rlvideo/">video editor</a> to edit footage that I have shot this summer. It starts out well, gives me a lot of problems, and resolves in the end.</p>
 <h2 id="a-promising-start">A promising start</h2>
 <p>To load all clips that I have, I try this command:</p>
-<pre class="text"><code>$ rlvideo a6400/* hero8/*</code></pre>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ rlvideo a6400/* hero8/*
+</pre>
+</div>
+</div>
+</div>
 <p>It takes a while to load all the clips. This is expected. When we load a clip we need to figure out its length so that we can correctly place it on the timeline. This is a one time cost when adding new clips. And I have shot many clips this summer:</p>
-<pre class="text"><code>$ ls a6400/* hero8/* | wc -l
-270</code></pre>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span>$ ls a6400/* hero8/* | wc -l
+270
+</pre>
+</div>
+</div>
+</div>
 <p>I patiently wait.</p>
 <p>After a while the GUI pops up and proxy clips start to render in the background. Meanwhile the GUI is quite snappy and we can start to make edits right away.</p>
 <p>Aside from the lack of progress bar when loading clips, the application works as intended.</p>
@@ -83,44 +97,58 @@
 <h2 id="proxies-with-ffmpeg">Proxies with FFmpeg</h2>
 <p>Here is what I’m trying right now.</p>
 <p>Instead of this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> load_proxy(<span class="va">self</span>, profile, proxy_spec, progress):</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    producer <span class="op">=</span> <span class="va">self</span>.create_producer(profile, <span class="va">self</span>.path)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>    checksum <span class="op">=</span> md5(<span class="va">self</span>.path)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    proxy_path <span class="op">=</span> proxy_spec.get_path(checksum)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    proxy_tmp_path <span class="op">=</span> proxy_spec.get_tmp_path(checksum)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(proxy_path):</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        proxy_spec.ensure_dir()</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>        p <span class="op">=</span> mlt.Profile()</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>        p.from_producer(producer)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>        proxy_spec.adjust_profile(p)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>        producer <span class="op">=</span> mlt.Producer(p, <span class="va">self</span>.path)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>        consumer <span class="op">=</span> mlt.Consumer(p, <span class="st">&quot;avformat&quot;</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>        consumer.<span class="bu">set</span>(<span class="st">&quot;target&quot;</span>, proxy_tmp_path)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>        proxy_spec.adjust_consumer(consumer)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>        run_consumer(consumer, producer, progress)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a>        <span class="va">self</span>.create_producer(profile, proxy_tmp_path)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a>        os.rename(proxy_tmp_path, proxy_path)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a>    <span class="cf">return</span> <span class="va">self</span>.create_producer(profile, proxy_path)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">proxy_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_tmp_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">from_producer</span><span class="p">(</span><span class="n">producer</span><span class="p">)</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">adjust_profile</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">producer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Producer</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">consumer</span> <span class="o">=</span> <span class="n">mlt</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s2">&quot;avformat&quot;</span><span class="p">)</span>
+        <span class="n">consumer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">proxy_tmp_path</span><span class="p">)</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">adjust_consumer</span><span class="p">(</span><span class="n">consumer</span><span class="p">)</span>
+        <span class="n">run_consumer</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">producer</span><span class="p">,</span> <span class="n">progress</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_tmp_path</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We do this:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">def</span> load_proxy(<span class="va">self</span>, profile, proxy_spec, progress):</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    producer <span class="op">=</span> <span class="va">self</span>.create_producer(profile, <span class="va">self</span>.path)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>    checksum <span class="op">=</span> md5(<span class="va">self</span>.path)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    proxy_path <span class="op">=</span> proxy_spec.get_path(checksum)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    proxy_tmp_path <span class="op">=</span> proxy_spec.get_tmp_path(checksum)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(proxy_path):</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>        proxy_spec.ensure_dir()</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>        subprocess.check_call([</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>            <span class="st">&quot;ffmpeg&quot;</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>            <span class="st">&quot;-y&quot;</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>            <span class="st">&quot;-i&quot;</span>, <span class="va">self</span>.path,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>            <span class="st">&quot;-vf&quot;</span>, <span class="st">&quot;yadif,scale=960:540&quot;</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>            <span class="st">&quot;-q:v&quot;</span>, <span class="st">&quot;3&quot;</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>            <span class="st">&quot;-vcodec&quot;</span>, <span class="st">&quot;mjpeg&quot;</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a>            <span class="st">&quot;-acodec&quot;</span>, <span class="st">&quot;pcm_s16le&quot;</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a>            proxy_tmp_path</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a>        ])</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a>        os.rename(proxy_tmp_path, proxy_path)</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a>    <span class="cf">return</span> <span class="va">self</span>.create_producer(profile, proxy_path)</span></code></pre></div>
+<div class="rliterate-code">
+<div class="rliterate-code-body">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">load_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">proxy_spec</span><span class="p">,</span> <span class="n">progress</span><span class="p">):</span>
+    <span class="n">producer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">checksum</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">proxy_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="n">proxy_tmp_path</span> <span class="o">=</span> <span class="n">proxy_spec</span><span class="o">.</span><span class="n">get_tmp_path</span><span class="p">(</span><span class="n">checksum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proxy_path</span><span class="p">):</span>
+        <span class="n">proxy_spec</span><span class="o">.</span><span class="n">ensure_dir</span><span class="p">()</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="s2">&quot;yadif,scale=960:540&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-q:v&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-vcodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mjpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span>
+            <span class="n">proxy_tmp_path</span>
+        <span class="p">])</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">proxy_tmp_path</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_producer</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">proxy_path</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+</div>
 <p>We can can let the <code>proxy_spec</code> set the FFmpeg options. The above is just an experiment to see if this works better.</p>
 <p>So far, it looks promising. It has been working for a couple of hours and the proxy clips look better than before.</p>
 <p>I’m gonna make some dinner and we’ll see the status later on.</p>
